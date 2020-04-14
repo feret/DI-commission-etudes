@@ -33,7 +33,7 @@ let get_local_repository t =
   t,"/users/absint3/feret/Nextcloud/di/direction_des_etudes"
 
 let get_distant_repository t =
-  t,"https://cloud.di.ens.fr/"
+  t,"https://cloud.di.ens.fr/di/direction_des_etudes"
 
 let get_cloudclient_option t =
   t,"-n"
