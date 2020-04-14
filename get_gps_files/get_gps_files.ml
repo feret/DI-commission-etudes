@@ -43,8 +43,19 @@ let get_student_file
   let state, output_repository =
     match output_repository with
     | None ->
-      Remanent_state.get_repository_to_dump_gps_files
-        state
+      begin
+        let state, r1 =
+          Remanent_state.get_local_repository state
+        in
+        let state, r2 =
+            Remanent_state.get_repository_to_dump_gps_files
+              state
+        in
+        match r1,r2 with
+        | "","" -> state,""
+        | "",x | x,"" -> state,x
+        | x1,x2 -> state,Printf.sprintf "%s/%s" x1 x2
+    end
     | Some rep -> state, rep
   in
   let promotion =
@@ -57,7 +68,7 @@ let get_student_file
     | None -> promotion
     | Some prefix -> prefix
   in
-  let file_name =
+  let output_file_name =
     match file_name with
     | None -> lastname^"."^firstname^".gps.csv"
     | Some file_name -> file_name
@@ -71,16 +82,16 @@ let get_student_file
       lastname
       firstname
   in
-  let file_name =
+  let output_repository =
     match output_repository with
-    | "." | "" -> file_name
-    | x -> Printf.sprintf "%s/%s%s"
-             x (match prefix with "" -> "" | s -> s^"/") file_name
+    | "." | "" -> ""
+    | x -> Printf.sprintf "%s/%s"
+             x (match prefix with "" -> "" | s -> s^"/")
   in
   match
     File_retriever.launch
       file_retriever ?user_name ?password ~options
-      url file_name
+      ~url ~output_repository ~output_file_name
   with
   | 0 -> state
   | _ ->
@@ -296,3 +307,46 @@ let get_students_list
       (state,[]) list
   in
   state, output
+
+let get_dated_repository state =
+  let state,local_rep =
+    Remanent_state.get_local_repository state
+  in
+  let state,gps_rep =
+    Remanent_state.get_repository_to_dump_gps_files state
+  in
+  let rep =
+    match local_rep,gps_rep with
+    | "","" -> ""
+    | "",x1 | x1,"" -> x1
+    | x1,x2 -> Printf.sprintf "%s/%s" x1 x2
+  in
+  let date_string_of_tm tm =
+    Printf.sprintf "%d%d%d"
+      (1900 + tm.Unix.tm_year)
+      tm.Unix.tm_mon
+      tm.Unix.tm_mday
+  in
+  let date = date_string_of_tm (Unix.gmtime (Unix.time ())) in
+  let current_dir = Sys.getcwd () in
+  let () = Sys.chdir rep in
+  let _ =
+    if Sys.file_exists date then
+      let _ = Sys.command (Printf.sprintf "rm -rf %s" date)
+      in ()
+  in
+  let _ = Sys.command (Printf.sprintf "mkdir %s" date) in
+  let _ = Sys.command "rm -rf courant" in
+  let full_output_rep, full_courant =
+    match rep with
+    | "" -> date,"courant"
+    | _ -> Printf.sprintf "%s/%s" rep date,
+            Printf.sprintf "%s/courant" rep
+  in
+  let _ =
+    Sys.command
+      (Printf.sprintf "ln -sf %s %s" full_output_rep full_courant)
+  in
+
+  let () = Sys.chdir current_dir in
+  state, full_output_rep

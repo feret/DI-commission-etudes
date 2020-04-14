@@ -24,13 +24,13 @@ let stop pos message exn state =
   state
 
 let get_cloud_synchronization_mode t =
-  t, Public_data.Auto
+  t, Public_data.Manual
 
 let get_cloudclient t =
   t, Public_data.NextCloudCmd
 
 let get_local_repository t =
-  t,"/Users/feret/Nextcloud/di/direction_des_etudes"
+  t,"/users/absint3/feret/Nextcloud/di/direction_des_etudes"
 
 let get_distant_repository t =
   t,"https://cloud.di.ens.fr/"
@@ -54,7 +54,7 @@ let get_repository_to_access_gps state =
   state, "gps"
 
 let get_repository_to_dump_gps_files state =
-  state, "."
+  state, "gps_files"
 
 let get_students_list_prefix state =
   state, "etudiants"

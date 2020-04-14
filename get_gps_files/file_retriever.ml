@@ -1,13 +1,21 @@
 let launch
     ?user_name ?password ?tool ?options
-    t url file_name
-=
+    t ~url ~output_repository ~output_file_name
+  =
+  let output =
+    if output_repository = ""
+    then output_file_name
+    else
+      Printf.sprintf "%s/%s"
+        output_repository output_file_name
+  in
   let tool =
     match tool with
     | None ->
       begin
         match t with
-        | Public_data.WGET -> "wget"
+        | Public_data.WGET ->
+          Printf.sprintf "wget -o %s" output
       end
     | Some tool -> tool
   in
@@ -28,8 +36,7 @@ let launch
   in
   let command =
     Printf.sprintf
-      "%s %s %s > %s"
+      "%s %s %s "
       tool options url
-      file_name
   in
   Sys.command command

@@ -19,3 +19,7 @@ val get_students_list:
   ?promotion:string ->
   Remanent_state.t ->
   Remanent_state.t * Public_data.student_id list
+
+val get_dated_repository:
+  Remanent_state.t ->
+  Remanent_state.t * string
