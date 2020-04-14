@@ -88,6 +88,16 @@ let get_student_file
     | x -> Printf.sprintf "%s/%s"
              x (match prefix with "" -> "" | s -> s^"/")
   in
+  let () =
+    if Sys.file_exists
+        output_repository
+    then ()
+    else
+      let _ =
+        Sys.command
+          (Printf.sprintf "mkdir %s" output_repository)
+      in () 
+  in
   match
     File_retriever.launch
       file_retriever ?user_name ?password ~options
