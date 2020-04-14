@@ -15,7 +15,7 @@ let launch
       begin
         match t with
         | Public_data.WGET ->
-          Printf.sprintf "wget -o %s" output
+          Printf.sprintf "wget -O %s" output
       end
     | Some tool -> tool
   in
