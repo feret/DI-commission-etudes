@@ -73,7 +73,7 @@ let get_student_file
     | None ->
       (if promotion = ""
       then ""
-      else promotion^".")^lastname^"."^firstname^".gps.csv"
+      else promotion^"_")^lastname^"_"^firstname^"_gps.csv"
     | Some file_name -> file_name
   in
   let url =
