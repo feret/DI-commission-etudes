@@ -1,0 +1,8 @@
+(executable
+  (name Scolarite)
+  (libraries lwt.unix sco_get_gps_files sco_remanent_state sco_cloud_interaction)
+  (public_name sco_binaries)
+(flags (:standard -w @a
+  -open Sco_get_gps_files
+  -open Sco_remanent_state
+  -open Sco_cloud_interaction)))

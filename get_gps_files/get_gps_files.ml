@@ -1,0 +1,298 @@
+let separator = Some ','
+
+let get_student_file
+    student_id
+    ?file_retriever ?command_line_options ?machine ?port ?input_repository ?output_repository ?prefix ?file_name
+    ?user_name ?password
+    state
+  =
+  let firstname = student_id.Public_data.firstname in
+  let lastname = student_id.Public_data.lastname in
+  let promotion = student_id.Public_data.promotion in
+  let state, file_retriever =
+    match file_retriever with
+    | None ->
+      Remanent_state.get_file_retriever state
+    | Some wget -> state, wget
+  in
+  let state, options =
+    match command_line_options with
+    | None ->
+      Remanent_state.get_file_retriever_options state
+    | Some options -> state, options
+  in
+  let state, machine =
+    match machine with
+    | None ->
+      Remanent_state.get_machine_to_access_gps state
+    | Some machine -> state, machine
+  in
+  let state, port =
+    match port with
+    | None ->
+      Remanent_state.get_port_to_access_gps state
+    | Some port -> state, port
+  in
+  let state, input_repository =
+    match input_repository with
+    | None ->
+      Remanent_state.get_repository_to_access_gps
+        state
+    | Some rep -> state, rep
+  in
+  let state, output_repository =
+    match output_repository with
+    | None ->
+      Remanent_state.get_repository_to_dump_gps_files
+        state
+    | Some rep -> state, rep
+  in
+  let promotion =
+    match promotion with
+    | None -> ""
+    | Some x -> x
+  in
+  let prefix =
+    match prefix with
+    | None -> promotion
+    | Some prefix -> prefix
+  in
+  let file_name =
+    match file_name with
+    | None -> lastname^"."^firstname^".gps.csv"
+    | Some file_name -> file_name
+  in
+  let url =
+    Printf.sprintf
+      "http://%s:%s/%s/gps.pl?last=%s&first=%s"
+      machine
+      port
+      input_repository
+      lastname
+      firstname
+  in
+  let file_name =
+    match output_repository with
+    | "." | "" -> file_name
+    | x -> Printf.sprintf "%s/%s%s"
+             x (match prefix with "" -> "" | s -> s^"/") file_name
+  in
+  match
+    File_retriever.launch
+      file_retriever ?user_name ?password ~options
+      url file_name
+  with
+  | 0 -> state
+  | _ ->
+    Remanent_state.warn __POS__
+      (Printf.sprintf "The extraction of the GPS file for %s %s (%s) failed" firstname lastname promotion)
+      Exit
+      state
+
+type student_id =
+  {
+    lastname: string option;
+    firstname: string option;
+    promotion: string option;
+  }
+
+let empty_student =
+  {lastname = None ; firstname = None ; promotion = None}
+
+type keywords = LastName | FirstName | Promo | Ignore
+
+let is_keyword x =
+  List.mem
+    x
+    [
+      "NOM";"Prénom";"Courriel";"Promo";"Statut";"Origine";"Département";"Contrat";"Reçu";"Pers_id"
+    ]
+
+let keyword x =
+  match x with
+  | "NOM" -> LastName
+  | "Prénom" -> FirstName
+  | "Courriel" -> Ignore
+  | "Promo" -> Promo
+  | "Statut" -> Ignore
+  | "Origine" -> Ignore
+  | "Département" -> Ignore
+  | "Contrat" -> Ignore
+  | "Reçu" -> Ignore
+  | "Pers_id" -> Ignore
+  | _ -> Ignore
+
+let get_students_from_a_file state (rep,file) output =
+  let file =
+    if rep = ""
+    then
+      file
+    else
+      Printf.sprintf "%s/%s" rep file
+  in
+  let in_channel_opt =
+    try
+      Some (open_in file)
+    with _ ->
+      let () =
+        Format.printf
+          "Cannot open file %s@ "
+          file
+      in
+      None
+  in
+  match in_channel_opt with
+  | None -> state, output
+  | Some in_channel ->
+      let in_channel =
+        Csv.of_channel ?separator in_channel
+      in
+  let csv =
+    Csv.input_all in_channel
+  in
+  let rec scan current_line remaining_lines current_keyword output current allset =
+    match current_line with
+    | [] ->
+      begin
+        match remaining_lines with
+        | [] -> output
+        | h::t ->
+          if List.length h > 1
+          && List.for_all is_keyword h
+          then
+            let h =
+              List.rev_map
+                keyword (List.rev h)
+            in
+            array_mode h t output current
+          else
+            scan
+              h t current_keyword output current allset
+      end
+    | h::t ->
+      if is_keyword h then
+        scan
+          t remaining_lines (Some (keyword h)) output current allset
+      else
+        let current,allset =
+          match current_keyword with
+          | Some Ignore | None -> current,allset
+          | Some LastName -> {current with lastname = Some h},false
+          | Some FirstName -> {current with firstname = Some h},false
+          | Some Promo -> {current with promotion = Some h},allset
+        in
+        scan
+          t remaining_lines None output current allset
+  and
+    array_mode header remaining_lines output current =
+    match remaining_lines with
+    | [] -> output
+    | h::t ->
+      if List.exists is_keyword h
+      then
+        scan
+          [] remaining_lines None output current true
+      else
+        let rec aux header data current =
+          match header,data with
+          | _, [] | [], _ -> current
+          | hk::tk, hd::td ->
+            let current =
+              match hk with
+              | Ignore -> current
+              | LastName -> {current with lastname = Some hd}
+              | FirstName -> {current with firstname = Some hd}
+              | Promo -> {current with promotion = Some hd}
+            in
+            aux tk td current
+        in
+        let current' = aux header h current in
+        array_mode header t (current'::output) current
+  in
+  state, scan [] csv None output empty_student  true
+
+let get_students_list
+    ?repository
+    ?prefix
+    ?file_name
+    ?promotion
+    state
+  =
+  let state, repository =
+    match repository, prefix with
+    | None,None ->
+      Remanent_state.get_students_list_repository state
+    | Some rep, None ->
+      let state,prefix =
+        Remanent_state.get_students_list_prefix state in
+      state, Printf.sprintf "%s/%s" rep prefix
+    | None, Some prefix ->
+      let state,rep =
+        Remanent_state.get_local_repository state in
+      state, Printf.sprintf "%s/%s" rep prefix
+    | Some rep, Some prefix ->
+      state, Printf.sprintf "%s/%s" rep prefix
+  in
+  let files_list =
+    match file_name with
+    | Some file -> [repository,file]
+    | None ->
+      let rec explore files_list rep_to_explore =
+        match rep_to_explore with
+        | [] ->
+          files_list
+        | h::t ->
+          let to_explore = Sys.readdir h in
+          let files_list, rep_to_explore =
+            Array.fold_left
+              (fun (files_list,rep_list) file_to_explore
+                ->
+                  let complete =
+                    Printf.sprintf
+                      "%s/%s" h file_to_explore
+                  in
+                  if
+                    Sys.is_directory complete
+                  then
+                    (files_list,complete::rep_list)
+                  else
+                    ((h,file_to_explore)::files_list,rep_list))
+              (files_list,t)
+              to_explore
+          in
+          explore files_list rep_to_explore
+      in
+      explore [] [repository]
+  in
+  let state, list =
+    List.fold_left
+      (fun (state, output) file ->
+         get_students_from_a_file
+           state file output)
+      (state, []) files_list
+  in
+  let p promo promo' =
+    match promo,promo' with
+      Some x, Some y when x<>y -> false
+    | (Some _ | None), (Some _ | None) -> true
+  in
+  let state, output =
+    List.fold_left
+      (fun (state, output) student ->
+         if p promotion student.promotion
+         then
+           match student.firstname, student.lastname
+           with
+           | None, _ | _, None ->
+             Remanent_state.warn_dft
+               __POS__ "" Exit output state
+           | Some firstname, Some lastname ->
+                state,{Public_data.firstname = firstname ;
+                 Public_data.lastname=lastname;
+                 Public_data.promotion= student.promotion
+                }::output
+         else
+           state, output)
+      (state,[]) list
+  in
+  state, output

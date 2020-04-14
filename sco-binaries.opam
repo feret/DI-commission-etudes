@@ -1,0 +1,21 @@
+opam-version: "2.0"
+synopsis: "Tools suite to extract files for GPS and compare with the grades that have been collected by the department"
+version: "0.1"
+maintainer: "Jérôme Feret <jerome.feret@info.ens.psl.eu>"
+authors: [
+  "Jérôme Feret"
+]
+license: "LGPL-3.0"
+dev-repo: "git+https://github.com/feret/DI-commission-etudes.git"
+
+depends : [
+  "ocaml" { >= "4.04.0" }
+  "dune"
+  "yojson" { >= "1.6.0" }
+]
+
+depopts: [
+  "labltk"
+]
+
+build: ["dune" "build" "-p" name "-j" jobs]
