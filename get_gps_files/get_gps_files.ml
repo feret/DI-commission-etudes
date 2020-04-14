@@ -70,7 +70,10 @@ let get_student_file
   in
   let output_file_name =
     match file_name with
-    | None -> lastname^"."^firstname^".gps.csv"
+    | None ->
+      (if promotion = ""
+      then ""
+      else promotion^".")^lastname^"."^firstname^".gps.csv"
     | Some file_name -> file_name
   in
   let url =
@@ -96,7 +99,7 @@ let get_student_file
       let _ =
         Sys.command
           (Printf.sprintf "mkdir %s" output_repository)
-      in () 
+      in ()
   in
   match
     File_retriever.launch
