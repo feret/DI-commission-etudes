@@ -29,11 +29,17 @@ let get_cloud_synchronization_mode t =
 let get_cloudclient t =
   t, Public_data.NextCloudCmd
 
+let get_cloud_repository t =
+  t,"/users/absint3/feret/Nextcloud"
+
 let get_local_repository t =
-  t,"/users/absint3/feret/Nextcloud/di/direction_des_etudes"
+  let t, cloud =
+    get_cloud_repository t
+  in
+  t,Printf.sprintf "%s/di/direction_des_etudes" cloud
 
 let get_distant_repository t =
-  t,"https://cloud.di.ens.fr/di/direction_des_etudes"
+  t,"https://cloud.di.ens.fr/"
 
 let get_cloudclient_option t =
   t,"-n"

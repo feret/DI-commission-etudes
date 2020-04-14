@@ -25,7 +25,7 @@ let synchronize_shared_repository
       let state, local_repository =
         match local_repository with
         | None ->
-          Remanent_state.get_local_repository state
+          Remanent_state.get_cloud_repository state
         | Some x -> state,x
       in
       let state, distant_repository =
@@ -37,7 +37,7 @@ let synchronize_shared_repository
       let cloudclient =
         match cloudclient with
         | Public_data.NextCloudCmd -> "nextcloudcmd"
-      in 
+      in
       let command =
         Format.sprintf
           "%s %s %s %s"

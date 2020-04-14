@@ -17,6 +17,7 @@ val stop:
 
 val get_cloud_synchronization_mode: t -> t * Public_data.cloud_synchronization_mode
 val get_cloudclient: t -> t * Public_data.cloud_client
+val get_cloud_repository: t -> t * string 
 val get_local_repository: t -> t * string
 val get_distant_repository: t -> t * string
 val get_cloudclient_option: t -> t * string
