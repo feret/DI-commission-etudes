@@ -97,7 +97,7 @@ let get_student_file
       in
       state, (if promotion = "" && not bool
       then ""
-      else promotion^".")^lastname^"."^firstname^"_gps.csv"
+      else promotion^"_")^lastname^"_"^firstname^".gps.csv"
     | Some file_name -> state, file_name
   in
   let state,timeout =
@@ -126,10 +126,11 @@ let get_student_file
       firstname
   in
   let output_repository =
-    match output_repository with
-    | "." | "" -> ""
-    | x -> Printf.sprintf "%s/%s"
-             x (match prefix with "" -> "" | s -> s^"/")
+    match output_repository,prefix  with
+    | ".",prefix | "",prefix -> prefix
+    | x,"" -> x
+    | x1,x2 ->
+      Printf.sprintf "%s/%s" x1 x2
   in
   let () =
     if Sys.file_exists
@@ -149,7 +150,8 @@ let get_student_file
   with
   | 0 ->
     File_retriever.check
-      ?log_file ?log_repository ~period ?timeout
+      ?log_file ?log_repository ~period ~output_repository ~output_file_name
+      ?timeout
       file_retriever state
     | _ ->
     Remanent_state.warn __POS__
@@ -379,7 +381,7 @@ let get_dated_repository state =
     | x1,x2 -> Printf.sprintf "%s/%s" x1 x2
   in
   let date_string_of_tm tm =
-    Printf.sprintf "%d%d%d"
+    Printf.sprintf "04%d02%d02%d"
       (1900 + tm.Unix.tm_year)
       tm.Unix.tm_mon
       tm.Unix.tm_mday
@@ -404,6 +406,5 @@ let get_dated_repository state =
     Sys.command
       (Printf.sprintf "ln -sf %s %s" full_output_rep full_courant)
   in
-
   let () = Sys.chdir current_dir in
   state, full_output_rep

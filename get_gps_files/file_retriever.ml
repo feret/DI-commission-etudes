@@ -67,7 +67,18 @@ let get_last_line file =
   let () = close_in source in
   last_opt
 
-let check ?log_file ?log_repository ~period ?timeout file_retriever state =
+let checkoutput output =
+  let chan = open_in output in
+  let () =
+    try
+      let _ = input_line chan in
+      Format.printf "COMPLETE @."
+    with End_of_file ->
+      Format.printf "GPS EXTRACTION FAILED"
+  in
+  close_in chan
+
+let check ?log_file ?log_repository ~output_repository ~output_file_name ~period ?timeout file_retriever state =
   let log =
     match log_repository,log_file with
     | _,None -> None
@@ -78,6 +89,13 @@ let check ?log_file ?log_repository ~period ?timeout file_retriever state =
   match log with
   | None -> state
   | Some log ->
+    let output =
+      if output_repository = ""
+      then output_file_name
+      else
+        Printf.sprintf "%s/%s"
+          output_repository output_file_name
+    in
     let rec aux total_time =
       if
         match timeout with
@@ -98,7 +116,7 @@ let check ?log_file ?log_repository ~period ?timeout file_retriever state =
             | Some line ->
               let size = String.length line in
               if size < 3 then
-                let () = Format.printf "@." in
+                let () = checkoutput output in
                 state
               else
                 let three_last =
@@ -107,10 +125,11 @@ let check ?log_file ?log_repository ~period ?timeout file_retriever state =
                 if three_last = "..."
                 then
                   let () = Format.printf "." in
+                  let () = Format.print_flush () in
                   aux (total_time + period)
                 else
-                  let () = Format.printf "COMPLETE @." in
+                  let () = checkoutput output in
                   state
           end
     in
-  aux 0
+     aux 0
