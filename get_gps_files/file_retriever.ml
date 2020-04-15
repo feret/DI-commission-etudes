@@ -37,6 +37,7 @@ let launch
     | None -> ""
     | Some opt -> opt
   in
+  let () = Format.printf "Extracting %s @." output in
   let options =
     Printf.sprintf "%s%s%s"
       options
@@ -60,7 +61,7 @@ let get_last_line file =
     try
       aux (Some (input_line source))
     with
-      End_of_file -> last_opt 
+      End_of_file -> last_opt
   in
   let last_opt = aux None in
   let () = close_in source in
@@ -83,7 +84,7 @@ let check ?log_file ?log_repository ~period ?timeout file_retriever state =
         | None -> false
         | Some timeout -> total_time > timeout
       then
-        let () = Printf.printf "TIME OUT @ " in
+        let () = Format.printf "TIME OUT @." in
         state
       else
         let () = Unix.sleep period in
@@ -97,7 +98,7 @@ let check ?log_file ?log_repository ~period ?timeout file_retriever state =
             | Some line ->
               let size = String.length line in
               if size < 3 then
-                let () = Printf.printf "@ " in
+                let () = Format.printf "@." in
                 state
               else
                 let three_last =
@@ -105,10 +106,10 @@ let check ?log_file ?log_repository ~period ?timeout file_retriever state =
                 in
                 if three_last = "..."
                 then
-                  let () = Printf.printf "." in
+                  let () = Format.printf "." in
                   aux (total_time + period)
                 else
-                  let () = Printf.printf "COMPLETE @." in
+                  let () = Format.printf "COMPLETE @." in
                   state
           end
     in
