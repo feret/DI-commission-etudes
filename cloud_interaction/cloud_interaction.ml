@@ -8,8 +8,8 @@ let synchronize_shared_repository
     Remanent_state.get_cloud_synchronization_mode
       state
   with
-  | state, Public_data.Auto -> state
-  | state, Public_data.Manual ->
+  | state, Public_data.Daemon -> state
+  | state, Public_data.CommandLine ->
     begin
       let state, cloudclient =
         match cloud_client with

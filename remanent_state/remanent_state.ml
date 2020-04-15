@@ -24,7 +24,7 @@ let stop pos message exn state =
   state
 
 let get_cloud_synchronization_mode t =
-  t, Public_data.Manual
+  t, Public_data.CommandLine
 
 let get_cloudclient t =
   t, Public_data.NextCloudCmd
@@ -50,6 +50,18 @@ let  get_file_retriever state =
 let get_file_retriever_options state =
   state, ""
 
+let get_file_retriever_log_repository state =
+  state,"/users/absint3/feret/tmp/"
+
+let get_file_retriever_log_file state =
+  state,"gps_access.log"
+
+let get_file_retriever_time_out_in_second state =
+  state,Some 300
+
+let get_file_retriever_checking_period state =
+  state, 5
+
 let get_machine_to_access_gps state =
   state,"violette.ens.fr"
 
@@ -61,6 +73,12 @@ let get_repository_to_access_gps state =
 
 let get_repository_to_dump_gps_files state =
   state, "gps_files"
+
+let get_store_gps_files_according_to_their_promotions state =
+  state, true
+
+let get_indicate_promotions_in_gps_file_names state =
+  state, true
 
 let get_students_list_prefix state =
   state, "etudiants"

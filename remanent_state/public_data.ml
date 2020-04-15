@@ -1,6 +1,6 @@
 type cloud_client = NextCloudCmd
 type file_retriever = WGET
-type cloud_synchronization_mode = Auto | Manual
+type cloud_synchronization_mode = Daemon | CommandLine
 
 type student_id =
   {

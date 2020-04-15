@@ -2,7 +2,8 @@ let separator = Some ','
 
 let get_student_file
     student_id
-    ?file_retriever ?command_line_options ?machine ?port ?input_repository ?output_repository ?prefix ?file_name
+    ?file_retriever ?command_line_options ?machine ?port ?input_repository ?output_repository ?prefix ?timeout ?checkoutperiod
+    ?file_name ?log_file ?log_repository
     ?user_name ?password
     state
   =
@@ -63,18 +64,41 @@ let get_student_file
     | None -> ""
     | Some x -> x
   in
-  let prefix =
+  let state, prefix =
     match prefix with
-    | None -> promotion
-    | Some prefix -> prefix
+    | None ->
+      let state, bool =
+        Remanent_state.get_store_gps_files_according_to_their_promotions state
+      in
+      state, if bool then promotion else ""
+    | Some prefix -> state, prefix
   in
-  let output_file_name =
+  let state, output_file_name =
     match file_name with
     | None ->
-      (if promotion = ""
+      let state,bool =
+        Remanent_state.get_indicate_promotions_in_gps_file_names state
+      in
+      state, (if promotion = "" && not bool
       then ""
       else promotion^"_")^lastname^"_"^firstname^"_gps.csv"
-    | Some file_name -> file_name
+    | Some file_name -> state, file_name
+  in
+  let state,timeout =
+    match timeout with
+    | None ->
+      Remanent_state.get_file_retriever_time_out_in_second state
+    | Some t -> state, t
+  in
+  let state, period =
+    match checkoutperiod
+    with
+    | None ->
+      Remanent_state.get_file_retriever_checking_period  state
+    | Some t -> state,t
+  in
+  let output_file_name =
+    Tools.remove_space_from_string output_file_name
   in
   let url =
     Printf.sprintf
@@ -104,10 +128,14 @@ let get_student_file
   match
     File_retriever.launch
       file_retriever ?user_name ?password ~options
-      ~url ~output_repository ~output_file_name
+      ?log_file ?log_repository 
+      ~url ~output_repository ~output_file_name ?timeout
   with
-  | 0 -> state
-  | _ ->
+  | 0 ->
+    File_retriever.check
+      ?log_file ?log_repository ~period ?timeout
+      file_retriever state
+    | _ ->
     Remanent_state.warn __POS__
       (Printf.sprintf "The extraction of the GPS file for %s %s (%s) failed" firstname lastname promotion)
       Exit

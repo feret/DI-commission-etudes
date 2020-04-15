@@ -1,6 +1,7 @@
 (library
   (name sco_get_gps_files)
-  (libraries yojson csv sco_remanent_state)
+  (libraries yojson csv sco_remanent_state sco_tools)
   (flags (:standard -w @a
     -open Sco_remanent_state
+    -open Sco_tools 
 )))
