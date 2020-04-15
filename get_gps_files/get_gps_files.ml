@@ -381,10 +381,10 @@ let get_dated_repository state =
     | x1,x2 -> Printf.sprintf "%s/%s" x1 x2
   in
   let date_string_of_tm tm =
-    Printf.sprintf "04%d02%d02%d"
-      (1900 + tm.Unix.tm_year)
-      tm.Unix.tm_mon
-      tm.Unix.tm_mday
+    Printf.sprintf "%0*d%0*d%0*d"
+      4 (1900 + tm.Unix.tm_year)
+      2 tm.Unix.tm_mon
+      2 tm.Unix.tm_mday
   in
   let date = date_string_of_tm (Unix.gmtime (Unix.time ())) in
   let current_dir = Sys.getcwd () in
