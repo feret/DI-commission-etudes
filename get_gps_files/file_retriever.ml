@@ -78,6 +78,7 @@ let check ?log_file ?log_repository ~period ?timeout file_retriever state =
         match file_retriever with
         | Public_data.WGET ->
           begin
+            let _ = Sys.command (Printf.sprintf "cp %s %s2" log log) in  
             let source = open_in log in
             let rec get_last_line last_opt =
               let () = Printf.printf "WAIT @." in
