@@ -72,9 +72,9 @@ let checkoutput output =
   let () =
     try
       let _ = input_line chan in
-      Format.printf "COMPLETE @."
+      Format.printf "@. COMPLETE @."
     with End_of_file ->
-      Format.printf "GPS EXTRACTION FAILED"
+      Format.printf "@. GPS EXTRACTION FAILED @."
   in
   close_in chan
 
