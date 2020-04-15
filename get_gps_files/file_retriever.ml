@@ -64,7 +64,7 @@ let check ?log_file ?log_repository ~period ?timeout file_retriever state =
   in
   match log with
   | None -> state
-| Some log ->
+  | Some log ->
     let rec aux total_time =
       if
         match timeout with
@@ -80,6 +80,7 @@ let check ?log_file ?log_repository ~period ?timeout file_retriever state =
           begin
             let source = open_in log in
             let rec get_last_line last_opt =
+              let () = Printf.printf "WAIT @." in
               try
                 get_last_line (Some (input_line source))
               with
