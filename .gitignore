@@ -1,0 +1,9 @@
+Scolarite
+_build/
+.merlin
+
+\#*#
+.\#*
+
+# MacOS
+.DS_Store
