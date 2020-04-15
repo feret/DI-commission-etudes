@@ -10,6 +10,22 @@ let get_student_file
   let firstname = student_id.Public_data.firstname in
   let lastname = student_id.Public_data.lastname in
   let promotion = student_id.Public_data.promotion in
+  let state, log_file =
+    match log_file with
+    | None ->
+      let state, x =
+        Remanent_state.get_file_retriever_log_file state
+      in
+      state, Some x
+    | Some x -> state,Some x
+  in
+  let state, log_repository =
+    match log_repository with
+    | None ->
+      let state, x = Remanent_state.get_file_retriever_log_repository state in
+      state, Some x
+    | Some x -> state, Some x
+  in
   let state, file_retriever =
     match file_retriever with
     | None ->
