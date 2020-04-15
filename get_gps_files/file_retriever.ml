@@ -54,6 +54,18 @@ let launch
   in
   Sys.command command
 
+let get_last_line file =
+  let source = open_in file in
+  let rec aux last_opt =
+    try
+      aux (Some (input_line source))
+    with
+      End_of_file -> last_opt 
+  in
+  let last_opt = aux None in
+  let () = close_in source in
+  last_opt
+
 let check ?log_file ?log_repository ~period ?timeout file_retriever state =
   let log =
     match log_repository,log_file with
@@ -71,31 +83,21 @@ let check ?log_file ?log_repository ~period ?timeout file_retriever state =
         | None -> false
         | Some timeout -> total_time > timeout
       then
-        let () = Printf.printf "TIME OUT @." in
+        let () = Printf.printf "TIME OUT @ " in
         state
       else
         let () = Unix.sleep period in
         match file_retriever with
         | Public_data.WGET ->
           begin
-            let _ = Sys.command (Printf.sprintf "cp %s %s2" log log) in  
-            let source = open_in log in
-            let rec get_last_line last_opt =
-              let () = Printf.printf "WAIT @." in
-              try
-                get_last_line (Some (input_line source))
-              with
-                End_of_file -> last_opt
-            in
-            let _ = close_in source in
             match
-              get_last_line None
+              get_last_line log
             with
             | None -> aux (total_time + period)
             | Some line ->
               let size = String.length line in
               if size < 3 then
-                let () = Printf.printf "COMPLETE @." in
+                let () = Printf.printf "@ " in
                 state
               else
                 let three_last =
@@ -103,7 +105,7 @@ let check ?log_file ?log_repository ~period ?timeout file_retriever state =
                 in
                 if three_last = "..."
                 then
-                  let () = Printf.printf "WAITING @." in
+                  let () = Printf.printf "." in
                   aux (total_time + period)
                 else
                   let () = Printf.printf "COMPLETE @." in
