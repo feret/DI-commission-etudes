@@ -81,7 +81,7 @@ let get_student_file
       in
       state, (if promotion = "" && not bool
       then ""
-      else promotion^"_")^lastname^"_"^firstname^"_gps.csv"
+      else promotion^".")^lastname^"."^firstname^"_gps.csv"
     | Some file_name -> state, file_name
   in
   let state,timeout =
@@ -128,7 +128,7 @@ let get_student_file
   match
     File_retriever.launch
       file_retriever ?user_name ?password ~options
-      ?log_file ?log_repository 
+      ?log_file ?log_repository
       ~url ~output_repository ~output_file_name ?timeout
   with
   | 0 ->
