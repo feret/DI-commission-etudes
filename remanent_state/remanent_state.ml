@@ -3,13 +3,17 @@ type t =
     parameters : unit ;
     error_log : unit option ;
     profiling : unit option ;
+    std_logger : Loggers.t option ;
   }
 
 let init () =
+  let std_logger =
+    Some (Loggers.open_logger_from_formatter Format.std_formatter) in
   {
     parameters = ();
     error_log = None ;
     profiling = None ;
+    std_logger ;
   }
 
 let warn_dft _pos _message _exn default state =
