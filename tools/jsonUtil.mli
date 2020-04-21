@@ -76,3 +76,23 @@ val to_map:
   (Yojson.Basic.t -> 'key) ->
   (Yojson.Basic.t -> 'value) ->
   Yojson.Basic.t -> 'map
+
+val of_option:
+  ('a -> Yojson.Basic.t) -> 'a option -> Yojson.Basic.t
+
+val to_option:
+  ?error_msg:string ->
+  (Yojson.Basic.t -> 'a) ->
+  Yojson.Basic.t -> 'a option
+
+val of_unix_label:
+  UnixLabels.error -> Yojson.Basic.t
+
+val to_unix_label:
+  Yojson.Basic.t -> UnixLabels.error
+
+val of_unix_error:
+  Unix.error -> Yojson.Basic.t
+
+val to_unix_error:
+  Yojson.Basic.t -> Unix.error
