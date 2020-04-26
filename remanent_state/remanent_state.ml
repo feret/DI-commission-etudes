@@ -40,11 +40,11 @@ let parameters =
     indicate_promotions_in_gps_file_names = true;
     file_retriever  = Public_data.WGET ;
     file_retriever_options = "" ;
-    file_retriever_log_repository = "/users/absint3/feret/tmp/" ;
+    file_retriever_log_repository = "/users/absint3/feret/tmp" ;
     file_retriever_log_file = "gps_access.log";
     file_retriever_time_out_in_seconds = Some 300;
     file_retriever_checking_period_in_seconds = 5;
-    profiling_log_file_repository = "/users/absint3/feret/tmp/";
+    profiling_log_file_repository = "/users/absint3/feret/tmp";
     profiling_log_file = "profiling.txt"
 
   }
@@ -220,6 +220,7 @@ let init () =
     let fic = open_out (Printf.sprintf "%s/%s" rep file) in
     Some
       (Loggers.open_logger_from_channel
+         ~mode:Loggers.HTML_Tabular
          fic)
   in
 
