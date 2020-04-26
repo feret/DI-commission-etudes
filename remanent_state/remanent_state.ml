@@ -18,12 +18,14 @@ type parameters =
     file_retriever_log_repository: string ;
     file_retriever_log_file: string;
     file_retriever_time_out_in_seconds: int option;
-    file_retriever_checking_period_in_seconds : int;}
+    file_retriever_checking_period_in_seconds : int;
+    profiling_log_file_repository: string ;
+    profiling_log_file: string}
 
 
 let parameters =
   {
-    safe_mode = false;
+    safe_mode = true;
     cloud_synchronization_mode = Public_data.CommandLine ;
     cloud_client = Public_data.NextCloudCmd ;
     cloud_client_options = "-n" ;
@@ -42,6 +44,9 @@ let parameters =
     file_retriever_log_file = "gps_access.log";
     file_retriever_time_out_in_seconds = Some 300;
     file_retriever_checking_period_in_seconds = 5;
+    profiling_log_file_repository = "/users/absint3/feret/tmp/";
+    profiling_log_file = "profiling.txt"
+
   }
 
 type t =
@@ -179,6 +184,7 @@ let close_event_opt step_kind_opt t =
   gen_profiler Profiling.close_event_opt step_kind_opt t
 
 let get_option parameters = parameters
+let get_option_quick parameters = parameters
 
 let get_option state =
   let state =
@@ -202,18 +208,21 @@ let init () =
     Some
       (Loggers.open_logger_from_formatter Format.std_formatter)
   in
-  let profiling_logger =
-    let fic = open_out "profiling" in
-    Some
-      (Loggers.open_logger_from_channel
-         fic)
-  in
   let error_log =
     Exception.empty_error_handler
   in
   let parameters =
-    parameters
+    get_option_quick parameters
   in
+  let rep = parameters.profiling_log_file_repository in
+  let file = parameters.profiling_log_file in
+  let profiling_logger =
+    let fic = open_out (Printf.sprintf "%s/%s" rep file) in
+    Some
+      (Loggers.open_logger_from_channel
+         fic)
+  in
+
   let prefix = "" in
   let state =
     {
