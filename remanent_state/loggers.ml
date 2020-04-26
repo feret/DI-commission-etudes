@@ -42,6 +42,7 @@ type logger =
   | Circular_buffer of string Circular_buffers.t ref
   | Infinite_buffer of string Infinite_buffers.t ref
 
+
 let breakable x =
   match
     x
@@ -57,6 +58,14 @@ type t =
     mutable current_line: token list;
   }
 
+let devnul =
+  {
+    encoding= TXT;
+    logger = DEVNUL;
+    channel_opt=None;
+    current_line=[];
+  }
+
 let get_encoding_format t = t.encoding
 
 let dummy_html_logger =
@@ -65,7 +74,7 @@ let dummy_html_logger =
     logger = DEVNUL;
     channel_opt = None;
     current_line = [];
-    }
+  }
 
 let dummy_txt_logger =
   {

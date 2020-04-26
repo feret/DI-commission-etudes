@@ -1,3 +1,8 @@
+let unsome a_opt a =
+  match a_opt with
+  | Some a -> a
+  | None -> a
+
 let remove_space_from_string s =
   let seq = String.to_seq s in
   let seq = Seq.filter (fun x -> not (x=' ')) seq in

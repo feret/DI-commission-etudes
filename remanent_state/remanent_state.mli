@@ -23,13 +23,20 @@ val stop:
 -> string -> exn  -> t
 -> t
 
+(** profiling *)
+val open_event_opt:
+  Profiling.step_kind option -> t -> t
+
+val close_event_opt: 
+  Profiling.step_kind option -> t -> t
+
 (** Interaction with Cloud client *)
 val get_cloud_synchronization_mode: t -> t * Public_data.cloud_synchronization_mode
-val get_cloudclient: t -> t * Public_data.cloud_client
+val get_cloud_client: t -> t * Public_data.cloud_client
 val get_cloud_repository: t -> t * string
 val get_local_repository: t -> t * string
 val get_distant_repository: t -> t * string
-val get_cloudclient_option: t -> t * string
+val get_cloud_client_options: t -> t * string
 
 (** http access *)
 val get_file_retriever:
@@ -38,7 +45,7 @@ val get_file_retriever_options: t -> t * string
 val get_file_retriever_log_repository: t -> t * string
 val get_file_retriever_log_file: t -> t * string
 val get_file_retriever_time_out_in_second: t -> t * int option
-val get_file_retriever_checking_period: t -> t * int 
+val get_file_retriever_checking_period: t -> t * int
 
 (** gps crawler *)
 val get_machine_to_access_gps: t -> t * string

@@ -132,15 +132,10 @@ let get_student_file
     | x1,x2 ->
       Printf.sprintf "%s/%s" x1 x2
   in
-  let () =
-    if Sys.file_exists
-        output_repository
-    then ()
-    else
-      let _ =
-        Sys.command
-          (Printf.sprintf "mkdir %s" output_repository)
-      in ()
+  let state, output_repository =
+    Safe_sys.rec_mk_when_necessary
+      __POS__
+      state output_repository
   in
   match
     File_retriever.launch
@@ -159,15 +154,48 @@ let get_student_file
       Exit
       state
 
+  let get_student_file
+      student_id
+      ?file_retriever ?command_line_options ?machine ?port ?input_repository ?output_repository ?prefix ?timeout ?checkoutperiod
+      ?file_name ?log_file ?log_repository
+      ?user_name ?password
+      state
+    =
+    let event_opt =
+      Some
+        (Profiling.Extract_gps_file
+           (student_id.Public_data.firstname,
+            student_id.Public_data.lastname))
+    in
+    let state =
+      Remanent_state.open_event_opt
+        event_opt
+        state
+    in
+    let state =
+      get_student_file
+      student_id
+      ?file_retriever ?command_line_options ?machine ?port ?input_repository ?output_repository ?prefix ?timeout ?checkoutperiod
+      ?file_name ?log_file ?log_repository
+      ?user_name ?password
+      state
+    in
+    Remanent_state.close_event_opt
+      event_opt
+      state
+
 type student_id =
   {
     lastname: string option;
     firstname: string option;
-    promotion: string option;
+    promotion: string option
   }
 
 let empty_student =
-  {lastname = None ; firstname = None ; promotion = None}
+  {
+    lastname = None ;
+    firstname = None ;
+    promotion = None}
 
 type keywords = LastName | FirstName | Promo | Ignore
 
@@ -303,36 +331,39 @@ let get_students_list
     | Some rep, Some prefix ->
       state, Printf.sprintf "%s/%s" rep prefix
   in
-  let files_list =
+  let state, files_list =
     match file_name with
-    | Some file -> [repository,file]
+    | Some file -> state, [repository,file]
     | None ->
-      let rec explore files_list rep_to_explore =
+      let rec explore state files_list rep_to_explore =
         match rep_to_explore with
         | [] ->
-          files_list
+          state, files_list
         | h::t ->
-          let to_explore = Sys.readdir h in
-          let files_list, rep_to_explore =
+          let state, to_explore = Safe_sys.readdir __POS__ state h in
+          let state, files_list, rep_to_explore =
             Array.fold_left
-              (fun (files_list,rep_list) file_to_explore
+              (fun (state,files_list,rep_list) file_to_explore
                 ->
                   let complete =
                     Printf.sprintf
                       "%s/%s" h file_to_explore
                   in
+                  let state, bool =
+                    Safe_sys.is_directory __POS__ state complete
+                  in
                   if
-                    Sys.is_directory complete
+                    bool
                   then
-                    (files_list,complete::rep_list)
+                    (state, files_list,complete::rep_list)
                   else
-                    ((h,file_to_explore)::files_list,rep_list))
-              (files_list,t)
+                    (state, (h,file_to_explore)::files_list,rep_list))
+              (state, files_list,t)
               to_explore
           in
-          explore files_list rep_to_explore
+          explore state files_list rep_to_explore
       in
-      explore [] [repository]
+      explore state [] [repository]
   in
   let state, list =
     List.fold_left
@@ -387,24 +418,28 @@ let get_dated_repository state =
       2 tm.Unix.tm_mday
   in
   let date = date_string_of_tm (Unix.gmtime (Unix.time ())) in
-  let current_dir = Sys.getcwd () in
-  let () = Sys.chdir rep in
-  let _ =
-    if Sys.file_exists date then
-      let _ = Sys.command (Printf.sprintf "rm -rf %s" date)
-      in ()
+  let state, current_dir = Safe_sys.getcwd __POS__ state in
+  let state = Safe_sys.chdir __POS__ state rep in
+  let state, f_exists =
+    Safe_sys.file_exists __POS__ state date
   in
-  let _ = Sys.command (Printf.sprintf "mkdir %s" date) in
-  let _ = Sys.command "rm -rf courant" in
+  let state =
+    if f_exists then
+      Safe_sys.command __POS__ state (Printf.sprintf "rm -rf %s" date)
+    else
+      state
+  in
+  let state = Safe_sys.command __POS__ state (Printf.sprintf "mkdir %s" date) in
+  let state = Safe_sys.command __POS__ state "rm -rf courant" in
   let full_output_rep, full_courant =
     match rep with
     | "" -> date,"courant"
     | _ -> Printf.sprintf "%s/%s" rep date,
             Printf.sprintf "%s/courant" rep
   in
-  let _ =
-    Sys.command
+  let state =
+    Safe_sys.command __POS__ state
       (Printf.sprintf "ln -sf %s %s" full_output_rep full_courant)
   in
-  let () = Sys.chdir current_dir in
+  let state = Safe_sys.chdir __POS__ state current_dir in
   state, full_output_rep

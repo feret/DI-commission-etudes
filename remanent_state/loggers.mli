@@ -14,6 +14,7 @@ module FormatMap:FormatMap
 
 type t
 
+val devnul: t
 val get_encoding_format: t -> encoding
 val fprintf: t -> ('a, Format.formatter, unit) format -> 'a
 val print_newline: t -> unit

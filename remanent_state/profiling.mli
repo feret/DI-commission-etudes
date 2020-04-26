@@ -21,7 +21,6 @@ val open_event:
   safe_mode:bool ->
   Exception_without_parameter.method_handler ->
   step_kind ->
-  (unit -> int) option ->
   log_info -> Exception_without_parameter.method_handler * log_info
 
 val close_event:
@@ -30,7 +29,6 @@ val close_event:
   safe_mode:bool ->
   Exception_without_parameter.method_handler ->
   step_kind ->
-  (unit -> int) option ->
   log_info -> Exception_without_parameter.method_handler * log_info
 
 val open_event_opt:
@@ -39,7 +37,6 @@ val open_event_opt:
   safe_mode:bool ->
   Exception_without_parameter.method_handler ->
   step_kind option ->
-  (unit -> int) option ->
   log_info -> Exception_without_parameter.method_handler * log_info
 
 
@@ -49,7 +46,6 @@ val close_event_opt:
   safe_mode:bool ->
   Exception_without_parameter.method_handler ->
   step_kind option ->
-  (unit -> int) option ->
   log_info -> Exception_without_parameter.method_handler * log_info
 
 val set_time: log_info -> log_info

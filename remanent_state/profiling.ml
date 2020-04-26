@@ -8,8 +8,6 @@ type step_kind =
 type step =
   {
     tag: step_kind;
-    size_before: int option;
-    size_after: int option;
     time_start: float;
     duration: float option;
     depth: int
@@ -58,37 +56,17 @@ let print_task logger (a,b) =
     List.iter
       (Loggers.print_cell logger) tab
   in
-  let () =
-    Loggers.print_cell logger
-      begin
-        match
-          a.size_before
-        with
-        | None -> ""
-        | Some i -> (string_of_int i)
-      end
-  in
   let _ =
     Loggers.print_cell logger
       begin
         match
-          a.size_after
+          a.duration
         with
         | None -> ""
-        | Some i -> (string_of_int i)
+        | Some time -> (string_of_float time)
       end
   in
-  let _ =
-           Loggers.print_cell logger
-             begin
-               match
-                 a.duration
-               with
-               | None -> ""
-               | Some time -> (string_of_float time)
-             end
-         in
-         ()
+  ()
 
   let close_logger logger  =
     Loggers.close_logger logger
@@ -96,26 +74,27 @@ let print_task logger (a,b) =
   let flush_logger logger =
     Loggers.flush_logger logger
 
-       type log_info =
-         {
-           global_time: float;
-           step_time: float;
-           current_task: step list;
-           next_depth: int;
-          }
+type log_info =
+  {
+    global_time: float;
+    step_time: float;
+    current_task: step list;
+    next_depth: int;
+  }
 
-       let is_dummy step_kind =
-         match
-           step_kind
-         with
-         | Dummy -> true
-         | Initialisation
-         | Cloud_synchronization
-         | Extract_gps_data_base
-         | Extract_gps_file _ -> false
+
+let is_dummy step_kind =
+  match
+    step_kind
+  with
+  | Dummy -> true
+  | Initialisation
+  | Cloud_synchronization
+  | Extract_gps_data_base
+  | Extract_gps_file _ -> false
 
 let open_event
-    logger prefix ~safe_mode error_handler step_kind f log_info =
+    logger prefix ~safe_mode error_handler step_kind log_info =
   if is_dummy step_kind
   then
     let error_handler,() =
@@ -131,11 +110,6 @@ let open_event
     let task =
       {
         tag = step_kind ;
-        size_before =
-          begin
-            match f with | None -> None | Some f -> Some (f ())
-          end ;
-        size_after = None ;
         time_start = Sys.time () ;
         duration = None ;
         depth = next_depth ;
@@ -160,7 +134,7 @@ let open_event
         current_task = current_task
     }
 
-let close_event logger prefix ~safe_mode error_handler step_kind f log_info =
+let close_event logger prefix ~safe_mode error_handler step_kind log_info =
   if is_dummy step_kind then
     let error,() =
       Exception.warn
@@ -192,17 +166,11 @@ let close_event logger prefix ~safe_mode error_handler step_kind f log_info =
           (Failure "No current tasks in close_event") log_info
       | current_task::tail when current_task.tag = step_kind ->
         begin
-          let size_after =
-            match f
-            with Some f -> Some (f ())
-               | None -> None
-          in
           let time = Sys.time () -. current_task.time_start in
           let task =
             {
               current_task
               with
-                size_after = size_after ;
                 duration = Some time
             }
           in
@@ -243,12 +211,12 @@ let close_event logger prefix ~safe_mode error_handler step_kind f log_info =
           error_handler true
            in aux log_info error_handler false
 
-let gen_opt gen logger prefix ~safe_mode error_handler step_kind f log_info =
+let gen_opt gen logger prefix ~safe_mode error_handler step_kind log_info =
   match
     step_kind
   with
   | None -> error_handler,log_info
-  | Some e -> gen logger prefix ~safe_mode error_handler e f log_info
+  | Some e -> gen logger prefix ~safe_mode error_handler e log_info
 
 let open_event_opt = gen_opt open_event
 let close_event_opt = gen_opt close_event
