@@ -23,11 +23,17 @@ val stop:
 -> string -> exn  -> t
 -> t
 
+(** log *)
+val log:
+  t -> ('a, Format.formatter, unit) format -> 'a
+val flush:
+  t -> unit
+
 (** profiling *)
 val open_event_opt:
   Profiling.step_kind option -> t -> t
 
-val close_event_opt: 
+val close_event_opt:
   Profiling.step_kind option -> t -> t
 
 (** Interaction with Cloud client *)

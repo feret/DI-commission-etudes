@@ -2,6 +2,7 @@ let launch
     ?user_name ?password ?options
     ?log_file ?log_repository ?timeout
     t ~url ~output_repository ~output_file_name
+    state
   =
   let output =
     if output_repository = ""
@@ -37,7 +38,7 @@ let launch
     | None -> ""
     | Some opt -> opt
   in
-  let () = Format.printf "Extracting %s @." output in
+  let () = Remanent_state.log state "Extracting %s @." output in
   let options =
     Printf.sprintf "%s%s%s"
       options
@@ -53,7 +54,7 @@ let launch
       "%s %s %s "
       tool options url
   in
-  Sys.command command
+  state, Sys.command command
 
 let get_last_line file =
   let source = open_in file in
@@ -67,16 +68,23 @@ let get_last_line file =
   let () = close_in source in
   last_opt
 
-let checkoutput output =
+let checkoutput output state =
   let chan = open_in output in
   let () =
     try
       let _ = input_line chan in
-      Format.printf "@. COMPLETE @."
+      Remanent_state.log state "@. COMPLETE @."
     with End_of_file ->
-      Format.printf "@. GPS EXTRACTION FAILED @."
+      let state =
+        Remanent_state.warn __POS__
+          (Format.sprintf "gps extraction failed of %s" output)
+          Exit
+          state
+      in
+      Remanent_state.log state "@. GPS EXTRACTION of %s FAILED @." output
   in
-  close_in chan
+  let () = close_in chan in
+  state
 
 let check ?log_file ?log_repository ~output_repository ~output_file_name ~period ?timeout file_retriever state =
   let log =
@@ -102,7 +110,13 @@ let check ?log_file ?log_repository ~output_repository ~output_file_name ~period
         | None -> false
         | Some timeout -> total_time > timeout
       then
-        let () = Format.printf "TIME OUT @." in
+        let state =
+          Remanent_state.warn __POS__
+            "time out"
+            Exit
+            state
+        in
+        let () = Remanent_state.log state "TIME OUT @." in
         state
       else
         let () = Unix.sleep period in
@@ -116,20 +130,18 @@ let check ?log_file ?log_repository ~output_repository ~output_file_name ~period
             | Some line ->
               let size = String.length line in
               if size < 3 then
-                let () = checkoutput output in
-                state
+                checkoutput output state
               else
                 let three_last =
                   String.sub line (size-4) 3
                 in
                 if three_last = "..."
                 then
-                  let () = Format.printf "." in
-                  let () = Format.print_flush () in
+                  let () = Remanent_state.log state "." in
+                  let () = Remanent_state.flush state in
                   aux (total_time + period)
                 else
-                  let () = checkoutput output in
-                  state
+                  checkoutput output state
           end
     in
      aux 0

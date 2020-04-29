@@ -141,14 +141,19 @@ let get_student_file
     File_retriever.launch
       file_retriever ?user_name ?password ~options
       ?log_file ?log_repository
-      ~url ~output_repository ~output_file_name ?timeout
+      ~url ~output_repository ~output_file_name ?timeout state
   with
-  | 0 ->
+  | state, 0 ->
     File_retriever.check
       ?log_file ?log_repository ~period ~output_repository ~output_file_name
       ?timeout
       file_retriever state
-    | _ ->
+  | state, _ ->
+    let () =
+      Remanent_state.log
+        state
+        "The extraction of the GPS file for %s %s (%s) failed" firstname lastname promotion
+    in
     Remanent_state.warn __POS__
       (Printf.sprintf "The extraction of the GPS file for %s %s (%s) failed" firstname lastname promotion)
       Exit
@@ -228,16 +233,21 @@ let get_students_from_a_file state (rep,file) output =
     else
       Printf.sprintf "%s/%s" rep file
   in
-  let in_channel_opt =
+  let state, in_channel_opt =
     try
-      Some (open_in file)
+      state, Some (open_in file)
     with _ ->
       let () =
         Format.printf
           "Cannot open file %s@ "
           file
       in
-      None
+      Remanent_state.warn
+        __POS__
+        (Format.sprintf "Cannot open file %s"  file)
+        Exit
+        state ,
+        None
   in
   match in_channel_opt with
   | None -> state, output
