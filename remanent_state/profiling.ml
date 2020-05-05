@@ -4,6 +4,7 @@ type step_kind =
   | Cloud_synchronization
   | Extract_gps_data_base
   | Extract_gps_file of string * string
+  | Build_keywords_automaton
 
 type step =
   {
@@ -25,6 +26,7 @@ let string_of_step_kind x =
     Printf.sprintf
       "Extract GPS file (%s %s)"
       lastname firstname
+  | Build_keywords_automaton -> "Build keywords automaton"
 
 let print_step_kind logger x =
   Loggers.print_cell logger
@@ -91,7 +93,8 @@ let is_dummy step_kind =
   | Initialisation
   | Cloud_synchronization
   | Extract_gps_data_base
-  | Extract_gps_file _ -> false
+  | Extract_gps_file _
+  | Build_keywords_automaton -> false
 
 let open_event
     logger prefix ~safe_mode error_handler step_kind log_info =

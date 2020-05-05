@@ -1,0 +1,8 @@
+(library
+  (name sco_keywords_handler)
+  (libraries yojson sco_remanent_state sco_datastructures sco_tools)
+  (flags (:standard -w @a
+  -open Sco_remanent_state
+  -open Sco_datastructures
+  -open Sco_tools
+)))

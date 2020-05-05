@@ -136,6 +136,7 @@ let get_students_list_repository t =
   let t, repository = get_students_list_prefix t in
   t, Printf.sprintf "%s/%s" main repository
 
+let get_csv_separator t = t, Some ','
 let get_logger_gen access t =
   t,
   match access t with

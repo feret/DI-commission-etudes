@@ -1,5 +1,3 @@
-let separator = Some ','
-
 let get_student_file
     student_id
     ?file_retriever ?command_line_options ?machine ?port ?input_repository ?output_repository ?prefix ?timeout ?checkoutperiod
@@ -202,123 +200,28 @@ let empty_student =
     firstname = None ;
     promotion = None}
 
-type keywords = LastName | FirstName | Promo | Ignore
-
-let is_keyword x =
-  List.mem
-    x
-    [
-      "NOM";"Prénom";"Courriel";"Promo";"Statut";"Origine";"Département";"Contrat";"Reçu";"Pers_id"
+let fun_ignore =
+  (fun state _ x -> state, x)
+let asso_list =
+  [
+    Public_data.Ignore, fun_ignore ;
+    Public_data.Courriel, fun_ignore ;
+    Public_data.Statut, fun_ignore ;
+    Public_data.Origine, fun_ignore ;
+    Public_data.Departement, fun_ignore ;
+    Public_data.Contrat, fun_ignore ;
+    Public_data.Recu, fun_ignore ;
+    Public_data.Pers_id, fun_ignore ;
+    Public_data.LastName,
+    (fun state lastname (x,_) ->
+       state, ({x with lastname},false));
+    Public_data.FirstName,
+    (fun state firstname (x,_) ->
+       state, ({x with firstname},false));
+    Public_data.Promo,
+    (fun state promotion (x,allset) ->
+        state, ({x with promotion},allset));
     ]
-
-let keyword x =
-  match x with
-  | "NOM" -> LastName
-  | "Prénom" -> FirstName
-  | "Courriel" -> Ignore
-  | "Promo" -> Promo
-  | "Statut" -> Ignore
-  | "Origine" -> Ignore
-  | "Département" -> Ignore
-  | "Contrat" -> Ignore
-  | "Reçu" -> Ignore
-  | "Pers_id" -> Ignore
-  | _ -> Ignore
-
-let get_students_from_a_file state (rep,file) output =
-  let file =
-    if rep = ""
-    then
-      file
-    else
-      Printf.sprintf "%s/%s" rep file
-  in
-  let state, in_channel_opt =
-    try
-      state, Some (open_in file)
-    with _ ->
-      let () =
-        Format.printf
-          "Cannot open file %s@ "
-          file
-      in
-      Remanent_state.warn
-        __POS__
-        (Format.sprintf "Cannot open file %s"  file)
-        Exit
-        state ,
-        None
-  in
-  match in_channel_opt with
-  | None -> state, output
-  | Some in_channel ->
-      let in_channel =
-        Csv.of_channel ?separator in_channel
-      in
-  let csv =
-    Csv.input_all in_channel
-  in
-  let rec scan current_line remaining_lines current_keyword output current allset =
-    match current_line with
-    | [] ->
-      begin
-        match remaining_lines with
-        | [] -> output
-        | h::t ->
-          if List.length h > 1
-          && List.for_all is_keyword h
-          then
-            let h =
-              List.rev_map
-                keyword (List.rev h)
-            in
-            array_mode h t output current
-          else
-            scan
-              h t current_keyword output current allset
-      end
-    | h::t ->
-      if is_keyword h then
-        scan
-          t remaining_lines (Some (keyword h)) output current allset
-      else
-        let current,allset =
-          match current_keyword with
-          | Some Ignore | None -> current,allset
-          | Some LastName -> {current with lastname = Some h},false
-          | Some FirstName -> {current with firstname = Some h},false
-          | Some Promo -> {current with promotion = Some h},allset
-        in
-        scan
-          t remaining_lines None output current allset
-  and
-    array_mode header remaining_lines output current =
-    match remaining_lines with
-    | [] -> output
-    | h::t ->
-      if List.exists is_keyword h
-      then
-        scan
-          [] remaining_lines None output current true
-      else
-        let rec aux header data current =
-          match header,data with
-          | _, [] | [], _ -> current
-          | hk::tk, hd::td ->
-            let current =
-              match hk with
-              | Ignore -> current
-              | LastName -> {current with lastname = Some hd}
-              | FirstName -> {current with firstname = Some hd}
-              | Promo -> {current with promotion = Some hd}
-            in
-            aux tk td current
-        in
-        let current' = aux header h current in
-        array_mode header t (current'::output) current
-  in
-  state, scan [] csv None output empty_student  true
-
 let get_students_list
     ?repository
     ?prefix
@@ -326,6 +229,29 @@ let get_students_list
     ?promotion
     state
   =
+  let event_opt = Some (Profiling.Extract_gps_data_base) in
+  let state =
+    Remanent_state.open_event_opt
+      event_opt
+      state
+  in
+  let state, is_keyword, translate, action  =
+    Keywords_handler.make
+      state
+      asso_list
+  in
+  let after_array_line
+      _header state current_file current_file' _allset output =
+    state, current_file, true, current_file'::output
+  in
+  let after_array _header (state:Remanent_state.t) current_file allset output =
+    state, current_file, allset, output in
+  let at_end_of_file state current_file allset output =
+    if allset then
+      state, output
+    else
+      state, current_file::output
+  in
   let state, repository =
     match repository, prefix with
     | None,None ->
@@ -377,15 +303,18 @@ let get_students_list
   in
   let state, list =
     List.fold_left
-      (fun (state, output) file ->
-         get_students_from_a_file
+      (fun (state, output) (file:string*string) ->
+         Scan_csv_files.get_list_from_a_file
+           is_keyword action translate
+           after_array_line after_array at_end_of_file
+           empty_student
            state file output)
       (state, []) files_list
   in
   let p promo promo' =
     match promo,promo' with
-      Some x, Some y when x<>y -> false
-    | (Some _ | None), (Some _ | None) -> true
+      Some x, Some y  -> x=y
+    | None, _ | _, None -> true
   in
   let state, output =
     List.fold_left
@@ -398,13 +327,18 @@ let get_students_list
              Remanent_state.warn_dft
                __POS__ "" Exit output state
            | Some firstname, Some lastname ->
-                state,{Public_data.firstname = firstname ;
-                 Public_data.lastname=lastname;
-                 Public_data.promotion= student.promotion
-                }::output
+             state,{Public_data.firstname = firstname ;
+                    Public_data.lastname=lastname;
+                    Public_data.promotion= student.promotion
+                   }::output
          else
            state, output)
       (state,[]) list
+  in
+  let state =
+    Remanent_state.close_event_opt
+      event_opt
+      state
   in
   state, output
 
@@ -424,7 +358,7 @@ let get_dated_repository state =
   let date_string_of_tm tm =
     Printf.sprintf "%0*d%0*d%0*d"
       4 (1900 + tm.Unix.tm_year)
-      2 tm.Unix.tm_mon
+      2 (1 + tm.Unix.tm_mon)
       2 tm.Unix.tm_mday
   in
   let date = date_string_of_tm (Unix.gmtime (Unix.time ())) in

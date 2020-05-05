@@ -8,3 +8,16 @@ type student_id =
     lastname: string;
     promotion: string option;
   }
+
+type keywords =
+  | LastName
+  | FirstName
+  | Courriel
+  | Statut
+  | Promo
+  | Origine
+  | Departement
+  | Contrat
+  | Recu
+  | Pers_id
+  | Ignore 

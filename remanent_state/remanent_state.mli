@@ -61,6 +61,9 @@ val get_repository_to_dump_gps_files: t -> t * string
 val get_store_gps_files_according_to_their_promotions: t -> t * bool
 val get_indicate_promotions_in_gps_file_names: t -> t * bool
 
+(** CSV *)
+val get_csv_separator: t -> t * char option 
+
 (** list of students *)
 val get_students_list_prefix: t -> t * string
 val get_students_list_repository: t -> t * string
