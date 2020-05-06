@@ -37,6 +37,8 @@ let rec_mk_when_necessary pos state output_repository =
   let rec aux state last list output =
     match list with
     | [] -> state, output
+    | h::t when h = last+1 && h=0 ->
+      aux state h t "/"
     | h::t when h = last+1 ->
       aux state h t  output
     | h::t ->
