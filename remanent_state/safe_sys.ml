@@ -37,14 +37,12 @@ let rec_mk_when_necessary pos state output_repository =
   let rec aux state last list output =
     match list with
     | [] -> state, output
-    | h::t when h = last+1 && h=0 ->
-      aux state h t "/"
     | h::t when h = last+1 ->
       aux state h t  output
     | h::t ->
       let sub = String.sub output_repository (last+1) (h-last-1) in
       let new_repository =
-        if output = ""
+        if last = -1 
         then sub
         else output^"/"^sub
       in
