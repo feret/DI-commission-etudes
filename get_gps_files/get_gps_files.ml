@@ -146,11 +146,11 @@ let get_student_file
       ?log_file ?log_repository ~period ~output_repository ~output_file_name
       ?timeout
       file_retriever state
-  | state, _ ->
+  | state, i ->
     let () =
       Remanent_state.log
         state
-        "The extraction of the GPS file for %s %s (%s) failed" firstname lastname promotion
+        "The extraction of the GPS file for %s %s (%s) failed with error %i" firstname lastname promotion i 
     in
     Remanent_state.warn __POS__
       (Printf.sprintf "The extraction of the GPS file for %s %s (%s) failed" firstname lastname promotion)
@@ -177,11 +177,12 @@ let get_student_file
     in
     let state =
       get_student_file
-      student_id
-      ?file_retriever ?command_line_options ?machine ?port ?input_repository ?output_repository ?prefix ?timeout ?checkoutperiod
-      ?file_name ?log_file ?log_repository
-      ?user_name ?password
-      state
+        student_id
+        ?file_retriever ?command_line_options ?machine ?port ?input_repository
+        ?output_repository ?prefix ?timeout ?checkoutperiod
+        ?file_name ?log_file ?log_repository
+        ?user_name ?password
+        state
     in
     Remanent_state.close_event_opt
       event_opt
@@ -264,7 +265,7 @@ let get_students_list
   let state, list =
     Scan_csv_files.get_list
       ~keywords_of_interest ~asso_list ~keywords_list
-      ~fun_default:fun_ignore 
+      ~fun_default:fun_ignore
       ~at_end_of_array_line ~at_end_of_array ~at_end_of_file ~flush
       ~init_state:empty_student
       state
