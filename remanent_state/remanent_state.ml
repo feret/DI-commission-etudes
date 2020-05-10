@@ -20,7 +20,9 @@ type parameters =
     file_retriever_time_out_in_seconds: int option;
     file_retriever_checking_period_in_seconds : int;
     profiling_log_file_repository: string ;
-    profiling_log_file: string}
+    profiling_log_file: string;
+    date: string}
+
 
 
 let parameters =
@@ -45,8 +47,8 @@ let parameters =
     file_retriever_time_out_in_seconds = Some 300;
     file_retriever_checking_period_in_seconds = 5;
     profiling_log_file_repository = "/users/absint3/feret/tmp";
-    profiling_log_file = "profiling.html"
-
+    profiling_log_file = "profiling.html";
+    date = Tools.date ();
   }
 
 type t =
@@ -258,9 +260,10 @@ let stop pos message exn t =
   let () = exit 1 in
   t
 
-
-
 let log t x =
   Loggers.fprintf (snd (get_std_logger t)) x
 let flush t =
   Loggers.flush_logger (snd (get_std_logger t))
+
+let get_launching_date t =
+  t,Tools.date ()

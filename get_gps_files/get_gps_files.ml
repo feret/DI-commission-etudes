@@ -202,26 +202,38 @@ let empty_student =
 
 let fun_ignore =
   (fun state _ x -> state, x)
+let keywords_list =
+  [
+    Public_data.Ignore ;
+    Public_data.Courriel ;
+    Public_data.Statut ;
+    Public_data.Origine ;
+    Public_data.Departement ;
+    Public_data.Contrat ;
+    Public_data.Recu ;
+    Public_data.Pers_id ;
+    Public_data.LastName ;
+    Public_data.FirstName ;
+    Public_data.Promo ;
+  ]
+let keywords_of_interest =
+  [
+    Public_data.LastName ;
+    Public_data.FirstName ;
+  ]
 let asso_list =
   [
-    Public_data.Ignore, fun_ignore ;
-    Public_data.Courriel, fun_ignore ;
-    Public_data.Statut, fun_ignore ;
-    Public_data.Origine, fun_ignore ;
-    Public_data.Departement, fun_ignore ;
-    Public_data.Contrat, fun_ignore ;
-    Public_data.Recu, fun_ignore ;
-    Public_data.Pers_id, fun_ignore ;
     Public_data.LastName,
-    (fun state lastname (x,_) ->
-       state, ({x with lastname},false));
+    (fun state lastname x ->
+       state, {x with lastname});
     Public_data.FirstName,
-    (fun state firstname (x,_) ->
-       state, ({x with firstname},false));
+    (fun state firstname x ->
+       state, {x with firstname});
     Public_data.Promo,
-    (fun state promotion (x,allset) ->
-        state, ({x with promotion},allset));
+    (fun state promotion x ->
+        state, {x with promotion});
     ]
+
 let get_students_list
     ?repository
     ?prefix
@@ -230,91 +242,34 @@ let get_students_list
     state
   =
   let event_opt = Some (Profiling.Extract_gps_data_base) in
-  let state =
-    Remanent_state.open_event_opt
-      event_opt
-      state
-  in
-  let state, is_keyword, translate, action  =
-    Keywords_handler.make
-      state
-      asso_list
-  in
-  let after_array_line
-      _header state current_file current_file' _allset output =
-    state, current_file, true, current_file'::output
-  in
-  let after_array _header (state:Remanent_state.t) current_file allset output =
-    state, current_file, allset, output in
-  let at_end_of_file state current_file allset output =
-    if allset then
-      state, output
-    else
-      state, current_file::output
-  in
-  let state, repository =
-    match repository, prefix with
-    | None,None ->
-      Remanent_state.get_students_list_repository state
-    | Some rep, None ->
-      let state,prefix =
-        Remanent_state.get_students_list_prefix state in
-      state, Printf.sprintf "%s/%s" rep prefix
-    | None, Some prefix ->
-      let state,rep =
-        Remanent_state.get_local_repository state in
-      state, Printf.sprintf "%s/%s" rep prefix
-    | Some rep, Some prefix ->
-      state, Printf.sprintf "%s/%s" rep prefix
-  in
-  let state, files_list =
-    match file_name with
-    | Some file -> state, [repository,file]
-    | None ->
-      let rec explore state files_list rep_to_explore =
-        match rep_to_explore with
-        | [] ->
-          state, files_list
-        | h::t ->
-          let state, to_explore = Safe_sys.readdir __POS__ state h in
-          let state, files_list, rep_to_explore =
-            Array.fold_left
-              (fun (state,files_list,rep_list) file_to_explore
-                ->
-                  let complete =
-                    Printf.sprintf
-                      "%s/%s" h file_to_explore
-                  in
-                  let state, bool =
-                    Safe_sys.is_directory __POS__ state complete
-                  in
-                  if
-                    bool
-                  then
-                    (state, files_list,complete::rep_list)
-                  else
-                    (state, (h,file_to_explore)::files_list,rep_list))
-              (state, files_list,t)
-              to_explore
-          in
-          explore state files_list rep_to_explore
-      in
-      explore state [] [repository]
-  in
-  let state, list =
-    List.fold_left
-      (fun (state, output) (file:string*string) ->
-         Scan_csv_files.get_list_from_a_file
-           is_keyword action translate
-           after_array_line after_array at_end_of_file
-           empty_student
-           state file output)
-      (state, []) files_list
-  in
-  let p promo promo' =
+    let p promo promo' =
     match promo,promo' with
       Some x, Some y  -> x=y
     | None, _ | _, None -> true
+  in
+  let at_end_of_array_line
+      _header state current_file current_file' output =
+    state, current_file, current_file'::output
+  in
+  let at_end_of_array
+      _header state current_file output =
+    state, current_file, output
+  in
+  let at_end_of_file state _current_file output =
+    state, output
+  in
+  let flush state current_file output =
+    state, current_file::output
+  in
+  let state, list =
+    Scan_csv_files.get_list
+      ~keywords_of_interest ~asso_list ~keywords_list
+      ~fun_default:fun_ignore 
+      ~at_end_of_array_line ~at_end_of_array ~at_end_of_file ~flush
+      ~init_state:empty_student
+      state
+      ?repository ?prefix ?file_name
+      []
   in
   let state, output =
     List.fold_left
@@ -343,6 +298,7 @@ let get_students_list
   state, output
 
 let get_dated_repository state =
+  let state, date = Remanent_state.get_launching_date state in
   let state,local_rep =
     Remanent_state.get_local_repository state
   in
@@ -355,13 +311,6 @@ let get_dated_repository state =
     | "",x1 | x1,"" -> x1
     | x1,x2 -> Printf.sprintf "%s/%s" x1 x2
   in
-  let date_string_of_tm tm =
-    Printf.sprintf "%0*d%0*d%0*d"
-      4 (1900 + tm.Unix.tm_year)
-      2 (1 + tm.Unix.tm_mon)
-      2 tm.Unix.tm_mday
-  in
-  let date = date_string_of_tm (Unix.gmtime (Unix.time ())) in
   let state, current_dir = Safe_sys.getcwd __POS__ state in
   let state = Safe_sys.chdir __POS__ state rep in
   let state, f_exists =
