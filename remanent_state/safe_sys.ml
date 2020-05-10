@@ -30,19 +30,20 @@ let list_of_antibackslash string =
   list_of_antibackslash
     string
     ((String.length string)-1)
-    []
+    [String.length string]
 
 let rec_mk_when_necessary pos state output_repository =
   let list_of_antibackslash = list_of_antibackslash output_repository in
   let rec aux state last list output =
     match list with
-    | [] -> state, output
+    | [] ->
+      state, output
     | h::t when h = last+1 ->
-      aux state h t  output
+      aux state h t output
     | h::t ->
       let sub = String.sub output_repository (last+1) (h-last-1) in
       let new_repository =
-        if last = -1 
+        if last = -1
         then sub
         else output^"/"^sub
       in
