@@ -116,7 +116,7 @@ let get_student_file
   in
   let url =
     Printf.sprintf
-      "http://%s:%s/%s/gps.pl?last=%s&first=%s"
+      "http://%s:%s/%s/gps.pl?last=\'%s\'&first=\'%s\'"
       machine
       port
       input_repository
@@ -150,7 +150,7 @@ let get_student_file
     let () =
       Remanent_state.log
         state
-        "The extraction of the GPS file for %s %s (%s) failed with error %i" firstname lastname promotion i 
+        "The extraction of the GPS file for %s %s (%s) failed with error %i" firstname lastname promotion i
     in
     Remanent_state.warn __POS__
       (Printf.sprintf "The extraction of the GPS file for %s %s (%s) failed" firstname lastname promotion)
