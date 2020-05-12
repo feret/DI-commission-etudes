@@ -9,9 +9,19 @@ let state, output_repository =
 let state =
   List.fold_left
     (fun state id ->
-       Get_gps_files.get_student_file
-         ~output_repository
-         id state)
+       let state, output =
+         Get_gps_files.get_student_file
+           ~output_repository
+           id state
+       in
+       let state,_ =
+         Get_gps_files.patch_student_file
+           state
+           ~input:output
+           ~output:output
+       in
+       state
+    )
     state
 students_list
 let state =

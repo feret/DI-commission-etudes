@@ -4,6 +4,7 @@ type step_kind =
   | Cloud_synchronization
   | Extract_gps_data_base
   | Extract_gps_file of string * string
+  | Patch_gps_file of string option
   | Build_keywords_automaton 
 
 type log_info

@@ -67,3 +67,17 @@ let date () =
       2 tm.Unix.tm_mday
   in
   date_string_of_tm (Unix.gmtime (Unix.time ()))
+
+let is_fully_capitalised s =
+  let n = String.length s in
+  let rec aux k =
+    if k=n then true
+    else
+      let c = String.get s k in
+      if Char.equal c (Char.uppercase_ascii c)
+      then
+        aux (k+1)
+      else
+        false
+  in
+  aux 0

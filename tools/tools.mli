@@ -10,4 +10,6 @@ val asso_list_map2:
   ('a -> 'b -> 'd) ->
   ('d list)
 
-val date: unit -> string 
+val date: unit -> string
+
+val is_fully_capitalised: string -> bool

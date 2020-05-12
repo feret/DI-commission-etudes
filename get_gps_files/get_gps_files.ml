@@ -145,7 +145,7 @@ let get_student_file
     File_retriever.check
       ?log_file ?log_repository ~period ~output_repository ~output_file_name
       ?timeout
-      file_retriever state
+      file_retriever state, (output_repository,output_file_name)
   | state, i ->
     let () =
       Remanent_state.log
@@ -155,7 +155,7 @@ let get_student_file
     Remanent_state.warn __POS__
       (Printf.sprintf "The extraction of the GPS file for %s %s (%s) failed" firstname lastname promotion)
       Exit
-      state
+      state, (output_repository,output_file_name)
 
   let get_student_file
       student_id
@@ -175,7 +175,7 @@ let get_student_file
         event_opt
         state
     in
-    let state =
+    let state, output =
       get_student_file
         student_id
         ?file_retriever ?command_line_options ?machine ?port ?input_repository
@@ -186,7 +186,7 @@ let get_student_file
     in
     Remanent_state.close_event_opt
       event_opt
-      state
+      state, output
 
 type student_id =
   {
@@ -337,3 +337,231 @@ let get_dated_repository state =
   in
   let state = Safe_sys.chdir __POS__ state current_dir in
   state, full_output_rep
+
+let key = "Année académique"
+
+let patch_student_csv state ?file_name csv =
+  let rec aux state residual acc =
+    match
+      residual
+    with
+    | [] -> state, List.rev acc
+    | h::t ->
+      begin
+        match h with
+        | ["Nom";name] ->
+          let list_of_string = String.split_on_char ' ' name in
+          let rec aux' list firstname  =
+            match list with
+            | h::t ->
+              if Tools.is_fully_capitalised h then
+                List.rev firstname, list
+              else
+                aux' t (h::firstname)
+            | [] ->
+              List.rev firstname, []
+          in
+          let firstname, lastname =
+            match list_of_string with
+            | [] | [_] -> "",""
+            | _::t ->
+              let firstnamelist,lastnamelist = aux' t [] in
+              String.concat " " firstnamelist,
+              String.concat " " lastnamelist
+          in
+          if firstname = "" || lastname = ""
+          then
+            let state =
+              Remanent_state.warn
+                __POS__
+                (Printf.sprintf
+                   "Wrong full name in gps file %s"
+                   (match file_name with None -> "" | Some x -> x))
+                Exit
+                state
+            in
+            aux state t (h::acc)
+          else
+            aux state t (["Prénom";firstname]::["Nom";lastname]::acc)
+        | [s] when String.length s > 5 && (String.sub s 0 6) = "Année" ->
+          let wordlist =
+            String.split_on_char ' ' s
+          in
+          let wordlist =
+            List.filter (fun s -> s<>"") wordlist
+          in
+          let state, annee =
+            match wordlist with
+              _::x::_ -> state, x
+            | _ ->
+              Remanent_state.warn_dft
+                __POS__
+                (Printf.sprintf
+                   "Wrong academic year in gps file %s"
+                   (match file_name with None -> "" | Some x -> x))
+                Exit
+                ""
+                state
+          in
+          aux state t ([key;annee]::acc)
+        | _ -> aux state t (h::acc)
+      end
+  in
+  let state, csv = aux state csv [] in
+  let rec step1 state residual output =
+    match residual with
+    | (k::_)::_ when k = key ->
+      let output =
+        List.fold_left
+          (fun output elt -> elt::output)
+          output
+          residual
+      in
+      state, List.rev output
+    | ("Semestre"::_)::_ ->
+      step2 state residual output
+    | h::t ->
+      step1 state t (h::output)
+    | [] ->
+      let output =
+        List.fold_left
+          (fun output elt -> elt::output)
+          output
+          residual
+      in
+      let state =
+        Remanent_state.warn
+          __POS__
+          "Ill-formed GPS file"
+          Exit
+          state
+      in
+      state, output
+  and
+    step2 state residual output =
+    match residual with
+    | (k::_)::_ when k = key ->
+      let output =
+        List.fold_left
+          (fun output elt -> elt::output)
+          output
+          residual
+      in
+      state, List.rev output
+    | _::t ->
+      step2 state t output
+    | [] ->
+      let output =
+        List.fold_left
+          (fun output elt -> elt::output)
+          output
+          residual
+      in
+      let state =
+        Remanent_state.warn
+          __POS__
+          "Ill-formed GPS file"
+          Exit
+          state
+      in
+      state, output
+  in
+  step1 state csv []
+
+let patch_student_csv state ?file_name csv =
+  let event_opt = Some (Profiling.Patch_gps_file file_name) in
+  let state = Remanent_state.open_event_opt event_opt state in
+  let state, output = patch_student_csv state ?file_name csv in
+  let state = Remanent_state.close_event_opt event_opt state in
+  state, output
+
+let patch_student_file
+    ~input
+    ~output
+    state
+  =
+  let state, separator =
+    Remanent_state.get_csv_separator state
+  in
+  let (rep,file)=input in
+  let file_name =
+    if rep = ""
+    then
+      file
+    else
+      Printf.sprintf "%s/%s" rep file
+  in
+  let state, in_channel_opt =
+    try
+      state, Some (open_in file_name)
+    with _ ->
+      let () =
+        Format.printf
+          "Cannot open file %s@ "
+          file
+      in
+      Remanent_state.warn
+        __POS__
+        (Format.sprintf "Cannot open file %s"  file_name)
+        Exit
+        state ,
+      None
+  in
+  match in_channel_opt with
+  | None -> state, None
+  | Some in_channel ->
+    let csv_channel =
+      Csv.of_channel ?separator in_channel
+    in
+    let csv =
+      Csv.input_all csv_channel
+    in
+    let state, csv =
+      patch_student_csv state ~file_name csv
+    in
+    let () = close_in in_channel in
+    let state =
+      if input=output
+      then
+        Safe_sys.rm __POS__
+          state file_name
+      else
+        state
+    in
+    let state, rep =
+      Safe_sys.rec_mk_when_necessary __POS__
+        state (fst output)
+    in
+    let file = snd output in
+    let file =
+      if rep = ""
+      then
+        file
+      else
+        Printf.sprintf "%s/%s" rep file
+    in
+    let state, output_channel_opt =
+      try
+        state, Some (open_out file)
+      with _ ->
+      let () =
+        Format.printf
+          "Cannot open file %s@ "
+          file
+      in
+      Remanent_state.warn
+        __POS__
+        (Format.sprintf "Cannot open file %s"  file)
+        Exit
+        state ,
+      None
+    in
+    match output_channel_opt with
+    | None -> state, None
+    | Some out ->
+      let csv_channel =
+        Csv.to_channel ?separator out
+      in
+      let () = Csv.output_all csv_channel csv in
+      let () = close_out out in
+      state, Some (rep, snd output)

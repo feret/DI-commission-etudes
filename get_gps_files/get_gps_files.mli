@@ -14,7 +14,7 @@ val get_student_file :
   ?log_repository:string ->
   ?user_name:string ->
   ?password:string ->
-  Remanent_state.t -> Remanent_state.t
+  Remanent_state.t -> Remanent_state.t * (string * string)
 
 val get_students_list:
   ?repository:string ->
@@ -27,3 +27,8 @@ val get_students_list:
 val get_dated_repository:
   Remanent_state.t ->
   Remanent_state.t * string
+
+val patch_student_file:
+  input:(string * string) ->
+  output:(string * string) ->
+  Remanent_state.t -> Remanent_state.t *  (string * string) option 

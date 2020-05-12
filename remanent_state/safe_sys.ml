@@ -18,34 +18,19 @@ let command pos state s =
       pos (Printf.sprintf "\"Sys.command %s\" failed" s)
       exn state
 
-let rec list_of_antibackslash string k list =
-  if k<0 then list
-  else
-    list_of_antibackslash
-      string (k-1)
-      (if String.get string k = '/'
-       then k::list
-       else list)
-let list_of_antibackslash string =
-  list_of_antibackslash
-    string
-    ((String.length string)-1)
-    [String.length string]
+
 
 let rec_mk_when_necessary pos state output_repository =
-  let list_of_antibackslash = list_of_antibackslash output_repository in
-  let rec aux state last list output =
+  let list_of_reps =
+    String.split_on_char '/' output_repository
+  in
+  let rec aux state list output =
     match list with
     | [] ->
       state, output
-    | h::t when h = last+1 ->
-      aux state h t output
     | h::t ->
-      let sub = String.sub output_repository (last+1) (h-last-1) in
       let new_repository =
-        if last = -1
-        then sub
-        else output^"/"^sub
+        output^"/"^h
       in
       let rec aux2 state new_repository =
         let state, bool =
@@ -76,9 +61,9 @@ let rec_mk_when_necessary pos state output_repository =
           aux2 state ("new_repository"^"~")
       in
       let state, new_repository = aux2 state new_repository in
-      aux state h t new_repository
+      aux state t new_repository
   in
-  let state, repository = aux state (-1) list_of_antibackslash "" in
+  let state, repository = aux state list_of_reps "" in
   state, repository
 
 let readdir _pos state x =
@@ -87,3 +72,14 @@ let readdir _pos state x =
 let getcwd _pos state = state, Sys.getcwd ()
 let chdir _pos state x =
   let () = Sys.chdir x in state
+
+let rm pos state filename =
+  try
+    let () = Sys.remove filename in state
+  with
+  | Sys_error s ->
+    Remanent_state.warn
+      pos
+      s
+      (Sys_error s)
+      state

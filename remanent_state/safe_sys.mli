@@ -16,3 +16,7 @@ val chdir:
 val command:
   (string * int * int * int) ->
   Remanent_state.t -> string -> Remanent_state.t
+
+val rm:
+  (string * int * int * int) ->
+  Remanent_state.t -> string -> Remanent_state.t
