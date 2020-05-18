@@ -66,26 +66,94 @@ type 'a preprocessed =
 
 let asso_list =
   [
-    Public_data.LastName, ["nom"];
-    Public_data.FirstName, ["prénom";];
-    Public_data.Courriel, ["courriel"];
-    Public_data.Statut, ["statut"];
-    Public_data.Promo, ["promo"];
-    Public_data.Origine, ["origine"];
-    Public_data.Departement, ["département"];
+    Public_data.Accord, ["accord"];
+    Public_data.Annee_Academique, ["année"; "année académique"];
+    Public_data.Annee_en_Cours, ["année en cours"];
+    Public_data.Code, ["code"];
+    Public_data.Commentaire, ["commentaire"];
+    Public_data.Contact_ENS, ["contact";"contact ENS"];
     Public_data.Contrat, ["contrat"];
-    Public_data.Recu, ["reçu"];
+    Public_data.Courriel, ["courriel"];
+    Public_data.Credits, ["crédits"];
+    Public_data.Date_de_Naissance, ["Date de naissance";"naissance"];
+    Public_data.Departement, ["département"];
+    Public_data.Departement_principal, ["département principal"];
+    Public_data.Departements,
+    ["département(s)"];
+    Public_data.Departement_secondaire, ["département secondaire"];
+    Public_data.Derniere_Annee, ["derniere année"];
+    Public_data.Diplome, ["diplôme"];
+
+    Public_data.Diplomes, ["diplôme(s)"];
+    Public_data.Directeur_de_Stage, ["directeur de stage"];
+    Public_data.Directeur_Sujet, ["directeur -- sujet de recherche"];
+    Public_data.Discipline_SISE,["discipline SISE"];
+    Public_data.Duree,["durée"];
+    Public_data.ECTS,["ECTS*"];
+    Public_data.Enseignements,["enseignement(s)"];
+    Public_data.Etablissement,["établissement"];
+    Public_data.Etablissement_ou_Entreprise,["établissement ou entreprise"];
+    Public_data.FirstName, ["prénom";];
+    Public_data.FullName, ["nom complet"];
+    Public_data.Grade, ["grade"];
+    Public_data.Inscrit_au_DENS_en, ["insscrit au DENS en"];
+    Public_data.LastName, ["nom"];
+    Public_data.Lettre, ["lettre"];
+    Public_data.Libelle, ["libellé"];
+    Public_data.Niveau, ["niveau"];
+    Public_data.Note, ["note"];
+    Public_data.Obtenu_en, ["obtenu en"];
+    Public_data.Option, ["option"];
+    Public_data.Options, ["options"];
+    Public_data.Origine, ["origine";"concours"];
+    Public_data.Organisme_de_Financement, ["organisme de financement"];
+    Public_data.Periode, ["période"];
+    Public_data.Periode_de_Financement, ["période de finanement"];
     Public_data.Pers_id, ["pers_id"];
+    Public_data.Pour_Diplome, ["pour diplôme"];
+    Public_data.Promo, ["promo";"promotion"];
+    Public_data.Programme_d_etude,
+    ["programme";"programme d'études"; "Pgm études"];
+    Public_data.Recu, ["reçu"];
+    Public_data.Responsable, ["responsable"];
+    Public_data.Responsable_local,
+    ["responsable local"];
+    Public_data.Semestre, ["semestre"];
+    Public_data.Service_Labo_Dpt,
+    ["service/labo/dpt"];
+    Public_data.Situation, ["situation"];
+    Public_data.Sujet_du_Stage_Type_du_Sejour,["sujet du stage / Type du séjour"];
+    Public_data.Stages_et_Sejours_a_l_Etranger,["Stages et Séjours à l'étranger"];
+    Public_data.Statut, ["statut"];
+    Public_data.Tuteur, ["tuteur"];
+    Public_data.Type_de_Financement,["type de financement"];
+    Public_data.Valide, ["validé"];
     Public_data.Ignore, ["ignore"];
 ]
 
+(*let flatten l =
+  let rec aux l output =
+    match l with
+    | [] -> output
+    | []::tail -> aux tail output
+    | (h::t)::tail ->
+      aux (t::tail) (h::output)
+  in
+  aux l []
+*)
+(*let asso_list =
+  List.rev_map
+    (fun (a,b) ->
+       (a,
+        flatten
+          (List.rev_map Special_char.expand_string (List.rev b))))
+    (List.rev asso_list)*)
 
 let asso_list =
   List.rev_map
     (fun (a,b) ->
        (a,
-        List.flatten
-          (List.rev_map Special_char.expand_string (List.rev b))))
+        List.rev_map Special_char.correct_string (List.rev b)))
     (List.rev asso_list)
 
 
@@ -159,7 +227,7 @@ let make state specification =
       output
   in
   let gen f state x y =
-    let state, asso = asso state x y in
+    let state, asso = asso state x (Special_char.correct_string y) in
     state,
     match asso with
     | None -> None
@@ -172,6 +240,9 @@ let make state specification =
     Remanent_state.close_event_opt event_opt state
   in
   let shared = specification.shared_functions in
+  let is_keyword pos state x =
+    is_keyword pos state (Special_char.correct_string x)
+  in
   state,
   {
     is_keyword;

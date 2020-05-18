@@ -14,11 +14,28 @@ let state =
            ~output_repository
            id state
        in
-       let state,_ =
+       let state,patched_file_opt =
          Get_gps_files.patch_student_file
            state
            ~input:output
            ~output:output
+       in
+       let state, gps =
+         match patched_file_opt with
+         | None -> state, None
+         | Some input ->
+           Transcripts.get_gps_file
+             ~input state
+       in
+       let output =
+         (fst output, (snd output)^".tex")
+       in
+       let state, _ =
+         match gps with
+       | None -> state, None
+       | Some gps ->
+         Transcripts.export_transcript
+           ~output state gps
        in
        state
     )

@@ -5,8 +5,9 @@ type step_kind =
   | Extract_gps_data_base
   | Extract_gps_file of string * string
   | Patch_gps_file of string option
-  | Build_keywords_automaton 
-
+  | Build_keywords_automaton
+  | Export_transcript of string option
+  
 type log_info
 
 val log_info_to_json: log_info -> Yojson.Basic.t

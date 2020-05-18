@@ -6,6 +6,7 @@ type step_kind =
   | Extract_gps_file of string * string
   | Patch_gps_file of string option
   | Build_keywords_automaton
+  | Export_transcript of string option
 
 type step =
   {
@@ -32,6 +33,14 @@ let string_of_step_kind x =
   | Patch_gps_file (Some file) ->
     Printf.sprintf "Patch GPS output (%s)" file
   | Build_keywords_automaton -> "Build keywords automaton"
+  | Export_transcript None ->
+    Printf.sprintf
+      "Export transcript"
+  | Export_transcript (Some x) ->
+    Printf.sprintf
+      "Export transcript (%s)"
+      x
+
 
 let print_step_kind logger x =
   Loggers.print_cell logger
@@ -99,8 +108,9 @@ let is_dummy step_kind =
   | Cloud_synchronization
   | Extract_gps_data_base
   | Extract_gps_file _
-  | Patch_gps_file _ 
-  | Build_keywords_automaton -> false
+  | Patch_gps_file _
+  | Build_keywords_automaton
+  | Export_transcript _ -> false
 
 let open_event
     logger prefix ~safe_mode error_handler step_kind log_info =
