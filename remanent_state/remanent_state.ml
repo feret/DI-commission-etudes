@@ -21,7 +21,9 @@ type parameters =
     file_retriever_checking_period_in_seconds : int;
     profiling_log_file_repository: string ;
     profiling_log_file: string;
-    date: string}
+    date: string;
+    comma_symbol: char;
+  }
 
 
 
@@ -49,6 +51,7 @@ let parameters =
     profiling_log_file_repository = "/users/absint3/feret/tmp";
     profiling_log_file = "profiling.html";
     date = Tools.date ();
+    comma_symbol = ',';
   }
 
 type t =
@@ -260,10 +263,34 @@ let stop pos message exn t =
   let () = exit 1 in
   t
 
-let log t x =
-  Loggers.fprintf (snd (get_std_logger t)) x
-let flush t =
-  Loggers.flush_logger (snd (get_std_logger t))
+let which_logger ?logger t =
+  match logger with
+  | Some a -> a
+  | None -> snd (get_std_logger t)
+
+let log ?logger t x =
+  Loggers.fprintf (which_logger ?logger t) x
+let flush ?logger t =
+  Loggers.flush_logger (which_logger ?logger t)
+
+let print_errors ?logger prefix t =
+  let t,error_handler = get_error_handler t in
+  let () = Exception.print (which_logger ?logger t) prefix error_handler in
+  t
+
+let set_std_logger t logger =
+  let std_logger = Some logger in
+  {t with std_logger}
+
+type save_logger = Loggers.t option
+let save_std_logger t = t.std_logger
+let restore_std_logger t std_logger = {t with std_logger}
 
 let get_launching_date t =
   t,Tools.date ()
+
+let get_comma_symbol t =
+  t,t.parameters.comma_symbol
+
+let std_logger =
+  Loggers.open_logger_from_formatter (Format.std_formatter)

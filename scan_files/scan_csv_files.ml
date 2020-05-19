@@ -3,13 +3,15 @@ let get_list_from_a_file
     empty
     state  (rep,file) output =
   let is_keyword = automaton.Keywords_handler.is_keyword in
-  let action = automaton.Keywords_handler.action in
+        let action = automaton.Keywords_handler.action in
   let of_interest= automaton.Keywords_handler.flush_required in
   let translate = automaton.Keywords_handler.translate in
   let shared_part = automaton.Keywords_handler.shared in
   let do_at_end_of_file = shared_part.Keywords_handler.do_at_end_of_file in
   let do_at_end_of_array = shared_part.Keywords_handler.do_at_end_of_array in
-  let do_at_end_of_array_line = shared_part.Keywords_handler.do_at_end_of_array_line in
+  let do_at_end_of_array_line =
+    shared_part.Keywords_handler.do_at_end_of_array_line
+  in
   let flush =
     shared_part.Keywords_handler.flush in
   let state, separator =
@@ -26,11 +28,6 @@ let get_list_from_a_file
     try
       state, Some (open_in file)
     with _ ->
-      let () =
-        Format.printf
-          "Cannot open file %s@ "
-          file
-      in
       Remanent_state.warn
         __POS__
         (Format.sprintf "Cannot open file %s"  file)
@@ -73,7 +70,10 @@ let get_list_from_a_file
                   | [] -> state, true
                   | h::q ->
                     let state, b =
-                      is_keyword __POS__ state h
+                      if h="" then
+                        state, true
+                      else
+                        is_keyword __POS__ state h
                     in
                     if b then
                       aux state q
@@ -87,7 +87,12 @@ let get_list_from_a_file
                 let state, header_key, header =
                   List.fold_left
                     (fun (state, h_key, h) elt ->
-                       let state, action =
+                       if elt = ""
+                       then
+                         state,(Some Public_data.Ignore)::h_key,
+                         (Some (fun a _ c -> a,c))::h
+                       else
+                         let state, action =
                          action __POS__ state elt
                        in
                        let state, key =
@@ -166,7 +171,12 @@ let get_list_from_a_file
         remaining_lines current_file output  =
       match remaining_lines with
       | [] ->
-        state, output
+        let state, current_file, output =
+          do_at_end_of_array
+            header_key state current_file output
+        in
+        scan
+          state [] [] None current_file false output
       | h::t ->
         let rec aux state l =
           match l with
@@ -249,6 +259,6 @@ let get_list
         (fun (state, output) file ->
            get_list_from_a_file
              automaton
-             init_state 
+             init_state
              state file output)
         (state, output) files_list

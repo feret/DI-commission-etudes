@@ -179,9 +179,14 @@ let close_event logger prefix ~safe_mode error_handler step_kind log_info =
         log_info.current_task
       with
       | [] ->
+        let message =
+          Format.sprintf
+            "Inconsistent profiling information, no current task when closing the event (%s)"
+            (string_of_step_kind step_kind)
+        in
         Exception.warn
           logger prefix ~safe_mode error_handler __POS__
-          ~message:"Inconsistent profiling information, no current task when closing an event"
+          ~message
           (Failure "No current tasks in close_event") log_info
       | current_task::tail when current_task.tag = step_kind ->
         begin

@@ -44,3 +44,7 @@ students_list
 let state =
 Cloud_interaction.synchronize_shared_repository
   state
+let state =
+    Remanent_state.print_errors "" state
+let state =
+    Remanent_state.print_errors ~logger:(Remanent_state.std_logger) "" state

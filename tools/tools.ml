@@ -81,3 +81,15 @@ let is_fully_capitalised s =
         false
   in
   aux 0
+
+let map_opt f a_opt =
+  match a_opt with
+  | None -> None
+  | Some a -> Some (f a)
+
+let map_opt_state f state a_opt =
+  match a_opt with
+  | None -> state, None
+  | Some a ->
+    let state, output = f state a in
+    state, Some output

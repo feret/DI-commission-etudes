@@ -13,3 +13,6 @@ val asso_list_map2:
 val date: unit -> string
 
 val is_fully_capitalised: string -> bool
+
+val map_opt:  ('a -> 'b) -> 'a option -> 'b option
+val map_opt_state:  ('a -> 'b -> 'a * 'c) -> 'a -> 'b option -> 'a * ('c option)

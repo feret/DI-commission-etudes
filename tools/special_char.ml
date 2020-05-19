@@ -7,8 +7,11 @@ module CharMap =
 
 let special_char =
   [
-    'é', 'e';
-    'ç', 'c'
+    '\169', 'e';
+    '\167', 'c';
+    '\168', 'e';
+    '\180', 'o';
+    '\160', 'a'
   ]
 
 let special_char_map =

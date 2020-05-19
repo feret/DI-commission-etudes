@@ -78,3 +78,10 @@ type keywords =
   | Type_de_Financement
   | Valide
   | Ignore
+
+type note =
+  | Float of float
+  | Absent
+  | En_cours
+  | Abandon
+  | Valide_sans_note

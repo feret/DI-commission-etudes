@@ -1,4 +1,4 @@
-type annee = int
+type annee = string
 
 module ParAnnee =
   Map.Make (struct type t = annee let compare = compare end)
@@ -7,21 +7,106 @@ type diplome =
   {
     grade: string option;
     niveau: string option;
-    diplome: string option;
     libelle: string option;
-    etabliseement: string option;
+    etablissement: string option;
     discipline_SISE: string option;
     obtenu_en: string option;
     directeur_sujet_de_recherche: string option;
   }
 
+let log_string
+    state (label,string_opt) =
+  match string_opt with
+  | None -> state
+  | Some a ->
+    let () =
+      Remanent_state.log
+        state "%s: %s; " label a
+    in
+    state
+
+let log_note state  (label, note_opt) =
+  let state, s_opt =
+    match note_opt with
+    | None -> state, None
+    | Some a ->
+      let state, s =
+        Notes.to_string
+          __POS__ state a
+      in
+      state, Some s
+  in
+  let state  =
+    log_string
+      state (label,s_opt)
+  in
+  state
+
+let _log_int
+    state (label,string_opt) =
+  match string_opt with
+  | None -> state
+  | Some a ->
+    let () =
+      Remanent_state.log
+        state "%s: %i" label a
+    in
+    state
+
+    let log_float
+        state (label,string_opt) =
+      match string_opt with
+      | None -> state
+      | Some a ->
+        let () =
+          Remanent_state.log
+            state "%s: %f" label a
+        in
+        state
+
+let log_bool
+    state (label,string_opt) =
+  match string_opt with
+  | None -> state
+  | Some a ->
+    let () =
+      Remanent_state.log
+        state "%s: %s" label
+        (if a
+         then "Oui"
+         else "Non")
+    in
+    state
+
+let log_diplome state diplome =
+  let state =
+    List.fold_left
+      log_string
+      state
+      [
+        "GRADE",diplome.grade;
+        "NIVEAU",diplome.niveau;
+        "LIBELLE",diplome.libelle;
+        "ETABLISSEMENT",diplome.etablissement;
+        "DISCIPLINE",diplome.discipline_SISE;
+        "OBTENU EN",diplome.obtenu_en;
+        "DIRECTEUR",diplome.directeur_sujet_de_recherche
+      ]
+  in
+  let () =
+    Remanent_state.log state "@."
+  in
+  let () =
+    Remanent_state.flush state
+  in
+  state
+
 let empty_diplome =
   {
     grade = None;
     niveau = None;
-    diplome = None;
     libelle = None;
-    etabliseement = None;
+    etablissement = None;
     discipline_SISE = None;
     obtenu_en = None;
     directeur_sujet_de_recherche = None;
@@ -33,60 +118,230 @@ type cours =
     semestre: string option;
     code_cours: string option;
     responsable: string option;
-    libelle: string option;
-    etablissement: string option;
-    duree: int option;
-    ects: int option;
+    cours_libelle: string option;
+    cours_etablissement: string option;
+    duree: float option;
+    ects: float option;
     diplome: string option;
     contrat: bool option;
     accord: bool option;
-    note: int option;
+    valide: bool option ;
+    note: Public_data.note option;
     lettre: string option;
     commentaire: string list
   }
+
+let log_cours state cours =
+  let state =
+      List.fold_left
+        log_string
+        state
+        [
+          "SEMESTRE",cours.semestre;
+          "CODE",cours.code_cours;
+          "RESP",cours.responsable;
+          "LIBELLE",cours.cours_libelle;
+          "ETABLISSEMENT",cours.cours_etablissement
+        ]
+    in
+    let state =
+      List.fold_left
+        log_float
+        state
+        [
+          "DUREE",cours.duree;
+          "ECTS",cours.ects
+        ]
+    in
+    let state =
+      log_string state
+        ("DIPLOME",cours.diplome)
+    in
+    let state =
+      List.fold_left
+        log_bool
+        state
+        [
+          "CONTRAT",cours.contrat;
+          "ACCORD",cours.accord
+        ]
+    in
+    let state =
+      log_note state
+        ("NOTE",cours.note)
+    in
+    let state =
+      log_string
+        state
+        ("LETTRE",cours.lettre)
+    in
+    let () =
+      List.iter
+        (Remanent_state.log
+           state "%s")
+        cours.commentaire
+    in
+    let () =
+      Remanent_state.log
+        state "@."
+    in
+    let () =
+      Remanent_state.flush state
+    in
+    state
+
+let log_annee = log_string
 
 let empty_cours =
   {
     semestre = None ;
     code_cours = None ;
     responsable = None ;
-    libelle = None ;
-    etablissement = None ;
+    cours_libelle = None ;
+    cours_etablissement = None ;
     duree = None ;
     ects = None ;
     diplome = None ;
     contrat = None ;
     accord = None ;
+    valide = None ;
     note = None ;
     lettre = None ;
     commentaire = [];
   }
-type specialisation =
-  {
-    code: string option;
-    option: string option;
 
+type stage =
+  {
+    periode: string option;
+    sujet: string option;
+    directeur_de_stage: string option;
+    responsable_local: string option;
+    service_labo_dpt: string option;
+    etablissement_ou_entreprise: string option;
+    stage_credits: float option;
+    stage_valide: bool option;
+    stage_accord: bool option;
+    stage_commentaire: string list;
+    type_de_financement: string option;
+    periode_de_financement: string option;
+    organisme_de_financement: string option;
   }
 
-let empty_specialisation =
-  {
-    code = None ;
-    option = None ;
-  }
+let log_stage state stage =
+  let state =
+    List.fold_left
+      log_string
+      state
+      [
+        "periode", stage.periode;
+        "sujet", stage.sujet;
+        "directeur", stage.directeur_de_stage;
+        "responsable local", stage.responsable_local;
+        "service/labo/dpt", stage.service_labo_dpt;
+        "etablissement ou entreprise", stage.etablissement_ou_entreprise]
+  in
+  let state =
+    log_float state
+      ("credits",stage.stage_credits)
+  in
+  let state =
+    List.fold_left
+      log_bool
+      state
+      [
+        "validé", stage.stage_valide;
+        "accord", stage.stage_accord;
+      ]
+  in
+  let () =
+    if stage.stage_commentaire = []
+    then ()
+    else
+      let () = Remanent_state.log state "COMMENTAIRES :"
+      in
+      List.iter
+        (Remanent_state.log state "%s")
+        stage.stage_commentaire
+  in
+  List.fold_left
+    log_string state
+    [
+      "type_de_financement",stage.type_de_financement;
+      "periode_de_financement",stage.periode_de_financement;
+      "organisme_de_financement", stage.organisme_de_financement
+    ]
 
+let empty_stage =
+  {
+    periode = None;
+    sujet = None;
+    directeur_de_stage = None;
+    responsable_local = None;
+    service_labo_dpt = None;
+    etablissement_ou_entreprise = None;
+    stage_credits = None;
+    stage_valide = None;
+    stage_accord = None;
+    stage_commentaire = [];
+    type_de_financement = None;
+    periode_de_financement = None;
+    organisme_de_financement = None;
+  }
 type bilan_annuel =
        {
-         annee: int option;
+         annee: annee option;
          situation_administrative: string option;
          programme_d_etudes: string option;
          derniere_annee: bool option;
          departement_principal: string option;
          departement_secondaire: string option;
-         options: specialisation list;
          diplomes: diplome list;
          inscription_au_DENS: bool option;
          cours: cours list;
+         code_option: string option;
+         option: string option;
        }
+
+let log_bilan_annuel state bilan =
+  let state =
+    log_annee
+      state  ("annee",bilan.annee)
+  in
+  let state =
+    List.fold_left
+      log_string
+      state
+      [
+        "situation administrative",
+        bilan.situation_administrative;
+        "programme d'études",bilan.programme_d_etudes;
+        "département principal",
+        bilan.departement_principal;
+        "département secondaire",
+        bilan.departement_secondaire;
+        "code_option",
+        bilan.code_option;
+        "option",
+        bilan.option]
+  in
+  let _ =
+    log_bool state ("Inscription au DENS", bilan.inscription_au_DENS)
+  in
+  let state =
+    List.fold_left
+      (fun state diplome ->
+         log_diplome state diplome)
+      state
+      bilan.diplomes
+  in
+  let state =
+    List.fold_left
+      (fun state cours ->
+         log_cours state cours)
+      state
+      bilan.cours
+  in
+  state
 
 let empty_bilan_annuel =
   {
@@ -95,10 +350,13 @@ let empty_bilan_annuel =
     programme_d_etudes = None ;
     derniere_annee = None ;
     departement_principal = None ;
-    departement_secondaire = None ; options = [] ;
+    departement_secondaire = None ;
     diplomes = [] ;
     inscription_au_DENS = None;
-    cours = []}
+    cours = [];
+    code_option = None;
+    option=None;
+  }
 
 type gps_file =
   {
@@ -109,12 +367,65 @@ type gps_file =
     promotion: string option;
     origine: string option;
     statut: string option;
-    annee_en_cours: int option;
+    annee_en_cours: annee option;
     contact_ens: string option;
     tuteur: string option;
-    situation: bilan_annuel ParAnnee.t
+    situation: bilan_annuel ParAnnee.t;
+    stages: stage list;
   }
 
+let log_gps_file state gps =
+  let state =
+    List.fold_left
+      log_string
+      state
+      ["nom",gps.nom;
+       "prenom",gps.prenom;
+       "nom complet",gps.nom_complet;
+       "date de naissance",gps.date_de_naissance;
+       "promotion",gps.promotion;
+       "origine",gps.origine;
+       "statut",gps.statut;
+      ]
+  in
+  let state =
+    log_annee
+      state
+      ("annee en cours",gps.annee_en_cours)
+  in
+  let state =
+    List.fold_left
+      log_string
+      state
+      [
+        "contact_ens",gps.contact_ens;
+        "tuteur",gps.tuteur
+      ]
+  in
+  let state =
+    ParAnnee.fold
+      (fun annee bilan state ->
+         let state =
+           log_string
+             state
+             ("annee",Some annee)
+         in
+         let state =
+           log_bilan_annuel
+             state
+             bilan
+         in
+         state)
+      gps.situation
+      state
+  in
+  let state =
+    List.fold_left
+      log_stage
+      state
+      gps.stages
+  in
+  state
 
 let empty_gps =
   {
@@ -129,20 +440,23 @@ let empty_gps =
     contact_ens = None ;
     tuteur = None ;
     situation = ParAnnee.empty ;
+    stages = [];
   }
 
 type remanent =
   {gps_file: gps_file;
-   cours: cours;
-   diplome: diplome;
-   option: specialisation;
-   inscription_DENS: bool option;
+   rem_cours: cours;
+   rem_diplome: diplome;
+   stage: stage;
+   inscription_DENS: string option;
    sit_adm: string option;
    prg_et: string option;
-   annee_de_travail : int option;
+   annee_de_travail : annee option;
    last_year: bool option;
    dpt_principal: string option;
    dpt_secondaire: string option;
+   code_opt: string option;
+   opt: string option;
   }
 
 let get_bilan_annuel state remanent year =
@@ -156,7 +470,7 @@ let get_bilan_annuel state remanent year =
   | None ->
     empty_bilan_annuel
 
-let set_bilan_annel state remanent year bilan =
+let set_bilan_annuel state remanent year bilan =
   let situation =
     ParAnnee.add
       year
@@ -168,44 +482,189 @@ let set_bilan_annel state remanent year bilan =
   in
   state, {remanent with gps_file}
 
-let store_diplome state remanent =
-  match remanent.annee_de_travail
-  with
-  | None ->
-  Remanent_state.warn_dft
-    __POS__
-    "L'année manque"
-    Exit
-    remanent
-    state
-  | Some year ->
-    let state, bilan = get_bilan_annuel
+let store_gen
+    get get_current set
+    pos state current_file current_file' output  =
+  let state, current_file =
+    match
+      current_file'.annee_de_travail
+    with
+    | None ->
+      Remanent_state.warn_dft
+                 pos
+                 "Current year is not documented"
+                 Exit
+                 current_file'
+                 state
+    | Some year ->
+      let state, bilan =
+        get_bilan_annuel
+          state
+          current_file
+          year
+      in
+      let updated =
+        (get_current current_file')::(get bilan)
+      in
+      let bilan =
+        set bilan updated
+      in
+      set_bilan_annuel
+        state
+        current_file
+        year
+        bilan
+  in
+  state,
+  current_file,
+  output
+
+let store_diplome =
+  store_gen
+    (fun bilan -> bilan.diplomes)
+    (fun remanent -> remanent.rem_diplome)
+    (fun bilan diplomes -> {bilan with diplomes})
+
+let store_cours =
+  store_gen
+    (fun bilan -> bilan.cours)
+    (fun remanent -> remanent.rem_cours)
+    (fun bilan cours -> {bilan with cours})
+
+let store_stage =
+  store_gen
+    (fun _bilan -> [])
+    (fun _remanent -> [])
+    (fun bilan _stages -> bilan)
+
+let store_gen_fields
+    list_string list_bool pos state current_file current_file' output
+  =
+  let state, current_file =
+    match
+      current_file'.annee_de_travail
+    with
+    | None ->
+      Remanent_state.warn_dft
+        pos
+        "Current year is not documented"
+        Exit
+        current_file'
+        state
+    | Some year ->
+      let state, bilan =
+        get_bilan_annuel
+          state
+          current_file
+          year
+      in
+      let updated =
+        List.fold_left
+          (fun bilan (get,set) ->
+             set (get current_file') bilan)
+          bilan
+          list_string
+      in
+      let updated =
+        List.fold_left
+          (fun bilan (get,set) ->
+             set (get current_file') bilan)
+          updated
+          list_bool
+      in
+        set_bilan_annuel
+          state
+          current_file
+          year
+          updated
+  in
+  state,
+  current_file,
+  output
+
+let set_dens
+    pos state annee remanent
+  =
+  let state, remanent =
+    match
+      annee
+    with
+    | None ->
+      Remanent_state.warn_dft
+        pos
+        "Current year is not documented"
+        Exit
+        remanent
+        state
+    | Some year ->
+      let state, bilan =
+        get_bilan_annuel
+          state
+          remanent
+          year
+      in
+      let updated =
+        {bilan with inscription_au_DENS = Some true}
+      in
+      set_bilan_annuel
         state
         remanent
         year
-    in
-    let diplomes =
-      remanent.diplome::bilan.diplomes
-    in
-    let bilan =
-      {bilan with diplomes}
-    in
-    set_bilan_annel
-      state
-      remanent
-      year
-      bilan
+        updated
+  in
+  state,
+  remanent
+
+
+let store_situation_adm
+  =
+  store_gen_fields
+    [
+      (fun x -> x.sit_adm),
+      (fun situation_administrative x ->
+         {x with situation_administrative});
+      (fun x -> x.prg_et),
+      (fun programme_d_etudes x -> {x with programme_d_etudes})]
+    [
+      (fun x -> x.last_year),
+      (fun derniere_annee x -> {x with derniere_annee})]
+
+
+let store_dpts
+  =
+  store_gen_fields
+    [
+      (fun x -> x.dpt_principal),
+      (fun departement_principal x -> {x with departement_principal});
+      (fun x -> x.dpt_secondaire),
+      (fun departement_secondaire x -> {x with departement_secondaire});
+    ]
+    []
+
+let store_option
+  =
+  store_gen_fields
+    [
+      (fun x -> x.code_opt),
+      (fun code_option x -> {x with code_option});
+      (fun x -> x.opt),
+      (fun option x -> {x with option});
+    ]
+    []
+
 
 let empty_remanent =
   {
     gps_file = empty_gps ;
-    cours = empty_cours ;
-    option= empty_specialisation ;
-    diplome = empty_diplome ;
+    rem_cours = empty_cours ;
+    stage = empty_stage ;
+    rem_diplome = empty_diplome ;
     inscription_DENS = None ;
     sit_adm = None ;
     prg_et = None ;
     last_year = None ;
+    opt = None ;
+    code_opt = None ;
     dpt_principal = None ;
     dpt_secondaire = None ;
     annee_de_travail = None ;
@@ -315,65 +774,278 @@ let keywords_of_interest =
   Public_data.Organisme_de_Financement;
 ]
 
+let bool_opt_of_string_opt pos state s_opt =
+match s_opt with
+| None -> state, None
+| Some s ->
+  if String.trim s = "" || s="?"
+  then state, None
+  else
+    let s = String.lowercase_ascii s in
+    if
+      List.mem
+      s ["o";"oui";"y";"yes";"ok"]
+    then state, Some true
+    else if
+      List.mem
+        s
+        ["n";"non";"no"]
+    then state, Some false
+    else
+      let msg =
+        Format.sprintf
+          "Ill-formed Boolean (%s)"
+          s
+      in
+      Remanent_state.warn_dft
+        pos
+        msg
+        Exit
+        None
+        state
+
+let float_opt_of_string_opt _pos state s_opt =
+  let state, float_opt_opt =
+    Tools.map_opt_state
+          (Notes.float_of_string __POS__)
+          state s_opt
+  in
+  let float_opt =
+    match float_opt_opt with
+    | None -> None
+    | Some a -> a
+  in
+  state, float_opt
+
+let lift_gen get set  f state data remanent =
+  let obj = f data (get remanent) in
+  state, set obj remanent
+
+let lift_gen_state  get set  f state data remanent =
+    let state, obj = f state data (get remanent) in
+    state, set obj remanent
+
+let lift_gps =
+  lift_gen
+    (fun x -> x.gps_file)
+    (fun gps_file remanent ->
+       {remanent with gps_file})
+
+let lift_cours_state =
+  lift_gen_state
+    (fun x -> x.rem_cours)
+    (fun rem_cours remanent ->
+       {remanent with rem_cours})
+
+let lift_cours =
+  lift_gen
+    (fun x -> x.rem_cours)
+    (fun rem_cours remanent ->
+       {remanent with rem_cours})
+
+let lift_stage =
+  lift_gen
+    (fun x -> x.stage)
+    (fun stage remanent ->
+       {remanent with stage})
+
+let lift_diplome =
+  lift_gen
+    (fun x -> x.rem_diplome)
+    (fun rem_diplome remanent ->
+       {remanent with rem_diplome})
+
 let asso_list =
     [
       Public_data.LastName,
-      (fun state nom x ->
-         let gps_file =
-           {x.gps_file with nom}
-         in
-         state,{x with gps_file});
-
+      lift_gps
+        (fun nom gps_file ->
+           {gps_file with nom});
       Public_data.FirstName,
-      (fun state prenom x ->
-         let gps_file =
-           {x.gps_file with prenom}
-         in
-         state,{x with gps_file});
-      Public_data.Date_de_Naissance,fun_default;
-      Public_data.Promo,fun_default;
-      Public_data.Origine,fun_default;
-      Public_data.Statut,fun_default;
-      Public_data.Annee_en_Cours,fun_default;
-      Public_data.Contact_ENS,fun_default;
-      Public_data.Tuteur,fun_default;
-      Public_data.Situation,fun_default;
-      Public_data.Annee_Academique,fun_default;
-      Public_data.Programme_d_etude,fun_default;
-      Public_data.Derniere_Annee,fun_default;
+      lift_gps
+        (fun prenom gps_file ->
+           {gps_file with prenom});
+      Public_data.Date_de_Naissance,
+      lift_gps
+        (fun date_de_naissance gps_file
+          -> {gps_file with date_de_naissance});
+      Public_data.Promo,
+      lift_gps
+        (fun promotion gps_file ->
+           {gps_file with promotion});
+      Public_data.Origine,
+      lift_gps
+        (fun origine gps_file ->
+           {gps_file with origine});
+      Public_data.Statut,
+      lift_gps
+        (fun statut gps_file ->
+           {gps_file with statut});
+      Public_data.Annee_en_Cours,
+      lift_gps
+        (fun (annee_en_cours:annee option) gps_file ->
+           {gps_file with annee_en_cours});
+      Public_data.Contact_ENS,
+      lift_gps
+        (fun contact_ens gps_file ->
+           {gps_file with contact_ens});
+      Public_data.Tuteur,
+      lift_gps
+        (fun tuteur gps_file ->
+           {gps_file with tuteur});
+      Public_data.Situation,
+      (fun state sit_adm remanent ->
+          state,
+          {remanent with sit_adm});
+      Public_data.Annee_Academique,
+      (fun state annee_de_travail remanent ->
+         state,
+         {remanent with annee_de_travail});
+      Public_data.Programme_d_etude,(fun state prg_et remanent ->
+          state,
+          {remanent with prg_et});
+      Public_data.Derniere_Annee,
+      (fun state last_year remanent ->
+          let state, last_year =
+            bool_opt_of_string_opt __POS__ state last_year
+          in
+          state, {remanent with last_year});
       Public_data.Departements,fun_default;
-      Public_data.Departement_principal,fun_default;
-      Public_data.Departement_secondaire,fun_default;
-      Public_data.Options,fun_default;
-      Public_data.Code,fun_default;
-      Public_data.Option,fun_default;
+      Public_data.Departement_principal,
+      (fun state dpt_principal remanent ->
+         state,
+         {remanent with dpt_principal});
+      Public_data.Departement_secondaire,
+      (fun state dpt_secondaire remanent ->
+         state,
+         {remanent with dpt_secondaire});
+      Public_data.Options,
+      fun_default;
+      Public_data.Code,
+        (fun state code_opt remanent ->
+           state, {remanent with code_opt});
+      Public_data.Option,
+      (fun state opt remanent ->
+         state, {remanent with opt});
       Public_data.Diplomes,fun_default;
-      Public_data.Grade,fun_default;
-      Public_data.Niveau,fun_default;
-      Public_data.Diplome,fun_default;
-      Public_data.Libelle,fun_default;
-      Public_data.Etablissement,fun_default;
-      Public_data.Discipline_SISE,fun_default;
-      Public_data.Obtenu_en,fun_default;
-      Public_data.Directeur_Sujet,fun_default;
+      Public_data.Grade,
+      lift_diplome
+        (fun grade diplome ->
+           {diplome with grade});
+      Public_data.Niveau,
+      lift_diplome
+        (fun niveau diplome ->
+           {diplome with niveau});
+      Public_data.Libelle,
+      lift_diplome
+        (fun libelle diplome ->
+           {diplome with libelle});
+      Public_data.Etablissement,
+      lift_diplome
+        (fun etablissement diplome ->
+           {diplome with etablissement});
+      Public_data.Discipline_SISE,
+      lift_diplome
+        (fun discipline_SISE diplome ->
+           {diplome with discipline_SISE});
+      Public_data.Obtenu_en,
+      lift_diplome
+        (fun obtenu_en diplome ->
+           {diplome with obtenu_en});
+      Public_data.Directeur_Sujet,
+      lift_diplome
+        (fun directeur_sujet_de_recherche diplome ->
+           {diplome with directeur_sujet_de_recherche});
       Public_data.Enseignements,fun_default;
-      Public_data.Inscrit_au_DENS_en,fun_default;
-      Public_data.Semestre,fun_default;
-      Public_data.Code,fun_default;
-      Public_data.Responsable,fun_default;
-      Public_data.Duree,fun_default;
-      Public_data.ECTS,fun_default;
-      Public_data.Pour_Diplome,fun_default;
-      Public_data.Contrat,fun_default;
-      Public_data.Accord,fun_default;
-      Public_data.Valide,fun_default;
-      Public_data.Note,fun_default;
-      Public_data.Lettre,fun_default;
-      Public_data.Commentaire,fun_default;
+      Public_data.Inscrit_au_DENS_en,
+      set_dens __POS__;
+      Public_data.Semestre,
+      lift_cours
+        (fun semestre cours ->
+           {cours with semestre});
+      Public_data.Code,
+      lift_cours
+        (fun code_cours cours ->
+           {cours with code_cours});
+      Public_data.Responsable,
+      lift_cours
+        (fun responsable cours ->
+           {cours with responsable});
+      Public_data.Duree,
+      lift_cours_state
+        (fun state d cours ->
+           let state, duree =
+             float_opt_of_string_opt __POS__ state d
+           in
+           state, {cours with duree});
+      Public_data.ECTS,
+      lift_cours_state
+        (fun state e cours ->
+          let state, ects =
+            float_opt_of_string_opt __POS__ state e
+          in
+          state, {cours with ects});
+      Public_data.Pour_Diplome,
+      lift_cours
+        (fun diplome cours ->
+           {cours with diplome});
+      Public_data.Contrat,
+      lift_cours_state
+        (fun state data cours ->
+           let state, contrat =
+           bool_opt_of_string_opt __POS__ state data
+           in
+           state, {cours with contrat});
+      Public_data.Accord,
+      lift_cours_state
+        (fun state data cours ->
+           let state, accord =
+           bool_opt_of_string_opt __POS__ state data
+           in
+           state, {cours with accord});
+      Public_data.Valide,
+      lift_cours_state
+        (fun state data cours ->
+           let state, valide =
+           bool_opt_of_string_opt __POS__ state data
+           in
+           state, {cours with valide});
+      Public_data.Note,
+      lift_cours_state
+        (fun state data cours ->
+           let state, note =
+              match data with
+                | None -> state, None
+                | Some s ->
+                  Notes.of_string
+                    __POS__
+                    state s
+           in
+           state, {cours with note});
+      Public_data.Lettre,
+      lift_cours
+        (fun lettre cours -> {cours with lettre});
+      Public_data.Commentaire,
+      lift_cours
+        (fun com_opt cours ->
+           match com_opt with
+           | None -> cours
+           | Some com ->
+             let commentaire =
+               com::cours.commentaire
+             in
+             {cours with commentaire}
+        );
       Public_data.Stages_et_Sejours_a_l_Etranger,fun_default;
-      Public_data.Periode,fun_default;
-      Public_data.Sujet_du_Stage_Type_du_Sejour,fun_default;
-      Public_data.Directeur_de_Stage,fun_default;
+      Public_data.Periode,
+      lift_stage
+        (fun periode stage -> {stage with periode});
+      Public_data.Sujet_du_Stage_Type_du_Sejour,
+      lift_stage
+        (fun sujet stage -> {stage with sujet});
+      Public_data.Directeur_de_Stage,
+      lift_stage
+        (fun directeur_de_stage stage -> {stage with directeur_de_stage});
       Public_data.Responsable_local,fun_default;
       Public_data.Service_Labo_Dpt,fun_default;
       Public_data.Etablissement_ou_Entreprise,fun_default;
@@ -402,49 +1074,80 @@ let get_gps_file
       (Profiling.Export_transcript
          (Some file_name))
   in
+  let state =
+      Remanent_state.open_event_opt
+        event_opt
+        state
+  in
   let at_end_of_array_line
       header state current_file current_file' output =
-    if List.mem
+    if
+      List.mem
+        (Some Public_data.Note)
+        header
+    then
+        store_cours
+          __POS__
+          state
+          current_file
+          current_file'
+          output
+    else if
+        List.mem
         (Some Public_data.Situation)
         header
-    then state, current_file, output
+    then
+      store_situation_adm
+        __POS__
+        state
+        current_file
+        current_file'
+        output
     else if
       List.mem
         (Some Public_data.Departement_principal)
          header
-    then state, current_file, output
+    then
+      store_dpts
+        __POS__
+        state
+        current_file
+        current_file'
+        output
     else if
       List.mem
         (Some Public_data.Option) header
       || List.mem
         (Some Public_data.Code)
         header
-    then state, current_file, output
+    then
+      store_option
+        __POS__
+        state
+        current_file
+        current_file'
+        output
     else if
       List.mem
         (Some Public_data.Diplome) header
     then
-      let state, current_file' =
-        store_diplome
-          state current_file'
-      in
-      let gps_file =
-        current_file'.gps_file
-      in
-      state,
-      {current_file with
-       gps_file}
-      , output
-    else if
-      List.mem
-        (Some Public_data.Note)
-        header
-    then state, current_file, output
+      store_diplome
+        __POS__
+        state
+        current_file
+        current_file'
+        output
     else if
       List.mem
         (Some Public_data.Periode)
         header
-    then state, current_file, output
+    then
+      store_stage
+        __POS__
+        state
+        current_file
+        current_file'
+        output
     else
       Remanent_state.warn
         __POS__
@@ -493,9 +1196,14 @@ let state, output =
   with
   | [a] -> state, Some a.gps_file
   | _ ->
+    let msg =
+      Printf.sprintf
+        "ill-formed output (%i elements instead of 1)"
+        (List.length list)
+    in
     Remanent_state.warn_dft
       __POS__
-      "ill-formed output"
+      msg
       Exit
       None
       state
@@ -540,17 +1248,16 @@ let export_transcript ~output state gps_file =
   | None -> state, None
   | Some out ->
     let logger = Loggers.open_logger_from_channel out in
-    let () =
-      match gps_file.nom
-      with
-      | None -> ()
-      | Some nom ->
-        Loggers.fprintf
-        logger
-        "%s" nom
+    let old_logger = Remanent_state.save_std_logger state in
+    let state = Remanent_state.set_std_logger state logger in
+    let state =
+      log_gps_file
+          state
+          gps_file
     in
     let () =
       Loggers.print_newline logger
     in
+    let state = Remanent_state.restore_std_logger state old_logger in
     let () = close_out out in
     state, Some (rep, snd output)

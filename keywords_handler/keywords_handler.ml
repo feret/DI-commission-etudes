@@ -69,7 +69,7 @@ let asso_list =
     Public_data.Accord, ["accord"];
     Public_data.Annee_Academique, ["année"; "année académique"];
     Public_data.Annee_en_Cours, ["année en cours"];
-    Public_data.Code, ["code"];
+    Public_data.Code, ["code";"code cours"];
     Public_data.Commentaire, ["commentaire"];
     Public_data.Contact_ENS, ["contact";"contact ENS"];
     Public_data.Contrat, ["contrat"];
@@ -77,13 +77,11 @@ let asso_list =
     Public_data.Credits, ["crédits"];
     Public_data.Date_de_Naissance, ["Date de naissance";"naissance"];
     Public_data.Departement, ["département"];
-    Public_data.Departement_principal, ["département principal"];
-    Public_data.Departements,
-    ["département(s)"];
-    Public_data.Departement_secondaire, ["département secondaire"];
+    Public_data.Departement_principal, ["principal"];
+    Public_data.Departements,["département(s)"];
+    Public_data.Departement_secondaire, ["secondaire"];
     Public_data.Derniere_Annee, ["derniere année"];
     Public_data.Diplome, ["diplôme"];
-
     Public_data.Diplomes, ["diplôme(s)"];
     Public_data.Directeur_de_Stage, ["directeur de stage"];
     Public_data.Directeur_Sujet, ["directeur -- sujet de recherche"];
@@ -96,7 +94,7 @@ let asso_list =
     Public_data.FirstName, ["prénom";];
     Public_data.FullName, ["nom complet"];
     Public_data.Grade, ["grade"];
-    Public_data.Inscrit_au_DENS_en, ["insscrit au DENS en"];
+    Public_data.Inscrit_au_DENS_en, ["inscrit au DENS en"];
     Public_data.LastName, ["nom"];
     Public_data.Lettre, ["lettre"];
     Public_data.Libelle, ["libellé"];
@@ -194,12 +192,7 @@ let make state specification =
       (fun (state, output) (a,list) ->
          match KeyWordsMap.find_opt a map with
          | None ->
-           Remanent_state.warn_dft
-             __POS__
-             ""
-             Exit
-             output
-             state
+           state, output
          | Some data ->
            state,
            List.fold_left
@@ -213,6 +206,10 @@ let make state specification =
   let state, is_keyword, asso =
     Automata.build state
       asso_list
+  in
+  let is_keyword a b c =
+    let state, output = is_keyword a b (Special_char.correct_string c) in
+    state, output
   in
   let cache = ref (None) in
   let asso pos state x =
@@ -234,6 +231,10 @@ let make state specification =
     | Some asso -> Some (f asso)
   in
   let action = gen (fun x -> fst (snd x)) in
+  let action a b c =
+    if c = "" then b,Some (fun a _ c -> a,c)
+    else action a b c
+  in
   let flush_required = gen (fun x -> snd (snd x)) in
   let translate = gen fst in
   let state =

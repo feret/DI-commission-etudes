@@ -23,11 +23,14 @@ val stop:
 -> string -> exn  -> t
 -> t
 
-(** log *)
+val print_errors:
+  ?logger:Loggers.t -> string -> t -> t
+
+  (** log *)
 val log:
-  t -> ('a, Format.formatter, unit) format -> 'a
+  ?logger:Loggers.t -> t -> ('a, Format.formatter, unit) format -> 'a
 val flush:
-  t -> unit
+  ?logger:Loggers.t -> t -> unit
 
 (** profiling *)
 val open_event_opt:
@@ -68,4 +71,13 @@ val get_csv_separator: t -> t * char option
 val get_students_list_prefix: t -> t * string
 val get_students_list_repository: t -> t * string
 
-val get_launching_date: t -> t * string 
+val get_launching_date: t -> t * string
+
+val get_comma_symbol: t -> t * char
+
+type save_logger
+val save_std_logger: t -> save_logger
+val restore_std_logger: t -> save_logger -> t
+val set_std_logger: t -> Loggers.t -> t
+
+val std_logger: Loggers.t 

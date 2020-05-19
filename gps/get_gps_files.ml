@@ -226,10 +226,22 @@ let asso_list =
   [
     Public_data.LastName,
     (fun state lastname x ->
-       state, {x with lastname});
+       state,
+       let lastname =
+         match lastname with
+         | Some x when String.trim x = "" -> None
+         | _ -> lastname
+       in
+       {x with lastname});
     Public_data.FirstName,
     (fun state firstname x ->
-       state, {x with firstname});
+       state,
+       let firstname =
+        match firstname with
+        | Some x when String.trim x = "" -> None
+        | _ -> firstname
+      in
+      {x with firstname});
     Public_data.Promo,
     (fun state promotion x ->
         state, {x with promotion});
@@ -243,14 +255,52 @@ let get_students_list
     state
   =
   let event_opt = Some (Profiling.Extract_gps_data_base) in
-    let p promo promo' =
+  let state =
+    Remanent_state.open_event_opt
+      event_opt
+      state
+  in
+  let p promo promo' =
     match promo,promo' with
       Some x, Some y  -> x=y
     | None, _ | _, None -> true
   in
   let at_end_of_array_line
       _header state current_file current_file' output =
-    state, current_file, current_file'::output
+    match current_file'.firstname,current_file'.lastname with
+    | None,None -> state, current_file, output
+    | Some _, Some _ ->
+      state, current_file, current_file'::output
+    | Some x, None ->
+      let promo =
+        match current_file'.promotion with
+        | None -> ""
+        | Some x -> Format.sprintf " (PROMO %s)" x
+      in
+      let msg = Format.sprintf "Last name is missing for %s%s" x promo in
+      let state =
+        Remanent_state.warn
+          __POS__
+          msg
+          Exit
+          state
+      in
+      state, current_file, output
+    | None, Some x ->
+      let promo =
+        match current_file'.promotion with
+        | None -> ""
+        | Some x -> Format.sprintf " (PROMO %s)" x
+      in
+      let msg = Format.sprintf "First name is missing for %s%s" x promo in
+      let state =
+        Remanent_state.warn
+          __POS__
+          msg
+          Exit
+          state
+      in
+      state, current_file, output
   in
   let at_end_of_array
       _header state current_file output =
@@ -279,9 +329,29 @@ let get_students_list
          then
            match student.firstname, student.lastname
            with
-           | None, _ | _, None ->
+           | None, None -> state, output
+           | None, Some x ->
+             let promo =
+               match promotion with
+               | None -> ""
+               | Some x -> Format.sprintf " (PROMO %s)" x
+             in
+             let msg =
+               Format.sprintf "fistname is missing for %s%s" x promo
+             in
              Remanent_state.warn_dft
-               __POS__ "" Exit output state
+             __POS__ msg Exit output state
+           | Some x, None ->
+             let promo =
+               match promotion with
+               | None -> ""
+               | Some x -> Format.sprintf " (PROMO %s)" x
+             in
+             let msg =
+               Format.sprintf "lastname is missing for %s%s" x promo
+             in
+           Remanent_state.warn_dft
+           __POS__ msg Exit output state
            | Some firstname, Some lastname ->
              state,{Public_data.firstname = firstname ;
                     Public_data.lastname=lastname;

@@ -38,9 +38,12 @@ let empty =
 
 
 let get_succ remanent_state node_idx c automaton =
-  match
-    IntMap.find_opt node_idx automaton.mapping
-  with
+  if c = '\195' then
+    remanent_state, (node_idx, automaton)
+  else
+    match
+      IntMap.find_opt node_idx automaton.mapping
+    with
   | None ->
     Remanent_state.warn_dft
       __POS__
@@ -121,23 +124,27 @@ let stabilize automaton =
   array
 
 let follow_succ_stab pos remanent_state node_idx c automaton =
-  try
-    let node = automaton.(node_idx) in
-    match
-      CharMap.find_opt c node.succ
+  if c = '\195'
+  then
+    remanent_state, Some node_idx
+  else
+    try
+      let node = automaton.(node_idx) in
+      match
+        CharMap.find_opt c node.succ
+      with
+      | Some idx ->
+        remanent_state, Some idx
+      | None ->
+        remanent_state, None
     with
-    | Some idx ->
-      remanent_state, Some idx
-    | None ->
-      remanent_state, None
-  with
-  | _ ->
-    Remanent_state.warn_dft
-      pos
-      ""
-      Exit
-      None
-      remanent_state
+    | _ ->
+      Remanent_state.warn_dft
+        pos
+        ""
+        Exit
+        None
+        remanent_state
 
 let check_node_idx_stab pos remanent_state key automaton =
   let n = String.length key in
@@ -186,28 +193,35 @@ let find_association pos remanent_state key automaton =
         remanent_state
 
 let get_succ_stab pos remanent_state node_idx c automaton =
-  try
-    let node = automaton.(node_idx) in
-    match
-      CharMap.find_opt c node.succ
+  if c = '\195'
+  then
+    remanent_state, node_idx
+  else
+    try
+      let node = automaton.(node_idx) in
+      match
+        CharMap.find_opt c node.succ
+      with
+      | Some idx ->
+        remanent_state, idx
+      | None ->
+        let msg =
+          Format.sprintf "Unknown symbol (%c)" c
+        in
+        Remanent_state.warn_dft
+          pos
+          msg
+          Exit
+          node_idx
+          remanent_state
     with
-    | Some idx ->
-      remanent_state, idx
-    | None ->
+    | _ ->
       Remanent_state.warn_dft
         pos
-        ""
+        "Out of bound access"
         Exit
         node_idx
         remanent_state
-  with
-  | _ ->
-    Remanent_state.warn_dft
-      pos
-      ""
-      Exit
-      node_idx
-      remanent_state
 
 let find_node_idx_stab pos remanent_state key automaton =
   let n = String.length key in
@@ -244,6 +258,6 @@ let build remanent_state asso =
     exists pos remanent_state key automaton
   in
   let f pos remanent_state key =
-    find_association pos remanent_state key automaton
+      find_association pos remanent_state key automaton
   in
   remanent_state, test , f
