@@ -28,8 +28,16 @@ val print_errors:
 
   (** log *)
 val log:
-  ?logger:Loggers.t -> t -> ('a, Format.formatter, unit) format -> 'a
+  ?logger:Loggers.t ->
+  ?backgroundcolor:Color.color ->
+  ?textcolor:Color.color ->
+  ?lineproportion:float -> t -> ('a, Format.formatter, unit) format -> 'a
+
+
 val flush:
+  ?logger:Loggers.t -> t -> unit
+
+val print_newline:
   ?logger:Loggers.t -> t -> unit
 
 (** profiling *)
@@ -80,4 +88,4 @@ val save_std_logger: t -> save_logger
 val restore_std_logger: t -> save_logger -> t
 val set_std_logger: t -> Loggers.t -> t
 
-val std_logger: Loggers.t 
+val std_logger: Loggers.t

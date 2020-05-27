@@ -431,11 +431,12 @@ let patch_student_csv state ?file_name csv =
             | [] ->
               List.rev firstname, []
           in
-          let firstname, lastname =
+          let genre, firstname, lastname =
             match list_of_string with
-            | [] | [_] -> "",""
-            | _::t ->
+            | [] | [_] -> "","",""
+            | g::t ->
               let firstnamelist,lastnamelist = aux' t [] in
+              g,
               String.concat " " firstnamelist,
               String.concat " " lastnamelist
           in
@@ -452,7 +453,7 @@ let patch_student_csv state ?file_name csv =
             in
             aux state t (h::acc)
           else
-            aux state t (["Prénom";firstname]::["Nom";lastname]::acc)
+            aux state t (["Genre";genre]::["Prénom";firstname]::["Nom";lastname]::["Nom Complet";name]::acc)
         | [s] when String.length s > 5 && (String.sub s 0 6) = "Année" ->
           let wordlist =
             String.split_on_char ' ' s

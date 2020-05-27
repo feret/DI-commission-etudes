@@ -16,9 +16,10 @@
   * en Automatique.  All rights reserved.  This file is distributed
   * under the terms of the GNU Library General Public License *)
 
+type orientation = Lanscape | Normal
 type encoding =
   | HTML | HTML_Tabular
-  | TXT | CSV | XLS | Json | Latex
+  | TXT | CSV | XLS | Json | Latex of orientation
 
 module type FormatMap =
 sig
@@ -47,7 +48,7 @@ let breakable x =
   match
     x
   with
-  | HTML_Tabular | HTML | TXT | Latex -> true
+  | HTML_Tabular | HTML | TXT | Latex _ -> true
   | Json | CSV | XLS -> false
 
 type t =
@@ -127,6 +128,53 @@ let fprintf ?fprintnewline:(fprintnewline=false) logger =
          logger.current_line <- (String (if bool then str else clean_string str) )::logger.current_line)
       fmt_buffer
 
+let fprintf ?backgroundcolor ?textcolor ?lineproportion ?fprintnewline:(fprintnewline=false) logger x  =
+      match logger.encoding with
+      | Latex _ ->
+        begin
+          let bgcolor =
+            match backgroundcolor with
+            | None -> "",""
+            | Some a ->
+              Format.sprintf
+                "{\\definecolor{bg}{%s}}\\colorbox{bg}{"
+                (Color.string_latex (Color.get_background_color a)),
+              "}}"
+          in
+          let txtcolor =
+            match textcolor with
+            | None -> "",""
+            | Some a ->
+              Format.sprintf
+                "{\\definecolor{font}{%s}}\\textcolor{font}{"
+                (Color.string_latex (Color.get_font_color a)),
+              "}}"
+          in
+          let size =
+            match lineproportion with
+            | None -> "\begin{minipage}{\\linewidth}","\\end{minipage}"
+            | Some f ->
+              Format.sprintf
+                "\\begin{minipage}{%f\\linewidth}" f,
+              "\\end{minipage}"
+          in
+          let prefix =
+            Format.sprintf "%s%s%s"
+              (fst bgcolor) (fst size) (fst txtcolor)
+          in
+          let suffix =
+            Format.sprintf "%s%s%s"
+              (snd txtcolor) (snd size) (snd bgcolor)
+          in
+          let prefix = Scanf.format_from_string prefix "" in
+          let suffix = Scanf.format_from_string suffix "" in
+          fprintf ~fprintnewline logger (prefix^^x^^suffix)
+        end
+      | HTML | HTML_Tabular
+      | TXT | CSV | XLS | Json -> (*fun a -> fprintf logger x a*)
+        fprintf ~fprintnewline logger x
+
+
 let print_breakable_space logger =
   if breakable logger.encoding
   then
@@ -162,7 +210,7 @@ let end_of_line_symbol logger =
     logger.encoding
   with
   | HTML  -> "<Br>"
-  | Json | HTML_Tabular | TXT | CSV | XLS | Latex -> ""
+  | Json | HTML_Tabular | TXT | CSV | XLS | Latex _ -> ""
 
 let dump_token f x =
   match
@@ -237,7 +285,7 @@ let print_cell logger s =
       logger.encoding
     with
     | HTML_Tabular -> "<TD>","</TD>"
-    | Latex -> "{","}"
+    | Latex _ -> "{","}"
     | CSV  -> "","\t"
     | Json | HTML | TXT | XLS -> "",""
   in
@@ -261,12 +309,14 @@ let close_logger logger =
       fprintf logger "</div>\n</body>\n"
     | HTML_Tabular ->
       fprintf logger "</TABLE>\n</div>\n</body>"
-    | Json | TXT | CSV | XLS | Latex -> ()
+    | Latex _ ->
+      fprintf logger "\\end{document}"
+    | Json | TXT | CSV | XLS -> ()
   in
   let () = flush_logger logger in
   ()
 
-let print_preamble logger =
+let print_preamble ?decimalsepsymbol logger =
   match
     logger.encoding
   with
@@ -274,7 +324,25 @@ let print_preamble logger =
     fprintf logger "<body>\n<div>\n"
   | HTML_Tabular ->
     fprintf logger "<body>\n<div>\n<TABLE>\n"
-  | Json | TXT | CSV | XLS | Latex -> ()
+  | Latex orientation ->
+    let package, size =
+      match orientation with
+      | Lanscape -> "\\usepackage{lscape}",
+                    "\\landscape\n\n\\setlength{\\textwidth}{28.3cm}\n\\setlength{\\hoffset}{-1.84cm}\n\\setlength{\\headsep}{0pt}\n\\setlength{\\topmargin}{0mm}\n\\setlength{\\footskip}{0mm}\n\\setlength{\\oddsidemargin}{0pt}\n\\setlength{\\evensidemargin}{0pt}\n\\setlength{\\voffset}{-2.15cm}\n\\setlength{\\textheight}{19.6cm}\n\\setlength{\\paperwidth}{21cm}\n\\setlength{\\paperheight}{29.7cm}\n\\setlength\\parindent{0pt}\n"
+      | Normal -> "",""
+    in
+    let decimal =
+      match
+        decimalsepsymbol
+      with
+      | None -> ""
+      | Some a ->
+        Format.sprintf "\\npdecimalsign{%s}\n" a
+    in
+    fprintf logger
+      "\\documentclass[14pt]{extarticle}\n\n\\usepackage[latin1]{inputenc}%s\\usepackage{xcolor}\n\\usepackage[french]{babel}\n\\usepackage{xfp}\n\\usepackage{ifthen}\n\\usepackage{numprint}\\def\rmdefault{phv}\n\n%s\\pagestyle{empty}\n\n\\newcounter{total}\n\\setcounter{total}{0}\n\\newcounter{ects}\n\\setcounter{ects}{0}\n\n       \\newcounter{cects}\n\\setcounter{cects}{0}\n\n\\begin{document}\n%s\n\\newcommand{\\factor}{100000}\\newcommand{\\cours}[7]{%%\n                                              \\ifnum\\fpeval{#6<10} = 1%%\n\\setcounter{cects}{0}%%\n\\else%%\n\\setcounter{cects}{#7}%%\n\\fi%%\n#1 && #2 & #3 & #4 & #5 & \numprint{#6} &  \numprint{#7}\\cr%%\n\\addtocounter{total}{\\fpeval{{\thecects}*{#6}*\\factor}}%%\n\\addtocounter{ects}{\\fpeval{{\thecects}*\\factor}}"
+      package size  decimal
+  | Json | TXT | CSV | XLS -> ()
 
 let open_logger_from_channel ?mode:(mode=TXT) channel =
   let formatter = Format.formatter_of_out_channel channel in
@@ -326,7 +394,7 @@ let open_row logger =
     logger.encoding
   with
   | HTML_Tabular -> fprintf logger "<tr>"
-  | Latex -> fprintf logger "\row"
+  | Latex _ -> fprintf logger "\row"
   | Json | XLS | HTML | TXT | CSV -> ()
 
 let close_row logger =
@@ -334,7 +402,7 @@ let close_row logger =
     logger.encoding
   with
   | HTML_Tabular -> fprintf logger "<tr>@."
-  | Latex | Json | XLS | HTML | TXT | CSV -> fprintf logger "@."
+  | Latex _ | Json | XLS | HTML | TXT | CSV -> fprintf logger "@."
 
 let formatter_of_logger logger =
   match
@@ -372,7 +440,7 @@ let flush_and_clean logger fmt =
     b:=Infinite_buffers.clean !b
 
 
-let fprintf logger = fprintf ~fprintnewline:false logger
+let fprintf ?backgroundcolor ?textcolor ?lineproportion logger = fprintf ?backgroundcolor ?textcolor ?lineproportion ~fprintnewline:false logger
 
 let channel_of_logger logger = logger.channel_opt
 

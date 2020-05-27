@@ -78,6 +78,32 @@ let log_bool
     in
     state
 
+let log_genre
+    state (label, string_opt) =
+  match string_opt with
+  | None -> state
+  | Some a ->
+    let () =
+      Remanent_state.log
+        state "%s: %s" label
+        (match a with
+         | Public_data.Masculin -> "M"
+         | Public_data.Feminin -> "F")
+    in state
+
+let log_statut
+        state (label, string_opt) =
+      match string_opt with
+      | None -> state
+      | Some a ->
+        let () =
+          Remanent_state.log
+            state "%s: %s" label
+            (match a with
+             | Public_data.Eleve -> "Eleve"
+             | Public_data.Etudiant -> "Etudiant")
+        in state
+
 let log_diplome state diplome =
   let state =
     List.fold_left
@@ -363,10 +389,11 @@ type gps_file =
     nom: string option;
     prenom: string option;
     nom_complet: string option;
+    genre: Public_data.genre option ;
     date_de_naissance: string option;
     promotion: string option;
     origine: string option;
-    statut: string option;
+    statut: Public_data.statut option;
     annee_en_cours: annee option;
     contact_ens: string option;
     tuteur: string option;
@@ -374,19 +401,34 @@ type gps_file =
     stages: stage list;
   }
 
-let log_gps_file state gps =
+let _log_gps_file state gps =
   let state =
     List.fold_left
       log_string
       state
       ["nom",gps.nom;
-       "prenom",gps.prenom;
-       "nom complet",gps.nom_complet;
-       "date de naissance",gps.date_de_naissance;
-       "promotion",gps.promotion;
-       "origine",gps.origine;
-       "statut",gps.statut;
+       "prenom",gps.prenom]
+  in
+  let state =
+    log_genre
+      state
+      ("statut",gps.genre)
+  in
+  let state =
+    List.fold_left
+      log_string
+      state
+      [
+        "nom complet",gps.nom_complet;
+        "date de naissance",gps.date_de_naissance;
+        "promotion",gps.promotion;
+        "origine",gps.origine
       ]
+  in
+  let state =
+    log_statut
+      state
+      ("statut",gps.statut)
   in
   let state =
     log_annee
@@ -432,6 +474,7 @@ let empty_gps =
     nom = None ;
     prenom = None ;
     nom_complet = None ;
+    genre = None ;
     date_de_naissance = None ;
     promotion = None ;
     origine = None ;
@@ -677,6 +720,8 @@ let keywords_list =
   [
     Public_data.LastName;
     Public_data.FirstName;
+    Public_data.Genre;
+    Public_data.FullName;
     Public_data.Date_de_Naissance;
     Public_data.Promo;
     Public_data.Origine;
@@ -804,6 +849,66 @@ match s_opt with
         None
         state
 
+let genre_opt_of_string_opt pos state s_opt =
+  match s_opt with
+  | None -> state, None
+  | Some s ->
+    if String.trim s = ""
+    then state, None
+    else
+      let s = String.lowercase_ascii s in
+      if
+        List.mem
+          s ["m";"mr";"monsieur"]
+      then state, Some Public_data.Masculin
+      else if
+        List.mem
+          s
+          ["mlle";"mme";"madame";"mademoiselle"]
+      then state, Some Public_data.Feminin
+      else
+        let msg =
+          Format.sprintf
+            "Ill-formed Gender (%s)"
+            s
+        in
+        Remanent_state.warn_dft
+          pos
+          msg
+          Exit
+          None
+          state
+
+let statut_opt_of_string_opt pos state s_opt =
+  match s_opt with
+  | None -> state, None
+  | Some s ->
+    if String.trim s = ""
+    then state, None
+    else
+      let s = String.lowercase_ascii s in
+      if
+        List.mem
+          s
+          ["n";"eleve";"normalien"]
+      then state, Some Public_data.Eleve
+      else if
+        List.mem
+          s ["e";"etudiant"]
+      then state, Some Public_data.Etudiant
+      else
+        let msg =
+          Format.sprintf
+            "Ill-formed Statut (%s)"
+            s
+        in
+        Remanent_state.warn_dft
+          pos
+          msg
+          Exit
+          None
+          state
+
 let float_opt_of_string_opt _pos state s_opt =
   let state, float_opt_opt =
     Tools.map_opt_state
@@ -827,6 +932,12 @@ let lift_gen_state  get set  f state data remanent =
 
 let lift_gps =
   lift_gen
+    (fun x -> x.gps_file)
+    (fun gps_file remanent ->
+       {remanent with gps_file})
+
+let lift_gps_state =
+  lift_gen_state
     (fun x -> x.gps_file)
     (fun gps_file remanent ->
        {remanent with gps_file})
@@ -865,6 +976,17 @@ let asso_list =
       lift_gps
         (fun prenom gps_file ->
            {gps_file with prenom});
+      Public_data.Genre,
+      lift_gps_state
+        (fun state genre gps_file ->
+           let state, genre =
+             genre_opt_of_string_opt __POS__ state genre
+           in
+           state,{gps_file with genre});
+      Public_data.FullName,
+           lift_gps
+             (fun nom_complet gps_file ->
+                {gps_file with nom_complet});
       Public_data.Date_de_Naissance,
       lift_gps
         (fun date_de_naissance gps_file
@@ -878,9 +1000,12 @@ let asso_list =
         (fun origine gps_file ->
            {gps_file with origine});
       Public_data.Statut,
-      lift_gps
-        (fun statut gps_file ->
-           {gps_file with statut});
+      lift_gps_state
+        (fun state genre gps_file ->
+           let state, statut =
+             statut_opt_of_string_opt __POS__ state genre
+           in
+           state,{gps_file with statut});
       Public_data.Annee_en_Cours,
       lift_gps
         (fun (annee_en_cours:annee option) gps_file ->
@@ -1216,7 +1341,7 @@ in
 state, output
 
 let export_transcript ~output state gps_file =
-    let state, rep =
+  let state, rep =
     Safe_sys.rec_mk_when_necessary __POS__
       state (fst output)
   in
@@ -1247,16 +1372,59 @@ let export_transcript ~output state gps_file =
   match output_channel_opt with
   | None -> state, None
   | Some out ->
-    let logger = Loggers.open_logger_from_channel out in
+    let mode = Loggers.Latex Loggers.Lanscape in
+    let logger = Loggers.open_logger_from_channel ~mode out in
     let old_logger = Remanent_state.save_std_logger state in
     let state = Remanent_state.set_std_logger state logger in
-    let state =
-      log_gps_file
-          state
-          gps_file
+    let backgroundcolor = Some Color.green in
+    let () =
+      Remanent_state.log
+        ?backgroundcolor
+        state
+        "D\\'epartement d'Informatique. \\'Ecole Normale Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Tel : +33 (0)1 44 32 20 45."
     in
     let () =
-      Loggers.print_newline logger
+      Remanent_state.print_newline state in
+    let backgroundcolor = Some Color.blue in
+    let lineproportion = Some (2./.3.) in
+    let genre =
+      match gps_file.genre with
+       | None -> "(e)"
+       | Some Public_data.Masculin -> ""
+       | Some Public_data.Feminin -> "e"
+    in
+    let statut =
+        match gps_file.statut with
+      | None -> ""
+      | Some Public_data.Eleve -> "\\'Eleve"
+      | Some Public_data.Etudiant -> "\\'Etudiant"
+    in
+    let bourse = "TODO bourse" in
+    let () =
+        Remanent_state.log
+          ?backgroundcolor
+          ?lineproportion
+          state
+          "\\large %s %s \\hspace{5mm} an\\'e%s le %s \\hspace{5mm} %s%s %s"
+          (String.uppercase_ascii (Tools.unsome_string gps_file.nom))
+          (String.capitalize_ascii (Tools.unsome_string gps_file.prenom))
+          genre
+          (Tools.unsome_string gps_file.date_de_naissance)
+          statut
+          genre
+          bourse
+    in
+    let lineproportion = Some (1./.3.) in
+    let () =
+      Remanent_state.log
+        ?backgroundcolor
+        ?lineproportion
+        state
+        "\\large Promotion : %s"
+        (Tools.unsome_string gps_file.promotion)
+    in
+    let () =
+      Remanent_state.print_newline state
     in
     let state = Remanent_state.restore_std_logger state old_logger in
     let () = close_out out in

@@ -3,6 +3,8 @@ let unsome a_opt a =
   | Some a -> a
   | None -> a
 
+let unsome_string s_opt = unsome s_opt "" 
+
 let remove_space_from_string s =
   let seq = String.to_seq s in
   let seq = Seq.filter (fun x -> not (x=' ')) seq in

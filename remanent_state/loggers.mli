@@ -1,6 +1,7 @@
+type orientation = Lanscape | Normal
 type encoding =
   | HTML | HTML_Tabular
-  | TXT | CSV | XLS | Json | Latex
+  | TXT | CSV | XLS | Json | Latex of orientation
 
 module type FormatMap =
 sig
@@ -16,7 +17,8 @@ type t
 
 val devnul: t
 val get_encoding_format: t -> encoding
-val fprintf: t -> ('a, Format.formatter, unit) format -> 'a
+val fprintf: ?backgroundcolor:Color.color -> ?textcolor:Color.color ->
+  ?lineproportion:float -> t -> ('a, Format.formatter, unit) format -> 'a
 val print_newline: t -> unit
 val print_cell: t -> string -> unit
 val print_as_logger: t -> (Format.formatter -> unit) -> unit

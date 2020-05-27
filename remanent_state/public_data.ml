@@ -47,6 +47,7 @@ type keywords =
   | Etablissement_ou_Entreprise
   | FirstName
   | FullName
+  | Genre
   | Grade
   | Inscrit_au_DENS_en
   | LastName
@@ -85,3 +86,11 @@ type note =
   | En_cours
   | Abandon
   | Valide_sans_note
+
+type genre =
+  | Feminin
+  | Masculin
+
+type statut =
+  | Eleve
+  | Etudiant 

@@ -268,10 +268,17 @@ let which_logger ?logger t =
   | Some a -> a
   | None -> snd (get_std_logger t)
 
-let log ?logger t x =
-  Loggers.fprintf (which_logger ?logger t) x
+let log ?logger ?backgroundcolor ?textcolor ?lineproportion t x =
+  Loggers.fprintf
+    (which_logger ?logger t)
+    ?backgroundcolor ?textcolor ?lineproportion
+    x
+
 let flush ?logger t =
   Loggers.flush_logger (which_logger ?logger t)
+
+let print_newline ?logger t =
+  Loggers.print_newline (which_logger ?logger t)
 
 let print_errors ?logger prefix t =
   let t,error_handler = get_error_handler t in
