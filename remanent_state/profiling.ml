@@ -7,6 +7,7 @@ type step_kind =
   | Patch_gps_file of string option
   | Build_keywords_automaton
   | Export_transcript of string option
+  | Collect_scholarships
 
 type step =
   {
@@ -40,6 +41,7 @@ let string_of_step_kind x =
     Printf.sprintf
       "Export transcript (%s)"
       x
+  | Collect_scholarships -> "Collect data about scholarships"
 
 
 let print_step_kind logger x =
@@ -110,7 +112,8 @@ let is_dummy step_kind =
   | Extract_gps_file _
   | Patch_gps_file _
   | Build_keywords_automaton
-  | Export_transcript _ -> false
+  | Export_transcript _
+  | Collect_scholarships -> false
 
 let open_event
     logger prefix ~safe_mode error_handler step_kind log_info =

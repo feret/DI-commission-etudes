@@ -229,7 +229,7 @@ let get_list_from_a_file
     scan state [] csv None empty false output
 
 let get_list
-    ?repository ?prefix ?file_name
+    ~repository ?prefix ?file_name
     ~keywords_list ~asso_list ~fun_default ~keywords_of_interest
     ~at_end_of_array ~at_end_of_file ~at_end_of_array_line ~flush
     ~init_state
@@ -253,7 +253,7 @@ let get_list
     in
     let state, files_list =
       Scan_repository.get_list_of_files
-        ?repository ?prefix ?file_name state
+        ~repository ?prefix ?file_name state
     in
       List.fold_left
         (fun (state, output) file ->

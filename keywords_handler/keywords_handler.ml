@@ -104,7 +104,7 @@ let asso_list =
     Public_data.Option, ["option"];
     Public_data.Options, ["options"];
     Public_data.Origine, ["origine";"concours"];
-    Public_data.Organisme_de_Financement, ["organisme de financement"];
+    Public_data.Organisme_de_Financement, ["financement";"financeur";"organisme de financement"];
     Public_data.Periode, ["période"];
     Public_data.Periode_de_Financement, ["période de finanement"];
     Public_data.Pers_id, ["pers_id"];

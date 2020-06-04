@@ -1387,25 +1387,44 @@ let export_transcript ~output state gps_file =
       Remanent_state.print_newline state in
     let backgroundcolor = Some Color.blue in
     let lineproportion = Some (2./.3.) in
-    let genre =
+    let genre,er =
       match gps_file.genre with
-       | None -> "(e)"
-       | Some Public_data.Masculin -> ""
-       | Some Public_data.Feminin -> "e"
+      | None -> "(e)","er(\\`ere)"
+       | Some Public_data.Masculin -> "","er"
+       | Some Public_data.Feminin -> "e","\\`ere"
     in
-    let statut =
+    let lastname =
+      String.uppercase_ascii (Tools.unsome_string gps_file.nom)
+    in
+    let firstname =
+      String.capitalize_ascii (Tools.unsome_string gps_file.prenom)
+    in
+    let state,statut,bourse =
         match gps_file.statut with
-      | None -> ""
-      | Some Public_data.Eleve -> "\\'Eleve"
-      | Some Public_data.Etudiant -> "\\'Etudiant"
+      | None -> state,"",""
+      | Some Public_data.Eleve -> state,"\\'Eleve",""
+      | Some Public_data.Etudiant ->
+        begin
+          let state, bourse =
+          match Remanent_state.get_scholarship
+                  ~firstname ~lastname
+                  state
+          with
+          | state, None ->
+            state, ""
+          | state, Some scholarship ->
+              state,
+              Format.sprintf "Boursi%s %s" er scholarship.Public_data.organism
+          in
+          state, Format.sprintf "\\'Etudiant%s" genre,bourse
+        end
     in
-    let bourse = "TODO bourse" in
     let () =
         Remanent_state.log
           ?backgroundcolor
           ?lineproportion
           state
-          "\\large %s %s \\hspace{5mm} an\\'e%s le %s \\hspace{5mm} %s%s %s"
+          "\\large %s %s \\hspace{5mm} n\\'e%s le %s \\hspace{5mm} %s%s %s"
           (String.uppercase_ascii (Tools.unsome_string gps_file.nom))
           (String.capitalize_ascii (Tools.unsome_string gps_file.prenom))
           genre

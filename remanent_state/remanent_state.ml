@@ -54,6 +54,18 @@ let parameters =
     comma_symbol = ',';
   }
 
+type data =
+  {
+    scholarships: Scholarships.t;
+    dummy: unit
+  }
+
+let empty_data =
+  {
+    scholarships = Scholarships.empty;
+    dummy = ()
+  }
+
 type t =
   {
     parameters : parameters ;
@@ -62,6 +74,7 @@ type t =
     profiling_info : Profiling.log_info option ;
     std_logger : Loggers.t option ;
     profiling_logger: Loggers.t option ;
+    data: data;
   }
 
 let get_is_in_safe_mode t =
@@ -139,6 +152,14 @@ let get_students_list_prefix t =
 let get_students_list_repository t =
   let t, main = get_local_repository t in
   let t, repository = get_students_list_prefix t in
+  t, Printf.sprintf "%s/%s" main repository
+
+let get_scholarships_list_prefix t =
+  t, "bourses"
+
+let get_scholarships_list_repository t =
+  let t, main = get_local_repository t in
+  let t, repository = get_scholarships_list_prefix t in
   t, Printf.sprintf "%s/%s" main repository
 
 let get_csv_separator t = t, Some ','
@@ -229,7 +250,7 @@ let init () =
          ~mode:Loggers.HTML_Tabular
          fic)
   in
-
+  let data = empty_data in
   let prefix = "" in
   let state =
     {
@@ -239,6 +260,7 @@ let init () =
       profiling_info  ;
       std_logger ;
       profiling_logger ;
+      data ;
     }
   in
   let state = get_option state in
@@ -301,3 +323,32 @@ let get_comma_symbol t =
 
 let std_logger =
   Loggers.open_logger_from_formatter (Format.std_formatter)
+
+let get_data t = t.data
+let get_scholarships data = data.scholarships
+let get_scholarships t = get_scholarships (get_data t)
+let set_data data t = {t with data}
+let set_scholarships scholarships data =
+  {data with scholarships}
+let set_scholarships scholarships t =
+  set_data (set_scholarships scholarships (get_data t)) t
+
+let add_scholarship pos scholarship t =
+  let t, error_handler = get_error_handler t in
+  let t, log = get_std_logger t in
+  let t, prefix = get_prefix t in
+  let t, safe_mode = get_is_in_safe_mode t in
+  let error_handler, scholarships =
+    Scholarships.add_scholarship
+      ~safe_mode log prefix pos error_handler
+      scholarship (get_scholarships t)
+  in
+  let t = set_scholarships scholarships t in
+  let t = set_error_handler error_handler t in
+  t
+
+let get_scholarship ~firstname ~lastname t =
+  let scholarship_opt =
+    Scholarships.get_scholarship ~firstname ~lastname t.data.scholarships
+  in
+  t, scholarship_opt

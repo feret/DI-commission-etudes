@@ -79,6 +79,10 @@ val get_csv_separator: t -> t * char option
 val get_students_list_prefix: t -> t * string
 val get_students_list_repository: t -> t * string
 
+(** list of scholarships *)
+val get_scholarships_list_prefix: t -> t * string
+val get_scholarships_list_repository: t -> t * string
+
 val get_launching_date: t -> t * string
 
 val get_comma_symbol: t -> t * char
@@ -89,3 +93,16 @@ val restore_std_logger: t -> save_logger -> t
 val set_std_logger: t -> Loggers.t -> t
 
 val std_logger: Loggers.t
+
+
+(** scholarships *)
+val get_scholarship:
+  firstname:string ->
+  lastname:string -> t ->
+  t * Public_data.scholarship option
+
+val add_scholarship:
+  (string * int * int * int) ->
+  Public_data.scholarship ->
+  t ->
+  t

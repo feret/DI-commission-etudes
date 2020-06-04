@@ -4,7 +4,7 @@ val get_list_from_a_file:
   Remanent_state.t -> string * string -> 'a list -> Remanent_state.t * 'a list
 
 val get_list:
-  ?repository:string ->
+  repository:string ->
   ?prefix:string ->
   ?file_name:string ->
   keywords_list:Public_data.keywords list ->

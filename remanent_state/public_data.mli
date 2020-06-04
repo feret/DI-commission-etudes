@@ -9,6 +9,20 @@ type student_id =
     promotion: string option;
   }
 
+type scholarship =
+  {
+    organism: string;
+    holder_firstname: string;
+    holder_lastname: string;
+    holder_promotion: string option
+  }
+
+
+module PromoMap : Map.S with type key = string
+module FinanceurMap : Map.S with type key = string
+module FirstNameMap : Map.S with type key = string
+module LastNameMap : Map.S with type key = string
+
 type course =
   {
     year: int option ;
@@ -93,4 +107,4 @@ type genre =
 
 type statut =
   | Eleve
-  | Etudiant 
+  | Etudiant

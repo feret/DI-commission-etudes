@@ -9,6 +9,14 @@ type student_id =
     promotion: string option;
   }
 
+type scholarship =
+  {
+    organism: string;
+    holder_firstname: string;
+    holder_lastname: string;
+    holder_promotion: string option
+  }
+
 type course =
   {
     year: int option ;
@@ -93,4 +101,16 @@ type genre =
 
 type statut =
   | Eleve
-  | Etudiant 
+  | Etudiant
+
+module StringMap =
+  Map.Make
+    (struct
+      type t = string
+      let compare = compare
+    end)
+
+module PromoMap = StringMap
+module FinanceurMap = StringMap
+module FirstNameMap = StringMap
+module LastNameMap = StringMap

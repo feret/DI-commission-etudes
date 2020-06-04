@@ -312,6 +312,11 @@ let get_students_list
   let flush state current_file output =
     state, current_file::output
   in
+  let state, repository =
+    match repository with
+    | Some a -> state, a
+    | None -> Remanent_state.get_students_list_repository state
+  in 
   let state, list =
     Scan_csv_files.get_list
       ~keywords_of_interest ~asso_list ~keywords_list
@@ -319,7 +324,7 @@ let get_students_list
       ~at_end_of_array_line ~at_end_of_array ~at_end_of_file ~flush
       ~init_state:empty_student
       state
-      ?repository ?prefix ?file_name
+      ~repository ?prefix ?file_name
       []
   in
   let state, output =

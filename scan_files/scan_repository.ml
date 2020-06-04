@@ -1,18 +1,10 @@
-let get_list_of_files ?repository ?prefix ?file_name state =
-  let state, repository =
-    match repository, prefix with
-    | None,None ->
-      Remanent_state.get_students_list_repository state
-    | Some rep, None ->
-      let state,prefix =
-        Remanent_state.get_students_list_prefix state in
-      state, Printf.sprintf "%s/%s" rep prefix
-    | None, Some prefix ->
-      let state,rep =
-        Remanent_state.get_local_repository state in
-      state, Printf.sprintf "%s/%s" rep prefix
-    | Some rep, Some prefix ->
-      state, Printf.sprintf "%s/%s" rep prefix
+let get_list_of_files ~repository ?prefix ?file_name state =
+  let repository =
+    match prefix with
+    | None ->
+      repository
+    | Some prefix ->
+      Printf.sprintf "%s/%s" repository prefix
   in
   match file_name with
   | Some file -> state, [repository,file]
