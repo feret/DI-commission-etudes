@@ -1,8 +1,3 @@
-type annee = string
-
-module ParAnnee =
-  Map.Make (struct type t = annee let compare = compare end)
-
 type diplome =
   {
     grade: string option;
@@ -315,7 +310,7 @@ let empty_stage =
   }
 type bilan_annuel =
        {
-         annee: annee option;
+         annee: Public_data.annee option;
          situation_administrative: string option;
          programme_d_etudes: string option;
          derniere_annee: bool option;
@@ -394,10 +389,10 @@ type gps_file =
     promotion: string option;
     origine: string option;
     statut: Public_data.statut option;
-    annee_en_cours: annee option;
+    annee_en_cours: Public_data.annee option;
     contact_ens: string option;
     tuteur: string option;
-    situation: bilan_annuel ParAnnee.t;
+    situation: bilan_annuel Public_data.YearMap.t;
     stages: stage list;
   }
 
@@ -445,7 +440,7 @@ let _log_gps_file state gps =
       ]
   in
   let state =
-    ParAnnee.fold
+    Public_data.YearMap.fold
       (fun annee bilan state ->
          let state =
            log_string
@@ -482,7 +477,7 @@ let empty_gps =
     annee_en_cours = None ;
     contact_ens = None ;
     tuteur = None ;
-    situation = ParAnnee.empty ;
+    situation = Public_data.YearMap.empty ;
     stages = [];
   }
 
@@ -494,7 +489,7 @@ type remanent =
    inscription_DENS: string option;
    sit_adm: string option;
    prg_et: string option;
-   annee_de_travail : annee option;
+   annee_de_travail : Public_data.annee option;
    last_year: bool option;
    dpt_principal: string option;
    dpt_secondaire: string option;
@@ -505,7 +500,7 @@ type remanent =
 let get_bilan_annuel state remanent year =
   state,
   match
-    ParAnnee.find_opt
+    Public_data.YearMap.find_opt
       year
       remanent.gps_file.situation
   with
@@ -515,7 +510,7 @@ let get_bilan_annuel state remanent year =
 
 let set_bilan_annuel state remanent year bilan =
   let situation =
-    ParAnnee.add
+    Public_data.YearMap.add
       year
       bilan
       remanent.gps_file.situation
@@ -1008,7 +1003,7 @@ let asso_list =
            state,{gps_file with statut});
       Public_data.Annee_en_Cours,
       lift_gps
-        (fun (annee_en_cours:annee option) gps_file ->
+        (fun annee_en_cours gps_file ->
            {gps_file with annee_en_cours});
       Public_data.Contact_ENS,
       lift_gps
@@ -1444,6 +1439,89 @@ let export_transcript ~output state gps_file =
     in
     let () =
       Remanent_state.print_newline state
+    in
+    let state =
+      Public_data.YearMap.fold
+        (fun year _ state ->
+          let state, tuteur =
+            Remanent_state.get_mentoring
+              ~year
+              ~lastname
+              ~firstname
+              __POS__
+              state
+          in
+          match tuteur with
+          | None ->
+            let msg =
+              Printf.sprintf
+                "Tuteur inconnu pour %s %s en %s"
+                firstname lastname year
+            in
+            Remanent_state.warn
+              __POS__
+              msg
+              Exit
+              state
+          | Some tuteur ->
+            begin
+              let state, tuteur =
+                match tuteur.Public_data.nom_du_tuteur, tuteur.Public_data.prenom_du_tuteur,
+                      tuteur.Public_data.courriel_du_tuteur
+                with
+                | None, (None | Some _), None ->
+                  let msg =
+                    Printf.sprintf
+                      "Tuteur inconnu pour %s %s en %s"
+                      firstname lastname year
+                  in
+                  Remanent_state.warn_dft
+                    __POS__
+                    msg
+                    Exit
+                    ""
+                    state
+                | Some x, Some y, _ ->
+                  state,
+                  Printf.sprintf
+                    "%s %s" x y
+                | None, _, Some x -> state, x
+                | Some x, _, _ -> state, x
+              in
+              let lineproportion = 2./.3. in
+              let backgroundcolor = Color.yellow in
+              let textcolor = Color.red in
+              let annee_int = int_of_string year in
+              let annee =
+                Printf.sprintf "%i -- %i" annee_int (annee_int+1)
+              in
+              let () =
+                Remanent_state.log
+                  ~lineproportion
+                  ~backgroundcolor
+                  ~textcolor
+                  state
+                  "%s"
+                  annee
+              in
+              let lineproportion = 1./.3. in
+              let () =
+                Remanent_state.log
+                  ~lineproportion
+                  ~backgroundcolor
+                  ~textcolor
+                  state
+                  "%s"
+                  tuteur
+              in
+              let () =
+                Remanent_state.print_newline state
+              in
+              state
+            end
+        )
+        gps_file.situation
+        state
     in
     let state = Remanent_state.restore_std_logger state old_logger in
     let () = close_out out in

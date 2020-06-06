@@ -8,6 +8,7 @@ type step_kind =
   | Build_keywords_automaton
   | Export_transcript of string option
   | Collect_scholarships
+  | Collect_mentoring
 
 type step =
   {
@@ -42,7 +43,7 @@ let string_of_step_kind x =
       "Export transcript (%s)"
       x
   | Collect_scholarships -> "Collect data about scholarships"
-
+  | Collect_mentoring -> "Collect data about mentoring"
 
 let print_step_kind logger x =
   Loggers.print_cell logger
@@ -113,7 +114,8 @@ let is_dummy step_kind =
   | Patch_gps_file _
   | Build_keywords_automaton
   | Export_transcript _
-  | Collect_scholarships -> false
+  | Collect_scholarships
+  | Collect_mentoring -> false
 
 let open_event
     logger prefix ~safe_mode error_handler step_kind log_info =

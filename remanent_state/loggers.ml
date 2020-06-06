@@ -152,7 +152,7 @@ let fprintf ?backgroundcolor ?textcolor ?lineproportion ?fprintnewline:(fprintne
           in
           let size =
             match lineproportion with
-            | None -> "\begin{minipage}{\\linewidth}","\\end{minipage}"
+            | None -> "\\begin{minipage}{\\linewidth}","\\end{minipage}"
             | Some f ->
               Format.sprintf
                 "\\begin{minipage}{%f\\linewidth}" f,
@@ -340,7 +340,7 @@ let print_preamble ?decimalsepsymbol logger =
         Format.sprintf "\\npdecimalsign{%s}\n" a
     in
     fprintf logger
-      "\\documentclass[14pt]{extarticle}\n\n\\usepackage[latin1]{inputenc}%s\\usepackage{xcolor}\n\\usepackage[french]{babel}\n\\usepackage{xfp}\n\\usepackage{ifthen}\n\\usepackage{numprint}\\def\rmdefault{phv}\n\n%s\\pagestyle{empty}\n\n\\newcounter{total}\n\\setcounter{total}{0}\n\\newcounter{ects}\n\\setcounter{ects}{0}\n\n       \\newcounter{cects}\n\\setcounter{cects}{0}\n\n\\begin{document}\n%s\n\\newcommand{\\factor}{100000}\\newcommand{\\cours}[7]{%%\n                                              \\ifnum\\fpeval{#6<10} = 1%%\n\\setcounter{cects}{0}%%\n\\else%%\n\\setcounter{cects}{#7}%%\n\\fi%%\n#1 && #2 & #3 & #4 & #5 & \numprint{#6} &  \numprint{#7}\\cr%%\n\\addtocounter{total}{\\fpeval{{\thecects}*{#6}*\\factor}}%%\n\\addtocounter{ects}{\\fpeval{{\thecects}*\\factor}}"
+      "\\documentclass[14pt]{extarticle}\n\n\\usepackage[latin1]{inputenc}%s\\usepackage{xcolor}\n\\usepackage[french]{babel}\n\\usepackage{xfp}\n\\usepackage{ifthen}\n\\usepackage{numprint}\\def\\rmdefault{phv}\n\n%s\\pagestyle{empty}\n\n\\newcounter{total}\n\\setcounter{total}{0}\n\\newcounter{ects}\n\\setcounter{ects}{0}\n\n       \\newcounter{cects}\n\\setcounter{cects}{0}\n\n\\begin{document}\n%s\n\\newcommand{\\factor}{100000}\\newcommand{\\cours}[7]{%%\n                                              \\ifnum\\fpeval{#6<10} = 1%%\n\\setcounter{cects}{0}%%\n\\else%%\n\\setcounter{cects}{#7}%%\n\\fi%%\n#1 && #2 & #3 & #4 & #5 & \numprint{#6} &  \\numprint{#7}\\cr%%\n\\addtocounter{total}{\\fpeval{{\\thecects}*{#6}*\\factor}}%%\n\\addtocounter{ects}{\\fpeval{{\\thecects}*\\factor}}"
       package size  decimal
   | Json | TXT | CSV | XLS -> ()
 

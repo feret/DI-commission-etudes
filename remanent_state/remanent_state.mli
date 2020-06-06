@@ -83,6 +83,11 @@ val get_students_list_repository: t -> t * string
 val get_scholarships_list_prefix: t -> t * string
 val get_scholarships_list_repository: t -> t * string
 
+(** list of mentoring *)
+val get_monitoring_list_prefix: t -> t * string
+val get_monitoring_list_repository: t -> t * string
+
+
 val get_launching_date: t -> t * string
 
 val get_comma_symbol: t -> t * char
@@ -106,3 +111,18 @@ val add_scholarship:
   Public_data.scholarship ->
   t ->
   t
+
+val add_mentoring:
+  (string * int * int * int) ->
+  Public_data.tutorat ->
+  t ->
+  t
+
+val get_mentoring:
+  firstname:string ->
+  lastname:string ->
+  year:Public_data.annee ->
+  ?tuteur_gps:Public_data.tutorat ->
+  (string * int * int * int) ->
+  t ->
+  t * Public_data.tutorat option

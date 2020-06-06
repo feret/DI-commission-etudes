@@ -1,6 +1,7 @@
 type cloud_client = NextCloudCmd
 type file_retriever = WGET
 type cloud_synchronization_mode = Daemon | CommandLine
+type annee = string
 
 type student_id =
   {
@@ -22,15 +23,26 @@ module PromoMap : Map.S with type key = string
 module FinanceurMap : Map.S with type key = string
 module FirstNameMap : Map.S with type key = string
 module LastNameMap : Map.S with type key = string
+module YearMap: Map.S with type key = annee
 
 type course =
   {
-    year: int option ;
+    year: annee option ;
     code: string option ;
     name: string option ;
     ects: int option ;
     teacher_name: string option ;
     teacher_email: string option ;
+  }
+
+type tutorat =
+  {
+    annee_academique: annee ;
+    nom_du_tuteur: string option;
+    prenom_du_tuteur: string option;
+    courriel_du_tuteur: string option;
+    nom_de_l_etudiant: string ;
+    prenom_de_l_etudiant: string 
   }
 
 type keywords =
@@ -42,6 +54,7 @@ type keywords =
   | Contact_ENS
   | Contrat
   | Courriel
+  | Courriel_du_tuteur
   | Credits
   | Date_de_Naissance
   | Departement
@@ -68,6 +81,7 @@ type keywords =
   | Lettre
   | Libelle
   | Niveau
+  | Nom_du_tuteur
   | Note
   | Obtenu_en
   | Option
@@ -78,6 +92,7 @@ type keywords =
   | Periode_de_Financement
   | Pers_id
   | Pour_Diplome
+  | Prenom_du_tuteur
   | Promo
   | Programme_d_etude
   | Recu

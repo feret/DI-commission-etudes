@@ -57,13 +57,13 @@ let parameters =
 type data =
   {
     scholarships: Scholarships.t;
-    dummy: unit
+    mentoring: Mentoring.t;
   }
 
 let empty_data =
   {
     scholarships = Scholarships.empty;
-    dummy = ()
+    mentoring = Mentoring.empty;
   }
 
 type t =
@@ -161,6 +161,14 @@ let get_scholarships_list_repository t =
   let t, main = get_local_repository t in
   let t, repository = get_scholarships_list_prefix t in
   t, Printf.sprintf "%s/%s" main repository
+
+let get_monitoring_list_prefix t =
+    t, "tuteurs"
+
+let get_monitoring_list_repository t =
+    let t, main = get_local_repository t in
+    let t, repository = get_monitoring_list_prefix t in
+    t, Printf.sprintf "%s/%s" main repository
 
 let get_csv_separator t = t, Some ','
 let get_logger_gen access t =
@@ -332,23 +340,61 @@ let set_scholarships scholarships data =
   {data with scholarships}
 let set_scholarships scholarships t =
   set_data (set_scholarships scholarships (get_data t)) t
+let get_mentoring data = data.mentoring
+let get_mentoring t = get_mentoring (get_data t)
+let set_mentoring mentoring data = {data with mentoring}
+let set_mentoring mentoring t =
+  set_data (set_mentoring mentoring (get_data t)) t
 
-let add_scholarship pos scholarship t =
+let add_gen get set add pos data t =
   let t, error_handler = get_error_handler t in
   let t, log = get_std_logger t in
   let t, prefix = get_prefix t in
   let t, safe_mode = get_is_in_safe_mode t in
-  let error_handler, scholarships =
-    Scholarships.add_scholarship
+  let error_handler, acc =
+    add
       ~safe_mode log prefix pos error_handler
-      scholarship (get_scholarships t)
+      data (get t)
   in
-  let t = set_scholarships scholarships t in
+  let t = set acc t in
   let t = set_error_handler error_handler t in
   t
+
+let add_scholarship =
+  add_gen
+    get_scholarships
+    set_scholarships
+    Scholarships.add_scholarship
 
 let get_scholarship ~firstname ~lastname t =
   let scholarship_opt =
     Scholarships.get_scholarship ~firstname ~lastname t.data.scholarships
   in
   t, scholarship_opt
+
+let add_mentoring =
+  add_gen
+    get_mentoring
+    set_mentoring
+    Mentoring.add_mentoring
+
+let get_mentoring ~firstname ~lastname ~year ?tuteur_gps pos t =
+    let mentoring_opt =
+      Mentoring.get_mentoring
+        ~firstname ~lastname ~year (get_mentoring t)
+    in
+    match mentoring_opt with
+    | Some a ->
+      t, Some a
+    | None ->
+      let msg =
+        Format.sprintf
+          "Pas de tuteur pour %s %s en %s dans les fichiers du département"
+          firstname lastname year
+      in
+      warn_dft
+        pos
+        msg
+        Exit
+        tuteur_gps
+        t

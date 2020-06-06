@@ -5,7 +5,9 @@ let state =
 let state, students_list =
   Get_gps_files.get_students_list state
 let state =
-  Collect_scholarships.get_scholarships state 
+  Collect_scholarships.get_scholarships state
+let state =
+  Collect_mentoring.get_mentoring state 
 let state, output_repository =
   Get_gps_files.get_dated_repository state
 let state =

@@ -74,6 +74,7 @@ let asso_list =
     Public_data.Contact_ENS, ["contact";"contact ENS"];
     Public_data.Contrat, ["contrat"];
     Public_data.Courriel, ["courriel"];
+    Public_data.Courriel_du_tuteur, ["courriel du tuteur"]; 
     Public_data.Credits, ["crédits"];
     Public_data.Date_de_Naissance, ["Date de naissance";"naissance"];
     Public_data.Departement, ["département"];
@@ -99,6 +100,7 @@ let asso_list =
     Public_data.Lettre, ["lettre"];
     Public_data.Libelle, ["libellé"];
     Public_data.Niveau, ["niveau"];
+    Public_data.Nom_du_tuteur, ["nom du tuteur"];
     Public_data.Note, ["note"];
     Public_data.Obtenu_en, ["obtenu en"];
     Public_data.Option, ["option"];
@@ -109,6 +111,7 @@ let asso_list =
     Public_data.Periode_de_Financement, ["période de finanement"];
     Public_data.Pers_id, ["pers_id"];
     Public_data.Pour_Diplome, ["pour diplôme"];
+    Public_data.Prenom_du_tuteur, ["prénom du tuteur"];
     Public_data.Promo, ["promo";"promotion"];
     Public_data.Programme_d_etude,
     ["programme";"programme d'études"; "Pgm études"];
