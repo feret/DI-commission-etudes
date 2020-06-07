@@ -5,12 +5,14 @@ type parameters =
     cloud_client: Public_data.cloud_client ;
     cloud_client_options: string ;
     cloud_repository: string ;
+    cloud_support_dynamic_link : bool ;
     local_repository: string ;
     distant_repository: string ;
     machine_to_access_gps: string ;
     port_to_access_gps: string;
     repository_to_access_gps: string;
     repository_to_dump_gps_files: string;
+    output_alias_repository: string;
     store_gps_file_according_to_their_promotions: bool;
     indicate_promotions_in_gps_file_names: bool;
     file_retriever: Public_data.file_retriever ;
@@ -34,12 +36,14 @@ let parameters =
     cloud_client = Public_data.NextCloudCmd ;
     cloud_client_options = "-n" ;
     cloud_repository = "/users/absint3/feret/Nextcloud" ;
+    cloud_support_dynamic_link = false ;
     local_repository = "di/direction_des_etudes" ;
     distant_repository = "https://cloud.di.ens.fr/" ;
     machine_to_access_gps = "violette.ens.fr" ;
     port_to_access_gps = "8080";
     repository_to_access_gps = "gps";
     repository_to_dump_gps_files = "gps_files";
+    output_alias_repository = "courant";
     store_gps_file_according_to_their_promotions = true;
     indicate_promotions_in_gps_file_names = true;
     file_retriever  = Public_data.WGET ;
@@ -56,6 +60,7 @@ let parameters =
 
 type data =
   {
+    output_alias: (string * string) option ;
     scholarships: Scholarships.t;
     mentoring: Mentoring.t;
   }
@@ -64,6 +69,7 @@ let empty_data =
   {
     scholarships = Scholarships.empty;
     mentoring = Mentoring.empty;
+    output_alias = None
   }
 
 type t =
@@ -91,6 +97,9 @@ let get_cloud_client t =
 
 let get_cloud_repository t =
   t,t.parameters.cloud_repository
+
+let get_cloud_support_dynamic_link t =
+  t,t.parameters.cloud_support_dynamic_link
 
 let get_local_repository t =
   let t, cloud =
@@ -137,6 +146,17 @@ let get_repository_to_access_gps t =
 
 let get_repository_to_dump_gps_files t =
   t, t.parameters.repository_to_dump_gps_files
+
+let get_output_alias_repository t =
+  t, t.parameters.output_alias_repository
+
+let get_output_alias t =
+  t, t.data.output_alias
+
+let set_output_alias t output_alias =
+  let output_alias = Some output_alias in 
+  let data = {t.data with output_alias} in
+  {t with data }
 
 let get_store_gps_files_according_to_their_promotions t =
   t,
@@ -298,11 +318,76 @@ let which_logger ?logger t =
   | Some a -> a
   | None -> snd (get_std_logger t)
 
-let log ?logger ?backgroundcolor ?textcolor ?lineproportion t x =
+let fprintf ?logger t x =
   Loggers.fprintf
+    (which_logger ?logger t)
+    x
+
+let breakpage ?logger t =
+  Loggers.breakpage (which_logger ?logger t)
+
+let log ?logger ?backgroundcolor ?textcolor ?lineproportion t x =
+  Loggers.log
     (which_logger ?logger t)
     ?backgroundcolor ?textcolor ?lineproportion
     x
+
+let set_std_logger t logger =
+  let std_logger = Some logger in
+  {t with std_logger}
+
+let open_array pos ?logger ~with_lines ?size ?color ?align ~title t =
+  let t,logger =
+    match logger with
+    | None ->
+      let logger = which_logger ?logger t in
+      let logger =
+        if with_lines
+        then
+          Loggers.with_lines logger
+        else
+          logger
+      in
+      let t = set_std_logger t logger in
+      t, logger
+    | Some logger ->
+      let logger =
+        if with_lines
+        then
+          Loggers.with_lines logger
+        else
+          logger
+      in
+      t, logger
+  in
+  let error = Loggers.open_array ?size ?color ?align ~title logger in
+  if error
+  then
+    warn
+      pos
+      "arguments of open_array shall have the same length"
+      Exit
+      t
+  else
+    t
+
+let close_array ?logger t =
+  let t =
+    match logger with
+    | Some _ -> t
+    | None ->
+      let logger = (which_logger ?logger t) in
+      let logger = Loggers.without_lines logger in
+      set_std_logger t logger
+  in
+  Loggers.close_array (which_logger ?logger t)
+let open_row ?logger ?macro t =
+  Loggers.open_row ?macro (which_logger ?logger t)
+let close_row ?logger t =
+  Loggers.close_row (which_logger ?logger t)
+
+let print_cell ?logger s t =
+  Loggers.print_cell (which_logger ?logger t) s
 
 let flush ?logger t =
   Loggers.flush_logger (which_logger ?logger t)
@@ -314,10 +399,6 @@ let print_errors ?logger prefix t =
   let t,error_handler = get_error_handler t in
   let () = Exception.print (which_logger ?logger t) prefix error_handler in
   t
-
-let set_std_logger t logger =
-  let std_logger = Some logger in
-  {t with std_logger}
 
 type save_logger = Loggers.t option
 let save_std_logger t = t.std_logger
@@ -331,6 +412,16 @@ let get_comma_symbol t =
 
 let std_logger =
   Loggers.open_logger_from_formatter (Format.std_formatter)
+
+let close_logger ?logger t =
+  let log = which_logger ?logger t in
+  let () = Loggers.close_logger log in
+  let t,log' = get_std_logger t in
+  if log == log'
+  then
+    {t with std_logger=None}
+  else
+    t
 
 let get_data t = t.data
 let get_scholarships data = data.scholarships

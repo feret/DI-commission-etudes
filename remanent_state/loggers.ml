@@ -1,21 +1,3 @@
-(**
-  * loggers.ml
-  *
-  * a module for KaSim
-  * Jérôme Feret, projet Antique, INRIA Paris
-  *
-  * KaSim
-  * Jean Krivine, Université Paris-Diderot, CNRS
-  *
-  * Creation: 26/01/2016
-  * Last modification: 25/05/2016
-  * *
-  *
-  *
-  * Copyright 2016  Institut National de Recherche en Informatique et
-  * en Automatique.  All rights reserved.  This file is distributed
-  * under the terms of the GNU Library General Public License *)
-
 type orientation = Lanscape | Normal
 type encoding =
   | HTML | HTML_Tabular
@@ -57,14 +39,18 @@ type t =
     logger: logger;
     channel_opt: out_channel option;
     mutable current_line: token list;
+    with_lines: bool;
   }
 
+let with_lines t = {t with with_lines = true}
+let without_lines t = {t with with_lines = false}
 let devnul =
   {
     encoding= TXT;
     logger = DEVNUL;
     channel_opt=None;
     current_line=[];
+    with_lines=false;
   }
 
 let get_encoding_format t = t.encoding
@@ -75,6 +61,7 @@ let dummy_html_logger =
     logger = DEVNUL;
     channel_opt = None;
     current_line = [];
+    with_lines=false;
   }
 
 let dummy_txt_logger =
@@ -83,6 +70,7 @@ let dummy_txt_logger =
     channel_opt = None;
     logger = DEVNUL;
     current_line = [];
+    with_lines=false;
   }
 
 (* Warning, we have to keep the character @ when it is followed by a character followed by a letter or a digit should be preserved *)
@@ -128,8 +116,9 @@ let fprintf ?fprintnewline:(fprintnewline=false) logger =
          logger.current_line <- (String (if bool then str else clean_string str) )::logger.current_line)
       fmt_buffer
 
-let fprintf ?backgroundcolor ?textcolor ?lineproportion ?fprintnewline:(fprintnewline=false) logger x  =
-      match logger.encoding with
+let log ?backgroundcolor ?textcolor ?lineproportion logger x  =
+  let fprintnewline = false in
+  match logger.encoding with
       | Latex _ ->
         begin
           let bgcolor =
@@ -137,7 +126,7 @@ let fprintf ?backgroundcolor ?textcolor ?lineproportion ?fprintnewline:(fprintne
             | None -> "",""
             | Some a ->
               Format.sprintf
-                "{\\definecolor{bg}{%s}}\\colorbox{bg}{"
+                "{\\definecolor{bg}%s%%%%%%%%\n\\colorbox{bg}{%%%%%%%%\n"
                 (Color.string_latex (Color.get_background_color a)),
               "}}"
           in
@@ -146,24 +135,24 @@ let fprintf ?backgroundcolor ?textcolor ?lineproportion ?fprintnewline:(fprintne
             | None -> "",""
             | Some a ->
               Format.sprintf
-                "{\\definecolor{font}{%s}}\\textcolor{font}{"
+                "{\\definecolor{font}%s%%%%%%%%\n\\textcolor{font}{%%%%%%%%\n"
                 (Color.string_latex (Color.get_font_color a)),
               "}}"
           in
           let size =
             match lineproportion with
-            | None -> "\\begin{minipage}{\\linewidth}","\\end{minipage}"
+            | None -> "\\begin{minipage}{\\linewidth}%%%%\n","\\end{minipage}%%%%%%%%\n"
             | Some f ->
               Format.sprintf
-                "\\begin{minipage}{%f\\linewidth}" f,
-              "\\end{minipage}"
+                "\\begin{minipage}{%f\\linewidth}%%%%%%%%\n" f,
+              "\\end{minipage}%%%%\n"
           in
           let prefix =
-            Format.sprintf "%s%s%s"
+            Format.sprintf "%s%s%s%%%%\n"
               (fst bgcolor) (fst size) (fst txtcolor)
           in
           let suffix =
-            Format.sprintf "%s%s%s"
+            Format.sprintf "%%%%\n%s%s%s"
               (snd txtcolor) (snd size) (snd bgcolor)
           in
           let prefix = Scanf.format_from_string prefix "" in
@@ -210,7 +199,8 @@ let end_of_line_symbol logger =
     logger.encoding
   with
   | HTML  -> "<Br>"
-  | Json | HTML_Tabular | TXT | CSV | XLS | Latex _ -> ""
+  | Latex _ -> "\n"
+  | Json | HTML_Tabular | TXT | CSV | XLS  -> ""
 
 let dump_token f x =
   match
@@ -279,15 +269,113 @@ let print_newline logger =
       ()
     end
 
+let draw_line logger =
+  match logger.encoding with
+  | Latex _ ->
+    if logger.with_lines then
+      let () = fprintf logger "\\hline" in
+      let () = print_newline logger
+      in ()
+  | Json | HTML | HTML_Tabular | CSV | TXT | XLS -> ()
+
+
+  let open_array ?size ?color ?align ~title logger =
+  match logger.encoding with
+  | Latex _ ->
+    let size =
+      match size with
+      | None -> List.rev_map (fun _ -> None) title
+      | Some a -> a
+    in
+    let color =
+      match color with
+      | None -> List.rev_map (fun _ -> None) title
+      | Some a -> a
+    in
+    let align =
+      match align with
+      | None -> List.rev_map (fun _ -> None) title
+      | Some a -> a
+    in
+    let () = fprintf logger "\\begin{tabular}{" in
+    let () = fprintf logger "|" in
+    let rec aux title color size align error =
+      match title with
+      | _::ttitle->
+        begin
+          let hcolor,tcolor,error =
+            match color with
+            | h::t -> h,t,error
+            | [] -> None, [], true
+          in
+          let hsize,tsize,error =
+            match size with
+            | h::t -> h,t,error
+            | [] -> None, [], true
+          in
+          let halign,talign,error =
+            match align with
+            | h::t -> h,t,error
+            | [] -> None, [], true
+          in
+          let align,error =
+            match halign with
+            | Some 'c' | None  -> 'c',error
+            | Some 'r' -> 'r',error
+            | Some 'l' -> 'l',error
+            | _ -> 'l',true
+          in
+          let () = fprintf logger "|%c" align in
+          let _ = hcolor, hsize in
+          aux ttitle tcolor tsize talign error
+        end
+      | [] ->
+        begin
+          match color, size, align with
+          | [], [], [] -> error
+          | _ -> true
+        end
+    in
+    let error = aux title color size align false in
+    let () = fprintf logger "||}" in
+    let () = print_newline logger in
+    let () = draw_line logger  in
+    let () = draw_line logger  in
+    let _ =
+      List.fold_left (fun is_start title ->
+          let () =
+            fprintf logger "%s%s"
+              (if is_start then "" else "&") title
+          in
+          false)
+        true
+        title
+    in
+    let () = fprintf logger "\\cr%%\n\ " in
+    let () = draw_line logger  in
+    let () = draw_line logger  in
+    error
+  | Json | HTML | HTML_Tabular | CSV | TXT | XLS -> false
+
+  let close_array logger =
+    match logger.encoding with
+    | Latex _ ->
+      let () = draw_line logger in
+      let () = draw_line logger  in
+      let () = fprintf logger "\\end{tabular}" in
+      let () = print_newline logger in
+      ()
+    | Json | HTML | HTML_Tabular | CSV | TXT | XLS -> ()
+
 let print_cell logger s =
-  let open_cell_symbol,close_cell_symbol =
+  let open_cell_symbol,s,close_cell_symbol =
     match
       logger.encoding
     with
-    | HTML_Tabular -> "<TD>","</TD>"
-    | Latex _ -> "{","}"
-    | CSV  -> "","\t"
-    | Json | HTML | TXT | XLS -> "",""
+    | HTML_Tabular -> "<TD>",s,"</TD>"
+    | Latex _ -> "{",Special_char.correct_string_latex s,"}"
+    | CSV  -> "",s,"\t"
+    | Json | HTML | TXT | XLS -> "",s,""
   in
   fprintf logger "%s%s%s" open_cell_symbol s close_cell_symbol
 
@@ -340,9 +428,90 @@ let print_preamble ?decimalsepsymbol logger =
         Format.sprintf "\\npdecimalsign{%s}\n" a
     in
     fprintf logger
-      "\\documentclass[14pt]{extarticle}\n\n\\usepackage[latin1]{inputenc}%s\\usepackage{xcolor}\n\\usepackage[french]{babel}\n\\usepackage{xfp}\n\\usepackage{ifthen}\n\\usepackage{numprint}\\def\\rmdefault{phv}\n\n%s\\pagestyle{empty}\n\n\\newcounter{total}\n\\setcounter{total}{0}\n\\newcounter{ects}\n\\setcounter{ects}{0}\n\n       \\newcounter{cects}\n\\setcounter{cects}{0}\n\n\\begin{document}\n%s\n\\newcommand{\\factor}{100000}\\newcommand{\\cours}[7]{%%\n                                              \\ifnum\\fpeval{#6<10} = 1%%\n\\setcounter{cects}{0}%%\n\\else%%\n\\setcounter{cects}{#7}%%\n\\fi%%\n#1 && #2 & #3 & #4 & #5 & \numprint{#6} &  \\numprint{#7}\\cr%%\n\\addtocounter{total}{\\fpeval{{\\thecects}*{#6}*\\factor}}%%\n\\addtocounter{ects}{\\fpeval{{\\thecects}*\\factor}}"
+      "\\documentclass[10pt]{extarticle}%%\n%%\n\
+\\usepackage[latin1]{inputenc}%%\n\
+%s\n\
+\\usepackage{xcolor}%%\n\
+\\usepackage[french]{babel}%%\n\
+\\usepackage{xfp}%%\n\
+\\usepackage{xstring}%%\n\
+\\usepackage{ifthen}%%\n\
+\\usepackage{numprint}%%\n\
+\\def\\rmdefault{phv}%%\n\
+%%\n\
+%s\
+\\pagestyle{empty}\n\
+\n\
+\\newcounter{total}\n\
+\\setcounter{total}{0}\n\
+\\newcounter{ects}\n\
+\\setcounter{ects}{0}\n\
+\\newcounter{pects}\n\
+\\setcounter{pects}{0}\n\
+\\newcounter{potentialects}\n\
+\\setcounter{potentialects}{0}\n\
+\\newcounter{cects}\n\
+\\setcounter{cects}{0}\n\
+\\newcounter{cnote}\n\
+\\setcounter{cnote}{0}\n\
+\n\
+\\begin{document}\n\ %s\n\
+\\newcommand{\\factor}{100000}\n\
+\\newcommand{\\myifdecimal}[3]{%%\n\
+\\StrGobbleRight{#1}{1}[\\prefix]%%\n\
+\\IfDecimal{#1}{#2}{%%\n\
+\\IfEndWith{#1}{.}%%\n\
+{\\IfInteger{\\prefix}{#2}{#3}}%%\n\
+{\\IfEndWith{#1}{,}{\\IfInteger{\\prefix}{#2}{#3}}{#3}}}}%%\n\
+\n\
+\\newcommand{\\mynumprint}[1]{%%\n\
+\\StrSubstitute{#1}{,}{.}[\\res]\\myifdecimal{#1}{\\numprint{\\res}}{#1}}%%\n\
+\\newcommand{\\correctnum}[1]%%\n\
+{\\StrSubstitute{#1}{,}{.}[\\res]\\myifdecimal{#1}{\res}{0}}%%\n\
+\\newcommand{\\computecects}[2]{\\myifdecimal{1}%%\n\
+{\\ifnum{\\fpeval{\\correctnum{#1}<10} = 1}%%\n\
+\\setcounter{cects}{0}%%\n\
+\\else%%\n\
+\\setcounter{cects}{2}%%\n\
+\\fi%%\n\
+}%%\n\
+{\\setcounter{cects}{0}}}%%\n\
+%%\n\
+%%\n\
+\\newcommand{\\cours}[7]{%%\n\
+\\StrSubstitute{#6}{,}{.}[\\res]%%\n\
+\\myifdecimal{#6}%%\n\
+{%%\n\
+\\setcounter{cnote}{\\fpeval{\\res*\\factor}}%%\n\
+\\ifnum\\fpeval{\\res<10} = 1%%\n\
+\\setcounter{cects}{0}%%\n\
+\\else%%\n\
+\\setcounter{cects}{#7}%%\n\
+\\fi%%\n\
+}%%\n\
+{%%\n\
+\\setcounter{cnote}{0}%%\n\
+\\setcounter{cects}{0}%%\n\
+}%%\n\
+%%\n\
+%%\n\
+\\IfStrEq{#6}{en cours}%%\n\
+{\\setcounter{pects}{#7}}%%\n\
+{\\setcounter{pects}{0}}%%\n\
+%%\n\
+#1 & #2 & #3 & #4 & #5 & \\mynumprint{#6} & \\numprint{#7}\\cr%%\n\
+\\addtocounter{total}{\\fpeval{\\thecects*\\thecnote}}%%\n\
+\\addtocounter{ects}{\\fpeval{\\thecects*\\factor}}%%\n\
+\\addtocounter{potentialects}{\\fpeval{\\thepects*\\factor}}%%\n\
+}%%\n\
+%%\n\ "
       package size  decimal
   | Json | TXT | CSV | XLS -> ()
+
+let breakpage t =
+  match t.encoding with
+  | Latex _ -> fprintf t "\\clearpage%%\n\ "
+  | HTML | HTML_Tabular| Json | TXT | CSV | XLS -> ()
 
 let open_logger_from_channel ?mode:(mode=TXT) channel =
   let formatter = Format.formatter_of_out_channel channel in
@@ -352,6 +521,7 @@ let open_logger_from_channel ?mode:(mode=TXT) channel =
       channel_opt = Some channel;
       encoding = mode;
       current_line = [];
+      with_lines = false;
     }
   in
   let () = print_preamble logger in
@@ -364,6 +534,7 @@ let open_logger_from_formatter ?mode:(mode=TXT) formatter =
       channel_opt = None;
       encoding = mode;
       current_line = [];
+      with_lines = false;
     }
   in
   let () = print_preamble logger in
@@ -375,6 +546,7 @@ let open_circular_buffer ?mode:(mode=TXT) ?size:(size=10) () =
     channel_opt = None;
     encoding = mode;
     current_line = [];
+    with_lines = false;
   }
 
 let open_infinite_buffer ?mode:(mode=TXT) () =
@@ -384,17 +556,24 @@ let open_infinite_buffer ?mode:(mode=TXT) () =
       channel_opt = None;
       encoding = mode;
       current_line = [];
+      with_lines = false;
     }
   in
   let () = print_preamble logger in
   logger
 
-let open_row logger =
+let open_row ?macro logger =
   match
     logger.encoding
   with
   | HTML_Tabular -> fprintf logger "<tr>"
-  | Latex _ -> fprintf logger "\row"
+  | Latex _ ->
+    let macro =
+      match macro with
+      | None -> "row"
+      | Some x -> x
+    in
+    fprintf logger "\\%s" macro
   | Json | XLS | HTML | TXT | CSV -> ()
 
 let close_row logger =
@@ -402,7 +581,10 @@ let close_row logger =
     logger.encoding
   with
   | HTML_Tabular -> fprintf logger "<tr>@."
-  | Latex _ | Json | XLS | HTML | TXT | CSV -> fprintf logger "@."
+  | Latex _ ->
+    let () = draw_line logger  in
+    print_newline logger
+  | Json | XLS | HTML | TXT | CSV -> fprintf logger "@."
 
 let formatter_of_logger logger =
   match
@@ -440,7 +622,7 @@ let flush_and_clean logger fmt =
     b:=Infinite_buffers.clean !b
 
 
-let fprintf ?backgroundcolor ?textcolor ?lineproportion logger = fprintf ?backgroundcolor ?textcolor ?lineproportion ~fprintnewline:false logger
+let fprintf logger = fprintf ~fprintnewline:false logger
 
 let channel_of_logger logger = logger.channel_opt
 

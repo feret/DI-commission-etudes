@@ -316,7 +316,7 @@ let get_students_list
     match repository with
     | Some a -> state, a
     | None -> Remanent_state.get_students_list_repository state
-  in 
+  in
   let state, list =
     Scan_csv_files.get_list
       ~keywords_of_interest ~asso_list ~keywords_list
@@ -372,46 +372,6 @@ let get_students_list
       state
   in
   state, output
-
-let get_dated_repository state =
-  let state, date = Remanent_state.get_launching_date state in
-  let state,local_rep =
-    Remanent_state.get_local_repository state
-  in
-  let state,gps_rep =
-    Remanent_state.get_repository_to_dump_gps_files state
-  in
-  let rep =
-    match local_rep,gps_rep with
-    | "","" -> ""
-    | "",x1 | x1,"" -> x1
-    | x1,x2 -> Printf.sprintf "%s/%s" x1 x2
-  in
-  let state, current_dir = Safe_sys.getcwd __POS__ state in
-  let state = Safe_sys.chdir __POS__ state rep in
-  let state, f_exists =
-    Safe_sys.file_exists __POS__ state date
-  in
-  let state =
-    if f_exists then
-      Safe_sys.command __POS__ state (Printf.sprintf "rm -rf %s" date)
-    else
-      state
-  in
-  let state = Safe_sys.command __POS__ state (Printf.sprintf "mkdir %s" date) in
-  let state = Safe_sys.command __POS__ state "rm -rf courant" in
-  let full_output_rep, full_courant =
-    match rep with
-    | "" -> date,"courant"
-    | _ -> Printf.sprintf "%s/%s" rep date,
-            Printf.sprintf "%s/courant" rep
-  in
-  let state =
-    Safe_sys.command __POS__ state
-      (Printf.sprintf "ln -sf %s %s" full_output_rep full_courant)
-  in
-  let state = Safe_sys.chdir __POS__ state current_dir in
-  state, full_output_rep
 
 let key = "Année académique"
 

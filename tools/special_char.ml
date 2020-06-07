@@ -14,12 +14,31 @@ let special_char =
     '\160', 'a'
   ]
 
+let special_char_latex =
+  [
+    '\169', "{\\'e}";
+    '\167', "{\\c c}";
+    '\168', "{\\`e}";
+    '\180', "{\\^o}";
+    '\160', "a"
+  ]
+
+
+
+
 let special_char_map =
   List.fold_left
     (fun map (x,y) ->
        CharMap.add x y map)
     CharMap.empty
     special_char
+
+let special_char_latex_map =
+  List.fold_left
+    (fun map (x,y) ->
+       CharMap.add x y map)
+    CharMap.empty
+    special_char_latex
 
 let correct_cute_in_char c =
 match
@@ -93,3 +112,16 @@ let expand_string s =
   let (list:char list list) = List.rev_map expand_char (List.rev list) in
   let (list:char list list) = cartesian_product list in
   List.rev_map list_to_string (List.rev list)
+
+let correct_string_latex s =
+  let list = string_to_list s in
+  let list =
+    List.rev_map
+      (fun c ->
+         match CharMap.find_opt c special_char_latex_map with
+         | Some a -> a
+         | None ->
+           let s = String.make 1 c in s)
+      (List.rev list)
+  in
+  String.concat "" list

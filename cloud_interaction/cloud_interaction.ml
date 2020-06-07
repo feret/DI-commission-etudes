@@ -82,3 +82,104 @@ let safe_synchronize_shared_repository =
   synchronize_shared_repository Remanent_state.stop
 let synchronize_shared_repository =
   synchronize_shared_repository Remanent_state.warn
+
+let get_dated_repository state =
+  match
+    Remanent_state.get_output_alias state
+  with
+  | state, Some x -> state, x
+  | state, None ->
+    begin
+      let state, date = Remanent_state.get_launching_date state in
+      let state,local_rep =
+        Remanent_state.get_local_repository state
+      in
+      let state,gps_rep =
+        Remanent_state.get_repository_to_dump_gps_files state
+      in
+      let rep =
+        match local_rep,gps_rep with
+        | "","" -> ""
+        | "",x1 | x1,"" -> x1
+        | x1,x2 -> Printf.sprintf "%s/%s" x1 x2
+      in
+      let state, current_dir = Safe_sys.getcwd __POS__ state in
+      let state = Safe_sys.chdir __POS__ state rep in
+      let state, f_exists =
+        Safe_sys.file_exists __POS__ state date
+      in
+      let state =
+        if f_exists then
+          Safe_sys.command __POS__ state
+            (Printf.sprintf "rm -rf %s" date)
+      else
+        state
+      in
+      let state = Safe_sys.command __POS__ state (Printf.sprintf "mkdir %s" date) in
+      let state, courant =
+        Remanent_state.get_output_alias_repository
+          state
+      in
+      let state, f_exists =
+        Safe_sys.file_exists __POS__ state courant
+      in
+      let state =
+        if f_exists
+        then
+          let command =
+            Printf.sprintf "rm -rf %s" courant
+          in
+          Safe_sys.command __POS__ state command
+        else
+          state
+      in
+      let full_output_rep, full_courant =
+        match rep with
+        | "" -> date,"courant"
+        | _ -> Printf.sprintf "%s/%s" rep date,
+               Printf.sprintf "%s/courant" rep
+      in
+      let state =
+        Remanent_state.set_output_alias
+          state
+          (full_output_rep,full_courant)
+      in
+      let state = Safe_sys.chdir __POS__ state current_dir in
+      state, (full_output_rep, full_courant)
+    end
+
+let make_output_dir ?alias t =
+  match alias with
+  | None ->
+    begin
+      match
+        Remanent_state.get_output_alias t
+      with
+      | t, None ->
+        get_dated_repository t
+      | t, Some x -> t, x
+    end
+  | Some x -> t, x
+
+let create_dynamic_link ?alias t =
+  let state, (output_rep, alias_rep) =
+    make_output_dir ?alias t
+  in
+  Safe_sys.command __POS__ state
+        (Printf.sprintf "ln -sf %s %s" output_rep alias_rep)
+
+let create_hard_copy ?alias t =
+  let state, (output_rep, alias_rep) =
+    make_output_dir ?alias t
+  in
+  Safe_sys.command __POS__ state
+    (Printf.sprintf "cp -rf %s %s" output_rep alias_rep)
+
+let make_current_repository ?alias t =
+  let t, b =
+    Remanent_state.get_cloud_support_dynamic_link t
+  in
+  if b then
+    create_dynamic_link ?alias t
+  else
+    create_hard_copy ?alias t

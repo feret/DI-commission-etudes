@@ -26,14 +26,26 @@ val stop:
 val print_errors:
   ?logger:Loggers.t -> string -> t -> t
 
-  (** log *)
+(** log *)
+val fprintf:
+  ?logger:Loggers.t -> t -> ('a, Format.formatter, unit) format -> 'a
+
 val log:
   ?logger:Loggers.t ->
   ?backgroundcolor:Color.color ->
   ?textcolor:Color.color ->
   ?lineproportion:float -> t -> ('a, Format.formatter, unit) format -> 'a
 
+val open_array:
+  (string * int * int * int) ->
+  ?logger:Loggers.t ->
+  with_lines:bool -> ?size:float option list -> ?color: Color.color option list -> ?align:char option list -> title:string list -> t -> t
+val close_array: ?logger:Loggers.t -> t -> unit
+val open_row: ?logger:Loggers.t -> ?macro:string -> t -> unit
+val close_row: ?logger:Loggers.t -> t -> unit
+val print_cell: ?logger:Loggers.t -> string -> t  -> unit
 
+val breakpage: ?logger:Loggers.t -> t -> unit
 val flush:
   ?logger:Loggers.t -> t -> unit
 
@@ -54,6 +66,11 @@ val get_cloud_repository: t -> t * string
 val get_local_repository: t -> t * string
 val get_distant_repository: t -> t * string
 val get_cloud_client_options: t -> t * string
+
+val get_cloud_support_dynamic_link: t -> t * bool
+val get_output_alias_repository: t -> t * string
+val get_output_alias: t -> t * (string * string) option
+val set_output_alias: t -> (string * string) -> t
 
 (** http access *)
 val get_file_retriever:
@@ -98,7 +115,7 @@ val restore_std_logger: t -> save_logger -> t
 val set_std_logger: t -> Loggers.t -> t
 
 val std_logger: Loggers.t
-
+val close_logger: ?logger:Loggers.t -> t -> t
 
 (** scholarships *)
 val get_scholarship:

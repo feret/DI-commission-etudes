@@ -74,7 +74,7 @@ let asso_list =
     Public_data.Contact_ENS, ["contact";"contact ENS"];
     Public_data.Contrat, ["contrat"];
     Public_data.Courriel, ["courriel"];
-    Public_data.Courriel_du_tuteur, ["courriel du tuteur"]; 
+    Public_data.Courriel_du_tuteur, ["courriel du tuteur"];
     Public_data.Credits, ["crédits"];
     Public_data.Date_de_Naissance, ["Date de naissance";"naissance"];
     Public_data.Departement, ["département"];
@@ -94,6 +94,7 @@ let asso_list =
     Public_data.Etablissement_ou_Entreprise,["établissement ou entreprise"];
     Public_data.FirstName, ["prénom";];
     Public_data.FullName, ["nom complet"];
+    Public_data.Genre, ["genre"];
     Public_data.Grade, ["grade"];
     Public_data.Inscrit_au_DENS_en, ["inscrit au DENS en"];
     Public_data.LastName, ["nom"];
@@ -124,7 +125,8 @@ let asso_list =
     ["service/labo/dpt"];
     Public_data.Situation, ["situation"];
     Public_data.Sujet_du_Stage_Type_du_Sejour,["sujet du stage / Type du séjour"];
-    Public_data.Stages_et_Sejours_a_l_Etranger,["Stages et Séjours à l'étranger"];
+    Public_data.Stages_et_Sejours_a_l_Etranger,
+    ["Stage(s) & Séjour(s) à l'étranger"];
     Public_data.Statut, ["statut"];
     Public_data.Tuteur, ["tuteur"];
     Public_data.Type_de_Financement,["type de financement"];

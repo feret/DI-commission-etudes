@@ -24,11 +24,7 @@ val get_students_list:
   Remanent_state.t ->
   Remanent_state.t * Public_data.student_id list
 
-val get_dated_repository:
-  Remanent_state.t ->
-  Remanent_state.t * string
-
 val patch_student_file:
   input:(string * string) ->
   output:(string * string) ->
-  Remanent_state.t -> Remanent_state.t *  (string * string) option 
+  Remanent_state.t -> Remanent_state.t *  (string * string) option

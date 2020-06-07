@@ -48,7 +48,7 @@ let _log_int
     in
     state
 
-    let log_float
+let log_float
         state (label,string_opt) =
       match string_opt with
       | None -> state
@@ -846,22 +846,31 @@ match s_opt with
 
 let genre_opt_of_string_opt pos state s_opt =
   match s_opt with
-  | None -> state, None
-  | Some s ->
-    if String.trim s = ""
-    then state, None
+  | None ->
+    let () = Format.printf "GENRE: NONE @." in state, None
+  | Some s' ->
+    let s = String.trim s' in
+    if s = ""
+    then
+      let () = Format.printf "GENRE: EMPTY (%s) @." s' in
+      state, None
     else
       let s = String.lowercase_ascii s in
       if
         List.mem
-          s ["m";"mr";"monsieur"]
-      then state, Some Public_data.Masculin
+          s ["m";"mr";"monsieur";"m.";"mr"]
+      then
+        let () = Format.printf "GENRE: Masc(%s) @." s' in
+        state, Some Public_data.Masculin
       else if
         List.mem
           s
           ["mlle";"mme";"madame";"mademoiselle"]
-      then state, Some Public_data.Feminin
+      then
+        let () = Format.printf "GENRE: FEM(%s) @." s' in
+        state, Some Public_data.Feminin
       else
+        let () = Format.printf "GENRE: UNKNOWN(%s) @." s' in
         let msg =
           Format.sprintf
             "Ill-formed Gender (%s)"
@@ -1059,6 +1068,11 @@ let asso_list =
       Public_data.Libelle,
       lift_diplome
         (fun libelle diplome ->
+           let () =
+             match libelle with
+             | None -> Printf.printf "No LIBELLE"
+             | Some a -> Printf.printf "LIBELLE %s" a
+           in
            {diplome with libelle});
       Public_data.Etablissement,
       lift_diplome
@@ -1335,6 +1349,11 @@ let state =
 in
 state, output
 
+let string_of_stringopt s_opt =
+  match s_opt with
+  | None -> ""
+  | Some s -> s
+
 let export_transcript ~output state gps_file =
   let state, rep =
     Safe_sys.rec_mk_when_necessary __POS__
@@ -1371,79 +1390,80 @@ let export_transcript ~output state gps_file =
     let logger = Loggers.open_logger_from_channel ~mode out in
     let old_logger = Remanent_state.save_std_logger state in
     let state = Remanent_state.set_std_logger state logger in
-    let backgroundcolor = Some Color.green in
-    let () =
-      Remanent_state.log
-        ?backgroundcolor
-        state
-        "D\\'epartement d'Informatique. \\'Ecole Normale Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Tel : +33 (0)1 44 32 20 45."
-    in
-    let () =
-      Remanent_state.print_newline state in
-    let backgroundcolor = Some Color.blue in
-    let lineproportion = Some (2./.3.) in
-    let genre,er =
-      match gps_file.genre with
-      | None -> "(e)","er(\\`ere)"
-       | Some Public_data.Masculin -> "","er"
-       | Some Public_data.Feminin -> "e","\\`ere"
-    in
-    let lastname =
-      String.uppercase_ascii (Tools.unsome_string gps_file.nom)
-    in
-    let firstname =
-      String.capitalize_ascii (Tools.unsome_string gps_file.prenom)
-    in
-    let state,statut,bourse =
-        match gps_file.statut with
-      | None -> state,"",""
-      | Some Public_data.Eleve -> state,"\\'Eleve",""
-      | Some Public_data.Etudiant ->
-        begin
-          let state, bourse =
-          match Remanent_state.get_scholarship
-                  ~firstname ~lastname
-                  state
-          with
-          | state, None ->
-            state, ""
-          | state, Some scholarship ->
-              state,
-              Format.sprintf "Boursi%s %s" er scholarship.Public_data.organism
-          in
-          state, Format.sprintf "\\'Etudiant%s" genre,bourse
-        end
-    in
-    let () =
-        Remanent_state.log
-          ?backgroundcolor
-          ?lineproportion
-          state
-          "\\large %s %s \\hspace{5mm} n\\'e%s le %s \\hspace{5mm} %s%s %s"
-          (String.uppercase_ascii (Tools.unsome_string gps_file.nom))
-          (String.capitalize_ascii (Tools.unsome_string gps_file.prenom))
-          genre
-          (Tools.unsome_string gps_file.date_de_naissance)
-          statut
-          genre
-          bourse
-    in
-    let lineproportion = Some (1./.3.) in
-    let () =
-      Remanent_state.log
-        ?backgroundcolor
-        ?lineproportion
-        state
-        "\\large Promotion : %s"
-        (Tools.unsome_string gps_file.promotion)
-    in
-    let () =
-      Remanent_state.print_newline state
-    in
+    let l = Public_data.YearMap.bindings gps_file.situation in
     let state =
-      Public_data.YearMap.fold
-        (fun year _ state ->
-          let state, tuteur =
+      List.fold_left
+        (fun state (year,situation) ->
+        let backgroundcolor = Some Color.green in
+        let () =
+          Remanent_state.log
+            ?backgroundcolor
+            state
+            "D\\'epartement d'Informatique. \\'Ecole Normale Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Tel : +33 (0)1 44 32 20 45."
+        in
+        let () =
+          Remanent_state.print_newline state in
+        let backgroundcolor = Some Color.blue in
+        let lineproportion = Some (2./.3.) in
+        let genre,er =
+          match gps_file.genre with
+          | None -> "(e)","er(\\`ere)"
+          | Some Public_data.Masculin -> "","er"
+          | Some Public_data.Feminin -> "e","\\`ere"
+        in
+        let lastname =
+          String.uppercase_ascii (Tools.unsome_string gps_file.nom)
+        in
+        let firstname =
+          String.capitalize_ascii (Tools.unsome_string gps_file.prenom)
+        in
+        let state,statut,bourse =
+            match gps_file.statut with
+          | None -> state,"",""
+          | Some Public_data.Eleve -> state,"\\'Eleve",""
+          | Some Public_data.Etudiant ->
+            begin
+              let state, bourse =
+              match Remanent_state.get_scholarship
+                      ~firstname ~lastname
+                      state
+              with
+              | state, None ->
+                state, ""
+              | state, Some scholarship ->
+                  state,
+                  Format.sprintf "Boursi%s %s" er scholarship.Public_data.organism
+              in
+              state, Format.sprintf "\\'Etudiant%s" genre,bourse
+            end
+        in
+        let () =
+            Remanent_state.log
+              ?backgroundcolor
+              ?lineproportion
+              state
+              "\\large %s %s \\hspace{5mm} n\\'e%s le %s \\hspace{5mm} %s%s %s"
+              (String.uppercase_ascii (Tools.unsome_string gps_file.nom))
+              (String.capitalize_ascii (Tools.unsome_string gps_file.prenom))
+              genre
+              (Tools.unsome_string gps_file.date_de_naissance)
+              statut
+              genre
+              bourse
+        in
+        let lineproportion = Some (1./.3.) in
+        let () =
+          Remanent_state.log
+            ?backgroundcolor
+            ?lineproportion
+            state
+            "\\large Promotion : %s"
+            (Tools.unsome_string gps_file.promotion)
+        in
+        let () =
+          Remanent_state.print_newline state
+        in
+        let state, tuteur =
             Remanent_state.get_mentoring
               ~year
               ~lastname
@@ -1484,7 +1504,9 @@ let export_transcript ~output state gps_file =
                 | Some x, Some y, _ ->
                   state,
                   Printf.sprintf
-                    "%s %s" x y
+                    "%s %s"
+                    (String.capitalize_ascii x)
+                    (String.uppercase_ascii y)
                 | None, _, Some x -> state, x
                 | Some x, _, _ -> state, x
               in
@@ -1517,12 +1539,80 @@ let export_transcript ~output state gps_file =
               let () =
                 Remanent_state.print_newline state
               in
+              let state =
+                Remanent_state.open_array
+                  __POS__
+                  ~with_lines:true
+                  ~title:["Code";"Dipl\\^ome";"Intitul\\'e";"Enseignant";"Semestre";"Note";"ECTS"]
+                    state
+              in
+              let macro = "cours" in
+              let state =
+                List.fold_left
+                  (fun state cours ->
+                     let () = Remanent_state.open_row ~macro state in
+                     let () =
+                       Remanent_state.print_cell
+                         (string_of_stringopt cours.code_cours)
+                         state
+                     in
+                         let () =
+                       Remanent_state.print_cell
+                         (string_of_stringopt cours.diplome)
+                         state
+                     in
+                     let () =
+                       Remanent_state.print_cell
+                         (string_of_stringopt cours.cours_libelle)
+                         state
+                     in
+                     let () =
+                       Remanent_state.print_cell
+                         (string_of_stringopt cours.responsable)
+                         state
+                     in
+                     let () =
+                       Remanent_state.print_cell
+                         (string_of_stringopt cours.semestre)
+                         state
+                     in
+                     let state, string =
+                       match cours.note with
+                       | None -> state, ""
+                       | Some f -> Notes.to_string __POS__ state f
+                     in
+                     let () =
+                       Remanent_state.print_cell
+                         string
+                         state
+                     in
+                     let () =
+                       Remanent_state.print_cell
+                         (Notes.string_of_ects cours.ects)
+                         state
+                     in
+                     let () =
+                       Remanent_state.close_row state
+                     in
+                     let () =
+                       Remanent_state.fprintf state "%%\n\ "
+                     in
+                     state)
+                  state situation.cours
+              in
+              let () =
+                Remanent_state.close_array
+                  state
+              in
+              let () =
+                Remanent_state.breakpage state
+              in
               state
             end
         )
-        gps_file.situation
         state
+        (List.rev l)
     in
+    let state = Remanent_state.close_logger state in
     let state = Remanent_state.restore_std_logger state old_logger in
-    let () = close_out out in
     state, Some (rep, snd output)

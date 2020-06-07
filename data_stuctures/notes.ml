@@ -9,9 +9,11 @@ let space_only s =
   in
   aux 0
 
-let correct_comma state t =
+let correct_comma ?force_dec_sep_to_dot state t =
   let state, comma =
-    Remanent_state.get_comma_symbol state
+    match force_dec_sep_to_dot with
+    | Some true -> state, '.'
+    | _ -> Remanent_state.get_comma_symbol state
   in
   state,
   if comma = '.'
@@ -80,15 +82,15 @@ let int_of_string pos state t =
             state
     end
 
-let float_to_string state f =
+let float_to_string ?force_dec_sep_to_dot state f =
   let s = string_of_float f in
-  correct_comma state s
+  correct_comma ?force_dec_sep_to_dot state s
 
 
-let to_string _pos state t =
+let to_string _pos ?force_dec_sep_to_dot state t =
   match t with
   | Public_data.Float f ->
-    float_to_string state f
+    float_to_string ?force_dec_sep_to_dot state f
   | Public_data.Absent -> state, "abs"
   | Public_data.En_cours -> state, "en cours"
   | Public_data.Abandon -> state, "abandon"
@@ -158,3 +160,13 @@ let compare a b =
   | _, Public_data.Absent -> 1
   | Public_data.Absent, _ -> (-1)
   | Public_data.Abandon, Public_data.Abandon -> 0
+
+let string_of_ects f_opt =
+  match f_opt with
+  | None -> ""
+  | Some f ->
+    if float_of_int (int_of_float f) = f
+    then
+      string_of_int (int_of_float f)
+    else
+      string_of_float f

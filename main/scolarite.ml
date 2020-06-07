@@ -7,9 +7,9 @@ let state, students_list =
 let state =
   Collect_scholarships.get_scholarships state
 let state =
-  Collect_mentoring.get_mentoring state 
-let state, output_repository =
-  Get_gps_files.get_dated_repository state
+  Collect_mentoring.get_mentoring state
+let state, (output_repository, _) =
+  Cloud_interaction.get_dated_repository state
 let state =
   List.fold_left
     (fun state id ->
@@ -44,10 +44,10 @@ let state =
        state
     )
     state
-students_list
+    students_list
 let state =
-Cloud_interaction.synchronize_shared_repository
-  state
+  Cloud_interaction.synchronize_shared_repository
+    state
 let state =
     Remanent_state.print_errors "" state
 let state =
