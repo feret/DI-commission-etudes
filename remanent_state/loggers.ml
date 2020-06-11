@@ -499,10 +499,11 @@ let print_preamble ?decimalsepsymbol logger =
 {\\setcounter{pects}{#7}}%%\n\
 {\\setcounter{pects}{0}}%%\n\
 %%\n\
-#1 & #2 & #3 & #4 & #5 & \\mynumprint{#6} & \\numprint{#7}\\cr%%\n\
 \\addtocounter{total}{\\fpeval{\\thecects*\\thecnote}}%%\n\
 \\addtocounter{ects}{\\fpeval{\\thecects*\\factor}}%%\n\
 \\addtocounter{potentialects}{\\fpeval{\\thepects*\\factor}}%%\n\
+%%\n\
+#1 & #2 & #3 & #4 & #5 & \\mynumprint{#6} & \\numprint{#7}\\cr%%\n\
 }%%\n\
 %%\n\ "
       package size  decimal

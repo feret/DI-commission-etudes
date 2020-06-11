@@ -46,6 +46,8 @@ let state =
     state
     students_list
 let state =
+  Cloud_interaction.make_current_repository state 
+let state =
   Cloud_interaction.synchronize_shared_repository
     state
 let state =

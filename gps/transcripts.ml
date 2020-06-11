@@ -846,13 +846,11 @@ match s_opt with
 
 let genre_opt_of_string_opt pos state s_opt =
   match s_opt with
-  | None ->
-    let () = Format.printf "GENRE: NONE @." in state, None
+  | None -> state, None
   | Some s' ->
     let s = String.trim s' in
     if s = ""
     then
-      let () = Format.printf "GENRE: EMPTY (%s) @." s' in
       state, None
     else
       let s = String.lowercase_ascii s in
@@ -860,17 +858,14 @@ let genre_opt_of_string_opt pos state s_opt =
         List.mem
           s ["m";"mr";"monsieur";"m.";"mr"]
       then
-        let () = Format.printf "GENRE: Masc(%s) @." s' in
-        state, Some Public_data.Masculin
+          state, Some Public_data.Masculin
       else if
         List.mem
           s
           ["mlle";"mme";"madame";"mademoiselle"]
       then
-        let () = Format.printf "GENRE: FEM(%s) @." s' in
         state, Some Public_data.Feminin
       else
-        let () = Format.printf "GENRE: UNKNOWN(%s) @." s' in
         let msg =
           Format.sprintf
             "Ill-formed Gender (%s)"
@@ -1066,14 +1061,18 @@ let asso_list =
         (fun niveau diplome ->
            {diplome with niveau});
       Public_data.Libelle,
-      lift_diplome
-        (fun libelle diplome ->
-           let () =
-             match libelle with
-             | None -> Printf.printf "No LIBELLE"
-             | Some a -> Printf.printf "LIBELLE %s" a
-           in
-           {diplome with libelle});
+      (fun state l remanent ->
+        let state, remanent =
+          (lift_diplome
+             (fun libelle diplome ->
+                {diplome with libelle}))
+             state l remanent
+        in
+        (lift_cours
+          (fun cours_libelle cours ->
+            {cours with cours_libelle}))
+          state l remanent)
+      ;
       Public_data.Etablissement,
       lift_diplome
         (fun etablissement diplome ->
