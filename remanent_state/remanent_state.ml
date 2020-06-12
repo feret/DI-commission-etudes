@@ -6,6 +6,8 @@ type parameters =
     cloud_client_options: string ;
     cloud_repository: string ;
     cloud_support_dynamic_link : bool ;
+    pdfgenerator : Public_data.pdf_generator ;
+    pdfgenerator_options : string ;
     local_repository: string ;
     distant_repository: string ;
     machine_to_access_gps: string ;
@@ -37,6 +39,8 @@ let parameters =
     cloud_client_options = "-n" ;
     cloud_repository = "/users/absint3/feret/Nextcloud" ;
     cloud_support_dynamic_link = false ;
+    pdfgenerator = Public_data.PdfLatex ;
+    pdfgenerator_options = "-interaction=nonstopmode";
     local_repository = "di/direction_des_etudes" ;
     distant_repository = "https://cloud.di.ens.fr/" ;
     machine_to_access_gps = "violette.ens.fr" ;
@@ -101,6 +105,11 @@ let get_cloud_repository t =
 let get_cloud_support_dynamic_link t =
   t,t.parameters.cloud_support_dynamic_link
 
+let get_pdfgenerator_engine t =
+  t,t.parameters.pdfgenerator
+
+let get_pdfgenerator_options t =
+  t,t.parameters.pdfgenerator_options
 let get_local_repository t =
   let t, cloud =
     get_cloud_repository t
@@ -154,7 +163,7 @@ let get_output_alias t =
   t, t.data.output_alias
 
 let set_output_alias t output_alias =
-  let output_alias = Some output_alias in 
+  let output_alias = Some output_alias in
   let data = {t.data with output_alias} in
   {t with data }
 

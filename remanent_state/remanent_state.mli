@@ -66,8 +66,9 @@ val get_cloud_repository: t -> t * string
 val get_local_repository: t -> t * string
 val get_distant_repository: t -> t * string
 val get_cloud_client_options: t -> t * string
-
 val get_cloud_support_dynamic_link: t -> t * bool
+val get_pdfgenerator_engine: t -> t * Public_data.pdf_generator
+val get_pdfgenerator_options: t -> t * string 
 val get_output_alias_repository: t -> t * string
 val get_output_alias: t -> t * (string * string) option
 val set_output_alias: t -> (string * string) -> t

@@ -32,21 +32,23 @@ let state =
              ~input state
        in
        let output =
-         (fst output, (snd output)^".tex")
+         (fst output, (Tools.basename (snd output))^".tex")
        in
-       let state, _ =
-         match gps with
-       | None -> state, None
+       match gps with
+       | None -> state
        | Some gps ->
-         Transcripts.export_transcript
-           ~output state gps
-       in
-       state
+         let state, output_opt =
+           Transcripts.export_transcript
+             ~output state gps
+         in
+         match output_opt with
+         | None -> state
+         | Some input -> Latex_engine.latex_to_pdf state ~input 
     )
     state
     students_list
 let state =
-  Cloud_interaction.make_current_repository state 
+  Cloud_interaction.make_current_repository state
 let state =
   Cloud_interaction.synchronize_shared_repository
     state

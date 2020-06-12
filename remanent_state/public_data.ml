@@ -1,4 +1,5 @@
 type cloud_client = NextCloudCmd
+type pdf_generator = PdfLatex 
 type file_retriever = WGET
 type cloud_synchronization_mode = Daemon | CommandLine
 type annee = string

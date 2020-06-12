@@ -3,7 +3,7 @@ let unsome a_opt a =
   | Some a -> a
   | None -> a
 
-let unsome_string s_opt = unsome s_opt "" 
+let unsome_string s_opt = unsome s_opt ""
 
 let remove_space_from_string s =
   let seq = String.to_seq s in
@@ -95,3 +95,8 @@ let map_opt_state f state a_opt =
   | Some a ->
     let state, output = f state a in
     state, Some output
+
+let basename x =
+  match String.rindex_opt x '.' with
+  | Some i -> String.sub x 0 i
+  | None -> x 

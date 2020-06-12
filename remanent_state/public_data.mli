@@ -1,4 +1,5 @@
 type cloud_client = NextCloudCmd
+type pdf_generator = PdfLatex 
 type file_retriever = WGET
 type cloud_synchronization_mode = Daemon | CommandLine
 type annee = string
@@ -42,7 +43,7 @@ type tutorat =
     prenom_du_tuteur: string option;
     courriel_du_tuteur: string option;
     nom_de_l_etudiant: string ;
-    prenom_de_l_etudiant: string 
+    prenom_de_l_etudiant: string
   }
 
 type keywords =
