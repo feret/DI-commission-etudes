@@ -1,3 +1,26 @@
+module StringOptMap =
+  Map.Make
+    (struct
+      type t = string option
+      let compare a b =
+        match a,b with
+        | None, _ -> -1
+        | _, None -> 1
+        | Some ("DENS" | "dens"), _ ->  -1
+        | _ , Some ("DENS" | "dens") -> 1
+        | Some a, Some b -> compare a b
+    end)
+
+let addmap x data map =
+  let old =
+    match
+      StringOptMap.find_opt x map
+    with
+    | Some x -> x
+    | None -> []
+  in
+  StringOptMap.add x (data::old) map
+
 type diplome =
   {
     grade: string option;
@@ -1538,69 +1561,95 @@ let export_transcript ~output state gps_file =
               let () =
                 Remanent_state.print_newline state
               in
-              let state =
-                Remanent_state.open_array
-                  __POS__
-                  ~with_lines:true
-                  ~title:["Code";"Dipl\\^ome";"Intitul\\'e";"Enseignant";"Semestre";"Note";"ECTS"]
-                    state
-              in
-              let macro = "cours" in
-              let state =
+              let split_cours =
                 List.fold_left
-                  (fun state cours ->
-                     let () = Remanent_state.open_row ~macro state in
-                     let () =
-                       Remanent_state.print_cell
-                         (string_of_stringopt cours.code_cours)
+                  (fun map elt ->
+                     addmap elt.diplome elt map)
+                  StringOptMap.empty
+                  (List.rev situation.cours)
+              in
+              let state =
+                StringOptMap.fold
+                  (fun _ list state ->
+                     let state =
+                       Remanent_state.open_array
+                         __POS__
+                         ~with_lines:true
+                         ~title:["Code";"Dipl\\^ome";"Intitul\\'e"
+                                ;"Enseignant";"Semestre";"Note";"ECTS"]
                          state
                      in
-                         let () =
-                       Remanent_state.print_cell
-                         (string_of_stringopt cours.diplome)
+                     let macro = "cours" in
+                     let state =
+                       List.fold_left
+                         (fun state cours ->
+                            let () = Remanent_state.open_row
+                              ~macro state in
+                            let () =
+                              Remanent_state.print_cell
+                                (string_of_stringopt
+                                   cours.code_cours)
+                                state
+                            in
+                            let () =
+                              Remanent_state.print_cell
+                                (string_of_stringopt
+                                   cours.diplome)
+                                state
+                            in
+                            let () =
+                              Remanent_state.print_cell
+                                (string_of_stringopt
+                                   cours.cours_libelle)
+                                state
+                            in
+                            let () =
+                              Remanent_state.print_cell
+                                (string_of_stringopt
+                                   cours.responsable)
+                                state
+                            in
+                            let () =
+                              Remanent_state.print_cell
+                                (string_of_stringopt
+                                   cours.semestre)
+                                state
+                            in
+                            let state, string =
+                              match cours.note with
+                              | None -> state, ""
+                              | Some f ->
+                                Notes.to_string __POS__ state f
+                            in
+                            let () =
+                              Remanent_state.print_cell
+                                string
+                                state
+                            in
+                            let () =
+                              Remanent_state.print_cell
+                                (Notes.string_of_ects cours.ects)
+                                state
+                            in
+                            let () =
+                              Remanent_state.close_row state
+                            in
+                            let () =
+                              Remanent_state.fprintf state "%%\n\ "
+                            in
+                            state)
+                         state
+                         list
+                     in
+                     let () =
+                       Remanent_state.close_array
                          state
                      in
                      let () =
-                       Remanent_state.print_cell
-                         (string_of_stringopt cours.cours_libelle)
-                         state
-                     in
-                     let () =
-                       Remanent_state.print_cell
-                         (string_of_stringopt cours.responsable)
-                         state
-                     in
-                     let () =
-                       Remanent_state.print_cell
-                         (string_of_stringopt cours.semestre)
-                         state
-                     in
-                     let state, string =
-                       match cours.note with
-                       | None -> state, ""
-                       | Some f -> Notes.to_string __POS__ state f
-                     in
-                     let () =
-                       Remanent_state.print_cell
-                         string
-                         state
-                     in
-                     let () =
-                       Remanent_state.print_cell
-                         (Notes.string_of_ects cours.ects)
-                         state
-                     in
-                     let () =
-                       Remanent_state.close_row state
-                     in
-                     let () =
-                       Remanent_state.fprintf state "%%\n\ "
+                       Remanent_state.print_newline state
                      in
                      state)
-                  state situation.cours
-              in
-              let () =
-                Remanent_state.close_array
+                  split_cours
                   state
               in
               let () =

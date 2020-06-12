@@ -381,7 +381,8 @@ let open_array pos ?logger ~with_lines ?size ?color ?align ~title t =
     t
 
 let close_array ?logger t =
-  let t =
+  let () = Loggers.close_array (which_logger ?logger t) in
+  let _ =
     match logger with
     | Some _ -> t
     | None ->
@@ -389,7 +390,8 @@ let close_array ?logger t =
       let logger = Loggers.without_lines logger in
       set_std_logger t logger
   in
-  Loggers.close_array (which_logger ?logger t)
+  ()
+
 let open_row ?logger ?macro t =
   Loggers.open_row ?macro (which_logger ?logger t)
 let close_row ?logger t =
