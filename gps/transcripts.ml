@@ -4,10 +4,12 @@ module StringOptMap =
       type t = string option
       let compare a b =
         match a,b with
-        | None, _ -> -1
-        | _, None -> 1
-        | Some ("DENS" | "dens"), _ ->  -1
-        | _ , Some ("DENS" | "dens") -> 1
+        | None, None -> 0
+        | None, _ -> 1
+        | _, None -> -1
+        | Some ("DENS" | "dens"), Some ("DENS" | "dens") -> 0
+        | Some ("DENS" | "dens"), _ ->  1
+        | _ , Some ("DENS" | "dens") -> -1
         | Some a, Some b -> compare a b
     end)
 
@@ -1492,7 +1494,8 @@ let export_transcript ~output state gps_file =
               ~firstname
               __POS__
               state
-          in
+        in
+        let state, tuteur =
           match tuteur with
           | None ->
             let msg =
@@ -1500,167 +1503,177 @@ let export_transcript ~output state gps_file =
                 "Tuteur inconnu pour %s %s en %s"
                 firstname lastname year
             in
-            Remanent_state.warn
+            Remanent_state.warn_dft
               __POS__
               msg
               Exit
+              ""
               state
           | Some tuteur ->
             begin
-              let state, tuteur =
-                match tuteur.Public_data.nom_du_tuteur, tuteur.Public_data.prenom_du_tuteur,
-                      tuteur.Public_data.courriel_du_tuteur
-                with
-                | None, (None | Some _), None ->
-                  let msg =
-                    Printf.sprintf
-                      "Tuteur inconnu pour %s %s en %s"
-                      firstname lastname year
-                  in
-                  Remanent_state.warn_dft
-                    __POS__
-                    msg
-                    Exit
-                    ""
-                    state
-                | Some x, Some y, _ ->
-                  state,
+              match
+                tuteur.Public_data.nom_du_tuteur, tuteur.Public_data.prenom_du_tuteur,
+                tuteur.Public_data.courriel_du_tuteur
+              with
+              | None, (None | Some _), None ->
+                let msg =
                   Printf.sprintf
-                    "%s %s"
-                    (String.capitalize_ascii x)
-                    (String.uppercase_ascii y)
-                | None, _, Some x -> state, x
-                | Some x, _, _ -> state, x
-              in
-              let lineproportion = 2./.3. in
-              let backgroundcolor = Color.yellow in
-              let textcolor = Color.red in
-              let annee_int = int_of_string year in
-              let annee =
-                Printf.sprintf "%i -- %i" annee_int (annee_int+1)
-              in
-              let () =
-                Remanent_state.log
-                  ~lineproportion
-                  ~backgroundcolor
-                  ~textcolor
+                    "Tuteur inconnu pour %s %s en %s"
+                    firstname lastname year
+                in
+                Remanent_state.warn_dft
+                  __POS__
+                  msg
+                  Exit
+                  ""
                   state
-                  "%s"
-                  annee
-              in
-              let lineproportion = 1./.3. in
-              let () =
-                Remanent_state.log
-                  ~lineproportion
-                  ~backgroundcolor
-                  ~textcolor
-                  state
-                  "%s"
-                  tuteur
-              in
-              let () =
-                Remanent_state.print_newline state
-              in
-              let split_cours =
-                List.fold_left
-                  (fun map elt ->
-                     addmap elt.diplome elt map)
-                  StringOptMap.empty
-                  (List.rev situation.cours)
-              in
-              let state =
-                StringOptMap.fold
-                  (fun _ list state ->
-                     let state =
-                       Remanent_state.open_array
-                         __POS__
-                         ~with_lines:true
-                         ~title:["Code";"Dipl\\^ome";"Intitul\\'e"
-                                ;"Enseignant";"Semestre";"Note";"ECTS"]
-                         state
-                     in
-                     let macro = "cours" in
-                     let state =
-                       List.fold_left
-                         (fun state cours ->
-                            let () = Remanent_state.open_row
-                              ~macro state in
-                            let () =
-                              Remanent_state.print_cell
-                                (string_of_stringopt
-                                   cours.code_cours)
-                                state
-                            in
-                            let () =
-                              Remanent_state.print_cell
-                                (string_of_stringopt
-                                   cours.diplome)
-                                state
-                            in
-                            let () =
-                              Remanent_state.print_cell
-                                (string_of_stringopt
-                                   cours.cours_libelle)
-                                state
-                            in
-                            let () =
-                              Remanent_state.print_cell
-                                (string_of_stringopt
-                                   cours.responsable)
-                                state
-                            in
-                            let () =
-                              Remanent_state.print_cell
-                                (string_of_stringopt
-                                   cours.semestre)
-                                state
-                            in
-                            let state, string =
-                              match cours.note with
-                              | None -> state, ""
-                              | Some f ->
-                                Notes.to_string __POS__ state f
-                            in
-                            let () =
-                              Remanent_state.print_cell
-                                string
-                                state
-                            in
-                            let () =
-                              Remanent_state.print_cell
-                                (Notes.string_of_ects cours.ects)
-                                state
-                            in
-                            let () =
-                              Remanent_state.close_row state
-                            in
-                            let () =
-                              Remanent_state.fprintf state "%%\n\ "
-                            in
-                            state)
-                         state
-                         list
-                     in
-                     let () =
-                       Remanent_state.close_array
-                         state
-                     in
-                     let () =
-                       Remanent_state.print_newline state
-                     in
-                     state)
-                  split_cours
-                  state
-              in
-              let () =
-                Remanent_state.breakpage state
-              in
-              state
+              | Some x, Some y, _ ->
+                state,
+                Printf.sprintf
+                  "%s %s"
+                  (String.capitalize_ascii x)
+                  (String.uppercase_ascii y)
+              | None, _, Some x -> state, x
+              | Some x, _, _ -> state, x
             end
+        in
+        let lineproportion = 2./.3. in
+        let backgroundcolor = Color.yellow in
+        let textcolor = Color.red in
+        let annee_int = int_of_string year in
+        let annee =
+          Printf.sprintf "%i -- %i" annee_int (annee_int+1)
+        in
+        let () =
+          Remanent_state.log
+            ~lineproportion
+            ~backgroundcolor
+            ~textcolor
+            state
+            "%s"
+            annee
+        in
+        let lineproportion = 1./.3. in
+        let () =
+          Remanent_state.log
+            ~lineproportion
+            ~backgroundcolor
+            ~textcolor
+            state
+            "%s"
+            tuteur
+        in
+        let () =
+          Remanent_state.print_newline state
+        in
+        let split_cours =
+          List.fold_left
+            (fun map elt ->
+               addmap elt.diplome elt map)
+            StringOptMap.empty
+            (List.rev situation.cours)
+        in
+        let state =
+          StringOptMap.fold
+            (fun _ list state ->
+               let state =
+                 Remanent_state.open_array
+                   __POS__
+                   ~with_lines:true
+                   ~title:["Code";"Dipl\\^ome";"Intitul\\'e"
+                          ;"Enseignant";"Semestre";"Note";"ECTS"]
+                   state
+               in
+               let macro = "cours" in
+               let state =
+                 List.fold_left
+                   (fun state cours ->
+                      let () =
+                        Remanent_state.open_row
+                          ~macro state
+                      in
+                      let () =
+                        Remanent_state.print_cell
+                          (string_of_stringopt
+                             cours.code_cours)
+                          state
+                      in
+                      let () =
+                        Remanent_state.print_cell
+                          (string_of_stringopt
+                             cours.diplome)
+                          state
+                      in
+                      let () =
+                        Remanent_state.print_cell
+                          (string_of_stringopt
+                             cours.cours_libelle)
+                          state
+                      in
+                      let () =
+                        Remanent_state.print_cell
+                          (string_of_stringopt
+                             cours.responsable)
+                          state
+                      in
+                      let () =
+                        Remanent_state.print_cell
+                          (string_of_stringopt
+                             cours.semestre)
+                          state
+                      in
+                      let state, string =
+                        match cours.note with
+                        | None -> state, ""
+                        | Some f ->
+                          Notes.to_string __POS__ state f
+                      in
+                      let () =
+                        Remanent_state.print_cell
+                          string
+                          state
+                      in
+                      let () =
+                        Remanent_state.print_cell
+                          (Notes.string_of_ects cours.ects)
+                          state
+                      in
+                      let () =
+                        Remanent_state.close_row state
+                      in
+                      let () =
+                        Remanent_state.fprintf state "%%\n\ "
+                      in
+                      state)
+                   state
+                   list
+               in
+               let () =
+                 Remanent_state.close_array state
+               in
+               let () =
+                 Remanent_state.print_newline state
+               in
+               let () =
+                 Remanent_state.print_newline state
+               in
+               let () =
+                 Remanent_state.print_newline state
+               in
+               state)
+            split_cours
+            state
+        in
+        let () =
+          Remanent_state.breakpage state
+        in
+        state
         )
         state
         (List.rev l)
     in
     let state = Remanent_state.close_logger state in
-    let state = Remanent_state.restore_std_logger state old_logger in
+    let state =
+      Remanent_state.restore_std_logger state old_logger
+    in
     state, Some (rep, snd output)

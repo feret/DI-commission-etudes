@@ -1,7 +1,7 @@
 (library
   (name sco_latex_engine)
-  (libraries sco_remanent_state
-  sco_datastructures)
+  (libraries sco_remanent_state sco_tools)
   (flags (:standard -w @a
     -open Sco_remanent_state
+    -open Sco_tools
 )))
