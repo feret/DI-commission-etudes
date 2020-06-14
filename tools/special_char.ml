@@ -16,6 +16,7 @@ let special_char =
 
 let special_char_latex =
   [
+    '\195', ""; 
     '\169', "{\\'e}";
     '\167', "{\\c c}";
     '\168', "{\\`e}";

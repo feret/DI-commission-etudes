@@ -116,6 +116,24 @@ let fprintf ?fprintnewline:(fprintnewline=false) logger =
          logger.current_line <- (String (if bool then str else clean_string str) )::logger.current_line)
       fmt_buffer
 
+let fprintf ?fprintnewline:(fprintnewline=false) logger =
+  match logger.encoding with
+  | Latex _ ->
+  let b = Buffer.create 0 in
+  let fmt_buffer = Format.formatter_of_buffer b in
+  Format.kfprintf
+    (fun _ ->
+       let () = Format.pp_print_flush fmt_buffer () in
+       let str = Buffer.contents b in
+       let str = Special_char.correct_string_latex str in
+       fprintf ~fprintnewline logger
+         "%s" str)
+    fmt_buffer
+    | HTML | HTML_Tabular
+    | TXT | CSV | XLS | Json -> (*fun a -> fprintf logger x a*)
+      fprintf ~fprintnewline logger
+
+
 let log ?backgroundcolor ?textcolor ?lineproportion logger x  =
   let fprintnewline = false in
   match logger.encoding with
@@ -319,13 +337,15 @@ let draw_line logger =
             | [] -> None, [], true
           in
           let align,error =
-            match halign with
-            | Some 'c' | None  -> 'c',error
-            | Some 'r' -> 'r',error
-            | Some 'l' -> 'l',error
-            | _ -> 'l',true
+            match hsize, halign with
+            | Some f, _ ->
+              Printf.sprintf "p{%f\\linewidth}" f,error
+            | _, (Some 'c' | None)  -> "c",error
+            | None, Some 'r' -> "r",error
+            | None, Some 'l' -> "l",error
+            | _ -> "l",true
           in
-          let () = fprintf logger "|%c" align in
+          let () = fprintf logger "|%s" align in
           let _ = hcolor, hsize in
           aux ttitle tcolor tsize talign error
         end
@@ -373,7 +393,7 @@ let print_cell logger s =
       logger.encoding
     with
     | HTML_Tabular -> "<TD>",s,"</TD>"
-    | Latex _ -> "{",Special_char.correct_string_latex s,"}"
+    | Latex _ -> "{",s,"}"
     | CSV  -> "",s,"\t"
     | Json | HTML | TXT | XLS -> "",s,""
   in
