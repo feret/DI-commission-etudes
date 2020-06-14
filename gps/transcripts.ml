@@ -1585,6 +1585,9 @@ let export_transcript ~output state gps_file =
             (fun a -> Some (a/.(sum*.1.01)))
             (List.rev l)
         in
+        let () =
+          Remanent_state.log state "\\vfill\n\ "
+        in
         let state =
           StringOptMap.fold
             (fun _ list state ->
@@ -1665,12 +1668,12 @@ let export_transcript ~output state gps_file =
                  Remanent_state.close_array state
                in
                let () =
-                 Remanent_state.print_cell state
-                   "Moyenne : \\numprint{\\fpeval{\\thetotal/\\theects}} ECTS : {{\\fpeval{\\theects/\\factor}}}%%\n\ \\ifnum \\theects=\\thepotentialects%%\n\ \\else%%\n\ (potentiellement {{\\fpeval{\\thepotentialects/\\factor}}})\fi%"
+                 Remanent_state.print_cell
+                   "\\ifnum \\theects>0%%\n\ Moyenne : \\numprint{\\fpeval{\\thetotal/\\theects}} ECTS : {{\\fpeval{\\theects/\\factor}}}%%\n\ \\fi%%\n\ \\ifnum \\theects=\\thepotentialects%%\n\ \\else%%\n\ (potentiellement {{\\fpeval{\\thepotentialects/\\factor}}} ects)\\fi%%\n\ " state
                in
                let () =
-                 Remanent_state.log "\bigskip\\"
-               in 
+                 Remanent_state.log state "\\vfill\n\ "
+               in
                let () =
                  Remanent_state.print_newline state
                in
