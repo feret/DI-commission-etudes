@@ -1573,12 +1573,25 @@ let export_transcript ~output state gps_file =
             StringOptMap.empty
             (List.rev situation.cours)
         in
+        let l = [23.67;16.67;48.33;23.67;6.33;6.5;5.17] in
+        let sum =
+          List.fold_left
+            (fun total a -> total+.a)
+            0.
+            l
+        in
+        let size =
+          List.rev_map
+            (fun a -> Some (a/.(sum*.1.01)))
+            (List.rev l)
+        in
         let state =
           StringOptMap.fold
             (fun _ list state ->
                let state =
                  Remanent_state.open_array
                    __POS__
+                   ~size
                    ~with_lines:true
                    ~title:["Code";"Dipl\\^ome";"Intitul\\'e"
                           ;"Enseignant";"Semestre";"Note";"ECTS"]
