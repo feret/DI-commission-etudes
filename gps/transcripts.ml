@@ -1665,6 +1665,13 @@ let export_transcript ~output state gps_file =
                  Remanent_state.close_array state
                in
                let () =
+                 Remanent_state.print_cell state
+                   "Moyenne : \\numprint{\\fpeval{\\thetotal/\\theects}} ECTS : {{\\fpeval{\\theects/\\factor}}}%%\n\ \\ifnum \\theects=\\thepotentialects%%\n\ \\else%%\n\ (potentiellement {{\\fpeval{\\thepotentialects/\\factor}}})\fi%"
+               in
+               let () =
+                 Remanent_state.log "\bigskip\\"
+               in 
+               let () =
                  Remanent_state.print_newline state
                in
                let () =

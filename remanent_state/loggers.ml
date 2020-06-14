@@ -315,6 +315,9 @@ let draw_line logger =
       | None -> List.rev_map (fun _ -> None) title
       | Some a -> a
     in
+    let () = fprintf logger "\\setcounter{total}{0}" in
+    let () = fprintf logger "\\setcounter{ects}{0}" in
+    let () = fprintf logger "\\setcounter{potentialects}{0}" in
     let () = fprintf logger "\\begin{tabular}{" in
     let () = fprintf logger "|" in
     let rec aux title color size align error =
