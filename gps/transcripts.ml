@@ -171,7 +171,6 @@ type cours =
     diplome: string option;
     contrat: bool option;
     accord: bool option;
-    valide: bool option ;
     note: Public_data.note option;
     lettre: string option;
     commentaire: string list
@@ -250,7 +249,6 @@ let empty_cours =
     diplome = None ;
     contrat = None ;
     accord = None ;
-    valide = None ;
     note = None ;
     lettre = None ;
     commentaire = [];
@@ -520,6 +518,9 @@ type remanent =
    dpt_secondaire: string option;
    code_opt: string option;
    opt: string option;
+   prenote: string option;
+   prevalide: Public_data.valide option;
+
   }
 
 let get_bilan_annuel state remanent year =
@@ -566,11 +567,15 @@ let store_gen
           current_file
           year
       in
-      let updated =
-        (get_current current_file')::(get bilan)
+      let state, current_file'' =
+        get_current state current_file'
       in
-      let bilan =
-        set bilan updated
+      let state, bilan' = get state bilan in
+      let updated =
+        (current_file'')::bilan'
+      in
+      let state, bilan =
+        set state bilan updated
       in
       set_bilan_annuel
         state
@@ -584,21 +589,72 @@ let store_gen
 
 let store_diplome =
   store_gen
-    (fun bilan -> bilan.diplomes)
-    (fun remanent -> remanent.rem_diplome)
-    (fun bilan diplomes -> {bilan with diplomes})
+    (fun state bilan -> state, bilan.diplomes)
+    (fun state remanent -> state, remanent.rem_diplome)
+    (fun state bilan diplomes -> state, {bilan with diplomes})
 
 let store_cours =
   store_gen
-    (fun bilan -> bilan.cours)
-    (fun remanent -> remanent.rem_cours)
-    (fun bilan cours -> {bilan with cours})
+    (fun state bilan -> state, bilan.cours)
+    (fun state remanent ->
+       let state, note =
+         match remanent.prevalide, remanent.prenote with
+         | Some (Public_data.Bool false | Public_data.Abs), None
+           ->
+           state, Some Public_data.Absent
+         | Some Public_data.Abs, Some _ ->
+           Remanent_state.warn_dft
+             __POS__
+             "Note and validity status are incompatible"
+             Exit
+             (Some Public_data.Absent)
+             state
+         | Some Public_data.Bool true, None ->
+           state, (Some Public_data.Valide_sans_note)
+         | Some v , Some n ->
+           begin
+             let state, note_opt = Notes.of_string __POS__ state n in
+             match note_opt with
+             | None ->
+               Remanent_state.warn_dft
+                 __POS__
+                 "Invalid content for the field Note"
+                 Exit
+                 note_opt
+                 state
+             | Some note ->
+               if Notes.valide note = Valide.valide v
+               then
+                 state, note_opt
+               else
+                 Remanent_state.warn_dft
+                   __POS__
+                   "Note and validity status are incompatible"
+                   Exit
+                   note_opt
+                   state
+           end
+         | None , Some n ->
+           begin
+             let state, note_opt = Notes.of_string __POS__ state n in
+             Remanent_state.warn_dft
+                 __POS__
+                 "Invalid validity status"
+                 Exit
+                 note_opt
+                 state
+           end
+         | None, None ->
+           state, Some Public_data.En_cours
+       in
+       state, {remanent.rem_cours with note})
+    (fun state bilan cours -> state, {bilan with cours})
 
 let store_stage =
   store_gen
-    (fun _bilan -> [])
-    (fun _remanent -> [])
-    (fun bilan _stages -> bilan)
+    (fun state _bilan -> state, [])
+    (fun state _remanent -> state, [])
+    (fun state bilan _stages -> state, bilan)
 
 let store_gen_fields
     list_string list_bool pos state current_file current_file' output
@@ -731,6 +787,8 @@ let empty_remanent =
     dpt_principal = None ;
     dpt_secondaire = None ;
     annee_de_travail = None ;
+    prenote = None ;
+    prevalide = None ;
   }
 
 
@@ -854,7 +912,7 @@ match s_opt with
     else if
       List.mem
         s
-        ["n";"non";"no"]
+        ["n";"non";"no";"abs";"absent"]
     then state, Some false
     else
       let msg =
@@ -910,7 +968,7 @@ let statut_opt_of_string_opt pos state s_opt =
     if String.trim s = ""
     then state, None
     else
-      let s = String.lowercase_ascii s in
+      let s = Special_char.correct_string s in
       if
         List.mem
           s
@@ -1162,24 +1220,22 @@ let asso_list =
            in
            state, {cours with accord});
       Public_data.Valide,
-      lift_cours_state
-        (fun state data cours ->
-           let state, valide =
-           bool_opt_of_string_opt __POS__ state data
-           in
-           state, {cours with valide});
+        (fun state data remanent ->
+           match data with
+           | None -> state, remanent
+           | Some data ->
+             let state, prevalide =
+               Valide.of_string __POS__ state data
+             in
+             state, {remanent with prevalide});
       Public_data.Note,
-      lift_cours_state
-        (fun state data cours ->
-           let state, note =
+        (fun state data remanent ->
+           let state, prenote =
               match data with
-                | None -> state, None
-                | Some s ->
-                  Notes.of_string
-                    __POS__
-                    state s
+                | None -> state, remanent.prenote
+                | Some s -> state, Some s
            in
-           state, {cours with note});
+           state, {remanent with prenote});
       Public_data.Lettre,
       lift_cours
         (fun lettre cours -> {cours with lettre});
@@ -1208,8 +1264,6 @@ let asso_list =
       Public_data.Service_Labo_Dpt,fun_default;
       Public_data.Etablissement_ou_Entreprise,fun_default;
       Public_data.Credits,fun_default;
-      Public_data.Valide,fun_default;
-      Public_data.Accord,fun_default;
       Public_data.Type_de_Financement,fun_default;
       Public_data.Periode_de_Financement,fun_default;
       Public_data.Organisme_de_Financement,fun_default;
@@ -1573,7 +1627,7 @@ let export_transcript ~output state gps_file =
             StringOptMap.empty
             (List.rev situation.cours)
         in
-        let l = [23.67;16.67;48.33;23.67;6.33;6.5;5.17] in
+        let l = [23.67;6.67;48.33;26.67;7.3;7.3;5.17] in
         let sum =
           List.fold_left
             (fun total a -> total+.a)
@@ -1582,7 +1636,7 @@ let export_transcript ~output state gps_file =
         in
         let size =
           List.rev_map
-            (fun a -> Some (a/.(sum*.1.3)))
+            (fun a -> Some (a/.(sum*.1.15)))
             (List.rev l)
         in
         let () =
@@ -1669,7 +1723,7 @@ let export_transcript ~output state gps_file =
                in
                let () =
                  Remanent_state.print_cell
-                   "\\\nprounddigits{2}%%\n\ \\ifnum \\theects>0%%\n\ Moyenne : \\numprint{\\fpeval{\\thetotal/\\theects}} ECTS : {{\\fpeval{\\theects/\\factor}}}%%\n\ \\fi%%\n\ \\ifnum \\thepotentialects=0%%\n\ \\else%%\n\ (potentiellement {{\\fpeval{(\thects+\thepotentialects)/\\factor}}} ects)\\fi%%\n\ \\npnoround%%\n\ " state
+                   "\\nprounddigits{2}%%\n\ \\ifnum \\theects>0%%\n\ Moyenne : \\numprint{\\fpeval{\\thetotal/\\theects}} ECTS : {{\\fpeval{\\theects/\\factor}}}%%\n\ \\fi%%\n\ \\ifnum \\thepotentialects=0%%\n\ \\else%%\n\  (potentiellement {{\\fpeval{(\\theects+\\thepotentialects)/\\factor}}} ects)\\fi%%\n\ \\npnoround%%\n\ " state
                in
                let () =
                  Remanent_state.log state "\\vfill\n\ "

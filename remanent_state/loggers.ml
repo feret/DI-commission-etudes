@@ -342,7 +342,7 @@ let draw_line logger =
           let align,error =
             match hsize, halign with
             | Some f, _ ->
-              Printf.sprintf "p{%f\\textwidth}" f,error
+              Printf.sprintf "m{%f\\textwidth}" f,error
             | _, (Some 'c' | None)  -> "c",error
             | None, Some 'r' -> "r",error
             | None, Some 'l' -> "l",error

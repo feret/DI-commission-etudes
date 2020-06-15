@@ -1,5 +1,5 @@
 type cloud_client = NextCloudCmd
-type pdf_generator = PdfLatex 
+type pdf_generator = PdfLatex
 type file_retriever = WGET
 type cloud_synchronization_mode = Daemon | CommandLine
 type annee = string
@@ -109,6 +109,10 @@ type keywords =
   | Type_de_Financement
   | Valide
   | Ignore
+
+type valide =
+  | Bool of bool
+  | Abs
 
 type note =
   | Float of float

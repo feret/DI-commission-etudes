@@ -1,14 +1,5 @@
 type t = Public_data.note
 
-let space_only s =
-  let size = String.length s in
-  let rec aux k =
-    if k>=size then true
-    else
-      (String.get s k) =' ' && aux (k+1)
-  in
-  aux 0
-
 let correct_comma ?force_dec_sep_to_dot state t =
   let corrected_size = (String.length t)-1 in
   match t.[corrected_size] with
@@ -38,7 +29,7 @@ let remove_comma =
        else x)
 
 let float_of_string pos state t =
-  if space_only t
+  if Tools.space_only t
   then state, None
   else
     let t = remove_comma t in
@@ -102,7 +93,7 @@ let to_string _pos ?force_dec_sep_to_dot state t =
     state, "validé (sans note)"
 
 let of_string pos state s =
-  if space_only s then
+  if Tools.space_only s then
     state, Some Public_data.En_cours
   else
     match
@@ -122,7 +113,13 @@ let of_string pos state s =
         match
           float_of_string pos state f
         with
-        | state, None -> state, None
+        | state, None ->
+          Remanent_state.warn_dft
+            pos
+            "Wrong format of note"
+            Exit
+            None
+            state
         | state, Some f -> state, Some (Public_data.Float f)
       end
 

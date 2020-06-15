@@ -1,6 +1,7 @@
 (library
   (name sco_datastructures)
-  (libraries yojson sco_remanent_state)
+  (libraries yojson sco_remanent_state sco_tools)
   (flags (:standard -w @a
   -open Sco_remanent_state
+  -open Sco_tools
 )))

@@ -99,4 +99,13 @@ let map_opt_state f state a_opt =
 let basename x =
   match String.rindex_opt x '.' with
   | Some i -> String.sub x 0 i
-  | None -> x 
+  | None -> x
+
+  let space_only s =
+    let size = String.length s in
+    let rec aux k =
+      if k>=size then true
+      else
+        (String.get s k) =' ' && aux (k+1)
+    in
+    aux 0
