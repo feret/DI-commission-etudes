@@ -159,10 +159,10 @@ let log ?backgroundcolor ?textcolor ?lineproportion logger x  =
           in
           let size =
             match lineproportion with
-            | None -> "\\begin{minipage}{\\linewidth}%%%%\n","\\end{minipage}%%%%%%%%\n"
+            | None -> "\\begin{minipage}{\\textwidth}%%%%\n","\\end{minipage}%%%%%%%%\n"
             | Some f ->
               Format.sprintf
-                "\\begin{minipage}{%f\\linewidth}%%%%%%%%\n" f,
+                "\\begin{minipage}{%f\\textwidth}%%%%%%%%\n" f,
               "\\end{minipage}%%%%\n"
           in
           let prefix =
@@ -342,7 +342,7 @@ let draw_line logger =
           let align,error =
             match hsize, halign with
             | Some f, _ ->
-              Printf.sprintf "p{%f\\linewidth}" f,error
+              Printf.sprintf "p{%f\\textwidth}" f,error
             | _, (Some 'c' | None)  -> "c",error
             | None, Some 'r' -> "r",error
             | None, Some 'l' -> "l",error

@@ -10,21 +10,25 @@ let space_only s =
   aux 0
 
 let correct_comma ?force_dec_sep_to_dot state t =
-  let state, comma =
-    match force_dec_sep_to_dot with
-    | Some true -> state, '.'
-    | _ -> Remanent_state.get_comma_symbol state
-  in
-  state,
-  if comma = '.'
-  then t
-  else
-    String.map
-      (fun x ->
-         if x = '.'
-         then comma
-         else x)
-        t
+  let corrected_size = (String.length t)-1 in
+  match t.[corrected_size] with
+    | '.' | ',' -> state, String.sub t 0 corrected_size
+    | _ ->
+      let state, comma =
+        match force_dec_sep_to_dot with
+        | Some true -> state, '.'
+        | _ -> Remanent_state.get_comma_symbol state
+      in
+      state,
+      if comma = '.'
+      then t
+      else
+        String.map
+          (fun x ->
+             if x = '.'
+             then comma
+             else x)
+          t
 
 let remove_comma =
   String.map

@@ -1582,7 +1582,7 @@ let export_transcript ~output state gps_file =
         in
         let size =
           List.rev_map
-            (fun a -> Some (a/.(sum*.1.01)))
+            (fun a -> Some (a/.(sum*.1.3)))
             (List.rev l)
         in
         let () =
@@ -1669,7 +1669,7 @@ let export_transcript ~output state gps_file =
                in
                let () =
                  Remanent_state.print_cell
-                   "\\ifnum \\theects>0%%\n\ Moyenne : \\numprint{\\fpeval{\\thetotal/\\theects}} ECTS : {{\\fpeval{\\theects/\\factor}}}%%\n\ \\fi%%\n\ \\ifnum \\theects=\\thepotentialects%%\n\ \\else%%\n\ (potentiellement {{\\fpeval{\\thepotentialects/\\factor}}} ects)\\fi%%\n\ " state
+                   "\\\nprounddigits{2}%%\n\ \\ifnum \\theects>0%%\n\ Moyenne : \\numprint{\\fpeval{\\thetotal/\\theects}} ECTS : {{\\fpeval{\\theects/\\factor}}}%%\n\ \\fi%%\n\ \\ifnum \\thepotentialects=0%%\n\ \\else%%\n\ (potentiellement {{\\fpeval{(\thects+\thepotentialects)/\\factor}}} ects)\\fi%%\n\ \\npnoround%%\n\ " state
                in
                let () =
                  Remanent_state.log state "\\vfill\n\ "
