@@ -13,6 +13,18 @@ module StringOptMap =
         | Some a, Some b -> compare a b
     end)
 
+let dpt_maths = "mathematiques et applications"
+let dpt_info = "informatique"
+let acro_dpt_info = "DI"
+let acro_dpt_maths = "DMA"
+let dpt_info_full = "Département d'Informatique"
+let dpt_maths_full = "Département de Mathématiques"
+
+let simplify_string s =
+  String.lowercase_ascii
+    (Special_char.correct_string_txt
+       (String.trim s))
+
 let addmap x data map =
   let old =
     match
@@ -30,6 +42,7 @@ type diplome =
     libelle: string option;
     etablissement: string option;
     discipline_SISE: string option;
+    diplome_diplome: string option;
     obtenu_en: string option;
     directeur_sujet_de_recherche: string option;
   }
@@ -152,6 +165,7 @@ let empty_diplome =
     grade = None;
     niveau = None;
     libelle = None;
+    diplome_diplome = None;
     etablissement = None;
     discipline_SISE = None;
     obtenu_en = None;
@@ -344,6 +358,7 @@ type bilan_annuel =
          cours: cours list;
          code_option: string option;
          option: string option;
+         nannee: int option;
        }
 
 let log_bilan_annuel state bilan =
@@ -400,6 +415,7 @@ let empty_bilan_annuel =
     cours = [];
     code_option = None;
     option=None;
+    nannee=None;
   }
 
 type gps_file =
@@ -516,11 +532,10 @@ type remanent =
    last_year: bool option;
    dpt_principal: string option;
    dpt_secondaire: string option;
-   code_opt: string option;
    opt: string option;
    prenote: string option;
    prevalide: Public_data.valide option;
-
+   precode: string option;
   }
 
 let get_bilan_annuel state remanent year =
@@ -647,7 +662,8 @@ let store_cours =
          | None, None ->
            state, Some Public_data.En_cours
        in
-       state, {remanent.rem_cours with note})
+       let code_cours = remanent.precode in
+       state, {remanent.rem_cours with note ; code_cours})
     (fun state bilan cours -> state, {bilan with cours})
 
 let store_stage =
@@ -764,7 +780,7 @@ let store_option
   =
   store_gen_fields
     [
-      (fun x -> x.code_opt),
+      (fun x -> x.precode),
       (fun code_option x -> {x with code_option});
       (fun x -> x.opt),
       (fun option x -> {x with option});
@@ -783,12 +799,12 @@ let empty_remanent =
     prg_et = None ;
     last_year = None ;
     opt = None ;
-    code_opt = None ;
     dpt_principal = None ;
     dpt_secondaire = None ;
     annee_de_travail = None ;
     prenote = None ;
     prevalide = None ;
+    precode = None ;
   }
 
 
@@ -829,7 +845,6 @@ let keywords_list =
     Public_data.Enseignements;
     Public_data.Inscrit_au_DENS_en;
     Public_data.Semestre;
-    Public_data.Code;
     Public_data.Responsable;
     Public_data.Duree;
     Public_data.ECTS;
@@ -873,7 +888,6 @@ let keywords_of_interest =
   Public_data.Directeur_Sujet;
   Public_data.Inscrit_au_DENS_en;
   Public_data.Semestre;
-  Public_data.Code;
   Public_data.Responsable;
   Public_data.Duree;
   Public_data.ECTS;
@@ -968,7 +982,7 @@ let statut_opt_of_string_opt pos state s_opt =
     if String.trim s = ""
     then state, None
     else
-      let s = Special_char.correct_string s in
+      let s = simplify_string s in
       if
         List.mem
           s
@@ -1102,7 +1116,7 @@ let asso_list =
            {gps_file with tuteur});
       Public_data.Situation,
       (fun state sit_adm remanent ->
-          state,
+         state,
           {remanent with sit_adm});
       Public_data.Annee_Academique,
       (fun state annee_de_travail remanent ->
@@ -1129,8 +1143,8 @@ let asso_list =
       Public_data.Options,
       fun_default;
       Public_data.Code,
-        (fun state code_opt remanent ->
-           state, {remanent with code_opt});
+        (fun state precode remanent ->
+           state, {remanent with precode});
       Public_data.Option,
       (fun state opt remanent ->
          state, {remanent with opt});
@@ -1139,6 +1153,10 @@ let asso_list =
       lift_diplome
         (fun grade diplome ->
            {diplome with grade});
+      Public_data.Diplome,
+           lift_diplome
+             (fun diplome_diplome diplome ->
+                {diplome with diplome_diplome});
       Public_data.Niveau,
       lift_diplome
         (fun niveau diplome ->
@@ -1427,11 +1445,62 @@ let state =
 in
 state, output
 
+let lgen grade gps dpt d =
+  if List.exists
+      (fun diplome ->
+         match diplome.grade with
+         | None -> false
+         | Some s ->
+           simplify_string s = grade)
+      d.diplomes
+  then
+    List.exists
+      (fun diplome -> diplome.diplome_diplome=Some gps)
+      d.diplomes
+  else
+    d.nannee = Some 1
+    &&
+    (
+     match d.departement_principal,d.departement_secondaire with
+     | None, None -> false
+     | Some x, None | None, Some x ->
+       simplify_string x = dpt
+     | Some x, Some y ->
+       simplify_string x = dpt || simplify_string y = dpt)
+
+let lmath d =
+  lgen "licence" "gps2274" dpt_maths d
+
+let linfo d =
+  lgen "licence" "gps2291" dpt_info d
+
 let string_of_stringopt s_opt =
   match s_opt with
   | None -> ""
   | Some s -> s
 
+let translate_dpt state d =
+  match d with
+  | None ->
+    Remanent_state.warn_dft
+      __POS__
+      "Departement non rempli"
+      Exit
+      ""
+      state
+  | Some s ->
+    begin
+      match simplify_string s with
+      | x when x=dpt_info  -> state, dpt_info_full
+      | x when x=dpt_maths -> state, dpt_maths_full
+      | _ ->
+      Remanent_state.warn_dft
+        __POS__
+        "Departement non rempli"
+        Exit
+        ""
+        state
+    end
 let export_transcript ~output state gps_file =
   let state, rep =
     Safe_sys.rec_mk_when_necessary __POS__
@@ -1451,7 +1520,7 @@ let export_transcript ~output state gps_file =
     with _ ->
       let () =
         Format.printf
-          "Cannot open file %s@ "
+          "Cannot open file %s@."
           file
       in
       Remanent_state.warn
@@ -1469,6 +1538,23 @@ let export_transcript ~output state gps_file =
     let old_logger = Remanent_state.save_std_logger state in
     let state = Remanent_state.set_std_logger state logger in
     let l = Public_data.YearMap.bindings gps_file.situation in
+    let l_rev,_ =
+      List.fold_left
+        (fun (l,counter) (y,annee) ->
+           if match annee.situation_administrative
+             with None -> false
+                | Some sit ->
+                  simplify_string sit = "scolarite a l'ens"
+           then
+             let counter = counter + 1 in
+             let nannee = Some counter in
+             let annee = {annee with nannee} in
+             ((y,annee)::l,counter)
+           else
+             (y,annee)::l,counter)
+
+        ([],0) l
+    in
     let state =
       List.fold_left
         (fun state (year,situation) ->
@@ -1585,18 +1671,98 @@ let export_transcript ~output state gps_file =
                 state,
                 Printf.sprintf
                   "%s %s"
-                  (String.capitalize_ascii x)
-                  (String.uppercase_ascii y)
+                  (String.capitalize_ascii y)
+                  (String.uppercase_ascii x)
               | None, _, Some x -> state, x
               | Some x, _, _ -> state, x
             end
         in
         let lineproportion = 2./.3. in
-        let backgroundcolor = Color.yellow in
+        let backgroundcolor =
+          match
+            situation.nannee
+          with
+          | None -> Color.orange
+          | Some _ -> Color.yellow
+        in
         let textcolor = Color.red in
         let annee_int = int_of_string year in
         let annee =
           Printf.sprintf "%i -- %i" annee_int (annee_int+1)
+        in
+        let state, statut =
+          match
+            situation.nannee
+          with
+          | None -> state, "Cesure"
+          | Some i ->
+            begin
+              let state, prefix =
+                match i with
+                | 1 -> state, "Première année"
+                | 2 -> state, "Seconde année"
+                | 3 -> state, "Troisème année"
+                | 4 -> state, "Quatrième année"
+                | _ ->
+                let msg =
+                  Printf.sprintf
+                    "max 4 ans de scolarité pour %s %s en %s"
+                    firstname lastname year
+                in
+                  Remanent_state.warn_dft
+                    __POS__
+                    msg
+                    Exit
+                    ((string_of_int i)^"ème année")
+                    state
+              in
+              let state, suffix =
+                if
+                  lmath situation
+                  &&
+                  linfo situation
+                then
+                  let state, dpt =
+                    match situation.departement_principal with
+                    | Some x ->
+                      let s  = simplify_string x in
+                      if s = dpt_info
+                      then
+                        state,acro_dpt_info
+                      else if s = dpt_maths
+                      then state, acro_dpt_maths
+                      else
+                      let msg =
+                        Printf.sprintf
+                          "mauvais dpt principal pour une double licence %s %s en %s"
+                          firstname lastname year
+                      in
+                        Remanent_state.warn_dft
+                          __POS__
+                          msg
+                          Exit
+                          "DI"
+                          state
+                    | _ ->
+                    let msg =
+                      Printf.sprintf
+                        "mauvais dpt principal pour une double licence %s %s en %s"
+                        firstname lastname year
+                    in
+                      Remanent_state.warn_dft
+                        __POS__
+                        msg
+                        Exit
+                        "DI"
+                        state
+                  in
+                  state, Printf.sprintf
+                    "Cursus maths-info et rattaché au %s" dpt
+                else
+                  translate_dpt state situation.departement_principal
+              in
+              state, Printf.sprintf "%s %s" prefix suffix
+            end
         in
         let () =
           Remanent_state.log
@@ -1604,8 +1770,9 @@ let export_transcript ~output state gps_file =
             ~backgroundcolor
             ~textcolor
             state
-            "%s"
+            "%s %s "
             annee
+            statut
         in
         let lineproportion = 1./.3. in
         let () =
@@ -1747,7 +1914,7 @@ let export_transcript ~output state gps_file =
         state
         )
         state
-        (List.rev l)
+        l_rev
     in
     let state = Remanent_state.close_logger state in
     let state =

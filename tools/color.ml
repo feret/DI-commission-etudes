@@ -36,8 +36,12 @@ let dark_yellow =
   {red=255;green=255;blue=0}
 let light_red =
   {red=255; green=128;blue=128}
+let light_orange =
+  {red=255;green=207;blue=150}
 let dark_red =
   {red=255;green=0;blue=0}
+let dark_orange =
+  {red=255;green=127;blue=80}
 let black=
   {red=255;green=255;blue=255}
 let white=
@@ -49,6 +53,7 @@ let yellow = build_color ~background:light_yellow dark_yellow
 let red = build_color ~background:light_red dark_red
 let black = build_color black
 let white= build_color white
+let orange = build_color ~background:light_orange dark_orange
 
 let string_latex rgb =
   Format.sprintf

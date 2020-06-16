@@ -9,6 +9,7 @@ type color
 
 val blue: color
 val green: color
+val orange: color 
 val red: color
 val yellow: color
 val white: color

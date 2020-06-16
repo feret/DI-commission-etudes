@@ -7,6 +7,8 @@ module CharMap =
 
 let special_char =
   [
+    '\136', 'e';
+    '\137', 'e';
     '\169', 'e';
     '\167', 'c';
     '\168', 'e';
@@ -14,18 +16,30 @@ let special_char =
     '\160', 'a'
   ]
 
-let special_char_latex =
+let special_char_txt =
   [
-    '\195', ""; 
-    '\169', "{\\'e}";
-    '\167', "{\\c c}";
-    '\168', "{\\`e}";
-    '\180', "{\\^o}";
+    '\195', "";
+    '\136', "e";
+    '\137', "e";
+    '\169', "e";
+    '\167', "c";
+    '\168', "e";
+    '\180', "o";
     '\160', "a"
   ]
 
 
-
+let special_char_latex =
+  [
+    '\195', "";
+    '\137', "{\\'e}";
+    '\169', "{\\'e}";
+    '\167', "{\\c c}";
+    '\136', "{\\`e}";
+    '\168', "{\\`e}";
+    '\180', "{\\^o}";
+    '\160', "a"
+  ]
 
 let special_char_map =
   List.fold_left
@@ -40,6 +54,13 @@ let special_char_latex_map =
        CharMap.add x y map)
     CharMap.empty
     special_char_latex
+
+let special_char_txt_map =
+      List.fold_left
+        (fun map (x,y) ->
+           CharMap.add x y map)
+        CharMap.empty
+        special_char_txt
 
 let correct_cute_in_char c =
 match
@@ -114,15 +135,21 @@ let expand_string s =
   let (list:char list list) = cartesian_product list in
   List.rev_map list_to_string (List.rev list)
 
-let correct_string_latex s =
+let correct_string_gen map s =
   let list = string_to_list s in
   let list =
     List.rev_map
       (fun c ->
-         match CharMap.find_opt c special_char_latex_map with
+         match CharMap.find_opt c map with
          | Some a -> a
          | None ->
            let s = String.make 1 c in s)
       (List.rev list)
   in
   String.concat "" list
+
+let correct_string_latex s =
+  correct_string_gen special_char_latex_map s
+
+  let correct_string_txt s =
+    correct_string_gen special_char_txt_map s

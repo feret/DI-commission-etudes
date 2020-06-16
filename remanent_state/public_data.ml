@@ -106,7 +106,7 @@ type keywords =
 type valide =
   | Bool of bool
   | Abs
-  
+
 type note =
   | Float of float
   | Absent
@@ -123,11 +123,25 @@ type statut =
   | Etudiant
 
 module StringMap =
-  Map.Make
-    (struct
-      type t = string
-      let compare = compare
-    end)
+  Map_tools.MakeSimplified
+    (
+    struct
+      module Ord   =
+        (
+        struct
+
+          type t = string
+          let compare = compare
+
+        end
+        )
+
+      let simplify s =
+        String.lowercase_ascii
+          (Special_char.correct_string_txt
+             (String.trim s))
+    end
+    )
 
 module PromoMap = StringMap
 module FinanceurMap = StringMap
