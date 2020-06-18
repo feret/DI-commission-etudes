@@ -43,7 +43,7 @@ let state =
          in
          match output_opt with
          | None -> state
-         | Some input -> Latex_engine.latex_to_pdf state ~input 
+         | Some input -> Latex_engine.latex_to_pdf state ~input
     )
     state
     students_list

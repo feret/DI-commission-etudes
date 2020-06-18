@@ -1508,7 +1508,54 @@ let translate_dpt state d =
         ""
         state
     end
-let export_transcript ~output state gps_file =
+
+let keep_class state filter year note =
+  match
+    filter, Tools.map_opt Notes.valide note
+  with
+  | _, None ->
+    Remanent_state.warn_dft
+      __POS__
+      "missing note when filtering classes"
+      Exit
+      true
+      state
+  | _, Some (Some true) -> state, true
+  | Public_data.All, Some _
+  | Public_data.All_but_in_progress, (Some None) -> state, true
+  | Public_data.All_but_current_academic_year, Some _
+  | Public_data.All_but_in_progress_in_current_academic_year,
+    (Some None) ->
+    let state, current_year =
+      Remanent_state.get_current_academic_year state
+    in
+    state, current_year=year
+  | Public_data.All_but_years l, Some _
+  | Public_data.All_but_in_progress_in_years l, (Some None) ->
+    state, List.mem year l
+  | (Public_data.All_but_in_progress
+    | Public_data.All_but_in_progress_in_current_academic_year
+    | Public_data.All_but_in_progress_in_years _), Some (Some false)
+    -> state, false
+
+let filter_class state filter year class_list =
+  let rec aux state list acc =
+    match list with
+    | [] -> state, acc
+    | h::t ->
+      let state, b =
+        keep_class state filter year h.note
+      in
+      if b then
+        aux state t (h::acc)
+      else
+        aux state t acc
+  in
+  aux state class_list []
+
+let export_transcript
+    ~output ?filter:(remove_non_valided_classes=Public_data.All_but_in_progress_in_current_academic_year)
+    state gps_file =
   let state, rep =
     Safe_sys.rec_mk_when_necessary __POS__
       state (fst output)
@@ -1795,12 +1842,15 @@ let export_transcript ~output state gps_file =
         let () =
           Remanent_state.print_newline state
         in
+        let state, filtered_classes =
+          filter_class state remove_non_valided_classes year situation.cours
+        in
         let split_cours =
           List.fold_left
             (fun map elt ->
                addmap elt.diplome elt map)
             StringOptMap.empty
-            (List.rev situation.cours)
+            filtered_classes
         in
         let l = [23.67;6.67;48.33;26.67;7.3;7.3;5.17] in
         let sum =

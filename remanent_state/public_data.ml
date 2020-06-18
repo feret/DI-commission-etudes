@@ -123,6 +123,14 @@ type statut =
   | Etudiant
   | Eleve_bis
 
+type remove_non_valided_classes =
+  | All
+  | All_but_current_academic_year
+  | All_but_years of annee list
+  | All_but_in_progress
+  | All_but_in_progress_in_current_academic_year
+  | All_but_in_progress_in_years of annee list
+  
 module StringMap =
   Map_tools.MakeSimplified
     (

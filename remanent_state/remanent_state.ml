@@ -27,6 +27,7 @@ type parameters =
     profiling_log_file: string;
     date: string;
     comma_symbol: char;
+    current_academic_year: Public_data.annee;
   }
 
 
@@ -60,6 +61,7 @@ let parameters =
     profiling_log_file = "profiling.html";
     date = Tools.date ();
     comma_symbol = ',';
+    current_academic_year = "2019";
   }
 
 type data =
@@ -500,3 +502,6 @@ let get_mentoring ~firstname ~lastname ~year ?tuteur_gps pos t =
         Exit
         tuteur_gps
         t
+
+let get_current_academic_year t =
+  t, t.parameters.current_academic_year
