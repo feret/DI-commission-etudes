@@ -1637,8 +1637,8 @@ let export_transcript
         let state,statut,bourse =
             match gps_file.statut with
               | None -> state,"",""
-              | Some Public_data.Eleve_bis -> state,"\\'Eleve BIS",""
-              | Some Public_data.Eleve -> state,"\\'Eleve",""
+              | Some Public_data.Eleve_bis -> state,"\\'El\\`eve BIS",""
+              | Some Public_data.Eleve -> state,"\\'El\\`eve",""
               | Some Public_data.Etudiant ->
             begin
               let state, bourse =
