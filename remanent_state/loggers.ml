@@ -297,7 +297,7 @@ let draw_line logger =
   | Json | HTML | HTML_Tabular | CSV | TXT | XLS -> ()
 
 
-  let open_array ?size ?color ?align ~title logger =
+  let open_array ?size ?color ?bgcolor ?align ~title logger =
   match logger.encoding with
   | Latex _ ->
     let size =
@@ -310,22 +310,49 @@ let draw_line logger =
       | None -> List.rev_map (fun _ -> None) title
       | Some a -> a
     in
+    let bgcolor =
+      match bgcolor with
+      | None -> List.rev_map (fun _ -> None) title
+      | Some a -> a
+    in
     let align =
       match align with
       | None -> List.rev_map (fun _ -> None) title
       | Some a -> a
     in
-    let () = fprintf logger "\\setcounter{total}{0}" in
-    let () = fprintf logger "\\setcounter{ects}{0}" in
-    let () = fprintf logger "\\setcounter{potentialects}{0}" in
+    let () = fprintf logger "\\setcounter{total}{0}%%\n\ " in
+    let () = fprintf logger "\\setcounter{ects}{0}%%\n\ " in
+    let () = fprintf logger "\\setcounter{potentialects}{0}%%\n\ " in
+    let () = fprintf logger "\\setcounter{nrow}{0}%%\n\ " in
+    let () = fprintf logger "{%%\n\ " in
+    let _ =
+      List.fold_left
+        (fun k elt_opt ->
+           match elt_opt with
+           | Some elt ->
+           let () =
+             fprintf logger
+               "\\definecolor{bg%i}%s"
+               k (Color.string_latex (Color.get_background_color elt))
+           in
+           k+1
+           | None -> k+1
+        )
+        1 bgcolor
+    in
     let () = fprintf logger "\\begin{tabular}{" in
     let () = fprintf logger "|" in
-    let rec aux title color size align error =
+    let rec aux title color bgcolor size align k error =
       match title with
       | _::ttitle->
         begin
           let hcolor,tcolor,error =
             match color with
+            | h::t -> h,t,error
+            | [] -> None, [], true
+          in
+          let hbgcolor,tbgcolor,error =
+            match bgcolor with
             | h::t -> h,t,error
             | [] -> None, [], true
           in
@@ -348,18 +375,25 @@ let draw_line logger =
             | None, Some 'l' -> "l",error
             | _ -> "l",true
           in
-          let () = fprintf logger "|%s" align in
+          let bgcolor, error =
+            match hbgcolor with
+            | None -> "", error
+            | Some _ ->
+              Format.sprintf ">{\\columncolor{bg%i}}\n"
+                k, error
+          in
+          let () = fprintf logger "|%s%s" bgcolor align in
           let _ = hcolor, hsize in
-          aux ttitle tcolor tsize talign error
+          aux ttitle tcolor tbgcolor tsize talign (k+1) error
         end
       | [] ->
         begin
-          match color, size, align with
-          | [], [], [] -> error
+          match color, bgcolor, size, align with
+          | [], [], [], [] -> error
           | _ -> true
         end
     in
-    let error = aux title color size align false in
+    let error = aux title color bgcolor size align 1 false in
     let () = fprintf logger "||}" in
     let () = print_newline logger in
     let () = draw_line logger  in
@@ -367,7 +401,7 @@ let draw_line logger =
     let _ =
       List.fold_left (fun is_start title ->
           let () =
-            fprintf logger "%s%s"
+            fprintf logger "%s\\cellcolor{white}{%s}"
               (if is_start then "" else "&") title
           in
           false)
@@ -385,7 +419,7 @@ let draw_line logger =
     | Latex _ ->
       let () = draw_line logger in
       let () = draw_line logger  in
-      let () = fprintf logger "\\end{tabular}" in
+      let () = fprintf logger "\\end{tabular}}" in
       let () = print_newline logger in
       ()
     | Json | HTML | HTML_Tabular | CSV | TXT | XLS -> ()
@@ -454,17 +488,22 @@ let print_preamble ?decimalsepsymbol logger =
       "\\documentclass[10pt]{extarticle}%%\n%%\n\
 \\usepackage[latin1]{inputenc}%%\n\
 %s\n\
-\\usepackage{xcolor}%%\n\
 \\usepackage[french]{babel}%%\n\
 \\usepackage{xfp}%%\n\
 \\usepackage{xstring}%%\n\
 \\usepackage{ifthen}%%\n\
 \\usepackage{numprint}%%\n\
+\\usepackage{multirow}%%\n\
+\\usepackage[table]{xcolor}%%\n\
 \\def\\rmdefault{phv}%%\n\
 %%\n\
 %s\
 \\pagestyle{empty}\n\
 \n\
+\\newcounter{nrow}\n\
+\\setcounter{nrow}{0}\n\
+\\newcounter{totalrows}\n\
+\\setcounter{totalrows}{0}\n\
 \\newcounter{total}\n\
 \\setcounter{total}{0}\n\
 \\newcounter{ects}\n\
@@ -501,7 +540,13 @@ let print_preamble ?decimalsepsymbol logger =
 {\\setcounter{cects}{0}}}%%\n\
 %%\n\
 %%\n\
+\\newcommand{\\innerline}{%%\n\
+\\ifnum \\thenrow=\\thetotalrows%%\n\
+\\hline%%\n\
+       \\else\\cline{1-1}\\cline{3-7}\\fi%%\n\
+}%%\n\
 \\newcommand{\\cours}[7]{%%\n\
+\\addtocounter{nrow}{1}%%\n\
 \\StrSubstitute{#6}{,}{.}[\\res]%%\n\
 \\myifdecimal{#6}%%\n\
 {%%\n\
@@ -526,7 +571,7 @@ let print_preamble ?decimalsepsymbol logger =
 \\addtocounter{ects}{\\fpeval{\\thecects*\\factor}}%%\n\
 \\addtocounter{potentialects}{\\fpeval{\\thepects*\\factor}}%%\n\
 %%\n\
-#1 & #2 & #3 & #4 & #5 & \\mynumprint{#6} & \\numprint{#7}\\cr%%\n\
+       #1 & \\ifnum \\thenrow=\\thetotalrows %%\n\ \\multirow{-\\thetotalrows}{*}{{\\centering #2}}\\fi & #3 & #4 & #5 & \\mynumprint{#6} & \\numprint{#7}\\cr%%\n\
 }%%\n\
 %%\n\ "
       package size  decimal
@@ -606,7 +651,7 @@ let close_row logger =
   with
   | HTML_Tabular -> fprintf logger "<tr>@."
   | Latex _ ->
-    let () = draw_line logger  in
+    let () = fprintf logger "\\innerline@. " in
     print_newline logger
   | Json | XLS | HTML | TXT | CSV -> fprintf logger "@."
 

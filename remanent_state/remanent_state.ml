@@ -347,7 +347,7 @@ let set_std_logger t logger =
   let std_logger = Some logger in
   {t with std_logger}
 
-let open_array pos ?logger ~with_lines ?size ?color ?align ~title t =
+let open_array pos ?logger ~with_lines ?size ?color ?bgcolor ?align ~title t =
   let t,logger =
     match logger with
     | None ->
@@ -371,7 +371,7 @@ let open_array pos ?logger ~with_lines ?size ?color ?align ~title t =
       in
       t, logger
   in
-  let error = Loggers.open_array ?size ?color ?align ~title logger in
+  let error = Loggers.open_array ?size ?color ?bgcolor ?align ~title logger in
   if error
   then
     warn

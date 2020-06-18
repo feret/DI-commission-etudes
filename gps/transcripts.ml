@@ -564,7 +564,7 @@ let set_bilan_annuel state remanent year bilan =
 
 let store_gen
     get get_current set
-    pos state current_file current_file' output  =
+    pos ~who state current_file current_file' output  =
   let state, current_file =
     match
       current_file'.annee_de_travail
@@ -584,7 +584,7 @@ let store_gen
           year
       in
       let state, current_file'' =
-        get_current state current_file'
+        get_current state pos ~who current_file'
       in
       let state, bilan' = get state bilan in
       let updated =
@@ -606,22 +606,28 @@ let store_gen
 let store_diplome =
   store_gen
     (fun state bilan -> state, bilan.diplomes)
-    (fun state remanent -> state, remanent.rem_diplome)
+    (fun state pos ~who remanent ->
+       let _ = who,pos  in
+       state, remanent.rem_diplome)
     (fun state bilan diplomes -> state, {bilan with diplomes})
 
-let store_cours =
+let store_cours  =
   store_gen
     (fun state bilan -> state, bilan.cours)
-    (fun state remanent ->
+    (fun state pos ~who remanent ->
        let state, note =
          match remanent.prevalide, remanent.prenote with
          | Some (Public_data.Bool false | Public_data.Abs), None
            ->
            state, Some Public_data.Absent
-         | Some Public_data.Abs, Some _ ->
+         | Some Public_data.Abs, Some i ->
+           let msg =
+             Format.sprintf
+               "Note and validity status are incompatible (validation:abs, note:%s) for %s" i who
+           in
            Remanent_state.warn_dft
-             __POS__
-             "Note and validity status are incompatible"
+             pos
+             msg
              Exit
              (Some Public_data.Absent)
              state
@@ -670,7 +676,9 @@ let store_cours =
 let store_stage =
   store_gen
     (fun state _bilan -> state, [])
-    (fun state _remanent -> state, [])
+    (fun state pos ~who _remanent ->
+       let _ = pos, who in
+       state, [])
     (fun state bilan _stages -> state, bilan)
 
 let store_gen_fields
@@ -1306,6 +1314,7 @@ let get_gps_file
     else
       Printf.sprintf "%s/%s" rep file
   in
+  let who = file_name in
   let event_opt =
     Some
       (Profiling.Export_transcript
@@ -1324,7 +1333,7 @@ let get_gps_file
         header
     then
         store_cours
-          __POS__
+          __POS__ ~who
           state
           current_file
           current_file'
@@ -1359,7 +1368,7 @@ let get_gps_file
         header
     then
       store_option
-        __POS__
+        __POS__ 
         state
         current_file
         current_file'
@@ -1369,7 +1378,7 @@ let get_gps_file
         (Some Public_data.Diplome) header
     then
       store_diplome
-        __POS__
+        __POS__ ~who
         state
         current_file
         current_file'
@@ -1380,7 +1389,7 @@ let get_gps_file
         header
     then
       store_stage
-        __POS__
+        __POS__ ~who
         state
         current_file
         current_file'
@@ -1634,10 +1643,15 @@ let export_transcript
         let firstname =
           String.capitalize_ascii (Tools.unsome_string gps_file.prenom)
         in
+        let who =
+          Format.sprintf
+            "pour %s %s en %s"
+            firstname lastname year
+        in
         let state,statut,bourse =
             match gps_file.statut with
               | None -> state,"",""
-              | Some Public_data.Eleve_bis -> state,"\\'El\\`eve BIS",""
+              | Some Public_data.Eleve_bis
               | Some Public_data.Eleve -> state,"\\'El\\`eve",""
               | Some Public_data.Etudiant ->
             begin
@@ -1694,8 +1708,8 @@ let export_transcript
           | None ->
             let msg =
               Printf.sprintf
-                "Tuteur inconnu pour %s %s en %s"
-                firstname lastname year
+                "Tuteur inconnu pour %s"
+                who
             in
             Remanent_state.warn_dft
               __POS__
@@ -1712,8 +1726,8 @@ let export_transcript
               | None, (None | Some _), None ->
                 let msg =
                   Printf.sprintf
-                    "Tuteur inconnu pour %s %s en %s"
-                    firstname lastname year
+                    "Tuteur inconnu pour %s"
+                    who
                 in
                 Remanent_state.warn_dft
                   __POS__
@@ -1760,8 +1774,8 @@ let export_transcript
                 | _ ->
                 let msg =
                   Printf.sprintf
-                    "max 4 ans de scolarité pour %s %s en %s"
-                    firstname lastname year
+                    "max 4 ans de scolarité pour %s"
+                    who
                 in
                   Remanent_state.warn_dft
                     __POS__
@@ -1788,8 +1802,8 @@ let export_transcript
                       else
                       let msg =
                         Printf.sprintf
-                          "mauvais dpt principal pour une double licence %s %s en %s"
-                          firstname lastname year
+                          "mauvais dpt principal pour une double licence pour %s"
+                          who
                       in
                         Remanent_state.warn_dft
                           __POS__
@@ -1800,8 +1814,8 @@ let export_transcript
                     | _ ->
                     let msg =
                       Printf.sprintf
-                        "mauvais dpt principal pour une double licence %s %s en %s"
-                        firstname lastname year
+                        "mauvais dpt principal pour une double licence pour %s"
+                        who
                     in
                       Remanent_state.warn_dft
                         __POS__
@@ -1868,10 +1882,27 @@ let export_transcript
         in
         let state =
           StringOptMap.fold
-            (fun _ list state ->
+            (fun string list state ->
+               let bgcolor=[None;
+                            begin
+                              match Tools.map_opt String.trim string
+                              with
+                              | None -> None
+                              | Some "DENS" -> Some Color.blue
+                              | Some ("L" | "LMath") -> Some Color.yellow
+                              | _ -> None
+                            end
+                                   ;None;None;None;None;None] in
+
+               let () =
+                 Remanent_state.log state
+                   "\\setcounter{totalrows}{%i}%%%%\n\ "
+                   (List.length list)
+               in
                let state =
                  Remanent_state.open_array
                    __POS__
+                   ~bgcolor
                    ~size
                    ~with_lines:true
                    ~title:["Code";"Dipl\\^ome";"Intitul\\'e"
@@ -1947,7 +1978,7 @@ let export_transcript
                in
                let () =
                  Remanent_state.print_cell
-                   "\\nprounddigits{2}%%\n\ \\ifnum \\theects>0%%\n\ Moyenne : \\numprint{\\fpeval{\\thetotal/\\theects}} ECTS : {{\\fpeval{\\theects/\\factor}}}%%\n\ \\fi%%\n\ \\ifnum \\thepotentialects=0%%\n\ \\else%%\n\  (potentiellement {{\\fpeval{(\\theects+\\thepotentialects)/\\factor}}} ects)\\fi%%\n\ \\npnoround%%\n\ " state
+                   "\\nprounddigits{2}%%\n\ \\ifnum \\theects>0%%\n\ Moyenne : \\numprint{\\fpeval{\\thetotal/\\theects}} %%\n\ ECTS : {{\\fpeval{\\theects/\\factor}}} %%\n\ \\fi%%\n\ \\ifnum \\thepotentialects=0%%\n\ \\else%%\n\ (potentiellement {{\\fpeval{(\\theects+\\thepotentialects)/\\factor}}} ects)\\fi%%\n\ \\npnoround%%\n\ " state
                in
                let () =
                  Remanent_state.log state "\\vfill\n\ "
