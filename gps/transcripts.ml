@@ -133,6 +133,7 @@ let log_statut
           Remanent_state.log
             state "%s: %s" label
             (match a with
+             | Public_data.Eleve_bis -> "Eleve BIS"
              | Public_data.Eleve -> "Eleve"
              | Public_data.Etudiant -> "Etudiant")
         in state
@@ -993,6 +994,12 @@ let statut_opt_of_string_opt pos state s_opt =
           s ["e";"etudiant"]
       then state, Some Public_data.Etudiant
       else
+      if List.mem
+          s
+          ["eleve bis"]
+      then
+        state, Some Public_data.Eleve_bis
+      else
         let msg =
           Format.sprintf
             "Ill-formed Statut (%s)"
@@ -1583,9 +1590,10 @@ let export_transcript ~output state gps_file =
         in
         let state,statut,bourse =
             match gps_file.statut with
-          | None -> state,"",""
-          | Some Public_data.Eleve -> state,"\\'Eleve",""
-          | Some Public_data.Etudiant ->
+              | None -> state,"",""
+              | Some Public_data.Eleve_bis -> state,"\\'Eleve BIS",""
+              | Some Public_data.Eleve -> state,"\\'Eleve",""
+              | Some Public_data.Etudiant ->
             begin
               let state, bourse =
               match Remanent_state.get_scholarship

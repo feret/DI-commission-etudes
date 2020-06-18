@@ -121,6 +121,7 @@ type genre =
 type statut =
   | Eleve
   | Etudiant
+  | Eleve_bis
 
 module StringMap =
   Map_tools.MakeSimplified
