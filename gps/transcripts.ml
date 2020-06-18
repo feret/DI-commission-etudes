@@ -1500,13 +1500,12 @@ let translate_dpt state d =
       match simplify_string s with
       | x when x=dpt_info  -> state, dpt_info_full
       | x when x=dpt_maths -> state, dpt_maths_full
-      | _ ->
-      Remanent_state.warn_dft
-        __POS__
-        "Departement non rempli"
-        Exit
-        ""
-        state
+      | x -> state,
+             Printf.sprintf
+               "Departement de %s"
+               (String.capitalize_ascii
+                  (String.lowercase_ascii x
+                  ))
     end
 
 let keep_class state filter year note =
@@ -1754,10 +1753,10 @@ let export_transcript
             begin
               let state, prefix =
                 match i with
-                | 1 -> state, "Première année"
-                | 2 -> state, "Seconde année"
-                | 3 -> state, "Troisème année"
-                | 4 -> state, "Quatrième année"
+                | 1 -> state, "Première année :"
+                | 2 -> state, "Seconde année :"
+                | 3 -> state, "Troisème année :"
+                | 4 -> state, "Quatrième année :"
                 | _ ->
                 let msg =
                   Printf.sprintf
@@ -1768,7 +1767,7 @@ let export_transcript
                     __POS__
                     msg
                     Exit
-                    ((string_of_int i)^"ème année")
+                    ((string_of_int i)^"ème année :")
                     state
               in
               let state, suffix =
