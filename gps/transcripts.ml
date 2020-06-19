@@ -615,6 +615,18 @@ let store_cours  =
   store_gen
     (fun state bilan -> state, bilan.cours)
     (fun state pos ~who remanent ->
+       let who =
+         match remanent.rem_cours.cours_libelle
+         with
+         | None -> who
+         | Some c ->
+           if String.trim c = ""
+           then
+             who
+           else
+         Printf.sprintf
+           "%s in %s" who c
+       in
        let state, note =
          match remanent.prevalide, remanent.prenote with
          | Some (Public_data.Bool false | Public_data.Abs), None
@@ -638,9 +650,13 @@ let store_cours  =
              let state, note_opt = Notes.of_string __POS__ state n in
              match note_opt with
              | None ->
+               let msg =
+                 Format.sprintf
+                   "Invalid content for the field note for %s" who
+               in
                Remanent_state.warn_dft
-                 __POS__
-                 "Invalid content for the field Note"
+                 pos
+                 msg
                  Exit
                  note_opt
                  state
@@ -649,9 +665,26 @@ let store_cours  =
                then
                  state, note_opt
                else
+                 let state, note_string =
+                   Notes.to_string
+                     __POS__
+                     state
+                     note
+                 in
+                 let state, v_string =
+                   Valide.to_string
+                     __POS__
+                     state
+                     v
+                 in
+                 let msg =
+                   Format.sprintf
+                     "Note %s and validity status %s are incompatible for %s"
+                     note_string v_string who
+                 in
                  Remanent_state.warn_dft
                    __POS__
-                   "Note and validity status are incompatible"
+                   msg
                    Exit
                    note_opt
                    state
@@ -659,9 +692,14 @@ let store_cours  =
          | None , Some n ->
            begin
              let state, note_opt = Notes.of_string __POS__ state n in
+             let msg =
+               Format.sprintf
+                 "Undefined validity status for note %s for %s"
+                 n who
+             in
              Remanent_state.warn_dft
-                 __POS__
-                 "Invalid validity status"
+                 pos
+                 msg
                  Exit
                  note_opt
                  state
@@ -1266,6 +1304,7 @@ let asso_list =
            let state, prenote =
               match data with
                 | None -> state, remanent.prenote
+                | Some s when String.trim s = "" -> state, remanent.prenote
                 | Some s -> state, Some s
            in
            state, {remanent with prenote});
@@ -1368,7 +1407,7 @@ let get_gps_file
         header
     then
       store_option
-        __POS__ 
+        __POS__
         state
         current_file
         current_file'
@@ -1489,6 +1528,29 @@ let lmath d =
 
 let linfo d =
   lgen "licence" "gps2291" dpt_info d
+
+let is_master d =
+  List.exists
+    (fun diplome ->
+       match diplome.grade with
+       | None -> false
+         | Some s ->
+           simplify_string s = "master")
+    d.diplomes
+
+let mgen dpt d =
+  is_master d &&
+  begin
+    match
+      d.departement_principal
+    with
+    | None -> false
+    | Some x -> simplify_string x = dpt
+  end
+
+let minfo = mgen dpt_info
+let mmaths = mgen dpt_maths
+
 
 let string_of_stringopt s_opt =
   match s_opt with
@@ -1703,7 +1765,7 @@ let export_transcript
               __POS__
               state
         in
-        let state, tuteur =
+        let state, (tuteur, lineproportion) =
           match tuteur with
           | None ->
             let msg =
@@ -1715,7 +1777,7 @@ let export_transcript
               __POS__
               msg
               Exit
-              ""
+              ("",1.)
               state
           | Some tuteur ->
             begin
@@ -1733,19 +1795,18 @@ let export_transcript
                   __POS__
                   msg
                   Exit
-                  ""
+                  ("",1.)
                   state
               | Some x, Some y, _ ->
                 state,
-                Printf.sprintf
+                (Printf.sprintf
                   "%s %s"
                   (String.capitalize_ascii y)
-                  (String.uppercase_ascii x)
-              | None, _, Some x -> state, x
-              | Some x, _, _ -> state, x
+                  (String.uppercase_ascii x), 2./.3.)
+              | None, _, Some x -> state, (x, 2./.3.)
+              | Some x, _, _ -> state, (x, 2./.3.)
             end
         in
-        let lineproportion = 2./.3. in
         let backgroundcolor =
           match
             situation.nannee
@@ -1842,15 +1903,16 @@ let export_transcript
             annee
             statut
         in
-        let lineproportion = 1./.3. in
         let () =
-          Remanent_state.log
-            ~lineproportion
-            ~backgroundcolor
-            ~textcolor
-            state
-            "%s"
-            tuteur
+          if not (tuteur = "") then
+            let lineproportion = 1./.3. in
+              Remanent_state.log
+                ~lineproportion
+                ~backgroundcolor
+                ~textcolor
+                state
+                "%s"
+                tuteur
         in
         let () =
           Remanent_state.print_newline state
@@ -1883,16 +1945,53 @@ let export_transcript
         let state =
           StringOptMap.fold
             (fun string list state ->
-               let bgcolor=[None;
-                            begin
-                              match Tools.map_opt String.trim string
-                              with
-                              | None -> None
-                              | Some "DENS" -> Some Color.blue
-                              | Some ("L" | "LMath") -> Some Color.yellow
-                              | _ -> None
-                            end
-                                   ;None;None;None;None;None] in
+               let state, color =
+                 match Tools.map_opt String.trim string
+                 with
+                 | None ->
+                   let msg =
+                     Printf.sprintf "Empty discipline category  for %s" who
+                 in
+                 Remanent_state.warn_dft
+                   __POS__
+                   msg
+                   Exit
+                   None
+                   state
+                 | Some "DENS" -> state, Some Color.blue
+                 | Some ("L" | "LInfo") ->
+                   state, Some Color.yellow
+                 | Some "LMath" -> state, Some Color.orange
+                 | Some ("M") ->
+                   if minfo situation
+                   then
+                     state, Some Color.yellow
+                   else
+                   if mmaths situation then
+                     state, Some Color.orange
+                   else
+                     let msg =
+                       Printf.sprintf "Unknown master discipline  for %s" who
+                     in
+                     Remanent_state.warn_dft
+                       __POS__
+                       msg
+                       Exit
+                       None
+                       state
+                 | Some x  ->
+                   let msg =
+                     Printf.sprintf "Unknown course category %s for %s" x who
+                   in
+                   Remanent_state.warn_dft
+                     __POS__
+                     msg
+                     Exit                    
+                     None
+                     state
+
+               in
+               let bgcolor=[None;color;None;None;None;None;None] in
 
                let () =
                  Remanent_state.log state
