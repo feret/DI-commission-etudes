@@ -32,18 +32,36 @@ let state =
              ~input state
        in
        let output =
-         (fst output, (Tools.basename (snd output))^".tex")
+         (fst output, (Tools.basename (snd output))^"validated_and_in_progress_only.tex")
        in
-       match gps with
-       | None -> state
-       | Some gps ->
-         let state, output_opt =
-           Transcripts.export_transcript
-             ~output state gps
-         in
-         match output_opt with
+       let state =
+         match gps with
          | None -> state
-         | Some input -> Latex_engine.latex_to_pdf state ~input
+         | Some gps ->
+           let state, output_opt =
+             Transcripts.export_transcript
+               ~output state gps
+           in
+           match output_opt with
+           | None -> state
+           | Some input -> Latex_engine.latex_to_pdf state ~input
+       in
+       let output =
+         (fst output, (Tools.basename (snd output))^"all.tex")
+       in
+       let state =
+         match gps with
+         | None -> state
+         | Some gps ->
+           let filter = Public_data.All in
+           let state, output_opt =
+             Transcripts.export_transcript
+               ~filter ~output state gps
+           in
+           match output_opt with
+           | None -> state
+           | Some input -> Latex_engine.latex_to_pdf state ~input
+       in state
     )
     state
     students_list
