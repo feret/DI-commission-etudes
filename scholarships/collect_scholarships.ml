@@ -215,13 +215,13 @@ let get_scholarships
            | Some firstname, Some lastname, Some organism ->
              Remanent_state.add_scholarship __POS__
                {Public_data.holder_firstname =
-                  String.lowercase_ascii firstname ;
+                  Special_char.lowercase firstname ;
                 Public_data.holder_lastname=
-                  String.lowercase_ascii lastname;
+                  Special_char.lowercase lastname;
                 Public_data.holder_promotion=
                   student.promotion;
                 Public_data.organism =
-                  String.lowercase_ascii organism
+                  Special_char.lowercase organism
                }
                state
            | None, None, None -> state

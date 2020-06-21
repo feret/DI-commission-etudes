@@ -147,3 +147,8 @@ val get_mentoring:
 
 val get_current_academic_year:
   t -> t * Public_data.annee
+
+val get_picture_potential_locations:
+  firstname:string ->
+  lastname:string ->
+  year:Public_data.annee -> t -> t * string list

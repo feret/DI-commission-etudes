@@ -21,7 +21,7 @@ let dpt_info_full = "Département d'Informatique"
 let dpt_maths_full = "Département de Mathématiques"
 
 let simplify_string s =
-  String.lowercase_ascii
+  Special_char.lowercase
     (Special_char.correct_string_txt
        (String.trim s))
 
@@ -965,7 +965,7 @@ match s_opt with
   if String.trim s = "" || s="?"
   then state, None
   else
-    let s = String.lowercase_ascii s in
+    let s = Special_char.lowercase s in
     if
       List.mem
       s ["o";"oui";"y";"yes";"ok"]
@@ -997,7 +997,7 @@ let genre_opt_of_string_opt pos state s_opt =
     then
       state, None
     else
-      let s = String.lowercase_ascii s in
+      let s = Special_char.lowercase s in
       if
         List.mem
           s ["m";"mr";"monsieur";"m.";"mr"]
@@ -1529,17 +1529,7 @@ let lmath d =
 let linfo d =
   lgen "licence" "gps2291" dpt_info d
 
-let is_master d =
-  List.exists
-    (fun diplome ->
-       match diplome.grade with
-       | None -> false
-         | Some s ->
-           simplify_string s = "master")
-    d.diplomes
-
 let mgen dpt d =
-  is_master d &&
   begin
     match
       d.departement_principal
@@ -1574,8 +1564,8 @@ let translate_dpt state d =
       | x -> state,
              Printf.sprintf
                "Departement de %s"
-               (String.capitalize_ascii
-                  (String.lowercase_ascii x
+               (Special_char.capitalize
+                  (Special_char.lowercase x
                   ))
     end
 
@@ -1662,6 +1652,27 @@ let export_transcript
     let old_logger = Remanent_state.save_std_logger state in
     let state = Remanent_state.set_std_logger state logger in
     let l = Public_data.YearMap.bindings gps_file.situation in
+    let genre,er =
+      match gps_file.genre with
+      | None -> "(e)","er(\\`ere)"
+      | Some Public_data.Masculin -> "","er"
+      | Some Public_data.Feminin -> "e","\\`ere"
+    in
+    let lastname =
+      Special_char.uppercase (Tools.unsome_string gps_file.nom)
+    in
+    let firstname =
+      Special_char.capitalize (Tools.unsome_string gps_file.prenom)
+    in
+    let promo =
+      (Tools.unsome_string gps_file.promotion)
+    in
+    let who =
+      Format.sprintf
+        "pour %s %s (%s)"
+        firstname lastname promo
+    in
+
     let l_rev,_ =
       List.fold_left
         (fun (l,counter) (y,annee) ->
@@ -1679,71 +1690,90 @@ let export_transcript
 
         ([],0) l
     in
+    let year = promo in
+    let state, picture_list =
+      Remanent_state.get_picture_potential_locations
+        ~firstname ~lastname ~year state
+    in
+    let state, b =
+      let rec aux state l =
+        match l with
+        | [] -> state, false
+        | h::t ->
+          let state, b = Safe_sys.file_exists __POS__ state h
+          in
+          if b then state, true
+          else aux state t
+      in aux state picture_list
+    in
+    let state =
+      if b
+      then
+        state
+      else
+        let msg =
+          Printf.sprintf
+            "No pictures for %s" who
+        in
+        Remanent_state.warn
+          __POS__
+          msg
+          Exit
+          state
+    in
     let state =
       List.fold_left
         (fun state (year,situation) ->
-        let backgroundcolor = Some Color.green in
-        let () =
-          Remanent_state.log
-            ?backgroundcolor
-            state
-            "D\\'epartement d'Informatique. \\'Ecole Normale Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Tel : +33 (0)1 44 32 20 45."
-        in
-        let () =
-          Remanent_state.print_newline state in
-        let backgroundcolor = Some Color.blue in
-        let lineproportion = Some (2./.3.) in
-        let genre,er =
-          match gps_file.genre with
-          | None -> "(e)","er(\\`ere)"
-          | Some Public_data.Masculin -> "","er"
-          | Some Public_data.Feminin -> "e","\\`ere"
-        in
-        let lastname =
-          String.uppercase_ascii (Tools.unsome_string gps_file.nom)
-        in
-        let firstname =
-          String.capitalize_ascii (Tools.unsome_string gps_file.prenom)
-        in
-        let who =
-          Format.sprintf
-            "pour %s %s en %s"
-            firstname lastname year
-        in
-        let state,statut,bourse =
+           let backgroundcolor = Some Color.green in
+           let who =
+             Format.sprintf "%s in %s" who year
+           in
+           let () =
+             Remanent_state.log
+               ?backgroundcolor
+               state
+               "D\\'epartement d'Informatique. \\'Ecole Normale  Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Tel : +33 (0)1 44 32 20 45."
+           in
+           let () =
+             Remanent_state.print_newline state in
+           let backgroundcolor = Some Color.blue in
+           let lineproportion = Some (2./.3.) in
+           let state,statut,bourse =
             match gps_file.statut with
               | None -> state,"",""
               | Some Public_data.Eleve_bis
               | Some Public_data.Eleve -> state,"\\'El\\`eve",""
               | Some Public_data.Etudiant ->
-            begin
-              let state, bourse =
-              match Remanent_state.get_scholarship
-                      ~firstname ~lastname
-                      state
-              with
-              | state, None ->
-                state, ""
-              | state, Some scholarship ->
+                begin
+                  let state, bourse =
+                    match Remanent_state.get_scholarship
+                            ~firstname ~lastname
+                            state
+                    with
+                    | state, None ->
+                      state, ""
+                    | state, Some scholarship ->
+                      state,
+                      Format.sprintf "Boursi%s %s" er
+                        scholarship.Public_data.organism
+                  in
                   state,
-                  Format.sprintf "Boursi%s %s" er scholarship.Public_data.organism
-              in
-              state, Format.sprintf "\\'Etudiant%s" genre,bourse
-            end
-        in
-        let () =
-            Remanent_state.log
-              ?backgroundcolor
-              ?lineproportion
-              state
-              "\\large %s %s \\hspace{5mm} n\\'e%s le %s \\hspace{5mm} %s%s %s"
-              (String.uppercase_ascii (Tools.unsome_string gps_file.nom))
-              (String.capitalize_ascii (Tools.unsome_string gps_file.prenom))
-              genre
-              (Tools.unsome_string gps_file.date_de_naissance)
-              statut
-              genre
-              bourse
+                  Format.sprintf "\\'Etudiant%s" genre,bourse
+                end
+           in
+           let () =
+             Remanent_state.log
+               ?backgroundcolor
+               ?lineproportion
+               state
+               "\\large %s %s \\hspace{5mm} n\\'e%s le %s \\hspace{5mm} %s %s"
+               (Special_char.uppercase (Tools.unsome_string
+                                          gps_file.nom))
+               (Special_char.capitalize (Tools.unsome_string gps_file.prenom))
+               genre
+               (Tools.unsome_string gps_file.date_de_naissance)
+               statut
+               bourse
         in
         let lineproportion = Some (1./.3.) in
         let () =
@@ -1764,7 +1794,7 @@ let export_transcript
               ~firstname
               __POS__
               state
-        in
+          in
         let state, (tuteur, lineproportion) =
           match tuteur with
           | None ->
@@ -1801,8 +1831,8 @@ let export_transcript
                 state,
                 (Printf.sprintf
                   "%s %s"
-                  (String.capitalize_ascii y)
-                  (String.uppercase_ascii x), 2./.3.)
+                  (Special_char.capitalize y)
+                  (Special_char.uppercase x), 2./.3.)
               | None, _, Some x -> state, (x, 2./.3.)
               | Some x, _, _ -> state, (x, 2./.3.)
             end
@@ -1917,8 +1947,30 @@ let export_transcript
         let () =
           Remanent_state.print_newline state
         in
+        let k =
+          List.fold_left
+            (fun n x ->
+               let () =
+                 Remanent_state.fprintf
+                   state
+                   "\\IfFileExists{%s}%%\n\ {\\vspace*{-2cm}{\\hfill\\includegraphics[height=2cm]{%s}}\\hspace*{5mm}\\mbox{}}%%\n\ {" x x
+               in
+               n+1)
+            0
+            picture_list
+        in
+        let () =
+          Remanent_state.fprintf
+            state
+            "%s%%\n\ "
+            (String.init k (fun _ -> '}'))
+        in
+        let () =
+          Remanent_state.print_newline state
+        in
         let state, filtered_classes =
-          filter_class state remove_non_valided_classes year situation.cours
+          filter_class
+            state remove_non_valided_classes year situation.cours
         in
         let split_cours =
           List.fold_left
@@ -1936,11 +1988,11 @@ let export_transcript
         in
         let size =
           List.rev_map
-            (fun a -> Some (a/.(sum*.1.15)))
+            (fun a -> Some (a/.(sum*.1.12)))
             (List.rev l)
         in
         let () =
-          Remanent_state.log state "\\vfill\n\ "
+          Remanent_state.log state "\n\ \\vfill\n\ \n\ "
         in
         let state =
           StringOptMap.fold
@@ -1986,7 +2038,7 @@ let export_transcript
                    Remanent_state.warn_dft
                      __POS__
                      msg
-                     Exit                    
+                     Exit
                      None
                      state
 

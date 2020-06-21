@@ -494,7 +494,8 @@ let print_preamble ?decimalsepsymbol logger =
 \\usepackage{ifthen}%%\n\
 \\usepackage{numprint}%%\n\
 \\usepackage{multirow}%%\n\
-\\usepackage[table]{xcolor}%%\n\
+       \\usepackage[table]{xcolor}%%\n\
+       \\usepackage{graphicx}%%\n\
 \\def\\rmdefault{phv}%%\n\
 %%\n\
 %s\

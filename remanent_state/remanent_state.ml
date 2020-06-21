@@ -17,14 +17,19 @@ type parameters =
     output_alias_repository: string;
     store_gps_file_according_to_their_promotions: bool;
     indicate_promotions_in_gps_file_names: bool;
+    repository_to_access_pictures: string;
+    pictures_stored_according_to_promotions: bool;
+    picture_file_names_mention_promotion: bool;
     file_retriever: Public_data.file_retriever ;
     file_retriever_options: string ;
     file_retriever_log_repository: string ;
     file_retriever_log_file: string;
     file_retriever_time_out_in_seconds: int option;
     file_retriever_checking_period_in_seconds : int;
-    profiling_log_file_repository: string ;
+    profiling_log_file_repository: string;
     profiling_log_file: string;
+    error_log_repository: string;
+    error_log_file: string;
     date: string;
     comma_symbol: char;
     current_academic_year: Public_data.annee;
@@ -51,6 +56,9 @@ let parameters =
     output_alias_repository = "courant";
     store_gps_file_according_to_their_promotions = true;
     indicate_promotions_in_gps_file_names = true;
+    repository_to_access_pictures = "pictures";
+    pictures_stored_according_to_promotions = true ;
+    picture_file_names_mention_promotion = false;
     file_retriever  = Public_data.WGET ;
     file_retriever_options = "" ;
     file_retriever_log_repository = "/users/absint3/feret/tmp" ;
@@ -59,6 +67,8 @@ let parameters =
     file_retriever_checking_period_in_seconds = 5;
     profiling_log_file_repository = "/users/absint3/feret/tmp";
     profiling_log_file = "profiling.html";
+    error_log_repository = "/users/absint3/feret/tmp";
+    error_log_file = "error.txt";
     date = Tools.date ();
     comma_symbol = ',';
     current_academic_year = "2019";
@@ -86,8 +96,18 @@ type t =
     profiling_info : Profiling.log_info option ;
     std_logger : Loggers.t option ;
     profiling_logger: Loggers.t option ;
+    error_logger: Loggers.t option ;
     data: data;
   }
+
+let get_logger_gen access t =
+  t,
+  match access t with
+  | None -> Loggers.devnul
+  | Some a -> a
+
+let get_error_logger t =
+  get_logger_gen (fun x -> x.error_logger) t
 
 let get_is_in_safe_mode t =
   t, t.parameters.safe_mode
@@ -202,11 +222,6 @@ let get_monitoring_list_repository t =
     t, Printf.sprintf "%s/%s" main repository
 
 let get_csv_separator t = t, Some ','
-let get_logger_gen access t =
-  t,
-  match access t with
-  | None -> Loggers.devnul
-  | Some a -> a
 
 let get_std_logger t =
   get_logger_gen (fun x -> x.std_logger) t
@@ -280,6 +295,15 @@ let init () =
   let parameters =
     get_option_quick parameters
   in
+  let rep = parameters.error_log_repository in
+  let file = parameters.error_log_file in
+  let error_logger =
+    let fic = open_out (Printf.sprintf "%s/%s" rep file) in
+    Some
+      (Loggers.open_logger_from_channel
+         ~mode:Loggers.TXT
+         fic)
+  in
   let rep = parameters.profiling_log_file_repository in
   let file = parameters.profiling_log_file in
   let profiling_logger =
@@ -299,6 +323,7 @@ let init () =
       profiling_info  ;
       std_logger ;
       profiling_logger ;
+      error_logger ;
       data ;
     }
   in
@@ -324,10 +349,16 @@ let stop pos message exn t =
   let () = exit 1 in
   t
 
+let which_logger_gen ?logger f t =
+  match logger with
+  | Some a -> a
+  | None -> snd (f t)
+
 let which_logger ?logger t =
   match logger with
   | Some a -> a
   | None -> snd (get_std_logger t)
+
 
 let fprintf ?logger t x =
   Loggers.fprintf
@@ -410,7 +441,10 @@ let print_newline ?logger t =
 
 let print_errors ?logger prefix t =
   let t,error_handler = get_error_handler t in
-  let () = Exception.print (which_logger ?logger t) prefix error_handler in
+  let () =
+    Exception.print
+      (which_logger_gen get_error_logger ?logger t) prefix error_handler
+  in
   t
 
 type save_logger = Loggers.t option
@@ -505,3 +539,53 @@ let get_mentoring ~firstname ~lastname ~year ?tuteur_gps pos t =
 
 let get_current_academic_year t =
   t, t.parameters.current_academic_year
+
+let get_pictures_prefix t =
+  t, t.parameters.repository_to_access_pictures
+
+let get_picture_file_names_mention_promotion t =
+  t, t.parameters.picture_file_names_mention_promotion
+
+let get_pictures_stored_according_to_promotions t =
+  t, t.parameters.pictures_stored_according_to_promotions
+
+let get_pictures_repository t =
+  let t, main = get_local_repository t in
+  let t, repository = get_pictures_prefix t in
+  t, Printf.sprintf "%s/%s" main repository
+
+let get_picture_potential_locations
+    ~firstname ~lastname ~year t =
+  let t, rep = get_pictures_repository t in
+  let t, b =
+    get_pictures_stored_according_to_promotions t
+  in
+  let rep =
+    if b then
+      if rep = "" then year
+      else
+        Format.sprintf "%s/%s" rep year
+    else
+      rep
+  in
+  let t,b =
+    get_picture_file_names_mention_promotion t
+  in
+  let yearprefix =
+    if b then year else ""
+  in
+  let filename =
+    Printf.sprintf "%s%s%s"
+      yearprefix
+      (Special_char.uppercase
+         (Special_char.correct_string_filename lastname))
+      (Special_char.lowercase
+         (Special_char.correct_string_filename firstname))
+  in
+  let base =
+    if rep = ""
+    then filename
+    else
+      Printf.sprintf "%s/%s" rep filename
+  in
+  t, [base^".jpg";base^".pdf"]

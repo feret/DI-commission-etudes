@@ -31,8 +31,9 @@ let state =
            Transcripts.get_gps_file
              ~input state
        in
+       let output0 = output in
        let output =
-         (fst output, (Tools.basename (snd output))^"validated_and_in_progress_only.tex")
+         (fst output0, (Tools.basename (snd output0))^".validated_and_in_progress_only.tex")
        in
        let state =
          match gps with
@@ -47,7 +48,7 @@ let state =
            | Some input -> Latex_engine.latex_to_pdf state ~input
        in
        let output =
-         (fst output, (Tools.basename (snd output))^"all.tex")
+         (fst output0, (Tools.basename (snd output0))^".all.tex")
        in
        let state =
          match gps with

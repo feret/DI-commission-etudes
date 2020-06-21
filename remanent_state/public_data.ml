@@ -130,7 +130,7 @@ type remove_non_valided_classes =
   | All_but_in_progress
   | All_but_in_progress_in_current_academic_year
   | All_but_in_progress_in_years of annee list
-  
+
 module StringMap =
   Map_tools.MakeSimplified
     (
@@ -146,7 +146,7 @@ module StringMap =
         )
 
       let simplify s =
-        String.lowercase_ascii
+        Special_char.lowercase
           (Special_char.correct_string_txt
              (String.trim s))
     end
