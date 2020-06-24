@@ -1643,23 +1643,23 @@ let translate_diplome
     ~situation ~firstname ~lastname ~year ~code_cours
     state course_list diplome =
   let _ = firstname, lastname, year in
-  let check_dpt pos state label situation =
+  let check_dpt pos state diplome label situation =
     match situation.departement_principal with
     | None ->
       Remanent_state.warn_dft
         pos
         "Main teaching dpt is missing"
         Exit
-        (Some label,label,"")
+        (Some diplome,label,"")
         state
-    | Some dpt -> state, (Some label,label,dpt)
+    | Some dpt -> state, (Some diplome,label,dpt)
   in
   match diplome with
   | Some "L" ->
     begin
       if lpoly situation
       then
-        check_dpt __POS__ state
+        check_dpt __POS__ state "L"
           "Bachelor de l'École Polytechnique"
           situation
       else
@@ -1684,7 +1684,7 @@ let translate_diplome
         end
       else
       check_dpt __POS__ state
-        "L"
+        "L" "L"
         situation
     end
   | Some "M" ->
@@ -1692,15 +1692,15 @@ let translate_diplome
         state, (Some "MMath","M",dpt_maths)
       else
         check_dpt __POS__ state
-          "M"
+          "M" "M"
           situation
   | Some x ->
   check_dpt __POS__ state
-    x
+    x x
     situation
   | None ->
     let state, (_,b,c) =
-      check_dpt __POS__ state "" situation
+      check_dpt __POS__ state "" "" situation
     in
     state, (None,b,c)
 
@@ -2169,7 +2169,7 @@ let export_transcript
                       in
                       let () =
                         Remanent_state.print_cell
-                          diplome 
+                          diplome
                           state
                       in
                       let () =
@@ -2219,9 +2219,12 @@ let export_transcript
                let () =
                  Remanent_state.close_array state
                in
+               let moyenne = if string = Some "DENS" then ""
+                 else "Moyenne \\ifnum \\thepotentialects=0%%\n\ \\else%%\n\ provisoire\\fi%%\n\ : \\numprint{\\fpeval{\\thetotal/\\theects}} %%\n"
+               in
                let () =
                  Remanent_state.print_cell
-                   "\\nprounddigits{2}%%\n\ \\ifnum \\theects>0%%\n\ Moyenne : \\numprint{\\fpeval{\\thetotal/\\theects}} %%\n\ ECTS : {{\\fpeval{\\theects/\\factor}}} %%\n\ \\fi%%\n\ \\ifnum \\thepotentialects=0%%\n\ \\else%%\n\ (potentiellement {{\\fpeval{(\\theects+\\thepotentialects)/\\factor}}} ects)\\fi%%\n\ \\npnoround%%\n\ " state
+                   ("\\nprounddigits{2}%%\n\ \\ifnum \\theects>0%%\n\ "^moyenne^"ECTS : {{\\fpeval{\\theects/\\factor}}} %%\n\ \\fi%%\n\ \\ifnum \\thepotentialects=0%%\n\ \\else%%\n\ (potentiellement {{\\fpeval{(\\theects+\\thepotentialects)/\\factor}}} ects)\\fi%%\n\ \\npnoround%%\n\ ") state
                in
                let () =
                  Remanent_state.log state "\\vfill\n\ "

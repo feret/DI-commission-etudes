@@ -572,7 +572,7 @@ let print_preamble ?decimalsepsymbol logger =
 \\addtocounter{ects}{\\fpeval{\\thecects*\\factor}}%%\n\
 \\addtocounter{potentialects}{\\fpeval{\\thepects*\\factor}}%%\n\
 %%\n\
-       #1 & \\ifnum \\thenrow=\\thetotalrows %%\n\ \\multirow{-\\thetotalrows}{*}{{\\centering #2}}\\fi & #3 & #4 & #5 & \\mynumprint{#6} & \\numprint{#7}\\cr%%\n\
+       #1 & \\ifnum \\thenrow=\\thetotalrows %%\n\ \\multirow{-\\thetotalrows}{\\hsize}{{\\centering #2}}\\fi & #3 & #4 & #5 & \\mynumprint{#6} & \\numprint{#7}\\cr%%\n\
 }%%\n\
 %%\n\ "
       package size  decimal
