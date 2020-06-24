@@ -1,8 +1,8 @@
 module StringOptMap =
   Map.Make
     (struct
-      type t = string option
-      let compare a b =
+      type t = string option * string
+      let compare1 a b =
         match a,b with
         | None, None -> 0
         | None, _ -> 1
@@ -11,7 +11,11 @@ module StringOptMap =
         | Some ("DENS" | "dens"), _ ->  1
         | _ , Some ("DENS" | "dens") -> -1
         | Some a, Some b -> compare a b
-    end)
+      let compare a b =
+        match compare1 (fst a) (fst b) with
+        | 0 -> compare (snd a) (snd b)
+        | x -> x
+     end)
 
 let dpt_maths = "mathematiques et applications"
 let dpt_info = "informatique"
@@ -1529,6 +1533,9 @@ let lmath d =
 let linfo d =
   lgen "licence" "gps2291" dpt_info d
 
+let lpoly d =
+  lgen "licence" "gps74842" "" d
+
 let mgen dpt d =
   begin
     match
@@ -1538,7 +1545,7 @@ let mgen dpt d =
     | Some x -> simplify_string x = dpt
   end
 
-let minfo = mgen dpt_info
+let _minfo = mgen dpt_info
 let mmaths = mgen dpt_maths
 
 
@@ -1612,6 +1619,90 @@ let filter_class state filter year class_list =
         aux state t acc
   in
   aux state class_list []
+
+let succeed_lmath _state _l = true
+
+let color_of_dpt who pos state dpt =
+  if dpt = dpt_info
+  then state, Some Color.yellow
+  else if dpt = dpt_maths
+  then state, Some Color.orange
+  else
+    let msg =
+      Format.sprintf "Unknown departement for %s"
+        who
+    in
+    Remanent_state.warn_dft
+      pos
+      msg
+      Exit
+      None
+      state
+
+let translate_diplome
+    ~situation ~firstname ~lastname ~year ~code_cours
+    state course_list diplome =
+  let _ = firstname, lastname, year in
+  let check_dpt pos state label situation =
+    match situation.departement_principal with
+    | None ->
+      Remanent_state.warn_dft
+        pos
+        "Main teaching dpt is missing"
+        Exit
+        (Some label,label,"")
+        state
+    | Some dpt -> state, (Some label,label,dpt)
+  in
+  match diplome with
+  | Some "L" ->
+    begin
+      if lpoly situation
+      then
+        check_dpt __POS__ state
+          "Bachelor de l'École Polytechnique"
+          situation
+      else
+      if linfo situation && lmath situation &&
+         succeed_lmath state course_list
+      then
+        begin
+          if Tools.substring "DMA" code_cours
+             ||
+             try
+               let i = int_of_string year in
+               if i <= 2018 then code_cours = "INFO-L3-THEOIC-S2"
+               else code_cours = "INFO-L3-APPREN-S2"
+             with
+             | _ -> false
+          then
+            state,
+            (Some "LMath","L",dpt_maths)
+          else
+            state,
+            (Some "LInfo","L",dpt_info)
+        end
+      else
+      check_dpt __POS__ state
+        "L"
+        situation
+    end
+  | Some "M" ->
+      if mmaths situation then
+        state, (Some "MMath","M",dpt_maths)
+      else
+        check_dpt __POS__ state
+          "M"
+          situation
+  | Some x ->
+  check_dpt __POS__ state
+    x
+    situation
+  | None ->
+    let state, (_,b,c) =
+      check_dpt __POS__ state "" situation
+    in
+    state, (None,b,c)
 
 let export_transcript
     ~output ?filter:(remove_non_valided_classes=Public_data.All_but_in_progress_in_current_academic_year)
@@ -1972,11 +2063,30 @@ let export_transcript
           filter_class
             state remove_non_valided_classes year situation.cours
         in
-        let split_cours =
+        let state, split_cours =
           List.fold_left
-            (fun map elt ->
-               addmap elt.diplome elt map)
-            StringOptMap.empty
+            (fun (state,map) elt ->
+               match elt.code_cours with
+               | Some code_cours  ->
+                 let state,
+                     (diplome_key,diplome_label,diplome_dpt) =
+                 translate_diplome
+                   ~situation ~firstname ~lastname ~year ~code_cours state filtered_classes
+                   elt.diplome
+               in
+               state,
+               addmap
+                 (diplome_key,diplome_dpt)
+                 (diplome_label,elt) map
+               | None ->
+                 Remanent_state.warn_dft
+                   __POS__
+                   "The code of a course is missing"
+                   Exit
+                   map
+                   state
+            )
+            (state, StringOptMap.empty)
             filtered_classes
         in
         let l = [23.67;6.67;48.33;26.67;7.3;7.3;5.17] in
@@ -1996,7 +2106,7 @@ let export_transcript
         in
         let state =
           StringOptMap.fold
-            (fun string list state ->
+            (fun (string,dpt) list state ->
                let state, color =
                  match Tools.map_opt String.trim string
                  with
@@ -2011,29 +2121,13 @@ let export_transcript
                    None
                    state
                  | Some "DENS" -> state, Some Color.blue
-                 | Some ("L" | "LInfo") ->
-                   state, Some Color.yellow
+                 | Some "LInfo" -> state, Some Color.yellow
                  | Some "LMath" -> state, Some Color.orange
-                 | Some ("M") ->
-                   if minfo situation
-                   then
-                     state, Some Color.yellow
-                   else
-                   if mmaths situation then
-                     state, Some Color.orange
-                   else
-                     let msg =
-                       Printf.sprintf "Unknown master discipline  for %s" who
-                     in
-                     Remanent_state.warn_dft
-                       __POS__
-                       msg
-                       Exit
-                       None
-                       state
+                 | Some ("M" | "L") ->
+                   color_of_dpt who __POS__ state dpt
                  | Some x  ->
                    let msg =
-                     Printf.sprintf "Unknown course category %s for %s" x who
+                     Printf.sprintf "Unknown course category '%s' for %s" x who
                    in
                    Remanent_state.warn_dft
                      __POS__
@@ -2063,21 +2157,19 @@ let export_transcript
                let macro = "cours" in
                let state =
                  List.fold_left
-                   (fun state cours ->
+                   (fun state (diplome,cours) ->
                       let () =
                         Remanent_state.open_row
                           ~macro state
                       in
                       let () =
                         Remanent_state.print_cell
-                          (string_of_stringopt
-                             cours.code_cours)
+                          diplome
                           state
                       in
                       let () =
                         Remanent_state.print_cell
-                          (string_of_stringopt
-                             cours.diplome)
+                          (string_of_stringopt string)
                           state
                       in
                       let () =

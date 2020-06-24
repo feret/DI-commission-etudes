@@ -109,3 +109,17 @@ let basename x =
         (String.get s k) =' ' && aux (k+1)
     in
     aux 0
+
+let substring s s' =
+  let n = String.length s in
+  let n' = String.length s' in
+  let rec aux k =
+    if k+n > n' then false
+    else
+    if s = String.sub s' k n
+    then
+      true
+    else
+      aux (k+1)
+  in
+  aux 0 

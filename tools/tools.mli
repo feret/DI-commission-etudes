@@ -21,4 +21,6 @@ val map_opt_state:  ('a -> 'b -> 'a * 'c) -> 'a -> 'b option -> 'a * ('c option)
 
 val basename: string -> string
 
-val space_only: string -> bool 
+val space_only: string -> bool
+
+val substring: string -> string -> bool 
