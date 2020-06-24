@@ -2089,7 +2089,7 @@ let export_transcript
             (state, StringOptMap.empty)
             filtered_classes
         in
-        let l = [23.67;6.67;48.33;26.67;7.3;7.3;5.17] in
+        let l = [23.67;11.67;48.33;26.67;7.3;7.3;5.17] in
         let sum =
           List.fold_left
             (fun total a -> total+.a)
@@ -2164,12 +2164,12 @@ let export_transcript
                       in
                       let () =
                         Remanent_state.print_cell
-                          diplome
+                          (string_of_stringopt cours.code_cours)
                           state
                       in
                       let () =
                         Remanent_state.print_cell
-                          (string_of_stringopt string)
+                          diplome 
                           state
                       in
                       let () =
