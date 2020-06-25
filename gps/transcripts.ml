@@ -13,7 +13,7 @@ module StringOptMap =
         | Some a, Some b -> compare a b
       let compare a b =
         match compare1 (fst a) (fst b) with
-        | 0 -> compare (snd a) (snd b)
+        | 0 -> compare (snd b) (snd a)
         | x -> x
      end)
 
@@ -1620,24 +1620,35 @@ let filter_class state filter year class_list =
   in
   aux state class_list []
 
-let succeed_lmath _state _l = true
+let is_dma_course code_cours year =
+  Tools.substring "DMA" code_cours
+  ||
+  try
+    let i = int_of_string year in
+    if i <= 2018 then code_cours = "INFO-L3-THEOIC-S2"
+    else code_cours = "INFO-L3-APPREN-S2"
+  with
+  | _ -> false
 
-let color_of_dpt who pos state dpt =
-  if dpt = dpt_info
-  then state, Some Color.yellow
-  else if dpt = dpt_maths
-  then state, Some Color.orange
-  else
-    let msg =
-      Format.sprintf "Unknown departement for %s"
-        who
-    in
-    Remanent_state.warn_dft
-      pos
-      msg
-      Exit
-      None
-      state
+
+let succeed_lmath state year l =
+  let ects =
+    List.fold_left
+      (fun ects elt ->
+         match elt.code_cours with
+         | Some code_cours  ->
+           if is_dma_course code_cours year
+           then
+             match elt.ects with
+             | Some a -> ects +. a
+             | None -> ects
+           else ects
+         | None -> ects)
+      0.
+      l
+  in
+  if ects >= 60. then state, true
+  else state, false
 
 let translate_diplome
     ~situation ~firstname ~lastname ~year ~code_cours
@@ -1652,7 +1663,22 @@ let translate_diplome
         Exit
         (Some diplome,label,"")
         state
-    | Some dpt -> state, (Some diplome,label,dpt)
+    | Some dpt ->
+      let label =
+        if label = "L3" || label ="M1"
+        then
+          let dpt = String.lowercase_ascii dpt in
+          if List.mem (String.lowercase_ascii (String.sub dpt 0
+                                                 1))
+              ["a";"e";"i";"o";"u";"y"]
+          then
+            label^" d'"^dpt
+          else
+            label^" de "^dpt
+        else
+          label
+      in
+      state, (Some diplome,label,dpt)
   in
   match diplome with
   | Some "L" ->
@@ -1663,46 +1689,66 @@ let translate_diplome
           "Bachelor de l'École Polytechnique"
           situation
       else
-      if linfo situation && lmath situation &&
-         succeed_lmath state course_list
+      if linfo situation && lmath situation
       then
+        let state, b =
+          succeed_lmath state year course_list
+        in
+        if b then
         begin
-          if Tools.substring "DMA" code_cours
-             ||
-             try
-               let i = int_of_string year in
-               if i <= 2018 then code_cours = "INFO-L3-THEOIC-S2"
-               else code_cours = "INFO-L3-APPREN-S2"
-             with
-             | _ -> false
+          if is_dma_course code_cours year
           then
             state,
-            (Some "LMath","L",dpt_maths)
+            (Some "LMath","L3 de mathématiques",dpt_maths)
           else
             state,
-            (Some "LInfo","L",dpt_info)
+            (Some "LInfo","L3 d'informatique ",dpt_info)
         end
-      else
-      check_dpt __POS__ state
-        "L" "L"
-        situation
-    end
-  | Some "M" ->
-      if mmaths situation then
-        state, (Some "MMath","M",dpt_maths)
+        else
+          check_dpt __POS__ state
+            "L" "L3"
+            situation
       else
         check_dpt __POS__ state
-          "M" "M"
+          "L" "L3"
           situation
+    end
+  | Some "M" ->
+    if mmaths situation then
+      state, (Some "MMath","M1 de mathématiques",dpt_maths)
+    else
+      check_dpt __POS__ state
+        "M" "M1"
+        situation
   | Some x ->
-  check_dpt __POS__ state
-    x x
-    situation
+    check_dpt __POS__ state
+      x x
+      situation
   | None ->
     let state, (_,b,c) =
       check_dpt __POS__ state "" "" situation
     in
     state, (None,b,c)
+
+
+
+let color_of_dpt who pos state dpt =
+  if dpt = dpt_info
+  then state, Some Color.yellow
+  else if dpt = dpt_maths
+  then state, Some Color.orange
+  else
+    let msg =
+      Format.sprintf "Unknown departement (%s) for %s"
+        dpt who
+    in
+    Remanent_state.warn_dft
+      pos
+      msg
+      Exit
+      None
+      state
+
 
 let export_transcript
     ~output ?filter:(remove_non_valided_classes=Public_data.All_but_in_progress_in_current_academic_year)
@@ -2102,7 +2148,7 @@ let export_transcript
             (List.rev l)
         in
         let () =
-          Remanent_state.log state "\n\ \\vfill\n\ \n\ "
+          Remanent_state.fprintf state "\n\ \\vfill\n\ \n\ "
         in
         let state =
           StringOptMap.fold
@@ -2219,15 +2265,20 @@ let export_transcript
                let () =
                  Remanent_state.close_array state
                in
+               let () =
+                 Remanent_state.fprintf
+                   state
+                   "\n\ \n\ \\vspace*{2mm}\n\ \n\ "
+               in
                let moyenne = if string = Some "DENS" then ""
-                 else "Moyenne \\ifnum \\thepotentialects=0%%\n\ \\else%%\n\ provisoire\\fi%%\n\ : \\numprint{\\fpeval{\\thetotal/\\theects}} %%\n"
+                 else "Moyenne \\ifnum \\thepotentialects=0%%\n\ \\else%%\n\ provisoire\\fi%%\n\ : \\numprint{\\fpeval{\\thetotal/\\theects}} \\hspace*{1cm}%%\n"
                in
                let () =
                  Remanent_state.print_cell
-                   ("\\nprounddigits{2}%%\n\ \\ifnum \\theects>0%%\n\ "^moyenne^"ECTS : {{\\fpeval{\\theects/\\factor}}} %%\n\ \\fi%%\n\ \\ifnum \\thepotentialects=0%%\n\ \\else%%\n\ (potentiellement {{\\fpeval{(\\theects+\\thepotentialects)/\\factor}}} ects)\\fi%%\n\ \\npnoround%%\n\ ") state
+                   ("\\nprounddigits{2}%%\n\ \\ifnum \\theects>0%%\n\ "^moyenne^" ECTS : {{\\fpeval{\\theects/\\factor}}} %%\n\ \\fi%%\n\ \\ifnum \\thepotentialects=0%%\n\ \\else%%\n\ \\hspace*{0.2cm} (potentiellement {{\\fpeval{(\\theects+\\thepotentialects)/\\factor}}} ects)\\fi%%\n\ \\npnoround%%\n\ ") state
                in
                let () =
-                 Remanent_state.log state "\\vfill\n\ "
+                 Remanent_state.fprintf state "\\vfill\n\ "
                in
                let () =
                  Remanent_state.print_newline state
