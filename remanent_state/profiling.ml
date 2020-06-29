@@ -9,6 +9,10 @@ type step_kind =
   | Export_transcript of string option
   | Collect_scholarships
   | Collect_mentoring
+  | Collect_departement
+  | Collect_program
+  | Collect_cursus_exceptions
+
 
 type step =
   {
@@ -44,6 +48,9 @@ let string_of_step_kind x =
       x
   | Collect_scholarships -> "Collect data about scholarships"
   | Collect_mentoring -> "Collect data about mentoring"
+  | Collect_departement -> "Collect data about teaching departments"
+  | Collect_program -> "Collect data about teaching programs"
+  | Collect_cursus_exceptions -> "Collect data about cursus exceptions"
 
 let print_step_kind logger x =
   Loggers.print_cell logger
@@ -115,7 +122,11 @@ let is_dummy step_kind =
   | Build_keywords_automaton
   | Export_transcript _
   | Collect_scholarships
-  | Collect_mentoring -> false
+  | Collect_mentoring
+  | Collect_departement
+  | Collect_program
+  | Collect_cursus_exceptions
+    -> false
 
 let open_event
     logger prefix ~safe_mode error_handler step_kind log_info =

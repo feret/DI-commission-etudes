@@ -257,6 +257,16 @@ let get_list
     in
       List.fold_left
         (fun (state, output) file ->
+           let _ =
+             Format.printf
+               "Scanning file : %s %s @." (fst file) (snd file)
+           in
+           let _ =
+             Format.print_newline ()
+           in
+           let _ =
+             Format.print_flush ()
+           in
            get_list_from_a_file
              automaton
              init_state

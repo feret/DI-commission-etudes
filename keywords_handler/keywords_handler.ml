@@ -67,14 +67,20 @@ type 'a preprocessed =
 let asso_list =
   [
     Public_data.Accord, ["accord"];
+    Public_data.Acronyme, ["acronyme"];
     Public_data.Annee_Academique, ["année"; "année académique"];
     Public_data.Annee_en_Cours, ["année en cours"];
     Public_data.Code, ["code";"code cours"];
+    Public_data.Code_gps, ["code gps"];
     Public_data.Commentaire, ["commentaire"];
     Public_data.Contact_ENS, ["contact";"contact ENS"];
     Public_data.Contrat, ["contrat"];
+    Public_data.Couleur_du_fond, ["couleur du fond"];
+    Public_data.Couleur_du_texte, ["couleur du texte"];
     Public_data.Courriel, ["courriel"];
     Public_data.Courriel_du_tuteur, ["courriel du tuteur"];
+    Public_data.Couleur_du_fond, ["couleur du fond"];
+    Public_data.Couleur_du_texte, ["couleur du fond"];
     Public_data.Credits, ["crédits"];
     Public_data.Date_de_Naissance, ["Date de naissance";"naissance"];
     Public_data.Departement, ["département"];
@@ -95,12 +101,15 @@ let asso_list =
     Public_data.FirstName, ["prénom";];
     Public_data.FullName, ["nom complet"];
     Public_data.Genre, ["genre"];
+    Public_data.Genre_du_tuteur, ["genre du tuteur"];
+    Public_data.Gerondif, ["gerondif"];
     Public_data.Grade, ["grade"];
     Public_data.Inscrit_au_DENS_en, ["inscrit au DENS en"];
+    Public_data.Intitule, ["intitulé"];
     Public_data.LastName, ["nom"];
     Public_data.Lettre, ["lettre"];
     Public_data.Libelle, ["libellé"];
-    Public_data.Niveau, ["niveau"];
+    Public_data.Niveau, ["niveau";"level"];
     Public_data.Nom_du_tuteur, ["nom du tuteur"];
     Public_data.Note, ["note"];
     Public_data.Obtenu_en, ["obtenu en"];

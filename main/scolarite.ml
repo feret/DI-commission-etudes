@@ -8,6 +8,12 @@ let state =
   Collect_scholarships.get_scholarships state
 let state =
   Collect_mentoring.get_mentoring state
+let state =
+  Collect_programs.get_dpt state
+let state =
+  Collect_programs.get_programs state
+let state =
+    Collect_programs.get_cursus_exceptions state
 let state, (output_repository, _) =
   Cloud_interaction.get_dated_repository state
 let state =
@@ -45,7 +51,7 @@ let state =
            in
            match output_opt with
            | None -> state
-           | Some input -> Latex_engine.latex_to_pdf state ~input
+           | Some input -> Latex_engine.latex_to_pdf ~rev:true state ~input
        in
        let output =
          (fst output0, (Tools.basename (snd output0))^".all.tex")
@@ -61,7 +67,7 @@ let state =
            in
            match output_opt with
            | None -> state
-           | Some input -> Latex_engine.latex_to_pdf state ~input
+           | Some input -> Latex_engine.latex_to_pdf ~rev:true state ~input
        in state
     )
     state

@@ -144,8 +144,8 @@ let log ?backgroundcolor ?textcolor ?lineproportion logger x  =
             | None -> "",""
             | Some a ->
               Format.sprintf
-                "{\\definecolor{bg}%s%%%%%%%%\n\\colorbox{bg}{%%%%%%%%\n"
-                (Color.string_latex (Color.get_background_color a)),
+                "{\\colorbox{%s}{%%%%%%%%\n"
+                (Color.label (Color.get_background_color a)),
               "}}"
           in
           let txtcolor =
@@ -153,8 +153,8 @@ let log ?backgroundcolor ?textcolor ?lineproportion logger x  =
             | None -> "",""
             | Some a ->
               Format.sprintf
-                "{\\definecolor{font}%s%%%%%%%%\n\\textcolor{font}{%%%%%%%%\n"
-                (Color.string_latex (Color.get_font_color a)),
+                "{\\textcolor{%s}{%%%%%%%%\n"
+                (Color.label (Color.get_font_color a)),
               "}}"
           in
           let size =
@@ -322,24 +322,10 @@ let draw_line logger =
     in
     let () = fprintf logger "\\setcounter{total}{0}%%\n\ " in
     let () = fprintf logger "\\setcounter{ects}{0}%%\n\ " in
+    let () = fprintf logger "\\setcounter{vsnects}{0}%%\n\ " in
     let () = fprintf logger "\\setcounter{potentialects}{0}%%\n\ " in
     let () = fprintf logger "\\setcounter{nrow}{0}%%\n\ " in
     let () = fprintf logger "{%%\n\ " in
-    let _ =
-      List.fold_left
-        (fun k elt_opt ->
-           match elt_opt with
-           | Some elt ->
-           let () =
-             fprintf logger
-               "\\definecolor{bg%i}%s"
-               k (Color.string_latex (Color.get_background_color elt))
-           in
-           k+1
-           | None -> k+1
-        )
-        1 bgcolor
-    in
     let () = fprintf logger "\\begin{tabular}{" in
     let () = fprintf logger "|" in
     let rec aux title color bgcolor size align k error =
@@ -378,9 +364,9 @@ let draw_line logger =
           let bgcolor, error =
             match hbgcolor with
             | None -> "", error
-            | Some _ ->
-              Format.sprintf ">{\\columncolor{bg%i}}\n"
-                k, error
+            | Some elt ->
+              Format.sprintf ">{\\columncolor{%s}}\n"
+                (Color.label (Color.get_background_color elt)), error
           in
           let () = fprintf logger "|%s%s" bgcolor align in
           let _ = hcolor, hsize in
@@ -484,7 +470,8 @@ let print_preamble ?decimalsepsymbol logger =
       | Some a ->
         Format.sprintf "\\npdecimalsign{%s}\n" a
     in
-    fprintf logger
+    let () =
+      fprintf logger
       "\\documentclass[10pt]{extarticle}%%\n%%\n\
 \\usepackage[latin1]{inputenc}%%\n\
 %s\n\
@@ -509,12 +496,16 @@ let print_preamble ?decimalsepsymbol logger =
 \\setcounter{total}{0}\n\
 \\newcounter{ects}\n\
 \\setcounter{ects}{0}\n\
+\\newcounter{vsnects}\n\
+\\setcounter{vsnects}{0}\n\
 \\newcounter{pects}\n\
 \\setcounter{pects}{0}\n\
 \\newcounter{potentialects}\n\
 \\setcounter{potentialects}{0}\n\
 \\newcounter{cects}\n\
 \\setcounter{cects}{0}\n\
+\\newcounter{vects}\n\
+\\setcounter{vects}{0}\n\
 \\newcounter{cnote}\n\
 \\setcounter{cnote}{0}\n\
 \n\
@@ -540,8 +531,25 @@ let print_preamble ?decimalsepsymbol logger =
 }%%\n\
 {\\setcounter{cects}{0}}}%%\n\
 %%\n\
-%%\n\
-\\newcommand{\\innerline}{%%\n\
+       %%\n\ " package size  decimal
+    in
+    let () =
+      List.iter
+        (fun color ->
+           let (r,g,b) = Color.rgb_code color in
+           let label = Color.label color in
+           let () =
+             fprintf
+               logger
+               "\\definecolor{%s}{RGB}{%i,%i,%i}%%\n\ "
+               label
+               r g b
+           in ())
+        Color.rgb_list
+    in
+    let () =
+      fprintf logger
+"\\newcommand{\\innerline}{%%\n\
 \\ifnum \\thenrow=\\thetotalrows%%\n\
 \\hline%%\n\
        \\else\\cline{1-1}\\cline{3-7}\\fi%%\n\
@@ -567,15 +575,21 @@ let print_preamble ?decimalsepsymbol logger =
 \\IfStrEq{#6}{en cours}%%\n\
 {\\setcounter{pects}{#7}}%%\n\
 {\\setcounter{pects}{0}}%%\n\
-%%\n\
+ %%\n\
+ \\IfStrEq{#6}{valid{\\'e} (sans note)}%%\n\
+ {\\setcounter{vects}{#7}}%%\n\
+ {\\setcounter{vects}{0}}%%\n\
+  %%\n\
 \\addtocounter{total}{\\fpeval{\\thecects*\\thecnote}}%%\n\
 \\addtocounter{ects}{\\fpeval{\\thecects*\\factor}}%%\n\
 \\addtocounter{potentialects}{\\fpeval{\\thepects*\\factor}}%%\n\
 %%\n\
-       #1 & \\ifnum \\thenrow=\\thetotalrows %%\n\ \\multirow{-\\thetotalrows}{\\hsize}{{\\centering #2}}\\fi & #3 & #4 & #5 & \\mynumprint{#6} & \\numprint{#7}\\cr%%\n\
+\\addtocounter{vsnects}{\\fpeval{\\thevects*\\factor}}%%\n\
+ %%\n\       #1 & \\ifnum \\thenrow=\\thetotalrows %%\n\ \\multirow{-\\thetotalrows}{\\hsize}{{\\centering #2}}\\fi & \\ifnum \\thetotalrows=1 %%\n\  \\mbox{}\\newline\\newline#3\\newline\\newline\\else#3\\fi  & #4 & #5 & \\mynumprint{#6} & \\numprint{#7}\\cr%%\n\
 }%%\n\
 %%\n\ "
-      package size  decimal
+    in
+    ()
   | Json | TXT | CSV | XLS -> ()
 
 let breakpage t =

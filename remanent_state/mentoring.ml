@@ -145,10 +145,10 @@ let unify ~safe_mode logger prefix pos error mentoring mentoring' =
 
 let get_mentoring ~strong ~year ~firstname ~lastname mentoring =
   let firstname =
-    String.lowercase_ascii firstname
+    Special_char.lowercase firstname
   in
   let lastname =
-    String.lowercase_ascii lastname
+    Special_char.lowercase lastname
   in
   match
     Public_data.LastNameMap.find_opt

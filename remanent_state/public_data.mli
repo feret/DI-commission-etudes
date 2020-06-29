@@ -4,6 +4,10 @@ type file_retriever = WGET
 type cloud_synchronization_mode = Daemon | CommandLine
 type annee = string
 
+type genre =
+  | Feminin
+  | Masculin
+
 type student_id =
   {
     firstname: string;
@@ -19,12 +23,13 @@ type scholarship =
     holder_promotion: string option
   }
 
-
+module CodeMap : Map.S with type key = string
 module PromoMap : Map.S with type key = string
 module FinanceurMap : Map.S with type key = string
 module FirstNameMap : Map.S with type key = string
 module LastNameMap : Map.S with type key = string
 module YearMap: Map.S with type key = annee
+module AcronymMap: Map.S with type key = string
 
 type course =
   {
@@ -41,19 +46,51 @@ type tutorat =
     annee_academique: annee ;
     nom_du_tuteur: string option;
     prenom_du_tuteur: string option;
+    genre_du_tuteur: genre option;
     courriel_du_tuteur: string option;
     nom_de_l_etudiant: string ;
     prenom_de_l_etudiant: string
   }
 
+type dpt =
+  {
+    dpt_nom: string ;
+    dpt_acronyme: string ;
+    dpt_gerundif: string ;
+    dpt_bg_color: Color.color option;
+    dpt_font_color: Color.color option;
+  }
+
+type program =
+  {
+    code_gps: string ;
+    dpt_acronym: string option ;
+    level: string option ;
+    label: string option ;
+  }
+
+type cursus_exception =
+  {
+    student_firstname: string;
+    student_lastname: string;
+    class_dpt: string;
+    class_level: string;
+    annee_de_validation: string;
+    codecours: string;
+  }
+
 type keywords =
   | Accord
+  | Acronyme
   | Annee_Academique
   | Annee_en_Cours
   | Code
+  | Code_gps
   | Commentaire
   | Contact_ENS
   | Contrat
+  | Couleur_du_fond
+  | Couleur_du_texte
   | Courriel
   | Courriel_du_tuteur
   | Credits
@@ -76,8 +113,11 @@ type keywords =
   | FirstName
   | FullName
   | Genre
+  | Genre_du_tuteur
+  | Gerondif
   | Grade
   | Inscrit_au_DENS_en
+  | Intitule
   | LastName
   | Lettre
   | Libelle
@@ -121,10 +161,6 @@ type note =
   | Abandon
   | Valide_sans_note
 
-type genre =
-  | Feminin
-  | Masculin
-
 type statut =
   | Eleve
   | Etudiant
@@ -134,6 +170,6 @@ type remove_non_valided_classes =
   | All
   | All_but_current_academic_year
   | All_but_years of annee list
-  | All_but_in_progress 
+  | All_but_in_progress
   | All_but_in_progress_in_current_academic_year
   | All_but_in_progress_in_years of annee list

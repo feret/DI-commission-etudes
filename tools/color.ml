@@ -1,5 +1,6 @@
 type rgb =
   {
+    name: string;
     red: int;
     green: int;
     blue: int
@@ -23,29 +24,42 @@ let build_color ?background text =
   {background;text}
 
 let light_green =
-  {red=204; green=255;blue=204}
+  {name="lightgreen";red=204; green=255;blue=204}
 let dark_green =
-  {red=0;green=128;blue=0}
+  {name="darkgreen";red=0;green=128;blue=0}
 let light_blue =
-  {red=204; green=255;blue=255}
+  {name="lightblue";red=204; green=255;blue=255}
 let dark_blue =
-  {red=0;green=0;blue=128}
+  {name="darkblue";red=0;green=0;blue=128}
 let light_yellow =
-  {red=255; green=255;blue=153}
+  {name="lightyellow";red=255; green=255;blue=153}
 let dark_yellow =
-  {red=255;green=255;blue=0}
+  {name="darkyellow";red=255;green=255;blue=0}
 let light_red =
-  {red=255; green=128;blue=128}
+  {name="lightred";red=255; green=128;blue=128}
 let light_orange =
-  {red=255;green=207;blue=150}
+  {name="lightorange";red=255;green=207;blue=150}
 let dark_red =
-  {red=255;green=0;blue=0}
+  {name="darkred";red=255;green=0;blue=0}
 let dark_orange =
-  {red=255;green=127;blue=80}
+  {name="darkorange";red=255;green=127;blue=80}
+let white =
+  {name="white";red=255;green=255;blue=255}
 let black=
-  {red=255;green=255;blue=255}
-let white=
-  {red=0;green=0;blue=0}
+  {name="black";red=0;green=0;blue=0}
+
+let label c = c.name
+let rgb_code c = c.red, c.green, c.blue
+
+let rgb_list =
+  [
+    light_green;dark_green;
+    light_blue;dark_blue;
+    light_yellow;dark_yellow;
+    light_orange;dark_orange;
+    light_red;dark_red;
+    black;white
+  ]
 
 let blue = build_color ~background:light_blue dark_blue
 let green = build_color ~background:light_green dark_green
@@ -55,6 +69,16 @@ let black = build_color black
 let white= build_color white
 let orange = build_color ~background:light_orange dark_orange
 
-let string_latex rgb =
-  Format.sprintf
-    "{RGB}{%i,%i,%i}" rgb.red rgb.green rgb.blue
+let color_list =
+  [blue;green;yellow;red;black;white;orange]
+
+let color_of_string s =
+  match s with
+  | "blue" -> Some blue
+  | "green" -> Some green
+  | "yellow" -> Some yellow
+  | "red" -> Some red
+  | "black" -> Some black
+  | "white" -> Some white
+  | "orange" -> Some orange
+  | _ -> None

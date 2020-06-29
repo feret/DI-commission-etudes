@@ -105,6 +105,14 @@ val get_scholarships_list_repository: t -> t * string
 val get_monitoring_list_prefix: t -> t * string
 val get_monitoring_list_repository: t -> t * string
 
+val get_departments_list_prefix: t -> t * string
+val get_departments_list_repository: t -> t * string
+
+val get_programs_list_prefix: t -> t * string
+val get_programs_list_repository: t -> t * string
+
+val get_cursus_exceptions_list_prefix: t -> t * string
+val get_cursus_exceptions_list_repository: t -> t * string
 
 val get_launching_date: t -> t * string
 
@@ -144,6 +152,37 @@ val get_mentoring:
   (string * int * int * int) ->
   t ->
   t * Public_data.tutorat option
+
+val add_dpt:
+  (string * int * int * int) ->
+  Public_data.dpt ->
+  t ->
+  t
+
+val get_dpt:
+  acronym:string ->
+  t ->
+  t * Public_data.dpt option
+
+val add_program:
+  (string * int * int * int) ->
+  Public_data.program ->
+  t -> t
+
+val get_program:
+  code_gps:string ->
+  t -> t * Public_data.program option
+
+val add_cursus_exception:
+  (string * int * int * int) ->
+  Public_data.cursus_exception ->
+  t -> t
+
+val get_cursus_exception:
+  firstname:string -> lastname:string ->
+  year: string ->
+  code_gps:string ->
+  t -> t * Public_data.cursus_exception option
 
 val get_current_academic_year:
   t -> t * Public_data.annee

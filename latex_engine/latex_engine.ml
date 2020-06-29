@@ -1,4 +1,9 @@
-let latex_to_pdf ~input state =
+let latex_to_pdf ?rev ~input state =
+  let rev =
+    match rev with
+    | None | Some false -> false
+    | Some true -> true
+  in
   let state, options =
     Remanent_state.get_pdfgenerator_options state
   in
@@ -42,5 +47,24 @@ let latex_to_pdf ~input state =
     in
     let state =
       Safe_sys.rm __POS__ state file2
+    in
+    let state =
+      if rev then
+        let command =
+          Printf.sprintf "pdftk %s.pdf cat end-1 output %s.tmp"
+            basename basename
+        in
+        let state =
+          Safe_sys.command __POS__ state command
+        in
+        let command =
+          Printf.sprintf "mv %s.tmp %s.pdf" basename basename
+        in
+        let state =
+          Safe_sys.command __POS__ state command
+        in
+        state
+      else
+        state
     in
     Safe_sys.chdir __POS__ state current

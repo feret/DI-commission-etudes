@@ -6,6 +6,7 @@ type mentoring_id =
     year: string option;
     mentor_lastname: string option;
     mentor_firstname: string option;
+    mentor_gender: Public_data.genre option;
     mentor_email: string option
   }
 
@@ -17,6 +18,7 @@ let empty_mentoring =
     year = None ;
     mentor_lastname = None ;
     mentor_firstname = None ;
+    mentor_gender = None ;
     mentor_email = None ;
   }
 
@@ -30,6 +32,7 @@ let keywords_list =
     Public_data.Annee_Academique ;
     Public_data.Nom_du_tuteur ;
     Public_data.Prenom_du_tuteur ;
+    Public_data.Genre_du_tuteur ;
     Public_data.Courriel_du_tuteur;
   ]
 
@@ -63,18 +66,18 @@ let asso_list =
     (fun state year x ->
        state, {x with year});
     Public_data.Nom_du_tuteur ,
-       (fun state mentor_lastname x ->
-          state,
-          let mentor_lastname =
-            match mentor_lastname with
-            | Some x when String.trim x = "" -> None
-            | _ -> mentor_lastname
-          in
-          {x with mentor_lastname});
-       Public_data.Prenom_du_tuteur,
-       (fun state mentor_firstname x ->
-          state,
-          let mentor_firstname =
+    (fun state mentor_lastname x ->
+       state,
+       let mentor_lastname =
+         match mentor_lastname with
+         | Some x when String.trim x = "" -> None
+         | _ -> mentor_lastname
+       in
+       {x with mentor_lastname});
+    Public_data.Prenom_du_tuteur,
+    (fun state mentor_firstname x ->
+       state,
+       let mentor_firstname =
             match mentor_firstname with
             | Some x when String.trim x = "" -> None
             | _ -> mentor_firstname
@@ -89,6 +92,35 @@ let asso_list =
          | _ -> mentor_email
        in
        {x with mentor_email});
+    Public_data.Genre_du_tuteur,
+    (fun state mentor_gender x ->
+          let state, mentor_gender =
+            match
+              Tools.map_opt
+                (fun x -> Special_char.lowercase
+                    (Special_char.correct_string_txt
+                       (String.trim x)))
+              mentor_gender
+            with
+            | Some ("m" | "masc" | "masculin") ->
+              state, Some Public_data.Masculin
+            | Some ("f" | "fem" | "feminin") ->
+              state, Some Public_data.Feminin
+            | None -> state, None
+            | Some x ->
+              let msg =
+                Printf.sprintf
+                  "Invalid mentor's gender (%s)"
+                  x
+              in
+              Remanent_state.warn_dft
+                __POS__
+                msg
+                Exit
+                None
+                state
+          in
+          state, {x with mentor_gender});
   ]
 
 let get_mentoring
@@ -219,6 +251,8 @@ let get_mentoring
               Public_data.prenom_du_tuteur =
                 Tools.map_opt
                   String.lowercase_ascii mentoring.mentor_firstname;
+              Public_data.genre_du_tuteur =
+                mentoring.mentor_gender; 
               Public_data.courriel_du_tuteur =
                 Tools.map_opt
                   String.lowercase_ascii mentoring.mentor_email

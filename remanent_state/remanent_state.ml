@@ -42,12 +42,12 @@ let parameters =
     safe_mode = true;
     cloud_synchronization_mode = Public_data.CommandLine ;
     cloud_client = Public_data.NextCloudCmd ;
-    cloud_client_options = "-n" ;
+    cloud_client_options = "-n --silent" ;
     cloud_repository = "/users/absint3/feret/Nextcloud" ;
     cloud_support_dynamic_link = false ;
     pdfgenerator = Public_data.PdfLatex ;
     pdfgenerator_options = "-interaction=nonstopmode";
-    local_repository = "di/direction_des_etudes" ;
+    local_repository = "di/suivi_pedagogique" ;
     distant_repository = "https://cloud.di.ens.fr/" ;
     machine_to_access_gps = "violette.ens.fr" ;
     port_to_access_gps = "8080";
@@ -79,13 +79,19 @@ type data =
     output_alias: (string * string) option ;
     scholarships: Scholarships.t;
     mentoring: Mentoring.t;
+    dpts: Departments.t;
+    programs: Programs.t;
+    cursus_exceptions: Cursus_exception.t;
   }
 
 let empty_data =
   {
     scholarships = Scholarships.empty;
     mentoring = Mentoring.empty;
-    output_alias = None
+    dpts =  Departments.empty;
+    programs = Programs.empty;
+    output_alias = None;
+    cursus_exceptions = Cursus_exception.empty;
   }
 
 type t =
@@ -220,6 +226,30 @@ let get_monitoring_list_repository t =
     let t, main = get_local_repository t in
     let t, repository = get_monitoring_list_prefix t in
     t, Printf.sprintf "%s/%s" main repository
+
+let get_departments_list_prefix t =
+       t, "departements"
+
+let get_departments_list_repository t =
+  let t, main = get_local_repository t in
+  let t, repository = get_departments_list_prefix t in
+  t, Printf.sprintf "%s/%s" main repository
+
+let get_programs_list_prefix t =
+  t, "diplomes"
+
+let get_programs_list_repository t =
+  let t, main = get_local_repository t in
+  let t, repository = get_programs_list_prefix t in
+  t, Printf.sprintf "%s/%s" main repository
+
+let get_cursus_exceptions_list_prefix t =
+  t, "exceptions_cursus"
+
+let get_cursus_exceptions_list_repository t =
+  let t, main = get_local_repository t in
+  let t, repository = get_cursus_exceptions_list_prefix t in
+  t, Printf.sprintf "%s/%s" main repository
 
 let get_csv_separator t = t, Some ','
 
@@ -483,6 +513,24 @@ let get_mentoring t = get_mentoring (get_data t)
 let set_mentoring mentoring data = {data with mentoring}
 let set_mentoring mentoring t =
   set_data (set_mentoring mentoring (get_data t)) t
+let get_dpts data = data.dpts
+let get_dpts t = get_dpts (get_data t)
+let set_dpts dpts data = {data with dpts}
+let set_dpts dpts t =
+  set_data (set_dpts dpts (get_data t)) t
+
+let get_programs data = data.programs
+let get_programs t = get_programs (get_data t)
+let set_programs programs data = {data with programs}
+let set_programs programs t =
+    set_data (set_programs programs (get_data t)) t
+
+let get_cursus_exceptions data = data.cursus_exceptions
+let get_cursus_exceptions t = get_cursus_exceptions (get_data t)
+let set_cursus_exceptions cursus_exceptions data =
+  {data with cursus_exceptions}
+let set_cursus_exceptions cursus_exceptions t =
+  set_data (set_cursus_exceptions cursus_exceptions (get_data t)) t
 
 let add_gen get set add pos data t =
   let t, error_handler = get_error_handler t in
@@ -536,6 +584,54 @@ let get_mentoring ~firstname ~lastname ~year ?tuteur_gps pos t =
         Exit
         tuteur_gps
         t
+
+let add_dpt =
+  add_gen
+    get_dpts
+    set_dpts
+    Departments.add_dpt
+
+let get_dpt ~acronym t =
+  let dpt_opt =
+    Departments.get_dpt ~acronym t.data.dpts
+  in
+  t, dpt_opt
+
+let add_program =
+  add_gen
+    get_programs
+    set_programs
+    Programs.add_program
+
+let get_program ~code_gps t =
+  let program_opt =
+    Programs.get_program ~code_gps  t.data.programs
+  in
+  t, program_opt
+
+let add_cursus_exception =
+  add_gen
+    get_cursus_exceptions
+    set_cursus_exceptions
+    Cursus_exception.add_cursus_exception
+
+let add_cursus_exception pos cursus t =
+  let t = add_cursus_exception pos cursus t in
+  let () =
+    Cursus_exception.dump
+      t.data.cursus_exceptions
+  in
+  t
+
+
+
+let get_cursus_exception
+    ~firstname ~lastname ~year ~code_gps t =
+  let exception_opt =
+    Cursus_exception.get_cursus_exception
+      ~firstname ~lastname ~year ~code_gps t.data.cursus_exceptions
+  in
+  t, exception_opt
 
 let get_current_academic_year t =
   t, t.parameters.current_academic_year

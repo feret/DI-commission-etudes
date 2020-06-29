@@ -1,28 +1,39 @@
 module StringOptMap =
-  Map.Make
-    (struct
-      type t = string option * string
-      let compare1 a b =
-        match a,b with
-        | None, None -> 0
-        | None, _ -> 1
-        | _, None -> -1
-        | Some ("DENS" | "dens"), Some ("DENS" | "dens") -> 0
-        | Some ("DENS" | "dens"), _ ->  1
-        | _ , Some ("DENS" | "dens") -> -1
-        | Some a, Some b -> compare a b
-      let compare a b =
-        match compare1 (fst a) (fst b) with
-        | 0 -> compare (snd b) (snd a)
-        | x -> x
-     end)
+  Map_tools.MakeSimplified
+    (
+    struct
+      module Ord   =
+      struct
+        type t = string option * string
+        let compare1 a b =
+          match a,b with
+          | None, None -> 0
+          | None, _ -> 1
+          | _, None -> -1
+          | Some "dens", Some "dens" -> 0
+          | Some "dens", _ ->  1
+          | _ , Some "dens" -> -1
+          | Some a, Some b -> compare a b
+        let compare a b =
+          match compare1 (fst a) (fst b) with
+          | 0 -> compare (snd b) (snd a)
+          | x -> x
+      end
 
-let dpt_maths = "mathematiques et applications"
+      let simplify s =
+        Special_char.lowercase
+          (Special_char.correct_string_txt
+             (String.trim s))
+      let simplify (a,b) =
+        Tools.map_opt simplify a,simplify b
+    end)
+
+let dpt_maths = "mathematiques"
 let dpt_info = "informatique"
 let acro_dpt_info = "DI"
 let acro_dpt_maths = "DMA"
 let dpt_info_full = "Département d'Informatique"
-let dpt_maths_full = "Département de Mathématiques"
+let dpt_maths_full = "Département de Mathématiques et Applications"
 
 let simplify_string s =
   Special_char.lowercase
@@ -1630,6 +1641,8 @@ let is_dma_course code_cours year =
   with
   | _ -> false
 
+let is_di_course code_cours _year =
+  Tools.substring "INFO" code_cours
 
 let succeed_lmath state year l =
   let ects =
@@ -1653,8 +1666,69 @@ let succeed_lmath state year l =
 let translate_diplome
     ~situation ~firstname ~lastname ~year ~code_cours
     state course_list diplome =
-  let _ = firstname, lastname, year in
-  let check_dpt pos state diplome label situation =
+  let code_gps = code_cours in
+  match Remanent_state.get_cursus_exception
+          ~firstname ~lastname ~year ~code_gps state
+  with
+  | state, Some x ->
+    let level = x.Public_data.class_level in
+    let acronym = x.Public_data.class_dpt in
+    let () = Remanent_state.fprintf state
+        "%%FOUND %s %s %s %s LEVEL:%s ACRONYM:%s\n\ "
+        firstname lastname code_cours year level acronym
+    in
+    begin
+      match
+        Remanent_state.get_dpt
+          ~acronym state
+      with
+      | state, Some dpt ->
+        let gerund = dpt.Public_data.dpt_gerundif in
+        let state,label =
+          match level with
+          | "L" -> state, "L3 "^gerund
+          | "M" -> state, "M1 "^gerund
+          | _ ->
+            let msg =
+              Format.sprintf
+                "Unknown class level (%s)"
+                level
+            in
+            Remanent_state.warn_dft
+              __POS__
+              msg
+              Exit
+              ""
+              state
+        in
+        let dpt =
+          match dpt.Public_data.dpt_acronyme with
+          | "DI" -> "informatique"
+          | "DMA" -> "mathématiques"
+          | _ -> ""
+        in
+        let () = Remanent_state.fprintf state
+            "%%FOUND2 LEVEL:%s LABEL:%s DPT:%s \n\ "
+            level label dpt
+        in
+        state, (Some level,
+                label,
+                dpt)
+      | state, None ->
+      let msg =
+        Format.sprintf
+          "Unknown department acronym (%s)"
+          acronym
+      in
+      Remanent_state.warn_dft
+        __POS__
+        msg
+        Exit
+        (None, "","")
+        state
+    end
+  | state, None  ->
+  let check_dpt pos state diplome label code_cours year situation =
     match situation.departement_principal with
     | None ->
       Remanent_state.warn_dft
@@ -1664,21 +1738,49 @@ let translate_diplome
         (Some diplome,label,"")
         state
     | Some dpt ->
-      let label =
-        if label = "L3" || label ="M1"
-        then
-          let dpt = String.lowercase_ascii dpt in
-          if List.mem (String.lowercase_ascii (String.sub dpt 0
-                                                 1))
+      if label = "L3" || label ="M1"
+      then
+        let dpt = Special_char.lowercase dpt in
+        let dpt =
+          if dpt = "mathématiques et applications"
+          then
+            "mathématiques"
+          else
+            dpt
+        in
+        let state, (dpt, diplome)  =
+          if dpt = "mathématiques"
+          && not (is_dma_course code_cours year)
+          then
+            if is_di_course code_cours year
+            then state, ("informatique", "L")
+            else
+              let msg =
+                Format.sprintf
+                  "Cannot classify course (dpt:%s) for %s %s (%s)" dpt firstname lastname year 
+              in
+              Remanent_state.warn_dft
+                pos
+                msg
+                Exit
+                (dpt,label)
+                state
+          else
+            state, (dpt, diplome)
+        in
+        let label =
+          if List.mem
+              (String.lowercase_ascii
+                 (String.sub dpt 0 1))
               ["a";"e";"i";"o";"u";"y"]
           then
             label^" d'"^dpt
           else
             label^" de "^dpt
-        else
-          label
-      in
-      state, (Some diplome,label,dpt)
+        in
+        state, (Some diplome,label,dpt)
+      else
+        state, (Some diplome,label,dpt)
   in
   match diplome with
   | Some "L" ->
@@ -1687,6 +1789,7 @@ let translate_diplome
       then
         check_dpt __POS__ state "L"
           "Bachelor de l'École Polytechnique"
+          code_cours year
           situation
       else
       if linfo situation && lmath situation
@@ -1699,40 +1802,43 @@ let translate_diplome
           if is_dma_course code_cours year
           then
             state,
-            (Some "LMath","L3 de mathématiques",dpt_maths)
+            (Some "L","L3 de mathématiques",dpt_maths)
           else
             state,
-            (Some "LInfo","L3 d'informatique ",dpt_info)
+            (Some "L","L3 d'informatique",dpt_info)
         end
         else
           check_dpt __POS__ state
-            "L" "L3"
+            "L" "L3" code_cours year
             situation
       else
         check_dpt __POS__ state
-          "L" "L3"
+          "L" "L3" code_cours year
           situation
     end
   | Some "M" ->
     if mmaths situation then
-      state, (Some "MMath","M1 de mathématiques",dpt_maths)
+      state, (Some "M","M1 de mathématiques",dpt_maths)
     else
       check_dpt __POS__ state
-        "M" "M1"
+        "M" "M1" code_cours year
         situation
+  | Some ("DENS" | "dens") ->
+    state, (Some ("DENS"), "DENS", "DENS")
   | Some x ->
     check_dpt __POS__ state
-      x x
+      x x code_cours year
       situation
   | None ->
     let state, (_,b,c) =
-      check_dpt __POS__ state "" "" situation
+      check_dpt __POS__ state "" "" code_cours year situation
     in
     state, (None,b,c)
 
 
 
 let color_of_dpt who pos state dpt =
+  let dpt = simplify_string dpt in
   if dpt = dpt_info
   then state, Some Color.yellow
   else if dpt = dpt_maths
@@ -1753,6 +1859,56 @@ let color_of_dpt who pos state dpt =
 let export_transcript
     ~output ?filter:(remove_non_valided_classes=Public_data.All_but_in_progress_in_current_academic_year)
     state gps_file =
+  let alloc_suffix =
+    let l0 =
+      ["a";"b";"c";"d";"e";"f";"g";"h";"i";"j";"k";"l";"m";"n"]
+    in
+    let m = ref StringOptMap.empty in
+    let l = ref l0 in
+    let rec next state =
+      match !l with
+      | h::t ->
+        let () = l:=t in
+        state, h
+      | [] ->
+        let state =
+          Remanent_state.warn
+            __POS__
+            "Too many cursus"
+            Exit
+            state
+        in
+        let () = l:=l0 in
+        next state
+    in
+    let alloc id state =
+      match StringOptMap.find_opt id (!m) with
+      | None ->
+        let state, key = next state in
+        let () =
+          Format.printf
+            "%%%%ALLOC %s.%s -> %s%%\n\ "
+            (match fst id with None -> "" | Some a -> a)
+            (snd id)
+            key
+        in
+        let () = Format.print_newline () in
+        let () = Format.print_flush () in
+        let () = m := StringOptMap.add id key (!m) in
+        state, key, true
+      | Some key ->
+        let () =
+          Format.printf
+            "REUSE %s.%s -> %s"
+            (match fst id with None -> "" | Some a -> a)
+            (snd id)
+            key
+        in
+        let () = Format.print_newline () in
+        let () = Format.print_flush () in
+        state, key, false   in
+    alloc
+  in
   let state, rep =
     Safe_sys.rec_mk_when_necessary __POS__
       state (fst output)
@@ -1950,9 +2106,10 @@ let export_transcript
             begin
               match
                 tuteur.Public_data.nom_du_tuteur, tuteur.Public_data.prenom_du_tuteur,
+                tuteur.Public_data.genre_du_tuteur,
                 tuteur.Public_data.courriel_du_tuteur
               with
-              | None, (None | Some _), None ->
+              | None, (None | Some _), (None | Some _), None ->
                 let msg =
                   Printf.sprintf
                     "Tuteur inconnu pour %s"
@@ -1964,14 +2121,15 @@ let export_transcript
                   Exit
                   ("",1.)
                   state
-              | Some x, Some y, _ ->
+              | Some x, Some y, Some z, _ ->
                 state,
                 (Printf.sprintf
-                  "%s %s"
+                   "%s %s %s"
+                   (match z with Public_data.Masculin -> "tuteur : " | Public_data.Feminin -> "tutrice : ")
                   (Special_char.capitalize y)
                   (Special_char.uppercase x), 2./.3.)
-              | None, _, Some x -> state, (x, 2./.3.)
-              | Some x, _, _ -> state, (x, 2./.3.)
+              | None, _, _, Some x -> state, (x, 2./.3.)
+              | Some x, _, _, _ -> state, (x, 2./.3.)
             end
         in
         let backgroundcolor =
@@ -2119,7 +2277,18 @@ let export_transcript
                  translate_diplome
                    ~situation ~firstname ~lastname ~year ~code_cours state filtered_classes
                    elt.diplome
-               in
+                 in
+                 let () =
+                   Remanent_state.fprintf
+                     state
+                     "%%%% KEY:'%s' DPT:'%s' LABEL:'%s' CODE:'%s'\n\ %%\n\ %%\n\ "
+                     (match diplome_key with Some s -> s | None -> "")
+                     diplome_dpt
+                     diplome_label
+                     (match elt.code_cours with Some s -> s | None -> "")
+
+                 in
+
                state,
                addmap
                  (diplome_key,diplome_dpt)
@@ -2153,6 +2322,28 @@ let export_transcript
         let state =
           StringOptMap.fold
             (fun (string,dpt) list state ->
+               let state, key, b = alloc_suffix (string,dpt) state in
+               let () =
+                 if b
+                 then
+                   let () =
+                     Remanent_state.fprintf
+                       state
+                       "\\newcounter{validatedwogradeects%s}%%\n\ \\newcounter{grade%s}%%\n\ \\newcounter{gradedects%s}%%\n\ \\newcounter{potentialects%s}%%\n"
+                       key key key key
+                   in
+                   ()
+               in
+               let () =
+                 if b
+                 then
+                   let () =
+                     Remanent_state.fprintf
+                       state
+                       "\\setcounter{validatedwogradeects%s}{0}%%\n\ \\setcounter{grade%s}{0}%%\n\ \\setcounter{gradedects%s}{0}%%\n\ \\setcounter{potentialects%s}{0}%%\n" key key key key
+                   in
+                   ()
+               in
                let state, color =
                  match Tools.map_opt String.trim string
                  with
@@ -2166,10 +2357,10 @@ let export_transcript
                    Exit
                    None
                    state
-                 | Some "DENS" -> state, Some Color.blue
-                 | Some "LInfo" -> state, Some Color.yellow
-                 | Some "LMath" -> state, Some Color.orange
-                 | Some ("M" | "L") ->
+                 | Some ("DENS" | "dens") -> state, Some Color.blue
+                 | Some ("LInfo" | "linfo") -> state, Some Color.yellow
+                 | Some ("lmath" | "mmath" | "LMath" | "MMath") -> state, Some Color.orange
+                 | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3") ->
                    color_of_dpt who __POS__ state dpt
                  | Some x  ->
                    let msg =
@@ -2186,7 +2377,7 @@ let export_transcript
                let bgcolor=[None;color;None;None;None;None;None] in
 
                let () =
-                 Remanent_state.log state
+                 Remanent_state.fprintf state
                    "\\setcounter{totalrows}{%i}%%%%\n\ "
                    (List.length list)
                in
@@ -2270,12 +2461,25 @@ let export_transcript
                    state
                    "\n\ \n\ \\vspace*{2mm}\n\ \n\ "
                in
-               let moyenne = if string = Some "DENS" then ""
-                 else "Moyenne \\ifnum \\thepotentialects=0%%\n\ \\else%%\n\ provisoire\\fi%%\n\ : \\numprint{\\fpeval{\\thetotal/\\theects}} \\hspace*{1cm}%%\n"
+               let () =
+                 Remanent_state.log
+                   state
+                   "\\addtocounter{validatedwogradeects%s}{\\thevsnects}%%\n\ \\addtocounter{grade%s}{\\thetotal}%%\n\ \\addtocounter{gradedects%s}{\\theects}%%\n\ \\addtocounter{potentialects%s}{\\thepotentialects}" key key key key
+               in
+               let moyenne =
+                 if string = Some "DENS" || string = Some "dens"
+                 then ""
+                 else
+                   Format.sprintf
+                     "\\ifnum \\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factor} < 60%%\n\ \\else%%\n\ Moyenne \\ifnum \\thepotentialects%s=0%%\n\ \\else%%\n\ provisoire\\fi%%\n\ : \\numprint{\\fpeval{\\thegrade%s/\\thegradedects%s}} \\hspace*{1cm}\\fi%%\n" key key key key key key
+               in
+               let msg =
+                 Format.sprintf
+                   "\\nprounddigits{2}%%\n\ \\ifnum \\thegradedects%s>0%%\n\ %s ECTS \\ifnum \\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)} = \\fpeval{(\\theects+\\thevsnects)}%%\n\ \\else%%\n\ (cumulés) \\fi: {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)/\\factor}}} %%\n\ \\else\\ifnum\\thevalidatedwogradeects%s>0%%\n\  ECTS \\ifnum \\fpeval{(\\thegradedects%s+\\thevalidatedwogradenects%s)} = \\fpeval{(\\theects+\\thevsnects)}%%\n\ \\else%%\n (cumulés) \\fi: {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradenects%s)/\\factor}}} %%\n\ \\fi\\fi%%\n\ \\ifnum \\thepotentialects%s=0%%\n\ \\else%%\n\ \\hspace*{0.2cm} (potentiellement {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factor}}} ects)\\fi%%\n\ \\npnoround%%\n\ "
+                   key moyenne key key key key key key key key key key key key key
                in
                let () =
-                 Remanent_state.print_cell
-                   ("\\nprounddigits{2}%%\n\ \\ifnum \\theects>0%%\n\ "^moyenne^" ECTS : {{\\fpeval{\\theects/\\factor}}} %%\n\ \\fi%%\n\ \\ifnum \\thepotentialects=0%%\n\ \\else%%\n\ \\hspace*{0.2cm} (potentiellement {{\\fpeval{(\\theects+\\thepotentialects)/\\factor}}} ects)\\fi%%\n\ \\npnoround%%\n\ ") state
+                 Remanent_state.print_cell msg state
                in
                let () =
                  Remanent_state.fprintf state "\\vfill\n\ "
@@ -2299,7 +2503,7 @@ let export_transcript
         state
         )
         state
-        l_rev
+        (List.rev l_rev)
     in
     let state = Remanent_state.close_logger state in
     let state =

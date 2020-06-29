@@ -8,7 +8,10 @@ type step_kind =
   | Build_keywords_automaton
   | Export_transcript of string option
   | Collect_scholarships
-  | Collect_mentoring 
+  | Collect_mentoring
+  | Collect_departement
+  | Collect_program
+  | Collect_cursus_exceptions 
 
 type log_info
 
