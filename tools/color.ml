@@ -47,6 +47,10 @@ let white =
   {name="white";red=255;green=255;blue=255}
 let black=
   {name="black";red=0;green=0;blue=0}
+let light_duck_blue =
+  {name="lightduckblue";red=27;green=152;blue=177}
+let dark_duck_blue =
+  {name="darkduckblue";red=31;green=77;blue=86}
 
 let label c = c.name
 let rgb_code c = c.red, c.green, c.blue
@@ -58,9 +62,11 @@ let rgb_list =
     light_yellow;dark_yellow;
     light_orange;dark_orange;
     light_red;dark_red;
+    light_duck_blue; dark_duck_blue;
     black;white
   ]
 
+let duckblue = build_color ~background:light_duck_blue dark_duck_blue
 let blue = build_color ~background:light_blue dark_blue
 let green = build_color ~background:light_green dark_green
 let yellow = build_color ~background:light_yellow dark_yellow
@@ -70,10 +76,11 @@ let white= build_color white
 let orange = build_color ~background:light_orange dark_orange
 
 let color_list =
-  [blue;green;yellow;red;black;white;orange]
+  [blue;green;yellow;red;black;white;orange;duckblue]
 
 let color_of_string s =
   match s with
+  | "duckblue" -> Some duckblue 
   | "blue" -> Some blue
   | "green" -> Some green
   | "yellow" -> Some yellow

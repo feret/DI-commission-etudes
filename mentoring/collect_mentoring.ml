@@ -197,7 +197,7 @@ let get_mentoring
       in
       state, current_file, output
     | None, None, Some y ->
-      let msg = Format.sprintf "Name and first names are missing for a mentoring %s" y in
+      let msg = Format.sprintf "Name and first names are missing for a mentoring %s %s" y (match current_file'.mentor_lastname with Some x -> x | None -> "") in
       let state =
         Remanent_state.warn
           __POS__
@@ -252,7 +252,7 @@ let get_mentoring
                 Tools.map_opt
                   String.lowercase_ascii mentoring.mentor_firstname;
               Public_data.genre_du_tuteur =
-                mentoring.mentor_gender; 
+                mentoring.mentor_gender;
               Public_data.courriel_du_tuteur =
                 Tools.map_opt
                   String.lowercase_ascii mentoring.mentor_email

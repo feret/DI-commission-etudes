@@ -30,10 +30,16 @@ module StringOptMap =
 
 let dpt_maths = "mathematiques"
 let dpt_info = "informatique"
+let dpt_phys = "physique"
+let dpt_info_gps_name = dpt_info
+let dpt_phys_gps_name = dpt_phys
+let dpt_maths_gps_name = "mathematiques et applications"
+let acro_dpt_phys = "PHYS"
 let acro_dpt_info = "DI"
 let acro_dpt_maths = "DMA"
 let dpt_info_full = "Département d'Informatique"
 let dpt_maths_full = "Département de Mathématiques et Applications"
+let dpt_phys_full = "Département de Physique"
 
 let simplify_string s =
   Special_char.lowercase
@@ -1539,13 +1545,39 @@ let lgen grade gps dpt d =
        simplify_string x = dpt || simplify_string y = dpt)
 
 let lmath d =
-  lgen "licence" "gps2274" dpt_maths d
+  lgen "licence" "gps2274" dpt_maths_gps_name d
 
 let linfo d =
-  lgen "licence" "gps2291" dpt_info d
+  lgen "licence" "gps2291" dpt_info_gps_name d
 
 let lpoly d =
   lgen "licence" "gps74842" "" d
+
+let lmathphys d =
+  if List.exists
+      (fun diplome ->
+         match diplome.grade with
+         | None -> false
+         | Some s ->
+           simplify_string s = "licence")
+      d.diplomes
+  then
+    List.exists
+      (fun diplome -> diplome.diplome_diplome=Some "gps1672")
+      d.diplomes
+  else
+    d.nannee = Some 1
+    &&
+    (
+      match d.departement_principal,d.departement_secondaire with
+      | None, None -> false
+      | Some _, None | None, Some _ ->
+        false
+      | Some x, Some y ->
+        (simplify_string x = dpt_maths_gps_name && simplify_string y = dpt_phys_gps_name)
+        || (simplify_string x = dpt_phys_gps_name && simplify_string y = dpt_maths_gps_name)
+    )
+
 
 let mgen dpt d =
   begin
@@ -1556,8 +1588,8 @@ let mgen dpt d =
     | Some x -> simplify_string x = dpt
   end
 
-let _minfo = mgen dpt_info
-let mmaths = mgen dpt_maths
+let _minfo = mgen dpt_info_gps_name
+let mmaths = mgen dpt_maths_gps_name
 
 
 let string_of_stringopt s_opt =
@@ -1579,6 +1611,7 @@ let translate_dpt state d =
       match simplify_string s with
       | x when x=dpt_info  -> state, dpt_info_full
       | x when x=dpt_maths -> state, dpt_maths_full
+      | x when x=dpt_phys  -> state, dpt_phys_full
       | x -> state,
              Printf.sprintf
                "Departement de %s"
@@ -1634,38 +1667,25 @@ let filter_class state filter year class_list =
 let is_dma_course code_cours year =
   Tools.substring "DMA" code_cours
   ||
-  try
-    let i = int_of_string year in
-    if i <= 2018 then code_cours = "INFO-L3-THEOIC-S2"
-    else code_cours = "INFO-L3-APPREN-S2"
-  with
-  | _ -> false
+  begin
+    try
+      let i = int_of_string year in
+      if i <= 2018 then code_cours = "INFO-L3-THEOIC-S2"
+      else code_cours = "INFO-L3-APPREN-S2"
+    with
+    | _ -> false
+  end
+  || code_cours = "PHYS-L3-A11-S2"
+
+let is_phys_course code_cours _year =
+  Tools.substring "PHYS" code_cours
 
 let is_di_course code_cours _year =
   Tools.substring "INFO" code_cours
 
-let succeed_lmath state year l =
-  let ects =
-    List.fold_left
-      (fun ects elt ->
-         match elt.code_cours with
-         | Some code_cours  ->
-           if is_dma_course code_cours year
-           then
-             match elt.ects with
-             | Some a -> ects +. a
-             | None -> ects
-           else ects
-         | None -> ects)
-      0.
-      l
-  in
-  if ects >= 60. then state, true
-  else state, false
-
 let translate_diplome
     ~situation ~firstname ~lastname ~year ~code_cours
-    state course_list diplome =
+    state diplome =
   let code_gps = code_cours in
   match Remanent_state.get_cursus_exception
           ~firstname ~lastname ~year ~code_gps state
@@ -1673,10 +1693,6 @@ let translate_diplome
   | state, Some x ->
     let level = x.Public_data.class_level in
     let acronym = x.Public_data.class_dpt in
-    let () = Remanent_state.fprintf state
-        "%%FOUND %s %s %s %s LEVEL:%s ACRONYM:%s\n\ "
-        firstname lastname code_cours year level acronym
-    in
     begin
       match
         Remanent_state.get_dpt
@@ -1705,11 +1721,8 @@ let translate_diplome
           match dpt.Public_data.dpt_acronyme with
           | "DI" -> "informatique"
           | "DMA" -> "mathématiques"
+          | "PHYS" -> "physique"
           | _ -> ""
-        in
-        let () = Remanent_state.fprintf state
-            "%%FOUND2 LEVEL:%s LABEL:%s DPT:%s \n\ "
-            level label dpt
         in
         state, (Some level,
                 label,
@@ -1743,6 +1756,7 @@ let translate_diplome
         let dpt = Special_char.lowercase dpt in
         let dpt =
           if dpt = "mathématiques et applications"
+
           then
             "mathématiques"
           else
@@ -1755,9 +1769,12 @@ let translate_diplome
             if is_di_course code_cours year
             then state, ("informatique", "L")
             else
+            if is_phys_course code_cours year
+            then state, ("physique","L")
+            else
               let msg =
                 Format.sprintf
-                  "Cannot classify course (dpt:%s) for %s %s (%s)" dpt firstname lastname year 
+                  "Cannot classify course (dpt:%s) for %s %s (%s)" dpt firstname lastname year
               in
               Remanent_state.warn_dft
                 pos
@@ -1792,27 +1809,27 @@ let translate_diplome
           code_cours year
           situation
       else
+      if lmathphys situation
+      then
+        if is_dma_course code_cours year
+        then
+          state,
+          (Some "L","L3 de mathématiques",dpt_maths)
+        else
+          state,
+          (Some "L","L3 de physique",dpt_phys)
+      else
       if linfo situation && lmath situation
       then
-        let state, b =
-          succeed_lmath state year course_list
-        in
-        if b then
-        begin
-          if is_dma_course code_cours year
-          then
-            state,
-            (Some "L","L3 de mathématiques",dpt_maths)
-          else
-            state,
-            (Some "L","L3 d'informatique",dpt_info)
-        end
+        if is_dma_course code_cours year
+        then
+          state,
+          (Some "L","L3 de mathématiques",dpt_maths)
         else
-          check_dpt __POS__ state
-            "L" "L3" code_cours year
-            situation
+          state,
+          (Some "L","L3 d'informatique",dpt_info)
       else
-        check_dpt __POS__ state
+      check_dpt __POS__ state
           "L" "L3" code_cours year
           situation
     end
@@ -1843,6 +1860,8 @@ let color_of_dpt who pos state dpt =
   then state, Some Color.yellow
   else if dpt = dpt_maths
   then state, Some Color.orange
+  else if dpt = dpt_phys
+  then state, Some Color.duckblue
   else
     let msg =
       Format.sprintf "Unknown departement (%s) for %s"
@@ -1885,28 +1904,11 @@ let export_transcript
       match StringOptMap.find_opt id (!m) with
       | None ->
         let state, key = next state in
-        let () =
-          Format.printf
-            "%%%%ALLOC %s.%s -> %s%%\n\ "
-            (match fst id with None -> "" | Some a -> a)
-            (snd id)
-            key
-        in
-        let () = Format.print_newline () in
-        let () = Format.print_flush () in
         let () = m := StringOptMap.add id key (!m) in
         state, key, true
       | Some key ->
-        let () =
-          Format.printf
-            "REUSE %s.%s -> %s"
-            (match fst id with None -> "" | Some a -> a)
-            (snd id)
-            key
-        in
-        let () = Format.print_newline () in
-        let () = Format.print_flush () in
-        state, key, false   in
+        state, key, false
+    in
     alloc
   in
   let state, rep =
@@ -2180,10 +2182,10 @@ let export_transcript
                     match situation.departement_principal with
                     | Some x ->
                       let s  = simplify_string x in
-                      if s = dpt_info
+                      if s = dpt_info_gps_name
                       then
                         state,acro_dpt_info
-                      else if s = dpt_maths
+                      else if s = dpt_maths_gps_name
                       then state, acro_dpt_maths
                       else
                       let msg =
@@ -2200,7 +2202,7 @@ let export_transcript
                     | _ ->
                     let msg =
                       Printf.sprintf
-                        "mauvais dpt principal pour une double licence pour %s"
+                        "mauvais dpt principal pour une double licence maths-info pour %s"
                         who
                     in
                       Remanent_state.warn_dft
@@ -2212,6 +2214,48 @@ let export_transcript
                   in
                   state, Printf.sprintf
                     "Cursus maths-info et rattaché au %s" dpt
+                else if
+                  lmathphys situation
+                then
+                let state, dpt =
+                  match situation.departement_principal with
+                  | Some x ->
+                    let s  = simplify_string x in
+                    if s = dpt_phys_gps_name
+                    then
+                      state,acro_dpt_phys
+                    else if s = dpt_maths_gps_name
+                    then state, acro_dpt_maths
+                    else
+                    if s = dpt_info_gps_name
+                    then state, acro_dpt_info
+                    else
+                    let msg =
+                      Printf.sprintf
+                        "mauvais dpt principal pour une double licence maths-physique pour %s"
+                        who
+                    in
+                      Remanent_state.warn_dft
+                        __POS__
+                        msg
+                        Exit
+                        "DI"
+                        state
+                  | _ ->
+                  let msg =
+                    Printf.sprintf
+                      "mauvais dpt principal pour une double licence pour %s"
+                      who
+                  in
+                    Remanent_state.warn_dft
+                      __POS__
+                      msg
+                      Exit
+                      "DI"
+                      state
+                in
+                state, Printf.sprintf
+                  "Cursus maths-physique et rattaché au %s" dpt
                 else
                   translate_dpt state situation.departement_principal
               in
@@ -2275,20 +2319,9 @@ let export_transcript
                  let state,
                      (diplome_key,diplome_label,diplome_dpt) =
                  translate_diplome
-                   ~situation ~firstname ~lastname ~year ~code_cours state filtered_classes
+                   ~situation ~firstname ~lastname ~year ~code_cours state
                    elt.diplome
                  in
-                 let () =
-                   Remanent_state.fprintf
-                     state
-                     "%%%% KEY:'%s' DPT:'%s' LABEL:'%s' CODE:'%s'\n\ %%\n\ %%\n\ "
-                     (match diplome_key with Some s -> s | None -> "")
-                     diplome_dpt
-                     diplome_label
-                     (match elt.code_cours with Some s -> s | None -> "")
-
-                 in
-
                state,
                addmap
                  (diplome_key,diplome_dpt)

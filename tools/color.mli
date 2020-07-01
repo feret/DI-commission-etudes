@@ -15,6 +15,7 @@ val red: color
 val yellow: color
 val white: color
 val black: color
+val duckblue: color
 
 val rgb_list: rgb list
 val color_list: color list
