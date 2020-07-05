@@ -300,7 +300,14 @@ let get_mentoring
                Exit
                state
            | None, None, Some y ->
-             let msg = Format.sprintf "First and last names are missing for a mentoring %s" y in
+             let msg = Format.sprintf "First and last names are missing for a mentoring %s (%s %s %s)" y
+                 (match mentoring.mentor_lastname with
+                    None -> "" | Some x -> x)
+                 (match mentoring.mentor_firstname with
+                    None -> "" | Some x -> x)
+                 (match mentoring.mentor_email with
+                    None -> "" | Some x -> x)
+             in
              Remanent_state.warn
                __POS__
                msg

@@ -68,7 +68,7 @@ let get_succ remanent_state node_idx c automaton =
         remanent_state, (idx, {mapping; fresh_key})
     end
 
-let store_association remanent_state node_idx data automaton =
+let store_association remanent_state key node_idx data automaton =
   match
     IntMap.find_opt node_idx automaton.mapping
   with
@@ -83,9 +83,14 @@ let store_association remanent_state node_idx data automaton =
     begin
       match node.data with
       | Some _ ->
-      Remanent_state.warn_dft
+        let msg =
+          Printf.sprintf
+            "key %s is used several times"
+            key
+        in
+        Remanent_state.warn_dft
         __POS__
-        ""
+        msg 
         Exit
         automaton
         remanent_state
@@ -111,7 +116,7 @@ let add_association remanent_state key data automaton =
   let remanent_state, node, automaton =
     find_node_idx remanent_state key automaton
   in
-  store_association remanent_state node data automaton
+  store_association remanent_state key node data automaton
 
 let stabilize automaton =
   let n = automaton.fresh_key in

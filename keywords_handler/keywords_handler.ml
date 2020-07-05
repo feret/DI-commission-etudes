@@ -79,8 +79,6 @@ let asso_list =
     Public_data.Couleur_du_texte, ["couleur du texte"];
     Public_data.Courriel, ["courriel"];
     Public_data.Courriel_du_tuteur, ["courriel du tuteur"];
-    Public_data.Couleur_du_fond, ["couleur du fond"];
-    Public_data.Couleur_du_texte, ["couleur du fond"];
     Public_data.Credits, ["crédits"];
     Public_data.Date_de_Naissance, ["Date de naissance";"naissance"];
     Public_data.Departement, ["département"];

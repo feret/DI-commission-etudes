@@ -177,6 +177,10 @@ let get_list_from_a_file
         in
         scan
           state [] [] None current_file false output
+      | []::t ->
+        array_mode state header_key header t current_file output
+      | [x]::t when Tools.space_only x ->
+        array_mode state header_key header t current_file output
       | h::t ->
         let rec aux state l =
           match l with
