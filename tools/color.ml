@@ -80,12 +80,13 @@ let color_list =
 
 let color_of_string s =
   match s with
-  | "duckblue" -> Some duckblue 
-  | "blue" -> Some blue
-  | "green" -> Some green
-  | "yellow" -> Some yellow
-  | "red" -> Some red
-  | "black" -> Some black
-  | "white" -> Some white
+  | "duckblue" | "bleucanard" | "duck blue" | "bleu canard"
+    -> Some duckblue 
+  | "blue" | "bleu" -> Some blue
+  | "green" | "vert" -> Some green
+  | "yellow" | "jaune" -> Some yellow
+  | "red" | "rouge"-> Some red
+  | "black" | "noir" -> Some black
+  | "white" | "blanc" -> Some white
   | "orange" -> Some orange
   | _ -> None
