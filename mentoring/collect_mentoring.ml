@@ -123,18 +123,97 @@ let asso_list =
           state, {x with mentor_gender});
   ]
 
+let compute_repository =
+  Remanent_state.get_monitoring_list_repository
+
+let event_opt = Some Profiling.Collect_mentoring
+
+let mandatory_fields =
+  [(fun state a -> state, a.student_lastname <> None), "Student's family name";
+   (fun state a -> state, a.student_firstname <> None), "Student's first name";
+   (fun state a -> state, a.year <> None), "Mentoring year"]
+
+let copy = Scan_csv_files.copy_safe
+let copy_opt = Scan_csv_files.copy_opt_safe
+let all_fields =
+  [copy
+     (fun a -> a.student_lastname)
+     (fun a student_lastname ->
+        {a with Public_data.nom_de_l_etudiant =
+                  Special_char.lowercase student_lastname})
+     (Printf.sprintf "Student's family name: %s")
+     __POS__ "Student's last name is missing in a mentorship description";
+   copy
+     (fun a -> a.student_firstname)
+     (fun a student_firstname ->
+        {a with Public_data.prenom_de_l_etudiant =
+                  Special_char.lowercase student_firstname})
+     (Printf.sprintf "Student's first name: %s")
+     __POS__ "Student's first name is missing in a mentorship description";
+   copy
+     (fun a -> a.year)
+     (fun a year ->
+        {a with Public_data.annee_academique = year})
+     (Printf.sprintf "Mentoring year: %s")
+     __POS__ "Mentoring year missing in a mentorship description";
+   copy_opt
+     (fun a -> a.mentor_gender)
+     (fun a mentor_gender ->
+        {a with Public_data.genre_du_tuteur = mentor_gender})
+     (fun s ->
+        Printf.sprintf "Mentor Gender: %s"
+          (match s with Public_data.Masculin -> "M" | Public_data.Feminin -> "F"));
+   copy_opt
+     (fun a -> a.mentor_firstname)
+     (fun a mentor_firstname ->
+        {a with Public_data.prenom_du_tuteur =
+          Tools.map_opt
+            Special_char.lowercase
+            mentor_firstname})
+     (Printf.sprintf "Mentor's first name: %s")
+     ;
+   copy_opt
+     (fun a -> a.mentor_lastname)
+     (fun a mentor_lastname ->
+        {a with Public_data.nom_du_tuteur =
+          Tools.map_opt
+            Special_char.lowercase
+            mentor_lastname})
+     (Printf.sprintf "Mentor's last name: %s")
+     ;
+   copy_opt
+     (fun a -> a.mentor_email)
+     (fun a mentor_email ->
+        {a with Public_data.courriel_du_tuteur =
+          Tools.map_opt
+            Special_char.lowercase mentor_email})
+     (Printf.sprintf "Mentor's email: %s")
+       ]
+
 let get_mentoring
     ?repository
     ?prefix
     ?file_name
     state
   =
-  let event_opt = Some (Profiling.Collect_mentoring) in
-  let state =
-    Remanent_state.open_event_opt
-      event_opt
-      state
-  in
+  Scan_csv_files.collect_gen
+    ?repository
+    ?prefix
+    ?file_name
+    ~compute_repository
+    ~fun_default:fun_ignore
+    ~keywords_of_interest
+    ~asso_list
+    ~keywords_list
+    ~init_state:empty_mentoring
+    ~empty_elt:Public_data.empty_tutorat
+    ~add_elt:Remanent_state.add_mentoring
+    ~mandatory_fields
+    ~all_fields
+    ?event_opt
+    state
+
+    (*
   let at_end_of_array_line
       _header state current_file current_file' output =
     match current_file'.student_firstname,current_file'.student_lastname,current_file'.year with
@@ -321,4 +400,4 @@ let get_mentoring
       event_opt
       state
   in
-  state
+  state*)

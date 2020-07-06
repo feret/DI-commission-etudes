@@ -15,6 +15,8 @@ type student_id =
     promotion: string option;
   }
 
+val empty_student_id: student_id
+
 type scholarship =
   {
     organism: string;
@@ -22,6 +24,8 @@ type scholarship =
     holder_lastname: string;
     holder_promotion: string option
   }
+
+val empty_scholarship: scholarship
 
 module CodeMap : Map.S with type key = string
 module PromoMap : Map.S with type key = string
@@ -41,6 +45,8 @@ type course =
     teacher_email: string option ;
   }
 
+val empty_course: course
+
 type tutorat =
   {
     annee_academique: annee ;
@@ -52,6 +58,8 @@ type tutorat =
     prenom_de_l_etudiant: string
   }
 
+val empty_tutorat: tutorat
+
 type dpt =
   {
     dpt_nom: string ;
@@ -61,6 +69,8 @@ type dpt =
     dpt_font_color: Color.color option;
   }
 
+val empty_dpt: dpt
+
 type program =
   {
     code_gps: string ;
@@ -68,6 +78,8 @@ type program =
     level: string option ;
     label: string option ;
   }
+
+val empty_program: program
 
 type cursus_exception =
   {
@@ -78,6 +90,8 @@ type cursus_exception =
     annee_de_validation: string;
     codecours: string;
   }
+
+val empty_cursus_exception: cursus_exception
 
 type keywords =
   | Accord

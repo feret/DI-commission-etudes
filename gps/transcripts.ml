@@ -1670,7 +1670,8 @@ let is_dma_course code_cours year =
   begin
     try
       let i = int_of_string year in
-      if i <= 2018 then code_cours = "INFO-L3-THEOIC-S2"
+      if i <= 2014 then code_cours = "INFO-L3-MIIMC-S2"
+      else if i <= 2018 then code_cours = "INFO-L3-THEOIC-S2"
       else code_cours = "INFO-L3-APPREN-S2"
     with
     | _ -> false

@@ -30,3 +30,68 @@ val get_list:
   init_state:'a ->
   Remanent_state.t ->
    'a list -> Remanent_state.t * 'a list
+
+val copy:
+  (Remanent_state.t -> 'a -> Remanent_state.t * 'b option) ->
+  (Remanent_state.t -> 'c -> 'b -> Remanent_state.t * 'c) ->
+  (Remanent_state.t -> 'b -> Remanent_state.t * string option) ->
+  (string * int * int * int) ->
+  string ->
+  (
+   Remanent_state.t -> 'a -> 'c -> Remanent_state.t * 'c) *
+  (Remanent_state.t -> 'a -> Remanent_state.t * string option)
+
+val copy_safe:
+  ('a -> 'b option) ->
+  ('c -> 'b -> 'c) ->
+  ('b  -> string) ->
+  (string * int * int * int) ->
+  string ->
+  (
+   Remanent_state.t -> 'a -> 'c -> Remanent_state.t * 'c )
+  * (Remanent_state.t -> 'a -> Remanent_state.t * string option)
+
+val copy_opt:
+  (Remanent_state.t -> 'a -> Remanent_state.t * 'b option) ->
+  (Remanent_state.t -> 'c -> 'b option -> Remanent_state.t * 'c) ->
+  (Remanent_state.t -> 'b -> Remanent_state.t * string) ->
+  (Remanent_state.t -> 'a -> 'c -> Remanent_state.t * 'c) *
+  (Remanent_state.t -> 'a -> Remanent_state.t * string option)
+
+val copy_opt_safe :
+  ('a -> 'b option) ->
+  ('c -> 'b option -> 'c) ->
+  ('b -> string ) ->
+  (Remanent_state.t -> 'a -> 'c -> Remanent_state.t * 'c) *
+  (Remanent_state.t -> 'a -> Remanent_state.t * string option)
+
+val collect_gen :
+  ?repository:string ->
+  ?prefix:string ->
+  ?file_name:string ->
+  ?p:('a -> bool) ->
+  compute_repository:(Remanent_state.t ->
+                      Remanent_state.t * string) ->
+  fun_default:
+    (Remanent_state.t -> string option -> 'a -> Remanent_state.t * 'a) ->
+  keywords_of_interest:Public_data.keywords list ->
+  asso_list:(Public_data.keywords *
+             (Remanent_state.t ->
+              string option -> 'a -> Remanent_state.t * 'a)) list ->
+  keywords_list:Public_data.keywords list ->
+  init_state:'a ->
+  empty_elt:'b ->
+  add_elt:(string * int * int * int ->
+           'b -> Remanent_state.t -> Remanent_state.t) ->
+  mandatory_fields:((Remanent_state.t ->
+                     'a -> Remanent_state.t * bool) *
+                    string )
+      list ->
+  all_fields:
+    (
+      (Remanent_state.t -> 'a -> 'b -> Remanent_state.t * 'b)
+      *
+      (Remanent_state.t -> 'a -> Remanent_state.t * string option)
+    ) list ->
+  ?event_opt:Sco_remanent_state.Profiling.step_kind ->
+  Remanent_state.t -> Remanent_state.t

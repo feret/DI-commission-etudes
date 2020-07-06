@@ -276,3 +276,210 @@ let get_list
              init_state
              state file output)
         (state, output) files_list
+
+let copy get set string_of pos msg =
+  (fun state elt new_elt ->
+  let state, x_opt = get state elt in
+  match x_opt with
+  | None ->
+    Remanent_state.warn_dft
+      pos
+      msg
+      Exit
+      new_elt
+      state
+  | Some x ->
+    set state new_elt x),
+  (fun state a ->
+     let state, x_opt = get state a in
+     match x_opt with
+     | None -> state, None
+     | Some a -> string_of state a )
+
+let copy_opt get set string_of =
+  (fun state elt new_elt ->
+     let state, x_opt = get state elt in
+     let state, output =  set state new_elt x_opt in
+     state, output ),
+  (fun state a ->
+     let state, x_opt = get state a in
+     match x_opt with
+     | None -> state, None
+     | Some a ->
+       let state, a =
+         string_of state a
+       in state, Some a)
+
+
+let copy_safe f g h =
+  copy
+    (fun state a -> state, f a)
+    (fun state a h -> state, g a h)
+    (fun state a -> state, Some (h a))
+
+let copy_opt_safe f g h =
+  copy_opt
+    (fun state a -> state, f a)
+    (fun state a h -> state, g a h)
+    (fun state a -> state, h a)
+
+let collect_gen
+    ?repository
+    ?prefix
+    ?file_name
+    ?p
+    ~compute_repository
+    ~fun_default
+    ~keywords_of_interest
+    ~asso_list
+    ~keywords_list
+    ~init_state
+    ~empty_elt
+    ~add_elt
+    ~mandatory_fields
+    ~all_fields
+    ?event_opt
+    state
+  =
+  let state, repository =
+    match repository with
+    | Some a -> state, Some a
+    | None ->
+      let state, a =
+        compute_repository state
+      in
+      state, Some a
+  in
+  let state =
+    Remanent_state.open_event_opt
+      event_opt
+      state
+  in
+  let p =
+    match p with
+    | None -> (fun _ -> true)
+    | Some p -> p
+  in
+  let at_end_of_array_line
+      _header state current_file current_file' output =
+    let
+      state, list_missing,last_missing =
+      List.fold_left
+        (fun (state,l,last) (get,message) ->
+           match
+             get state current_file'
+           with
+           | state, true -> state,l,last
+           | state, false ->
+             match last with
+             | None ->
+               state, l, Some message
+             | Some x ->
+               state, x::l, Some message)
+        (state, [], None )
+        mandatory_fields
+    in
+    match last_missing with
+    | None ->
+      if p current_file'
+      then
+        state, current_file, current_file'::output
+      else
+        state, current_file, output
+    | Some last_missing ->
+      begin
+        let state, l_known, last  =
+          List.fold_left
+            (fun (state, l_known, last) (_,message) ->
+               match message state current_file' with
+               | state, Some x -> state,
+                           begin
+                             match last with None -> l_known
+                                           | Some last -> last::l_known
+                           end,
+                           Some x
+               | state, None -> state, l_known,last )
+            (state, [], None)
+            all_fields
+        in
+        let _ = Format.flush_str_formatter () in
+        let _ =
+          Format.pp_print_list
+            ~pp_sep:(fun log () -> Format.fprintf log ", ")
+            (fun log a -> Format.fprintf log "%s" a)
+            Format.str_formatter
+            l_known
+        in
+        let _ =
+          match l_known, last with
+          | _, None -> ()
+          | [], Some x -> Format.fprintf Format.str_formatter "%s" x
+          | _, Some x -> Format.fprintf Format.str_formatter ", and %s " x
+        in
+        let known = Format.flush_str_formatter () in
+        let _ =
+          Format.pp_print_list
+            ~pp_sep:(fun log () -> Format.fprintf log ", ")
+            (fun log a -> Format.fprintf log "%s" a)
+            Format.str_formatter
+            list_missing
+        in
+        let _ =
+          match list_missing with
+          | [] -> Format.fprintf Format.str_formatter "%s is missing" last_missing
+          | _ -> Format.fprintf Format.str_formatter ", and %s are missing " last_missing
+        in
+        let missing = Format.flush_str_formatter () in
+        let msg =
+          Format.sprintf "%s for %s" missing known
+        in
+        let state =
+          Remanent_state.warn
+            __POS__
+            msg
+            Exit
+            state
+        in
+        state, current_file, output
+      end
+  in
+  let at_end_of_array
+      _header state current_file output =
+    state, current_file, output
+  in
+  let at_end_of_file state _current_file output =
+    state, output
+  in
+  let flush state current_file output =
+    state, current_file::output
+  in
+  let state, repository =
+    match repository with
+    | Some a -> state, a
+    | None -> Remanent_state.get_monitoring_list_repository state
+  in
+  let state, list =
+    get_list
+      ~keywords_of_interest ~asso_list ~keywords_list
+      ~fun_default
+      ~at_end_of_array_line ~at_end_of_array ~at_end_of_file ~flush
+      ~init_state
+      state
+      ~repository ?prefix ?file_name
+      []
+  in
+  let state =
+    List.fold_left
+      (fun state elt ->
+         let state, new_elt =
+           List.fold_left
+             (fun (state, new_elt) (copy,_) ->
+                copy state elt new_elt)
+             (state, empty_elt)
+             all_fields
+         in
+         add_elt __POS__ new_elt state)
+      state
+      list
+  in
+  state

@@ -60,7 +60,79 @@ let asso_list =
           state, {x with organism});
   ]
 
+let event_opt = Some Profiling.Collect_scholarships
+
+let mandatory_fields =
+  [(fun state a -> state, a.lastname <> None), "Student's family name";
+   (fun state a -> state, a.firstname <> None), "Student's first name";
+   (fun state a -> state, a.promotion <> None), "Student's promotion"]
+
+let copy = Scan_csv_files.copy_safe
+
+let all_fields =
+  [copy
+     (fun a -> a.lastname)
+     (fun a holder_lastname ->
+        {a with Public_data.holder_lastname = holder_lastname})
+     (Printf.sprintf "Student's family name: %s")
+   __POS__ "Student's last name is missing in a scholarship description";
+   copy
+      (fun a -> a.firstname)
+      (fun a holder_firstname ->
+         {a with Public_data.holder_firstname = holder_firstname})
+      (Printf.sprintf "Student's first name: %s")
+      __POS__ "Student's first name is missing in a scholarship description";
+   copy
+     (fun a -> a.promotion)
+     (fun a holder_promotion ->
+        {a with Public_data.holder_promotion = Some holder_promotion})
+     (Printf.sprintf "Student's promotion: %s")
+         __POS__ "Student's promotion is missing in a scholarship description";
+   copy
+     (fun a -> a.organism)
+     (fun a organism ->
+        {a with Public_data.organism = organism})
+     (Printf.sprintf "Funding organism: %s")
+     __POS__ "Funding organism is missing in a scholarship description";
+  ]
+
+let compute_repository =
+  Remanent_state.get_scholarships_list_repository
+
 let get_scholarships
+    ?repository
+    ?prefix
+    ?file_name
+    ?promotion
+    state =
+  let p =
+    (fun y ->
+       match promotion, y.promotion with
+       | Some a, Some b -> a=b
+       | None,_ | _, None -> true
+    )
+  in
+  Scan_csv_files.collect_gen
+    ?repository
+    ?prefix
+    ?file_name
+    ~compute_repository
+    ~p
+    ~fun_default:fun_ignore
+    ~keywords_of_interest
+    ~asso_list
+    ~keywords_list
+    ~init_state:empty_scholarship
+    ~empty_elt:Public_data.empty_scholarship
+    ~add_elt:Remanent_state.add_scholarship
+    ~mandatory_fields
+    ~all_fields
+    ?event_opt
+    state
+
+
+
+(*let get_scholarships
     ?repository
     ?prefix
     ?file_name
@@ -310,4 +382,4 @@ let get_scholarships
       event_opt
       state
   in
-  state
+  state*)

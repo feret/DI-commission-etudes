@@ -15,6 +15,13 @@ type student_id =
     promotion: string option;
   }
 
+let empty_student_id =
+  {
+    firstname = "";
+    lastname = "";
+    promotion = None;
+  }
+
 type scholarship =
   {
     organism: string;
@@ -23,6 +30,13 @@ type scholarship =
     holder_promotion: string option
   }
 
+let empty_scholarship =
+  {
+    organism="";
+    holder_firstname="";
+    holder_lastname="";
+    holder_promotion=None;
+  }
 type course =
   {
     year: annee option ;
@@ -31,6 +45,16 @@ type course =
     ects: int option ;
     teacher_name: string option ;
     teacher_email: string option ;
+  }
+
+let empty_course =
+  {
+    year = None ;
+    code = None ;
+    name = None ;
+    ects = None ;
+    teacher_name = None ;
+    teacher_email = None ;
   }
 
 type tutorat =
@@ -44,6 +68,17 @@ type tutorat =
     prenom_de_l_etudiant: string
   }
 
+let empty_tutorat =
+  {
+    annee_academique = "" ;
+    nom_du_tuteur = None ;
+    prenom_du_tuteur = None ;
+    genre_du_tuteur = None ;
+    courriel_du_tuteur = None ;
+    nom_de_l_etudiant = "" ;
+    prenom_de_l_etudiant = "" ;
+  }
+
 type dpt =
   {
     dpt_nom: string ;
@@ -51,6 +86,15 @@ type dpt =
     dpt_gerundif: string ;
     dpt_bg_color: Color.color option;
     dpt_font_color: Color.color option;
+  }
+
+let empty_dpt =
+  {
+    dpt_nom = "" ;
+    dpt_acronyme = "" ;
+    dpt_gerundif = "" ;
+    dpt_bg_color = None ;
+    dpt_font_color = None ;
   }
 
 type program =
@@ -61,6 +105,14 @@ type program =
     label: string option ;
   }
 
+let empty_program =
+  {
+    code_gps = "" ;
+    dpt_acronym = None ;
+    level = None ;
+    label = None ;
+  }
+
 type cursus_exception =
   {
     student_firstname: string;
@@ -69,6 +121,16 @@ type cursus_exception =
     class_level: string;
     annee_de_validation: string;
     codecours: string;
+  }
+
+let empty_cursus_exception =
+  {
+    student_firstname = "";
+    student_lastname = "";
+    class_dpt = "";
+    class_level = "";
+    annee_de_validation = "";
+    codecours = "";
   }
 
 type keywords =
