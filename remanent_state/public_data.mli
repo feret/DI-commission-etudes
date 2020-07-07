@@ -179,6 +179,7 @@ type statut =
   | Eleve
   | Etudiant
   | Eleve_bis
+  | Ex_eleve
 
 type remove_non_valided_classes =
   | All

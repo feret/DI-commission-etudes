@@ -156,7 +156,8 @@ let log_statut
             (match a with
              | Public_data.Eleve_bis -> "Eleve BIS"
              | Public_data.Eleve -> "Eleve"
-             | Public_data.Etudiant -> "Etudiant")
+             | Public_data.Etudiant -> "Etudiant"
+             | Public_data.Ex_eleve -> "Ancien eleve")
         in state
 
 let log_diplome state diplome =
@@ -1067,6 +1068,10 @@ let statut_opt_of_string_opt pos state s_opt =
       then
         state, Some Public_data.Eleve_bis
       else
+      if List.mem s
+          ["ex - eleve"]
+      then state, Some Public_data.Ex_eleve
+      else
         let msg =
           Format.sprintf
             "Ill-formed Statut (%s)"
@@ -1591,6 +1596,16 @@ let mgen dpt d =
 let _minfo = mgen dpt_info_gps_name
 let mmaths = mgen dpt_maths_gps_name
 
+let mpri d =
+  List.exists
+    (fun diplome -> diplome.diplome_diplome=Some "M-MPRI"
+                    || diplome.diplome_diplome=Some "gps62263")
+    d.diplomes
+
+let mva d =
+  List.exists
+    (fun diplome -> diplome.diplome_diplome=Some "M-MVA")
+    d.diplomes
 
 let string_of_stringopt s_opt =
   match s_opt with
@@ -1670,7 +1685,7 @@ let is_dma_course code_cours year =
   begin
     try
       let i = int_of_string year in
-      if i <= 2014 then code_cours = "INFO-L3-MIIMC-S2"
+      if i <= 2015 then code_cours = "INFO-L3-MIIMC-S2"
       else if i <= 2018 then code_cours = "INFO-L3-THEOIC-S2"
       else code_cours = "INFO-L3-APPREN-S2"
     with
@@ -1838,6 +1853,11 @@ let translate_diplome
     if mmaths situation then
       state, (Some "M","M1 de mathématiques",dpt_maths)
     else
+    if mpri situation then
+      state, (Some "M","M2 du MPRI",dpt_info)
+    else if mva situation then
+      state, (Some "M","M2 du MVA",dpt_info)
+    else
       check_dpt __POS__ state
         "M" "M1" code_cours year
         situation
@@ -1948,11 +1968,11 @@ let export_transcript
     let old_logger = Remanent_state.save_std_logger state in
     let state = Remanent_state.set_std_logger state logger in
     let l = Public_data.YearMap.bindings gps_file.situation in
-    let genre,er =
+    let genre,er,ne =
       match gps_file.genre with
-      | None -> "(e)","er(\\`ere)"
-      | Some Public_data.Masculin -> "","er"
-      | Some Public_data.Feminin -> "e","\\`ere"
+      | None -> "(e)","er(\\`ere)","(ne)"
+      | Some Public_data.Masculin -> "","er",""
+      | Some Public_data.Feminin -> "e","\\`ere","ne"
     in
     let lastname =
       Special_char.uppercase (Tools.unsome_string gps_file.nom)
@@ -1972,8 +1992,10 @@ let export_transcript
     let l_rev,_ =
       List.fold_left
         (fun (l,counter) (y,annee) ->
-           if match annee.situation_administrative
-             with None -> false
+           if
+             match annee.situation_administrative
+             with None ->
+               counter=0 && (try int_of_string y<=2015 with _ -> false)
                 | Some sit ->
                   simplify_string sit = "scolarite a l'ens"
            then
@@ -2039,6 +2061,9 @@ let export_transcript
               | None -> state,"",""
               | Some Public_data.Eleve_bis
               | Some Public_data.Eleve -> state,"\\'El\\`eve",""
+              | Some Public_data.Ex_eleve ->
+                state,
+                Format.sprintf "Ancien%s \\'el\\`eve" ne,""
               | Some Public_data.Etudiant ->
                 begin
                   let state, bourse =
@@ -2214,7 +2239,7 @@ let export_transcript
                         state
                   in
                   state, Printf.sprintf
-                    "Cursus maths-info et rattaché au %s" dpt
+                    "Cursus maths-info et rattaché%s au %s" genre dpt
                 else if
                   lmathphys situation
                 then
@@ -2509,7 +2534,7 @@ let export_transcript
                in
                let msg =
                  Format.sprintf
-                   "\\nprounddigits{2}%%\n\ \\ifnum \\thegradedects%s>0%%\n\ %s ECTS \\ifnum \\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)} = \\fpeval{(\\theects+\\thevsnects)}%%\n\ \\else%%\n\ (cumulés) \\fi: {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)/\\factor}}} %%\n\ \\else\\ifnum\\thevalidatedwogradeects%s>0%%\n\  ECTS \\ifnum \\fpeval{(\\thegradedects%s+\\thevalidatedwogradenects%s)} = \\fpeval{(\\theects+\\thevsnects)}%%\n\ \\else%%\n (cumulés) \\fi: {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradenects%s)/\\factor}}} %%\n\ \\fi\\fi%%\n\ \\ifnum \\thepotentialects%s=0%%\n\ \\else%%\n\ \\hspace*{0.2cm} (potentiellement {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factor}}} ects)\\fi%%\n\ \\npnoround%%\n\ "
+                   "\\nprounddigits{2}%%\n\ \\ifnum \\thegradedects%s>0%%\n\ %s ECTS \\ifnum \\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)} = \\fpeval{(\\theects+\\thevsnects)}%%\n\ \\else%%\n\ (cumulés) \\fi: {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)/\\factor}}} %%\n\ \\else\\ifnum\\thevalidatedwogradeects%s>0%%\n\  ECTS \\ifnum \\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)} = \\fpeval{(\\theects+\\thevsnects)}%%\n\ \\else%%\n (cumulés) \\fi: {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)/\\factor}}} %%\n\ \\fi\\fi%%\n\ \\ifnum \\thepotentialects%s=0%%\n\ \\else%%\n\ \\hspace*{0.2cm} (potentiellement {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factor}}} ects)\\fi%%\n\ \\npnoround%%\n\ "
                    key moyenne key key key key key key key key key key key key key
                in
                let () =
