@@ -76,6 +76,7 @@ let parameters =
 
 type data =
   {
+    students: Public_data.student_id list ;
     output_alias: (string * string) option ;
     scholarships: Scholarships.t;
     mentoring: Mentoring.t;
@@ -86,6 +87,7 @@ type data =
 
 let empty_data =
   {
+    students = [];
     scholarships = Scholarships.empty;
     mentoring = Mentoring.empty;
     dpts =  Departments.empty;
@@ -501,9 +503,15 @@ let close_logger ?logger t =
     t
 
 let get_data t = t.data
+let get_students data = data.students
+let get_students t = get_students (get_data t)
 let get_scholarships data = data.scholarships
 let get_scholarships t = get_scholarships (get_data t)
 let set_data data t = {t with data}
+let set_students students data = {data with students}
+let set_students students t =
+  set_data (set_students students (get_data t)) t
+
 let set_scholarships scholarships data =
   {data with scholarships}
 let set_scholarships scholarships t =
@@ -545,6 +553,14 @@ let add_gen get set add pos data t =
   let t = set acc t in
   let t = set_error_handler error_handler t in
   t
+
+let add_student =
+  add_gen
+    get_students
+    set_students
+    (fun ~safe_mode _log _prefix _pos error_handler a b ->
+       let _ = safe_mode in
+       error_handler, a::b)
 
 let add_scholarship =
   add_gen

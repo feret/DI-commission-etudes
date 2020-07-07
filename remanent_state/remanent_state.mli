@@ -126,6 +126,12 @@ val set_std_logger: t -> Loggers.t -> t
 val std_logger: Loggers.t
 val close_logger: ?logger:Loggers.t -> t -> t
 
+val get_students:
+  t -> Public_data.student_id list
+
+val add_student:
+  (string * int * int * int) -> Public_data.student_id -> t -> t
+
 (** scholarships *)
 val get_scholarship:
   firstname:string ->

@@ -1715,7 +1715,7 @@ let translate_diplome
           ~acronym state
       with
       | state, Some dpt ->
-        let gerund = dpt.Public_data.dpt_gerundif in
+        let gerund = dpt.Public_data.dpt_genitif in
         let state,label =
           match level with
           | "L" -> state, "L3 "^gerund

@@ -100,7 +100,7 @@ let asso_list =
     Public_data.FullName, ["nom complet"];
     Public_data.Genre, ["genre"];
     Public_data.Genre_du_tuteur, ["genre du tuteur"];
-    Public_data.Gerondif, ["gerondif"];
+    Public_data.Genitif, ["genitif"];
     Public_data.Grade, ["grade"];
     Public_data.Inscrit_au_DENS_en, ["inscrit au DENS en"];
     Public_data.Intitule, ["intitulé"];

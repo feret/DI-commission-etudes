@@ -2,8 +2,10 @@ let state = Remanent_state.init ()
 let state =
   Cloud_interaction.safe_synchronize_shared_repository
     state
-let state, students_list =
+let state =
   Get_gps_files.get_students_list state
+let students_list = 
+  Remanent_state.get_students state
 let state =
   Collect_scholarships.get_scholarships state
 let state =

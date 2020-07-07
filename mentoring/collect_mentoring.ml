@@ -128,42 +128,46 @@ let compute_repository =
 
 let event_opt = Some Profiling.Collect_mentoring
 
-let mandatory_fields =
-  [(fun state a -> state, a.student_lastname <> None), "Student's family name";
-   (fun state a -> state, a.student_firstname <> None), "Student's first name";
-   (fun state a -> state, a.year <> None), "Mentoring year"]
+let lift_pred = Scan_csv_files.lift_pred_safe
+let lift = Scan_csv_files.lift_safe
+let lift_opt = Scan_csv_files.lift_opt_safe
 
-let copy = Scan_csv_files.copy_safe
-let copy_opt = Scan_csv_files.copy_opt_safe
+let mandatory_fields =
+  [
+    lift_pred (fun a -> a.student_lastname), "Student's family name";
+    lift_pred (fun a -> a.student_firstname), "Student's first name";
+    lift_pred (fun a -> a.year), "Mentoring year"
+  ]
+
 let all_fields =
-  [copy
+  [lift
      (fun a -> a.student_lastname)
      (fun a student_lastname ->
         {a with Public_data.nom_de_l_etudiant =
                   Special_char.lowercase student_lastname})
      (Printf.sprintf "Student's family name: %s")
      __POS__ "Student's last name is missing in a mentorship description";
-   copy
+   lift
      (fun a -> a.student_firstname)
      (fun a student_firstname ->
         {a with Public_data.prenom_de_l_etudiant =
                   Special_char.lowercase student_firstname})
      (Printf.sprintf "Student's first name: %s")
      __POS__ "Student's first name is missing in a mentorship description";
-   copy
+   lift
      (fun a -> a.year)
-     (fun a year ->
-        {a with Public_data.annee_academique = year})
+     (fun a annee_academique ->
+        {a with Public_data.annee_academique})
      (Printf.sprintf "Mentoring year: %s")
      __POS__ "Mentoring year missing in a mentorship description";
-   copy_opt
+   lift_opt
      (fun a -> a.mentor_gender)
      (fun a mentor_gender ->
         {a with Public_data.genre_du_tuteur = mentor_gender})
      (fun s ->
         Printf.sprintf "Mentor Gender: %s"
           (match s with Public_data.Masculin -> "M" | Public_data.Feminin -> "F"));
-   copy_opt
+   lift_opt
      (fun a -> a.mentor_firstname)
      (fun a mentor_firstname ->
         {a with Public_data.prenom_du_tuteur =
@@ -172,7 +176,7 @@ let all_fields =
             mentor_firstname})
      (Printf.sprintf "Mentor's first name: %s")
      ;
-   copy_opt
+   lift_opt
      (fun a -> a.mentor_lastname)
      (fun a mentor_lastname ->
         {a with Public_data.nom_du_tuteur =
@@ -181,7 +185,7 @@ let all_fields =
             mentor_lastname})
      (Printf.sprintf "Mentor's last name: %s")
      ;
-   copy_opt
+   lift_opt
      (fun a -> a.mentor_email)
      (fun a mentor_email ->
         {a with Public_data.courriel_du_tuteur =
@@ -212,192 +216,3 @@ let get_mentoring
     ~all_fields
     ?event_opt
     state
-
-    (*
-  let at_end_of_array_line
-      _header state current_file current_file' output =
-    match current_file'.student_firstname,current_file'.student_lastname,current_file'.year with
-    | None,None,None -> state, current_file, output
-    | Some _, Some _, Some _ ->
-      state, current_file, current_file'::output
-    | Some x, None, Some y ->
-      let msg = Format.sprintf "Last name is missing for %s's mentoring %s" x y in
-      let state =
-        Remanent_state.warn
-          __POS__
-          msg
-          Exit
-          state
-      in
-      state, current_file, output
-    | Some x, Some y, None  ->
-      let msg =
-        Format.sprintf "Year is missing for %s %s's mentoring"
-          x y
-      in
-      let state =
-        Remanent_state.warn
-          __POS__
-          msg
-          Exit
-          state
-      in
-      state, current_file, output
-    | None, Some x, Some y ->
-      let msg = Format.sprintf "First name is missing for %s's mentoring %s" x y in
-      let state =
-        Remanent_state.warn
-          __POS__
-          msg
-          Exit
-          state
-      in
-      state, current_file, output
-    | Some x, None, None ->
-      let msg = Format.sprintf "Last name and year is missing for %s's mentoring" x in
-      let state =
-        Remanent_state.warn
-          __POS__
-          msg
-          Exit
-          state
-      in
-      state, current_file, output
-    | None, Some y, None  ->
-      let msg =
-        Format.sprintf "First name and year is missing fos %s's mentoring" y
-      in
-      let state =
-        Remanent_state.warn
-          __POS__
-          msg
-          Exit
-          state
-      in
-      state, current_file, output
-    | None, None, Some y ->
-      let msg = Format.sprintf "Name and first names are missing for a mentoring %s %s" y (match current_file'.mentor_lastname with Some x -> x | None -> "") in
-      let state =
-        Remanent_state.warn
-          __POS__
-          msg
-          Exit
-          state
-      in
-      state, current_file, output
-  in
-  let at_end_of_array
-      _header state current_file output =
-    state, current_file, output
-  in
-  let at_end_of_file state _current_file output =
-    state, output
-  in
-  let flush state current_file output =
-    state, current_file::output
-  in
-  let state, repository =
-    match repository with
-    | Some a -> state, a
-    | None -> Remanent_state.get_monitoring_list_repository state
-  in
-  let state, list =
-    Scan_csv_files.get_list
-      ~keywords_of_interest ~asso_list ~keywords_list
-      ~fun_default:fun_ignore
-      ~at_end_of_array_line ~at_end_of_array ~at_end_of_file ~flush
-      ~init_state:empty_mentoring
-      state
-      ~repository ?prefix ?file_name
-      []
-  in
-  let state =
-    List.fold_left
-      (fun state mentoring ->
-         match mentoring.student_firstname, mentoring.student_lastname, mentoring.year
-         with
-         | Some firstname, Some lastname, Some year ->
-           Remanent_state.add_mentoring __POS__
-             {Public_data.nom_de_l_etudiant =
-                String.lowercase_ascii lastname ;
-              Public_data.prenom_de_l_etudiant=
-                String.lowercase_ascii firstname;
-              Public_data.annee_academique=
-                year;
-              Public_data.nom_du_tuteur =
-                Tools.map_opt
-                  String.lowercase_ascii mentoring.mentor_lastname;
-              Public_data.prenom_du_tuteur =
-                Tools.map_opt
-                  String.lowercase_ascii mentoring.mentor_firstname;
-              Public_data.genre_du_tuteur =
-                mentoring.mentor_gender;
-              Public_data.courriel_du_tuteur =
-                Tools.map_opt
-                  String.lowercase_ascii mentoring.mentor_email
-             }
-             state
-         | None, None, None -> state
-         | Some x, None, Some y ->
-           let msg = Format.sprintf "Last name is missing for %s's mentoring %s" x y in
-             Remanent_state.warn
-               __POS__
-               msg
-               Exit
-               state
-         | Some x, Some y, None  ->
-             let msg =
-               Format.sprintf
-                 "Year is missing fos %s %s's mentoring" x y
-             in
-             Remanent_state.warn
-               __POS__
-               msg
-               Exit
-               state
-           | None, Some x, Some y ->
-             let msg = Format.sprintf "First name is missing for %s's mentoring %s" x y in
-             Remanent_state.warn
-               __POS__
-               msg
-               Exit
-               state
-           | Some x, None, None ->
-             let msg = Format.sprintf "Last name and year are missing for %s's mentoring" x in
-             Remanent_state.warn
-               __POS__
-               msg
-               Exit
-               state
-           | None, Some y, None  ->
-             let msg =
-               Format.sprintf "First name and year are missing for %s 's mentoring" y
-             in
-             Remanent_state.warn
-               __POS__
-               msg
-               Exit
-               state
-           | None, None, Some y ->
-             let msg = Format.sprintf "First and last names are missing for a mentoring %s (%s %s %s)" y
-                 (match mentoring.mentor_lastname with
-                    None -> "" | Some x -> x)
-                 (match mentoring.mentor_firstname with
-                    None -> "" | Some x -> x)
-                 (match mentoring.mentor_email with
-                    None -> "" | Some x -> x)
-             in
-             Remanent_state.warn
-               __POS__
-               msg
-               Exit
-               state
-      )
-      state list
-  in
-  let state =
-    Remanent_state.close_event_opt
-      event_opt
-      state
-  in
-  state*)

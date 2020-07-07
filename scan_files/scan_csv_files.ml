@@ -3,7 +3,7 @@ let get_list_from_a_file
     empty
     state  (rep,file) output =
   let is_keyword = automaton.Keywords_handler.is_keyword in
-        let action = automaton.Keywords_handler.action in
+  let action = automaton.Keywords_handler.action in
   let of_interest= automaton.Keywords_handler.flush_required in
   let translate = automaton.Keywords_handler.translate in
   let shared_part = automaton.Keywords_handler.shared in
@@ -277,7 +277,15 @@ let get_list
              state file output)
         (state, output) files_list
 
-let copy get set string_of pos msg =
+let lift_pred f state a =
+  let state, rep = f state a in
+  state, rep <> None
+
+let lift_pred_safe f =
+  lift_pred
+    (fun state a -> state, f a)
+
+let lift get set string_of pos msg =
   (fun state elt new_elt ->
   let state, x_opt = get state elt in
   match x_opt with
@@ -296,7 +304,7 @@ let copy get set string_of pos msg =
      | None -> state, None
      | Some a -> string_of state a )
 
-let copy_opt get set string_of =
+let lift_opt get set string_of =
   (fun state elt new_elt ->
      let state, x_opt = get state elt in
      let state, output =  set state new_elt x_opt in
@@ -311,14 +319,14 @@ let copy_opt get set string_of =
        in state, Some a)
 
 
-let copy_safe f g h =
-  copy
+let lift_safe f g h =
+  lift
     (fun state a -> state, f a)
     (fun state a h -> state, g a h)
     (fun state a -> state, Some (h a))
 
-let copy_opt_safe f g h =
-  copy_opt
+let lift_opt_safe f g h =
+  lift_opt
     (fun state a -> state, f a)
     (fun state a h -> state, g a h)
     (fun state a -> state, h a)
@@ -473,8 +481,8 @@ let collect_gen
       (fun state elt ->
          let state, new_elt =
            List.fold_left
-             (fun (state, new_elt) (copy,_) ->
-                copy state elt new_elt)
+             (fun (state, new_elt) (lift,_) ->
+                lift state elt new_elt)
              (state, empty_elt)
              all_fields
          in

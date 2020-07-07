@@ -8,9 +8,9 @@ let unify ~safe_mode logger prefix pos error dpt dpt' =
     =
     Special_char.correct_string dpt'.Public_data.dpt_nom
     &&
-    Special_char.correct_string dpt.Public_data.dpt_gerundif
+    Special_char.correct_string dpt.Public_data.dpt_genitif
     =
-    Special_char.correct_string dpt'.Public_data.dpt_gerundif
+    Special_char.correct_string dpt'.Public_data.dpt_genitif
   then
       let error,dpt =
         match dpt.Public_data.dpt_font_color,
@@ -68,13 +68,13 @@ let unify ~safe_mode logger prefix pos error dpt dpt' =
   else
   let message =
     Format.sprintf
-      "Cannot unify dpt data with different names, acronymes, and gerundif  %s %s %s VS %s %s %s"
+      "Cannot unify dpt data with different names, acronymes, and genitif  %s %s %s VS %s %s %s"
       dpt.Public_data.dpt_nom
       dpt.Public_data.dpt_acronyme
-      dpt.Public_data.dpt_gerundif
+      dpt.Public_data.dpt_genitif
       dpt'.Public_data.dpt_nom
       dpt'.Public_data.dpt_acronyme
-      dpt'.Public_data.dpt_gerundif
+      dpt'.Public_data.dpt_genitif
   in
   Exception.warn
     logger

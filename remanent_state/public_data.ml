@@ -83,7 +83,7 @@ type dpt =
   {
     dpt_nom: string ;
     dpt_acronyme: string ;
-    dpt_gerundif: string ;
+    dpt_genitif: string ;
     dpt_bg_color: Color.color option;
     dpt_font_color: Color.color option;
   }
@@ -92,7 +92,7 @@ let empty_dpt =
   {
     dpt_nom = "" ;
     dpt_acronyme = "" ;
-    dpt_gerundif = "" ;
+    dpt_genitif = "" ;
     dpt_bg_color = None ;
     dpt_font_color = None ;
   }
@@ -166,9 +166,9 @@ type keywords =
   | Etablissement_ou_Entreprise
   | FirstName
   | FullName
+  | Genitif
   | Genre
   | Genre_du_tuteur
-  | Gerondif
   | Grade
   | Inscrit_au_DENS_en
   | Intitule
@@ -219,7 +219,7 @@ type statut =
   | Eleve
   | Etudiant
   | Eleve_bis
-  | Ex_eleve 
+  | Ex_eleve
 
 type remove_non_valided_classes =
   | All

@@ -247,6 +247,39 @@ let asso_list =
         state, {x with promotion});
     ]
 
+let event_opt = Some (Profiling.Extract_gps_data_base)
+
+let lift_pred = Scan_csv_files.lift_pred_safe
+let lift_opt = Scan_csv_files.lift_opt_safe
+let lift = Scan_csv_files.lift_safe
+
+let mandatory_fields =
+  [
+    lift_pred (fun a -> a.lastname), "Student's family name";
+    lift_pred (fun a -> a.firstname), "Student's first name";
+  ]
+
+let all_fields =
+  [
+  lift
+     (fun a -> a.lastname)
+     (fun a lastname -> {a with Public_data.lastname})
+     (Printf.sprintf "Student's family name: %s")
+     __POS__ "Student's last name is missing in student description";
+  lift
+    (fun a -> a.firstname)
+    (fun a firstname -> {a with Public_data.firstname})
+    (Printf.sprintf "Student's first name: %s")
+    __POS__ "Student's first name is missing in student description";
+  lift_opt
+    (fun a -> a.promotion)
+    (fun a promotion -> {a with Public_data.promotion})
+    (Printf.sprintf "Student's promotion: %s")
+  ]
+
+let compute_repository =
+  Remanent_state.get_students_list_repository
+
 let get_students_list
     ?repository
     ?prefix
@@ -254,64 +287,33 @@ let get_students_list
     ?promotion
     state
   =
-  let event_opt = Some (Profiling.Extract_gps_data_base) in
-  let state =
-    Remanent_state.open_event_opt
-      event_opt
-      state
+  let p =
+    match promotion with
+    | None -> None
+    | Some x ->
+      Some (fun y -> match y.promotion with None -> true | Some y -> x = y)
   in
-  let p promo promo' =
-    match promo,promo' with
-      Some x, Some y  -> x=y
-    | None, _ | _, None -> true
-  in
-  let at_end_of_array_line
-      _header state current_file current_file' output =
-    match current_file'.firstname,current_file'.lastname with
-    | None,None -> state, current_file, output
-    | Some _, Some _ ->
-      state, current_file, current_file'::output
-    | Some x, None ->
-      let promo =
-        match current_file'.promotion with
-        | None -> ""
-        | Some x -> Format.sprintf " (PROMO %s)" x
-      in
-      let msg = Format.sprintf "Last name is missing for %s%s" x promo in
-      let state =
-        Remanent_state.warn
-          __POS__
-          msg
-          Exit
-          state
-      in
-      state, current_file, output
-    | None, Some x ->
-      let promo =
-        match current_file'.promotion with
-        | None -> ""
-        | Some x -> Format.sprintf " (PROMO %s)" x
-      in
-      let msg = Format.sprintf "First name is missing for %s%s" x promo in
-      let state =
-        Remanent_state.warn
-          __POS__
-          msg
-          Exit
-          state
-      in
-      state, current_file, output
-  in
-  let at_end_of_array
-      _header state current_file output =
-    state, current_file, output
-  in
-  let at_end_of_file state _current_file output =
-    state, output
-  in
-  let flush state current_file output =
-    state, current_file::output
-  in
+  Scan_csv_files.collect_gen
+    ?repository
+    ?prefix
+    ?file_name
+    ~compute_repository
+    ~fun_default:fun_ignore
+    ~keywords_of_interest
+    ~asso_list
+    ~keywords_list
+    ~init_state:empty_student
+    ~empty_elt:Public_data.empty_student_id
+    ~add_elt:Remanent_state.add_student
+    ~mandatory_fields
+    ~all_fields
+    ?event_opt
+    ?p
+    state
+
+
+    (*
+
   let state, repository =
     match repository with
     | Some a -> state, a
@@ -371,7 +373,7 @@ let get_students_list
       event_opt
       state
   in
-  state, output
+  state, output*)
 
 let key = "Année académique"
 

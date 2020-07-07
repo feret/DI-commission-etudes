@@ -31,7 +31,7 @@ val get_list:
   Remanent_state.t ->
    'a list -> Remanent_state.t * 'a list
 
-val copy:
+val lift:
   (Remanent_state.t -> 'a -> Remanent_state.t * 'b option) ->
   (Remanent_state.t -> 'c -> 'b -> Remanent_state.t * 'c) ->
   (Remanent_state.t -> 'b -> Remanent_state.t * string option) ->
@@ -41,7 +41,7 @@ val copy:
    Remanent_state.t -> 'a -> 'c -> Remanent_state.t * 'c) *
   (Remanent_state.t -> 'a -> Remanent_state.t * string option)
 
-val copy_safe:
+val lift_safe:
   ('a -> 'b option) ->
   ('c -> 'b -> 'c) ->
   ('b  -> string) ->
@@ -51,19 +51,27 @@ val copy_safe:
    Remanent_state.t -> 'a -> 'c -> Remanent_state.t * 'c )
   * (Remanent_state.t -> 'a -> Remanent_state.t * string option)
 
-val copy_opt:
+val lift_opt:
   (Remanent_state.t -> 'a -> Remanent_state.t * 'b option) ->
   (Remanent_state.t -> 'c -> 'b option -> Remanent_state.t * 'c) ->
   (Remanent_state.t -> 'b -> Remanent_state.t * string) ->
   (Remanent_state.t -> 'a -> 'c -> Remanent_state.t * 'c) *
   (Remanent_state.t -> 'a -> Remanent_state.t * string option)
 
-val copy_opt_safe :
+val lift_opt_safe :
   ('a -> 'b option) ->
   ('c -> 'b option -> 'c) ->
   ('b -> string ) ->
   (Remanent_state.t -> 'a -> 'c -> Remanent_state.t * 'c) *
   (Remanent_state.t -> 'a -> Remanent_state.t * string option)
+
+val lift_pred:
+  (Remanent_state.t -> 'a -> Remanent_state.t * 'b option) ->
+  Remanent_state.t -> 'a -> Remanent_state.t * bool
+
+val lift_pred_safe:
+  ('a -> 'b option) ->
+  Remanent_state.t -> 'a -> Remanent_state.t * bool
 
 val collect_gen :
   ?repository:string ->

@@ -3,7 +3,7 @@ type dpt_id  =
   {
     acronyme: string option;
     full_name: string option;
-    gerondif: string option;
+    genitif: string option;
     fontcolor: Color.color option;
     bgcolor: Color.color option;
   }
@@ -12,7 +12,7 @@ let empty_dpt =
   {
     acronyme = None;
     full_name = None;
-    gerondif = None;
+    genitif = None;
     fontcolor = None;
     bgcolor = None;
   }
@@ -24,7 +24,7 @@ let keywords_list =
     Public_data.Ignore ;
     Public_data.Acronyme ;
     Public_data.FullName ;
-    Public_data.Gerondif;
+    Public_data.Genitif;
     Public_data.Couleur_du_fond;
     Public_data.Couleur_du_texte;
   ]
@@ -55,15 +55,15 @@ let asso_list =
          | _ -> full_name
        in
        {x with full_name});
-    Public_data.Gerondif,
-    (fun state gerondif x ->
+    Public_data.Genitif,
+    (fun state genitif x ->
        state,
-       let gerondif =
-         match gerondif with
+       let genitif =
+         match genitif with
          | Some x when String.trim x = "" -> None
-         | _ -> gerondif
+         | _ -> genitif
        in
-       {x with gerondif});
+       {x with genitif});
     Public_data.Couleur_du_fond,
     (fun state bgcolor x ->
        let state, bgcolor =
@@ -126,199 +126,73 @@ let asso_list =
        state, {x with fontcolor});
   ]
 
+let event_opt = Some (Profiling.Collect_departement)
+let compute_repository = Remanent_state.get_departments_list_repository
+
+let lift_pred = Scan_csv_files.lift_pred_safe
+let lift = Scan_csv_files.lift_safe
+let lift_opt = Scan_csv_files.lift_opt_safe
+
+let mandatory_fields =
+  [
+    lift_pred (fun a -> a.full_name), "the name of the department";
+    lift_pred (fun a -> a.acronyme), "the acronym of the department";
+    lift_pred (fun a -> a.genitif), "the genitive of the department"
+  ]
+
+let all_fields =
+  [
+    lift
+      (fun a -> a.full_name)
+      (fun a dpt_nom -> {a with Public_data.dpt_nom})
+      (Printf.sprintf "Name of the department: %s")
+      __POS__ "The name of the department is missing in department declaration";
+    lift
+        (fun a -> a.acronyme)
+        (fun a dpt_acronyme -> {a with Public_data.dpt_acronyme})
+        (Printf.sprintf "Acronym of the department: %s")
+        __POS__ "The acronym of the department is missing in department declaration";
+    lift
+      (fun a -> a.genitif)
+      (fun a dpt_genitif -> {a with Public_data.dpt_genitif})
+      (Printf.sprintf "Genitif  of the department: %s")
+      __POS__ "The genitif of the department is missing in department declaration";
+    lift_opt
+      (fun a -> a.bgcolor)
+      (fun a dpt_bg_color -> {a with Public_data.dpt_bg_color})
+      (fun x ->
+         Printf.sprintf "Blackground color: %s"
+           (Color.label (Color.get_background_color x)));
+    lift_opt
+      (fun a -> a.fontcolor)
+      (fun a dpt_font_color -> {a with Public_data.dpt_font_color})
+      (fun x ->
+         Printf.sprintf "Font color: %s"
+           (Color.label (Color.get_font_color x)))
+  ]
+
 let get_dpt
     ?repository
     ?prefix
     ?file_name
     state
   =
-  let event_opt = Some (Profiling.Collect_departement) in
-  let state =
-    Remanent_state.open_event_opt
-      event_opt
-      state
-  in
-  let at_end_of_array_line
-      _header state current_file current_file' output =
-    match
-      current_file'.full_name,
-      current_file'.acronyme,
-      current_file'.gerondif
-    with
-    | None,None,None -> state, current_file, output
-    | Some _, Some _, Some _ ->
-      state, current_file, current_file'::output
-    | Some x, None, Some _ ->
-      let msg = Format.sprintf "Acronyme name is missing for %s " x  in
-      let state =
-        Remanent_state.warn
-          __POS__
-          msg
-          Exit
-          state
-      in
-      state, current_file, output
-    | Some x, Some y, None  ->
-      let msg =
-        Format.sprintf "Gerundif is missing for %s (%s)"
-          x y
-      in
-      let state =
-        Remanent_state.warn
-          __POS__
-          msg
-          Exit
-          state
-      in
-      state, current_file, output
-    | None, Some x, Some _ ->
-      let msg = Format.sprintf "Name is missing for %s" x  in
-      let state =
-        Remanent_state.warn
-          __POS__
-          msg
-          Exit
-          state
-      in
-      state, current_file, output
-    | Some x, None, None ->
-      let msg = Format.sprintf "Acronym and gerundif are missing for %s" x in
-      let state =
-        Remanent_state.warn
-          __POS__
-          msg
-          Exit
-          state
-      in
-      state, current_file, output
-    | None, Some y, None  ->
-      let msg =
-        Format.sprintf "Complete name and gerundif are missing  for %s" y
-      in
-      let state =
-        Remanent_state.warn
-          __POS__
-          msg
-          Exit
-          state
-      in
-      state, current_file, output
-    | None, None, Some y ->
-      let msg = Format.sprintf "Complete name and acronyme are missing for gerundif %s" y in
-      let state =
-        Remanent_state.warn
-          __POS__
-          msg
-          Exit
-          state
-      in
-      state, current_file, output
-  in
-  let at_end_of_array
-      _header state current_file output =
-    state, current_file, output
-  in
-  let at_end_of_file state _current_file output =
-    state, output
-  in
-  let flush state current_file output =
-    state, current_file::output
-  in
-  let state, repository =
-    match repository with
-    | Some a -> state, a
-    | None -> Remanent_state.get_departments_list_repository state
-  in
-  let state, list =
-    Scan_csv_files.get_list
-      ~keywords_of_interest ~asso_list ~keywords_list
-      ~fun_default:fun_ignore
-      ~at_end_of_array_line ~at_end_of_array ~at_end_of_file ~flush
-      ~init_state:empty_dpt
-      state
-      ~repository ?prefix ?file_name
-      []
-  in
-  let state =
-    List.fold_left
-      (fun state dpt ->
-         match dpt.full_name,
-               dpt.acronyme,
-               dpt.gerondif
-         with
-         | Some full_name, Some acronyme, Some gerundif ->
-           Remanent_state.add_dpt __POS__
-             {Public_data.dpt_nom = full_name ;
-              Public_data.dpt_acronyme = acronyme ;
-              Public_data.dpt_gerundif = gerundif ;
-              Public_data.dpt_bg_color = dpt.bgcolor;
-              Public_data.dpt_font_color = dpt.fontcolor
-             }
-             state
-         | None, None, None -> state
-         | Some x, None, Some _ ->
-           let msg =
-             Format.sprintf
-               "Acronyme is missing for %s"
-               x
-           in
-           Remanent_state.warn
-             __POS__
-             msg
-             Exit
-             state
-         | Some x, Some _, None  ->
-             let msg =
-               Format.sprintf
-                 "Gerund is missing for %s"
-                 x
-             in
-             Remanent_state.warn
-               __POS__
-               msg
-               Exit
-               state
-           | None, Some x, Some _ ->
-             let msg =
-               Format.sprintf "Complete name is missing for %s" x in
-             Remanent_state.warn
-               __POS__
-               msg
-               Exit
-               state
-           | Some x, None, None ->
-             let msg = Format.sprintf "Acronyme and gerund are missing for %s" x in
-             Remanent_state.warn
-               __POS__
-               msg
-               Exit
-               state
-           | None, Some y, None  ->
-             let msg =
-               Format.sprintf "Complete name and gerund are missing for %s" y
-             in
-             Remanent_state.warn
-               __POS__
-               msg
-               Exit
-               state
-           | None, None, Some y ->
-             let msg = Format.sprintf "Complete name and acronyme for the departement %s" y in
-              Remanent_state.warn
-               __POS__
-               msg
-               Exit
-               state
-      )
-      state list
-  in
-  let state =
-    Remanent_state.close_event_opt
-      event_opt
-      state
-  in
-  state
-
+  Scan_csv_files.collect_gen
+    ?repository
+    ?prefix
+    ?file_name
+    ~compute_repository
+    ~fun_default:fun_ignore
+    ~keywords_of_interest
+    ~asso_list
+    ~keywords_list
+    ~init_state:empty_dpt
+    ~empty_elt:Public_data.empty_dpt
+    ~add_elt:Remanent_state.add_dpt
+    ~mandatory_fields
+    ~all_fields
+    ?event_opt
+    state
 
 type program_id  =
   {
@@ -393,76 +267,54 @@ let asso_list =
        {x with level});
       ]
 
+let event_opt = Some (Profiling.Collect_program)
+let compute_repository = Remanent_state.get_programs_list_repository
+
+let mandatory_fields =
+  [
+    lift_pred (fun a -> a.code_gps),
+    "Code gps of academic program is missing";
+  ]
+
+let all_fields =
+  [
+    lift
+      (fun a -> a.code_gps)
+      (fun a code_gps -> {a with Public_data.code_gps})
+      (Printf.sprintf "GPS code of academic program: %s")
+      __POS__ "The GPS code of an academic program is missing";
+    lift_opt
+      (fun a -> a.dpt_acronym)
+      (fun a dpt_acronym -> {a with Public_data.dpt_acronym})
+      (Printf.sprintf "Acronym of the department: %s");
+    lift_opt
+      (fun a -> a.intitule)
+      (fun a label -> {a with Public_data.label})
+      (Printf.sprintf "Program label: %s");
+  ]
+
 let get_programs
     ?repository
     ?prefix
     ?file_name
     state
   =
-  let event_opt = Some (Profiling.Collect_program) in
-  let state =
-    Remanent_state.open_event_opt
-      event_opt
-      state
-  in
-  let at_end_of_array_line
-      _header state current_file current_file' output =
-    match
-      current_file'.code_gps
-    with
-    | None -> state, current_file, output
-    | Some _ ->
-      state, current_file, current_file'::output
-  in
-  let at_end_of_array
-      _header state current_file output =
-    state, current_file, output
-  in
-  let at_end_of_file state _current_file output =
-    state, output
-  in
-  let flush state current_file output =
-    state, current_file::output
-  in
-  let state, repository =
-    match repository with
-    | Some a -> state, a
-    | None -> Remanent_state.get_programs_list_repository state
-  in
-  let state, list =
-    Scan_csv_files.get_list
-      ~keywords_of_interest ~asso_list ~keywords_list
-      ~fun_default:fun_ignore
-      ~at_end_of_array_line ~at_end_of_array ~at_end_of_file ~flush
-      ~init_state:empty_program
-      state
-      ~repository ?prefix ?file_name
-      []
-  in
-  let state =
-    List.fold_left
-      (fun state program ->
-         match program.code_gps
-         with
-         | Some code_gps ->
-           Remanent_state.add_program __POS__
-             {Public_data.code_gps = code_gps;
-              Public_data.dpt_acronym = program.dpt_acronym ;
-              Public_data.level = program.level;
-              Public_data.label = program.intitule;
-             }
-             state
-         | None -> state
-      )
-      state list
-  in
-  let state =
-    Remanent_state.close_event_opt
-      event_opt
-      state
-  in
-  state
-
+  Scan_csv_files.collect_gen
+    ?repository
+    ?prefix
+    ?file_name
+    ~compute_repository
+    ~fun_default:fun_ignore
+    ~keywords_of_interest
+    ~asso_list
+    ~keywords_list
+    ~init_state:empty_program
+    ~empty_elt:Public_data.empty_program
+    ~add_elt:Remanent_state.add_program
+    ~mandatory_fields
+    ~all_fields
+    ?event_opt
+    state
 
 type exception_id  =
   {
@@ -566,90 +418,76 @@ let asso_list =
                 {x with student_lastname});
   ]
 
+let event_opt = Some (Profiling.Collect_cursus_exceptions)
+let compute_repository = Remanent_state.get_cursus_exceptions_list_repository
+
+let mandatory_fields =
+  [
+    lift_pred (fun a -> a.code_cours),
+    "The code gps of a course is missing";
+  ]
+
+let all_fields =
+  [
+    lift
+      (fun a -> a.code_cours)
+      (fun a codecours -> {a with Public_data.codecours})
+      (Printf.sprintf "GPS code of the course: %s")
+      __POS__ "The GPS code of a course is missing in a program exception";
+    lift
+      (fun a -> a.student_firstname)
+      (fun a student_firstname ->
+         {a with Public_data.student_firstname})
+      (Printf.sprintf "Student firstname: %s")
+      __POS__
+      "Student's first name is missing in a program exception";
+      lift
+        (fun a -> a.student_lastname)
+        (fun a student_lastname ->
+           {a with Public_data.student_lastname})
+        (Printf.sprintf "Student lastname: %s")
+        __POS__
+        "Student's last name is missing in a program exception";
+        lift
+          (fun a -> a.annee_de_validation)
+          (fun a annee_de_validation ->
+             {a with Public_data.annee_de_validation})
+          (Printf.sprintf "Validation year: %s")
+          __POS__
+          "The year of validation is missing in a program exception";
+          lift
+            (fun a -> a.dpt)
+            (fun a class_dpt -> {a with Public_data.class_dpt})
+            (Printf.sprintf "Department: %s")
+            __POS__
+            "The department is missing in a program exception";
+            lift
+              (fun a -> a.course_level)
+              (fun a class_level -> {a with Public_data.class_level})
+              (Printf.sprintf "Course level: %s")
+              __POS__
+              "The level of the course is missing in a program exception";
+  ]
+
 let get_cursus_exceptions
     ?repository
     ?prefix
     ?file_name
     state
   =
-  let event_opt = Some (Profiling.Collect_cursus_exceptions) in
-  let state =
-    Remanent_state.open_event_opt
-      event_opt
-      state
-  in
-  let at_end_of_array_line
-      _header state current_file current_file' output =
-    match
-      current_file'.code_cours
-    with
-    | None -> state, current_file, output
-    | Some _ ->
-      state, current_file, current_file'::output
-  in
-  let at_end_of_array
-      _header state current_file output =
-    state, current_file, output
-  in
-  let at_end_of_file state _current_file output =
-    state, output
-  in
-  let flush state current_file output =
-    state, current_file::output
-  in
-  let state, repository =
-    match repository with
-    | Some a -> state, a
-    | None -> Remanent_state.get_cursus_exceptions_list_repository state
-  in
-  let state, list =
-    Scan_csv_files.get_list
-      ~keywords_of_interest ~asso_list ~keywords_list
-      ~fun_default:fun_ignore
-      ~at_end_of_array_line ~at_end_of_array ~at_end_of_file ~flush
-      ~init_state:empty_exception
-      state
-      ~repository ?prefix ?file_name
-      []
-  in
-  let state =
-    List.fold_left
-      (fun state exception_id ->
-         match exception_id.code_cours,
-               exception_id.student_firstname,
-               exception_id.student_lastname,
-               exception_id.annee_de_validation,
-               exception_id.dpt,
-               exception_id.course_level
-         with
-         | Some code_cours,
-           Some student_firstname,
-           Some student_lastname,
-           Some annee_de_validation,
-           Some class_dpt,
-           Some class_level
-           ->
-           Remanent_state.add_cursus_exception __POS__
-             {Public_data.codecours = code_cours;
-              Public_data.student_lastname = student_lastname ;
-              Public_data.student_firstname = student_firstname ;
-              Public_data.class_dpt = class_dpt ;
-              Public_data.annee_de_validation = annee_de_validation ;
-              Public_data.class_level = class_level
-                 }
-             state
-         | _ ->
-           Remanent_state.warn
-             __POS__
-             "il-formed cursus exception"
-             Exit
-             state
-      )
-      state list
-  in
-  let state =
-    Remanent_state.close_event_opt
-      event_opt
-      state
-  in
-  state
+  Scan_csv_files.collect_gen
+    ?repository
+    ?prefix
+    ?file_name
+    ~compute_repository
+    ~fun_default:fun_ignore
+    ~keywords_of_interest
+    ~asso_list
+    ~keywords_list
+    ~init_state:empty_exception
+    ~empty_elt:Public_data.empty_cursus_exception
+    ~add_elt:Remanent_state.add_cursus_exception
+    ~mandatory_fields
+    ~all_fields
+    ?event_opt
+    state
