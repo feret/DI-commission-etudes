@@ -51,9 +51,10 @@ let launch
   in
   let command =
     Printf.sprintf
-      "%s %s %s "
+      "%s %s '%s' "
       tool options url
   in
+  let _ = Format.print_flush () in
   state, Sys.command command
 
 let get_last_line file =

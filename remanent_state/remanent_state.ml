@@ -631,16 +631,6 @@ let add_cursus_exception =
     set_cursus_exceptions
     Cursus_exception.add_cursus_exception
 
-let add_cursus_exception pos cursus t =
-  let t = add_cursus_exception pos cursus t in
-  let () =
-    Cursus_exception.dump
-      t.data.cursus_exceptions
-  in
-  t
-
-
-
 let get_cursus_exception
     ~firstname ~lastname ~year ~code_gps t =
   let exception_opt =

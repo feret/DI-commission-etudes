@@ -1541,8 +1541,9 @@ let lgen grade gps dpt d =
   else
     d.nannee = Some 1
     &&
-    (
-     match d.departement_principal,d.departement_secondaire with
+    dpt <> ""
+    &&
+     (match d.departement_principal,d.departement_secondaire with
      | None, None -> false
      | Some x, None | None, Some x ->
        simplify_string x = dpt
@@ -1596,16 +1597,25 @@ let mgen dpt d =
 let _minfo = mgen dpt_info_gps_name
 let mmaths = mgen dpt_maths_gps_name
 
-let mpri d =
+let gen_master
+    diplome' gps stage d =
   List.exists
-    (fun diplome -> diplome.diplome_diplome=Some "M-MPRI"
-                    || diplome.diplome_diplome=Some "gps62263")
+    (fun diplome ->
+       (
+         (Tools.map_opt String.trim diplome.diplome_diplome)=Some diplome'
+         &&
+         (Tools.map_opt String.trim diplome.niveau) = Some "2")
+       || diplome.diplome_diplome=Some gps)
     d.diplomes
+  ||
+  List.exists
+    (fun cours -> cours.code_cours = Some stage)
+    d.cours
 
-let mva d =
-  List.exists
-    (fun diplome -> diplome.diplome_diplome=Some "M-MVA")
-    d.diplomes
+let mpri = gen_master "M-MPRI" "gps62263" "INFO-M2-MPRI200-S2"
+let mva = gen_master "M-MVA" "gps2228" "INFO-M2-MVASTAGE-S2"
+let iasd = gen_master "M-IASD" "gps76822" "INFO-M2-IASD-STG-S2"
+let mash = gen_master "M-MASH" "gps59622" "INFO-M2-MASH-STG-S2"
 
 let string_of_stringopt s_opt =
   match s_opt with
@@ -1767,17 +1777,16 @@ let translate_diplome
         (Some diplome,label,"")
         state
     | Some dpt ->
+      let dpt = Special_char.lowercase dpt in
+      let dpt =
+        if dpt = "mathématiques et applications"
+        then
+          "mathématiques"
+        else
+          dpt
+      in
       if label = "L3" || label ="M1"
       then
-        let dpt = Special_char.lowercase dpt in
-        let dpt =
-          if dpt = "mathématiques et applications"
-
-          then
-            "mathématiques"
-          else
-            dpt
-        in
         let state, (dpt, diplome)  =
           if dpt = "mathématiques"
           && not (is_dma_course code_cours year)
@@ -1790,7 +1799,7 @@ let translate_diplome
             else
               let msg =
                 Format.sprintf
-                  "Cannot classify course (dpt:%s) for %s %s (%s)" dpt firstname lastname year
+                  "Cannot classify course %s (dpt:%s) for %s %s (%s)" code_cours dpt firstname lastname year
               in
               Remanent_state.warn_dft
                 pos
@@ -1854,9 +1863,13 @@ let translate_diplome
       state, (Some "M","M1 de mathématiques",dpt_maths)
     else
     if mpri situation then
-      state, (Some "M","M2 du MPRI",dpt_info)
+      state, (Some "MPRI","M2 du MPRI",dpt_info)
     else if mva situation then
-      state, (Some "M","M2 du MVA",dpt_info)
+      state, (Some "MVA","M2 du MVA",dpt_info)
+    else if iasd situation then
+      state, (Some "IASD","M2 IASD",dpt_info)
+    else if mash situation then
+      state, (Some "MASH","M2 MASH", dpt_info)
     else
       check_dpt __POS__ state
         "M" "M1" code_cours year
@@ -1995,7 +2008,7 @@ let export_transcript
            if
              match annee.situation_administrative
              with None ->
-               counter=0 && (try int_of_string y<=2015 with _ -> false)
+               (try int_of_string y<=2015 with _ -> false)
                 | Some sit ->
                   simplify_string sit = "scolarite a l'ens"
            then
@@ -2153,7 +2166,7 @@ let export_transcript
                 state,
                 (Printf.sprintf
                    "%s %s %s"
-                   (match z with Public_data.Masculin -> "tuteur : " | Public_data.Feminin -> "tutrice : ")
+                   (match z with Public_data.Masculin -> "Tuteur : " | Public_data.Feminin -> "Tutrice : ")
                   (Special_char.capitalize y)
                   (Special_char.uppercase x), 2./.3.)
               | None, _, _, Some x -> state, (x, 2./.3.)
@@ -2419,7 +2432,7 @@ let export_transcript
                  | Some ("DENS" | "dens") -> state, Some Color.blue
                  | Some ("LInfo" | "linfo") -> state, Some Color.yellow
                  | Some ("lmath" | "mmath" | "LMath" | "MMath") -> state, Some Color.orange
-                 | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3") ->
+                 | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash") ->
                    color_of_dpt who __POS__ state dpt
                  | Some x  ->
                    let msg =
