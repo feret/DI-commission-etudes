@@ -12,6 +12,9 @@ type step_kind =
   | Collect_departement
   | Collect_program
   | Collect_cursus_exceptions
+  | Collect_decisions
+  | Collect_dispenses
+  | Collect_compensations
 
 
 type step =
@@ -51,6 +54,9 @@ let string_of_step_kind x =
   | Collect_departement -> "Collect data about teaching departments"
   | Collect_program -> "Collect data about teaching programs"
   | Collect_cursus_exceptions -> "Collect data about cursus exceptions"
+  | Collect_decisions -> "Collect data about programs jury"
+  | Collect_dispenses -> "Collect data about diploma dispenses"
+  | Collect_compensations -> "Collect data about grades compensations"
 
 let print_step_kind logger x =
   Loggers.print_cell logger
@@ -126,6 +132,9 @@ let is_dummy step_kind =
   | Collect_departement
   | Collect_program
   | Collect_cursus_exceptions
+  | Collect_decisions
+  | Collect_dispenses
+  | Collect_compensations
     -> false
 
 let open_event

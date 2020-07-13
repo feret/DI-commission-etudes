@@ -4,7 +4,7 @@ let state =
     state
 let state =
   Get_gps_files.get_students_list state
-let students_list = 
+let students_list =
   Remanent_state.get_students state
 let state =
   Collect_scholarships.get_scholarships state
@@ -16,6 +16,12 @@ let state =
   Collect_programs.get_programs state
 let state =
     Collect_programs.get_cursus_exceptions state
+let state =
+  Collect_compensations.get_compensations state
+let state = 
+  Collect_decisions.get_decisions state
+let state =
+  Collect_dispenses.get_dispenses state
 let state, (output_repository, _) =
   Cloud_interaction.get_dated_repository state
 let state =

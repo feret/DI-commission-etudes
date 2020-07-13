@@ -23,4 +23,49 @@ val basename: string -> string
 
 val space_only: string -> bool
 
-val substring: string -> string -> bool 
+val substring: string -> string -> bool
+
+val float_to_string:
+  ?force_dec_sep_to_dot:bool ->
+  ('remanent_state -> 'remanent_state * char) ->
+  'remanent_state -> float -> 'remanent_state * string
+
+val float_of_string:
+  (string -> 'remanent_state -> 'remanent_state)
+  -> 'remanent_state -> string -> 'remanent_state * float option
+
+val int_of_string:
+  (string -> 'remanent_state -> 'remanent_state) ->
+  'remanent_state -> string -> 'remanent_state * int option
+
+val fun_ignore:
+  'remanent_state -> 'data -> 'acc -> 'remanent_state * 'acc
+
+val collect_conv:
+(string -> string, unit, string) format ->
+((string -> 'remanent_state -> 'remanent_state) -> 'remanent_state -> string  -> 'remanent_state * 'target option) ->
+(string -> 'remanent_state -> 'remanent_state) ->
+('target option -> 'accumulator -> 'accumulator) -> 'remanent_state -> string option -> 'accumulator -> 'remanent_state * 'accumulator
+
+val collect_string:
+  (string option -> 'accumulator -> 'accumulator) ->
+  'remanent_state -> string option -> 'accumulator ->
+  'remanent_state * 'accumulator
+
+val collect_int:
+  (string -> 'remanent_state -> 'remanent_state) ->
+  (int option -> 'accumulator -> 'accumulator) ->
+  'remanent_state -> string option -> 'accumulator ->
+  'remanent_state * 'accumulator
+
+val collect_float:
+  (string -> 'remanent_state -> 'remanent_state) ->
+  (float option -> 'accumulator -> 'accumulator) ->
+  'remanent_state -> string option -> 'accumulator ->
+  'remanent_state * 'accumulator
+
+val collect_bool:
+  (string -> 'remanent_state -> 'remanent_state) ->
+  (bool option -> 'accumulator -> 'accumulator) ->
+  'remanent_state -> string option -> 'accumulator ->
+  'remanent_state * 'accumulator

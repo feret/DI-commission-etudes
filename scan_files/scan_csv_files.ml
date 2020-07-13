@@ -1,3 +1,9 @@
+type 'a mandatory_field =
+  {
+    check:(Remanent_state.t -> 'a -> Remanent_state.t * bool);
+    label: string
+  }
+
 let get_list_from_a_file
     automaton
     empty
@@ -234,7 +240,7 @@ let get_list_from_a_file
 
 let get_list
     ~repository ?prefix ?file_name
-    ~keywords_list ~asso_list ~fun_default ~keywords_of_interest
+    ~keywords_list ~all_fields ~fun_default ~keywords_of_interest
     ~at_end_of_array ~at_end_of_file ~at_end_of_array_line ~flush
     ~init_state
     state output =
@@ -243,7 +249,7 @@ let get_list
         state
         {
           Keywords_handler.keywords = keywords_list ;
-          Keywords_handler.asso = asso_list ;
+          Keywords_handler.all_fields ;
           Keywords_handler.default = fun_default ;
           Keywords_handler.of_interest = keywords_of_interest;
           Keywords_handler.shared_functions =
@@ -277,59 +283,54 @@ let get_list
              state file output)
         (state, output) files_list
 
-let lift_pred f state a =
-  let state, rep = f state a in
-  state, rep <> None
-
-let lift_pred_safe f =
-  lift_pred
-    (fun state a -> state, f a)
-
-let lift get set string_of pos msg =
-  (fun state elt new_elt ->
-  let state, x_opt = get state elt in
-  match x_opt with
-  | None ->
+let unify_gen
+    pos ~all_fields
+    state elt elt' =
+  let state, elt, list_incompatible, list_compatible =
+    List.fold_left
+      (fun
+        (state,
+         elt,
+         list_incompatible,
+         list_compatible)
+        field ->
+        match
+          field.Keywords_handler.is_unifyable state elt elt'
+        with
+        | state, true ->
+          let state, msg = field.Keywords_handler.label1 state elt in
+          let state, elt_opt = field.Keywords_handler.unify state elt elt' in
+          state,
+          begin
+            match elt_opt with
+            | None -> elt
+            | Some elt -> elt
+          end,
+          list_incompatible, List_of_string.add_opt msg list_compatible
+        | state, false ->
+          let state, msg = field.Keywords_handler.label2 state elt elt' in
+          state, elt, List_of_string.add_opt msg list_incompatible, list_compatible
+      )
+      (state, elt, List_of_string.empty, List_of_string.empty)
+      all_fields
+  in
+  if List_of_string.is_empty list_incompatible
+  then
+    state, elt
+  else
+    let msg =
+      Format.sprintf
+        "%s for %s"
+        (List_of_string.to_string list_incompatible "is imcompatible" "are incompatible")
+        (List_of_string.to_string list_compatible "" "")
+    in
     Remanent_state.warn_dft
       pos
       msg
       Exit
-      new_elt
+      elt
       state
-  | Some x ->
-    set state new_elt x),
-  (fun state a ->
-     let state, x_opt = get state a in
-     match x_opt with
-     | None -> state, None
-     | Some a -> string_of state a )
 
-let lift_opt get set string_of =
-  (fun state elt new_elt ->
-     let state, x_opt = get state elt in
-     let state, output =  set state new_elt x_opt in
-     state, output ),
-  (fun state a ->
-     let state, x_opt = get state a in
-     match x_opt with
-     | None -> state, None
-     | Some a ->
-       let state, a =
-         string_of state a
-       in state, Some a)
-
-
-let lift_safe f g h =
-  lift
-    (fun state a -> state, f a)
-    (fun state a h -> state, g a h)
-    (fun state a -> state, Some (h a))
-
-let lift_opt_safe f g h =
-  lift_opt
-    (fun state a -> state, f a)
-    (fun state a h -> state, g a h)
-    (fun state a -> state, h a)
 
 let collect_gen
     ?repository
@@ -339,7 +340,6 @@ let collect_gen
     ~compute_repository
     ~fun_default
     ~keywords_of_interest
-    ~asso_list
     ~keywords_list
     ~init_state
     ~empty_elt
@@ -349,6 +349,10 @@ let collect_gen
     ?event_opt
     state
   =
+  let unify =
+    unify_gen ~all_fields
+  in
+  let add_elt = add_elt unify in
   let state, repository =
     match repository with
     | Some a -> state, Some a
@@ -371,73 +375,41 @@ let collect_gen
   let at_end_of_array_line
       _header state current_file current_file' output =
     let
-      state, list_missing,last_missing =
+      state, list_missing =
       List.fold_left
-        (fun (state,l,last) (get,message) ->
+        (fun (state,list) mandatory_field ->
            match
-             get state current_file'
+             mandatory_field.check state current_file'
            with
-           | state, true -> state,l,last
+           | state, true -> state,list
            | state, false ->
-             match last with
-             | None ->
-               state, l, Some message
-             | Some x ->
-               state, x::l, Some message)
-        (state, [], None )
+             state, List_of_string.add mandatory_field.label list)
+        (state, List_of_string.empty)
         mandatory_fields
     in
-    match last_missing with
-    | None ->
+    if List_of_string.is_empty list_missing
+    then
       if p current_file'
       then
         state, current_file, current_file'::output
       else
         state, current_file, output
-    | Some last_missing ->
+    else
       begin
-        let state, l_known, last  =
+        let state, list_known  =
           List.fold_left
-            (fun (state, l_known, last) (_,message) ->
-               match message state current_file' with
+            (fun (state, list_known) field ->
+               match field.Keywords_handler.label_tmp
+                       state current_file'
+               with
                | state, Some x -> state,
-                           begin
-                             match last with None -> l_known
-                                           | Some last -> last::l_known
-                           end,
-                           Some x
-               | state, None -> state, l_known,last )
-            (state, [], None)
+                                  List_of_string.add x list_known
+               | state, None -> state, list_known)
+            (state, List_of_string.empty)
             all_fields
         in
-        let _ = Format.flush_str_formatter () in
-        let _ =
-          Format.pp_print_list
-            ~pp_sep:(fun log () -> Format.fprintf log ", ")
-            (fun log a -> Format.fprintf log "%s" a)
-            Format.str_formatter
-            l_known
-        in
-        let _ =
-          match l_known, last with
-          | _, None -> ()
-          | [], Some x -> Format.fprintf Format.str_formatter "%s" x
-          | _, Some x -> Format.fprintf Format.str_formatter ", and %s " x
-        in
-        let known = Format.flush_str_formatter () in
-        let _ =
-          Format.pp_print_list
-            ~pp_sep:(fun log () -> Format.fprintf log ", ")
-            (fun log a -> Format.fprintf log "%s" a)
-            Format.str_formatter
-            list_missing
-        in
-        let _ =
-          match list_missing with
-          | [] -> Format.fprintf Format.str_formatter "%s is missing" last_missing
-          | _ -> Format.fprintf Format.str_formatter ", and %s are missing " last_missing
-        in
-        let missing = Format.flush_str_formatter () in
+        let known = List_of_string.to_string list_known "" "" in
+        let missing = List_of_string.to_string list_missing "is missing" "are missing" in
         let msg =
           Format.sprintf "%s for %s" missing known
         in
@@ -466,9 +438,14 @@ let collect_gen
     | Some a -> state, a
     | None -> Remanent_state.get_monitoring_list_repository state
   in
+  let all_fields_short =
+    List.rev_map
+      (Keywords_handler.shorten)
+      (List.rev all_fields)
+  in
   let state, list =
     get_list
-      ~keywords_of_interest ~asso_list ~keywords_list
+      ~keywords_of_interest ~all_fields:all_fields_short ~keywords_list
       ~fun_default
       ~at_end_of_array_line ~at_end_of_array ~at_end_of_file ~flush
       ~init_state
@@ -481,8 +458,8 @@ let collect_gen
       (fun state elt ->
          let state, new_elt =
            List.fold_left
-             (fun (state, new_elt) (lift,_) ->
-                lift state elt new_elt)
+             (fun (state, new_elt) field ->
+                field.Keywords_handler.update state elt new_elt)
              (state, empty_elt)
              all_fields
          in
@@ -491,3 +468,45 @@ let collect_gen
       list
   in
   state
+
+
+    (*
+let lift_eq p get state elt elt' =
+  let state, data = get state elt in
+  let state, data' = get state elt' in
+  state, p data data'
+
+let lift_eq_safe p get state elt elt' =
+  let get state a = state, get a in
+  lift_eq p get state elt elt'
+
+let lift_eq_opt p get state elt elt' =
+  let state, data_opt = get state elt in
+  let state, data_opt' = get state elt' in
+  match data_opt, data_opt' with
+  | None, _ | _, None -> state, true
+  | Some data, Some data' -> state, p data data'
+
+let lift_eq_opt_safe p get state elt elt' =
+  let get state a = state, get a in
+  lift_eq_opt p get state elt elt'
+
+let lift_unify pos msg p get set state elt elt' =
+  let state, data_opt = get state elt in
+  let state, data_opt' = get state elt' in
+  match data_opt, data_opt' with
+  | _, None -> state, elt
+  | None, Some data -> set state data elt
+  | Some data, Some data' when p data data' -> state, elt
+  | Some _, Some _ ->
+    Remanent_state.warn_dft
+      pos msg
+      Exit
+      elt
+      state
+
+let lift_unify_safe pos msg p get set state elt elt' =
+  let get state a = state, get a in
+  let set state a b = state, set a b in
+  lift_unify pos msg p get set state elt elt'
+*)

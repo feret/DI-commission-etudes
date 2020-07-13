@@ -8,6 +8,7 @@ type rgb =
 
 type color =
   {
+    label:string;
     text:rgb;
     background:rgb;
   }
@@ -15,13 +16,13 @@ type color =
 let get_background_color c = c.background
 let get_font_color c = c.text
 
-let build_color ?background text =
+let build_color ?background text label =
   let background =
     match background with
     | None -> text
     | Some b -> b
   in
-  {background;text}
+  {label;background;text}
 
 let light_green =
   {name="lightgreen";red=204; green=255;blue=204}
@@ -66,14 +67,14 @@ let rgb_list =
     black;white
   ]
 
-let duckblue = build_color ~background:light_duck_blue dark_duck_blue
-let blue = build_color ~background:light_blue dark_blue
-let green = build_color ~background:light_green dark_green
-let yellow = build_color ~background:light_yellow dark_yellow
-let red = build_color ~background:light_red dark_red
-let black = build_color black
-let white= build_color white
-let orange = build_color ~background:light_orange dark_orange
+let duckblue = build_color ~background:light_duck_blue dark_duck_blue "duck blue"
+let blue = build_color ~background:light_blue dark_blue "blue"
+let green = build_color ~background:light_green dark_green "green"
+let yellow = build_color ~background:light_yellow dark_yellow "yellow"
+let red = build_color ~background:light_red dark_red "red"
+let black = build_color black "black"
+let white= build_color white "white"
+let orange = build_color ~background:light_orange dark_orange "orange"
 
 let color_list =
   [blue;green;yellow;red;black;white;orange;duckblue]
@@ -81,7 +82,7 @@ let color_list =
 let color_of_string s =
   match s with
   | "duckblue" | "bleucanard" | "duck blue" | "bleu canard"
-    -> Some duckblue 
+    -> Some duckblue
   | "blue" | "bleu" -> Some blue
   | "green" | "vert" -> Some green
   | "yellow" | "jaune" -> Some yellow
@@ -90,3 +91,5 @@ let color_of_string s =
   | "white" | "blanc" -> Some white
   | "orange" -> Some orange
   | _ -> None
+
+let to_string color = color.label 

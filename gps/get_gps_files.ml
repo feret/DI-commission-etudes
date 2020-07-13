@@ -203,6 +203,7 @@ let empty_student =
 
 let fun_ignore =
   (fun state _ x -> state, x)
+
 let keywords_list =
   [
     Public_data.Ignore ;
@@ -222,59 +223,67 @@ let keywords_of_interest =
     Public_data.LastName ;
     Public_data.FirstName ;
   ]
-let asso_list =
+
+let event_opt = Some (Profiling.Extract_gps_data_base)
+
+let lift_pred = Lift.pred_safe
+let lift_string =
+  (Lift.string empty_student Public_data.empty_student_id).Lift.safe
+let lift_string_opt =
+  (Lift.string empty_student Public_data.empty_student_id).Lift.opt_safe
+
+let mandatory_fields =
   [
-    Public_data.LastName,
-    (fun state lastname x ->
+    lift_pred (fun a -> a.lastname) "Student's family name";
+    lift_pred (fun a -> a.firstname) "Student's first name";
+  ]
+
+let all_fields =
+  let record_name = "student description" in
+  [
+    lift_string
+      ~keyword:Public_data.LastName
+      ~set_tmp:(fun state lastname x ->
        state,
        let lastname =
          match lastname with
          | Some x when String.trim x = "" -> None
          | _ -> lastname
        in
-       {x with lastname});
-    Public_data.FirstName,
-    (fun state firstname x ->
-       state,
-       let firstname =
-        match firstname with
-        | Some x when String.trim x = "" -> None
-        | _ -> firstname
-      in
-      {x with firstname});
-    Public_data.Promo,
-    (fun state promotion x ->
-        state, {x with promotion});
-    ]
-
-let event_opt = Some (Profiling.Extract_gps_data_base)
-
-let lift_pred = Scan_csv_files.lift_pred_safe
-let lift_opt = Scan_csv_files.lift_opt_safe
-let lift = Scan_csv_files.lift_safe
-
-let mandatory_fields =
-  [
-    lift_pred (fun a -> a.lastname), "Student's family name";
-    lift_pred (fun a -> a.firstname), "Student's first name";
-  ]
-
-let all_fields =
-  [
-  lift
-     (fun a -> a.lastname)
-     (fun a lastname -> {a with Public_data.lastname})
-     (Printf.sprintf "Student's family name: %s")
-     __POS__ "Student's last name is missing in student description";
-  lift
-    (fun a -> a.firstname)
-    (fun a firstname -> {a with Public_data.firstname})
-    (Printf.sprintf "Student's first name: %s")
-    __POS__ "Student's first name is missing in student description";
-  lift_opt
-    (fun a -> a.promotion)
-    (fun a promotion -> {a with Public_data.promotion})
-    (Printf.sprintf "Student's promotion: %s")
+       {x with lastname})
+      ~get_tmp:(fun a -> a.lastname)
+      ~get:(fun a -> a.Public_data.lastname)
+      ~set:(fun lastname a -> {a with Public_data.lastname})
+      ~field_name:"student's last name"
+      ~record_name
+      ~pos:__POS__;
+    lift_string
+      ~keyword:Public_data.FirstName
+      ~set_tmp:(fun state firstname x ->
+         state,
+         let firstname =
+           match firstname with
+           | Some x when String.trim x = "" -> None
+           | _ -> firstname
+         in
+         {x with firstname})
+      ~get_tmp:(fun a -> a.firstname)
+      ~get:(fun a -> a.Public_data.firstname)
+      ~set:(fun firstname a -> {a with Public_data.firstname})
+      ~field_name:"student's first name"
+      ~record_name
+      ~pos:__POS__;
+    lift_string_opt
+      ~keyword:Public_data.Promo
+      ~set_tmp:(fun state promotion x ->
+        state, {x with promotion})
+      ~get_tmp:(fun a -> a.promotion)
+      ~get:(fun a -> a.Public_data.promotion)
+      ~set:(fun promotion a ->
+          {a with Public_data.promotion})
+      ~field_name:"Student's promotion"
+      ~record_name
+      ~pos:__POS__;
   ]
 
 let compute_repository =
@@ -300,7 +309,6 @@ let get_students_list
     ~compute_repository
     ~fun_default:fun_ignore
     ~keywords_of_interest
-    ~asso_list
     ~keywords_list
     ~init_state:empty_student
     ~empty_elt:Public_data.empty_student_id
@@ -310,70 +318,6 @@ let get_students_list
     ?event_opt
     ?p
     state
-
-
-    (*
-
-  let state, repository =
-    match repository with
-    | Some a -> state, a
-    | None -> Remanent_state.get_students_list_repository state
-  in
-  let state, list =
-    Scan_csv_files.get_list
-      ~keywords_of_interest ~asso_list ~keywords_list
-      ~fun_default:fun_ignore
-      ~at_end_of_array_line ~at_end_of_array ~at_end_of_file ~flush
-      ~init_state:empty_student
-      state
-      ~repository ?prefix ?file_name
-      []
-  in
-  let state, output =
-    List.fold_left
-      (fun (state, output) student ->
-         if p promotion student.promotion
-         then
-           match student.firstname, student.lastname
-           with
-           | None, None -> state, output
-           | None, Some x ->
-             let promo =
-               match promotion with
-               | None -> ""
-               | Some x -> Format.sprintf " (PROMO %s)" x
-             in
-             let msg =
-               Format.sprintf "fistname is missing for %s%s" x promo
-             in
-             Remanent_state.warn_dft
-             __POS__ msg Exit output state
-           | Some x, None ->
-             let promo =
-               match promotion with
-               | None -> ""
-               | Some x -> Format.sprintf " (PROMO %s)" x
-             in
-             let msg =
-               Format.sprintf "lastname is missing for %s%s" x promo
-             in
-           Remanent_state.warn_dft
-           __POS__ msg Exit output state
-           | Some firstname, Some lastname ->
-             state,{Public_data.firstname = firstname ;
-                    Public_data.lastname=lastname;
-                    Public_data.promotion= student.promotion
-                   }::output
-         else
-           state, output)
-      (state,[]) list
-  in
-  let state =
-    Remanent_state.close_event_opt
-      event_opt
-      state
-  in
-  state, output*)
 
 let key = "Année académique"
 

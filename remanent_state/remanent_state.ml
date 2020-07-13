@@ -83,6 +83,9 @@ type data =
     dpts: Departments.t;
     programs: Programs.t;
     cursus_exceptions: Cursus_exception.t;
+    decisions: Decisions.t;
+    compensations: Compensations.t;
+    dispenses: Dispenses.t;
   }
 
 let empty_data =
@@ -94,6 +97,9 @@ let empty_data =
     programs = Programs.empty;
     output_alias = None;
     cursus_exceptions = Cursus_exception.empty;
+    decisions = Decisions.empty;
+    compensations = Compensations.empty;
+    dispenses = Dispenses.empty;
   }
 
 type t =
@@ -205,53 +211,65 @@ let get_indicate_promotions_in_gps_file_names t =
   t,
   t.parameters.indicate_promotions_in_gps_file_names
 
+let get_rep_gen get_prefix t =
+  let t, main = get_local_repository t in
+  let t, repository = get_prefix t in
+  t, Printf.sprintf "%s/%s" main repository
+
 let get_students_list_prefix t =
   t, "etudiants"
 
 let get_students_list_repository t =
-  let t, main = get_local_repository t in
-  let t, repository = get_students_list_prefix t in
-  t, Printf.sprintf "%s/%s" main repository
+  get_rep_gen get_students_list_prefix t
 
 let get_scholarships_list_prefix t =
   t, "bourses"
 
 let get_scholarships_list_repository t =
-  let t, main = get_local_repository t in
-  let t, repository = get_scholarships_list_prefix t in
-  t, Printf.sprintf "%s/%s" main repository
+  get_rep_gen get_scholarships_list_prefix t
 
 let get_monitoring_list_prefix t =
     t, "tuteurs"
 
 let get_monitoring_list_repository t =
-    let t, main = get_local_repository t in
-    let t, repository = get_monitoring_list_prefix t in
-    t, Printf.sprintf "%s/%s" main repository
+  get_rep_gen get_monitoring_list_prefix t
+
 
 let get_departments_list_prefix t =
        t, "departements"
 
 let get_departments_list_repository t =
-  let t, main = get_local_repository t in
-  let t, repository = get_departments_list_prefix t in
-  t, Printf.sprintf "%s/%s" main repository
+  get_rep_gen get_departments_list_prefix t
 
 let get_programs_list_prefix t =
   t, "diplomes"
 
 let get_programs_list_repository t =
-  let t, main = get_local_repository t in
-  let t, repository = get_programs_list_prefix t in
-  t, Printf.sprintf "%s/%s" main repository
+  get_rep_gen get_programs_list_prefix t
 
 let get_cursus_exceptions_list_prefix t =
   t, "exceptions_cursus"
 
 let get_cursus_exceptions_list_repository t =
-  let t, main = get_local_repository t in
-  let t, repository = get_cursus_exceptions_list_prefix t in
-  t, Printf.sprintf "%s/%s" main repository
+  get_rep_gen get_cursus_exceptions_list_prefix t
+
+let get_decisions_list_prefix t =
+  t, "decisions"
+
+let get_decisions_list_repository t =
+  get_rep_gen get_decisions_list_prefix t
+
+let get_compensations_list_prefix t =
+    t, "compensations"
+
+let get_compensations_list_repository t =
+  get_rep_gen get_compensations_list_prefix t
+
+let get_dispenses_list_prefix t =
+  t, "dispenses"
+
+let get_dispenses_list_repository t =
+      get_rep_gen get_dispenses_list_prefix t
 
 let get_csv_separator t = t, Some ','
 
@@ -502,71 +520,91 @@ let close_logger ?logger t =
   else
     t
 
-let get_data t = t.data
-let get_students data = data.students
-let get_students t = get_students (get_data t)
-let get_scholarships data = data.scholarships
-let get_scholarships t = get_scholarships (get_data t)
-let set_data data t = {t with data}
-let set_students students data = {data with students}
-let set_students students t =
-  set_data (set_students students (get_data t)) t
 
-let set_scholarships scholarships data =
-  {data with scholarships}
+
+let get_data t = t.data
+let set_data data t = {t with data}
+let lift_get get t = get (get_data t)
+let lift_set set data t =
+  set_data (set data (get_data t)) t
+
+let get_students data = data.students
+let get_students t = lift_get get_students t
+let set_students students data = {data with students}
+let set_students students t = lift_set set_students students t
+
+let get_scholarships data = data.scholarships
+let get_scholarships t = lift_get get_scholarships t
+let set_scholarships scholarships data = {data with scholarships}
 let set_scholarships scholarships t =
-  set_data (set_scholarships scholarships (get_data t)) t
+  lift_set set_scholarships scholarships t
+
 let get_mentoring data = data.mentoring
-let get_mentoring t = get_mentoring (get_data t)
+let get_mentoring t = lift_get get_mentoring t
 let set_mentoring mentoring data = {data with mentoring}
 let set_mentoring mentoring t =
-  set_data (set_mentoring mentoring (get_data t)) t
+  lift_set set_mentoring mentoring t
+
 let get_dpts data = data.dpts
-let get_dpts t = get_dpts (get_data t)
+let get_dpts t = lift_get get_dpts t
 let set_dpts dpts data = {data with dpts}
 let set_dpts dpts t =
-  set_data (set_dpts dpts (get_data t)) t
+  lift_set set_dpts dpts t
 
 let get_programs data = data.programs
-let get_programs t = get_programs (get_data t)
+let get_programs t = lift_get get_programs t
 let set_programs programs data = {data with programs}
 let set_programs programs t =
-    set_data (set_programs programs (get_data t)) t
+    lift_set set_programs programs t
 
 let get_cursus_exceptions data = data.cursus_exceptions
-let get_cursus_exceptions t = get_cursus_exceptions (get_data t)
+let get_cursus_exceptions t = lift_get get_cursus_exceptions t
 let set_cursus_exceptions cursus_exceptions data =
   {data with cursus_exceptions}
 let set_cursus_exceptions cursus_exceptions t =
-  set_data (set_cursus_exceptions cursus_exceptions (get_data t)) t
+  lift_set set_cursus_exceptions cursus_exceptions t
+
+let get_compensations data = data.compensations
+let get_compensations t = lift_get get_compensations t
+let set_compensations compensations data =
+  {data with compensations}
+let set_compensations compensations t =
+  lift_set set_compensations compensations t
+
+let get_decisions data = data.decisions
+let get_decisions t = lift_get get_decisions t
+let set_decisions decisions data =
+  {data with decisions}
+let set_decisions decisions t =
+  lift_set set_decisions decisions t
+
+let get_dispenses data = data.dispenses
+let get_dispenses t = lift_get get_dispenses t
+let set_dispenses dispenses data =
+  {data with dispenses}
+let set_dispenses dispenses t =
+  lift_set set_dispenses dispenses t
 
 let add_gen get set add pos data t =
-  let t, error_handler = get_error_handler t in
-  let t, log = get_std_logger t in
-  let t, prefix = get_prefix t in
-  let t, safe_mode = get_is_in_safe_mode t in
-  let error_handler, acc =
+  let t, acc =
     add
-      ~safe_mode log prefix pos error_handler
+      pos
+      t
       data (get t)
   in
-  let t = set acc t in
-  let t = set_error_handler error_handler t in
-  t
+  set acc t
 
-let add_student =
+let add_student _unify =
   add_gen
     get_students
     set_students
-    (fun ~safe_mode _log _prefix _pos error_handler a b ->
-       let _ = safe_mode in
-       error_handler, a::b)
+    (fun _ t a b -> t, a::b)
 
-let add_scholarship =
+let add_scholarship unify =
   add_gen
     get_scholarships
     set_scholarships
-    Scholarships.add_scholarship
+    (Scholarships.add_scholarship unify)
 
 let get_scholarship ~firstname ~lastname t =
   let scholarship_opt =
@@ -574,11 +612,11 @@ let get_scholarship ~firstname ~lastname t =
   in
   t, scholarship_opt
 
-let add_mentoring =
+let add_mentoring unify =
   add_gen
     get_mentoring
     set_mentoring
-    Mentoring.add_mentoring
+    (Mentoring.add_mentoring unify)
 
 let get_mentoring ~firstname ~lastname ~year ?tuteur_gps pos t =
     let mentoring_opt =
@@ -601,11 +639,11 @@ let get_mentoring ~firstname ~lastname ~year ?tuteur_gps pos t =
         tuteur_gps
         t
 
-let add_dpt =
+let add_dpt unify =
   add_gen
     get_dpts
     set_dpts
-    Departments.add_dpt
+    (Departments.add_dpt unify)
 
 let get_dpt ~acronym t =
   let dpt_opt =
@@ -613,11 +651,11 @@ let get_dpt ~acronym t =
   in
   t, dpt_opt
 
-let add_program =
+let add_program unify =
   add_gen
     get_programs
     set_programs
-    Programs.add_program
+    (Programs.add_program unify)
 
 let get_program ~code_gps t =
   let program_opt =
@@ -625,11 +663,66 @@ let get_program ~code_gps t =
   in
   t, program_opt
 
-let add_cursus_exception =
+let add_dispense unify =
+    add_gen
+      get_dispenses
+      set_dispenses
+      (Dispenses.add_dispense unify)
+
+let get_dispense
+    ~firstname ~lastname
+    ~year
+    ~program
+    ~dpt
+    t =
+    let dispense_opt =
+      Dispenses.get_dispense
+        ~firstname ~lastname
+        ~year
+        ~program
+        ~dpt
+        t.data.dispenses
+    in
+    t, dispense_opt
+
+let add_decision unify =
+  add_gen
+    get_decisions
+    set_decisions
+    (Decisions.add_decision unify)
+
+let get_decision
+    ~firstname ~lastname ~year
+    ~program ~dpt t =
+  let decision_opt =
+    Decisions.get_decision
+      ~firstname ~lastname ~year
+      ~program ~dpt
+      t.data.decisions
+  in
+  t, decision_opt
+
+
+let add_compensation unify =
+  add_gen
+    get_compensations
+    set_compensations
+    (Compensations.add_compensation unify)
+
+let get_compensation
+    ~firstname ~lastname ~year ~codecours t =
+  let compensation_opt =
+    Compensations.get_compensation
+      ~firstname ~lastname ~year ~codecours
+      t.data.compensations
+  in
+  t, compensation_opt
+
+let add_cursus_exception unify =
   add_gen
     get_cursus_exceptions
     set_cursus_exceptions
-    Cursus_exception.add_cursus_exception
+    (Cursus_exception.add_cursus_exception unify)
 
 let get_cursus_exception
     ~firstname ~lastname ~year ~code_gps t =

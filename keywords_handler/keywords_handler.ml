@@ -5,6 +5,33 @@ module KeyWordsMap =
       let compare = compare
     end)
 
+type ('record_tmp) any_field_short =
+  { key: Public_data.keywords;
+    store:
+      Remanent_state.t ->
+      string option -> 'record_tmp -> Remanent_state.t * 'record_tmp}
+
+type ('record_tmp,'record) any_field =
+  { keyword: Public_data.keywords;
+    set_tmp:
+      Remanent_state.t ->
+      string option -> 'record_tmp -> Remanent_state.t * 'record_tmp ;
+    update:
+      Remanent_state.t -> 'record_tmp -> 'record -> Remanent_state.t * 'record;
+    is_unifyable: Remanent_state.t -> 'record -> 'record -> Remanent_state.t * bool ;
+    unify: Remanent_state.t -> 'record -> 'record -> Remanent_state.t * 'record option;
+    label_tmp: Remanent_state.t -> 'record_tmp -> Remanent_state.t * string option;
+    label1:
+      Remanent_state.t ->
+      'record -> Remanent_state.t * string option;
+    label2:
+      Remanent_state.t ->
+      'record -> 'record -> Remanent_state.t * string option
+  }
+
+let shorten a =
+  {key = a.keyword; store = a.set_tmp}
+
 type 'a shared =
   {
     do_at_end_of_file:
@@ -25,20 +52,17 @@ type 'a shared =
       Remanent_state.t -> 'a -> 'a list -> Remanent_state.t * 'a list;
   }
 
-type 'a specification =
+type 'record_tmp specification =
   {
     keywords: Public_data.keywords list;
     of_interest: Public_data.keywords list;
-    asso:
-      (Public_data.keywords *
-       (Remanent_state.t ->
-        string option ->
-        'a -> Remanent_state.t * 'a)) list;
+    all_fields:
+      'record_tmp any_field_short list;
     default:
       (Remanent_state.t ->
        string option ->
-       'a -> Remanent_state.t * 'a) ;
-    shared_functions: 'a shared
+       'record_tmp -> Remanent_state.t * 'record_tmp) ;
+    shared_functions: 'record_tmp shared
   }
 
 type 'a preprocessed =
@@ -70,6 +94,7 @@ let asso_list =
     Public_data.Acronyme, ["acronyme"];
     Public_data.Annee_Academique, ["année"; "année académique"];
     Public_data.Annee_en_Cours, ["année en cours"];
+    Public_data.Classement, ["classement";"rang"];
     Public_data.Code, ["code";"code cours"];
     Public_data.Code_gps, ["code gps"];
     Public_data.Commentaire, ["commentaire"];
@@ -80,11 +105,12 @@ let asso_list =
     Public_data.Courriel, ["courriel"];
     Public_data.Courriel_du_tuteur, ["courriel du tuteur"];
     Public_data.Credits, ["crédits"];
+    Public_data.Date, ["Date"];
     Public_data.Date_de_Naissance, ["Date de naissance";"naissance"];
     Public_data.Departement, ["département"];
-    Public_data.Departement_principal, ["principal"];
     Public_data.Departements,["département(s)"];
-    Public_data.Departement_secondaire, ["secondaire"];
+    Public_data.Departement_principal, ["principal";"département principal"];
+    Public_data.Departement_secondaire, ["secondaire";"département secondaire"];
     Public_data.Derniere_Annee, ["derniere année"];
     Public_data.Diplome, ["diplôme"];
     Public_data.Diplomes, ["diplôme(s)"];
@@ -92,21 +118,25 @@ let asso_list =
     Public_data.Directeur_Sujet, ["directeur -- sujet de recherche"];
     Public_data.Discipline_SISE,["discipline SISE"];
     Public_data.Duree,["durée"];
-    Public_data.ECTS,["ECTS*"];
+    Public_data.ECTS,["ECTS*";"ECTS"];
+    Public_data.Effectif,["effectif"];
     Public_data.Enseignements,["enseignement(s)"];
     Public_data.Etablissement,["établissement"];
     Public_data.Etablissement_ou_Entreprise,["établissement ou entreprise"];
     Public_data.FirstName, ["prénom";];
     Public_data.FullName, ["nom complet"];
+    Public_data.Genitif, ["genitif"];
     Public_data.Genre, ["genre"];
     Public_data.Genre_du_tuteur, ["genre du tuteur"];
-    Public_data.Genitif, ["genitif"];
     Public_data.Grade, ["grade"];
     Public_data.Inscrit_au_DENS_en, ["inscrit au DENS en"];
     Public_data.Intitule, ["intitulé"];
     Public_data.LastName, ["nom"];
     Public_data.Lettre, ["lettre"];
     Public_data.Libelle, ["libellé"];
+    Public_data.Mention, ["mention"];
+    Public_data.Motif, ["motif";"raison"];
+    Public_data.Moyenne, ["moyenne"];
     Public_data.Niveau, ["niveau";"level"];
     Public_data.Nom_du_tuteur, ["nom du tuteur"];
     Public_data.Note, ["note"];
@@ -121,6 +151,7 @@ let asso_list =
     Public_data.Pour_Diplome, ["pour diplôme"];
     Public_data.Prenom_du_tuteur, ["prénom du tuteur"];
     Public_data.Promo, ["promo";"promotion"];
+    Public_data.Programme, ["programme"];
     Public_data.Programme_d_etude,
     ["programme";"programme d'études"; "Pgm études"];
     Public_data.Recu, ["reçu"];
@@ -175,13 +206,13 @@ let make state specification =
   in
   let function_table =
     Tools.asso_list_map2
-      specification.asso
+      specification.all_fields
       specification.keywords
-      fst
+      (fun x -> x.key)
       (fun x -> x)
-      (fun x -> x)
+      (fun x -> x.key, x.store)
       (fun x -> x,specification.default)
-      (fun x _ -> x)
+      (fun x _ -> x.key, x.store)
   in
   let function_table =
     Tools.asso_list_map2

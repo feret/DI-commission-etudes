@@ -1367,6 +1367,12 @@ let asso_list =
       Public_data.Organisme_de_Financement,fun_default;
     ]
 
+let asso_list =
+  List.rev_map
+    (fun (a,b) ->
+       {Keywords_handler.key=a;
+       Keywords_handler.store=b})
+    (List.rev asso_list)
 let get_gps_file
   ~input
   state
@@ -1481,7 +1487,7 @@ let state, automaton  =
     state
     {
       Keywords_handler.keywords = keywords_list ;
-      Keywords_handler.asso = asso_list ;
+      Keywords_handler.all_fields = asso_list ;
       Keywords_handler.default = fun_default ;
       Keywords_handler.of_interest = keywords_of_interest;
       Keywords_handler.shared_functions =
@@ -1569,7 +1575,11 @@ let lmathphys d =
       d.diplomes
   then
     List.exists
-      (fun diplome -> diplome.diplome_diplome=Some "gps1672")
+      (fun diplome -> diplome.diplome_diplome=Some "gps47622")
+      d.diplomes
+    &&
+    List.exists
+      (fun diplome -> diplome.diplome_diplome=Some "gps3017")
       d.diplomes
   else
     d.nannee = Some 1

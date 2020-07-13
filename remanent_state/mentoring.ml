@@ -24,125 +24,6 @@ let empty =
       Public_data.LastNameMap.empty
   }
 
-let unify ~safe_mode logger prefix pos error mentoring mentoring' =
-  if
-    Special_char.correct_string mentoring.Public_data.nom_de_l_etudiant
-    =
-    Special_char.correct_string mentoring'.Public_data.nom_de_l_etudiant
-    &&
-    Special_char.correct_string mentoring.Public_data.prenom_de_l_etudiant
-    =
-    Special_char.correct_string mentoring'.Public_data.prenom_de_l_etudiant
-    &&
-    mentoring.Public_data.annee_academique =
-    mentoring'.Public_data.annee_academique
-  then
-    let error,mentoring =
-      match mentoring.Public_data.nom_du_tuteur,
-            mentoring'.Public_data.nom_du_tuteur
-      with
-      | _, None -> error,mentoring
-      | None, _ -> error,
-                   {mentoring
-                    with Public_data.nom_du_tuteur = mentoring'.Public_data.nom_du_tuteur}
-      | Some a, Some a' when Special_char.correct_string a = Special_char.correct_string a' -> error,mentoring
-      | Some a, Some a' ->
-          let message =
-            Format.sprintf
-              "Incompatible tuteur's last names  for %s %s's mentoging in %s  (%s VS %s)"
-              mentoring.Public_data.prenom_de_l_etudiant
-              mentoring.Public_data.nom_de_l_etudiant
-              mentoring.Public_data.annee_academique
-              a a'
-          in
-          Exception.warn
-            logger
-            ~safe_mode
-            ~message
-            prefix
-            error
-            pos
-            Exit
-            mentoring
-    in
-    let error,mentoring =
-      match mentoring.Public_data.prenom_du_tuteur,
-            mentoring'.Public_data.prenom_du_tuteur
-      with
-      | _, None -> error,mentoring
-      | None, _ -> error,
-                   {mentoring
-                    with Public_data.prenom_du_tuteur = mentoring'.Public_data.prenom_du_tuteur}
-      | Some a, Some a' when Special_char.correct_string a = Special_char.correct_string a' -> error,mentoring
-      | Some a, Some a' ->
-          let message =
-            Format.sprintf
-              "Incompatible tuteur's first names  for %s %s's mentoging in %s  (%s VS %s)"
-              mentoring.Public_data.prenom_de_l_etudiant
-              mentoring.Public_data.nom_de_l_etudiant
-              mentoring.Public_data.annee_academique
-              a a'
-          in
-          Exception.warn
-            logger
-            ~safe_mode
-            ~message
-            prefix
-            error
-            pos
-            Exit
-            mentoring
-    in
-    let error,mentoring =
-      match mentoring.Public_data.courriel_du_tuteur,
-            mentoring'.Public_data.courriel_du_tuteur
-      with
-      | _, None -> error,mentoring
-      | None, _ -> error,
-                   {mentoring
-                    with Public_data.courriel_du_tuteur = mentoring'.Public_data.courriel_du_tuteur}
-      | Some a, Some a' when Special_char.correct_string a = Special_char.correct_string a' -> error,mentoring
-      | Some a, Some a' ->
-          let message =
-            Format.sprintf
-              "Incompatible tuteur's email address  for %s %s's mentoging in %s  (%s VS %s)"
-              mentoring.Public_data.prenom_de_l_etudiant
-              mentoring.Public_data.nom_de_l_etudiant
-              mentoring.Public_data.annee_academique
-              a a'
-          in
-          Exception.warn
-            logger
-            ~safe_mode
-            ~message
-            prefix
-            error
-            pos
-            Exit
-            mentoring
-    in
-    error, mentoring
-  else
-  let message =
-    Format.sprintf
-      "Cannot unify mentoring data with different names and academic years %s %s (%s) VS %s %s (%s)"
-      mentoring.Public_data.prenom_de_l_etudiant
-      mentoring.Public_data.nom_de_l_etudiant
-      mentoring.Public_data.annee_academique
-      mentoring'.Public_data.prenom_de_l_etudiant
-      mentoring'.Public_data.nom_de_l_etudiant
-      mentoring'.Public_data.annee_academique
-  in
-  Exception.warn
-    logger
-    ~safe_mode
-    ~message
-    prefix
-    error
-    pos
-    Exit
-    mentoring
-
 let get_mentoring ~strong ~year ~firstname ~lastname mentoring =
   let firstname =
     Special_char.lowercase firstname
@@ -180,31 +61,26 @@ let get_mentoring ~strong ~year ~firstname ~lastname mentoring =
 
 
 let add_mentoring
-    ~safe_mode logger prefix pos error
+    unify pos state
     tutorat mentoring =
   let firstname = tutorat.Public_data.prenom_de_l_etudiant in
   let lastname = tutorat.Public_data.nom_de_l_etudiant in
   let year = tutorat.Public_data.annee_academique in
-  let tutorat' =
+  let tutorat_opt' =
     get_mentoring ~strong:true ~firstname ~lastname ~year mentoring
   in
-  let error, tutorat =
-    match tutorat' with
-    | None -> error, tutorat
-    | Some b ->
-      unify ~safe_mode logger prefix pos error
-        tutorat b
+  let state, tutorat =
+    match tutorat_opt' with
+    | None -> state, tutorat
+    | Some tutorat' ->
+        unify pos state tutorat tutorat'
   in
-  (*  per_mentor:
-    Public_data.tutorat Public_data.YearMap.t
-      Public_data.FirstNameMap.t Public_data.LastNameMap.t;*)
-
   let mentoring =
     let per_year =
       let old_year =
         match
           Public_data.YearMap.find_opt
-            tutorat.Public_data.annee_academique
+            year
             mentoring.per_year
         with
         | Some map -> map
@@ -213,18 +89,18 @@ let add_mentoring
       let old_lastname =
         match
           Public_data.LastNameMap.find_opt
-            tutorat.Public_data.nom_de_l_etudiant
+            lastname
             old_year
         with
         | Some map -> map
         | None -> Public_data.FirstNameMap.empty
       in
       Public_data.YearMap.add
-        tutorat.Public_data.annee_academique
+        year
         (Public_data.LastNameMap.add
-           tutorat.Public_data.nom_de_l_etudiant
+           lastname
            (Public_data.FirstNameMap.add
-              tutorat.Public_data.prenom_de_l_etudiant
+              firstname
               tutorat
               old_lastname)
            old_year)
@@ -237,7 +113,7 @@ let add_mentoring
       let old_name =
         match
           Public_data.LastNameMap.find_opt
-            tutorat.Public_data.nom_de_l_etudiant
+            lastname
             mentoring.per_name
         with
         | Some map -> map
@@ -246,18 +122,18 @@ let add_mentoring
       let old_firstname =
         match
           Public_data.FirstNameMap.find_opt
-            tutorat.Public_data.prenom_de_l_etudiant
+            firstname
             old_name
         with
         | Some map -> map
         | None -> Public_data.YearMap.empty
       in
       Public_data.LastNameMap.add
-        tutorat.Public_data.nom_de_l_etudiant
+        lastname
         (Public_data.FirstNameMap.add
-           tutorat.Public_data.prenom_de_l_etudiant
+           firstname
            (Public_data.YearMap.add
-              tutorat.Public_data.annee_academique
+              year
               tutorat
               old_firstname)
            old_name)
@@ -266,69 +142,69 @@ let add_mentoring
     {mentoring  with per_name }
   in
   let mentoring =
-    match tutorat.Public_data.nom_du_tuteur,
-          tutorat.Public_data.prenom_du_tuteur
+    match
+      tutorat.Public_data.nom_du_tuteur,
+      tutorat.Public_data.prenom_du_tuteur
     with
     | Some nom_du_tuteur, Some prenom_du_tuteur
       ->
-    let per_mentor =
-      let old_mentor_name =
-        match
-          Public_data.LastNameMap.find_opt
-            nom_du_tuteur
-            mentoring.per_mentor
-        with
-        | Some map -> map
-        | None -> Public_data.FirstNameMap.empty
+      let per_mentor =
+        let old_mentor_name =
+          match
+            Public_data.LastNameMap.find_opt
+              nom_du_tuteur
+              mentoring.per_mentor
+          with
+          | Some map -> map
+          | None -> Public_data.FirstNameMap.empty
+        in
+        let old_mentor_firstname=
+          match
+            Public_data.FirstNameMap.find_opt
+              prenom_du_tuteur
+              old_mentor_name
+          with
+          | Some map -> map
+          | None -> Public_data.YearMap.empty
+        in
+        let old_year =
+          match
+            Public_data.YearMap.find_opt
+              year
+              old_mentor_firstname
+          with
+          | Some map -> map
+          | None -> Public_data.LastNameMap.empty
+        in
+        let old_lastname =
+          match
+            Public_data.LastNameMap.find_opt
+              lastname
+              old_year
+          with
+          | Some map -> map
+          | None -> Public_data.FirstNameMap.empty
+        in
+        Public_data.LastNameMap.add
+          nom_du_tuteur
+          (Public_data.FirstNameMap.add
+             prenom_du_tuteur
+             (Public_data.YearMap.add
+                year
+                (Public_data.LastNameMap.add
+                   lastname
+                   (Public_data.FirstNameMap.add
+                      firstname
+                      tutorat
+                      old_lastname)
+                   old_year)
+                old_mentor_firstname)
+             old_mentor_name)
+          mentoring.per_mentor
       in
-      let old_mentor_firstname=
-        match
-          Public_data.FirstNameMap.find_opt
-            prenom_du_tuteur
-            old_mentor_name
-        with
-        | Some map -> map
-        | None -> Public_data.YearMap.empty
-      in
-      let old_year =
-        match
-          Public_data.YearMap.find_opt
-            tutorat.Public_data.annee_academique
-            old_mentor_firstname
-        with
-        | Some map -> map
-        | None -> Public_data.LastNameMap.empty
-      in
-      let old_lastname =
-        match
-          Public_data.LastNameMap.find_opt
-            tutorat.Public_data.nom_de_l_etudiant
-            old_year
-        with
-        | Some map -> map
-        | None -> Public_data.FirstNameMap.empty
-      in
-      Public_data.LastNameMap.add
-        nom_du_tuteur
-        (Public_data.FirstNameMap.add
-           prenom_du_tuteur
-           (Public_data.YearMap.add
-             tutorat.Public_data.annee_academique
-             (Public_data.LastNameMap.add
-                tutorat.Public_data.nom_de_l_etudiant
-                (Public_data.FirstNameMap.add
-                   tutorat.Public_data.prenom_de_l_etudiant
-                   tutorat
-                   old_lastname)
-                old_year)
-             old_mentor_firstname)
-           old_mentor_name)
-        mentoring.per_mentor
-    in
-    {mentoring  with per_mentor }
+      {mentoring  with per_mentor }
     | _ -> mentoring
   in
-
-  error, mentoring
+  state, mentoring
 
 let get_mentoring = get_mentoring ~strong:false

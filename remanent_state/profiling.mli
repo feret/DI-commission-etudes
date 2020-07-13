@@ -11,7 +11,10 @@ type step_kind =
   | Collect_mentoring
   | Collect_departement
   | Collect_program
-  | Collect_cursus_exceptions 
+  | Collect_cursus_exceptions
+  | Collect_decisions
+  | Collect_dispenses
+  | Collect_compensations
 
 type log_info
 

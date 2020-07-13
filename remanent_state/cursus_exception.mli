@@ -6,11 +6,12 @@ val get_cursus_exception:
   -> t -> Public_data.cursus_exception option
 
 val add_cursus_exception:
-  safe_mode:bool ->
-  Loggers.t ->
-  string ->
-  string * int * int * int ->
-  Exception_without_parameter.method_handler ->
-  Public_data.cursus_exception ->
-  t -> Exception_without_parameter.method_handler * t
-val dump: t -> unit 
+  ((string * int * int * int) ->
+   'state ->
+   Public_data.cursus_exception ->
+         Public_data.cursus_exception -> 'state * Public_data.cursus_exception) ->
+  (string * int * int * int) ->
+  'state -> Public_data.cursus_exception ->
+  t -> 'state * t
+
+val dump: t -> unit

@@ -1,13 +1,16 @@
 (executable
   (name Scolarite)
-  (libraries lwt.unix sco_get_gps_files sco_get_scholarships sco_get_mentoring sco_get_programs sco_remanent_state sco_tools sco_cloud_interaction sco_latex_engine)
+  (libraries lwt.unix sco_get_gps_files sco_get_scholarships sco_get_compensations sco_get_mentoring sco_get_programs  sco_get_decisions sco_get_dispenses sco_remanent_state sco_tools sco_cloud_interaction sco_latex_engine)
   (public_name sco_binaries)
 (flags (:standard -w @a
   -open Sco_get_gps_files
   -open Sco_get_scholarships
+  -open Sco_get_compensations
   -open Sco_get_mentoring
   -open Sco_remanent_state
   -open Sco_cloud_interaction
   -open Sco_tools
   -open Sco_get_programs
+  -open Sco_get_decisions
+  -open Sco_get_dispenses
   -open Sco_latex_engine)))

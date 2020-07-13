@@ -3,10 +3,11 @@ val empty: t
 val get_dpt:
   acronym:string -> t -> Public_data.dpt option
 val add_dpt:
-  safe_mode:bool ->
-  Loggers.t ->
-  string ->
-  string * int * int * int ->
-  Exception_without_parameter.method_handler ->
+  ((string * int * int * int) ->
+   'state -> Public_data.dpt -> Public_data.dpt -> 'state * Public_data.dpt) ->
+  (string * int * int * int) ->
+  'state ->
   Public_data.dpt ->
-  t -> Exception_without_parameter.method_handler * t
+  t ->
+  'state * t
+    

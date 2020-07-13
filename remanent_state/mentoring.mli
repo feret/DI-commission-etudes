@@ -5,10 +5,8 @@ val get_mentoring:
   firstname:string ->
   lastname:string -> t -> Public_data.tutorat option
 val add_mentoring:
-  safe_mode:bool ->
-  Loggers.t ->
-  string ->
-  string * int * int * int ->
-  Exception_without_parameter.method_handler ->
-  Public_data.tutorat ->
-  t -> Exception_without_parameter.method_handler * t
+  ((string * int * int * int ) ->
+   'state ->
+   Public_data.tutorat ->
+   Public_data.tutorat -> 'state * Public_data.tutorat) ->
+  (string * int * int * int) -> 'state -> Public_data.tutorat -> t -> 'state * t

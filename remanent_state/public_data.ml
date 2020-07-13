@@ -133,14 +133,85 @@ let empty_cursus_exception =
     codecours = "";
   }
 
+type compensation =
+  {
+    comp_firstname: string;
+    comp_lastname: string;
+    comp_annee: string;
+    comp_codecours: string
+  }
+
+let empty_compensation =
+  {
+    comp_firstname = "";
+    comp_lastname = "";
+    comp_annee = "";
+    comp_codecours = "";
+  }
+
+type decision =
+  {
+    decision_firstname: string;
+    decision_lastname: string;
+    decision_annee: string;
+    decision_program: string;
+    decision_dpt: string;
+    decision_mean: float option;
+    decision_mention: string option;
+    decision_rank: int option;
+    decision_effectif: int option;
+    decision_date: string option;
+    decision_commission_name: string option;
+    decision_validated: bool option;
+  }
+
+let empty_decision =
+  {
+    decision_firstname = "";
+    decision_lastname = "";
+    decision_annee = "";
+    decision_program = "";
+    decision_dpt = "";
+    decision_mean = None;
+    decision_mention = None;
+    decision_rank = None;
+    decision_effectif = None;
+    decision_date = None ;
+    decision_commission_name = None;
+    decision_validated = None;
+  }
+
+type dispense =
+  {
+    dispense_firstname: string;
+    dispense_lastname: string;
+    dispense_annee: string;
+    dispense_motif: string option;
+    dispense_program: string;
+    dispense_dpt: string;
+    }
+
+let empty_dispense =
+  {
+    dispense_firstname = "";
+    dispense_lastname = "";
+    dispense_annee = "";
+    dispense_motif = None ;
+    dispense_program = "" ;
+    dispense_dpt = ""
+  }
+
+
 type keywords =
   | Accord
   | Acronyme
   | Annee_Academique
   | Annee_en_Cours
+  | Classement
   | Code
   | Code_gps
   | Commentaire
+  | Commission
   | Contact_ENS
   | Contrat
   | Couleur_du_fond
@@ -148,10 +219,11 @@ type keywords =
   | Courriel
   | Courriel_du_tuteur
   | Credits
+  | Date
   | Date_de_Naissance
   | Departement
-  | Departement_principal
   | Departements
+  | Departement_principal
   | Departement_secondaire
   | Derniere_Annee
   | Diplome
@@ -161,6 +233,7 @@ type keywords =
   | Discipline_SISE
   | Duree
   | ECTS
+  | Effectif
   | Enseignements
   | Etablissement
   | Etablissement_ou_Entreprise
@@ -175,6 +248,9 @@ type keywords =
   | LastName
   | Lettre
   | Libelle
+  | Mention
+  | Motif
+  | Moyenne
   | Niveau
   | Nom_du_tuteur
   | Note
@@ -189,6 +265,7 @@ type keywords =
   | Pour_Diplome
   | Prenom_du_tuteur
   | Promo
+  | Programme
   | Programme_d_etude
   | Recu
   | Responsable
@@ -256,6 +333,7 @@ module FinanceurMap = StringMap
 module FirstNameMap = StringMap
 module LastNameMap = StringMap
 module AcronymMap = StringMap
+module ProgramMap = StringMap
 module YearMap =
   Map.Make
     (struct

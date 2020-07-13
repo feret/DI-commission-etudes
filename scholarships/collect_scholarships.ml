@@ -32,70 +32,80 @@ let keywords_of_interest =
     Public_data.LastName ;
     Public_data.FirstName ;
   ]
-let asso_list =
-  [
-    Public_data.LastName,
-    (fun state lastname x ->
-       state,
-       let lastname =
-         match lastname with
-         | Some x when String.trim x = "" -> None
-         | _ -> lastname
-       in
-       {x with lastname});
-    Public_data.FirstName,
-    (fun state firstname x ->
-       state,
-       let firstname =
-         match firstname with
-         | Some x when String.trim x = "" -> None
-         | _ -> firstname
-       in
-       {x with firstname});
-    Public_data.Promo,
-    (fun state promotion x ->
-       state, {x with promotion});
-    Public_data.Organisme_de_Financement,
-       (fun state organism x ->
-          state, {x with organism});
-  ]
 
 let event_opt = Some Profiling.Collect_scholarships
-let lift = Scan_csv_files.lift_safe
-let lift_pred = Scan_csv_files.lift_pred_safe
+
+let lift_string =
+  (Lift.string empty_scholarship Public_data.empty_scholarship).Lift.safe
+let lift_pred = Lift.pred_safe
+let lift_string_opt =
+  (Lift.string empty_scholarship Public_data.empty_scholarship).Lift.opt_safe
 
 let mandatory_fields =
   [
-    lift_pred (fun a -> a.lastname), "Student's family name";
-    lift_pred (fun a -> a.firstname), "Student's first name";
-    lift_pred (fun a -> a.promotion), "Student's promotion"]
-
+    lift_pred (fun a -> a.lastname) "Student's family name";
+    lift_pred (fun a -> a.firstname) "Student's first name";
+    lift_pred (fun a -> a.promotion) "Student's promotion"
+  ]
 
 let all_fields =
-  [lift
-     (fun a -> a.lastname)
-     (fun a holder_lastname ->
-        {a with Public_data.holder_lastname = holder_lastname})
-     (Printf.sprintf "Student's family name: %s")
-   __POS__ "Student's last name is missing in a scholarship description";
-   lift
-      (fun a -> a.firstname)
-      (fun a holder_firstname ->
+  let record_name = "a scholarship description" in
+  [lift_string
+     ~keyword:Public_data.LastName
+     ~set_tmp:(fun state lastname x ->
+         state,
+         let lastname =
+           match lastname with
+           | Some x when String.trim x = "" -> None
+           | _ -> lastname
+         in
+         {x with lastname})
+     ~get_tmp:(fun a -> a.lastname)
+     ~get:(fun a -> a.Public_data.holder_lastname)
+     ~set:(fun holder_lastname a ->
+         {a with Public_data.holder_lastname})
+     ~field_name:"the family name of the student"
+     ~record_name
+     ~pos:__POS__ ;
+   lift_string
+     ~keyword:Public_data.FirstName
+     ~set_tmp:(fun state firstname x ->
+         state,
+         let firstname =
+           match firstname with
+           | Some x when String.trim x = "" -> None
+           | _ -> firstname
+         in
+         {x with firstname})
+     ~get_tmp:(fun a -> a.firstname)
+     ~get:(fun a -> a.Public_data.holder_firstname)
+     ~set:(fun holder_firstname a ->
          {a with Public_data.holder_firstname = holder_firstname})
-      (Printf.sprintf "Student's first name: %s")
-      __POS__ "Student's first name is missing in a scholarship description";
-   lift
-     (fun a -> a.promotion)
-     (fun a holder_promotion ->
-        {a with Public_data.holder_promotion = Some holder_promotion})
-     (Printf.sprintf "Student's promotion: %s")
-         __POS__ "Student's promotion is missing in a scholarship description";
-   lift
-     (fun a -> a.organism)
-     (fun a organism ->
-        {a with Public_data.organism})
-     (Printf.sprintf "Funding organism: %s")
-     __POS__ "Funding organism is missing in a scholarship description";
+     ~field_name:"the first name of the student"
+     ~record_name
+     ~pos:__POS__;
+   lift_string_opt
+     ~keyword:Public_data.Promo
+     ~set_tmp:(fun state promotion x ->
+         state, {x with promotion})
+     ~get_tmp:(fun a -> a.promotion)
+     ~get:(fun a -> a.Public_data.holder_promotion)
+     ~set:(fun holder_promotion a ->
+         {a with Public_data.holder_promotion})
+     ~field_name:"the promotion year of the student"
+     ~record_name
+     ~pos:__POS__;
+   lift_string
+     ~keyword:Public_data.Organisme_de_Financement
+     ~set_tmp:(fun state organism x ->
+      state, {x with organism})
+     ~get_tmp:(fun a -> a.organism)
+     ~get:(fun a -> a.Public_data.organism)
+     ~set:(fun organism a ->
+         {a with Public_data.organism})
+     ~field_name:"Funding organism"
+     ~record_name
+     ~pos:__POS__
   ]
 
 let compute_repository =
@@ -122,7 +132,6 @@ let get_scholarships
     ~p
     ~fun_default:fun_ignore
     ~keywords_of_interest
-    ~asso_list
     ~keywords_list
     ~init_state:empty_scholarship
     ~empty_elt:Public_data.empty_scholarship

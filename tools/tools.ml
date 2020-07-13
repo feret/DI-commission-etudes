@@ -122,4 +122,146 @@ let substring s s' =
     else
       aux (k+1)
   in
-  aux 0 
+  aux 0
+
+let fun_ignore = (fun state _ x -> state, x)
+
+let collect_string set state data x =
+  state,
+  let data =
+    match data with
+    | Some x when String.trim x = "" -> None
+    | _ -> data
+  in
+  set data x
+
+let collect_conv string from warn set state data x =
+    let state, data =
+      match data with
+      | Some x ->
+        begin
+          try
+            let state, int_opt = from warn state x in
+            begin
+              match int_opt with
+              | None ->
+                let msg = Format.sprintf string x in
+                let state = warn msg state
+                in state, None
+              |Some _ -> state, int_opt
+            end
+          with
+          | _ ->
+            let msg = Format.sprintf string x in
+            let state = warn msg state in
+            state, None
+        end
+      | None -> state, None
+    in
+    state, set data x
+
+let correct_comma ?force_dec_sep_to_dot get_comma_symbol state t =
+  let corrected_size = (String.length t)-1 in
+  match t.[corrected_size] with
+  | '.' | ',' -> state, String.sub t 0 corrected_size
+  | _ ->
+    let state, comma =
+      match force_dec_sep_to_dot with
+      | Some true -> state, '.'
+      | _ -> get_comma_symbol state
+    in
+    state,
+    if comma = '.'
+    then t
+    else
+      String.map
+        (fun x ->
+           if x = '.'
+           then comma
+           else x)
+        t
+
+let remove_comma =
+  String.map
+    (fun x ->
+       if x = ','
+       then '.'
+       else x)
+
+let float_of_string warn state t =
+  if space_only t
+  then state, None
+  else
+    let t = remove_comma t in
+    try
+      state, Some (float_of_string t)
+    with
+    | _ ->
+      try
+        state, Some (float_of_int (int_of_string t))
+      with
+      | _ ->
+        let msg =
+          Format.sprintf "Undefined String (%s)-> float conversion" t
+        in
+        let state =
+          warn
+            msg
+            state
+        in state, None
+
+
+let int_of_string warn state t =
+  try
+    state, Some (int_of_string t)
+  with
+  | _ ->
+    begin
+      let t = remove_comma t in
+      let state, a = float_of_string warn state t in
+      match a with
+      | None -> state, None
+      | Some a ->
+        if float_of_int (int_of_float a) = a
+        then
+          state, Some (int_of_float a)
+        else
+          let msg =
+            Format.sprintf "Undefined String (%s)-> int conversion" t
+          in
+          let state =
+            warn
+              msg
+              state
+          in
+          state, None
+    end
+
+let float_to_string ?force_dec_sep_to_dot get_comma_symbol state f =
+  let s = string_of_float f in
+  correct_comma ?force_dec_sep_to_dot get_comma_symbol state s
+
+
+let collect_int warn =
+  collect_conv
+    "string %s cannot be converted into an int"
+    int_of_string warn
+
+let collect_float warn =
+  collect_conv "string %s cannot be converted into a float" float_of_string warn
+
+let bool_of_string warn state s =
+  let s = Special_char.lowercase (String.trim s) in
+  if List.mem s ["o";"oui";"y";"yes";"ok";"true"]
+  then state, Some true
+  else if List.mem s ["n";"no";"non";"false"]
+  then state, Some false
+  else
+    let msg =
+      Format.sprintf "Undefined String (%s)-> Boolean conversion" s
+    in
+    warn msg state, None
+
+let collect_bool warn  =
+  collect_conv "string %s cannot be converted into a Boolean"
+    bool_of_string warn

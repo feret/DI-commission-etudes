@@ -21,9 +21,10 @@ val rgb_list: rgb list
 val color_list: color list
 val get_background_color: color -> rgb
 val get_font_color: color -> rgb
-val build_color: ?background:rgb -> rgb -> color
+val build_color: ?background:rgb -> rgb -> string -> color
 
 val rgb_code: rgb -> int*int*int
 val label: rgb -> string
 
 val color_of_string: string -> color option
+val to_string: color -> string

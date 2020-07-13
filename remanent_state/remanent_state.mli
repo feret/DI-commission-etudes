@@ -114,6 +114,15 @@ val get_programs_list_repository: t -> t * string
 val get_cursus_exceptions_list_prefix: t -> t * string
 val get_cursus_exceptions_list_repository: t -> t * string
 
+val get_compensations_list_prefix: t -> t * string
+val get_compensations_list_repository: t -> t * string
+
+val get_decisions_list_prefix: t -> t * string
+val get_decisions_list_repository: t -> t * string
+
+val get_dispenses_list_prefix: t -> t * string
+val get_dispenses_list_repository: t -> t * string
+
 val get_launching_date: t -> t * string
 
 val get_comma_symbol: t -> t * char
@@ -130,6 +139,10 @@ val get_students:
   t -> Public_data.student_id list
 
 val add_student:
+  (string * int * int * int ->
+   t ->
+   Public_data.student_id ->
+   Public_data.student_id -> t * Public_data.student_id) ->
   (string * int * int * int) -> Public_data.student_id -> t -> t
 
 (** scholarships *)
@@ -139,12 +152,20 @@ val get_scholarship:
   t * Public_data.scholarship option
 
 val add_scholarship:
+  (string * int * int * int ->
+   t ->
+   Public_data.scholarship ->
+   Public_data.scholarship -> t * Public_data.scholarship) ->
   (string * int * int * int) ->
   Public_data.scholarship ->
   t ->
   t
 
 val add_mentoring:
+  (string * int * int * int ->
+   t ->
+   Public_data.tutorat ->
+   Public_data.tutorat -> t * Public_data.tutorat) ->
   (string * int * int * int) ->
   Public_data.tutorat ->
   t ->
@@ -160,6 +181,11 @@ val get_mentoring:
   t * Public_data.tutorat option
 
 val add_dpt:
+  (string * int * int * int ->
+   t ->
+   Public_data.dpt ->
+   Public_data.dpt -> t * Public_data.dpt) ->
+
   (string * int * int * int) ->
   Public_data.dpt ->
   t ->
@@ -171,6 +197,10 @@ val get_dpt:
   t * Public_data.dpt option
 
 val add_program:
+  (string * int * int * int ->
+   t ->
+   Public_data.program ->
+   Public_data.program -> t * Public_data.program) ->
   (string * int * int * int) ->
   Public_data.program ->
   t -> t
@@ -180,6 +210,10 @@ val get_program:
   t -> t * Public_data.program option
 
 val add_cursus_exception:
+  (string * int * int * int ->
+   t ->
+   Public_data.cursus_exception ->
+   Public_data.cursus_exception -> t * Public_data.cursus_exception) ->
   (string * int * int * int) ->
   Public_data.cursus_exception ->
   t -> t
@@ -189,6 +223,46 @@ val get_cursus_exception:
   year: string ->
   code_gps:string ->
   t -> t * Public_data.cursus_exception option
+
+val add_decision:
+  (string * int * int * int ->
+   t ->
+   Public_data.decision ->
+   Public_data.decision -> t * Public_data.decision) ->
+  (string * int * int * int) ->
+  Public_data.decision ->
+  t -> t
+
+val get_decision:
+  firstname:string -> lastname:string -> year:string ->
+  program:string -> dpt:string ->
+  t -> t * Public_data.decision option
+
+val add_compensation:
+  (string * int * int * int ->
+   t ->
+   Public_data.compensation ->
+   Public_data.compensation -> t * Public_data.compensation) ->
+  (string * int * int * int) ->
+  Public_data.compensation ->
+  t -> t
+
+val get_compensation:
+  firstname:string -> lastname:string -> year:string -> codecours:string
+  -> t -> t * Public_data.compensation option
+
+val add_dispense:
+  (string * int * int * int ->
+   t ->
+   Public_data.dispense ->
+   Public_data.dispense -> t * Public_data.dispense) ->
+  (string * int * int * int) ->
+  Public_data.dispense ->
+  t -> t
+
+val get_dispense:
+  firstname:string -> lastname:string -> year:string -> program:string -> dpt:string->
+  t -> t * Public_data.dispense option
 
 val get_current_academic_year:
   t -> t * Public_data.annee
