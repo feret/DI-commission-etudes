@@ -483,6 +483,10 @@ let close_row ?logger t =
 let print_cell ?logger s t =
   Loggers.print_cell (which_logger ?logger t) s
 
+let print_optional_cell ?logger s t =
+  Loggers.print_optional_cell (which_logger ?logger t) s
+
+
 let flush ?logger t =
   Loggers.flush_logger (which_logger ?logger t)
 

@@ -24,6 +24,10 @@ let build_color ?background text label =
   in
   {label;background;text}
 
+let light_pink =
+  {name="lightpink";red=250;green=218;blue=221}
+let dark_pink =
+  {name="darkpink";red=255;green=182;blue=193}
 let light_green =
   {name="lightgreen";red=204; green=255;blue=204}
 let dark_green =
@@ -57,7 +61,7 @@ let label c = c.name
 let rgb_code c = c.red, c.green, c.blue
 
 let rgb_list =
-  [
+  [ light_pink;dark_pink;
     light_green;dark_green;
     light_blue;dark_blue;
     light_yellow;dark_yellow;
@@ -75,14 +79,16 @@ let red = build_color ~background:light_red dark_red "red"
 let black = build_color black "black"
 let white= build_color white "white"
 let orange = build_color ~background:light_orange dark_orange "orange"
+let pink = build_color ~background:light_pink dark_pink "pink"
 
 let color_list =
-  [blue;green;yellow;red;black;white;orange;duckblue]
+  [pink;blue;green;yellow;red;black;white;orange;duckblue]
 
 let color_of_string s =
   match s with
   | "duckblue" | "bleucanard" | "duck blue" | "bleu canard"
     -> Some duckblue
+  | "pink" | "rose" -> Some pink
   | "blue" | "bleu" -> Some blue
   | "green" | "vert" -> Some green
   | "yellow" | "jaune" -> Some yellow
@@ -92,4 +98,4 @@ let color_of_string s =
   | "orange" -> Some orange
   | _ -> None
 
-let to_string color = color.label 
+let to_string color = color.label

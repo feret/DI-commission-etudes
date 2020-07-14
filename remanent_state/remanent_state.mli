@@ -44,6 +44,7 @@ val close_array: ?logger:Loggers.t -> t -> unit
 val open_row: ?logger:Loggers.t -> ?macro:string -> t -> unit
 val close_row: ?logger:Loggers.t -> t -> unit
 val print_cell: ?logger:Loggers.t -> string -> t  -> unit
+val print_optional_cell: ?logger:Loggers.t -> string -> t  -> unit
 
 val breakpage: ?logger:Loggers.t -> t -> unit
 val flush:

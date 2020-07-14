@@ -23,6 +23,7 @@ val log: ?backgroundcolor:Color.color -> ?textcolor:Color.color ->
 
 val print_newline: t -> unit
 val print_cell: t -> string -> unit
+val print_optional_cell: t -> string -> unit
 val print_as_logger: t -> (Format.formatter -> unit) -> unit
 val flush_logger: t -> unit
 val close_logger: t -> unit

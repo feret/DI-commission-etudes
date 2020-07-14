@@ -137,12 +137,21 @@ let a_compter f =
   | None,_ -> None
   | Some true, Public_data.Float f -> Some (f>=10.)
   | Some true, (Public_data.Valide_sans_note
-
                | Public_data.Abandon
                | Public_data.En_cours
                | Public_data.Absent)
   | Some false,_
     -> Some false
+
+let compensable f =
+  match valide f,f with
+  |(Some true | None),_ -> false
+  | Some false , Public_data.Float f -> f < 10.
+  | Some false, (Public_data.Valide_sans_note
+                | Public_data.Abandon
+                | Public_data.En_cours
+                | Public_data.Absent) -> false
+
 
 let compare a b =
   match a,b

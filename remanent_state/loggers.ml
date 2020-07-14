@@ -422,6 +422,19 @@ let print_cell logger s =
   in
   fprintf logger "%s%s%s" open_cell_symbol s close_cell_symbol
 
+let print_optional_cell logger s =
+  let open_cell_symbol,s,close_cell_symbol =
+    match
+      logger.encoding
+    with
+    | Latex _ -> "[",s,"]"
+    | HTML_Tabular
+    | CSV
+    | Json | HTML | TXT | XLS -> "","",""
+  in
+  fprintf logger "%s%s%s" open_cell_symbol s close_cell_symbol
+
+
 let flush_logger logger =
   match
     logger.logger
@@ -552,18 +565,22 @@ let print_preamble ?decimalsepsymbol logger =
 "\\newcommand{\\innerline}{%%\n\
 \\ifnum \\thenrow=\\thetotalrows%%\n\
 \\hline%%\n\
-       \\else\\cline{1-1}\\cline{3-7}\\fi%%\n\
+\\else\\cline{1-1}\\cline{3-7}\\fi%%\n\
 }%%\n\
-\\newcommand{\\cours}[7]{%%\n\
+\\newcommand{\\cours}[8][]{%%\n\
 \\addtocounter{nrow}{1}%%\n\
-\\StrSubstitute{#6}{,}{.}[\\res]%%\n\
-\\myifdecimal{#6}%%\n\
+\\StrSubstitute{#7}{,}{.}[\\res]%%\n\
+\\myifdecimal{#7}%%\n\
 {%%\n\
 \\setcounter{cnote}{\\fpeval{\\res*\\factor}}%%\n\
 \\ifnum\\fpeval{\\res<10} = 1%%\n\
-\\setcounter{cects}{0}%%\n\
+\\IfStrEq{#1}{compensation}%%\n\
+\\setcounter{cects}{#8}%%\n\
 \\else%%\n\
-\\setcounter{cects}{#7}%%\n\
+\\setcounter{cects}{0}%%\n\
+\\fi%%\n\
+\\else%%\n\
+\\setcounter{cects}{#8}%%\n\
 \\fi%%\n\
 }%%\n\
 {%%\n\
@@ -572,12 +589,12 @@ let print_preamble ?decimalsepsymbol logger =
 }%%\n\
 %%\n\
 %%\n\
-\\IfStrEq{#6}{en cours}%%\n\
-{\\setcounter{pects}{#7}}%%\n\
+\\IfStrEq{#7}{en cours}%%\n\
+{\\setcounter{pects}{#8}}%%\n\
 {\\setcounter{pects}{0}}%%\n\
  %%\n\
- \\IfStrEq{#6}{valid{\\'e} (sans note)}%%\n\
- {\\setcounter{vects}{#7}}%%\n\
+ \\IfStrEq{#7}{valid{\\'e} (sans note)}%%\n\
+ {\\setcounter{vects}{#8}}%%\n\
  {\\setcounter{vects}{0}}%%\n\
   %%\n\
 \\addtocounter{total}{\\fpeval{\\thecects*\\thecnote}}%%\n\
@@ -585,7 +602,7 @@ let print_preamble ?decimalsepsymbol logger =
 \\addtocounter{potentialects}{\\fpeval{\\thepects*\\factor}}%%\n\
 %%\n\
 \\addtocounter{vsnects}{\\fpeval{\\thevects*\\factor}}%%\n\
- %%\n\       #1 & \\ifnum \\thenrow=\\thetotalrows %%\n\ \\multirow{-\\thetotalrows}{\\hsize}{{\\centering #2}}\\fi & \\ifnum \\thetotalrows=1 %%\n\  \\mbox{}\\newline\\newline#3\\newline\\newline\\else#3\\fi  & #4 & #5 & \\mynumprint{#6} & \\numprint{#7}\\cr%%\n\
+ %%\n\       #2 & \\ifnum \\thenrow=\\thetotalrows %%\n\ \\multirow{-\\thetotalrows}{\\hsize}{{\\centering #3}}\\fi & \\ifnum \\thetotalrows=1 %%\n\  \\mbox{}\\newline\\newline#4\\newline\\newline\\else#4\\fi  & #5 & #6 & \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}}{\\mynumprint{#7}}}{\\mynumprint{#7}} & \\numprint{#8}\\cr%%\n\
 }%%\n\
 %%\n\ "
     in

@@ -7,3 +7,4 @@ val compare: t -> t -> int
 val valide: t -> bool option
 val a_compter: t -> bool option
 val string_of_ects: float option -> string
+val compensable: t -> bool 

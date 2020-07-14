@@ -1684,13 +1684,96 @@ let keep_class state filter year note =
     | Public_data.All_but_in_progress_in_years _), Some (Some false)
     -> state, false
 
-let filter_class state filter year class_list =
+let get_compensation
+    ~firstname ~lastname ~year ~codecours note
+    state
+  =
+  match
+    Remanent_state.get_compensation
+      ~firstname ~lastname ~year ~codecours
+      state
+  with
+  | state, None -> state, false
+  | state, _
+    ->
+    begin
+      match note with
+      | Some note ->
+        if Notes.compensable note
+        then
+          state, true
+        else
+          let state, note_string =
+            Notes.to_string __POS__ state note
+          in
+          let msg =
+            Printf.sprintf
+              "Note %s (%s %s ANNEE:%s CODE_GPS:%s) needs no compensation"
+              note_string
+              firstname
+              lastname
+              year
+              codecours
+          in
+          Remanent_state.warn_dft
+            __POS__
+            msg
+            Exit
+            false
+            state
+      | None ->
+      let msg =
+        Printf.sprintf
+          "Missing notes cannot be compensated (%s %s ANNEE:%s CODE_GPS:%s)"
+          firstname
+          lastname
+          year
+          codecours
+      in
+      Remanent_state.warn_dft
+        __POS__
+        msg
+        Exit
+        false
+        state
+    end
+
+
+let keep_class
+    ~firstname ~lastname ~year ~codecours ~note
+    state filter =
+  let state, compensation =
+      get_compensation
+        ~firstname ~lastname ~year ~codecours
+        note state
+  in
+  let state, valide = keep_class state filter year note in
+  state, valide || compensation
+
+let filter_class state filter ~firstname ~lastname ~year class_list =
   let rec aux state list acc =
     match list with
     | [] -> state, acc
     | h::t ->
+      let state, codecours =
+        match
+          h.code_cours
+        with
+        | Some x -> state, x
+        | None ->
+          let msg =
+            Printf.sprintf
+              "GPS code is missing in a GPS entry (%s %s %s)" firstname lastname year
+          in
+          Remanent_state.warn
+            __POS__
+            msg
+            Exit
+            state, ""
+      in
       let state, b =
-        keep_class state filter year h.note
+        keep_class state filter
+          ~firstname ~lastname ~year ~note:h.note ~codecours
       in
       if b then
         aux state t (h::acc)
@@ -2357,8 +2440,8 @@ let export_transcript
           Remanent_state.print_newline state
         in
         let state, filtered_classes =
-          filter_class
-            state remove_non_valided_classes year situation.cours
+          filter_class ~firstname ~lastname ~year
+            state remove_non_valided_classes situation.cours
         in
         let state, split_cours =
           List.fold_left
@@ -2481,9 +2564,27 @@ let export_transcript
                         Remanent_state.open_row
                           ~macro state
                       in
+                      let codecours =
+                        string_of_stringopt cours.code_cours
+                      in
+                      let state, compensation =
+                        Remanent_state.get_compensation
+                          state
+                          ~firstname ~lastname ~year ~codecours
+                      in
+                      let () =
+                        match
+                          compensation
+                        with
+                        | Some _ ->
+                          Remanent_state.print_optional_cell
+                            "compensation"
+                            state
+                        | None -> () 
+                      in
                       let () =
                         Remanent_state.print_cell
-                          (string_of_stringopt cours.code_cours)
+                          codecours
                           state
                       in
                       let () =
