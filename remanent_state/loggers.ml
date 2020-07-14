@@ -575,10 +575,8 @@ let print_preamble ?decimalsepsymbol logger =
 \\setcounter{cnote}{\\fpeval{\\res*\\factor}}%%\n\
 \\ifnum\\fpeval{\\res<10} = 1%%\n\
 \\IfStrEq{#1}{compensation}%%\n\
-\\setcounter{cects}{#8}%%\n\
-\\else%%\n\
-\\setcounter{cects}{0}%%\n\
-\\fi%%\n\
+{\\setcounter{cects}{#8}}%%\n\
+{\\setcounter{cects}{0}}%%\n\
 \\else%%\n\
 \\setcounter{cects}{#8}%%\n\
 \\fi%%\n\
@@ -602,7 +600,7 @@ let print_preamble ?decimalsepsymbol logger =
 \\addtocounter{potentialects}{\\fpeval{\\thepects*\\factor}}%%\n\
 %%\n\
 \\addtocounter{vsnects}{\\fpeval{\\thevects*\\factor}}%%\n\
- %%\n\       #2 & \\ifnum \\thenrow=\\thetotalrows %%\n\ \\multirow{-\\thetotalrows}{\\hsize}{{\\centering #3}}\\fi & \\ifnum \\thetotalrows=1 %%\n\  \\mbox{}\\newline\\newline#4\\newline\\newline\\else#4\\fi  & #5 & #6 & \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}}{\\mynumprint{#7}}}{\\mynumprint{#7}} & \\numprint{#8}\\cr%%\n\
+ %%\n\       #2 & \\ifnum \\thenrow=\\thetotalrows %%\n\ \\multirow{-\\thetotalrows}{\\hsize}{{\\centering #3}}\\fi & \\ifnum \\thetotalrows=1 %%\n\  \\mbox{}\\newline\\newline#4\\newline\\newline\\else#4\\fi  & #5 & #6 & \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#7}}}{\\mynumprint{#7}} & \\numprint{#8}\\cr%%\n\
 }%%\n\
 %%\n\ "
     in
