@@ -467,46 +467,9 @@ let collect_gen
       state
       list
   in
-  state
-
-
-    (*
-let lift_eq p get state elt elt' =
-  let state, data = get state elt in
-  let state, data' = get state elt' in
-  state, p data data'
-
-let lift_eq_safe p get state elt elt' =
-  let get state a = state, get a in
-  lift_eq p get state elt elt'
-
-let lift_eq_opt p get state elt elt' =
-  let state, data_opt = get state elt in
-  let state, data_opt' = get state elt' in
-  match data_opt, data_opt' with
-  | None, _ | _, None -> state, true
-  | Some data, Some data' -> state, p data data'
-
-let lift_eq_opt_safe p get state elt elt' =
-  let get state a = state, get a in
-  lift_eq_opt p get state elt elt'
-
-let lift_unify pos msg p get set state elt elt' =
-  let state, data_opt = get state elt in
-  let state, data_opt' = get state elt' in
-  match data_opt, data_opt' with
-  | _, None -> state, elt
-  | None, Some data -> set state data elt
-  | Some data, Some data' when p data data' -> state, elt
-  | Some _, Some _ ->
-    Remanent_state.warn_dft
-      pos msg
-      Exit
-      elt
+  let state =
+    Remanent_state.close_event_opt
+      event_opt
       state
-
-let lift_unify_safe pos msg p get set state elt elt' =
-  let get state a = state, get a in
-  let set state a b = state, set a b in
-  lift_unify pos msg p get set state elt elt'
-*)
+  in
+  state
