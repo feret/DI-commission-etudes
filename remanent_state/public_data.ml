@@ -1,8 +1,29 @@
+module StringMap =
+  Map_tools.MakeSimplified
+    (
+    struct
+      module Ord   =
+        (
+        struct
+          type t = string
+          let compare = compare
+
+        end
+        )
+
+      let simplify s =
+        Special_char.lowercase
+          (Special_char.correct_string_txt
+             (String.trim s))
+    end
+    )
+
+
 type cloud_client = NextCloudCmd
 type pdf_generator = PdfLatex
 type file_retriever = WGET
 type cloud_synchronization_mode = Daemon | CommandLine
-type annee = string
+type annee = string 
 
 type genre =
   | Feminin
@@ -308,26 +329,6 @@ type remove_non_valided_classes =
   | All_but_in_progress_in_current_academic_year
   | All_but_in_progress_in_years of annee list
 
-module StringMap =
-  Map_tools.MakeSimplified
-    (
-    struct
-      module Ord   =
-        (
-        struct
-
-          type t = string
-          let compare = compare
-
-        end
-        )
-
-      let simplify s =
-        Special_char.lowercase
-          (Special_char.correct_string_txt
-             (String.trim s))
-    end
-    )
 
 module CodeMap = StringMap
 module PromoMap = StringMap
@@ -342,3 +343,12 @@ module YearMap =
       type t = annee
       let compare = compare
     end)
+
+module CodeExtendedMap = Map_tools.Collect(CodeMap)
+module PromoExtendedMap = Map_tools.Collect(PromoMap)
+module FinanceurExtendedMap = Map_tools.Collect(FinanceurMap)
+module FirstNameExtendedMap = Map_tools.Collect(FirstNameMap)
+module LastNameExtendedMap = Map_tools.Collect(LastNameMap)
+module AcronymExtendedMap = Map_tools.Collect(AcronymMap)
+module ProgramExtendedMap = Map_tools.Collect(ProgramMap)
+module YearExtendedMap = Map_tools.Collect(YearMap)

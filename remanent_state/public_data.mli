@@ -36,6 +36,41 @@ module YearMap: Map.S with type key = annee
 module AcronymMap: Map.S with type key = string
 module ProgramMap: Map.S with type key = string
 
+module CodeExtendedMap : Map_tools.Collect
+  with type key = CodeMap.key
+   and type 'a t = 'a CodeMap.t
+
+
+module PromoExtendedMap : Map_tools.Collect
+  with type key = PromoMap.key
+   and type 'a t = 'a PromoMap.t
+
+module FinanceurExtendedMap : Map_tools.Collect
+  with type key = FinanceurMap.key
+   and type 'a t = 'a FinanceurMap.t
+
+module FirstNameExtendedMap : Map_tools.Collect
+  with type key = FirstNameMap.key
+   and type 'a t = 'a FirstNameMap.t
+
+module LastNameExtendedMap : Map_tools.Collect
+  with type key = LastNameMap.key
+   and type 'a t = 'a LastNameMap.t
+
+module YearExtendedMap: Map_tools.Collect
+  with type key = YearMap.key
+   and type 'a t = 'a YearMap.t
+
+module AcronymExtendedMap: Map_tools.Collect
+  with type key = AcronymMap.key
+   and type 'a t = 'a AcronymMap.t
+
+module ProgramExtendedMap: Map_tools.Collect
+  with type key = ProgramMap.key
+   and type 'a t = 'a ProgramMap.t
+
+
+
 type course =
   {
     year: annee option ;
@@ -225,7 +260,7 @@ type note =
   | Valide_sans_note
 
 type statut =
-  | Boursier_si 
+  | Boursier_si
   | Eleve
   | Etudiant
   | Eleve_bis

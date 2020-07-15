@@ -8,43 +8,37 @@ type t =
 
 let empty = Public_data.LastNameMap.empty
 
-let get_dispense ~firstname ~lastname ~year ~program ~dpt
+let fold_left_rev f a b = List.fold_left (fun a b -> f b a) b a
+
+let get_dispenses ?firstname ?lastname ?year ?program ?dpt
     dispenses =
-  match
-    Public_data.LastNameMap.find_opt
+  let acc1 =
+    Public_data.LastNameExtendedMap.collect
       lastname
       dispenses
-  with
-  | None -> None
-  | Some map
-    ->
-    match
-      Public_data.FirstNameMap.find_opt
-        firstname
-        map
-    with
-    | None -> None
-    | Some map ->
-      match
-        Public_data.YearMap.find_opt
-          year
-          map
-      with
-      | None -> None
-      | Some map ->
-        match
-          Public_data.ProgramMap.find_opt
-            program
-            map
-        with
-        | None -> None
-        | Some map ->
-          Public_data.AcronymMap.find_opt dpt map
-
-
+      []
+  in
+  let acc2 =
+    fold_left_rev
+      (Public_data.FirstNameExtendedMap.collect firstname)
+      acc1 []
+  in
+  let acc3 =
+    fold_left_rev
+      (Public_data.YearExtendedMap.collect year)
+      acc2 []
+  in
+  let acc4  =
+    fold_left_rev
+      (Public_data.ProgramExtendedMap.collect program)
+      acc3 []
+  in
+  fold_left_rev
+    (Public_data.AcronymExtendedMap.collect dpt)
+    acc4 []
 
 let add_dispense
-    unify pos state
+    warn unify pos state
     dispense dispenses  =
   let program = dispense.Public_data.dispense_program in
   let year = dispense.Public_data.dispense_annee in
@@ -52,12 +46,28 @@ let add_dispense
   let lastname = dispense.Public_data.dispense_lastname in
   let dpt = dispense.Public_data.dispense_dpt in
   let dispense_opt' =
-    get_dispense ~program ~dpt ~year ~firstname ~lastname dispenses
+    get_dispenses ~program ~dpt ~year ~firstname ~lastname dispenses
   in
   let state, dispense =
     match dispense_opt' with
-  | None -> state, dispense
-  | Some dispense' -> unify pos state dispense dispense'
+    | [] -> state, dispense
+    | _::_::_ ->
+      let msg =
+        Printf.sprintf
+          "several dispenses for %s %s %s %s %s"
+          firstname
+          lastname
+          year
+          program
+          dpt
+      in
+      warn
+        __POS__
+        msg
+        Exit
+        state, dispense
+
+    | [dispense'] -> unify pos state dispense dispense'
   in
   let map1 =
     match

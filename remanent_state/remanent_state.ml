@@ -671,20 +671,20 @@ let add_dispense unify =
     add_gen
       get_dispenses
       set_dispenses
-      (Dispenses.add_dispense unify)
+      (Dispenses.add_dispense warn unify)
 
-let get_dispense
-    ~firstname ~lastname
-    ~year
-    ~program
-    ~dpt
+let get_dispenses
+    ?firstname ?lastname
+    ?year
+    ?program
+    ?dpt
     t =
     let dispense_opt =
-      Dispenses.get_dispense
-        ~firstname ~lastname
-        ~year
-        ~program
-        ~dpt
+      Dispenses.get_dispenses
+        ?firstname ?lastname
+        ?year
+        ?program
+        ?dpt
         t.data.dispenses
     in
     t, dispense_opt

@@ -4,6 +4,13 @@ sig
   val simplify : Ord.t -> Ord.t
 end
 
+module type Collect =
+sig
+  type key
+  type 'a t
+  val collect : key option -> 'a t -> 'a list -> 'a list
+end
+
 module MakeSimplified (O:OrdSimplified) =
 struct
   module M = Map.Make (O.Ord)
@@ -26,3 +33,19 @@ struct
     gen_pred find_last_opt p map
 
 end
+
+module Collect (M:Map.S) =
+  (struct
+    type key = M.key
+    type 'a t = 'a M.t
+    let collect arg map acc =
+      match arg with
+      | None ->
+        M.fold (fun _ -> List.cons) map acc
+      | Some arg ->
+        begin
+          match M.find_opt arg map with
+          | None -> acc
+          | Some data -> data::acc
+        end
+  end: Collect with type key = M.key and type 'a t = 'a M.t)

@@ -2456,6 +2456,48 @@ let export_transcript
         let () =
           Remanent_state.print_newline state
         in
+        let state, list =
+          Remanent_state.get_dispenses
+            ~firstname ~lastname ~year
+            state
+        in
+        let lineproportion = 1. in
+        let textcolor = Color.red in
+        let backgroundcolor = Color.yellow in
+        let state =
+          List.fold_left
+            (fun state dispense ->
+               match dispense.Public_data.dispense_motif with
+               | None ->
+                 let msg =
+                   Printf.sprintf
+                     "dispense without explanaition for %s %s in %s"
+                     firstname lastname year
+                 in
+                 Remanent_state.warn
+                   __POS__
+                   msg
+                   Exit
+                   state
+               | Some motif ->
+                 let () =
+                   Remanent_state.log
+                     ~lineproportion
+                     ~backgroundcolor
+                     ~textcolor
+                     state
+                     "%s"
+                     motif
+                 in
+                 let () =
+                   Remanent_state.print_newline state
+                 in
+                 state
+            ) state list
+        in
+        let () =
+          Remanent_state.print_newline state
+        in
         let state, filtered_classes =
           filter_class ~firstname ~lastname ~year
             state remove_non_valided_classes situation.cours

@@ -261,9 +261,9 @@ val add_dispense:
   Public_data.dispense ->
   t -> t
 
-val get_dispense:
-  firstname:string -> lastname:string -> year:string -> program:string -> dpt:string->
-  t -> t * Public_data.dispense option
+val get_dispenses:
+  ?firstname:string -> ?lastname:string -> ?year:string -> ?program:string -> ?dpt:string->
+  t -> t * Public_data.dispense list 
 
 val get_current_academic_year:
   t -> t * Public_data.annee
