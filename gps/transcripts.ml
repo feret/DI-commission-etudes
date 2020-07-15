@@ -157,7 +157,10 @@ let log_statut
              | Public_data.Eleve_bis -> "Eleve BIS"
              | Public_data.Eleve -> "Eleve"
              | Public_data.Etudiant -> "Etudiant"
-             | Public_data.Ex_eleve -> "Ancien eleve")
+             | Public_data.Ex_eleve -> "Ancien eleve"
+             | Public_data.Ex_etudiant -> "Ancien etudiant"
+             | Public_data.Boursier_si ->
+               "Boursier - selection internationale")
         in state
 
 let log_diplome state diplome =
@@ -1044,6 +1047,16 @@ let genre_opt_of_string_opt pos state s_opt =
           None
           state
 
+let statuts =
+  [
+    Public_data.Eleve,["n";"eleve";"normalien"];
+    Public_data.Etudiant,["e";"etudiant"];
+    Public_data.Eleve_bis,["eleve bis"];
+    Public_data.Ex_eleve,["ex - eleve"];
+    Public_data.Ex_eleve,["ex - etudiant"];
+    Public_data.Boursier_si,["boursier si"]
+  ]
+
 let statut_opt_of_string_opt pos state s_opt =
   match s_opt with
   | None -> state, None
@@ -1052,37 +1065,28 @@ let statut_opt_of_string_opt pos state s_opt =
     then state, None
     else
       let s = simplify_string s in
-      if
-        List.mem
-          s
-          ["n";"eleve";"normalien"]
-      then state, Some Public_data.Eleve
-      else if
-        List.mem
-          s ["e";"etudiant"]
-      then state, Some Public_data.Etudiant
-      else
-      if List.mem
-          s
-          ["eleve bis"]
-      then
-        state, Some Public_data.Eleve_bis
-      else
-      if List.mem s
-          ["ex - eleve"]
-      then state, Some Public_data.Ex_eleve
-      else
-        let msg =
-          Format.sprintf
-            "Ill-formed Statut (%s)"
-            s
-        in
-        Remanent_state.warn_dft
-          pos
-          msg
-          Exit
-          None
-          state
+      let rec aux state l =
+        match l with
+        | [] ->
+          let msg =
+            Format.sprintf
+              "Ill-formed Statut (%s)"
+              s
+          in
+          Remanent_state.warn_dft
+            pos
+            msg
+            Exit
+            None
+            state
+        | (statut,keywords)::t ->
+          begin
+            if List.mem s keywords
+            then state, Some statut
+            else aux state t
+          end
+      in
+      aux state statuts
 
 let float_opt_of_string_opt _pos state s_opt =
   let state, float_opt_opt =
@@ -2001,6 +2005,17 @@ let color_of_dpt who pos state dpt =
       None
       state
 
+let get_bourse ~firstname ~lastname ~er state =
+  match Remanent_state.get_scholarship
+          ~firstname ~lastname
+          state
+  with
+  | state, None ->
+    state, ""
+  | state, Some scholarship ->
+    state,
+    Format.sprintf "Boursi%s %s" er
+      scholarship.Public_data.organism
 
 let export_transcript
     ~output ?filter:(remove_non_valided_classes=Public_data.All_but_in_progress_in_current_academic_year)
@@ -2165,24 +2180,26 @@ let export_transcript
            let state,statut,bourse =
             match gps_file.statut with
               | None -> state,"",""
+              | Some Public_data.Boursier_si ->
+                state,
+                Format.sprintf "\\Etudiant%s SI" genre,""
               | Some Public_data.Eleve_bis
               | Some Public_data.Eleve -> state,"\\'El\\`eve",""
               | Some Public_data.Ex_eleve ->
                 state,
                 Format.sprintf "Ancien%s \\'el\\`eve" ne,""
+              | Some Public_data.Ex_etudiant ->
+                begin
+                  let state, bourse =
+                    get_bourse ~firstname ~lastname ~er state
+                  in
+                  state,
+                  Format.sprintf "Ancien%s \\'etudiant%s" ne genre,bourse
+                end
               | Some Public_data.Etudiant ->
                 begin
                   let state, bourse =
-                    match Remanent_state.get_scholarship
-                            ~firstname ~lastname
-                            state
-                    with
-                    | state, None ->
-                      state, ""
-                    | state, Some scholarship ->
-                      state,
-                      Format.sprintf "Boursi%s %s" er
-                        scholarship.Public_data.organism
+                    get_bourse ~firstname ~lastname ~er state
                   in
                   state,
                   Format.sprintf "\\'Etudiant%s" genre,bourse
@@ -2580,7 +2597,7 @@ let export_transcript
                           Remanent_state.print_optional_cell
                             "compensation"
                             state
-                        | None -> () 
+                        | None -> ()
                       in
                       let () =
                         Remanent_state.print_cell

@@ -225,10 +225,12 @@ type note =
   | Valide_sans_note
 
 type statut =
+  | Boursier_si 
   | Eleve
   | Etudiant
   | Eleve_bis
   | Ex_eleve
+  | Ex_etudiant
 
 type remove_non_valided_classes =
   | All
