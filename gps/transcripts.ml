@@ -1579,7 +1579,9 @@ let lmathphys d =
       d.diplomes
   then
     List.exists
-      (fun diplome -> diplome.diplome_diplome=Some "gps47622")
+      (fun diplome ->
+         (diplome.diplome_diplome=Some "gps47622")
+         || (diplome.diplome_diplome=Some "gps50382"))
       d.diplomes
     &&
     List.exists
@@ -1630,6 +1632,7 @@ let mpri = gen_master "M-MPRI" "gps62263" "INFO-M2-MPRI200-S2"
 let mva = gen_master "M-MVA" "gps2228" "INFO-M2-MVASTAGE-S2"
 let iasd = gen_master "M-IASD" "gps76822" "INFO-M2-IASD-STG-S2"
 let mash = gen_master "M-MASH" "gps59622" "INFO-M2-MASH-STG-S2"
+let mint = gen_master "M-Interaction" "gps78864" "XT 00000000000647168"
 
 let string_of_stringopt s_opt =
   match s_opt with
@@ -1967,6 +1970,8 @@ let translate_diplome
       state, (Some "IASD","M2 IASD",dpt_info)
     else if mash situation then
       state, (Some "MASH","M2 MASH", dpt_info)
+    else if mint situation then
+      state, (Some "Interaction", "M2 Interaction", dpt_info)
     else
       check_dpt __POS__ state
         "M" "M1" code_cours year
@@ -2528,7 +2533,7 @@ let export_transcript
             (state, StringOptMap.empty)
             filtered_classes
         in
-        let l = [23.67;11.67;48.33;26.67;7.3;7.3;5.17] in
+        let l = [23.;11.67;48.33;26.67;7.3;7.97;5.17] in
         let sum =
           List.fold_left
             (fun total a -> total+.a)
@@ -2584,7 +2589,7 @@ let export_transcript
                  | Some ("DENS" | "dens") -> state, Some Color.blue
                  | Some ("LInfo" | "linfo") -> state, Some Color.yellow
                  | Some ("lmath" | "mmath" | "LMath" | "MMath") -> state, Some Color.orange
-                 | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash") ->
+                 | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" ) ->
                    color_of_dpt who __POS__ state dpt
                  | Some x  ->
                    let msg =
@@ -2707,6 +2712,39 @@ let export_transcript
                  Remanent_state.log
                    state
                    "\\addtocounter{validatedwogradeects%s}{\\thevsnects}%%\n\ \\addtocounter{grade%s}{\\thetotal}%%\n\ \\addtocounter{gradedects%s}{\\theects}%%\n\ \\addtocounter{potentialects%s}{\\thepotentialects}" key key key key
+               in
+               let state, decision_opt =
+                 match string with
+                 | None -> state, None
+                 | Some program ->
+                   Remanent_state.get_decision
+                     ~firstname
+                     ~lastname
+                     ~year
+                     ~dpt
+                     ~program
+                     state
+               in
+               let moyenne_opt, mention_opt,
+                   rank_opt, effectif_opt,
+                   date_opt, commission_name_opt,
+                             validated_opt =
+                 match decision_opt with
+                 | None -> None, None, None, None, None, None, None
+                 | Some d ->
+                   d.Public_data.decision_mean,
+                   d.Public_data.decision_mention,
+                   d.Public_data.decision_rank,
+                   d.Public_data.decision_effectif,
+                   d.Public_data.decision_date,
+                   d.Public_data.decision_commission_name,
+                   d.Public_data.decision_validated
+               in
+               let _ =
+                 moyenne_opt, mention_opt,
+                 rank_opt, effectif_opt,
+                 date_opt, commission_name_opt,
+                 validated_opt
                in
                let moyenne =
                  if string = Some "DENS" || string = Some "dens"
