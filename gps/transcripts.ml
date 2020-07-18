@@ -2010,6 +2010,27 @@ let color_of_dpt who pos state dpt =
       None
       state
 
+let acro_of_dpt who pos state dpt =
+  let dpt = simplify_string dpt in
+  if dpt = dpt_info
+  then state, Some acro_dpt_info
+  else if dpt = dpt_maths
+  then state, Some acro_dpt_maths
+  else if dpt = dpt_phys
+  then state, Some acro_dpt_phys
+  else
+    let msg =
+      Format.sprintf "Unknown departement (%s) for %s"
+        dpt who
+    in
+    Remanent_state.warn_dft
+      pos
+      msg
+      Exit
+      None
+      state
+
+
 let get_bourse ~firstname ~lastname ~er state =
   match Remanent_state.get_scholarship
           ~firstname ~lastname
@@ -2717,6 +2738,17 @@ let export_transcript
                  match string with
                  | None -> state, None
                  | Some program ->
+                   let state, dpt = acro_of_dpt who __POS__ state dpt in
+                   let dpt =
+                     match dpt with
+                     | None -> ""
+                     | Some a -> a
+                   in
+                   let _ =
+                     Printf.printf
+                       "LOOK FOR DECISION: %s %s %s %s %s @."
+                       firstname lastname year dpt program
+                   in
                    Remanent_state.get_decision
                      ~firstname
                      ~lastname
@@ -2740,23 +2772,129 @@ let export_transcript
                    d.Public_data.decision_commission_name,
                    d.Public_data.decision_validated
                in
-               let _ =
-                 moyenne_opt, mention_opt,
-                 rank_opt, effectif_opt,
-                 date_opt, commission_name_opt,
-                 validated_opt
-               in
                let moyenne =
                  if string = Some "DENS" || string = Some "dens"
                  then ""
                  else
+                   let mean =
+                     Format.sprintf
+                       "\\numprint{\\fpeval{\\thegrade%s/\\thegradedects%s}}"
+                       key key
+                   in
+                   let no_definitive_ects =
+                     Format.sprintf
+                       "\\thegradedects%s=0"
+                       key
+                   in
+                   let not_enough_ects =
+                     Format.sprintf
+                       "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factor} < 60"
+                       key key key
+                   in
+                   let definitive =
+                     Format.sprintf
+                       "\\thepotentialects%s=0"
+                       key
+                   in
+                   let mean_string =
+                     Latex_helper.case
+                       Latex_helper.ifnum
+                       [ no_definitive_ects,"";
+                         not_enough_ects,"";
+                         definitive,
+                         Format.sprintf "Moyenne : %s/20 \\hspace*{1cm}" mean]
+                       ~otherwise:(Format.sprintf "Moyenne provisoire : %s/20 \\hspace*{1cm}" mean)
+                   in
+                   mean_string
+               in
+               let ects,pects =
+                 let
+                   this_year_ects_amp =
                    Format.sprintf
-                     "\\ifnum \\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factor} < 60%%\n\ \\else%%\n\ Moyenne \\ifnum \\thepotentialects%s=0%%\n\ \\else%%\n\ provisoire\\fi%%\n\ : \\numprint{\\fpeval{\\thegrade%s/\\thegradedects%s}} \\hspace*{1cm}\\fi%%\n" key key key key key key
+                     "\\fpeval{(\\theects+\\thevsnects)}"
+                 in
+                 let total_ects_amp =
+                   Format.sprintf
+                     "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)}"
+                     key key
+                 in
+                 let total_ects =
+                   Format.sprintf
+                     "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)/\\factor}"
+                     key key
+                 in
+                 let ects_string =
+                   Latex_helper.case
+                     Latex_helper.ifnum
+                     [
+                       Format.sprintf "%s=0" total_ects,"";
+                       Format.sprintf "%s=%s" this_year_ects_amp total_ects_amp,
+                       Format.sprintf "ECTS : %s " total_ects;
+                     ]
+                     ~otherwise:(Format.sprintf "ECTS (cumulés) : %s" total_ects)
+                 in
+                 let potential_ects_string  =
+                   Latex_helper.ifnum
+                     ~cond:(Format.sprintf "\\thepotentialects%s=0" key)
+                     ~btrue:""
+                     ~bfalse:(Format.sprintf "\\hspace*{0.2cm} (potentiellement  {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factor}}} ects)" key key key)
+                 in
+                 ects_string, potential_ects_string
+               in
+               let moyenne, moyenne_off =
+                 match moyenne_opt with
+                 | None -> moyenne, ""
+                 | Some m ->
+                   Format.sprintf
+                     "%%Moyenne changee en commission\n\ %s" (Latex_helper.comment moyenne),
+                   Format.sprintf
+                     "%%Nouvelle moyenne\n\ Moyenne : \\numprint{%f}/20 \\hspace*{1cm}" m
+               in
+               let rank =
+                 match rank_opt, effectif_opt with
+                 | None, _ -> ""
+                 | Some a, None ->
+                   Format.sprintf "Rang : %i \\hspace*{1cm}" a
+                 | Some a, Some b ->
+                   Format.sprintf "Rang : %i/%i \\hspace*{1cm}" a b
+               in
+               let mention =
+                 match mention_opt with
+                 | None -> ""
+                 | Some a ->
+                   Format.sprintf
+                     "Mention : %s \\hspace*{1cm}"
+                     a
+               in
+               let commission =
+                 match
+                   commission_name_opt, date_opt
+                 with
+                 | None, _ -> ""
+                 | Some a, None ->
+                   Format.sprintf
+                     "Décision de %s \n\n"
+                     a
+                 | Some a, Some b ->
+                   Format.sprintf
+                     "Décision de %s du %s \n\n"
+                     a b
+               in
+               let validated =
+                 match validated_opt with
+                 | None -> ""
+                 | Some true ->
+                   Format.sprintf "Reçu%s \\hspace*{1cm}" genre
+                 | Some false ->
+                   Format.sprintf "Ajourné%s \\hspace*{1cm}" genre
                in
                let msg =
                  Format.sprintf
-                   "\\nprounddigits{2}%%\n\ \\ifnum \\thegradedects%s>0%%\n\ %s ECTS \\ifnum \\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)} = \\fpeval{(\\theects+\\thevsnects)}%%\n\ \\else%%\n\ (cumulés) \\fi: {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)/\\factor}}} %%\n\ \\else\\ifnum\\thevalidatedwogradeects%s>0%%\n\  ECTS \\ifnum \\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)} = \\fpeval{(\\theects+\\thevsnects)}%%\n\ \\else%%\n (cumulés) \\fi: {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)/\\factor}}} %%\n\ \\fi\\fi%%\n\ \\ifnum \\thepotentialects%s=0%%\n\ \\else%%\n\ \\hspace*{0.2cm} (potentiellement {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factor}}} ects)\\fi%%\n\ \\npnoround%%\n\ "
-                   key moyenne key key key key key key key key key key key key key
+                   "%s\\nprounddigits{2}%%\n\ %s%s%s%s\\npnoround%%\n\ \n\n%s%s%s"
+                   commission
+                   moyenne moyenne_off
+                   ects pects
+                   validated rank mention
                in
                let () =
                  Remanent_state.print_cell msg state

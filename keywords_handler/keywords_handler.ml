@@ -98,6 +98,7 @@ let asso_list =
     Public_data.Code, ["code";"code cours"];
     Public_data.Code_gps, ["code gps"];
     Public_data.Commentaire, ["commentaire"];
+    Public_data.Commission, ["commission"];
     Public_data.Contact_ENS, ["contact";"contact ENS"];
     Public_data.Contrat, ["contrat"];
     Public_data.Couleur_du_fond, ["couleur du fond"];
