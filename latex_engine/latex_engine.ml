@@ -51,14 +51,21 @@ let latex_to_pdf ?rev ~input state =
     let state =
       if rev then
         let command =
-          Printf.sprintf "pdftk %s.pdf cat end-1 output %s.tmp"
+          Printf.sprintf "pdftk %s.pdf cat 1-endeast output %s.tmp"
             basename basename
         in
         let state =
           Safe_sys.command __POS__ state command
         in
         let command =
-          Printf.sprintf "mv %s.tmp %s.pdf" basename basename
+          Printf.sprintf "pdftk %s.tmp cat end-1 output %s.pdf"
+            basename basename
+        in
+        let state =
+          Safe_sys.command __POS__ state command
+        in
+        let state =
+          Safe_sys.rm __POS__ state (Printf.sprintf "%s.tmp" basename)
         in
         let state =
           Safe_sys.command __POS__ state command

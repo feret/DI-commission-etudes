@@ -2,6 +2,7 @@ type decision_id  =
   {
     firstname: string option;
     lastname: string option;
+    decision: string option;
     annee: string option;
     program: string option;
     dpt: string option;
@@ -19,6 +20,7 @@ let empty_decision =
     firstname=None;
     lastname=None;
     program=None;
+    decision=None; 
     dpt=None;
     annee=None;
     mean=None;
@@ -37,6 +39,7 @@ let keywords_list =
     Public_data.LastName;
     Public_data.Commission;
     Public_data.Date;
+    Public_data.Decision;
     Public_data.Annee_Academique;
     Public_data.Classement;
     Public_data.Effectif;
@@ -146,6 +149,17 @@ let all_fields =
           {a with Public_data.decision_annee})
       ~record_name
       ~field_name:"year of the program"
+      ~pos:__POS__;
+    lift_string_opt
+      ~keyword:Public_data.Decision
+      ~set_tmp:(Tools.collect_string
+                  (fun decision x -> {x with decision}))
+      ~get_tmp:(fun a -> a.decision)
+      ~get:(fun a -> a.Public_data.decision_decision)
+      ~set:(fun decision_decision a ->
+          {a with Public_data.decision_decision})
+      ~record_name
+      ~field_name:"decision of the jury"
       ~pos:__POS__;
     lift_string
       ~keyword:Public_data.Diplome

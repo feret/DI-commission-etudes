@@ -106,8 +106,9 @@ let asso_list =
     Public_data.Courriel, ["courriel"];
     Public_data.Courriel_du_tuteur, ["courriel du tuteur"];
     Public_data.Credits, ["crédits"];
-    Public_data.Date, ["Date"];
-    Public_data.Date_de_Naissance, ["Date de naissance";"naissance"];
+    Public_data.Date, ["date"];
+    Public_data.Date_de_Naissance, ["date de naissance";"naissance"];
+    Public_data.Decision, ["décision"];
     Public_data.Departement, ["département"];
     Public_data.Departements,["département(s)"];
     Public_data.Departement_principal, ["principal";"département principal"];

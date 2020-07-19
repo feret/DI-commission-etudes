@@ -2554,7 +2554,7 @@ let export_transcript
             (state, StringOptMap.empty)
             filtered_classes
         in
-        let l = [23.;11.67;48.33;26.67;7.3;7.97;5.17] in
+        let l = [22.5;11.67;48.33;26.67;7.3;8.47;5.17] in
         let sum =
           List.fold_left
             (fun total a -> total+.a)
@@ -2744,11 +2744,6 @@ let export_transcript
                      | None -> ""
                      | Some a -> a
                    in
-                   let _ =
-                     Printf.printf
-                       "LOOK FOR DECISION: %s %s %s %s %s @."
-                       firstname lastname year dpt program
-                   in
                    Remanent_state.get_decision
                      ~firstname
                      ~lastname
@@ -2760,9 +2755,10 @@ let export_transcript
                let moyenne_opt, mention_opt,
                    rank_opt, effectif_opt,
                    date_opt, commission_name_opt,
-                             validated_opt =
+                   decision_opt, _validated_opt
+                 =
                  match decision_opt with
-                 | None -> None, None, None, None, None, None, None
+                 | None -> None, None, None, None, None, None, None, None
                  | Some d ->
                    d.Public_data.decision_mean,
                    d.Public_data.decision_mention,
@@ -2770,16 +2766,23 @@ let export_transcript
                    d.Public_data.decision_effectif,
                    d.Public_data.decision_date,
                    d.Public_data.decision_commission_name,
+                   d.Public_data.decision_decision,
                    d.Public_data.decision_validated
                in
-               let moyenne =
+               let moyenne_value =
+                 Format.sprintf
+                   "\\thegrade%s/\\thegradedects%s"
+                   key
+                   key
+               in
+               let moyenne, update_moyenne, mention =
                  if string = Some "DENS" || string = Some "dens"
-                 then ""
+                 then "","",""
                  else
                    let mean =
                      Format.sprintf
-                       "\\numprint{\\fpeval{\\thegrade%s/\\thegradedects%s}}"
-                       key key
+                       "\\numprint{\\fpeval{%s}}"
+                       moyenne_value
                    in
                    let no_definitive_ects =
                      Format.sprintf
@@ -2802,10 +2805,47 @@ let export_transcript
                        [ no_definitive_ects,"";
                          not_enough_ects,"";
                          definitive,
-                         Format.sprintf "Moyenne : %s/20 \\hspace*{1cm}" mean]
-                       ~otherwise:(Format.sprintf "Moyenne provisoire : %s/20 \\hspace*{1cm}" mean)
+                         Format.sprintf "Moyenne : \\numprint{\\fpeval{\\mean}}/20 \\hspace*{1cm}"]
+                       ~otherwise:(Format.sprintf "Moyenne provisoire : \\numprint{\\fpeval{\\mean}}/20 \\hspace*{1cm}")
                    in
-                   mean_string
+                   let update_mean =
+                     match moyenne_opt with
+                     | None ->
+                       Format.sprintf
+                         "\\renewcommand{\\mean}{%s}" moyenne_value
+                     | Some m ->
+                       Format.sprintf
+                         "%%Moyenne changee en commission\n\ %s%%Nouvelle moyenne\n\ %s\n\ %%\\renewcommand{\\mean}{%s}\n\ \\renewcommand{\\mean}{%f}"
+                         (Latex_helper.comment mean)
+                         (Latex_helper.comment
+                            (Format.sprintf "%f" m))
+                        moyenne_value
+                        m
+                   in
+                   let mention =
+                     if string = Some "DENS" || string = Some "dens"
+                     then ""
+                     else
+                       let mention =
+                         Latex_helper.case
+                           Latex_helper.ifnum
+                           [
+                             Format.sprintf "\\fpeval{\\mean<12} = 1","";
+                             Format.sprintf "\\fpeval{\\mean<14} = 1",
+                             "Mention : Assez Bien";
+                             Format.sprintf "\\fpeval{\\mean<16} = 1 ", "Mention : Bien";
+                            ]
+
+                           ~otherwise:"Mention : Très Bien"
+                       in
+                       match mention_opt with
+                     | None -> mention
+                     | Some a ->
+                       Format.sprintf
+                         "Mention : %s \\hspace*{1cm}"
+                         a
+                   in
+                   mean_string, update_mean, mention
                in
                let ects,pects =
                  let
@@ -2841,16 +2881,7 @@ let export_transcript
                  in
                  ects_string, potential_ects_string
                in
-               let moyenne, moyenne_off =
-                 match moyenne_opt with
-                 | None -> moyenne, ""
-                 | Some m ->
-                   Format.sprintf
-                     "%%Moyenne changee en commission\n\ %s" (Latex_helper.comment moyenne),
-                   Format.sprintf
-                     "%%Nouvelle moyenne\n\ Moyenne : \\numprint{%f}/20 \\hspace*{1cm}" m
-               in
-               let rank =
+                let rank =
                  match rank_opt, effectif_opt with
                  | None, _ -> ""
                  | Some a, None ->
@@ -2858,15 +2889,7 @@ let export_transcript
                  | Some a, Some b ->
                    Format.sprintf "Rang : %i/%i \\hspace*{1cm}" a b
                in
-               let mention =
-                 match mention_opt with
-                 | None -> ""
-                 | Some a ->
-                   Format.sprintf
-                     "Mention : %s \\hspace*{1cm}"
-                     a
-               in
-               let commission =
+                let commission =
                  match
                    commission_name_opt, date_opt
                  with
@@ -2880,21 +2903,19 @@ let export_transcript
                      "Décision de %s du %s \n\n"
                      a b
                in
-               let validated =
-                 match validated_opt with
+               let decision =
+                 match decision_opt with
                  | None -> ""
-                 | Some true ->
-                   Format.sprintf "Reçu%s \\hspace*{1cm}" genre
-                 | Some false ->
-                   Format.sprintf "Ajourné%s \\hspace*{1cm}" genre
+                 | Some x ->
+                   Format.sprintf "%s \\hspace*{1cm}" x
                in
                let msg =
                  Format.sprintf
                    "%s\\nprounddigits{2}%%\n\ %s%s%s%s\\npnoround%%\n\ \n\n%s%s%s"
                    commission
-                   moyenne moyenne_off
+                   update_moyenne moyenne
                    ects pects
-                   validated rank mention
+                   decision rank mention
                in
                let () =
                  Remanent_state.print_cell msg state

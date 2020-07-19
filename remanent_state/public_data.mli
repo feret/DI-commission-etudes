@@ -146,6 +146,7 @@ type decision =
     decision_annee: string;
     decision_program: string;
     decision_dpt: string;
+    decision_decision: string option;
     decision_mean: float option;
     decision_mention: string option;
     decision_rank: int option;
@@ -188,6 +189,7 @@ type keywords =
   | Credits
   | Date
   | Date_de_Naissance
+  | Decision
   | Departement
   | Departements
   | Departement_principal

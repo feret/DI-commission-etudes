@@ -23,7 +23,7 @@ type cloud_client = NextCloudCmd
 type pdf_generator = PdfLatex
 type file_retriever = WGET
 type cloud_synchronization_mode = Daemon | CommandLine
-type annee = string 
+type annee = string
 
 type genre =
   | Feminin
@@ -177,6 +177,7 @@ type decision =
     decision_annee: string;
     decision_program: string;
     decision_dpt: string;
+    decision_decision: string option;
     decision_mean: float option;
     decision_mention: string option;
     decision_rank: int option;
@@ -193,6 +194,7 @@ let empty_decision =
     decision_annee = "";
     decision_program = "";
     decision_dpt = "";
+    decision_decision = None;
     decision_mean = None;
     decision_mention = None;
     decision_rank = None;
@@ -242,6 +244,7 @@ type keywords =
   | Credits
   | Date
   | Date_de_Naissance
+  | Decision
   | Departement
   | Departements
   | Departement_principal
