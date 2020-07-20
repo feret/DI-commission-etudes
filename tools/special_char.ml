@@ -51,6 +51,54 @@ let special_char_latex =
       '\185', "{\\`u}";
       '\187', "{\\^u}";
       '\195', "";
+    ]
+
+let special_char_url =
+  [
+    '\128', "%C0";
+    '\129', "%C1";
+    '\130', "%C2";
+    '\131', "%C3";
+    '\132', "%C4";
+    '\135', "%C7";
+    '\136', "%C8";
+    '\137', "%C9";
+    '\138', "%CA";
+    '\139', "%CB";
+    '\140', "%CC";
+    '\141', "%CD";
+    '\142', "%CE";
+    '\143', "%CF";
+    '\146', "%D2";
+    '\147', "%D3";
+    '\148', "%D4";
+    '\149', "%D5";
+    '\150', "%D6";
+    (*'\152', "{\\c E}";*)
+    '\153', "%D9";
+    '\155', "%DB";
+    '\160', "%E0";
+    '\161', "%E1";
+    '\162', "%E2";
+    '\163', "%E3";
+    '\164', "%E4";
+    '\167', "%E7";
+    '\168', "%E8";
+    '\169', "%E9";
+    '\170', "%EA";
+    '\171', "%EB";
+    '\172', "%EC";
+    '\173', "%ED";
+    '\174', "%EE";
+    '\175', "%EF";
+    '\178', "%F2";
+    '\179', "%F3";
+    '\180', "%F4";
+    '\181', "%F5";
+    '\182', "%F6";
+    '\185', "%F9";
+    '\187', "%FA";
+    '\195', "";
   ]
 
 let lowercase_char =
@@ -144,6 +192,13 @@ let special_char_map =
        CharMap.add x y map)
     CharMap.empty
     special_char
+
+let special_char_url_map =
+  List.fold_left
+    (fun map (x,y) ->
+       CharMap.add x y map)
+    CharMap.empty
+    special_char_url
 
 let special_char_latex_map =
   List.fold_left
@@ -266,6 +321,9 @@ let correct_string_gen map s =
   in
   String.concat "" list
 
+let correct_string_url s =
+  correct_string_gen special_char_url_map s
+
 let correct_string_latex s =
   correct_string_gen special_char_latex_map s
 
@@ -285,7 +343,7 @@ let lowercase_char c =
   match
     CharMap.find_opt c lowercase_char_map
   with
-  | Some a -> a 
+  | Some a -> a
   | None -> Char.lowercase_ascii c
 
 

@@ -2031,21 +2031,23 @@ let acro_of_dpt who pos state dpt =
       state
 
 
-let stage = 25
-let memoire = 24
-let ecla = -1
+let stage = 250
+let memoire = 240
+let ecla = -10
+
 let dma = 0
-let info = 1
-let phys = 2
-let autre = 3
-let manquant = 4
+let eco = 10
+let info = 20
+let phys = 30
+let autre = 40
+let manquant = 50
 
 let code_list =
   [
     stage, "STAGE";
-    memoire, "memoire";
-    memoire, "expose";
+    memoire, "MIIME";
     ecla, "ECLA";
+    eco, "ECO";
     dma, "DMA";
     info, "INFO";
     phys, "PHYS";
@@ -2799,9 +2801,9 @@ let export_transcript
                    "\\addtocounter{validatedwogradeects%s}{\\thevsnects}%%\n\ \\addtocounter{grade%s}{\\thetotal}%%\n\ \\addtocounter{gradedects%s}{\\theects}%%\n\ \\addtocounter{potentialects%s}{\\thepotentialects}" key key key key
                in
                let state, decision_opt =
-                 match string with
-                 | None -> state, None
-                 | Some program ->
+                 match dpt, string with
+                 | _, None | "dens", _ -> state, None
+                 | _, Some program ->
                    let state, dpt = acro_of_dpt who __POS__ state dpt in
                    let dpt =
                      match dpt with

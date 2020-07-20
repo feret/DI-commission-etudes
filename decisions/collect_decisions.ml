@@ -20,7 +20,7 @@ let empty_decision =
     firstname=None;
     lastname=None;
     program=None;
-    decision=None; 
+    decision=None;
     dpt=None;
     annee=None;
     mean=None;
@@ -56,6 +56,7 @@ let keywords_of_interest =
     Public_data.FirstName ;
     Public_data.Diplome;
     Public_data.Departement;
+    Public_data.Annee_Academique
   ]
 
 let collect_int suffix pos state =
@@ -111,6 +112,7 @@ let lift_int_opt =
 
 let mandatory_fields =
   [
+    lift_pred (fun a -> a.annee) "academic year";
     lift_pred (fun a -> a.firstname) "the first name of the student";
     lift_pred (fun a -> a.lastname) "the last name of the student";
     lift_pred (fun a -> a.dpt) "the department";
