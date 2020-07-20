@@ -2556,7 +2556,7 @@ let export_transcript
                | None ->
                  let msg =
                    Printf.sprintf
-                     "dispense without explanaition for %s %s in %s"
+                     "dispense without explaination for %s %s in %s"
                      firstname lastname year
                  in
                  Remanent_state.warn
@@ -2631,13 +2631,6 @@ let export_transcript
         let state =
           StringOptMap.fold
             (fun (string,dpt) list state ->
-               let _ =
-                 Remanent_state.fprintf
-                   state
-                   "%% ALLOC CLASS -%s- -%s-"
-                   (match string with None -> "_none_" | Some a -> a)
-                   dpt
-               in
                let state, key, b = alloc_suffix (string,dpt) state in
                let () =
                  if b

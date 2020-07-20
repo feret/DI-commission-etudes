@@ -81,6 +81,7 @@ let float_to_string ?force_dec_sep_to_dot state f =
   let s = string_of_float f in
   correct_comma ?force_dec_sep_to_dot state s
 
+let valide_sans_note = Tools.valide_sans_note 
 
 let to_string _pos ?force_dec_sep_to_dot state t =
   match t with
@@ -90,7 +91,7 @@ let to_string _pos ?force_dec_sep_to_dot state t =
   | Public_data.En_cours -> state, "en cours"
   | Public_data.Abandon -> state, "abandon"
   | Public_data.Valide_sans_note ->
-    state, "validé (sans note)"
+    state, valide_sans_note
 
 let of_string pos state s =
   if Tools.space_only s then
@@ -102,7 +103,7 @@ let of_string pos state s =
     | "abandon" ->
       state,
       Some Public_data.Abandon
-    | "validé (sans note)" ->
+    | s when s=valide_sans_note ->
       state,
       Some Public_data.Valide_sans_note
     | "en cours" ->

@@ -67,9 +67,6 @@ let latex_to_pdf ?rev ~input state =
         let state =
           Safe_sys.rm __POS__ state (Printf.sprintf "%s.tmp" basename)
         in
-        let state =
-          Safe_sys.command __POS__ state command
-        in
         state
       else
         state

@@ -55,6 +55,7 @@ let launch
       tool options url
   in
   let _ = Format.print_flush () in
+  let _ = Format.printf "%s" command in  
   state, Sys.command command
 
 let get_last_line file =

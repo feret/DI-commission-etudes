@@ -120,8 +120,8 @@ let get_student_file
       machine
       port
       input_repository
-      lastname
-      firstname
+      (Special_char.uppercase lastname)
+      (Special_char.uppercase firstname)
   in
   let output_repository =
     match output_repository,prefix  with

@@ -591,7 +591,7 @@ let print_preamble ?decimalsepsymbol logger =
 {\\setcounter{pects}{#8}}%%\n\
 {\\setcounter{pects}{0}}%%\n\
  %%\n\
- \\IfStrEq{#7}{valid{\\'e} (sans note)}%%\n\
+ \\IfStrEq{#7}{%s}%%\n\
  {\\setcounter{vects}{#8}}%%\n\
  {\\setcounter{vects}{0}}%%\n\
   %%\n\
@@ -602,7 +602,7 @@ let print_preamble ?decimalsepsymbol logger =
 \\addtocounter{vsnects}{\\fpeval{\\thevects*\\factor}}%%\n\
  %%\n\       #2 & \\ifnum \\thenrow=\\thetotalrows %%\n\ \\multirow{-\\thetotalrows}{\\hsize}{{\\centering #3}}\\fi & \\ifnum \\thetotalrows=1 %%\n\  \\mbox{}\\newline\\newline#4\\newline\\newline\\else#4\\fi  & #5 & #6 & \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#7}}}{\\mynumprint{#7}} & \\numprint{#8}\\cr%%\n\
 }%%\n\
-%%\n\ "
+%%\n\ " Tools.valide_sans_note
     in
     ()
   | Json | TXT | CSV | XLS -> ()

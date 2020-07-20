@@ -71,3 +71,4 @@ val collect_bool:
   'remanent_state * 'accumulator
 
 val sort: ('a -> 'b) -> (('b * 'a) -> ('b * 'a) -> int) -> 'a list -> 'a list
+val valide_sans_note: string 

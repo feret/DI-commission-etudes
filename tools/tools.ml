@@ -280,3 +280,5 @@ let sort f p l =
       l
   in
   l
+
+let valide_sans_note = "validé \\newline (sans note)"
