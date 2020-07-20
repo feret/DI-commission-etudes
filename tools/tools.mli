@@ -69,3 +69,5 @@ val collect_bool:
   (bool option -> 'accumulator -> 'accumulator) ->
   'remanent_state -> string option -> 'accumulator ->
   'remanent_state * 'accumulator
+
+val sort: ('a -> 'b) -> (('b * 'a) -> ('b * 'a) -> int) -> 'a list -> 'a list

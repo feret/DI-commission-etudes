@@ -265,3 +265,18 @@ let bool_of_string warn state s =
 let collect_bool warn  =
   collect_conv "string %s cannot be converted into a Boolean"
     bool_of_string warn
+
+let sort f p l =
+  let l =
+    List.rev_map
+      (fun a -> f a,a)
+      l
+  in
+  let cmp a b = p b a in
+  let l = List.sort cmp l in
+  let l =
+    List.rev_map
+      snd
+      l
+  in
+  l

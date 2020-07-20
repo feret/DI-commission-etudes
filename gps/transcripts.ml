@@ -2031,6 +2031,65 @@ let acro_of_dpt who pos state dpt =
       state
 
 
+let stage = 25
+let memoire = 24
+let ecla = -1
+let dma = 0
+let info = 1
+let phys = 2
+let autre = 3
+let manquant = 4
+
+let code_list =
+  [
+    stage, "STAGE";
+    memoire, "memoire";
+    memoire, "expose";
+    ecla, "ECLA";
+    dma, "DMA";
+    info, "INFO";
+    phys, "PHYS";
+  ]
+
+let fetch a =
+  match (snd a).code_cours with
+  | None -> manquant
+  | Some code ->
+  let rec aux l =
+    match l with
+    | [] -> autre
+    | (a,b)::t ->
+      if Tools.substring b code
+      then a
+      else aux t
+  in
+  aux code_list
+
+let p (t,(_,cours)) (t',(_,cours')) =
+  let cmp = compare t t' in
+  if cmp = 0
+  then compare cours.cours_libelle cours'.cours_libelle
+  else cmp
+
+let is_mandatory state cours =
+  state,
+  if match cours.code_cours with
+  | None -> false
+  | Some a ->
+    List.mem
+      (String.trim a)
+      [
+        "INFO-L3-ALGOPRO-S1";
+        "INFO-L3-LAPROCO-S1";
+        "INFO-L3-SYSDIG-S1";
+        "INFO-L3-LAFORMCC-S1";
+        "INFO-L3-SYSRES-S2";
+      ]
+  then
+    (fun x -> Format.sprintf "\\mandatory{%s}" x)
+  else
+    (fun x -> x)
+
 let get_bourse ~firstname ~lastname ~er state =
   match Remanent_state.get_scholarship
           ~firstname ~lastname
@@ -2208,7 +2267,7 @@ let export_transcript
               | None -> state,"",""
               | Some Public_data.Boursier_si ->
                 state,
-                Format.sprintf "\\Etudiant%s SI" genre,""
+                Format.sprintf "\\'Etudiant%s SI" genre,""
               | Some Public_data.Eleve_bis
               | Some Public_data.Eleve -> state,"\\'El\\`eve",""
               | Some Public_data.Ex_eleve ->
@@ -2554,7 +2613,7 @@ let export_transcript
             (state, StringOptMap.empty)
             filtered_classes
         in
-        let l = [22.5;11.67;48.33;26.67;7.3;8.47;5.17] in
+        let l = [21.0;11.67;48.33;26.67;7.3;10.00;5.17] in
         let sum =
           List.fold_left
             (fun total a -> total+.a)
@@ -2572,6 +2631,13 @@ let export_transcript
         let state =
           StringOptMap.fold
             (fun (string,dpt) list state ->
+               let _ =
+                 Remanent_state.fprintf
+                   state
+                   "%% ALLOC CLASS -%s- -%s-"
+                   (match string with None -> "_none_" | Some a -> a)
+                   dpt
+               in
                let state, key, b = alloc_suffix (string,dpt) state in
                let () =
                  if b
@@ -2642,6 +2708,7 @@ let export_transcript
                    state
                in
                let macro = "cours" in
+               let list = Tools.sort fetch p list in
                let state =
                  List.fold_left
                    (fun state (diplome,cours) ->
@@ -2677,10 +2744,14 @@ let export_transcript
                           diplome
                           state
                       in
+                      let state, f =
+                        is_mandatory state cours
+                      in
                       let () =
                         Remanent_state.print_cell
-                          (string_of_stringopt
-                             cours.cours_libelle)
+                          (f
+                             (string_of_stringopt
+                                cours.cours_libelle))
                           state
                       in
                       let () =
@@ -2805,8 +2876,8 @@ let export_transcript
                        [ no_definitive_ects,"";
                          not_enough_ects,"";
                          definitive,
-                         Format.sprintf "Moyenne : \\numprint{\\fpeval{\\mean}}/20 \\hspace*{1cm}"]
-                       ~otherwise:(Format.sprintf "Moyenne provisoire : \\numprint{\\fpeval{\\mean}}/20 \\hspace*{1cm}")
+                         Format.sprintf "Moyenne : \\numprint{\\fpeval{\\mean}}/20 \\hspace*{1cm}%%\n\ "]
+                       ~otherwise:(Format.sprintf "Moyenne provisoire : \\numprint{\\fpeval{\\mean}}/20 \\hspace*{1cm}%%\n\ ")
                    in
                    let update_mean =
                      match moyenne_opt with
@@ -2829,14 +2900,20 @@ let export_transcript
                        let mention =
                          Latex_helper.case
                            Latex_helper.ifnum
-                           [
-                             Format.sprintf "\\fpeval{\\mean<12} = 1","";
-                             Format.sprintf "\\fpeval{\\mean<14} = 1",
-                             "Mention : Assez Bien";
-                             Format.sprintf "\\fpeval{\\mean<16} = 1 ", "Mention : Bien";
-                            ]
-
-                           ~otherwise:"Mention : Très Bien"
+                           [no_definitive_ects,"";
+                            not_enough_ects,"";
+                            definitive,
+                            Latex_helper.case
+                              Latex_helper.ifnum
+                              [
+                                Format.sprintf "\\fpeval{\\mean<12} = 1","";
+                                Format.sprintf "\\fpeval{\\mean<14} = 1",
+                                "Mention : Assez Bien";
+                                Format.sprintf "\\fpeval{\\mean<16} = 1 ",
+                                "Mention : Bien";
+                              ]
+                              ~otherwise:"Mention : Très Bien"]
+                           ~otherwise:""
                        in
                        match mention_opt with
                      | None -> mention
