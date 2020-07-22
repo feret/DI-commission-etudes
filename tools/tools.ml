@@ -138,6 +138,7 @@ let collect_string set state data x =
 let collect_conv string from warn set state data x =
     let state, data =
       match data with
+      | Some x when String.trim x = "" -> state, None 
       | Some x ->
         begin
           try
