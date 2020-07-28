@@ -55,6 +55,7 @@ let special_char_latex =
 
 let special_char_url =
   [
+    ' ', "+";
     '\128', "%C0";
     '\129', "%C1";
     '\130', "%C2";
