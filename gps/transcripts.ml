@@ -615,6 +615,7 @@ type remanent =
     match list with
       ["du";date_deb;"au";date_fin]
       ->
+
       let state, deb = fetch_date pos state date_deb in
       let state, fin = fetch_date pos state date_fin in
       state, Some (deb,fin)
@@ -634,7 +635,7 @@ let filter_stage_year year state stages =
          match stage.date_debut with
          | None -> true
          | Some date ->
-           (date.mois>8 && date.an=year) || (date.mois<8 && date.an=year+1)
+           (date.mois>8 && date.an=year) || (date.mois<=8 && date.an=year+1)
       )
       stages
   with
@@ -1571,6 +1572,17 @@ let get_gps_file
       header state current_file current_file' output =
     if
       List.mem
+        (Some Public_data.Periode)
+        header
+    then
+      store_stage
+        __POS__ ~who
+        state
+        current_file
+        current_file'
+        output
+    else if
+      List.mem
         (Some Public_data.Note)
         header
     then
@@ -1620,17 +1632,6 @@ let get_gps_file
         (Some Public_data.Diplome) header
     then
       store_diplome
-        __POS__ ~who
-        state
-        current_file
-        current_file'
-        output
-    else if
-      List.mem
-        (Some Public_data.Periode)
-        header
-    then
-      store_stage
         __POS__ ~who
         state
         current_file
@@ -2285,7 +2286,7 @@ let is_stage cours =
   match cours.code_cours with
   | None -> false
   | Some a ->
-    Tools.substring "stage" a
+    Tools.substring "STAGE" a
 
 let p (t,(_,cours)) (t',(_,cours')) =
   let cmp = compare t t' in
@@ -2982,14 +2983,14 @@ let export_transcript
                             match stage.sujet with
                             | None -> ""
                             | Some a ->
-                              if l = "" then a else "\\newline "^a
+                              if l = "" then a else "\\newline \""^a^"\""
                           in
                           let directeur =
                             match stage.directeur_de_stage with
                             | None -> ""
                             | Some a ->
                               if l = "" && sujet=""
-                              then a else "\\newline "^a
+                              then a else "\\newline dirigé par "^a
                           in
                           state, Some (Format.sprintf "%s%s%s" l sujet directeur)
                         else state, Some l

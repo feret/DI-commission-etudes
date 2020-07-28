@@ -148,7 +148,7 @@ let asso_list =
     Public_data.Origine, ["origine";"concours"];
     Public_data.Organisme_de_Financement, ["financement";"financeur";"organisme de financement"];
     Public_data.Periode, ["période"];
-    Public_data.Periode_de_Financement, ["période de finanement"];
+    Public_data.Periode_de_Financement, ["période de financement"];
     Public_data.Pers_id, ["pers_id"];
     Public_data.Pour_Diplome, ["pour diplôme"];
     Public_data.Prenom_du_tuteur, ["prénom du tuteur"];
