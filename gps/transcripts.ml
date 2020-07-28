@@ -294,16 +294,26 @@ let empty_cours =
     commentaire = [];
   }
 
+type date =
+  {
+    jour:int;
+    mois:int;
+    an:int
+  }
 type stage =
   {
+    id: string option;
+    cvt: string option;
     periode: string option;
+    date_debut: date option;
+    date_fin: date option;
     sujet: string option;
     directeur_de_stage: string option;
     responsable_local: string option;
     service_labo_dpt: string option;
     etablissement_ou_entreprise: string option;
     stage_credits: float option;
-    stage_valide: bool option;
+    stage_valide: Public_data.valide option;
     stage_accord: bool option;
     stage_commentaire: string list;
     type_de_financement: string option;
@@ -328,14 +338,24 @@ let log_stage state stage =
     log_float state
       ("credits",stage.stage_credits)
   in
+  let state, valide =
+    match stage.stage_valide
+    with
+    | None -> state, None
+    | Some v ->
+      let a,s =
+        Valide.to_string __POS__ state v
+      in
+      a, Some s
+  in
   let state =
-    List.fold_left
+    log_string state
+      ("validé", valide)
+  in
+  let state =
       log_bool
       state
-      [
-        "validé", stage.stage_valide;
-        "accord", stage.stage_accord;
-      ]
+      ("accord", stage.stage_accord)
   in
   let () =
     if stage.stage_commentaire = []
@@ -357,6 +377,10 @@ let log_stage state stage =
 
 let empty_stage =
   {
+    id = None;
+    cvt = None ;
+    date_debut = None ;
+    date_fin = None ;
     periode = None;
     sujet = None;
     directeur_de_stage = None;
@@ -550,6 +574,7 @@ type remanent =
   {gps_file: gps_file;
    rem_cours: cours;
    rem_diplome: diplome;
+   rem_commentaires: string list ;
    stage: stage;
    inscription_DENS: string option;
    sit_adm: string option;
@@ -560,9 +585,98 @@ type remanent =
    dpt_secondaire: string option;
    opt: string option;
    prenote: string option;
+   preaccord: bool option;
    prevalide: Public_data.valide option;
    precode: string option;
   }
+
+
+  let fetch_date pos state date =
+    let list = String.split_on_char '/' date in
+    match list with
+      [d;m;y] ->
+      begin
+        try
+          let d,m,y = int_of_string d,int_of_string m,int_of_string y in
+          state,
+          Some {jour=d;mois=m;an=y}
+        with
+          _ ->
+          Remanent_state.warn_dft pos
+            "Wrong string for a date"
+            Exit None state
+      end
+    | _ -> Remanent_state.warn_dft pos
+             "Wrong string for a date"
+             Exit None state
+
+  let fetch_deb_fin pos state periode =
+    let list = String.split_on_char ' ' periode in
+    match list with
+      ["du";date_deb;"au";date_fin]
+      ->
+      let state, deb = fetch_date pos state date_deb in
+      let state, fin = fetch_date pos state date_fin in
+      state, Some (deb,fin)
+    | _ ->
+      Remanent_state.warn_dft
+        pos
+        "wrong string for the period of an internship"
+        Exit
+        None
+        state
+
+let filter_stage_year year state stages =
+  try
+    let year = int_of_string year in
+    state, List.filter
+      (fun stage ->
+         match stage.date_debut with
+         | None -> true
+         | Some date ->
+           (date.mois>8 && date.an=year) || (date.mois<8 && date.an=year+1)
+      )
+      stages
+  with
+  | _ ->
+    let msg =
+      Format.sprintf
+        "Wrong string for an academic year (%s)"
+        year
+    in
+    Remanent_state.warn_dft
+      __POS__
+      msg
+      Exit
+      stages
+      state
+
+  let fetch_string string comment =
+    let list =
+      List.rev_map (String.split_on_char ' ') (List.rev comment)
+    in
+    let list = List.flatten list in
+    let list =
+      List.fold_left
+        (fun residue elt ->
+           let list =
+             String.split_on_char '/' elt
+           in
+           list::residue
+        )
+        [] (List.rev list)
+    in
+    let list = List.flatten list in
+    let rec aux string list =
+      match list with
+      | [] -> None
+      | h::d::_ when h=string -> Some d
+      | _::t -> aux string t
+    in
+    aux string list
+
+let fetch_id = fetch_string "id"
+let fetch_cvt = fetch_string "cvt"
 
 let get_bilan_annuel state remanent year =
   state,
@@ -733,16 +847,37 @@ let store_cours  =
            state, Some Public_data.En_cours
        in
        let code_cours = remanent.precode in
-       state, {remanent.rem_cours with note ; code_cours})
+       let accord = remanent.preaccord in
+       let commentaire = remanent.rem_commentaires in
+       state, {remanent.rem_cours with note ; code_cours ; accord ; commentaire})
     (fun state bilan cours -> state, {bilan with cours})
 
-let store_stage =
-  store_gen
-    (fun state _bilan -> state, [])
-    (fun state pos ~who _remanent ->
-       let _ = pos, who in
-       state, [])
-    (fun state bilan _stages -> state, bilan)
+let store_stage pos ~who state current_file current_file' output=
+  let _ = pos, who in
+  let stage = current_file'.stage in
+  let state, date_opt =
+    match stage.periode with
+    | None -> state, None
+    | Some periode -> fetch_deb_fin pos state periode
+  in
+  let date_debut, date_fin =
+    match
+      date_opt
+    with
+    | None -> None, None
+    | Some (a,b) -> a,b
+  in
+  let id = fetch_id current_file'.rem_commentaires in
+  let cvt = fetch_cvt current_file'.rem_commentaires in
+  let stage = {stage with stage_valide = current_file'.prevalide ;
+                          stage_accord = current_file'.preaccord ;
+                          id ; cvt ; date_debut ; date_fin ;
+                          stage_commentaire = current_file'.rem_commentaires}
+  in
+  let stages = current_file.gps_file.stages in
+  let stages = stage::stages in
+  let gps_file = {current_file.gps_file with stages} in
+  state, {current_file with gps_file}, output
 
 let store_gen_fields
     list_string list_bool pos state current_file current_file' output
@@ -864,6 +999,7 @@ let empty_remanent =
   {
     gps_file = empty_gps ;
     rem_cours = empty_cours ;
+    rem_commentaires = [] ;
     stage = empty_stage ;
     rem_diplome = empty_diplome ;
     inscription_DENS = None ;
@@ -877,6 +1013,7 @@ let empty_remanent =
     prenote = None ;
     prevalide = None ;
     precode = None ;
+    preaccord = None ;
   }
 
 
@@ -1133,6 +1270,12 @@ let lift_cours =
     (fun rem_cours remanent ->
        {remanent with rem_cours})
 
+let lift_stage_state =
+  lift_gen_state
+    (fun x -> x.stage)
+    (fun stage remanent ->
+       {remanent with stage})
+
 let lift_stage =
   lift_gen
     (fun x -> x.stage)
@@ -1314,12 +1457,12 @@ let asso_list =
            in
            state, {cours with contrat});
       Public_data.Accord,
-      lift_cours_state
-        (fun state data cours ->
-           let state, accord =
-           bool_opt_of_string_opt __POS__ state data
-           in
-           state, {cours with accord});
+        (fun state data remanent ->
+          let state, preaccord =
+            bool_opt_of_string_opt __POS__ state data
+          in
+            state, {remanent with preaccord } )
+      ;
       Public_data.Valide,
         (fun state data remanent ->
            match data with
@@ -1342,16 +1485,15 @@ let asso_list =
       lift_cours
         (fun lettre cours -> {cours with lettre});
       Public_data.Commentaire,
-      lift_cours
-        (fun com_opt cours ->
-           match com_opt with
-           | None -> cours
-           | Some com ->
-             let commentaire =
-               com::cours.commentaire
-             in
-             {cours with commentaire}
-        );
+      (fun state data remanent ->
+         match data with
+         | None -> state, remanent
+         | Some com ->
+           if String.trim com = ""
+           then state, remanent
+           else
+             let rem_commentaires = com::remanent.rem_commentaires in
+             state, {remanent with rem_commentaires});
       Public_data.Stages_et_Sejours_a_l_Etranger,fun_default;
       Public_data.Periode,
       lift_stage
@@ -1361,14 +1503,39 @@ let asso_list =
         (fun sujet stage -> {stage with sujet});
       Public_data.Directeur_de_Stage,
       lift_stage
-        (fun directeur_de_stage stage -> {stage with directeur_de_stage});
-      Public_data.Responsable_local,fun_default;
-      Public_data.Service_Labo_Dpt,fun_default;
-      Public_data.Etablissement_ou_Entreprise,fun_default;
-      Public_data.Credits,fun_default;
-      Public_data.Type_de_Financement,fun_default;
-      Public_data.Periode_de_Financement,fun_default;
-      Public_data.Organisme_de_Financement,fun_default;
+        (fun directeur_de_stage stage ->
+           {stage with directeur_de_stage});
+      Public_data.Responsable_local,
+      lift_stage
+        (fun responsable_local stage ->
+           {stage with responsable_local});
+      Public_data.Service_Labo_Dpt,
+      lift_stage
+        (fun service_labo_dpt stage ->
+           {stage with service_labo_dpt});
+      Public_data.Etablissement_ou_Entreprise,
+      lift_stage
+        (fun etablissement_ou_entreprise stage ->
+         {stage with etablissement_ou_entreprise});
+      Public_data.Credits,
+      lift_stage_state
+        (fun state c stage ->
+          let state, stage_credits =
+            float_opt_of_string_opt __POS__ state c
+          in
+          state, {stage with stage_credits});
+      Public_data.Type_de_Financement,
+      lift_stage
+        (fun type_de_financement stage ->
+         {stage with type_de_financement});
+      Public_data.Periode_de_Financement,
+      lift_stage
+        (fun periode_de_financement stage ->
+           {stage with periode_de_financement});
+      Public_data.Organisme_de_Financement,
+      lift_stage
+        (fun organisme_de_financement stage ->
+         {stage with organisme_de_financement})
     ]
 
 let asso_list =
@@ -1535,6 +1702,53 @@ let state =
       state
 in
 state, output
+
+let filter_stage_string string get comment state stage =
+  let id = fetch_string string comment in
+  match id with
+  | None -> state, stage
+  | Some data ->
+  state, List.filter
+    (fun stage ->
+       match get stage with
+       | None -> true
+       | Some a -> a=data)
+    stage
+
+let filter_stage_id = filter_stage_string "id" (fun stage -> stage.id)
+let filter_stage_cvt = filter_stage_string "cvt" (fun stage -> stage.cvt)
+
+let fetch_stage
+    pos who state year commentaires stages =
+  let rec aux state fun_list stages =
+    match fun_list with
+    | [] ->
+      let msg =
+        Printf.sprintf
+          "Cannot discriminate among internship for %s in %s"
+          who year
+      in
+      Remanent_state.warn_dft
+        pos msg Exit (Some (List.hd stages)) state
+    | filter::tail ->
+      begin
+        match filter state stages with
+        | state, [] ->
+        let msg =
+          Printf.sprintf
+            "Undocumented intenship for %s in %s"
+            who year
+        in
+        Remanent_state.warn_dft
+          pos msg Exit None state
+        | state, [a] -> state, Some a
+        | state, list -> aux state tail list
+      end
+  in
+  aux
+    state
+    [filter_stage_year year ;filter_stage_cvt commentaires ;filter_stage_id commentaires]
+    stages
 
 let lgen grade gps dpt d =
   if List.exists
@@ -2067,6 +2281,12 @@ let fetch a =
   in
   aux code_list
 
+let is_stage cours =
+  match cours.code_cours with
+  | None -> false
+  | Some a ->
+    Tools.substring "stage" a
+
 let p (t,(_,cours)) (t',(_,cours')) =
   let cmp = compare t t' in
   if cmp = 0
@@ -2246,6 +2466,9 @@ let export_transcript
           msg
           Exit
           state
+    in
+    let stages =
+        gps_file.stages
     in
     let state =
       List.fold_left
@@ -2742,11 +2965,40 @@ let export_transcript
                       let state, f =
                         is_mandatory state cours
                       in
+                      let state, libelle =
+                        match cours.cours_libelle with
+                        | None -> state, None
+                        | Some l ->
+                        if is_stage cours
+                        then
+                          let state, stage_opt =
+                            fetch_stage
+                              __POS__ who state year cours.commentaire stages
+                          in
+                          match stage_opt with
+                          | None -> state, Some l
+                          | Some stage ->
+                          let sujet =
+                            match stage.sujet with
+                            | None -> ""
+                            | Some a ->
+                              if l = "" then a else "\\newline "^a
+                          in
+                          let directeur =
+                            match stage.directeur_de_stage with
+                            | None -> ""
+                            | Some a ->
+                              if l = "" && sujet=""
+                              then a else "\\newline "^a
+                          in
+                          state, Some (Format.sprintf "%s%s%s" l sujet directeur)
+                        else state, Some l
+                      in
                       let () =
                         Remanent_state.print_cell
                           (f
                              (string_of_stringopt
-                                cours.cours_libelle))
+                                libelle))
                           state
                       in
                       let () =
