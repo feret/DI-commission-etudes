@@ -135,27 +135,123 @@ let get_student_file
       __POS__
       state output_repository
   in
-  match
-    File_retriever.launch
-      file_retriever ?user_name ?password ~options
-      ?log_file ?log_repository
-      ~url ~output_repository ~output_file_name ?timeout state
-  with
-  | state, 0 ->
-    File_retriever.check
-      ?log_file ?log_repository ~period ~output_repository ~output_file_name
-      ?timeout
-      file_retriever state, (output_repository,output_file_name)
-  | state, i ->
-    let () =
-      Remanent_state.log
-        state
-        "The extraction of the GPS file for %s %s (%s) failed with error %i" firstname lastname promotion i
+  let state, output =
+    match
+      File_retriever.launch
+        file_retriever ?user_name ?password ~options
+        ?log_file ?log_repository
+        ~url ~output_repository ~output_file_name ?timeout state
+    with
+    | state, 0 ->
+        File_retriever.check
+          ?log_file ?log_repository
+          ~period ~output_repository
+          ~output_file_name
+          ?timeout
+          file_retriever state, (output_repository,output_file_name)
+    | state, i ->
+      let () =
+        Remanent_state.log
+          state
+          "The extraction of the GPS file for %s %s (%s) failed with  error %i" firstname lastname promotion i
+      in
+      Remanent_state.warn __POS__
+        (Printf.sprintf
+           "The extraction of the GPS file for %s %s (%s) failed" firstname lastname promotion)
+        Exit
+        state, (output_repository,output_file_name)
+  in
+  let file_name =
+    if output_repository = ""
+    then
+      output_file_name
+    else
+      Printf.sprintf "%s/%s"  output_repository output_file_name
+  in
+  let state, in_channel_opt =
+    try
+      state, Some (open_in file_name)
+    with _ ->
+      let () =
+        Format.printf
+          "Cannot open file %s@ "
+          file_name
+      in
+      Remanent_state.warn
+        __POS__
+        (Format.sprintf "Cannot open file %s"  file_name)
+        Exit
+        state ,
+      None
+  in
+  match in_channel_opt with
+  | None -> state, output
+  | Some in_channel ->
+    let state, separator =
+      Remanent_state.get_csv_separator state
     in
-    Remanent_state.warn __POS__
-      (Printf.sprintf "The extraction of the GPS file for %s %s (%s) failed" firstname lastname promotion)
-      Exit
-      state, (output_repository,output_file_name)
+    let csv_channel =
+      Csv.of_channel ?separator in_channel
+    in
+    let csv =
+      Csv.input_all csv_channel
+    in
+    let () = close_in in_channel in
+    match csv with
+    | _::_ -> state, output
+    | [] ->
+      begin
+        let state, rep =
+          let state, r1 =
+            Remanent_state.get_local_repository state
+          in
+          let state, r2 =
+            Remanent_state.get_repository_for_handmade_gps_files
+              state
+          in
+          match r1,r2 with
+          | "","" -> state,""
+          | "",x | x,"" -> state,x
+          | x1,x2 -> state,Printf.sprintf "%s/%s" x1 x2
+        in
+        let output_repository' =
+          match rep,prefix  with
+          | ".",prefix | "",prefix -> prefix
+          | x,"" -> x
+          | x1,x2 ->
+            Printf.sprintf "%s/%s" x1 x2
+        in
+        begin
+          match output_repository' with
+          | "" -> state, output
+          | _ ->
+            let output' =
+              Printf.sprintf "%s/%s"
+                output_repository' output_file_name
+            in
+            let output_ =
+              match output_repository with
+              | "" -> output_file_name
+              | _ ->
+                Printf.sprintf "%s/%s"
+                  output_repository output_file_name
+            in
+            let state, b =
+              Safe_sys.file_exists __POS__ state output'
+            in
+            let state =
+              if b then
+                let command =
+                  Printf.sprintf "cp %s %s" output' output_
+                in
+                Safe_sys.command __POS__ state
+                  command
+              else state
+            in
+            state, output
+        end
+      end
+
 
   let get_student_file
       student_id

@@ -14,6 +14,7 @@ type parameters =
     port_to_access_gps: string;
     repository_to_access_gps: string;
     repository_to_dump_gps_files: string;
+    repository_for_handmade_gps_files: string;
     output_alias_repository: string;
     store_gps_file_according_to_their_promotions: bool;
     indicate_promotions_in_gps_file_names: bool;
@@ -53,6 +54,7 @@ let parameters =
     port_to_access_gps = "8080";
     repository_to_access_gps = "gps";
     repository_to_dump_gps_files = "gps_files";
+    repository_for_handmade_gps_files = "handmade_gps_files";
     output_alias_repository = "courant";
     store_gps_file_according_to_their_promotions = true;
     indicate_promotions_in_gps_file_names = true;
@@ -192,6 +194,8 @@ let get_repository_to_access_gps t =
 let get_repository_to_dump_gps_files t =
   t, t.parameters.repository_to_dump_gps_files
 
+let get_repository_for_handmade_gps_files t =
+  t, t.parameters.repository_for_handmade_gps_files
 let get_output_alias_repository t =
   t, t.parameters.output_alias_repository
 

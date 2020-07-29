@@ -861,19 +861,26 @@ let store_cours  =
                then
                  state, note_opt
                else
-                   let state, compensation =
+                 let state, compensation =
                      match
                        remanent.gps_file.prenom,
                        remanent.gps_file.nom,
                        remanent.annee_de_travail,
-                       remanent.rem_cours.code_cours
+                       remanent.precode
                      with
                        Some firstname, Some lastname,
                        Some year, Some codecours ->
                          get_compensation
                            ~firstname ~lastname ~year  ~codecours
                            note_opt state
-                     | _ -> state, false
+                     | _ ->
+                     let state =
+                       Remanent_state.warn
+                         __POS__
+                         "Some information are missing to check compensation"
+                         Exit
+                         state
+                     in state, false
                    in
                    if compensation then state, note_opt
                    else
@@ -2487,7 +2494,7 @@ let export_transcript
             (fun s s' -> Printf.sprintf "%s %s" s s')
             msg
             picture_list
-        in 
+        in
         Remanent_state.warn
           __POS__
           msg
