@@ -1,8 +1,9 @@
+let safe x = x
 let file_exists _pos state x =
-  state, Sys.file_exists x
+  state, Sys.file_exists (safe x)
 
 let is_directory _pos state x =
-  state, Sys.is_directory x
+  state, Sys.is_directory (safe x)
 
 let command pos state s =
   try
@@ -39,7 +40,7 @@ let rec_mk_when_necessary pos state output_repository =
           with
           | Sys_error x ->
             try
-              if Sys.command (Printf.sprintf "mkdir %s" new_repository) = 0
+              if Sys.command (Printf.sprintf "mkdir %s" (safe new_repository)) = 0
               then state, true
               else
                 let _ =
@@ -67,7 +68,7 @@ let rec_mk_when_necessary pos state output_repository =
   state, repository
 
 let readdir _pos state x =
-  state, Sys.readdir x
+  state, Sys.readdir (safe x)
 
 let getcwd _pos state = state, Sys.getcwd ()
 let chdir _pos state x =
@@ -75,7 +76,7 @@ let chdir _pos state x =
 
 let rm pos state filename =
   try
-    let () = Sys.remove filename in state
+    let () = Sys.remove (safe filename) in state
   with
   | Sys_error s ->
     Remanent_state.warn

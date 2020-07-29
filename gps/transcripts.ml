@@ -2482,6 +2482,12 @@ let export_transcript
           Printf.sprintf
             "No pictures for %s" who
         in
+        let msg =
+          List.fold_left
+            (fun s s' -> Printf.sprintf "%s %s" s s')
+            msg
+            picture_list
+        in 
         Remanent_state.warn
           __POS__
           msg
