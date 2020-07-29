@@ -751,6 +751,62 @@ let store_diplome =
        state, remanent.rem_diplome)
     (fun state bilan diplomes -> state, {bilan with diplomes})
 
+
+let get_compensation
+    ~firstname ~lastname ~year ~codecours note
+    state
+  =
+  match
+    Remanent_state.get_compensation
+      ~firstname ~lastname ~year ~codecours
+      state
+  with
+  | state, None -> state, false
+  | state, _
+    ->
+    begin
+      match note with
+      | Some note ->
+        if Notes.compensable note
+        then
+          state, true
+        else
+          let state, note_string =
+            Notes.to_string __POS__ state note
+          in
+          let msg =
+            Printf.sprintf
+              "Note %s (%s %s ANNEE:%s CODE_GPS:%s) needs no compensation"
+              note_string
+              firstname
+              lastname
+              year
+              codecours
+          in
+          Remanent_state.warn_dft
+            __POS__
+            msg
+            Exit
+            false
+            state
+      | None ->
+        let msg =
+          Printf.sprintf
+            "Missing notes cannot be compensated (%s %s ANNEE:%s CODE_GPS:%s)"
+            firstname
+            lastname
+            year
+            codecours
+        in
+        Remanent_state.warn_dft
+          __POS__
+          msg
+          Exit
+          false
+          state
+    end
+
+
 let store_cours  =
   store_gen
     (fun state bilan -> state, bilan.cours)
@@ -805,29 +861,48 @@ let store_cours  =
                then
                  state, note_opt
                else
-                 let state, note_string =
-                   Notes.to_string
-                     __POS__
-                     state
-                     note
-                 in
-                 let state, v_string =
-                   Valide.to_string
-                     __POS__
-                     state
-                     v
-                 in
-                 let msg =
-                   Format.sprintf
-                     "Note %s and validity status %s are incompatible for %s"
-                     note_string v_string who
-                 in
-                 Remanent_state.warn_dft
-                   __POS__
-                   msg
-                   Exit
-                   note_opt
-                   state
+                   let state, compensation =
+                     match
+                       remanent.gps_file.prenom,
+                       remanent.gps_file.nom,
+                       remanent.annee_de_travail,
+                       remanent.rem_cours.code_cours
+                     with
+                       Some firstname, Some lastname,
+                       Some year, Some codecours ->
+                         get_compensation
+                           ~firstname ~lastname ~year  ~codecours
+                           note_opt state
+                     | _ -> state, false
+                   in
+                   if compensation then state, note_opt
+                   else
+                     begin
+                       let state, note_string =
+                         Notes.to_string
+                           __POS__
+                           state
+                           note
+                       in
+                       let state, v_string =
+                         Valide.to_string
+                           __POS__
+                           state
+                           v
+                       in
+                       let msg =
+                         Format.sprintf
+                           "Note %s and validity status %s are  incompatible for %s"
+                           note_string v_string who
+                       in
+                       Remanent_state.warn_dft
+                         __POS__
+                         msg
+                         Exit
+                         note_opt
+                         state
+
+           end
            end
          | None , Some n ->
            begin
@@ -1905,61 +1980,6 @@ let keep_class state filter year note =
     | Public_data.All_but_in_progress_in_current_academic_year
     | Public_data.All_but_in_progress_in_years _), Some (Some false)
     -> state, false
-
-let get_compensation
-    ~firstname ~lastname ~year ~codecours note
-    state
-  =
-  match
-    Remanent_state.get_compensation
-      ~firstname ~lastname ~year ~codecours
-      state
-  with
-  | state, None -> state, false
-  | state, _
-    ->
-    begin
-      match note with
-      | Some note ->
-        if Notes.compensable note
-        then
-          state, true
-        else
-          let state, note_string =
-            Notes.to_string __POS__ state note
-          in
-          let msg =
-            Printf.sprintf
-              "Note %s (%s %s ANNEE:%s CODE_GPS:%s) needs no compensation"
-              note_string
-              firstname
-              lastname
-              year
-              codecours
-          in
-          Remanent_state.warn_dft
-            __POS__
-            msg
-            Exit
-            false
-            state
-      | None ->
-      let msg =
-        Printf.sprintf
-          "Missing notes cannot be compensated (%s %s ANNEE:%s CODE_GPS:%s)"
-          firstname
-          lastname
-          year
-          codecours
-      in
-      Remanent_state.warn_dft
-        __POS__
-        msg
-        Exit
-        false
-        state
-    end
-
 
 let keep_class
     ~firstname ~lastname ~year ~codecours ~note
