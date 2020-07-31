@@ -123,8 +123,14 @@ let get_dated_repository state =
       let state, f_exists =
         Safe_sys.file_exists __POS__ state courant
       in
+      let state, is_target =
+        match Remanent_state.get_target state
+        with
+        | state, None -> state, false
+        | state, Some _ -> state, true
+      in
       let state =
-        if f_exists
+        if f_exists && not is_target 
         then
           let command =
             Printf.sprintf "rm -rf %s" courant

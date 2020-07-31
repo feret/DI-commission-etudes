@@ -198,7 +198,8 @@ let get_student_file
     in
     let () = close_in in_channel in
     match csv with
-    | _::_ -> state, output
+    | _::_ ->
+      state, output
     | [] ->
       begin
         let state, rep =

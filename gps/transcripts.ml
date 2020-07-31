@@ -2635,7 +2635,23 @@ let export_transcript
           | Some _ -> Color.yellow
         in
         let textcolor = Color.red in
-        let annee_int = int_of_string year in
+        let state, annee_int =
+          try
+            state, int_of_string year
+          with
+          | _ ->
+            let msg =
+              Format.sprintf
+                "Ill-formed yead %s"
+                year
+            in
+            Remanent_state.warn
+              __POS__
+              msg
+              Exit
+              state,
+            0 
+        in
         let annee =
           Printf.sprintf "%i -- %i" annee_int (annee_int+1)
         in

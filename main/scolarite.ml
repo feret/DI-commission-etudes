@@ -6,6 +6,19 @@ let state =
   Get_gps_files.get_students_list state
 let students_list =
   Remanent_state.get_students state
+let state, students_list =
+  match
+    Remanent_state.get_target state
+  with
+  | state, None -> state, students_list
+  | state, Some target ->
+    let target = Special_char.lowercase target in
+    state, List.filter
+      (fun a ->
+         (Special_char.lowercase
+            (a.Public_data.lastname))=target ||
+         a.Public_data.promotion= Some target)
+      students_list
 let state =
   Collect_scholarships.get_scholarships state
 let state =
@@ -18,12 +31,18 @@ let state =
     Collect_programs.get_cursus_exceptions state
 let state =
   Collect_compensations.get_compensations state
-let state = 
+let state =
   Collect_decisions.get_decisions state
 let state =
   Collect_dispenses.get_dispenses state
-let state, (output_repository, _) =
+let state, output =
   Cloud_interaction.get_dated_repository state
+let state, output_repository =
+  match
+    Remanent_state.get_target state
+  with
+  | state, None -> state, fst output
+  | state, Some _ -> state, snd output
 let state =
   List.fold_left
     (fun state id ->

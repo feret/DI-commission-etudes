@@ -34,6 +34,7 @@ type parameters =
     date: string;
     comma_symbol: char;
     current_academic_year: Public_data.annee;
+    target: string option;
   }
 
 
@@ -74,6 +75,7 @@ let parameters =
     date = Tools.date ();
     comma_symbol = ',';
     current_academic_year = "2019";
+    target = None ;
   }
 
 type data =
@@ -318,8 +320,21 @@ let open_event_opt step_kind_opt t =
 let close_event_opt step_kind_opt t =
   gen_profiler Profiling.close_event_opt step_kind_opt t
 
-let get_option parameters = parameters
-let get_option_quick parameters = parameters
+let get_option parameters =
+  let target =
+    if Array.length Sys.argv > 1
+    then Some Sys.argv.(1)
+    else None
+  in
+  {parameters with target}
+
+let get_option_quick parameters =
+  let target =
+    if Array.length Sys.argv > 1
+    then Some Sys.argv.(1)
+    else None
+  in
+  {parameters with target}
 
 let get_option state =
   let state =
@@ -792,3 +807,5 @@ let get_picture_potential_locations
       Printf.sprintf "%s/%s" rep filename
   in
   t, [base^".jpg";base^".pdf"]
+
+let get_target t = t, t.parameters.target
