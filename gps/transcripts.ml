@@ -2340,6 +2340,34 @@ let is_mandatory state cours =
   else
     (fun x -> x)
 
+let count_for_maths state cours =
+  state,
+  if match cours.code_cours with
+    | None -> false
+    | Some a ->
+      List.mem
+        (String.trim a)
+        [
+          "DMA-L3-A01-S1";
+          "DMA-L3-A05-S2";
+          "DMA-L3-A02-S1";
+          "DMA-L3-A04-S1";
+          "INFO-M2-MODGEO-S2";
+          "INFO-L3-SAA-S1";
+          "INFO-L3-THEOIC-S2";
+        ]
+      ||
+      Tools.substring "DMA" a
+  then
+    (fun x -> Format.sprintf "\\countformaths{%s}" x)
+  else
+    (fun x -> x)
+
+let special_course state cours =
+  let state, f = is_mandatory state cours in
+  let state, g = count_for_maths state cours in
+  state, (fun x -> g (f x))
+
 let get_bourse ~firstname ~lastname ~er state =
   match Remanent_state.get_scholarship
           ~firstname ~lastname
@@ -2650,7 +2678,7 @@ let export_transcript
               msg
               Exit
               state,
-            0 
+            0
         in
         let annee =
           Printf.sprintf "%i -- %i" annee_int (annee_int+1)
@@ -3013,7 +3041,7 @@ let export_transcript
                           state
                       in
                       let state, f =
-                        is_mandatory state cours
+                        special_course state cours
                       in
                       let state, libelle =
                         match cours.cours_libelle with

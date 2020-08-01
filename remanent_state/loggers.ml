@@ -562,7 +562,7 @@ let print_preamble ?decimalsepsymbol logger =
     in
     let () =
       fprintf logger
-        "\\newcommand{\\mean}{}%%\n\ \\newcommand{\\comment}[1]{}%%\n\ \\newcommand{\\mandatory}[1]{\\textcolor{darkred}{#1}}%%\n\ \\newcommand{\\innerline}{%%\n\
+        "\\newcommand{\\mean}{}%%\n\ \\newcommand{\\comment}[1]{}%%\n\ \\newcommand{\\mandatory}[1]{\\textcolor{darkred}{#1}}%%\n\ \\newcommand{\\countformaths}[1]{\\textcolor{darkorange}{#1}}%%\n\ \\newcommand{\\innerline}{%%\n\
 \\ifnum \\thenrow=\\thetotalrows%%\n\
 \\hline%%\n\
 \\else\\cline{1-1}\\cline{3-7}\\fi%%\n\
