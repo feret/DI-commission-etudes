@@ -1,7 +1,8 @@
 type orientation = Lanscape | Normal
 type encoding =
-  | HTML | HTML_Tabular
+  | HTML | HTML_Tabular | HTML_encapsulated
   | TXT | CSV | XLS | Json | Latex of orientation
+  | Latex_encapsulated
 
 module type FormatMap =
 sig
@@ -59,3 +60,5 @@ val of_json: Yojson.Basic.t -> string list
 
 val with_lines: t -> t
 val without_lines: t -> t
+
+val encapsulate: encoding -> encoding

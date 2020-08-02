@@ -3171,9 +3171,9 @@ let export_transcript
                    key
                    key
                in
-               let moyenne, update_moyenne, mention =
+               let no_definitive_ects, not_enough_ects, moyenne, update_moyenne, mention =
                  if string = Some "DENS" || string = Some "dens"
-                 then "","",""
+                 then "","","","",""
                  else
                    let mean =
                      Format.sprintf
@@ -3247,6 +3247,7 @@ let export_transcript
                          "Mention : %s \\hspace*{1cm}"
                          a
                    in
+                   no_definitive_ects, not_enough_ects,
                    mean_string, update_mean, mention
                in
                let ects,pects =
@@ -3311,16 +3312,88 @@ let export_transcript
                  | Some x ->
                    Format.sprintf "%s \\hspace*{1cm}" x
                in
-               let msg =
-                 Format.sprintf
-                   "%s\\nprounddigits{2}%%\n\ %s%s%s%s\\npnoround%%\n\ \n\n%s%s%s"
+               let lineproportion = 0.9 in
+               let () =
+                 Remanent_state.log
+                   ~lineproportion
+                   state
+                   "%s"
                    commission
-                   update_moyenne moyenne
-                   ects pects
-                   decision rank mention
                in
                let () =
-                 Remanent_state.print_cell msg state
+                 Remanent_state.print_newline
+                   state
+               in
+               let () =
+                 Remanent_state.fprintf
+                   state
+                   "\\nprounddigits{2}%%\n\ "
+               in
+               let () =
+                 Remanent_state.fprintf
+                   state
+                   "%s"
+                   update_moyenne
+               in
+               let lineproportion = 0.25 in
+               let s =
+                   Remanent_state.log_string
+                     ~lineproportion
+                     state
+                     moyenne
+               in
+               let s =
+                 Latex_helper.case
+                   Latex_helper.ifnum
+                   [ no_definitive_ects,"";
+                     not_enough_ects,"";
+                   ]
+                   ~otherwise:s
+               in
+               let () =
+                 Remanent_state.fprintf
+                   state
+                   "%s"
+                   s
+               in
+               let () =
+                   (fun s ->
+                      if s = "" then () else
+                      Remanent_state.log
+                        ~lineproportion
+                        state
+                        "%s"
+                        s)
+                     (
+                    if ects = "" then pects
+                    else if pects = ""
+                    then ects
+                    else
+                      ects^"\\hspace*{5mm}"^pects)
+               in
+               let () =
+                 Remanent_state.fprintf
+                   state
+                   "\\npnoround%%\n\ \n\n"
+               in
+               let () =
+                 Remanent_state.print_newline
+                   state
+               in
+               let () =
+                 List.iter
+                   (fun s ->
+                      if s = "" then () else
+                      Remanent_state.log
+                        ~lineproportion
+                        state
+                        "%s"
+                        s)
+                   [decision;rank;mention]
+               in
+               let () =
+                 Remanent_state.print_newline
+                   state
                in
                let () =
                  Remanent_state.fprintf state "\\vfill\n\ "

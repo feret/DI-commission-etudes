@@ -1,7 +1,8 @@
 type orientation = Lanscape | Normal
 type encoding =
-  | HTML | HTML_Tabular
+  | HTML | HTML_Tabular | HTML_encapsulated
   | TXT | CSV | XLS | Json | Latex of orientation
+  | Latex_encapsulated
 
 module type FormatMap =
 sig
@@ -30,7 +31,8 @@ let breakable x =
   match
     x
   with
-  | HTML_Tabular | HTML | TXT | Latex _ -> true
+  | HTML_Tabular | HTML | HTML_encapsulated
+  | TXT | Latex _ | Latex_encapsulated -> true
   | Json | CSV | XLS -> false
 
 type t =
@@ -118,69 +120,69 @@ let fprintf ?fprintnewline:(fprintnewline=false) logger =
 
 let fprintf ?fprintnewline:(fprintnewline=false) logger =
   match logger.encoding with
-  | Latex _ ->
-  let b = Buffer.create 0 in
-  let fmt_buffer = Format.formatter_of_buffer b in
-  Format.kfprintf
-    (fun _ ->
-       let () = Format.pp_print_flush fmt_buffer () in
-       let str = Buffer.contents b in
-       let str = Special_char.correct_string_latex str in
-       fprintf ~fprintnewline logger
-         "%s" str)
-    fmt_buffer
-    | HTML | HTML_Tabular
-    | TXT | CSV | XLS | Json -> (*fun a -> fprintf logger x a*)
-      fprintf ~fprintnewline logger
+  | Latex _ | Latex_encapsulated ->
+    let b = Buffer.create 0 in
+    let fmt_buffer = Format.formatter_of_buffer b in
+    Format.kfprintf
+      (fun _ ->
+         let () = Format.pp_print_flush fmt_buffer () in
+         let str = Buffer.contents b in
+         let str = Special_char.correct_string_latex str in
+         fprintf ~fprintnewline logger
+           "%s" str)
+      fmt_buffer
+  | HTML | HTML_encapsulated | HTML_Tabular
+  | TXT | CSV | XLS | Json ->
+    fprintf ~fprintnewline logger
 
 
 let log ?backgroundcolor ?textcolor ?lineproportion logger x  =
   let fprintnewline = false in
   match logger.encoding with
-      | Latex _ ->
-        begin
-          let bgcolor =
-            match backgroundcolor with
-            | None -> "",""
-            | Some a ->
-              Format.sprintf
-                "{\\colorbox{%s}{%%%%%%%%\n"
-                (Color.label (Color.get_background_color a)),
-              "}}"
-          in
-          let txtcolor =
-            match textcolor with
-            | None -> "",""
-            | Some a ->
-              Format.sprintf
-                "{\\textcolor{%s}{%%%%%%%%\n"
-                (Color.label (Color.get_font_color a)),
-              "}}"
-          in
-          let size =
-            match lineproportion with
-            | None -> "\\begin{minipage}{\\textwidth}%%%%\n","\\end{minipage}%%%%%%%%\n"
-            | Some f ->
-              Format.sprintf
-                "\\begin{minipage}{%f\\textwidth}%%%%%%%%\n" f,
-              "\\end{minipage}%%%%\n"
-          in
-          let prefix =
-            Format.sprintf "%s%s%s%%%%\n"
-              (fst bgcolor) (fst size) (fst txtcolor)
-          in
-          let suffix =
-            Format.sprintf "%%%%\n%s%s%s"
-              (snd txtcolor) (snd size) (snd bgcolor)
-          in
-          let prefix = Scanf.format_from_string prefix "" in
-          let suffix = Scanf.format_from_string suffix "" in
-          fprintf ~fprintnewline logger (prefix^^x^^suffix)
-        end
-      | HTML | HTML_Tabular
-      | TXT | CSV | XLS | Json -> (*fun a -> fprintf logger x a*)
-        fprintf ~fprintnewline logger x
-
+  | Latex _ | Latex_encapsulated ->
+    begin
+      let bgcolor =
+        match backgroundcolor with
+        | None -> "",""
+        | Some a ->
+          Format.sprintf
+            "{\\colorbox{%s}{%%%%%%%%\n"
+            (Color.label (Color.get_background_color a)),
+          "}}"
+      in
+      let txtcolor =
+        match textcolor with
+        | None -> "",""
+        | Some a ->
+          Format.sprintf
+            "{\\textcolor{%s}{%%%%%%%%\n"
+            (Color.label (Color.get_font_color a)),
+          "}}"
+      in
+      let size =
+        match lineproportion with
+        | None ->
+          "\\begin{minipage}{\\textwidth}%%%%\n","\\end{minipage}%%%%%%%%\n"
+        | Some f ->
+          Format.sprintf
+            "\\begin{minipage}{%f\\textwidth}%%%%%%%%\n" f,
+          "\\end{minipage}%%%%\n"
+      in
+      let prefix =
+        Format.sprintf "%s%s%s%%%%\n"
+          (fst bgcolor) (fst size) (fst txtcolor)
+      in
+      let suffix =
+        Format.sprintf "%%%%\n%s%s%s"
+          (snd txtcolor) (snd size) (snd bgcolor)
+      in
+      let prefix = Scanf.format_from_string prefix "" in
+      let suffix = Scanf.format_from_string suffix "" in
+      fprintf ~fprintnewline logger (prefix^^x^^suffix)
+    end
+  | HTML | HTML_Tabular | HTML_encapsulated
+  | TXT | CSV | XLS | Json ->
+    fprintf ~fprintnewline logger x
 
 let print_breakable_space logger =
   if breakable logger.encoding
@@ -217,8 +219,8 @@ let end_of_line_symbol logger =
     logger.encoding
   with
   | HTML  -> "<Br>"
-  | Latex _ -> "\n"
-  | Json | HTML_Tabular | TXT | CSV | XLS  -> ""
+  | Latex _ | Latex_encapsulated -> "\n"
+  | Json | HTML_Tabular | HTML_encapsulated | TXT | CSV | XLS  -> ""
 
 let dump_token f x =
   match
@@ -289,17 +291,17 @@ let print_newline logger =
 
 let draw_line logger =
   match logger.encoding with
-  | Latex _ ->
+  | Latex _ | Latex_encapsulated ->
     if logger.with_lines then
       let () = fprintf logger "\\hline" in
       let () = print_newline logger
       in ()
-  | Json | HTML | HTML_Tabular | CSV | TXT | XLS -> ()
+  | Json | HTML | HTML_encapsulated | HTML_Tabular | CSV | TXT | XLS -> ()
 
 
   let open_array ?size ?color ?bgcolor ?align ~title logger =
   match logger.encoding with
-  | Latex _ ->
+    | Latex _ | Latex_encapsulated ->
     let size =
       match size with
       | None -> List.rev_map (fun _ -> None) title
@@ -398,17 +400,17 @@ let draw_line logger =
     let () = draw_line logger  in
     let () = draw_line logger  in
     error
-  | Json | HTML | HTML_Tabular | CSV | TXT | XLS -> false
+  | Json | HTML | HTML_encapsulated | HTML_Tabular | CSV | TXT | XLS -> false
 
   let close_array logger =
     match logger.encoding with
-    | Latex _ ->
+    | Latex _ | Latex_encapsulated ->
       let () = draw_line logger in
       let () = draw_line logger  in
       let () = fprintf logger "\\end{tabular}}" in
       let () = print_newline logger in
       ()
-    | Json | HTML | HTML_Tabular | CSV | TXT | XLS -> ()
+    | Json | HTML | HTML_encapsulated | HTML_Tabular | CSV | TXT | XLS -> ()
 
 let print_cell logger s =
   let open_cell_symbol,s,close_cell_symbol =
@@ -416,9 +418,9 @@ let print_cell logger s =
       logger.encoding
     with
     | HTML_Tabular -> "<TD>",s,"</TD>"
-    | Latex _ -> "{",s,"}"
+    | Latex _ | Latex_encapsulated -> "{",s,"}"
     | CSV  -> "",s,"\t"
-    | Json | HTML | TXT | XLS -> "",s,""
+    | Json | HTML | HTML_encapsulated | TXT | XLS -> "",s,""
   in
   fprintf logger "%s%s%s" open_cell_symbol s close_cell_symbol
 
@@ -427,10 +429,10 @@ let print_optional_cell logger s =
     match
       logger.encoding
     with
-    | Latex _ -> "[",s,"]"
+    | Latex _ | Latex_encapsulated -> "[",s,"]"
     | HTML_Tabular
     | CSV
-    | Json | HTML | TXT | XLS -> "","",""
+    | Json | HTML | HTML_encapsulated | TXT | XLS -> "","",""
   in
   fprintf logger "%s%s%s" open_cell_symbol s close_cell_symbol
 
@@ -455,7 +457,7 @@ let close_logger logger =
       fprintf logger "</TABLE>\n</div>\n</body>"
     | Latex _ ->
       fprintf logger "\\end{document}"
-    | Json | TXT | CSV | XLS -> ()
+    | Json | TXT | CSV | XLS | HTML_encapsulated | Latex_encapsulated -> ()
   in
   let () = flush_logger logger in
   ()
@@ -605,12 +607,12 @@ let print_preamble ?decimalsepsymbol logger =
 %%\n\ " Tools.valide_sans_note
     in
     ()
-  | Json | TXT | CSV | XLS -> ()
+  | Json | TXT | CSV | XLS | Latex_encapsulated | HTML_encapsulated -> ()
 
 let breakpage t =
   match t.encoding with
-  | Latex _ -> fprintf t "\\clearpage%%\n\ "
-  | HTML | HTML_Tabular| Json | TXT | CSV | XLS -> ()
+  | Latex _ | Latex_encapsulated -> fprintf t "\\clearpage%%\n\ "
+  | HTML | HTML_Tabular | HTML_encapsulated| Json | TXT | CSV | XLS -> ()
 
 let open_logger_from_channel ?mode:(mode=TXT) channel =
   let formatter = Format.formatter_of_out_channel channel in
@@ -666,24 +668,24 @@ let open_row ?macro logger =
     logger.encoding
   with
   | HTML_Tabular -> fprintf logger "<tr>"
-  | Latex _ ->
+  | Latex _ | Latex_encapsulated ->
     let macro =
       match macro with
       | None -> "row"
       | Some x -> x
     in
     fprintf logger "\\%s" macro
-  | Json | XLS | HTML | TXT | CSV -> ()
+  | Json | XLS | HTML | HTML_encapsulated | TXT | CSV -> ()
 
 let close_row logger =
   match
     logger.encoding
   with
   | HTML_Tabular -> fprintf logger "<tr>@."
-  | Latex _ ->
+  | Latex _ | Latex_encapsulated ->
     let () = fprintf logger "\\innerline@. " in
     print_newline logger
-  | Json | XLS | HTML | TXT | CSV -> fprintf logger "@."
+  | Json | XLS | HTML | HTML_encapsulated | TXT | CSV -> fprintf logger "@."
 
 let formatter_of_logger logger =
   match
@@ -767,3 +769,13 @@ let to_json logger =
     gen_iter Circular_buffers.iter !a
   | Infinite_buffer b ->
     gen_iter Infinite_buffers.iter !b
+
+let encapsulate mode =
+  match mode with
+  | Latex _ | Latex_encapsulated -> Latex_encapsulated
+  | HTML | HTML_encapsulated -> HTML_encapsulated
+  | HTML_Tabular -> HTML_Tabular
+  | TXT -> TXT
+  | CSV -> CSV
+  | XLS -> XLS
+  | Json -> Json

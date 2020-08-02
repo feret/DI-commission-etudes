@@ -36,6 +36,12 @@ val log:
   ?textcolor:Color.color ->
   ?lineproportion:float -> t -> ('a, Format.formatter, unit) format -> 'a
 
+val log_string:
+  ?logger:Loggers.t ->
+  ?backgroundcolor:Color.color ->
+  ?textcolor:Color.color ->
+  ?lineproportion:float -> t -> string -> string
+
 val open_array:
   (string * int * int * int) ->
   ?logger:Loggers.t ->
@@ -275,4 +281,4 @@ val get_picture_potential_locations:
   year:Public_data.annee -> t -> t * string list
 
 val get_target:
-  t -> t * string option 
+  t -> t * string option

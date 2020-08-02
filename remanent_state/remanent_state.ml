@@ -443,6 +443,25 @@ let log ?logger ?backgroundcolor ?textcolor ?lineproportion t x =
     ?backgroundcolor ?textcolor ?lineproportion
     x
 
+let log_string ?logger ?backgroundcolor ?textcolor ?lineproportion t x =
+  let mode =
+    Loggers.encapsulate
+      (Loggers.get_encoding_format (which_logger ?logger t))
+  in
+  let b = Buffer.create 0 in
+  let fmt_buffer = Format.formatter_of_buffer b in
+  let logger = Loggers.open_logger_from_formatter ~mode fmt_buffer in
+  let () =
+    log
+      ~logger
+      ?backgroundcolor
+      ?textcolor
+      ?lineproportion
+      t "%s" x
+  in
+  let () = Format.pp_print_flush fmt_buffer () in
+  Buffer.contents b
+
 let set_std_logger t logger =
   let std_logger = Some logger in
   {t with std_logger}
