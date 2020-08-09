@@ -3335,7 +3335,7 @@ let export_transcript
                    "%s"
                    update_moyenne
                in
-               let lineproportion = 0.25 in
+               let lineproportion = 0.30 in
                let s =
                    Remanent_state.log_string
                      ~lineproportion
@@ -3369,7 +3369,7 @@ let export_transcript
                     else if pects = ""
                     then ects
                     else
-                      ects^"\\hspace*{5mm}"^pects)
+                      ects^pects)
                in
                let () =
                  Remanent_state.fprintf
