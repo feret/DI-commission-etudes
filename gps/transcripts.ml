@@ -3336,25 +3336,30 @@ let export_transcript
                    update_moyenne
                in
                let lineproportion = 0.30 in
-               let s =
-                   Remanent_state.log_string
-                     ~lineproportion
-                     state
-                     moyenne
-               in
-               let s =
-                 Latex_helper.case
-                   Latex_helper.ifnum
-                   [ no_definitive_ects,"";
-                     not_enough_ects,"";
-                   ]
-                   ~otherwise:s
-               in
                let () =
-                 Remanent_state.fprintf
-                   state
-                   "%s"
-                   s
+                 if not (string = Some "DENS" || string = Some "dens")
+                 then
+                   let s =
+                     Remanent_state.log_string
+                       ~lineproportion
+                       state
+                       moyenne
+                   in
+                   let s =
+                     Latex_helper.case
+                       Latex_helper.ifnum
+                       [ no_definitive_ects,"";
+                         not_enough_ects,"";
+                       ]
+                       ~otherwise:s
+                   in
+                   let () =
+                     Remanent_state.fprintf
+                       state
+                       "%s"
+                       s
+                   in
+                   ()
                in
                let () =
                    (fun s ->
