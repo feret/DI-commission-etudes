@@ -268,6 +268,11 @@ type statut =
   | Eleve_bis
   | Ex_eleve
   | Ex_etudiant
+  | Hors_GPS
+
+type origin =
+  | EchErasm
+  | PensionnaireEtranger 
 
 type remove_non_valided_classes =
   | All
