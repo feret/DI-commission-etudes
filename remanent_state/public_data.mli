@@ -271,8 +271,11 @@ type statut =
   | Hors_GPS
 
 type origin =
+  | DensInfo 
   | EchErasm
-  | PensionnaireEtranger 
+  | Info
+  | Mpi
+  | PensionnaireEtranger
 
 type remove_non_valided_classes =
   | All

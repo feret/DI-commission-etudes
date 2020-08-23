@@ -326,10 +326,12 @@ type statut =
   | Hors_GPS
 
 type origin =
+  | DensInfo
   | EchErasm
+  | Info
+  | Mpi
   | PensionnaireEtranger
   
-
 type remove_non_valided_classes =
   | All
   | All_but_current_academic_year

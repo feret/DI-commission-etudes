@@ -165,18 +165,24 @@ let log_statut
                "Hors GPS")
         in state
 
+let string_of_origin_opt a =
+  match a with
+   | None -> ""
+   | Some Public_data.DensInfo -> "dens-info"
+   | Some Public_data.EchErasm -> "Erasmus"
+   | Some Public_data.Info -> "Info"
+   | Some Public_data.Mpi -> "MPI"
+   | Some Public_data.PensionnaireEtranger -> "Pensionnaire Étranger"
+
 let log_origine
     state (label, string_opt) =
   match string_opt with
   | None -> state
-  | Some a ->
+  | Some _ ->
     let () =
       Remanent_state.log
         state "%s: %s" label
-        (match a with
-         | Public_data.EchErasm -> "Erasmus"
-         | Public_data.PensionnaireEtranger -> "Pensionnaire Étranger"
-        )
+        (string_of_origin_opt string_opt)        
     in state
 
 let log_diplome state diplome =
@@ -1334,9 +1340,12 @@ let statut_opt_of_string_opt =
 
 let origines =
   [
+    Public_data.DensInfo,["dens-info"];
     Public_data.EchErasm,["e-echerasm"];
+    Public_data.Info,["info"];
+    Public_data.Mpi,["mpi"];
     Public_data.PensionnaireEtranger,["e-pe"];
-    ]
+  ]
 
 let origin_opt_of_string_opt =
   gen_fetch_opt_of_string_opt origines "origin"
@@ -1905,13 +1914,19 @@ let lpoly d =
 let lerasmus origine =
   match origine with
   | Some Public_data.EchErasm -> true
+  | Some Public_data.DensInfo
+  | Some Public_data.Info
+  | Some Public_data.Mpi
   | Some Public_data.PensionnaireEtranger
   | None -> false
 
 let lpe origine =
   match origine with
   | Some Public_data.PensionnaireEtranger -> true
+  | Some Public_data.DensInfo
   | Some Public_data.EchErasm
+  | Some Public_data.Info
+  | Some Public_data.Mpi
   | None -> false
 
 
@@ -2327,7 +2342,7 @@ let acro_of_dpt who pos state dpt origine =
   then
     state, None
   else
-    dpt = dpt_info
+  if dpt = dpt_info
   then state, Some acro_dpt_info
   else if dpt = dpt_maths
   then state, Some acro_dpt_maths
@@ -2653,6 +2668,23 @@ let export_transcript
                 begin
                   match gps_file.origine with
                   | None -> state, "",""
+                  | Some Public_data.DensInfo
+                  | Some Public_data.Info
+                  | Some Public_data.Mpi
+                    ->
+                    let msg =
+                      Format.sprintf
+                        "Les étudiants %s ne devraient par être hors GPS (%s)" (string_of_origin_opt gps_file.origine)
+                        who
+                    in
+                    let state =
+                      Remanent_state.warn
+                        __POS__
+                        msg
+                        Exit
+                        state
+                    in
+                    state, "",""
                   | Some Public_data.PensionnaireEtranger ->
                     state,"Pensionnaire \'Etranger",""
                   | Some Public_data.EchErasm ->
