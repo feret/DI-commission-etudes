@@ -330,8 +330,11 @@ type origin =
   | EchErasm
   | Info
   | Mpi
+  | Pc
   | PensionnaireEtranger
-  
+  | Psi
+  | Sis
+
 type remove_non_valided_classes =
   | All
   | All_but_current_academic_year

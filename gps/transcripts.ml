@@ -168,11 +168,14 @@ let log_statut
 let string_of_origin_opt a =
   match a with
    | None -> ""
-   | Some Public_data.DensInfo -> "dens-info"
+   | Some Public_data.DensInfo -> "concours universitaire informatique"
    | Some Public_data.EchErasm -> "Erasmus"
-   | Some Public_data.Info -> "Info"
-   | Some Public_data.Mpi -> "MPI"
+   | Some Public_data.Info -> "CPGE Informatique"
+   | Some Public_data.Mpi -> "CPGE Math-Physique-Info"
+   | Some Public_data.Pc  -> "CPGE Physique-Chimie"
    | Some Public_data.PensionnaireEtranger -> "Pensionnaire Étranger"
+   | Some Public_data.Psi -> "CPGE Physique-Sciences de l'Ingénieur"
+   | Some Public_data.Sis -> "Sélection Internationale"
 
 let log_origine
     state (label, string_opt) =
@@ -182,7 +185,7 @@ let log_origine
     let () =
       Remanent_state.log
         state "%s: %s" label
-        (string_of_origin_opt string_opt)        
+        (string_of_origin_opt string_opt)
     in state
 
 let log_diplome state diplome =
@@ -1345,6 +1348,9 @@ let origines =
     Public_data.Info,["info"];
     Public_data.Mpi,["mpi"];
     Public_data.PensionnaireEtranger,["e-pe"];
+    Public_data.Pc,["pc"];
+    Public_data.Psi,["psi"];
+    Public_data.Sis,["sis"];
   ]
 
 let origin_opt_of_string_opt =
@@ -1917,7 +1923,10 @@ let lerasmus origine =
   | Some Public_data.DensInfo
   | Some Public_data.Info
   | Some Public_data.Mpi
+  | Some Public_data.Pc
   | Some Public_data.PensionnaireEtranger
+  | Some Public_data.Psi
+  | Some Public_data.Sis
   | None -> false
 
 let lpe origine =
@@ -1927,6 +1936,9 @@ let lpe origine =
   | Some Public_data.EchErasm
   | Some Public_data.Info
   | Some Public_data.Mpi
+  | Some Public_data.Pc
+  | Some Public_data.Psi
+  | Some Public_data.Sis
   | None -> false
 
 
@@ -2671,6 +2683,9 @@ let export_transcript
                   | Some Public_data.DensInfo
                   | Some Public_data.Info
                   | Some Public_data.Mpi
+                  | Some Public_data.Pc
+                  | Some Public_data.Psi
+                  | Some Public_data.Sis
                     ->
                     let msg =
                       Format.sprintf
