@@ -1870,7 +1870,7 @@ let fetch_stage
         | state, [] ->
         let msg =
           Printf.sprintf
-            "Undocumented intenship for %s in %s"
+            "Undocumented internship for %s in %s"
             who year
         in
         Remanent_state.warn_dft
@@ -2479,6 +2479,12 @@ let get_bourse ~firstname ~lastname ~er state =
     state,
     Format.sprintf "Boursi%s %s" er
       scholarship.Public_data.organism
+
+let next_year i =
+  try
+    Some (string_of_int (1+int_of_string i))
+  with
+  | _ -> None
 
 let export_transcript
     ~output ?filter:(remove_non_valided_classes=Public_data.All_but_in_progress_in_current_academic_year)
@@ -3283,6 +3289,34 @@ let export_transcript
                      ~program
                      state
                in
+               let state, admission_opt =
+                 match dpt, string  with
+                 | dpt, Some "M" when dpt = dpt_info ->
+                   let year' = next_year year in
+                   begin
+                     match year' with
+                     | Some year ->
+                       Remanent_state.get_admission
+                         ~firstname
+                         ~lastname
+                         ~year
+                         state
+                     | None ->
+                       let msg =
+                         Format.sprintf
+                           "Illegal year %s for %s (M2 admission)" year who
+                       in
+                       let state =
+                         Remanent_state.warn
+                           __POS__
+                           msg
+                           Exit
+                           state
+                       in
+                       state, None
+                   end
+                 | _ -> state, None
+               in
                let moyenne_opt, mention_opt,
                    rank_opt, effectif_opt,
                    date_opt, commission_name_opt,
@@ -3534,6 +3568,17 @@ let export_transcript
                let () =
                  Remanent_state.print_newline
                    state
+               in
+               let () =
+                 match admission_opt with
+                 | None -> ()
+                 | Some admission ->
+                   let lineproportion = 1. in
+                   Remanent_state.log
+                     ~lineproportion
+                     state
+                     "%s"
+                     admission.Public_data.admission_decision
                in
                let () =
                  Remanent_state.fprintf state "\\vfill\n\ "

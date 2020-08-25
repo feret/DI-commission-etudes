@@ -128,6 +128,9 @@ val get_compensations_list_repository: t -> t * string
 val get_decisions_list_prefix: t -> t * string
 val get_decisions_list_repository: t -> t * string
 
+val get_admissions_list_prefix: t -> t * string
+val get_admissions_list_repository: t -> t * string
+
 val get_dispenses_list_prefix: t -> t * string
 val get_dispenses_list_repository: t -> t * string
 
@@ -245,6 +248,19 @@ val get_decision:
   firstname:string -> lastname:string -> year:string ->
   program:string -> dpt:string ->
   t -> t * Public_data.decision option
+
+val add_admission:
+  (string * int * int * int ->
+   t ->
+   Public_data.admission ->
+   Public_data.admission -> t * Public_data.admission) ->
+    (string * int * int * int) ->
+    Public_data.admission ->
+    t -> t
+
+val get_admission:
+    firstname:string -> lastname:string -> year:string ->
+    t -> t * Public_data.admission option
 
 val add_compensation:
   (string * int * int * int ->

@@ -7,6 +7,7 @@ type step_kind =
   | Patch_gps_file of string option
   | Build_keywords_automaton
   | Export_transcript of string option
+  | Collect_admissions 
   | Collect_scholarships
   | Collect_mentoring
   | Collect_departement

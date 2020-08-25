@@ -88,6 +88,7 @@ type data =
     programs: Programs.t;
     cursus_exceptions: Cursus_exception.t;
     decisions: Decisions.t;
+    admissions: Admissions.t;
     compensations: Compensations.t;
     dispenses: Dispenses.t;
   }
@@ -102,6 +103,7 @@ let empty_data =
     output_alias = None;
     cursus_exceptions = Cursus_exception.empty;
     decisions = Decisions.empty;
+    admissions = Admissions.empty;
     compensations = Compensations.empty;
     dispenses = Dispenses.empty;
   }
@@ -264,6 +266,12 @@ let get_decisions_list_prefix t =
 
 let get_decisions_list_repository t =
   get_rep_gen get_decisions_list_prefix t
+
+let get_admissions_list_prefix t =
+  t, "admissions"
+
+let get_admissions_list_repository t =
+  get_rep_gen get_admissions_list_prefix t
 
 let get_compensations_list_prefix t =
     t, "compensations"
@@ -620,6 +628,13 @@ let set_decisions decisions data =
 let set_decisions decisions t =
   lift_set set_decisions decisions t
 
+let get_admissions data = data.admissions
+let get_admissions t = lift_get get_admissions t
+let set_admissions admissions data =
+  {data with admissions}
+let set_admissions admissions t =
+    lift_set set_admissions admissions t
+
 let get_dispenses data = data.dispenses
 let get_dispenses t = lift_get get_dispenses t
 let set_dispenses dispenses data =
@@ -744,6 +759,21 @@ let get_decision
   in
   t, decision_opt
 
+let add_admission unify =
+  add_gen
+    get_admissions
+    set_admissions
+    (Admissions.add_admission unify)
+
+let get_admission
+    ~firstname ~lastname ~year
+     t =
+  let admission_opt =
+    Admissions.get_admission
+      ~firstname ~lastname ~year
+      t.data.admissions
+  in
+  t, admission_opt
 
 let add_compensation unify =
   add_gen

@@ -204,6 +204,22 @@ let empty_decision =
     decision_validated = None;
   }
 
+type admission =
+  {
+    admission_lastname: string;
+    admission_firstname: string;
+    admission_annee: string;
+    admission_decision: string;
+  }
+
+let empty_admission =
+  {
+    admission_lastname =  "";
+    admission_firstname = "";
+    admission_annee = "";
+    admission_decision = "";
+  }
+
 type dispense =
   {
     dispense_firstname: string;

@@ -7,6 +7,7 @@ type step_kind =
   | Patch_gps_file of string option
   | Build_keywords_automaton
   | Export_transcript of string option
+  | Collect_admissions
   | Collect_scholarships
   | Collect_mentoring
   | Collect_departement
@@ -57,6 +58,7 @@ let string_of_step_kind x =
   | Collect_decisions -> "Collect data about programs jury"
   | Collect_dispenses -> "Collect data about diploma dispenses"
   | Collect_compensations -> "Collect data about grades compensations"
+  | Collect_admissions -> "Collect data about admission to external M2"
 
 let print_step_kind logger x =
   Loggers.print_cell logger
@@ -135,6 +137,7 @@ let is_dummy step_kind =
   | Collect_decisions
   | Collect_dispenses
   | Collect_compensations
+  | Collect_admissions 
     -> false
 
 let open_event

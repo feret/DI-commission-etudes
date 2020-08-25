@@ -158,6 +158,16 @@ type decision =
 
 val empty_decision: decision
 
+type admission =
+  {
+    admission_lastname: string;
+    admission_firstname: string;
+    admission_annee: string;
+    admission_decision: string;
+  }
+
+val empty_admission: admission
+
 type dispense =
   {
     dispense_firstname: string;
