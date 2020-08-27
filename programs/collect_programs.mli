@@ -12,6 +12,13 @@ val get_programs:
   Remanent_state.t ->
   Remanent_state.t
 
+val get_cursus:
+    ?repository:string ->
+    ?prefix:string ->
+    ?file_name:string ->
+    Remanent_state.t ->
+    Remanent_state.t
+
 val get_cursus_exceptions:
   ?repository:string ->
   ?prefix:string ->

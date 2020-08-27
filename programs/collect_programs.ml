@@ -339,6 +339,189 @@ let get_programs
     ?event_opt
     state
 
+type cursus_id  =
+  {
+    cursus_dpt_acronym: string option;
+    cursus_annee: string option;
+    cursus_niveau: string option;
+    headpage: string option;
+    footpage: string option;
+    inscription: string option;
+  }
+
+let empty_cursus =
+  {
+    cursus_dpt_acronym = None;
+    cursus_annee = None;
+    cursus_niveau = None;
+    headpage = None;
+    footpage = None;
+    inscription = None;
+  }
+
+let lift_string =
+  (Lift.string empty_cursus Public_data.empty_cursus).Lift.safe
+let lift_string_opt =
+  (Lift.string empty_cursus Public_data.empty_cursus).Lift.opt_safe
+
+let keywords_list =
+  [
+    Public_data.Ignore ;
+    Public_data.Departement ;
+    Public_data.Annee_Academique;
+    Public_data.Niveau;
+    Public_data.Inscription;
+    Public_data.Entete;
+    Public_data.Pied_de_page;
+  ]
+
+let keywords_of_interest =
+  [
+    Public_data.Departement ;
+    Public_data.Annee_Academique;
+    Public_data.Niveau;
+  ]
+
+let event_opt = Some (Profiling.Collect_cursus)
+let compute_repository =
+  Remanent_state.get_cursus_list_repository
+
+let mandatory_fields =
+  [
+    lift_pred (fun a -> a.cursus_niveau)
+      "Name of academic cursus is missing";
+    lift_pred (fun a -> a.cursus_annee)
+        "Year of academic cursus is missing";
+  ]
+
+let all_fields =
+  let record_name = "academic cursus" in
+  [
+    lift_string
+      ~keyword:Public_data.Niveau
+      ~set_tmp:(fun state cursus_niveau x ->
+          state,
+          let cursus_niveau =
+            match cursus_niveau with
+            | Some x when String.trim x = "" -> None
+            | _ -> cursus_niveau
+          in
+          {x with cursus_niveau})
+      ~get_tmp:(fun a -> a.cursus_niveau)
+      ~get:(fun a -> a.Public_data.cursus_niveau)
+      ~set:(fun cursus_niveau a -> {a with Public_data.cursus_niveau})
+      ~field_name:"level"
+      ~record_name
+      ~pos:__POS__;
+    lift_string_opt
+      ~keyword:Public_data.Departement
+      ~set_tmp:(fun state dpt x ->
+          state,
+          let cursus_dpt_acronym =
+            match dpt with
+            | Some x when String.trim x = "" -> None
+            | _ -> dpt
+          in
+          {x with cursus_dpt_acronym})
+      ~get_tmp:(fun a -> a.cursus_dpt_acronym)
+      ~get:(fun a -> a.Public_data.cursus_dpt)
+      ~set:(fun cursus_dpt a
+             -> {a with Public_data.cursus_dpt})
+      ~field_name:"acronym of the department"
+      ~record_name
+      ~pos:__POS__;
+    lift_string
+      ~keyword:Public_data.Annee_Academique
+      ~set_tmp:(fun state cursus_annee x ->
+          state,
+          let cursus_annee =
+            match cursus_annee with
+            | Some x when String.trim x = "" -> None
+            | _ -> cursus_annee
+          in
+          {x with cursus_annee})
+      ~get_tmp:(fun a -> a.cursus_annee)
+      ~get:(fun a -> a.Public_data.cursus_annee_academique)
+      ~set:(fun cursus_annee_academique a ->
+          {a with Public_data.cursus_annee_academique})
+      ~field_name:"year of the cursus"
+      ~record_name
+      ~pos:__POS__;
+    lift_string_opt
+        ~keyword:Public_data.Inscription
+        ~set_tmp:(fun state inscription x ->
+            state,
+            let inscription =
+              match inscription with
+              | Some x when String.trim x = "" -> None
+              | _ -> inscription
+            in
+            {x with inscription})
+        ~get_tmp:(fun a -> a.inscription)
+        ~get:(fun a -> a.Public_data.inscription)
+        ~set:(fun inscription a ->
+            {a with Public_data.inscription})
+        ~field_name:"incription notice"
+        ~record_name
+        ~pos:__POS__;
+    lift_string_opt
+      ~keyword:Public_data.Entete
+          ~set_tmp:(fun state headpage x ->
+              state,
+              let headpage =
+                match headpage with
+                | Some x when String.trim x = "" -> None
+                | _ -> headpage
+              in
+              {x with headpage})
+          ~get_tmp:(fun a -> a.headpage)
+          ~get:(fun a -> a.Public_data.entete)
+          ~set:(fun entete a -> {a with Public_data.entete})
+          ~field_name:"headpage"
+          ~record_name
+          ~pos:__POS__;
+    lift_string_opt
+            ~keyword:Public_data.Pied_de_page
+            ~set_tmp:(fun state footpage x ->
+                state,
+                let footpage =
+                  match footpage with
+                  | Some x when String.trim x = "" -> None
+                  | _ -> footpage
+                in
+                {x with footpage})
+            ~get_tmp:(fun a -> a.footpage)
+            ~get:(fun a -> a.Public_data.pied)
+            ~set:(fun pied a ->
+                {a with Public_data.pied})
+            ~field_name:"footpage"
+            ~record_name
+            ~pos:__POS__;
+
+  ]
+
+let get_cursus
+    ?repository
+    ?prefix
+    ?file_name
+    state
+  =
+  Scan_csv_files.collect_gen
+    ?repository
+    ?prefix
+    ?file_name
+    ~compute_repository
+    ~fun_default:fun_ignore
+    ~keywords_of_interest
+    ~keywords_list
+    ~init_state:empty_cursus
+    ~empty_elt:Public_data.empty_cursus
+    ~add_elt:Remanent_state.add_cursus
+    ~mandatory_fields
+    ~all_fields
+    ?event_opt
+    state
+
 type exception_id  =
   {
     dpt: string option;

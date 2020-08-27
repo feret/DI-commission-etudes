@@ -56,6 +56,20 @@ let addmap x data map =
   in
   StringOptMap.add x (data::old) map
 
+let addfirstlast x dispense data map =
+  if dispense
+  then map
+  else
+    let first =
+      match
+        StringOptMap.find_opt x map
+      with
+      | Some (Some x, _) -> Some x
+      | Some (None,_)
+      | None  -> Some data
+    in
+    StringOptMap.add x (first, Some data)  map
+
 type diplome =
   {
     grade: string option;
@@ -2169,9 +2183,8 @@ let translate_diplome
           | "PHYS" -> "physique"
           | _ -> ""
         in
-        state, (Some level,
-                label,
-                dpt)
+        state,
+        (Some level,label,dpt,true)
       | state, None ->
       let msg =
         Format.sprintf
@@ -2182,7 +2195,7 @@ let translate_diplome
         __POS__
         msg
         Exit
-        (None, "","")
+        (None, "","", true)
         state
     end
   | state, None  ->
@@ -2196,10 +2209,10 @@ let translate_diplome
         pos
         "Main teaching dpt is missing"
         Exit
-        (Some diplome,label,"")
+        (Some diplome,label,"",true)
         state
     | None, true ->
-      state, (Some diplome,label,"")
+      state, (Some diplome,label,"",true)
     | Some dpt, _  ->
       let dpt = Special_char.lowercase dpt in
       let dpt =
@@ -2244,9 +2257,9 @@ let translate_diplome
           else
             label^" de "^dpt
         in
-        state, (Some diplome,label,dpt)
+        state, (Some diplome,label,dpt,true)
       else
-        state, (Some diplome,label,dpt)
+        state, (Some diplome,label,dpt,true)
   in
   match diplome with
   | Some "L" ->
@@ -2277,20 +2290,20 @@ let translate_diplome
         if is_dma_course code_cours year
         then
           state,
-          (Some "L","L3 de mathématiques",dpt_maths)
+          (Some "L","L3 de mathématiques",dpt_maths,true)
         else
           state,
-          (Some "L","L3 de physique",dpt_phys)
+          (Some "L","L3 de physique",dpt_phys,true)
       else
       if linfo situation && lmath situation
       then
         if is_dma_course code_cours year
         then
           state,
-          (Some "L","L3 de mathématiques",dpt_maths)
+          (Some "L","L3 de mathématiques",dpt_maths,true)
         else
           state,
-          (Some "L","L3 d'informatique",dpt_info)
+          (Some "L","L3 d'informatique",dpt_info,true)
       else
       check_dpt __POS__ state origine
           "L" "L3" code_cours year
@@ -2298,33 +2311,33 @@ let translate_diplome
     end
   | Some "M" ->
     if mmaths situation then
-      state, (Some "M","M1 de mathématiques",dpt_maths)
+      state, (Some "M","M1 de mathématiques",dpt_maths,true)
     else
     if mpri situation then
-      state, (Some "MPRI","M2 du MPRI",dpt_info)
+      state, (Some "MPRI","M2 du MPRI",dpt_info,true)
     else if mva situation then
-      state, (Some "MVA","M2 du MVA",dpt_info)
+      state, (Some "MVA","M2 du MVA",dpt_info,true)
     else if iasd situation then
-      state, (Some "IASD","M2 IASD",dpt_info)
+      state, (Some "IASD","M2 IASD",dpt_info,true)
     else if mash situation then
-      state, (Some "MASH","M2 MASH", dpt_info)
+      state, (Some "MASH","M2 MASH", dpt_info,true)
     else if mint situation then
-      state, (Some "Interaction", "M2 Interaction", dpt_info)
+      state, (Some "Interaction", "M2 Interaction", dpt_info,true)
     else
       check_dpt __POS__ state origine
         "M" "M1" code_cours year
         situation
   | Some ("DENS" | "dens") ->
-    state, (Some ("DENS"), "DENS", "DENS")
+    state, (Some ("DENS"), "DENS", "DENS",true)
   | Some x ->
     check_dpt __POS__ state origine
       x x code_cours year
       situation
   | None ->
-    let state, (_,b,c) =
+    let state, (_,b,c,d) =
       check_dpt __POS__ state origine "" "" code_cours year situation
     in
-    state, (None,b,c)
+    state, (None,b,c,d)
 
 
 
@@ -2638,9 +2651,57 @@ let export_transcript
     let stages =
         gps_file.stages
     in
+    let state, cursus_map, l =
+      List.fold_left
+        (fun (state, cursus_map, l) (year, situation) ->
+           let state, filtered_classes =
+             filter_class ~firstname ~lastname ~year
+               state remove_non_valided_classes
+                situation.cours
+        in
+        let origine = gps_file.origine in
+        let state, (cursus_map, split_cours) =
+          List.fold_left
+            (fun (state,
+                  (cursus_map,
+                   course_map)) elt ->
+               match elt.code_cours with
+               | Some code_cours  ->
+                 let state,
+                     (diplome_key,diplome_label,diplome_dpt,
+                      dispense)
+                  =
+                  translate_diplome
+                    ~origine ~situation ~firstname ~lastname
+                    ~year ~code_cours state
+                    elt.diplome
+                in
+                state,
+                ((addfirstlast
+                  (diplome_key,diplome_dpt)             dispense
+                  year
+                  cursus_map),
+                addmap
+                  (diplome_key,diplome_dpt)
+                  (diplome_label,elt) course_map)
+               | None ->
+                 Remanent_state.warn_dft
+                   __POS__
+                   "The code of a course is missing"
+                   Exit
+                   (cursus_map,course_map)
+                   state
+            )
+            (state, (cursus_map,StringOptMap.empty))
+            filtered_classes
+        in
+        state, cursus_map, (year,situation,split_cours)::l)
+        (state, StringOptMap.empty, [])
+        (List.rev l_rev)
+    in
     let state =
       List.fold_left
-        (fun state (year,situation) ->
+        (fun state (year,situation,split_cours) ->
            let backgroundcolor = Some Color.green in
            let who =
              Format.sprintf "%s in %s" who year
@@ -2745,7 +2806,7 @@ let export_transcript
               ~firstname
               __POS__
               state
-          in
+        in
         let state, (tuteur, lineproportion) =
           match tuteur with
           | None ->
@@ -3026,37 +3087,6 @@ let export_transcript
         let () =
           Remanent_state.print_newline state
         in
-        let state, filtered_classes =
-          filter_class ~firstname ~lastname ~year
-            state remove_non_valided_classes situation.cours
-        in
-        let origine = gps_file.origine in
-        let state, split_cours =
-          List.fold_left
-            (fun (state,map) elt ->
-               match elt.code_cours with
-               | Some code_cours  ->
-                 let state,
-                     (diplome_key,diplome_label,diplome_dpt) =
-                 translate_diplome
-                   ~origine ~situation ~firstname ~lastname ~year ~code_cours state
-                   elt.diplome
-                 in
-               state,
-               addmap
-                 (diplome_key,diplome_dpt)
-                 (diplome_label,elt) map
-               | None ->
-                 Remanent_state.warn_dft
-                   __POS__
-                   "The code of a course is missing"
-                   Exit
-                   map
-                   state
-            )
-            (state, StringOptMap.empty)
-            filtered_classes
-        in
         let l = [21.0;11.67;48.33;26.67;7.3;10.00;5.17] in
         let sum =
           List.fold_left
@@ -3075,6 +3105,43 @@ let export_transcript
         let state =
           StringOptMap.fold
             (fun (string,dpt) list state ->
+               let state,
+                   entete,
+                   footpage =
+                 match string with
+                 | None -> state, None, None
+                 | Some string ->
+                   let state, cursus_opt =
+                     Remanent_state.get_cursus
+                       __POS__
+                       ~level:string
+                       ?dpt:(match string, dpt with
+                           | "dens",_
+                           | _,"" -> None
+                           | _ ->
+                        Some dpt)
+                       ~year
+                       state
+                   in
+                   match cursus_opt with
+                   | None ->
+                     let msg =
+                       Format.sprintf
+                         "Undocumented cursus %s %s %s"
+                         string
+                         dpt
+                         year
+                     in
+                     Remanent_state.warn
+                       __POS__
+                       msg
+                       Exit
+                       state,
+                     None, None
+                   | Some cursus ->
+                     state, cursus.Public_data.entete,
+                     cursus.Public_data.pied
+               in
                let state, key, b = alloc_suffix (string,dpt) state in
                let () =
                  if b
@@ -3114,7 +3181,7 @@ let export_transcript
                  | Some ("LInfo" | "linfo") -> state, Some Color.yellow
                  | Some ("lmath" | "mmath" | "LMath" | "MMath") -> state, Some Color.orange
                  | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" ) ->
-                   color_of_dpt who __POS__ state dpt origine
+                   color_of_dpt who __POS__ state dpt gps_file.origine
                  | Some x  ->
                    let msg =
                      Printf.sprintf "Unknown course category '%s' for %s" x who
@@ -3134,6 +3201,35 @@ let export_transcript
                    "\\setcounter{totalrows}{%i}%%%%\n\ "
                    (List.length list)
                in
+               let () =
+                 match entete with
+                 | None -> ()
+                 | Some x ->
+                   let lineproportion = 1. in
+                   Remanent_state.log
+                   ~lineproportion
+                   state
+                   "%s%s"
+                   x
+                   (match
+                      StringOptMap.find_opt
+                        (string,dpt)
+                        cursus_map, footpage
+                    with
+                    | None, _
+                    | Some (_,None),_
+                    | _,None -> ""
+                    | Some (_,Some x),Some y ->
+                      if x = year then
+                        Format.sprintf
+                          "\\footnote{%s}"
+                          y
+                      else
+                        ""
+                   )
+               in
+               let _ =
+                 Remanent_state.print_newline state in
                let state =
                  Remanent_state.open_array
                    __POS__
@@ -3291,7 +3387,8 @@ let export_transcript
                in
                let state, admission_opt =
                  match dpt, string  with
-                 | dpt, Some "M" when dpt = dpt_info ->
+                 | _, Some "dens" -> state, None
+                 | _(*dpt, Some "m"  when dpt = dpt_info*) ->
                    let year' = next_year year in
                    begin
                      match year' with
@@ -3315,7 +3412,7 @@ let export_transcript
                        in
                        state, None
                    end
-                 | _ -> state, None
+                   (*| _ -> state, None*)
                in
                let moyenne_opt, mention_opt,
                    rank_opt, effectif_opt,
@@ -3602,7 +3699,7 @@ let export_transcript
         state
         )
         state
-        (List.rev l_rev)
+        l
     in
     let state = Remanent_state.close_logger state in
     let state =

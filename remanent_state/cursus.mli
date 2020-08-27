@@ -1,0 +1,14 @@
+type t
+val empty: t
+val get_cursus:
+  level:string -> ?dpt:string -> year:string -> 
+  t -> Public_data.cursus option
+val add_cursus:
+  ((string * int * int * int) ->
+   'state ->
+   Public_data.cursus ->
+   Public_data.cursus -> 'state * Public_data.cursus) ->
+  (string * int * int * int) ->
+  'state ->
+  Public_data.cursus -> t ->
+  'state * t

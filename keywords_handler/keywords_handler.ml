@@ -123,6 +123,7 @@ let asso_list =
     Public_data.ECTS,["ECTS*";"ECTS"];
     Public_data.Effectif,["effectif"];
     Public_data.Enseignements,["enseignement(s)"];
+    Public_data.Entete,["entete";"en-tete";"en_tete"];
     Public_data.Etablissement,["établissement"];
     Public_data.Etablissement_ou_Entreprise,["établissement ou entreprise"];
     Public_data.FirstName, ["prénom";];
@@ -131,6 +132,7 @@ let asso_list =
     Public_data.Genre, ["genre"];
     Public_data.Genre_du_tuteur, ["genre du tuteur"];
     Public_data.Grade, ["grade"];
+    Public_data.Inscription, ["inscription"];
     Public_data.Inscrit_au_DENS_en, ["inscrit au DENS en"];
     Public_data.Intitule, ["intitulé"];
     Public_data.LastName, ["nom"];
@@ -150,6 +152,7 @@ let asso_list =
     Public_data.Periode, ["période"];
     Public_data.Periode_de_Financement, ["période de financement"];
     Public_data.Pers_id, ["pers_id"];
+    Public_data.Pied_de_page, ["pied de page";"pied-de-page";"pied_de_page"];
     Public_data.Pour_Diplome, ["pour diplôme"];
     Public_data.Prenom_du_tuteur, ["prénom du tuteur"];
     Public_data.Promo, ["promo";"promotion"];

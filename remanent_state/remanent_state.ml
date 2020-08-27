@@ -86,6 +86,7 @@ type data =
     mentoring: Mentoring.t;
     dpts: Departments.t;
     programs: Programs.t;
+    cursus: Cursus.t;
     cursus_exceptions: Cursus_exception.t;
     decisions: Decisions.t;
     admissions: Admissions.t;
@@ -99,6 +100,7 @@ let empty_data =
     scholarships = Scholarships.empty;
     mentoring = Mentoring.empty;
     dpts =  Departments.empty;
+    cursus = Cursus.empty;
     programs = Programs.empty;
     output_alias = None;
     cursus_exceptions = Cursus_exception.empty;
@@ -248,6 +250,12 @@ let get_departments_list_prefix t =
 
 let get_departments_list_repository t =
   get_rep_gen get_departments_list_prefix t
+
+let get_cursus_list_prefix t =
+  t, "cursus"
+
+let get_cursus_list_repository t =
+  get_rep_gen get_cursus_list_prefix t
 
 let get_programs_list_prefix t =
   t, "diplomes"
@@ -595,6 +603,12 @@ let set_mentoring mentoring data = {data with mentoring}
 let set_mentoring mentoring t =
   lift_set set_mentoring mentoring t
 
+let get_cursus data = data.cursus
+let get_cursus t = lift_get get_cursus t
+let set_cursus cursus data = {data with cursus}
+let set_cursus cursus t =
+  lift_set set_cursus cursus t
+
 let get_dpts data = data.dpts
 let get_dpts t = lift_get get_dpts t
 let set_dpts dpts data = {data with dpts}
@@ -695,6 +709,36 @@ let get_mentoring ~firstname ~lastname ~year ?tuteur_gps pos t =
         Exit
         tuteur_gps
         t
+
+let add_cursus unify =
+  add_gen
+    get_cursus
+    set_cursus
+    (Cursus.add_cursus unify)
+
+let get_cursus ~year ~level ?dpt pos t =
+  let cursus_opt =
+    Cursus.get_cursus
+       ~year ~level ?dpt (get_cursus t)
+  in
+  match cursus_opt with
+  | Some a ->
+    t, Some a
+  | None ->
+    let msg =
+      Format.sprintf
+        "Pas de cursus pour %s%s en %s dans les fichiers du département"
+        level
+        (match dpt with
+         | None -> "" | Some i -> Format.sprintf " %s" i)
+        year
+    in
+    warn
+      pos
+      msg
+      Exit
+      t, None
+
 
 let add_dpt unify =
   add_gen

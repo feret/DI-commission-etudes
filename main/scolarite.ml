@@ -24,15 +24,19 @@ let state =
 let state =
   Collect_mentoring.get_mentoring state
 let state =
+  Collect_programs.get_cursus state 
+let state =
   Collect_programs.get_dpt state
 let state =
   Collect_programs.get_programs state
 let state =
-    Collect_programs.get_cursus_exceptions state
+  Collect_programs.get_cursus_exceptions state
 let state =
   Collect_compensations.get_compensations state
 let state =
   Collect_decisions.get_decisions state
+let state =
+  Collect_admissions.get_admissions state
 let state =
   Collect_dispenses.get_dispenses state
 let state, output =

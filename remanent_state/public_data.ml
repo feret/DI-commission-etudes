@@ -18,6 +18,29 @@ module StringMap =
     end
     )
 
+module StringOptMap =
+  Map_tools.MakeSimplified
+    (
+    struct
+      module Ord   =
+        (
+        struct
+          type t = string option
+          let compare = compare
+
+        end
+        )
+
+      let simplify s_opt =
+        Tools.map_opt
+          (fun s ->
+             Special_char.lowercase
+               (Special_char.correct_string_txt
+                  (String.trim s)))
+          s_opt
+    end
+    )
+
 
 type cloud_client = NextCloudCmd
 type pdf_generator = PdfLatex
@@ -98,6 +121,26 @@ let empty_tutorat =
     courriel_du_tuteur = None ;
     nom_de_l_etudiant = "" ;
     prenom_de_l_etudiant = "" ;
+  }
+
+type cursus =
+  {
+    cursus_annee_academique: annee ;
+    cursus_niveau: string;
+    cursus_dpt: string option;
+    inscription: string option;
+    entete: string option;
+    pied: string option
+  }
+
+let empty_cursus =
+  {
+    cursus_annee_academique = "";
+    cursus_niveau = "";
+    cursus_dpt = None;
+    inscription = None;
+    entete = None;
+    pied = None;
   }
 
 type dpt =
@@ -274,6 +317,7 @@ type keywords =
   | Duree
   | ECTS
   | Effectif
+  | Entete
   | Enseignements
   | Etablissement
   | Etablissement_ou_Entreprise
@@ -283,6 +327,7 @@ type keywords =
   | Genre
   | Genre_du_tuteur
   | Grade
+  | Inscription
   | Inscrit_au_DENS_en
   | Intitule
   | LastName
@@ -302,6 +347,7 @@ type keywords =
   | Periode
   | Periode_de_Financement
   | Pers_id
+  | Pied_de_page 
   | Pour_Diplome
   | Prenom_du_tuteur
   | Promo
@@ -359,7 +405,7 @@ type remove_non_valided_classes =
   | All_but_in_progress_in_current_academic_year
   | All_but_in_progress_in_years of annee list
 
-
+module DptOptMap = StringOptMap
 module CodeMap = StringMap
 module PromoMap = StringMap
 module FinanceurMap = StringMap
@@ -373,6 +419,7 @@ module YearMap =
       type t = annee
       let compare = compare
     end)
+module LevelMap = StringMap
 
 module CodeExtendedMap = Map_tools.Collect(CodeMap)
 module PromoExtendedMap = Map_tools.Collect(PromoMap)

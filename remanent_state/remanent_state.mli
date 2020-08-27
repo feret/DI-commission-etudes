@@ -119,6 +119,9 @@ val get_departments_list_repository: t -> t * string
 val get_programs_list_prefix: t -> t * string
 val get_programs_list_repository: t -> t * string
 
+val get_cursus_list_prefix: t -> t * string
+val get_cursus_list_repository: t -> t * string
+
 val get_cursus_exceptions_list_prefix: t -> t * string
 val get_cursus_exceptions_list_repository: t -> t * string
 
@@ -219,6 +222,22 @@ val add_program:
 val get_program:
   code_gps:string ->
   t -> t * Public_data.program option
+
+val add_cursus:
+  (string * int * int * int ->
+   t ->
+   Public_data.cursus ->
+   Public_data.cursus -> t * Public_data.cursus) ->
+    (string * int * int * int) ->
+    Public_data.cursus ->
+    t -> t
+
+val get_cursus:
+  year:string ->
+  level:string ->
+  ?dpt:string  ->
+  (string * int * int * int) ->
+  t -> t * Public_data.cursus option
 
 val add_cursus_exception:
   (string * int * int * int ->

@@ -27,6 +27,7 @@ type scholarship =
 
 val empty_scholarship: scholarship
 
+module DptOptMap : Map.S with type key = string option
 module CodeMap : Map.S with type key = string
 module PromoMap : Map.S with type key = string
 module FinanceurMap : Map.S with type key = string
@@ -35,6 +36,7 @@ module LastNameMap : Map.S with type key = string
 module YearMap: Map.S with type key = annee
 module AcronymMap: Map.S with type key = string
 module ProgramMap: Map.S with type key = string
+module LevelMap: Map.S with type key = string
 
 module CodeExtendedMap : Map_tools.Collect
   with type key = CodeMap.key
@@ -106,6 +108,18 @@ type dpt =
   }
 
 val empty_dpt: dpt
+
+type cursus =
+  {
+    cursus_annee_academique: annee ;
+    cursus_niveau: string;
+    cursus_dpt: string option;
+    inscription: string option;
+    entete: string option;
+    pied: string option
+  }
+
+val empty_cursus: cursus
 
 type program =
   {
@@ -213,6 +227,7 @@ type keywords =
   | Duree
   | ECTS
   | Effectif
+  | Entete
   | Enseignements
   | Etablissement
   | Etablissement_ou_Entreprise
@@ -222,6 +237,7 @@ type keywords =
   | Genre
   | Genre_du_tuteur
   | Grade
+  | Inscription
   | Inscrit_au_DENS_en
   | Intitule
   | LastName
@@ -241,6 +257,7 @@ type keywords =
   | Periode
   | Periode_de_Financement
   | Pers_id
+  | Pied_de_page 
   | Pour_Diplome
   | Prenom_du_tuteur
   | Promo
