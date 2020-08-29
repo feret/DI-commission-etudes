@@ -1,7 +1,12 @@
-type t
+type t =
+  Public_data.cursus
+    Public_data.YearMap.t
+    Public_data.DptOptMap.t
+    Public_data.LevelMap.t
+
 val empty: t
 val get_cursus:
-  level:string -> ?dpt:string -> year:string -> 
+  level:string -> ?dpt:string -> year:string ->
   t -> Public_data.cursus option
 val add_cursus:
   ((string * int * int * int) ->

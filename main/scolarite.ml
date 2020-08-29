@@ -24,7 +24,8 @@ let state =
 let state =
   Collect_mentoring.get_mentoring state
 let state =
-  Collect_programs.get_cursus state 
+  Collect_programs.get_cursus state
+let () = Remanent_state.list_all_cursus state 
 let state =
   Collect_programs.get_dpt state
 let state =

@@ -239,6 +239,9 @@ val get_cursus:
   (string * int * int * int) ->
   t -> t * Public_data.cursus option
 
+val list_all_cursus:
+  t -> unit
+
 val add_cursus_exception:
   (string * int * int * int ->
    t ->

@@ -68,7 +68,8 @@ let get_list_from_a_file
             in
             do_at_end_of_file state current_file output
           | h::t ->
-            if List.length h > 1
+            if List.length
+                (List.filter (fun s -> s <> "") h) > 1
             then
               let state, b =
                 let rec aux state l =
@@ -171,7 +172,10 @@ let get_list_from_a_file
               state, current_file, is_non_empty
           in
           scan
-            state t remaining_lines None current_file is_non_empty output
+            state
+            t remaining_lines
+            current_keyword current_file
+            is_non_empty output
     and
       array_mode state header_key header
         remaining_lines current_file output  =

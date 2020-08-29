@@ -902,3 +902,30 @@ let get_picture_potential_locations
   t, [base^".jpg";base^".pdf"]
 
 let get_target t = t, t.parameters.target
+
+let list_all_cursus state =
+  let () =
+    Public_data.LevelMap.iter
+      (fun level ->
+         Public_data.DptOptMap.iter
+           (fun dpt_opt ->
+              Public_data.YearMap.iter
+                (fun year cursus ->
+                   Format.printf
+                     "%s %s %s -> %s %s %s @ "
+                     level
+                     (match dpt_opt with
+                      | None -> "None"
+                      | Some a -> a
+                     )
+                     year
+                     cursus.Public_data.cursus_niveau
+                     (match cursus.Public_data.cursus_dpt with
+                      | None -> "None"
+                      | Some a -> a
+                     )
+                     cursus.Public_data.cursus_annee_academique
+              )))
+      state.data.cursus
+  in
+  Format.print_flush ()

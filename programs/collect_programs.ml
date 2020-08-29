@@ -391,7 +391,9 @@ let mandatory_fields =
     lift_pred (fun a -> a.cursus_niveau)
       "Name of academic cursus is missing";
     lift_pred (fun a -> a.cursus_annee)
-        "Year of academic cursus is missing";
+      "Year of academic cursus is missing";
+    lift_pred (fun a -> a.cursus_dpt_acronym)
+      "Dpt acronym is optional"; 
   ]
 
 let all_fields =
@@ -425,8 +427,8 @@ let all_fields =
           {x with cursus_dpt_acronym})
       ~get_tmp:(fun a -> a.cursus_dpt_acronym)
       ~get:(fun a -> a.Public_data.cursus_dpt)
-      ~set:(fun cursus_dpt a
-             -> {a with Public_data.cursus_dpt})
+      ~set:(fun cursus_dpt a ->
+               {a with Public_data.cursus_dpt})
       ~field_name:"acronym of the department"
       ~record_name
       ~pos:__POS__;
@@ -456,7 +458,7 @@ let all_fields =
               | Some x when String.trim x = "" -> None
               | _ -> inscription
             in
-            {x with inscription})
+              {x with inscription})
         ~get_tmp:(fun a -> a.inscription)
         ~get:(fun a -> a.Public_data.inscription)
         ~set:(fun inscription a ->

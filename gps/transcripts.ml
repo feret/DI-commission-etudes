@@ -56,19 +56,53 @@ let addmap x data map =
   in
   StringOptMap.add x (data::old) map
 
-let addfirstlast x dispense data map =
+let gen_year f pos msg state a_opt b_opt =
+  match
+    a_opt,b_opt
+  with
+  | None, _ -> state, b_opt
+  | _, None -> state, a_opt
+  | Some a, Some b ->
+    try
+      state,
+      Some (string_of_int
+              (f (int_of_string a) (int_of_string b)))
+    with
+    | _ ->
+      Remanent_state.warn
+        pos
+        msg
+        Exit
+        state,
+      a_opt
+
+let min_year = gen_year min
+let max_year = gen_year max
+
+let addfirstlast state x dispense data map =
+  let data = Some data in
   if dispense
-  then map
+  then state, map
   else
-    let first =
+    let state, answer =
       match
         StringOptMap.find_opt x map
       with
-      | Some (Some x, _) -> Some x
-      | Some (None,_)
-      | None  -> Some data
+      | Some (a_opt,b_opt) ->
+        let state, a_opt =
+          min_year
+            __POS__
+            "internal error: both arguments of min_year should be convertible into integers"
+            state a_opt data
+        in
+        let state, b_opt =
+          max_year __POS__ "internal error: both arguments of max_year should be convertible into integers"
+            state b_opt data
+        in
+        state, (a_opt,b_opt)
+      | None  -> state,(data,data)
     in
-    StringOptMap.add x (first, Some data)  map
+    state, StringOptMap.add x answer map
 
 type diplome =
   {
@@ -697,7 +731,9 @@ let filter_stage_year year state stages =
 
   let fetch_string string comment =
     let list =
-      List.rev_map (String.split_on_char ' ') (List.rev comment)
+      List.rev_map
+        (String.split_on_char ' ')
+        (List.rev comment)
     in
     let list = List.flatten list in
     let list =
@@ -2209,10 +2245,10 @@ let translate_diplome
         pos
         "Main teaching dpt is missing"
         Exit
-        (Some diplome,label,"",true)
+        (Some diplome,label,"",false)
         state
     | None, true ->
-      state, (Some diplome,label,"",true)
+      state, (Some diplome,label,"",false)
     | Some dpt, _  ->
       let dpt = Special_char.lowercase dpt in
       let dpt =
@@ -2257,9 +2293,9 @@ let translate_diplome
           else
             label^" de "^dpt
         in
-        state, (Some diplome,label,dpt,true)
+        state, (Some diplome,label,dpt,false)
       else
-        state, (Some diplome,label,dpt,true)
+        state, (Some diplome,label,dpt,false)
   in
   match diplome with
   | Some "L" ->
@@ -2290,20 +2326,20 @@ let translate_diplome
         if is_dma_course code_cours year
         then
           state,
-          (Some "L","L3 de mathématiques",dpt_maths,true)
+          (Some "L","L3 de mathématiques",dpt_maths,false)
         else
           state,
-          (Some "L","L3 de physique",dpt_phys,true)
+          (Some "L","L3 de physique",dpt_phys,false)
       else
       if linfo situation && lmath situation
       then
         if is_dma_course code_cours year
         then
           state,
-          (Some "L","L3 de mathématiques",dpt_maths,true)
+          (Some "L","L3 de mathématiques",dpt_maths,false)
         else
           state,
-          (Some "L","L3 d'informatique",dpt_info,true)
+          (Some "L","L3 d'informatique",dpt_info,false)
       else
       check_dpt __POS__ state origine
           "L" "L3" code_cours year
@@ -2311,24 +2347,24 @@ let translate_diplome
     end
   | Some "M" ->
     if mmaths situation then
-      state, (Some "M","M1 de mathématiques",dpt_maths,true)
+      state, (Some "M","M1 de mathématiques",dpt_maths,false)
     else
     if mpri situation then
-      state, (Some "MPRI","M2 du MPRI",dpt_info,true)
+      state, (Some "MPRI","M2 du MPRI",dpt_info,false)
     else if mva situation then
-      state, (Some "MVA","M2 du MVA",dpt_info,true)
+      state, (Some "MVA","M2 du MVA",dpt_info,false)
     else if iasd situation then
-      state, (Some "IASD","M2 IASD",dpt_info,true)
+      state, (Some "IASD","M2 IASD",dpt_info,false)
     else if mash situation then
-      state, (Some "MASH","M2 MASH", dpt_info,true)
+      state, (Some "MASH","M2 MASH", dpt_info,false)
     else if mint situation then
-      state, (Some "Interaction", "M2 Interaction", dpt_info,true)
+      state, (Some "Interaction", "M2 Interaction", dpt_info,false)
     else
       check_dpt __POS__ state origine
         "M" "M1" code_cours year
         situation
   | Some ("DENS" | "dens") ->
-    state, (Some ("DENS"), "DENS", "DENS",true)
+    state, (Some ("DENS"), "DENS", "DENS",false)
   | Some x ->
     check_dpt __POS__ state origine
       x x code_cours year
@@ -2591,7 +2627,6 @@ let export_transcript
         "pour %s %s (%s)"
         firstname lastname promo
     in
-
     let l_rev,_ =
       List.fold_left
         (fun (l,counter) (y,annee) ->
@@ -2676,14 +2711,20 @@ let export_transcript
                     ~year ~code_cours state
                     elt.diplome
                 in
+                let state, cursus_map =
+                  addfirstlast
+                    state
+                    (diplome_key,diplome_dpt)
+                    dispense
+                    year
+                    cursus_map
+                in
                 state,
-                ((addfirstlast
-                  (diplome_key,diplome_dpt)             dispense
-                  year
-                  cursus_map),
-                addmap
-                  (diplome_key,diplome_dpt)
-                  (diplome_label,elt) course_map)
+                (
+                  cursus_map,
+                  addmap
+                    (diplome_key,diplome_dpt)
+                    (diplome_label,elt) course_map)
                | None ->
                  Remanent_state.warn_dft
                    __POS__
@@ -2697,7 +2738,7 @@ let export_transcript
         in
         state, cursus_map, (year,situation,split_cours)::l)
         (state, StringOptMap.empty, [])
-        (List.rev l_rev)
+        l_rev
     in
     let state =
       List.fold_left
@@ -2879,16 +2920,17 @@ let export_transcript
         let annee =
           Printf.sprintf "%i -- %i" annee_int (annee_int+1)
         in
-        let state, statut =
-          if lerasmus gps_file.origine || lpe gps_file.origine
+        let state, statut, nationaux_opt =
+          if lerasmus gps_file.origine
+          || lpe gps_file.origine
           then
-            state, "Année d'étude au département d'informatique"
+            state, "Année d'étude au département d'informatique", None
           else
             match
               situation.nannee
             with
             | None ->
-              state, "Césure"
+              state, "Césure", None
             | Some i ->
               begin
                 let state, prefix =
@@ -2898,19 +2940,19 @@ let export_transcript
                 | 3 -> state, "Troisème année :"
                 | 4 -> state, "Quatrième année :"
                 | _ ->
-                let msg =
-                  Printf.sprintf
-                    "max 4 ans de scolarité pour %s"
-                    who
-                in
+                  let msg =
+                    Printf.sprintf
+                      "max 4 ans de scolarité pour %s"
+                      who
+                  in
                   Remanent_state.warn_dft
                     __POS__
                     msg
                     Exit
                     ((string_of_int i)^"ème année :")
                     state
-              in
-              let state, suffix =
+                in
+                let state, suffix, nationaux_opt =
                 if
                   lmath situation
                   &&
@@ -2951,7 +2993,7 @@ let export_transcript
                         state
                   in
                   state, Printf.sprintf
-                    "Cursus maths-info et rattaché%s au %s" genre dpt
+                    "Cursus maths-info et rattaché%s au %s" genre dpt, Some "maths-info"
                 else if
                   lmathphys situation
                 then
@@ -2993,12 +3035,164 @@ let export_transcript
                       state
                 in
                 state, Printf.sprintf
-                  "Cursus maths-physique et rattaché au %s" dpt
+                  "Cursus maths-physique et rattaché au %s" dpt, Some "maths-phys"
                 else
-                  translate_dpt state situation.departement_principal
+                  let state, string =
+                    translate_dpt state
+                      situation.departement_principal
+                  in
+                  state, string, None
               in
-              state, Printf.sprintf "%s %s" prefix suffix
+              state,
+              Printf.sprintf "%s %s" prefix suffix, nationaux_opt
             end
+        in
+        let state, dens_opt =
+          match
+            situation.inscription_au_DENS
+          with
+          | Some true ->
+            begin
+              match nationaux_opt with
+              | Some _ -> state, ["Diplôme de l'Éns"]
+              | _ ->
+                let state, cursus_opt =
+                  Remanent_state.get_cursus
+                    ~year
+                    ~level:"dens"
+                    __POS__
+                    state
+                in
+                match cursus_opt with
+                | Some cursus ->
+                  begin
+                    match cursus.Public_data.inscription
+                    with
+                    | None -> state, ["DENS"]
+                    | Some x -> state, [x]
+                  end
+                | None ->
+                  let msg =
+                    Format.sprintf
+                      "Undocumented cursus dens %s"
+                      year
+                  in
+                  Remanent_state.warn
+                    __POS__
+                    msg
+                    Exit
+                    state,
+                  []
+            end
+          | Some false | None -> state, ["NO DENS !!!"]
+        in
+        let state, inscriptions =
+          match nationaux_opt with
+          | Some x -> state, x::dens_opt
+          | None ->
+            if lpoly situation
+            || lpe gps_file.origine
+            || lerasmus gps_file.origine
+            then
+              state, dens_opt
+            else
+              StringOptMap.fold
+                (fun (string_opt,dpt) _ (state, inscriptions) ->
+                   match string_opt with
+                   | None | Some "dens" -> state, inscriptions
+                   | Some string ->
+                     match
+                       StringOptMap.find_opt
+                         (string_opt,dpt)
+                         cursus_map
+                     with
+                     | None ->
+                       Remanent_state.warn
+                         __POS__
+                         "internal error, cursus should be stored in cursus_map"
+                         Exit
+                         state,
+                       inscriptions
+                     | Some (debut,fin) ->
+                       try
+                         if
+                           begin
+                             match debut with
+                             | None -> true
+                             | Some debut ->
+                               int_of_string debut <=
+                               int_of_string year
+                           end
+                           &&
+                           match fin with
+                           | None -> true
+                           | Some fin ->
+                             int_of_string year <= int_of_string fin
+                         then
+                           let state, cursus_opt =
+                             Remanent_state.get_cursus
+                               __POS__
+                               ~year
+                               ~dpt
+                               ~level:string
+                               state
+                           in
+                           match cursus_opt with
+                           | None ->
+                             let msg =
+                               Format.sprintf
+                                 "Undocumented cursus %s %s %s"
+                                 string
+                                 dpt
+                                 year
+                             in
+                             Remanent_state.warn
+                               __POS__
+                               msg
+                               Exit
+                               state,
+                             inscriptions
+                           | Some cursus ->
+                             match cursus.Public_data.inscription
+                             with
+                             | Some inscription ->
+                               state,
+                               inscription::inscriptions
+                             | None ->
+                             let msg =
+                               Format.sprintf
+                                 "Inscription field is not documented for cursus %s %s %s"
+                                 string
+                                 dpt
+                                 year
+                             in
+                             Remanent_state.warn
+                               __POS__
+                               msg
+                               Exit
+                               state,
+                             inscriptions
+                         else state, inscriptions
+                       with _ ->
+                         Remanent_state.warn
+                           __POS__
+                           "internal error, years should be  convertible into int"
+                           Exit
+                           state,
+                        inscriptions
+                )
+                split_cours
+                (state, dens_opt)
+        in
+        let inscription_string =
+          Format.asprintf
+            "%a"
+            (Format.pp_print_list
+               ~pp_sep:(fun log _ ->
+                   Format.fprintf log " + ")
+               (fun log -> Format.fprintf log "%s")
+            )
+            inscriptions
         in
         let () =
           Remanent_state.log
@@ -3087,6 +3281,23 @@ let export_transcript
         let () =
           Remanent_state.print_newline state
         in
+        let () =
+          match inscription_string with
+          | "" -> ()
+          | _ ->
+            let lineproportion = 1. in
+            let () =
+              Remanent_state.log
+                ~lineproportion
+                state
+                "Inscriptions : %s"
+                inscription_string
+            in
+            let () =
+              Remanent_state.print_newline state
+            in
+            ()
+        in
         let l = [21.0;11.67;48.33;26.67;7.3;10.00;5.17] in
         let sum =
           List.fold_left
@@ -3108,39 +3319,44 @@ let export_transcript
                let state,
                    entete,
                    footpage =
-                 match string with
-                 | None -> state, None, None
-                 | Some string ->
-                   let state, cursus_opt =
-                     Remanent_state.get_cursus
-                       __POS__
-                       ~level:string
-                       ?dpt:(match string, dpt with
-                           | "dens",_
-                           | _,"" -> None
-                           | _ ->
-                        Some dpt)
-                       ~year
-                       state
-                   in
-                   match cursus_opt with
-                   | None ->
-                     let msg =
-                       Format.sprintf
-                         "Undocumented cursus %s %s %s"
-                         string
-                         dpt
-                         year
+                 if lpe gps_file.origine
+                 || lerasmus gps_file.origine
+                 then
+                   state, None, None
+                 else
+                   match string with
+                   | None -> state, None, None
+                   | Some string ->
+                     let state, cursus_opt =
+                       Remanent_state.get_cursus
+                         __POS__
+                         ~level:string
+                         ?dpt:(match string, dpt with
+                             | "dens",_
+                             | _,"" -> None
+                             | _ ->
+                               Some dpt)
+                         ~year
+                         state
                      in
-                     Remanent_state.warn
-                       __POS__
-                       msg
-                       Exit
-                       state,
-                     None, None
-                   | Some cursus ->
-                     state, cursus.Public_data.entete,
-                     cursus.Public_data.pied
+                     match cursus_opt with
+                     | None ->
+                       let msg =
+                         Format.sprintf
+                           "Undocumented cursus %s %s %s"
+                           string
+                           dpt
+                           year
+                       in
+                       Remanent_state.warn
+                         __POS__
+                         msg
+                         Exit
+                         state,
+                       None, None
+                     | Some cursus ->
+                       state, cursus.Public_data.entete,
+                       cursus.Public_data.pied
                in
                let state, key, b = alloc_suffix (string,dpt) state in
                let () =
@@ -3205,16 +3421,14 @@ let export_transcript
                  match entete with
                  | None -> ()
                  | Some x ->
-                   let lineproportion = 1. in
-                   Remanent_state.log
-                   ~lineproportion
-                   state
-                   "%s%s"
-                   x
-                   (match
-                      StringOptMap.find_opt
-                        (string,dpt)
-                        cursus_map, footpage
+                   Remanent_state.fprintf
+                     state
+                     "%s%s"
+                     x
+                     (match
+                        StringOptMap.find_opt
+                          (string,dpt)
+                          cursus_map, footpage
                     with
                     | None, _
                     | Some (_,None),_
