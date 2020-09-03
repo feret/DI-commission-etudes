@@ -104,7 +104,7 @@ let asso_list =
     Public_data.Couleur_du_fond, ["couleur du fond"];
     Public_data.Couleur_du_texte, ["couleur du texte"];
     Public_data.Courriel, ["courriel"];
-    Public_data.Courriel_du_tuteur, ["courriel du tuteur"];
+    Public_data.Courriel_du_tuteur, ["courriel du tuteur";"email du tuteur"];
     Public_data.Credits, ["crédits"];
     Public_data.Date, ["date"];
     Public_data.Date_de_Naissance, ["date de naissance";"naissance"];

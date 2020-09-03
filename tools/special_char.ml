@@ -53,6 +53,54 @@ let special_char_latex =
       '\195', "";
     ]
 
+let special_char_html =
+  [
+    '\128', "&Agrave;";
+    '\129', "&Acute;";
+    '\130', "&Acirc;";
+    '\131', "&Atilde;";
+    '\132', "&Auml;";
+    '\135', "&Ccedil;";
+    '\136', "&Egrave;";
+    '\137', "&Ecute;";
+    '\138', "&Ecirc;";
+    '\139', "&Euml;";
+    '\140', "&Igrave;";
+    '\141', "&Icute;";
+    '\142', "&Icirc;";
+    '\143', "&Iuml;";
+    '\146', "&Ograve;";
+    '\147', "&Ocute;";
+    '\148', "&Ocirc;";
+    '\149', "&Otilde;";
+    '\150', "&Ouml;";
+    '\152', "&Ecedil;";
+    '\153', "&Ugrave;";
+    '\155', "&Ucirc;";
+    '\160', "&agrave;";
+    '\161', "&acute;";
+    '\162', "&acirc;";
+    '\163', "&atilde;";
+    '\164', "&auml;";
+    '\167', "&ccedil;";
+    '\168', "&egrave;";
+    '\169', "&cute;";
+    '\170', "&ecirc;";
+    '\171', "&euml";
+    '\172', "&igrave;";
+    '\173', "&icute;";
+    '\174', "&icirc;";
+    '\175', "&iuml;";
+    '\178', "&ograve;";
+    '\179', "&ocute;";
+    '\180', "&ocirc;";
+    '\181', "&otilde;";
+    '\182', "&ouml;";
+    '\185', "&ugrave;";
+    '\187', "&ucirc";
+    '\195', "";
+  ]
+
 let special_char_url =
   [
     ' ', "+";
@@ -208,6 +256,13 @@ let special_char_latex_map =
     CharMap.empty
     special_char_latex
 
+let special_char_html_map =
+  List.fold_left
+    (fun map (x,y) ->
+       CharMap.add x y map)
+    CharMap.empty
+    special_char_html
+
 let special_char_txt_map =
       List.fold_left
         (fun map (x,y) ->
@@ -327,6 +382,9 @@ let correct_string_url s =
 
 let correct_string_latex s =
   correct_string_gen special_char_latex_map s
+
+let correct_string_html s =
+  correct_string_gen special_char_html_map s
 
 let correct_string_txt s =
     correct_string_gen special_char_txt_map s

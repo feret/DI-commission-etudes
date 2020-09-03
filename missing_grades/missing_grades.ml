@@ -99,19 +99,7 @@ let dump_missing_grades ?output_repository ?prefix ?file_name cmp s state  =
            in
            let () =
              Loggers.print_cell logger
-               grades.Public_data.missing_code_gps
-           in
-           let () =
-             Loggers.print_cell logger
-               grades.Public_data.missing_intitule
-           in
-           let () =
-             Loggers.print_cell logger
                grades.Public_data.missing_year
-           in
-           let () =
-             Loggers.print_cell logger
-               grades.Public_data.missing_teacher
            in
            let () =
              Loggers.print_cell logger
@@ -122,6 +110,14 @@ let dump_missing_grades ?output_repository ?prefix ?file_name cmp s state  =
                grades.Public_data.missing_lastname
            in
            let () =
+             Loggers.print_cell logger
+               grades.Public_data.missing_intitule
+           in
+           let () =
+             Loggers.print_cell logger
+               grades.Public_data.missing_teacher
+           in
+             let () =
              Loggers.close_row logger
            in
            Loggers.print_newline logger)
