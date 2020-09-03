@@ -25,7 +25,7 @@ let state =
   Collect_mentoring.get_mentoring state
 let state =
   Collect_programs.get_cursus state
-let () = Remanent_state.list_all_cursus state 
+let () = Remanent_state.list_all_cursus state
 let state =
   Collect_programs.get_dpt state
 let state =
@@ -104,6 +104,16 @@ let state =
     )
     state
     students_list
+let state =
+  Missing_grades.dump_missing_grades
+    ~file_name:"notes_manquantes_par_dpt_et_cours.html"
+    Missing_grades.per_dpt_class
+    "par département et par cours" state
+let state =
+  Missing_grades.dump_missing_grades
+    ~file_name:"notes_manquantes_par_dpt_et_etudiant.html"
+    Missing_grades.per_dpt_student
+    "par département et par étudiant" state
 let state =
   Cloud_interaction.make_current_repository state
 let state =

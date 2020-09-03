@@ -320,3 +320,12 @@ val get_picture_potential_locations:
 
 val get_target:
   t -> t * string option
+
+val add_missing_grade:
+  t -> Public_data.missing_grade -> t
+
+val get_missing_grades:
+  t -> t * Public_data.missing_grade list
+
+val get_repository_to_dump_missing_grades:
+  t -> t * string

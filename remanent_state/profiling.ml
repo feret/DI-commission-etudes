@@ -17,6 +17,7 @@ type step_kind =
   | Collect_dispenses
   | Collect_compensations
   | Collect_cursus
+  | Dump_missing_grades of string
 
 
 type step =
@@ -61,6 +62,9 @@ let string_of_step_kind x =
   | Collect_compensations -> "Collect data about grades compensations"
   | Collect_admissions -> "Collect data about admission to external M2"
   | Collect_cursus -> "Collect notices about cursus"
+  | Dump_missing_grades s ->
+    Printf.sprintf
+      "Dump missing notes %s" s
 
 let print_step_kind logger x =
   Loggers.print_cell logger
@@ -140,7 +144,8 @@ let is_dummy step_kind =
   | Collect_dispenses
   | Collect_compensations
   | Collect_admissions
-  | Collect_cursus 
+  | Collect_cursus
+  | Dump_missing_grades _ 
     -> false
 
 let open_event

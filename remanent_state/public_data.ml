@@ -283,6 +283,16 @@ let empty_dispense =
     dispense_dpt = ""
   }
 
+type missing_grade =
+  {
+    missing_firstname : string ;
+    missing_lastname : string ;
+    missing_year : string ;
+    missing_dpt: string ;
+    missing_code_gps: string ;
+    missing_teacher: string ;
+    missing_intitule: string ;
+  }
 
 type keywords =
   | Accord
@@ -347,7 +357,7 @@ type keywords =
   | Periode
   | Periode_de_Financement
   | Pers_id
-  | Pied_de_page 
+  | Pied_de_page
   | Pour_Diplome
   | Prenom_du_tuteur
   | Promo

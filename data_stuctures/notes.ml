@@ -81,7 +81,7 @@ let float_to_string ?force_dec_sep_to_dot state f =
   let s = string_of_float f in
   correct_comma ?force_dec_sep_to_dot state s
 
-let valide_sans_note = Tools.valide_sans_note 
+let valide_sans_note = Tools.valide_sans_note
 
 let to_string _pos ?force_dec_sep_to_dot state t =
   match t with
@@ -143,6 +143,13 @@ let a_compter f =
                | Public_data.Absent)
   | Some false,_
     -> Some false
+
+let en_cours f =
+  match f with Public_data.En_cours -> true
+             | Public_data.Float _
+             | Public_data.Abandon
+             | Public_data.Absent
+             | Public_data.Valide_sans_note -> false
 
 let compensable f =
   match valide f,f with

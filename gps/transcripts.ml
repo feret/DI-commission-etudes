@@ -2444,19 +2444,22 @@ let code_list =
     phys, "PHYS";
   ]
 
-let fetch a =
+let fetch gen dft missing a =
   match (snd a).code_cours with
-  | None -> manquant
+  | None -> missing
   | Some code ->
   let rec aux l =
     match l with
-    | [] -> autre
+    | [] -> dft
     | (a,b)::t ->
       if Tools.substring b code
-      then a
+      then gen (a,b)
       else aux t
   in
   aux code_list
+
+let fetch_code  = fetch snd "unknown" "missing"
+let fetch = fetch fst autre manquant
 
 let is_stage cours =
   match cours.code_cours with
@@ -3480,6 +3483,40 @@ let export_transcript
                             "compensation"
                             state
                         | None -> ()
+                      in
+                      let state =
+                        if
+                          match cours.note with
+                          | None -> true
+                          | Some a ->
+                            Notes.en_cours a
+                        then
+                          let dpt = fetch_code ((),cours) in
+
+                          Remanent_state.add_missing_grade
+                            state
+                            {
+                              Public_data.missing_firstname = firstname ;
+                              Public_data.missing_lastname = lastname  ;
+                              Public_data.missing_year = year ;
+                              Public_data.missing_dpt = dpt ;
+                              Public_data.missing_code_gps =
+                                (match cours.code_cours
+                                with
+                                | None -> ""
+                                | Some a -> a);
+                              Public_data.missing_teacher =
+                                (match cours.responsable
+                                 with
+                                 | None -> ""
+                                 | Some a -> a );
+                              Public_data.missing_intitule = match
+                                  cours.cours_libelle
+                                with None -> ""
+                                   | Some a -> a;
+                            }
+                        else
+                          state
                       in
                       let () =
                         Remanent_state.print_cell

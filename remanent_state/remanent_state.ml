@@ -35,6 +35,8 @@ type parameters =
     comma_symbol: char;
     current_academic_year: Public_data.annee;
     target: string option;
+    repository_to_dump_missing_grades: string;
+
   }
 
 
@@ -55,6 +57,7 @@ let parameters =
     port_to_access_gps = "8080";
     repository_to_access_gps = "gps";
     repository_to_dump_gps_files = "gps_files";
+    repository_to_dump_missing_grades = "missing_grades";
     repository_for_handmade_gps_files = "handmade_gps_files";
     output_alias_repository = "courant";
     store_gps_file_according_to_their_promotions = true;
@@ -92,6 +95,7 @@ type data =
     admissions: Admissions.t;
     compensations: Compensations.t;
     dispenses: Dispenses.t;
+    missing_grades: Public_data.missing_grade list;
   }
 
 let empty_data =
@@ -108,6 +112,7 @@ let empty_data =
     admissions = Admissions.empty;
     compensations = Compensations.empty;
     dispenses = Dispenses.empty;
+    missing_grades = [];
   }
 
 type t =
@@ -196,6 +201,10 @@ let get_port_to_access_gps t =
 
 let get_repository_to_access_gps t =
   t, t.parameters.repository_to_access_gps
+
+let get_repository_to_dump_missing_grades t =
+  t,
+  t.parameters.repository_to_dump_missing_grades
 
 let get_repository_to_dump_gps_files t =
   t, t.parameters.repository_to_dump_gps_files
@@ -286,6 +295,14 @@ let get_compensations_list_prefix t =
 
 let get_compensations_list_repository t =
   get_rep_gen get_compensations_list_prefix t
+
+let get_repository_to_dump_missing_grades_prefix t =
+  get_repository_to_dump_missing_grades t 
+
+let get_repository_to_dump_missing_grades t =
+  get_rep_gen
+    get_repository_to_dump_missing_grades_prefix
+    t
 
 let get_dispenses_list_prefix t =
   t, "dispenses"
@@ -635,6 +652,13 @@ let set_compensations compensations data =
 let set_compensations compensations t =
   lift_set set_compensations compensations t
 
+let get_missing_grades data = data.missing_grades
+let get_missing_grades t = lift_get get_missing_grades t
+let set_missing_grades missing_grades data =
+  {data with missing_grades}
+let set_missing_grades missing_grades t =
+    lift_set set_missing_grades missing_grades t
+
 let get_decisions data = data.decisions
 let get_decisions t = lift_get get_decisions t
 let set_decisions decisions data =
@@ -929,3 +953,10 @@ let list_all_cursus state =
       state.data.cursus
   in
   Format.print_flush ()
+
+let add_missing_grade state grade =
+  let grades = get_missing_grades state in
+  set_missing_grades (grade::grades) state
+
+let get_missing_grades t =
+  t, get_missing_grades t
