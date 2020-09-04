@@ -200,6 +200,7 @@ type missing_grade =
     missing_lastname : string ;
     missing_year : string ;
     missing_dpt: string ;
+    missing_dpt_indice: string ; 
     missing_code_gps: string ;
     missing_teacher: string ;
     missing_intitule: string ;

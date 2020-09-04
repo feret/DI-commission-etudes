@@ -2425,11 +2425,18 @@ let acro_of_dpt who pos state dpt origine =
 let stage = 250
 let memoire = 240
 let ecla = -10
-
+let actd = -6
+let arts = -5
+let bio = -3
+let dec = -2
 let dma = 0
+let dsa = 5
 let eco = 10
 let info = 20
+let lila = 24
+let phil = 25
 let phys = 30
+let vetu = 35
 let autre = 40
 let manquant = 50
 
@@ -2437,11 +2444,19 @@ let code_list =
   [
     stage, "STAGE";
     memoire, "MIIME";
+    actd, "ACTD";
+    arts, "ARTS";
+    bio, "BIO";
     ecla, "ECLA";
+    dec, "DEC";
+    dsa, "DSA";
     eco, "ECO";
     dma, "DMA";
     info, "INFO";
+    lila, "LILA";
+    phil, "PHIL";
     phys, "PHYS";
+    vetu, "VETU";
   ]
 
 let fetch gen dft missing a =
@@ -3461,7 +3476,7 @@ let export_transcript
                let list = Tools.sort fetch p list in
                let state =
                  List.fold_left
-                   (fun state (diplome,cours) ->
+                   (fun state ((diplome:string),cours) ->
                       let () =
                         Remanent_state.open_row
                           ~macro state
@@ -3491,8 +3506,10 @@ let export_transcript
                           | Some a ->
                             Notes.en_cours a
                         then
-                          let dpt = fetch_code ((),cours) in
-
+                          let dpt = fetch_code (diplome,cours) in
+                          let dpt_indice =
+                            string_of_int (fetch (diplome,cours))
+                          in
                           Remanent_state.add_missing_grade
                             state
                             {
@@ -3500,6 +3517,7 @@ let export_transcript
                               Public_data.missing_lastname = lastname  ;
                               Public_data.missing_year = year ;
                               Public_data.missing_dpt = dpt ;
+                              Public_data.missing_dpt_indice = dpt_indice ;
                               Public_data.missing_code_gps =
                                 (match cours.code_cours
                                 with

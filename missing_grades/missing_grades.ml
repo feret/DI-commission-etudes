@@ -97,9 +97,22 @@ let dump_missing_grades ?output_repository ?prefix ?file_name cmp s state  =
              Loggers.print_cell logger
                grades.Public_data.missing_dpt
            in
+           let year = grades.Public_data.missing_year in
+           let year =
+             try
+               let year_int = int_of_string year in
+               let year =
+                 Format.sprintf
+                   "%s -- %s"
+                   year
+                   (string_of_int (year_int +1))
+               in
+               year
+             with _ -> year
+           in
            let () =
              Loggers.print_cell logger
-               grades.Public_data.missing_year
+               year
            in
            let () =
              Loggers.print_cell logger
@@ -138,28 +151,32 @@ let per_gen l a b =
   let rec aux l =
     match l with
     | [] -> compare a b
-    | h::t ->
-      let cmp = compare (h a) (h b) in
+    | compare::t ->
+      let cmp = compare a b in
       if cmp = 0
       then aux t
       else cmp
   in
   aux l
 
+let lift_cmp f a b =
+  compare (f a) (f b)
+
 let per_dpt_class =
   per_gen
-    [
-      (fun a -> a.Public_data.missing_dpt);
-      (fun a -> a.Public_data.missing_intitule);
-      (fun a -> a.Public_data.missing_lastname);
-      (fun a -> a.Public_data.missing_firstname);
-      (fun a -> a.Public_data.missing_year)]
+    [lift_cmp
+      (fun a -> int_of_string a.Public_data.missing_dpt_indice);
+     lift_cmp  (fun a -> a.Public_data.missing_intitule);
+     lift_cmp  (fun a -> a.Public_data.missing_year);
+     lift_cmp  (fun a -> a.Public_data.missing_lastname);
+     lift_cmp  (fun a -> a.Public_data.missing_firstname);
+  ]
 
 let per_dpt_student =
   per_gen
     [
-      (fun a -> a.Public_data.missing_dpt);
-      (fun a -> a.Public_data.missing_lastname);
-      (fun a -> a.Public_data.missing_firstname);
-      (fun a -> a.Public_data.missing_intitule);
-      (fun a -> a.Public_data.missing_year)]
+      lift_cmp (fun a -> int_of_string a.Public_data.missing_dpt_indice);
+      lift_cmp (fun a -> a.Public_data.missing_lastname);
+      lift_cmp (fun a -> a.Public_data.missing_firstname);
+      lift_cmp (fun a -> a.Public_data.missing_intitule);
+      lift_cmp (fun a -> a.Public_data.missing_year)]
