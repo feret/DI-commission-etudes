@@ -414,7 +414,9 @@ let draw_line logger =
     let () = draw_line logger  in
     let () = draw_line logger  in
     error
-  | Json | HTML | HTML_encapsulated | HTML_Tabular | CSV | TXT | XLS -> false
+    | HTML | HTML_encapsulated | HTML_Tabular ->
+      let () = fprintf logger "<TABLE>\n" in false
+  | Json | CSV | TXT | XLS -> false
 
   let close_array logger =
     match logger.encoding with
@@ -424,17 +426,20 @@ let draw_line logger =
       let () = fprintf logger "\\end{tabular}}" in
       let () = print_newline logger in
       ()
-    | Json | HTML | HTML_encapsulated | HTML_Tabular | CSV | TXT | XLS -> ()
+    | HTML | HTML_encapsulated | HTML_Tabular  ->
+      let () = fprintf logger "</TABLE>\n" in ()
+    | Json | CSV | TXT | XLS -> ()
 
 let print_cell logger s =
   let open_cell_symbol,s,close_cell_symbol =
     match
       logger.encoding
     with
-    | HTML_Tabular -> "<TD>",s,"</TD>"
+    | HTML | HTML_encapsulated | HTML_Tabular ->
+      "<TD>",s,"</TD>"
     | Latex _ | Latex_encapsulated -> "{",s,"}"
     | CSV  -> "",s,"\t"
-    | Json | HTML | HTML_encapsulated | TXT | XLS -> "",s,""
+    | Json  | TXT | XLS -> "",s,""
   in
   fprintf logger "%s%s%s" open_cell_symbol s close_cell_symbol
 
@@ -681,7 +686,8 @@ let open_row ?macro logger =
   match
     logger.encoding
   with
-  | HTML_Tabular -> fprintf logger "<tr>"
+  | HTML_Tabular | HTML | HTML_encapsulated
+    -> fprintf logger "<tr>"
   | Latex _ | Latex_encapsulated ->
     let macro =
       match macro with
@@ -689,17 +695,17 @@ let open_row ?macro logger =
       | Some x -> x
     in
     fprintf logger "\\%s" macro
-  | Json | XLS | HTML | HTML_encapsulated | TXT | CSV -> ()
+  | Json | XLS | TXT | CSV -> ()
 
 let close_row logger =
   match
     logger.encoding
   with
-  | HTML_Tabular -> fprintf logger "<tr>@."
+  | HTML_Tabular | HTML | HTML_encapsulated  -> fprintf logger "<tr>@."
   | Latex _ | Latex_encapsulated ->
     let () = fprintf logger "\\innerline@. " in
     print_newline logger
-  | Json | XLS | HTML | HTML_encapsulated | TXT | CSV -> fprintf logger "@."
+  | Json | XLS | TXT | CSV -> fprintf logger "@."
 
 let formatter_of_logger logger =
   match
@@ -793,3 +799,28 @@ let encapsulate mode =
   | CSV -> CSV
   | XLS -> XLS
   | Json -> Json
+
+let print_headers logger level title =
+  match logger.encoding with
+  | Latex _ | Latex_encapsulated ->
+    let command =
+      match level with
+      | 0 -> "\\section"
+      | 1 -> "\\subsection"
+      | 2 -> "\\subsubsection"
+      | 3 -> "\\paragraph"
+      | 4 -> "\\subparagraph"
+      | _ -> ""
+    in
+    let () = fprintf logger "%s{%s}" command title in
+    let () = print_newline logger in
+    ()
+  | HTML | HTML_encapsulated
+  | HTML_Tabular ->
+    let () = fprintf logger "<h%i>%s</h%i>" level title level in
+    let () = print_newline logger in
+    ()
+  | TXT
+  | CSV
+  | XLS
+  | Json -> ()

@@ -2473,14 +2473,25 @@ let fetch gen dft missing a =
   in
   aux code_list
 
-let fetch_code  = fetch snd "unknown" "missing"
+let fetch_code  = fetch snd "Hors ENS" "Sans code GPS"
 let fetch = fetch fst autre manquant
 
 let is_stage cours =
-  match cours.code_cours with
-  | None -> false
-  | Some a ->
-    Tools.substring "STAGE" a
+  begin
+    match cours.code_cours with
+    | None -> false
+    | Some a ->
+      Tools.substring "STAGE" a
+      || Tools.substring "STG" a
+  end
+  ||
+  begin
+    match cours.cours_libelle with
+    | None -> false
+    | Some a ->
+      Tools.substring "Internship" a
+      || Tools.substring "Stage" a 
+  end
 
 let p (t,(_,cours)) (t',(_,cours')) =
   let cmp = compare t t' in

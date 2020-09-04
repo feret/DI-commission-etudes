@@ -105,15 +105,17 @@ let state =
     state
     students_list
 let state =
-  Missing_grades.dump_missing_grades
+  Missing_grades.dump_per_dpt_student_year
     ~file_name:"notes_manquantes_par_dpt_et_cours.html"
-    Missing_grades.per_dpt_class
-    "par département et par cours" state
+    state
 let state =
-  Missing_grades.dump_missing_grades
+  Missing_grades.dump_per_dpt_class_year
     ~file_name:"notes_manquantes_par_dpt_et_etudiant.html"
-    Missing_grades.per_dpt_student
-    "par département et par étudiant" state
+    state
+let state =
+  Missing_grades.dump_per_student
+    ~file_name:"notes_manquantes_par_etudiant.html"
+    state
 let state =
   Cloud_interaction.make_current_repository state
 let state =

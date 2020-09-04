@@ -71,4 +71,23 @@ val collect_bool:
   'remanent_state * 'accumulator
 
 val sort: ('a -> 'b) -> (('b * 'a) -> ('b * 'a) -> int) -> 'a list -> 'a list
-val valide_sans_note: string 
+val valide_sans_note: string
+
+val prepare_report:
+  cmp:('a -> 'a -> int) list ->
+  headers:('a -> 'b) list ->
+  'a list ->
+  ('b list * 'a) list
+
+val dump_report:
+  print_header:
+    (int -> string  -> unit) ->
+  open_array:(title:string list -> bool) ->
+  open_row:(unit -> unit) ->
+  close_row:(unit -> unit) ->
+  print_cell:(string -> unit) ->
+  close_array:(unit -> unit) ->
+  string_of_headers:(string * ('b -> string)) list ->
+  string_of_column:(string * ('a -> string)) list ->
+  ('b list * 'a) list ->
+  unit

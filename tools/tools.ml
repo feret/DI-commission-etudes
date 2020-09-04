@@ -138,7 +138,7 @@ let collect_string set state data x =
 let collect_conv string from warn set state data x =
     let state, data =
       match data with
-      | Some x when String.trim x = "" -> state, None 
+      | Some x when String.trim x = "" -> state, None
       | Some x ->
         begin
           try
@@ -283,3 +283,138 @@ let sort f p l =
   l
 
 let valide_sans_note = "validé \\newline (sans note)"
+
+let prepare_report
+    ~cmp ~headers list =
+  let rec p cmp_list a b =
+    match cmp_list with
+    | [] -> compare a b
+    | h::t ->
+      let cmp = h a b in
+      if cmp = 0
+      then p t a b
+      else
+        cmp
+  in
+  let list =
+    List.sort (p cmp) list
+  in
+  let rec clean list old acc =
+    match list with
+    | h::t when h=old -> clean t old acc
+    | h::t -> clean t h (h::acc)
+    | [] -> List.rev acc
+  in
+  let list =
+    match list with
+    | [] -> []
+    | h::t -> clean t h [h]
+  in
+  let rev_headers = List.rev headers in
+  let tag a =
+    List.rev_map (fun f -> f a) rev_headers
+  in
+  let list =
+    List.rev_map
+      (fun a -> tag a,a)
+      (List.rev list)
+  in
+  list
+
+  let dump_report
+    ~print_header
+    ~open_array
+    ~open_row
+    ~close_row
+    ~print_cell
+    ~close_array
+    ~string_of_headers
+    ~string_of_column
+    list =
+    let array_of_headers =
+      Array.of_list string_of_headers
+    in
+    let compute_headers (a,b) c =
+      Format.sprintf "%s : %s" a (b c)
+    in
+    let compare_headers a b_opt =
+      match b_opt
+      with
+      | None -> Some (1,a)
+      | Some b ->
+        let rec aux i a b =
+          match a,b with
+          | h::t, h'::t' when h=h' ->
+            aux (i+1) t t'
+          | [], _ -> None
+          | _::_, _ -> Some (i,a)
+        in
+        aux 1 a b
+    in
+    let dump_headers () =
+      let () = open_row () in
+      let () =
+        List.iter
+          (fun (a,_) -> print_cell (a:string))
+          string_of_column
+      in
+      let () = close_row () in
+      ()
+    in
+    let dump_row a =
+      let () = open_row () in
+      let () =
+        List.iter
+          (fun (_,f) -> print_cell (f a))
+          string_of_column
+      in
+      let () = close_row () in
+      ()
+    in
+    let rec aux list old =
+      match list with
+      | [] -> old
+      | (headers,a)::t ->
+        let old =
+          begin
+            match compare_headers headers old with
+            | None ->
+              let () = dump_row a in old
+            | Some (i, residue) ->
+              begin
+                let () =
+                  match old with
+                  | None -> ()
+                  | Some _ -> close_array ()
+                in
+                let rec aux i residue =
+                  match residue with
+                  | [] -> ()
+                  | h::t ->
+                    let () =
+                      print_header i
+                        (compute_headers (array_of_headers.(i-1)) h)
+                    in
+                    aux (i+1) t
+                in
+                let () = aux i residue in
+                let _ =
+                  open_array
+                    ~title:(List.rev_map
+                              fst
+                              (List.rev string_of_column))
+                in
+                let () = dump_headers () in
+                let () = dump_row a in
+                Some (headers)
+            end
+          end
+        in
+        aux t old
+    in
+    let () =
+      match aux list None with
+      | None -> ()
+      | Some _ -> close_array ()
+    in
+    ()

@@ -17,7 +17,7 @@ type step_kind =
   | Collect_dispenses
   | Collect_compensations
   | Collect_cursus
-  | Dump_missing_grades of string 
+  | Dump_missing_grades 
 
 type log_info
 

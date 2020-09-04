@@ -57,7 +57,7 @@ let parameters =
     port_to_access_gps = "8080";
     repository_to_access_gps = "gps";
     repository_to_dump_gps_files = "gps_files";
-    repository_to_dump_missing_grades = "missing_grades";
+    repository_to_dump_missing_grades = "known_issues/missing_grades";
     repository_for_handmade_gps_files = "handmade_gps_files";
     output_alias_repository = "courant";
     store_gps_file_according_to_their_promotions = true;
@@ -297,7 +297,7 @@ let get_compensations_list_repository t =
   get_rep_gen get_compensations_list_prefix t
 
 let get_repository_to_dump_missing_grades_prefix t =
-  get_repository_to_dump_missing_grades t 
+  get_repository_to_dump_missing_grades t
 
 let get_repository_to_dump_missing_grades t =
   get_rep_gen

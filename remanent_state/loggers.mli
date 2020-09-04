@@ -62,3 +62,5 @@ val with_lines: t -> t
 val without_lines: t -> t
 
 val encapsulate: encoding -> encoding
+
+val print_headers: t -> int -> string -> unit 

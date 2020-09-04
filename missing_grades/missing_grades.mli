@@ -1,18 +1,10 @@
-val dump_missing_grades:
+type dump =
   ?output_repository:string ->
   ?prefix:string ->
   ?file_name:string ->
-  (Public_data.missing_grade -> Public_data.missing_grade -> int) ->
-  string -> 
   Remanent_state.t ->
   Remanent_state.t
 
-val per_dpt_class:
-  Public_data.missing_grade ->
-  Public_data.missing_grade ->
-  int
-
-val per_dpt_student:
-  Public_data.missing_grade ->
-  Public_data.missing_grade ->
-  int
+val dump_per_dpt_student_year: dump
+val dump_per_dpt_class_year: dump
+val dump_per_student: dump
