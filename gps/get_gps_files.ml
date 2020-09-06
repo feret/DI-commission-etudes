@@ -424,6 +424,8 @@ let patch_student_csv state ?file_name csv =
       residual
     with
     | [] -> state, List.rev acc
+    | (["Nom";_] as a)::(["Prénom";_] as b)::(["Genre";_] as c)::t ->
+      aux state t (c::b::a::acc)
     | h::t ->
       begin
         match h with

@@ -113,14 +113,124 @@ let state =
     ~file_name:"notes_manquantes_par_dpt_et_etudiant.html"
     state
 let state =
+  Missing_grades.dump_per_dpt_year_student
+    ~file_name:"notes_manquantes_par_dpt_et_annee_et_etudiant.html"
+    state
+let state =
+  Missing_grades.dump_per_dpt_year_class
+    ~file_name:"notes_manquantes_par_dpt_et_annee_et_cours.html"
+    state
+let state =
   Missing_grades.dump_per_student
     ~file_name:"notes_manquantes_par_etudiant.html"
+    state
+let state =
+  Missing_grades.dump_per_promotion
+    ~file_name:"notes_manquantes_par_promotion.html"
+    state
+let state =
+  Missing_ects_attributions.dump_per_dpt_student_year
+    ~file_name:"attributions_de_notes_manquantes_par_dpt_et_cours.html"
+        state
+let state =
+  Missing_ects_attributions.dump_per_dpt_class_year
+    ~file_name:"attributions_de_notes_manquantes_par_dpt_et_etudiant.html"
+    state
+let state =
+  Missing_ects_attributions.dump_per_student
+    ~file_name:"attributions_de_notes_manquantes_par_etudiant.html"
+    state
+let state =
+  Missing_ects_attributions.dump_per_promotion
+    ~file_name:"attributions_de_notes_manquantes_par_promotion.html"
+    state
+let state =
+  Missing_mentors.dump_per_student
+    ~file_name:"mentors_manquants_par_etudiant.html"
+    state
+let state =
+  Missing_mentors.dump_per_year
+    ~file_name:"mentors_manquants_par_annee.html"
+    state
+let state =
+  Missing_mentors.dump_per_promotion
+    ~file_name:"mentors_manquants_par_promotion.html"
+    state
+let state =
+  Missing_internship_descriptions.dump_per_year
+    ~file_name:"descriptions_de_stage_manquantes_par_annee.html"
+    state
+let state =
+  Missing_internship_descriptions.dump_per_student
+    ~file_name:"descriptions_de_stage_manquantes_par_etudiant.html"
+    state
+let state =
+  Ambiguous_internship_descriptions.dump_per_year
+    ~file_name:"descriptions_de_stage_ambigues_par_annee.html"
+    state
+let state =
+  Ambiguous_internship_descriptions.dump_per_promotion
+    ~file_name:"descriptions_de_stage_ambigues_par_promotion.html"
+    state
+let state =
+  Ambiguous_internship_descriptions.dump_per_student
+    ~file_name:"descriptions_de_stage_ambigues_par_etudiant.html"
     state
 let state =
   Cloud_interaction.make_current_repository state
 let state =
   Cloud_interaction.synchronize_shared_repository
     state
+let state =
+  match Remanent_state.get_missing_ects_attributions state
+  with
+  | state, [] -> state
+  | state, _::_ ->
+    Remanent_state.warn
+      __POS__
+      "Some ects are not attributed"
+      Exit
+      state
+let state =
+  match Remanent_state.get_missing_grades state
+  with
+  | state, [] -> state
+  | state, _::_ ->
+    Remanent_state.warn
+      __POS__
+      "Some grades are missing"
+      Exit
+      state
+let state =
+  match Remanent_state.get_missing_mentors state
+  with
+  | state, [] -> state
+  | state, _::_ ->
+    Remanent_state.warn
+      __POS__
+      "Some mentors are missing"
+      Exit
+      state
+let state =
+  match Remanent_state.get_missing_internship_descriptions state
+  with
+  | state, [] -> state
+  | state, _::_ ->
+    Remanent_state.warn
+      __POS__
+      "The description of some internships is missing"
+      Exit
+      state
+let state =
+  match Remanent_state.get_ambiguous_internship_descriptions state
+  with
+  | state, [] -> state
+  | state, _::_ ->
+    Remanent_state.warn
+      __POS__
+      "Several descriptions may apply to a single internship"
+      Exit
+      state
 let state =
     Remanent_state.print_errors "" state
 let state =

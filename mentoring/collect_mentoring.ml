@@ -127,7 +127,7 @@ let all_fields =
              state, Some Public_data.Masculin
            | Some ("f" | "fem" | "feminin") ->
              state, Some Public_data.Feminin
-           | None -> state, None
+           | None | Some "" -> state, None
            | Some x ->
              let msg =
                Printf.sprintf

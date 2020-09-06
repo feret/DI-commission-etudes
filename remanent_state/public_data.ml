@@ -285,14 +285,33 @@ let empty_dispense =
 
 type missing_grade =
   {
-    missing_firstname : string ;
-    missing_lastname : string ;
-    missing_year : string ;
-    missing_dpt: string ;
-    missing_dpt_indice: string ; 
-    missing_code_gps: string ;
-    missing_teacher: string ;
-    missing_intitule: string ;
+    missing_grade_firstname : string ;
+    missing_grade_lastname : string ;
+    missing_grade_promotion: string ;
+    missing_grade_year : string ;
+    missing_grade_dpt: string ;
+    missing_grade_dpt_indice: string ;
+    missing_grade_code_gps: string ;
+    missing_grade_teacher: string ;
+    missing_grade_intitule: string ;
+  }
+
+type missing_mentor =
+  {
+    missing_mentor_firstname : string ;
+    missing_mentor_lastname : string ;
+    missing_mentor_promotion : string ;
+    missing_mentor_year : string ;
+  }
+
+type missing_internship_description =
+  {
+    missing_internship_firstname : string ;
+    missing_internship_lastname : string ;
+    missing_internship_promotion : string ;
+    missing_internship_year : string ;
+    missing_internship_code_gps: string ;
+    missing_internship_intitule: string ;
   }
 
 type keywords =

@@ -41,12 +41,15 @@ let get_cursus ~strong ~level ?dpt ~year cursus =
            else output)
         yearmap None
 
-let get_cursus ~strong ~level ?dpt ~year cursus =
+let get_cursus ~strong ~strong_dpt  ~level ?dpt ~year cursus =
   match
     get_cursus ~strong ~level ?dpt ~year cursus, dpt
   with
   | None, Some _ ->
-    get_cursus ~strong ~level ~year cursus
+    if strong_dpt then
+      None
+    else
+      get_cursus ~strong ~level ~year cursus
   | x, _ -> x
 
 let add_cursus
@@ -57,7 +60,7 @@ let add_cursus
   let dpt = cursus_elt.Public_data.cursus_dpt in
   let cursus_opt' =
     get_cursus
-      ~strong:true ~level ?dpt ~year cursus_map
+      ~strong:true ~strong_dpt:true ~level ?dpt ~year cursus_map
   in
   let state, cursus_elt =
     match cursus_opt' with
@@ -97,15 +100,6 @@ let add_cursus
 
 let add_cursus unify pos state
     cursus_elt cursus_map =
-  let state, output =
-      add_cursus unify pos state
-        cursus_elt cursus_map
-  in
-  match cursus_elt.Public_data.cursus_dpt with
-  | None -> state, output
-  | Some _ ->
-    let cursus_elt = {cursus_elt with Public_data.cursus_dpt = None} in
-    add_cursus unify pos state
-      cursus_elt output
-
-let get_cursus = get_cursus ~strong:false
+  add_cursus unify pos state cursus_elt cursus_map
+  
+let get_cursus = get_cursus ~strong:false ~strong_dpt:false

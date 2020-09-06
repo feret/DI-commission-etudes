@@ -1,5 +1,5 @@
 (library
-  (name sco_missing_grades)
+  (name sco_known_issues)
   (libraries yojson csv sco_remanent_state sco_tools
   sco_datastructures)
   (flags (:standard -w @a

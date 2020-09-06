@@ -1087,19 +1087,13 @@ let store_gen_fields
   output
 
 let set_dens
-    pos state annee remanent
+    state annee remanent
   =
   let state, remanent =
     match
       annee
     with
-    | None ->
-      Remanent_state.warn_dft
-        pos
-        "Current year is not documented"
-        Exit
-        remanent
-        state
+    | None -> state, remanent
     | Some year ->
       let state, bilan =
         get_bilan_annuel
@@ -1602,7 +1596,7 @@ let asso_list =
            {diplome with directeur_sujet_de_recherche});
       Public_data.Enseignements,fun_default;
       Public_data.Inscrit_au_DENS_en,
-      set_dens __POS__;
+      set_dens;
       Public_data.Semestre,
       lift_cours
         (fun semestre cours ->
@@ -1903,28 +1897,26 @@ let filter_stage_id = filter_stage_string "id" (fun stage -> stage.id)
 let filter_stage_cvt = filter_stage_string "cvt" (fun stage -> stage.cvt)
 
 let fetch_stage
-    pos who state year commentaires stages =
+    ~internship state commentaires stages =
+  let year = internship.Public_data.missing_internship_year in
   let rec aux state fun_list stages =
     match fun_list with
     | [] ->
-      let msg =
-        Printf.sprintf
-          "Cannot discriminate among internship for %s in %s"
-          who year
+      let state =
+        Remanent_state.add_ambiguous_internship_description
+          state
+          internship
       in
-      Remanent_state.warn_dft
-        pos msg Exit (Some (List.hd stages)) state
+      state, (Some (List.hd stages))
     | filter::tail ->
       begin
         match filter state stages with
         | state, [] ->
-        let msg =
-          Printf.sprintf
-            "Undocumented internship for %s in %s"
-            who year
-        in
-        Remanent_state.warn_dft
-          pos msg Exit None state
+          let state =
+            Remanent_state.add_missing_internship_description
+              state internship
+          in
+          state, None
         | state, [a] -> state, Some a
         | state, list -> aux state tail list
       end
@@ -2490,7 +2482,7 @@ let is_stage cours =
     | None -> false
     | Some a ->
       Tools.substring "Internship" a
-      || Tools.substring "Stage" a 
+      || Tools.substring "Stage" a
   end
 
 let p (t,(_,cours)) (t',(_,cours')) =
@@ -2874,23 +2866,24 @@ let export_transcript
               ~year
               ~lastname
               ~firstname
-              __POS__
               state
         in
         let state, (tuteur, lineproportion) =
           match tuteur with
           | None ->
-            let msg =
-              Printf.sprintf
-                "Tuteur inconnu pour %s"
-                who
+            let state =
+              Remanent_state.add_missing_mentor
+                state
+                {
+                  Public_data.missing_mentor_firstname=firstname;
+                  Public_data.missing_mentor_lastname=lastname;
+                  Public_data.missing_mentor_year=year;
+                  Public_data.missing_mentor_promotion=
+                    (Tools.unsome_string gps_file.promotion);
+                }
             in
-            Remanent_state.warn_dft
-              __POS__
-              msg
-              Exit
-              ("",1.)
-              state
+            state,
+            ("",1.)
           | Some tuteur ->
             begin
               match
@@ -3145,6 +3138,8 @@ let export_transcript
                      | Some (debut,fin) ->
                        try
                          if
+                           String.trim string <> ""
+                           &&
                            begin
                              match debut with
                              | None -> true
@@ -3355,6 +3350,7 @@ let export_transcript
                  else
                    match string with
                    | None -> state, None, None
+                   | Some s when String.trim s = "" -> state, None, None
                    | Some string ->
                      let state, cursus_opt =
                        Remanent_state.get_cursus
@@ -3413,31 +3409,39 @@ let export_transcript
                  match Tools.map_opt String.trim string
                  with
                  | None ->
-                   let msg =
-                     Printf.sprintf "Empty discipline category  for %s" who
-                 in
-                 Remanent_state.warn_dft
-                   __POS__
-                   msg
-                   Exit
-                   None
-                   state
+                   let state =
+                     List.fold_left
+                       (fun state elt ->
+                          let _,cours = elt in
+                          Remanent_state.add_missing_ects_attribution
+                            state
+                            {
+                              Public_data.missing_grade_promotion =
+                                Tools.unsome_string gps_file.promotion;
+                              Public_data.missing_grade_dpt=                                fetch_code elt ;
+                              Public_data.missing_grade_dpt_indice =
+                                string_of_int (fetch elt);
+                              Public_data.missing_grade_teacher =
+                                Tools.unsome_string cours.responsable ;
+                              Public_data.missing_grade_intitule =
+                                Tools.unsome_string  cours.cours_libelle  ;
+                              Public_data.missing_grade_code_gps =
+                                Tools.unsome_string  cours.code_cours ;
+                              Public_data.missing_grade_year = year ;
+                              Public_data.missing_grade_lastname =
+                                lastname;
+                              Public_data.missing_grade_firstname = firstname;
+                            })
+                       state
+                       list
+                   in
+                   state,None
                  | Some ("DENS" | "dens") -> state, Some Color.blue
                  | Some ("LInfo" | "linfo") -> state, Some Color.yellow
                  | Some ("lmath" | "mmath" | "LMath" | "MMath") -> state, Some Color.orange
                  | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" ) ->
                    color_of_dpt who __POS__ state dpt gps_file.origine
-                 | Some x  ->
-                   let msg =
-                     Printf.sprintf "Unknown course category '%s' for %s" x who
-                   in
-                   Remanent_state.warn_dft
-                     __POS__
-                     msg
-                     Exit
-                     None
-                     state
-
+                 | Some _  -> state, None
                in
                let bgcolor=[None;color;None;None;None;None;None] in
 
@@ -3524,25 +3528,16 @@ let export_transcript
                           Remanent_state.add_missing_grade
                             state
                             {
-                              Public_data.missing_firstname = firstname ;
-                              Public_data.missing_lastname = lastname  ;
-                              Public_data.missing_year = year ;
-                              Public_data.missing_dpt = dpt ;
-                              Public_data.missing_dpt_indice = dpt_indice ;
-                              Public_data.missing_code_gps =
-                                (match cours.code_cours
-                                with
-                                | None -> ""
-                                | Some a -> a);
-                              Public_data.missing_teacher =
-                                (match cours.responsable
-                                 with
-                                 | None -> ""
-                                 | Some a -> a );
-                              Public_data.missing_intitule = match
-                                  cours.cours_libelle
-                                with None -> ""
-                                   | Some a -> a;
+                              Public_data.missing_grade_promotion =
+                                Tools.unsome_string gps_file.promotion;
+                              Public_data.missing_grade_firstname = firstname ;
+                              Public_data.missing_grade_lastname = lastname  ;
+                              Public_data.missing_grade_year = year ;
+                              Public_data.missing_grade_dpt = dpt ;
+                              Public_data.missing_grade_dpt_indice = dpt_indice ;
+                              Public_data.missing_grade_code_gps =                              Tools.unsome_string cours.code_cours;
+                              Public_data.missing_grade_teacher = Tools.unsome_string cours.responsable;
+                              Public_data.missing_grade_intitule = Tools.unsome_string cours.cours_libelle
                             }
                         else
                           state
@@ -3568,7 +3563,17 @@ let export_transcript
                         then
                           let state, stage_opt =
                             fetch_stage
-                              __POS__ who state year cours.commentaire stages
+                              state
+                              ~internship:(
+                                {
+                                  Public_data.missing_internship_promotion = Tools.unsome_string gps_file.promotion ;
+                                  Public_data.missing_internship_year=year;
+                                  Public_data.missing_internship_firstname=firstname;
+                                  Public_data.missing_internship_lastname=lastname;
+                                  Public_data.missing_internship_intitule= Tools.unsome_string cours.cours_libelle ;
+                                  Public_data.missing_internship_code_gps= Tools.unsome_string  cours.code_cours
+                                })
+                              cours.commentaire stages
                           in
                           match stage_opt with
                           | None -> state, Some l

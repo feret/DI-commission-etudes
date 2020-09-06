@@ -52,7 +52,7 @@ let get_list_from_a_file
     in
     let rec scan
         state
-        current_line remaining_lines current_keyword current_file
+        current_line remaining_lines current_keyword filled current_file
         is_non_empty output =
       match current_line with
       | [] ->
@@ -112,10 +112,10 @@ let get_list_from_a_file
                 array_mode state header_key header t current_file output
               else
                 scan
-                  state h t current_keyword current_file is_non_empty output
+                  state h t current_keyword filled current_file is_non_empty output
             else
               scan
-                state h t current_keyword current_file is_non_empty output
+                state h t current_keyword filled current_file is_non_empty output
 
         end
       | h::t ->
@@ -127,14 +127,28 @@ let get_list_from_a_file
           let state, of_interest =
             of_interest __POS__ state h
           in
+          let state, current_file =
+            match action
+            with
+            | Some action ->
+              action state None current_file
+            | None -> state, current_file 
+          in
           scan
-            state t remaining_lines (Some (action,of_interest)) current_file
+            state t remaining_lines (Some (action,of_interest)) false current_file
             is_non_empty
             output
         else
-          let state, current_file,is_non_empty =
+        if String.trim h = "" && filled then
+        scan
+          state
+          t remaining_lines
+          current_keyword filled current_file
+          is_non_empty output
+        else
+          let state, current_file,is_non_empty,filled =
             match current_keyword with
-            | None -> state, current_file, is_non_empty
+            | None -> state, current_file, is_non_empty,filled
             | Some (None, None) ->
             let state =
               Remanent_state.warn
@@ -143,7 +157,7 @@ let get_list_from_a_file
                 Exit
                 state
             in
-            state, current_file, is_non_empty
+            state, current_file, is_non_empty,filled
             | Some (None,_) ->
               let state =
                 Remanent_state.warn
@@ -152,7 +166,7 @@ let get_list_from_a_file
                   Exit
                   state
               in
-              state, current_file, is_non_empty
+              state, current_file, is_non_empty, filled
             | Some (_,None)->
               let state =
                 Remanent_state.warn
@@ -161,7 +175,7 @@ let get_list_from_a_file
                   Exit
                   state
               in
-              state, current_file, is_non_empty
+              state, current_file, is_non_empty, filled
             | Some (Some action,Some of_interest) ->
               let state, current_file =
                 action state (Some h) current_file
@@ -169,12 +183,12 @@ let get_list_from_a_file
               let is_non_empty =
                 is_non_empty || of_interest
               in
-              state, current_file, is_non_empty
+              state, current_file, is_non_empty, true
           in
           scan
             state
             t remaining_lines
-            current_keyword current_file
+            current_keyword filled current_file
             is_non_empty output
     and
       array_mode state header_key header
@@ -186,7 +200,7 @@ let get_list_from_a_file
             header_key state current_file output
         in
         scan
-          state [] [] None current_file false output
+          state [] [] None false current_file false output
       | []::t ->
         array_mode state header_key header t current_file output
       | [x]::t when Tools.space_only x ->
@@ -212,7 +226,7 @@ let get_list_from_a_file
               header_key state current_file output
           in
           scan
-            state [] remaining_lines None current_file false output
+            state [] remaining_lines None false current_file false output
         else
           let rec aux state header data current_file =
             match header,data with
@@ -240,7 +254,7 @@ let get_list_from_a_file
           in
           array_mode state header_key header t current_file output
     in
-    scan state [] csv None empty false output
+    scan state [] csv None false empty false output
 
 let get_list
     ~repository ?prefix ?file_name

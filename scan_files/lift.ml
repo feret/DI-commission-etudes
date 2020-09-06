@@ -46,18 +46,24 @@ type ('data, 'record_tmp, 'record) gen_opt_safe =
   pos:(string * int * int * int) ->
   ('record_tmp, 'record) Keywords_handler.any_field
 
-let pred f s =
-  {
-    Scan_csv_files.check =
-      (fun state a ->
-         let state, rep = f state a in
-         state, rep <> None);
-    Scan_csv_files.label = s
-  }
-
-let pred_safe f =
+let lift_gen_pred_safe pred f =
   pred
     (fun state a -> state, f a)
+
+let pred_gen_safe p =
+  lift_gen_pred_safe
+    (fun f s ->
+       {
+         Scan_csv_files.check =
+           (fun state a ->
+              let state, rep = f state a in
+              state, p rep);
+         Scan_csv_files.label = s
+       })
+
+let pred_safe  f s = pred_gen_safe  (fun rep -> rep<>None) f s
+let pred_opt_safe f s = pred_gen_safe (fun _ -> true) f s
+
 
 let gen ~keyword ~set_tmp ~eq ~get_tmp ~get ~set ~unify ~string_of1 ~string_of2 ~pos ~msg_update ~msg_unify
   =

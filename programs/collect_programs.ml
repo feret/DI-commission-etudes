@@ -39,6 +39,7 @@ let event_opt = Some (Profiling.Collect_departement)
 let compute_repository = Remanent_state.get_departments_list_repository
 
 let lift_pred = Lift.pred_safe
+let lift_pred_opt = Lift.pred_opt_safe 
 let lift_string =
   (Lift.string empty_dpt Public_data.empty_dpt).Lift.safe
 let lift_color_opt =
@@ -392,8 +393,8 @@ let mandatory_fields =
       "Name of academic cursus is missing";
     lift_pred (fun a -> a.cursus_annee)
       "Year of academic cursus is missing";
-    lift_pred (fun a -> a.cursus_dpt_acronym)
-      "Dpt acronym is optional"; 
+    lift_pred_opt (fun a -> a.cursus_dpt_acronym)
+      "Dpt of academic cursus is missing"
   ]
 
 let all_fields =

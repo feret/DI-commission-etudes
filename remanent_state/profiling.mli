@@ -17,7 +17,11 @@ type step_kind =
   | Collect_dispenses
   | Collect_compensations
   | Collect_cursus
-  | Dump_missing_grades 
+  | Dump_missing_grades
+  | Dump_missing_ects_attributions
+  | Dump_missing_mentors
+  | Dump_missing_internship_descriptions
+  | Dump_ambiguous_internship_descriptions 
 
 type log_info
 

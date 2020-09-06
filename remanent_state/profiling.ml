@@ -17,7 +17,11 @@ type step_kind =
   | Collect_dispenses
   | Collect_compensations
   | Collect_cursus
-  | Dump_missing_grades 
+  | Dump_missing_grades
+  | Dump_missing_ects_attributions
+  | Dump_missing_mentors
+  | Dump_missing_internship_descriptions
+  | Dump_ambiguous_internship_descriptions
 
 
 type step =
@@ -62,9 +66,11 @@ let string_of_step_kind x =
   | Collect_compensations -> "Collect data about grades compensations"
   | Collect_admissions -> "Collect data about admission to external M2"
   | Collect_cursus -> "Collect notices about cursus"
-  | Dump_missing_grades ->
-    Printf.sprintf
-      "Dump missing notes"
+  | Dump_missing_grades -> "Dump missing notes"
+  | Dump_missing_ects_attributions-> "Dump missing ects attributions"
+  | Dump_missing_mentors -> "Dump missing mentors"
+  | Dump_missing_internship_descriptions -> "Dump missing internship description"
+  | Dump_ambiguous_internship_descriptions -> "Dump ambiguous internship description"
 
 let print_step_kind logger x =
   Loggers.print_cell logger
@@ -146,6 +152,10 @@ let is_dummy step_kind =
   | Collect_admissions
   | Collect_cursus
   | Dump_missing_grades
+  | Dump_missing_ects_attributions
+  | Dump_missing_mentors
+  | Dump_missing_internship_descriptions
+  | Dump_ambiguous_internship_descriptions 
     -> false
 
 let open_event

@@ -1,10 +1,13 @@
-val pred:
-  (Remanent_state.t -> 'record_tmp -> Remanent_state.t * 'b option) -> string -> 'record_tmp Scan_csv_files.mandatory_field
 
 val pred_safe:
   ('record -> 'b option) ->
   string ->
   'record Scan_csv_files.mandatory_field
+
+val pred_opt_safe:
+    ('record -> 'b option) ->
+    string ->
+    'record Scan_csv_files.mandatory_field
 
 type ('data,'record_tmp,'record) gen =
   keyword:Public_data.keywords ->

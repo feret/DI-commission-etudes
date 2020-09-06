@@ -36,7 +36,10 @@ type parameters =
     current_academic_year: Public_data.annee;
     target: string option;
     repository_to_dump_missing_grades: string;
-
+    repository_to_dump_missing_mentors: string;
+    repository_to_dump_missing_ects_attributions: string;
+    repository_to_dump_missing_internship_descriptions: string;
+    repository_to_dump_ambiguous_internship_descriptions:string;
   }
 
 
@@ -58,6 +61,10 @@ let parameters =
     repository_to_access_gps = "gps";
     repository_to_dump_gps_files = "gps_files";
     repository_to_dump_missing_grades = "known_issues/missing_grades";
+    repository_to_dump_missing_mentors = "known_issues/missing_mentors";
+    repository_to_dump_missing_ects_attributions = "known_issues/missing_ects_attributions";
+    repository_to_dump_missing_internship_descriptions = "known_issues/missing_internships";
+    repository_to_dump_ambiguous_internship_descriptions = "known_issues/ambiguous_internships";
     repository_for_handmade_gps_files = "handmade_gps_files";
     output_alias_repository = "courant";
     store_gps_file_according_to_their_promotions = true;
@@ -96,6 +103,10 @@ type data =
     compensations: Compensations.t;
     dispenses: Dispenses.t;
     missing_grades: Public_data.missing_grade list;
+    missing_ects_attributions: Public_data.missing_grade list;
+    missing_mentors: Public_data.missing_mentor list;
+    missing_internship_descriptions: Public_data.missing_internship_description list;
+    ambiguous_internship_descriptions: Public_data.missing_internship_description list;
   }
 
 let empty_data =
@@ -113,6 +124,10 @@ let empty_data =
     compensations = Compensations.empty;
     dispenses = Dispenses.empty;
     missing_grades = [];
+    missing_ects_attributions = [];
+    missing_mentors = [];
+    missing_internship_descriptions = [];
+    ambiguous_internship_descriptions = [];
   }
 
 type t =
@@ -205,6 +220,22 @@ let get_repository_to_access_gps t =
 let get_repository_to_dump_missing_grades t =
   t,
   t.parameters.repository_to_dump_missing_grades
+
+let get_repository_to_dump_missing_mentors t =
+  t,
+  t.parameters.repository_to_dump_missing_mentors
+
+let get_repository_to_dump_missing_internship_descriptions t =
+  t,
+  t.parameters.repository_to_dump_missing_internship_descriptions
+
+let get_repository_to_dump_missing_ects_attributions t =
+  t,
+  t.parameters.repository_to_dump_missing_ects_attributions
+
+let get_repository_to_dump_ambiguous_internship_descriptions t =
+  t,
+  t.parameters.repository_to_dump_ambiguous_internship_descriptions
 
 let get_repository_to_dump_gps_files t =
   t, t.parameters.repository_to_dump_gps_files
@@ -302,6 +333,38 @@ let get_repository_to_dump_missing_grades_prefix t =
 let get_repository_to_dump_missing_grades t =
   get_rep_gen
     get_repository_to_dump_missing_grades_prefix
+    t
+
+let get_repository_to_dump_missing_ects_attributions_prefix t =
+  get_repository_to_dump_missing_ects_attributions t
+
+let get_repository_to_dump_missing_ects_attributions t =
+  get_rep_gen
+    get_repository_to_dump_missing_ects_attributions_prefix
+    t
+
+let get_repository_to_dump_missing_mentors_prefix t =
+  get_repository_to_dump_missing_mentors t
+
+let get_repository_to_dump_missing_mentors t =
+  get_rep_gen
+    get_repository_to_dump_missing_mentors_prefix
+    t
+
+let get_repository_to_dump_missing_internship_descriptions_prefix t =
+  get_repository_to_dump_missing_internship_descriptions t
+
+let get_repository_to_dump_missing_internship_descriptions t =
+  get_rep_gen
+    get_repository_to_dump_missing_internship_descriptions_prefix
+    t
+
+let get_repository_to_dump_ambiguous_internship_descriptions_prefix t =
+  get_repository_to_dump_ambiguous_internship_descriptions t
+
+let get_repository_to_dump_ambiguous_internship_descriptions t =
+  get_rep_gen
+    get_repository_to_dump_ambiguous_internship_descriptions_prefix
     t
 
 let get_dispenses_list_prefix t =
@@ -657,7 +720,38 @@ let get_missing_grades t = lift_get get_missing_grades t
 let set_missing_grades missing_grades data =
   {data with missing_grades}
 let set_missing_grades missing_grades t =
-    lift_set set_missing_grades missing_grades t
+  lift_set set_missing_grades missing_grades t
+
+let get_missing_mentors data = data.missing_mentors
+let get_missing_mentors t = lift_get get_missing_mentors t
+let set_missing_mentors missing_mentors data =
+  {data with missing_mentors}
+let set_missing_mentors missing_mentors t =
+  lift_set set_missing_mentors missing_mentors t
+
+let get_missing_ects_attributions data = data.missing_ects_attributions
+let get_missing_ects_attributions t = lift_get get_missing_ects_attributions t
+let set_missing_ects_attributions missing_ects_attributions data =
+  {data with missing_ects_attributions}
+let set_missing_ects_attributions missing_ects_attributions t =
+  lift_set set_missing_ects_attributions missing_ects_attributions t
+
+let get_missing_internship_descriptions data =
+  data.missing_internship_descriptions
+let get_missing_internship_descriptions t = lift_get get_missing_internship_descriptions t
+let set_missing_internship_descriptions missing_internship_descriptions data =
+  {data with missing_internship_descriptions}
+let set_missing_internship_descriptions missing_internship_descriptions t =
+  lift_set set_missing_internship_descriptions missing_internship_descriptions t
+
+let get_ambiguous_internship_descriptions data =
+    data.ambiguous_internship_descriptions
+let get_ambiguous_internship_descriptions t = lift_get get_ambiguous_internship_descriptions t
+let set_ambiguous_internship_descriptions ambiguous_internship_descriptions data =
+    {data with ambiguous_internship_descriptions}
+let set_ambiguous_internship_descriptions ambiguous_internship_descriptions t =
+    lift_set set_ambiguous_internship_descriptions ambiguous_internship_descriptions t
+
 
 let get_decisions data = data.decisions
 let get_decisions t = lift_get get_decisions t
@@ -713,7 +807,7 @@ let add_mentoring unify =
     set_mentoring
     (Mentoring.add_mentoring unify)
 
-let get_mentoring ~firstname ~lastname ~year ?tuteur_gps pos t =
+let get_mentoring ~firstname ~lastname ~year ?tuteur_gps t =
     let mentoring_opt =
       Mentoring.get_mentoring
         ~firstname ~lastname ~year (get_mentoring t)
@@ -722,17 +816,7 @@ let get_mentoring ~firstname ~lastname ~year ?tuteur_gps pos t =
     | Some a ->
       t, Some a
     | None ->
-      let msg =
-        Format.sprintf
-          "Pas de tuteur pour %s %s en %s dans les fichiers du département"
-          firstname lastname year
-      in
-      warn_dft
-        pos
-        msg
-        Exit
-        tuteur_gps
-        t
+      t, tuteur_gps
 
 let add_cursus unify =
   add_gen
@@ -954,9 +1038,21 @@ let list_all_cursus state =
   in
   Format.print_flush ()
 
-let add_missing_grade state grade =
-  let grades = get_missing_grades state in
-  set_missing_grades (grade::grades) state
+let gen get set =
+  let add state elt =
+    let elts = get state in
+    set (elt::elts) state
+  in
+  let get t = t, get t in
+  add, get
 
-let get_missing_grades t =
-  t, get_missing_grades t
+let add_missing_grade, get_missing_grades =
+  gen get_missing_grades set_missing_grades
+let add_missing_mentor, get_missing_mentors =
+  gen get_missing_mentors set_missing_mentors
+let add_missing_ects_attribution, get_missing_ects_attributions =
+  gen get_missing_ects_attributions set_missing_ects_attributions
+let add_missing_internship_description, get_missing_internship_descriptions =
+  gen get_missing_internship_descriptions set_missing_internship_descriptions
+let add_ambiguous_internship_description, get_ambiguous_internship_descriptions =
+    gen get_ambiguous_internship_descriptions set_ambiguous_internship_descriptions

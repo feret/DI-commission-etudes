@@ -190,7 +190,6 @@ val get_mentoring:
   lastname:string ->
   year:Public_data.annee ->
   ?tuteur_gps:Public_data.tutorat ->
-  (string * int * int * int) ->
   t ->
   t * Public_data.tutorat option
 
@@ -329,3 +328,39 @@ val get_missing_grades:
 
 val get_repository_to_dump_missing_grades:
   t -> t * string
+
+val add_missing_mentor:
+  t -> Public_data.missing_mentor -> t
+
+val get_missing_mentors:
+  t -> t * Public_data.missing_mentor list
+
+val get_repository_to_dump_missing_mentors:
+  t -> t * string
+
+val add_missing_ects_attribution:
+  t -> Public_data.missing_grade -> t
+
+val get_missing_ects_attributions:
+  t -> t * Public_data.missing_grade list
+
+val get_repository_to_dump_missing_ects_attributions:
+  t -> t * string
+
+val add_missing_internship_description:
+  t -> Public_data.missing_internship_description -> t
+
+val get_missing_internship_descriptions:
+  t -> t * Public_data.missing_internship_description list
+
+val get_repository_to_dump_missing_internship_descriptions:
+  t -> t * string
+
+val add_ambiguous_internship_description:
+  t -> Public_data.missing_internship_description -> t
+
+val get_ambiguous_internship_descriptions:
+  t -> t * Public_data.missing_internship_description list
+
+val get_repository_to_dump_ambiguous_internship_descriptions:
+    t -> t * string
