@@ -1,15 +1,20 @@
 let dump_missing_internship_descriptions
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
     ?output_repository ?prefix ?file_name cmp headers columns state  =
   let event_opt =
     Some Profiling.Dump_missing_internship_descriptions
   in
+  let filter ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo state _ =
+    let _ = dpt, firstname, lastname, codegps, mentorname, academicyear, promo in
+    state, true in
   let get = Remanent_state.get_missing_internship_descriptions in
   let default_file_name = "missing_internship_descriptions.html" in
   let get_repository = Remanent_state.get_repository_to_dump_missing_internship_descriptions
   in
   Gen.dump_elts
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
     ?output_repository ?prefix ?file_name ?event_opt
-    ~cmp ~headers ~columns ~get ~default_file_name
+    ~cmp ~filter ~headers ~columns ~get ~default_file_name
     ~get_repository
     state
 
@@ -33,6 +38,7 @@ let columns =
   ]
 
 let dump_per_student
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
     ?output_repository
     ?prefix
     ?file_name
@@ -52,9 +58,12 @@ let dump_per_student
   let headers =
     []
   in
-  dump_missing_internship_descriptions ?output_repository ?prefix ?file_name cmp headers columns state
+  dump_missing_internship_descriptions
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
+    ?output_repository ?prefix ?file_name cmp headers columns state
 
 let dump_per_promotion
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
     ?output_repository
     ?prefix
     ?file_name
@@ -74,9 +83,12 @@ let dump_per_promotion
   let headers =
     []
   in
-  dump_missing_internship_descriptions ?output_repository ?prefix ?file_name cmp headers columns state
+  dump_missing_internship_descriptions
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
+    ?output_repository ?prefix ?file_name cmp headers columns state
 
 let dump_per_year
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
     ?output_repository
     ?prefix
     ?file_name
@@ -94,6 +106,7 @@ let dump_per_year
     ]  in
   let headers = [] in
   dump_missing_internship_descriptions
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
     ?output_repository
     ?prefix
     ?file_name

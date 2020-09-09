@@ -1,4 +1,11 @@
 type dump =
+  ?dpt:string ->
+  ?firstname:string ->
+  ?lastname:string ->
+  ?codegps:string ->
+  ?mentorname:string ->
+  ?academicyear:string ->
+  ?promo:string ->
   ?output_repository:string ->
   ?prefix:string ->
   ?file_name:string ->
@@ -6,17 +13,51 @@ type dump =
   Remanent_state.t
 
 let dump_elts
+    ?dpt
+    ?firstname
+    ?lastname
+    ?codegps
+    ?mentorname
+    ?academicyear
+    ?promo
     ?output_repository ?prefix ?file_name
     ?event_opt
-    ~get ~get_repository ~default_file_name
+    ~get ~filter ~get_repository ~default_file_name
     ~cmp ~headers ~columns state  =
-  let state =
+  let _ = (dpt:string option) in
+  let _ = (firstname:string option) in
+  let _ = (lastname:string option) in
+  let _ = (codegps:string option) in
+  let _ = (mentorname:string option) in
+  let _ = (academicyear:string option) in
+  let _ = (promo:string option) in
+    let state =
     Remanent_state.open_event_opt event_opt state
   in
   let state, elts =
     get state
   in
-  match elts with
+  let state, filtered_elts =
+    List.fold_left
+      (fun (state, l) elt ->
+         let state, b =
+           filter
+           ?dpt
+           ?firstname
+           ?lastname
+           ?codegps
+           ?mentorname
+           ?academicyear
+           ?promo
+           state elt in
+         if b then
+           state, elt::l
+         else
+           state, l
+      )
+      (state,[]) (List.rev elts)
+  in
+  match filtered_elts with
   | [] -> state
   | _ ->
     let state, prefix =

@@ -1,18 +1,25 @@
-let dump_missing_grades ?output_repository ?prefix ?file_name cmp headers columns state  =
+let dump_missing_grades
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
+    ?output_repository ?prefix ?file_name cmp headers columns state  =
   let event_opt =
     Some Profiling.Dump_missing_grades
   in
   let get = Remanent_state.get_missing_grades in
+  let filter ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo state _ =
+    let _ = dpt, firstname, lastname, codegps, mentorname, academicyear, promo in
+    state, true in
   let default_file_name = "missing_grades.html" in
   let get_repository = Remanent_state.get_repository_to_dump_missing_grades
   in
   Gen.dump_elts
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
     ?output_repository ?prefix ?file_name ?event_opt
-    ~cmp ~headers ~columns ~get ~default_file_name
+    ~filter ~cmp ~headers ~columns ~get ~default_file_name
     ~get_repository
     state
 
 let dump_per_dpt_student_year
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
     ?output_repository
     ?prefix
     ?file_name
@@ -52,9 +59,12 @@ let dump_per_dpt_student_year
       "COURS",(fun a -> a.Public_data.missing_grade_intitule);
       "ENSEIGNANT(E)",(fun a -> a.Public_data.missing_grade_teacher)
     ] in
-  dump_missing_grades ?output_repository ?prefix ?file_name cmp headers columns state
+  dump_missing_grades
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
+    ?output_repository ?prefix ?file_name cmp headers columns state
 
 let dump_per_dpt_year_student
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
     ?output_repository
     ?prefix
     ?file_name
@@ -95,10 +105,13 @@ let dump_per_dpt_year_student
       "COURS",(fun a -> a.Public_data.missing_grade_intitule);
       "ENSEIGNANT(E)",(fun a -> a.Public_data.missing_grade_teacher)
     ] in
-  dump_missing_grades ?output_repository ?prefix ?file_name cmp headers columns state
+  dump_missing_grades
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
+    ?output_repository ?prefix ?file_name cmp headers columns state
 
 
 let dump_per_dpt_class_year
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
     ?output_repository
     ?prefix
     ?file_name
@@ -151,12 +164,14 @@ let dump_per_dpt_class_year
     ]
   in
   dump_missing_grades
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
     ?output_repository
     ?prefix
     ?file_name
     cmp headers columns state
 
 let dump_per_dpt_year_class
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
     ?output_repository
     ?prefix
     ?file_name
@@ -210,6 +225,7 @@ let dump_per_dpt_year_class
     ]
   in
   dump_missing_grades
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
     ?output_repository
     ?prefix
     ?file_name
@@ -217,6 +233,7 @@ let dump_per_dpt_year_class
 
 
 let dump_per_student
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
     ?output_repository
     ?prefix
     ?file_name
@@ -261,6 +278,7 @@ let dump_per_student
     ]
   in
   dump_missing_grades
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
     ?output_repository
     ?prefix
     ?file_name
@@ -268,6 +286,7 @@ let dump_per_student
 
 
 let dump_per_promotion
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
     ?output_repository
     ?prefix
     ?file_name
@@ -314,6 +333,7 @@ let dump_per_promotion
     ]
   in
   dump_missing_grades
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?academicyear ?promo
     ?output_repository
     ?prefix
     ?file_name
