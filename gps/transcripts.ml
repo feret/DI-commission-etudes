@@ -2109,13 +2109,18 @@ let keep_class state filter year note =
 let keep_class
     ~firstname ~lastname ~year ~codecours ~note
     state filter =
+  let state, current_year =
+    Remanent_state.get_current_academic_year state
+  in
+  let future = year > current_year in
   let state, compensation =
       get_compensation
         ~firstname ~lastname ~year ~codecours
         note state
   in
   let state, valide = keep_class state filter year note in
-  state, valide || compensation
+  let success = valide || compensation in
+  state, (not future) && success
 
 let filter_class state filter ~firstname ~lastname ~year class_list =
   let rec aux state list acc =
