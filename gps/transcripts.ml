@@ -3131,7 +3131,7 @@ let export_transcript
                        []
                  end
                | Some false
-               | None -> state, ["NO DENS !!!"]
+               | None -> state, []
              in
              let state, inscriptions =
                match nationaux_opt with
