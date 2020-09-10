@@ -105,75 +105,80 @@ let state =
     state
     students_list
 let state =
-  Missing_grades.dump_per_dpt_student_year
+  Grades.MissingGrades.dump_per_dpt_student_year
     ~file_name:"notes_manquantes_par_dpt_et_cours.html"
     state
 let state =
-  Missing_grades.dump_per_dpt_class_year
+  Grades.MissingGrades.dump_per_dpt_class_year
     ~file_name:"notes_manquantes_par_dpt_et_etudiant.html"
     state
 let state =
-  Missing_grades.dump_per_dpt_year_student
+  Grades.MissingGrades.dump_per_dpt_year_student
     ~file_name:"notes_manquantes_par_dpt_et_annee_et_etudiant.html"
     state
 let state =
-  Missing_grades.dump_per_dpt_year_class
+  Grades.MissingGrades.dump_per_dpt_year_class
     ~file_name:"notes_manquantes_par_dpt_et_annee_et_cours.html"
     state
 let state =
-  Missing_grades.dump_per_student
+  Grades.MissingGrades.dump_per_student
     ~file_name:"notes_manquantes_par_etudiant.html"
     state
 let state =
-  Missing_grades.dump_per_promotion
+  Grades.MissingGrades.dump_per_promotion
     ~file_name:"notes_manquantes_par_promotion.html"
     state
 let state =
-  Missing_ects_attributions.dump_per_dpt_student_year
+  Grades.MissingECTSAttributions.dump_per_dpt_student_year
     ~file_name:"attributions_de_notes_manquantes_par_dpt_et_cours.html"
         state
 let state =
-  Missing_ects_attributions.dump_per_dpt_class_year
+  Grades.MissingECTSAttributions.dump_per_dpt_class_year
     ~file_name:"attributions_de_notes_manquantes_par_dpt_et_etudiant.html"
     state
 let state =
-  Missing_ects_attributions.dump_per_student
+  Grades.MissingECTSAttributions.dump_per_student
     ~file_name:"attributions_de_notes_manquantes_par_etudiant.html"
     state
 let state =
-  Missing_ects_attributions.dump_per_promotion
+  Grades.MissingECTSAttributions.dump_per_promotion
     ~file_name:"attributions_de_notes_manquantes_par_promotion.html"
     state
 let state =
-  Missing_mentors.dump_per_student
+  Mentors.ReportMissingMentors.dump_per_student
     ~file_name:"mentors_manquants_par_etudiant.html"
     state
 let state =
-  Missing_mentors.dump_per_year
+  Mentors.ReportMissingMentors.dump_per_year
     ~file_name:"mentors_manquants_par_annee.html"
     state
 let state =
-  Missing_mentors.dump_per_promotion
+  Mentors.ReportMissingMentors.dump_per_promotion
     ~file_name:"mentors_manquants_par_promotion.html"
     state
 let state =
-  Missing_internship_descriptions.dump_per_year
+  Internship_descriptions.MissingInternshipDescriptions.dump_per_year
     ~file_name:"descriptions_de_stage_manquantes_par_annee.html"
     state
 let state =
-  Missing_internship_descriptions.dump_per_student
+  Internship_descriptions.MissingInternshipDescriptions.dump_per_student
     ~file_name:"descriptions_de_stage_manquantes_par_etudiant.html"
     state
 let state =
-  Ambiguous_internship_descriptions.dump_per_year
+  Internship_descriptions.MissingInternshipDescriptions.dump_per_promotion
+    ~file_name:"descriptions_de_stage_manquantes_par_promotion.html"
+    state
+
+let state =
+  Internship_descriptions.AmbiguousInternshipDescriptions.dump_per_year
     ~file_name:"descriptions_de_stage_ambigues_par_annee.html"
     state
 let state =
-  Ambiguous_internship_descriptions.dump_per_promotion
+  Internship_descriptions.AmbiguousInternshipDescriptions.dump_per_promotion
     ~file_name:"descriptions_de_stage_ambigues_par_promotion.html"
     state
 let state =
-  Ambiguous_internship_descriptions.dump_per_student
+  Internship_descriptions.AmbiguousInternshipDescriptions.dump_per_student
     ~file_name:"descriptions_de_stage_ambigues_par_etudiant.html"
     state
 let state =

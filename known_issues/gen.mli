@@ -1,16 +1,11 @@
 type dump =
-  ?dpt:string ->
-  ?firstname:string ->
-  ?lastname:string ->
-  ?codegps:string ->
-  ?mentorname:string ->
-  ?academicyear:string ->
-  ?promo:string ->
   ?output_repository:string ->
   ?prefix:string ->
   ?file_name:string ->
   Remanent_state.t ->
   Remanent_state.t
+
+type 'elt filter
 
 val dump_elts:
   ?dpt:string ->
@@ -18,6 +13,7 @@ val dump_elts:
   ?lastname:string ->
   ?codegps:string ->
   ?mentorname:string ->
+  ?teachername:string ->
   ?academicyear:string ->
   ?promo:string ->
   ?output_repository:string ->
@@ -25,15 +21,7 @@ val dump_elts:
   ?file_name:string ->
   ?event_opt:Sco_remanent_state.Profiling.step_kind ->
   get:(Remanent_state.t -> Remanent_state.t * 'a list) ->
-  filter:(?dpt:string ->
-          ?firstname:string ->
-          ?lastname:string ->
-          ?codegps:string ->
-          ?mentorname:string ->
-          ?academicyear:string ->
-          ?promo:string ->
-          Remanent_state.t ->
-          'a -> Remanent_state.t * bool) ->
+  filter:'a filter ->
   get_repository:(Remanent_state.t -> Remanent_state.t * string) ->
   default_file_name:string ->
   cmp:('a -> 'a -> int) list ->
@@ -45,3 +33,18 @@ val dump_elts:
 val lift_cmp:
   ('a -> 'b) -> 'a -> 'a -> int
 val op_cmp: ('a -> 'a -> int) -> 'a -> 'a -> int
+
+val filter_grade:
+  Public_data.missing_grade filter
+val filter_internship_description:
+  Public_data.missing_internship_description filter
+val filter_mentoring:
+  Public_data.missing_mentor filter
+
+module type Interface =
+sig
+  type elt
+  val default_file_name: string
+  val get:(Remanent_state.t -> Remanent_state.t * elt list)
+  val get_repository:(Remanent_state.t -> Remanent_state.t * string)
+end

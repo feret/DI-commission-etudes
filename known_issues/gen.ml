@@ -1,16 +1,20 @@
 type dump =
-  ?dpt:string ->
-  ?firstname:string ->
-  ?lastname:string ->
-  ?codegps:string ->
-  ?mentorname:string ->
-  ?academicyear:string ->
-  ?promo:string ->
   ?output_repository:string ->
   ?prefix:string ->
   ?file_name:string ->
   Remanent_state.t ->
   Remanent_state.t
+
+type 'elt filter =
+  ?dpt:string ->
+  ?firstname:string ->
+  ?lastname:string ->
+  ?codegps:string ->
+  ?mentorname:string ->
+  ?teachername:string ->
+  ?academicyear:string ->
+  ?promo:string ->
+  Remanent_state.t -> 'elt -> Remanent_state.t * bool
 
 let dump_elts
     ?dpt
@@ -18,20 +22,14 @@ let dump_elts
     ?lastname
     ?codegps
     ?mentorname
+    ?teachername
     ?academicyear
     ?promo
     ?output_repository ?prefix ?file_name
     ?event_opt
     ~get ~filter ~get_repository ~default_file_name
     ~cmp ~headers ~columns state  =
-  let _ = (dpt:string option) in
-  let _ = (firstname:string option) in
-  let _ = (lastname:string option) in
-  let _ = (codegps:string option) in
-  let _ = (mentorname:string option) in
-  let _ = (academicyear:string option) in
-  let _ = (promo:string option) in
-    let state =
+  let state =
     Remanent_state.open_event_opt event_opt state
   in
   let state, elts =
@@ -47,6 +45,7 @@ let dump_elts
            ?lastname
            ?codegps
            ?mentorname
+           ?teachername
            ?academicyear
            ?promo
            state elt in
@@ -153,3 +152,64 @@ let dump_elts
 let lift_cmp f a b =
   compare (f a) (f b)
 let op_cmp cmp a b = cmp b a
+
+let check elt_opt elt =
+  match elt_opt with
+  | None -> true
+  | Some elt' -> elt = elt'
+
+let filter_grade
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?teachername ?academicyear ?promo
+    state grade =
+  let _  = mentorname in
+  state, check dpt grade.Public_data.missing_grade_dpt
+  &&
+  check firstname grade.Public_data.missing_grade_firstname
+  &&
+  check lastname grade.Public_data.missing_grade_lastname
+  &&
+  check codegps grade.Public_data.missing_grade_code_gps
+  &&
+  check teachername grade.Public_data.missing_grade_teacher
+  &&
+  check academicyear grade.Public_data.missing_grade_year
+  &&
+  check promo grade.Public_data.missing_grade_promotion
+
+let filter_internship_description
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?teachername ?academicyear ?promo
+    state internship =
+  let _ = dpt, mentorname, teachername in
+  state,
+  check
+    firstname internship.Public_data.missing_internship_firstname
+  &&
+  check
+    lastname internship.Public_data.missing_internship_lastname
+  &&
+  check codegps internship.Public_data.missing_internship_code_gps
+  &&
+  check academicyear internship.Public_data.missing_internship_year
+  &&
+  check promo internship.Public_data.missing_internship_promotion
+
+let filter_mentoring
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?teachername ?academicyear ?promo
+    state mentoring =
+  let _ = dpt, mentorname, teachername, codegps in
+  state,
+  check firstname mentoring.Public_data.missing_mentor_firstname
+  &&
+  check lastname mentoring.Public_data.missing_mentor_lastname
+  &&
+  check academicyear mentoring.Public_data.missing_mentor_year
+  &&
+  check promo mentoring.Public_data.missing_mentor_promotion
+
+module type Interface =
+sig
+  type elt
+  val default_file_name: string
+  val get:(Remanent_state.t -> Remanent_state.t * elt list)
+  val get_repository:(Remanent_state.t -> Remanent_state.t * string)
+end
