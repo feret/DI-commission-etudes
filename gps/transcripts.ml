@@ -2843,9 +2843,9 @@ let export_transcript
                      in
                      state, "",""
                    | Some Public_data.PensionnaireEtranger ->
-                     state,"Pensionnaire \'Etranger",""
+                     state,"Pensionnaire \\'Etranger",""
                    | Some Public_data.EchErasm ->
-                     state,"\'Echange Erasmus",""
+                     state,"\\'Echange Erasmus",""
                  end
              in
              let () =
