@@ -3036,7 +3036,7 @@ let export_transcript
                          state,
                          Printf.sprintf
                            "Cursus maths-info et rattaché%s au %s" genre dpt,
-                         Some "maths-info"
+                         Some "Licence L3 Info et L3 Maths Université Paris Diderot"
                        else if
                          lmathphys situation
                        then
