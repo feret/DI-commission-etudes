@@ -621,7 +621,7 @@ let print_preamble ?decimalsepsymbol logger =
 \\addtocounter{potentialects}{\\fpeval{\\thepects*\\factor}}%%\n\
 %%\n\
 \\addtocounter{vsnects}{\\fpeval{\\thevects*\\factor}}%%\n\
- %%\n\       #2 & \\ifnum \\thenrow=\\thetotalrows %%\n\ \\multirow{-\\thetotalrows}{\\hsize}{{\\centering #3}}\\fi & \\ifnum \\thetotalrows=1 %%\n\  \\mbox{}\\newline\\newline#4\\newline\\newline\\else#4\\fi  & #5 & #6 & \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#7}}}{\\mynumprint{#7}} & \\numprint{#8}\\cr%%\n\
+         %%\n\       #2 & \\ifnum \\thenrow=\\thetotalrows %%\n\ \\multirow{-\\thetotalrows}{\\hsize}{{\\centering #3}}\\fi & \\IfStrEq{#4}{DENS}%%\n\ {#4}%%\n\ {\\ifnum \\thetotalrows=1 %%\n\  \\mbox{}\\newline\\newline#4\\newline\\newline\\else#4\\fi}%%\n\   & #5 & #6 & \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#7}}}{\\mynumprint{#7}} & \\numprint{#8}\\cr%%\n\
 }%%\n\
 %%\n\ " Tools.valide_sans_note
     in
