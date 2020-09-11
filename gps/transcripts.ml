@@ -2160,7 +2160,7 @@ let is_dma_course code_cours year =
   begin
     try
       let i = int_of_string year in
-      if i <= 2015 then code_cours = "INFO-L3-MIIMC-S2"
+      if i <= 2015 then code_cours = "INFO-L3-MIIME-S2"
       else if i <= 2018 then code_cours = "INFO-L3-THEOIC-S2"
       else code_cours = "INFO-L3-APPREN-S2"
     with
@@ -3153,7 +3153,7 @@ let export_transcript
                | None ->
                  if lpoly situation
                  then
-                   state, "Bachelor de l'X"::dens_opt 
+                   state, "Bachelor de l'X"::dens_opt
                  else if
                    lpe gps_file.origine
                  || lerasmus gps_file.origine
