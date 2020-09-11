@@ -2657,11 +2657,25 @@ let export_transcript
       List.fold_left
         (fun (l,counter) (y,annee) ->
            if
-             match annee.situation_administrative
-             with None ->
-               (try int_of_string y<=2015 with _ -> false)
-                | Some sit ->
-                  simplify_string sit = "scolarite a l'ens"
+             begin
+               match annee.situation_administrative
+               with
+               | None ->
+                 begin
+                   try int_of_string y<=2015
+                   with _ -> false
+                 end
+                 ||
+                 begin
+                   match
+                     annee.code_option
+                   with
+                   | Some "OPT1" -> true
+                   | Some _ | None -> false
+                 end
+               | Some sit ->
+                 simplify_string sit = "scolarite a l'ens"
+             end
            then
              let counter = counter + 1 in
              let nannee = Some counter in
