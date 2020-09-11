@@ -3152,7 +3152,10 @@ let export_transcript
                | Some x -> state, x::dens_opt
                | None ->
                  if lpoly situation
-                 || lpe gps_file.origine
+                 then
+                   state, "Bachelor de l'X"::dens_opt 
+                 else if
+                   lpe gps_file.origine
                  || lerasmus gps_file.origine
                  then
                    state, dens_opt
