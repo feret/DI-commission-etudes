@@ -3114,7 +3114,7 @@ let export_transcript
                | Some true ->
                  begin
                    match nationaux_opt with
-                   | Some _ -> state, ["Diplôme de l'Éns"]
+                   | Some _ -> state, ["Diplôme de l'ENS"]
                    | _ ->
                      let state, cursus_opt =
                        Remanent_state.get_cursus
