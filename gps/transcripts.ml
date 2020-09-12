@@ -3117,11 +3117,21 @@ let export_transcript
                    | Some _ -> state, ["Diplôme de l'ENS"]
                    | _ ->
                      let state, cursus_opt =
-                       Remanent_state.get_cursus
-                         ~year
-                         ~level:"dens"
-                         __POS__
-                         state
+                       if lmath situation
+                       || lmathphys situation
+                       then
+                           Remanent_state.get_cursus
+                             ~year
+                             ~level:"dens"
+                             __POS__
+                             state
+                       else
+                         Remanent_state.get_cursus
+                           ~year
+                           ~level:"dens"
+                           ~dpt:"informatique"
+                           __POS__
+                           state
                      in
                      match cursus_opt with
                      | Some cursus ->
