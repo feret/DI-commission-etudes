@@ -3391,9 +3391,55 @@ let export_transcript
         let () =
           Remanent_state.fprintf state "\n\ \\vfill\n\ \n\ "
         in
-        let state =
+        let state, admission_opt =
+          let year' = next_year year in
+          begin
+            match year' with
+            | Some year ->
+              Remanent_state.get_admission
+                ~firstname
+                ~lastname
+                ~year
+                state
+            | None ->
+              let msg =
+                Format.sprintf
+                  "Illegal year %s for %s (admission)" year who
+              in
+              let state =
+                Remanent_state.warn
+                  __POS__
+                  msg
+                  Exit
+                  state
+              in
+              state, None
+          end
+        in
+        let admission_shown,state =
           StringOptMap.fold
-            (fun (string,dpt) list state ->
+            (fun (string,dpt) list (admission_shown,state) ->
+               let admission_shown =
+                 if string = Some "dens"
+                 then
+                 let () =
+                   match admission_opt with
+                   | None -> ()
+                   | Some admission ->
+                     let lineproportion = 1. in
+                     Remanent_state.log
+                       ~lineproportion
+                       state
+                       "\\textbf{%s}"
+                       admission.Public_data.admission_decision
+                 in
+                 let () =
+                   Remanent_state.fprintf state "\\vfill\n\ "
+                 in
+                 true
+                 else
+                   admission_shown
+               in
                let state,
                    entete,
                    footpage =
@@ -3724,35 +3770,6 @@ let export_transcript
                      ~program
                      state
                in
-               let state, admission_opt =
-                 match dpt, string  with
-                 | _, Some "dens" -> state, None
-                 | _(*dpt, Some "m"  when dpt = dpt_info*) ->
-                   let year' = next_year year in
-                   begin
-                     match year' with
-                     | Some year ->
-                       Remanent_state.get_admission
-                         ~firstname
-                         ~lastname
-                         ~year
-                         state
-                     | None ->
-                       let msg =
-                         Format.sprintf
-                           "Illegal year %s for %s (M2 admission)" year who
-                       in
-                       let state =
-                         Remanent_state.warn
-                           __POS__
-                           msg
-                           Exit
-                           state
-                       in
-                       state, None
-                   end
-                   (*| _ -> state, None*)
-               in
                let moyenne_opt, mention_opt,
                    rank_opt, effectif_opt,
                    date_opt, commission_name_opt,
@@ -4006,17 +4023,6 @@ let export_transcript
                    state
                in
                let () =
-                 match admission_opt with
-                 | None -> ()
-                 | Some admission ->
-                   let lineproportion = 1. in
-                   Remanent_state.log
-                     ~lineproportion
-                     state
-                     "%s"
-                     admission.Public_data.admission_decision
-               in
-               let () =
                  Remanent_state.fprintf state "\\vfill\n\ "
                in
                let () =
@@ -4028,9 +4034,21 @@ let export_transcript
                let () =
                  Remanent_state.print_newline state
                in
-               state)
+               admission_shown,state)
             split_cours
-            state
+            (false,state)
+        in
+        let () =
+          if not admission_shown then
+            match admission_opt with
+            | None -> ()
+            | Some admission ->
+              let lineproportion = 1. in
+              Remanent_state.log
+                ~lineproportion
+                state
+                "\\textbf{%s}"
+                admission.Public_data.admission_decision
         in
         let () =
           Remanent_state.breakpage state
