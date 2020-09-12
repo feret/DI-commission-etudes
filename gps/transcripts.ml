@@ -3796,7 +3796,7 @@ let export_transcript
                        [ no_definitive_ects,"";
                          not_enough_ects,"";
                          definitive,
-                         Format.sprintf "Moyenne : \\numprint{\\fpeval{\\mean}}/20 \\hspace*{1cm}%%\n\ "]
+                         Format.sprintf "Moyenne : \\textbf{\\numprint{\\fpeval{\\mean}}/20} \\hspace*{1cm}%%\n\ "]
                        ~otherwise:(Format.sprintf "Moyenne provisoire : \\numprint{\\fpeval{\\mean}}/20 \\hspace*{1cm}%%\n\ ")
                    in
                    let update_mean =
@@ -3828,18 +3828,18 @@ let export_transcript
                               [
                                 Format.sprintf "\\fpeval{\\mean<12} = 1","";
                                 Format.sprintf "\\fpeval{\\mean<14} = 1",
-                                "Mention : Assez Bien";
+                                "Mention : \\textbf{Assez Bien}";
                                 Format.sprintf "\\fpeval{\\mean<16} = 1 ",
-                                "Mention : Bien";
+                                "Mention : \\textbf{Bien}";
                               ]
-                              ~otherwise:"Mention : Très Bien"]
+                              ~otherwise:"Mention : \\textbf{Très Bien}"]
                            ~otherwise:""
                        in
                        match mention_opt with
                      | None -> mention
                      | Some a ->
                        Format.sprintf
-                         "Mention : %s \\hspace*{1cm}"
+                         "Mention : \\textbf{%s} \\hspace*{1cm}"
                          a
                    in
                    no_definitive_ects, not_enough_ects,
