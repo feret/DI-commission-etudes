@@ -9,3 +9,5 @@ val expand_string: string -> string list
 val lowercase: string -> string
 val uppercase: string -> string
 val capitalize: string -> string
+
+val clean_spurious_uppercase_letters: string -> string 

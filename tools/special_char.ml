@@ -425,3 +425,35 @@ let capitalize s =
   in
   let () = aux 0 true in
   String.init n (fun i -> a.(i))
+
+let delimiter =
+  [' ';'-';'\"';'\'';'\\';',';'.';'?';':';'!']
+let clean_spurious_uppercase_letters string =
+  let n = String.length string in
+  let string = Bytes.of_string string in
+  let rec lower i j  =
+    if i>j then ()
+    else
+      let () =
+        Bytes.set string i (lowercase_char (Bytes.get string i))
+      in
+        lower
+        (i+1) j
+  in
+  let rec aux beg k has_lowercase =
+    if k>=n then Bytes.to_string string
+    else
+      let c = Bytes.get string k in
+      if List.mem c delimiter
+      then
+        let () =
+          if has_lowercase
+          then
+            lower beg (k-1)
+        in
+            aux (k+2) (k+2) false
+      else
+        let has_lowercase = has_lowercase || c = lowercase_char c in
+        aux beg (k+1) has_lowercase
+  in
+  aux 1 1 false 

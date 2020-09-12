@@ -127,6 +127,7 @@ let fprintf ?fprintnewline:(fprintnewline=false) logger =
       (fun _ ->
          let () = Format.pp_print_flush fmt_buffer () in
          let str = Buffer.contents b in
+         let str = Special_char.clean_spurious_uppercase_letters str in
          let str =
            Special_char.correct_string_latex str
          in
@@ -143,6 +144,7 @@ let fprintf ?fprintnewline:(fprintnewline=false) logger =
        let str =
          Special_char.correct_string_html str
        in
+       let str = Special_char.clean_spurious_uppercase_letters str in 
        fprintf ~fprintnewline logger
          "%s" str)
     fmt_buffer
