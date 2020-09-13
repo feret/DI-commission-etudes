@@ -2436,10 +2436,10 @@ let phys = 30
 let vetu = 35
 let autre = 40
 let manquant = 50
-
+let stage_string = "STRING"
 let code_list =
   [
-    stage, "STAGE";
+    stage, stage_string;
     memoire, "MIIME";
     actd, "ACTD";
     arts, "ARTS";
@@ -2455,23 +2455,6 @@ let code_list =
     phys, "PHYS";
     vetu, "VETU";
   ]
-
-let fetch gen dft missing a =
-  match (snd a).code_cours with
-  | None -> missing
-  | Some code ->
-  let rec aux l =
-    match l with
-    | [] -> dft
-    | (a,b)::t ->
-      if Tools.substring b code
-      then gen (a,b)
-      else aux t
-  in
-  aux code_list
-
-let fetch_code  = fetch snd "Hors ENS" "Sans code GPS"
-let fetch = fetch fst autre manquant
 
 let is_stage cours =
   begin
@@ -2489,6 +2472,30 @@ let is_stage cours =
       Tools.substring "Internship" a
       || Tools.substring "Stage" a
   end
+
+let fetch gen dft missing a =
+  match (snd a).code_cours with
+  | None -> missing
+  | Some code ->
+  let rec aux l =
+    match l with
+    | [] -> dft
+    | (a,b)::t ->
+      if Tools.substring b code
+      then gen (a,b)
+      else aux t
+  in
+  aux code_list
+
+let fetch gen dft missing stage stage_string  a =
+  let cours = snd a in
+  if is_stage cours then
+    gen (stage,stage_string)
+  else
+    fetch gen dft missing a
+
+let fetch_code  = fetch snd "Hors ENS" "Sans code GPS" stage stage_string
+let fetch = fetch fst autre manquant stage stage_string
 
 let p (t,(_,cours)) (t',(_,cours')) =
   let cmp = compare t t' in

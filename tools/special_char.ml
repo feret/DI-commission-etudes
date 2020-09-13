@@ -427,20 +427,20 @@ let capitalize s =
   String.init n (fun i -> a.(i))
 
 let delimiter =
-  [' ';'-';'\"';'\'';'\\';',';'.';'?';':';'!']
+  [' ';'-';'\"';'\'';'\\';',';'.';'?';':';'!';'{';'}';'_';'[';']';'#']
 let clean_spurious_uppercase_letters string =
   let n = String.length string in
   let string = Bytes.of_string string in
-  let rec lower i j  =
-    if i>j then ()
-    else
-      let () =
-        Bytes.set string i (lowercase_char (Bytes.get string i))
-      in
-        lower
-        (i+1) j
+  let buggy i =
+    let c = Bytes.get string i in
+    Char.lowercase_ascii c <> lowercase_char c
   in
-  let rec aux beg k has_lowercase =
+  let lower l =
+    List.iter
+      (fun i -> Bytes.set string i (lowercase_char (Bytes.get string i)))
+      l
+  in
+  let rec aux beg k has_lowercase acc =
     if k>=n then Bytes.to_string string
     else
       let c = Bytes.get string k in
@@ -449,11 +449,12 @@ let clean_spurious_uppercase_letters string =
         let () =
           if has_lowercase
           then
-            lower beg (k-1)
+            lower acc
         in
-            aux (k+2) (k+2) false
+        aux (k+2) (k+2) false []
       else
         let has_lowercase = has_lowercase || c = lowercase_char c in
-        aux beg (k+1) has_lowercase
+        let acc = if buggy k then k::acc else acc in
+        aux beg (k+1) has_lowercase acc
   in
-  aux 1 1 false 
+  aux 1 1 false []
