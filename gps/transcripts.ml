@@ -3823,7 +3823,7 @@ let export_transcript
                        [ no_definitive_ects,"";
                          not_enough_ects,"";
                          definitive,
-                         Format.sprintf "Moyenne : \\textbf{\\numprint{\\fpeval{\\mean}}/20} \\hspace*{1cm}%%\n\ "]
+                         Format.sprintf "Moyenne : \\textbf{\\numprint{\\fpeval{\\mean}}}/20 \\hspace*{1cm}%%\n\ "]
                        ~otherwise:(Format.sprintf "Moyenne provisoire : \\numprint{\\fpeval{\\mean}}/20 \\hspace*{1cm}%%\n\ ")
                    in
                    let update_mean =
