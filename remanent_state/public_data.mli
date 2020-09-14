@@ -85,6 +85,17 @@ type course =
 
 val empty_course: course
 
+type course_exception =
+  {
+    course_exception_year: annee;
+    course_exception_code: string;
+    course_exception_genre: genre;
+    course_exception_firstname: string;
+    course_exception_lastname: string;
+  }
+
+val empty_course_exception: course_exception
+
 type tutorat =
   {
     annee_academique: annee ;

@@ -20,6 +20,8 @@ let state, students_list =
          a.Public_data.promotion= Some target)
       students_list
 let state =
+  Collect_course_exceptions.get_course_exceptions state
+let state =
   Collect_scholarships.get_scholarships state
 let state =
   Collect_mentoring.get_mentoring state

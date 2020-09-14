@@ -94,6 +94,7 @@ type data =
     output_alias: (string * string) option ;
     scholarships: Scholarships.t;
     mentoring: Mentoring.t;
+    course_exceptions: Course_exceptions.t;
     dpts: Departments.t;
     programs: Programs.t;
     cursus: Cursus.t;
@@ -114,6 +115,7 @@ let empty_data =
     students = [];
     scholarships = Scholarships.empty;
     mentoring = Mentoring.empty;
+    course_exceptions = Course_exceptions.empty;
     dpts =  Departments.empty;
     cursus = Cursus.empty;
     programs = Programs.empty;
@@ -284,6 +286,11 @@ let get_monitoring_list_prefix t =
 let get_monitoring_list_repository t =
   get_rep_gen get_monitoring_list_prefix t
 
+let get_course_exceptions_list_prefix t =
+      t, "cours"
+
+let get_course_exceptions_list_repository t =
+  get_rep_gen get_course_exceptions_list_prefix t
 
 let get_departments_list_prefix t =
        t, "departements"
@@ -683,6 +690,12 @@ let set_mentoring mentoring data = {data with mentoring}
 let set_mentoring mentoring t =
   lift_set set_mentoring mentoring t
 
+let get_course_exceptions data = data.course_exceptions
+let get_course_exceptions t = lift_get get_course_exceptions t
+let set_course_exceptions course_exceptions data = {data with course_exceptions}
+let set_course_exceptions course_exceptions t =
+    lift_set set_course_exceptions course_exceptions t
+
 let get_cursus data = data.cursus
 let get_cursus t = lift_get get_cursus t
 let set_cursus cursus data = {data with cursus}
@@ -817,6 +830,20 @@ let get_mentoring ~firstname ~lastname ~year ?tuteur_gps t =
       t, Some a
     | None ->
       t, tuteur_gps
+
+let add_course_exception unify =
+  add_gen
+    get_course_exceptions
+    set_course_exceptions
+    (Course_exceptions.add_course_exception unify)
+
+let get_course_exception ~codegps ~year t =
+  let course_exception_opt =
+    Course_exceptions.get_course_exception
+      ~codegps ~year
+      (get_course_exceptions t)
+  in
+  t, course_exception_opt
 
 let add_cursus unify =
   add_gen

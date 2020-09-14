@@ -101,6 +101,24 @@ let empty_course =
     teacher_email = None ;
   }
 
+type course_exception =
+  {
+    course_exception_year: annee;
+    course_exception_code: string;
+    course_exception_genre: genre;
+    course_exception_firstname: string;
+    course_exception_lastname: string;
+  }
+
+let empty_course_exception =
+  {
+    course_exception_year="";
+    course_exception_code="";
+    course_exception_genre=Masculin;
+    course_exception_firstname="";
+    course_exception_lastname="";
+  }
+
 type tutorat =
   {
     annee_academique: annee ;

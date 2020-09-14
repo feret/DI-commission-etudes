@@ -113,6 +113,9 @@ val get_scholarships_list_repository: t -> t * string
 val get_monitoring_list_prefix: t -> t * string
 val get_monitoring_list_repository: t -> t * string
 
+val get_course_exceptions_list_prefix: t -> t * string
+val get_course_exceptions_list_repository: t -> t * string
+
 val get_departments_list_prefix: t -> t * string
 val get_departments_list_repository: t -> t * string
 
@@ -192,6 +195,21 @@ val get_mentoring:
   ?tuteur_gps:Public_data.tutorat ->
   t ->
   t * Public_data.tutorat option
+
+val get_course_exception:
+  codegps:string ->
+  year:Public_data.annee ->
+  t ->
+  t * Public_data.course_exception option
+
+val add_course_exception:
+  (string * int * int * int ->
+   t ->
+   Public_data.course_exception ->
+   Public_data.course_exception-> t * Public_data.course_exception) ->
+  (string * int * int * int) ->
+  Public_data.course_exception ->
+  t -> t
 
 val add_dpt:
   (string * int * int * int ->

@@ -17,6 +17,7 @@ type step_kind =
   | Collect_dispenses
   | Collect_compensations
   | Collect_cursus
+  | Collect_course_exceptions
   | Dump_missing_grades
   | Dump_missing_ects_attributions
   | Dump_missing_mentors
@@ -66,6 +67,7 @@ let string_of_step_kind x =
   | Collect_compensations -> "Collect data about grades compensations"
   | Collect_admissions -> "Collect data about admission to external M2"
   | Collect_cursus -> "Collect notices about cursus"
+  | Collect_course_exceptions -> "Collect course exceptions"
   | Dump_missing_grades -> "Dump missing notes"
   | Dump_missing_ects_attributions-> "Dump missing ects attributions"
   | Dump_missing_mentors -> "Dump missing mentors"
@@ -151,11 +153,12 @@ let is_dummy step_kind =
   | Collect_compensations
   | Collect_admissions
   | Collect_cursus
+  | Collect_course_exceptions
   | Dump_missing_grades
   | Dump_missing_ects_attributions
   | Dump_missing_mentors
   | Dump_missing_internship_descriptions
-  | Dump_ambiguous_internship_descriptions 
+  | Dump_ambiguous_internship_descriptions
     -> false
 
 let open_event

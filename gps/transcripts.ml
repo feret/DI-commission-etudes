@@ -3734,10 +3734,34 @@ let export_transcript
                                 libelle))
                           state
                       in
-                      let () =
-                        Remanent_state.print_cell
+                      let state, responsable_opt =
+                        match cours.code_cours with
+                        | Some codegps ->
+                          Remanent_state.get_course_exception
+                            ~codegps
+                            ~year
+                            state
+                        | None -> state, None
+                      in
+                      let responsable =
+                        match responsable_opt with
+                        | None ->
                           (string_of_stringopt
                              cours.responsable)
+                        | Some a ->
+                          Format.sprintf "%s %s %s"
+                            (match
+                               a.Public_data.course_exception_genre
+                             with
+                             | Public_data.Masculin -> "M."
+                             | Public_data.Feminin -> "Mme")
+                            (Special_char.lowercase a.Public_data.course_exception_firstname)
+                            (Special_char.uppercase
+                            a.Public_data.course_exception_lastname)
+                      in
+                      let () =
+                        Remanent_state.print_cell
+                          responsable
                           state
                       in
                       let () =
