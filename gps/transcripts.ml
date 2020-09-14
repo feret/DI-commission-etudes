@@ -223,7 +223,19 @@ let string_of_origin_opt a =
    | Some Public_data.Pc  -> "CPGE Physique-Chimie"
    | Some Public_data.PensionnaireEtranger -> "Pensionnaire Étranger"
    | Some Public_data.Psi -> "CPGE Physique-Sciences de l'Ingénieur"
-   | Some Public_data.Sis -> "Sélection Internationale"
+   | Some Public_data.Sis -> "sélection Internationale"
+
+let string_of_origin_short_opt a =
+  match a with
+  | None -> ""
+  | Some Public_data.DensInfo -> "universitaire"
+  | Some Public_data.EchErasm -> "Erasmus"
+  | Some Public_data.Info -> "Info"
+  | Some Public_data.Mpi -> "MPI"
+  | Some Public_data.Pc  -> "PC"
+  | Some Public_data.PensionnaireEtranger -> "Pensionnaire Étranger"
+  | Some Public_data.Psi -> "PSI"
+  | Some Public_data.Sis -> "SI"
 
 let log_origine
     state (label, string_opt) =
@@ -2559,8 +2571,14 @@ let get_bourse ~firstname ~lastname ~er state =
     state, ""
   | state, Some scholarship ->
     state,
-    Format.sprintf "Boursi%s %s" er
+    Format.sprintf " Boursi%s %s" er
       scholarship.Public_data.organism
+
+let get_concours origin state =
+  state,
+  Format.sprintf
+    " Concours %s"
+    (string_of_origin_short_opt origin)
 
 let next_year i =
   try
@@ -2640,7 +2658,7 @@ let export_transcript
     let old_logger = Remanent_state.save_std_logger state in
     let state = Remanent_state.set_std_logger state logger in
     let l = Public_data.YearMap.bindings gps_file.situation in
-    let genre,er,ne =
+    let genre,er,_ne =
       match gps_file.genre with
       | None -> "(e)","er(\\`ere)","(ne)"
       | Some Public_data.Masculin -> "","er",""
@@ -2810,18 +2828,25 @@ let export_transcript
                Remanent_state.print_newline state in
              let backgroundcolor = Some Color.blue in
              let lineproportion = Some (2./.3.) in
-             let state,statut,bourse =
+             let state,statut,bourse,concours =
                match gps_file.statut with
-               | None -> state,"",""
+               | None -> state,"","",""
                | Some Public_data.Boursier_si ->
                  state,
-                 Format.sprintf "\\'Etudiant%s SI" genre,""
+                 Format.sprintf "\\'Etudiant%s SI" genre,"",""
+               | Some Public_data.Ex_eleve
                | Some Public_data.Eleve_bis
-               | Some Public_data.Eleve -> state,"\\'El\\`eve",""
-               | Some Public_data.Ex_eleve ->
+               | Some Public_data.Eleve ->
+                 let state, concours =
+                   get_concours gps_file.origine state
+                 in
+                 state,"\\'El\\`eve","",
+                 concours
+
+                                             (*   | Some Public_data.Ex_eleve ->
                  state,
-                 Format.sprintf "Ancien%s \\'el\\`eve" ne,""
-               | Some Public_data.Ex_etudiant ->
+                                               Format.sprintf "Ancien%s \\'el\\`eve" ne,""*)
+               | Some Public_data.Ex_etudiant (* ->
                  begin
                    let state, bourse =
                      get_bourse ~firstname ~lastname ~er state
@@ -2829,19 +2854,19 @@ let export_transcript
                    state,
                    Format.sprintf "Ancien%s \\'etudiant%s"
                      ne genre,bourse
-                 end
+                                                end*)
                | Some Public_data.Etudiant ->
                  begin
                    let state, bourse =
                      get_bourse ~firstname ~lastname ~er state
                    in
                    state,
-                   Format.sprintf "\\'Etudiant%s" genre,bourse
+                   Format.sprintf "\\'Etudiant%s" genre,bourse,""
                  end
                | Some Public_data.Hors_GPS ->
                  begin
                    match gps_file.origine with
-                   | None -> state, "",""
+                   | None -> state, "","", ""
                    | Some Public_data.DensInfo
                    | Some Public_data.Info
                    | Some Public_data.Mpi
@@ -2862,11 +2887,11 @@ let export_transcript
                          Exit
                          state
                      in
-                     state, "",""
+                     state, "","", ""
                    | Some Public_data.PensionnaireEtranger ->
-                     state,"Pensionnaire \\'Etranger",""
+                     state,"Pensionnaire \\'Etranger","",""
                    | Some Public_data.EchErasm ->
-                     state,"\\'Echange Erasmus",""
+                     state,"\\'Echange Erasmus","",""
                  end
              in
              let () =
@@ -2874,7 +2899,7 @@ let export_transcript
                  ?backgroundcolor
                  ?lineproportion
                  state
-                 "\\large %s %s \\hspace{5mm} n\\'e%s le %s \\hspace{5mm} %s %s"
+                 "\\large %s %s \\hspace{5mm} n\\'e%s le %s \\hspace{5mm} %s%s%s"
                  (Special_char.uppercase
                     (Tools.unsome_string gps_file.nom))
                  (Special_char.capitalize
@@ -2883,6 +2908,7 @@ let export_transcript
                  (Tools.unsome_string gps_file.date_de_naissance)
                  statut
                  bourse
+                 concours
              in
              let lineproportion = Some (1./.3.) in
              let () =
