@@ -40,6 +40,9 @@ type parameters =
     repository_to_dump_missing_ects_attributions: string;
     repository_to_dump_missing_internship_descriptions: string;
     repository_to_dump_ambiguous_internship_descriptions:string;
+    repository_to_dump_national_diplomas: string;
+    repository_to_dump_dens: string;
+    repository_to_dump_mentors: string;
   }
 
 
@@ -65,6 +68,9 @@ let parameters =
     repository_to_dump_missing_ects_attributions = "known_issues/missing_ects_attributions";
     repository_to_dump_missing_internship_descriptions = "known_issues/missing_internships";
     repository_to_dump_ambiguous_internship_descriptions = "known_issues/ambiguous_internships";
+    repository_to_dump_dens = "reports/dens";
+    repository_to_dump_national_diplomas = "reports/national_diplomas";
+    repository_to_dump_mentors = "reports/mentors";
     repository_for_handmade_gps_files = "handmade_gps_files";
     output_alias_repository = "courant";
     store_gps_file_according_to_their_promotions = true;
@@ -108,6 +114,9 @@ type data =
     missing_mentors: Public_data.missing_mentor list;
     missing_internship_descriptions: Public_data.missing_internship_description list;
     ambiguous_internship_descriptions: Public_data.missing_internship_description list;
+    mentors: Public_data.mentor list;
+    national_diplomas: Public_data.diplome_national list;
+    dens: Public_data.dens list;
   }
 
 let empty_data =
@@ -130,6 +139,9 @@ let empty_data =
     missing_mentors = [];
     missing_internship_descriptions = [];
     ambiguous_internship_descriptions = [];
+    mentors = [];
+    national_diplomas = [];
+    dens = [];
   }
 
 type t =
@@ -239,6 +251,18 @@ let get_repository_to_dump_ambiguous_internship_descriptions t =
   t,
   t.parameters.repository_to_dump_ambiguous_internship_descriptions
 
+let get_repository_to_dump_mentors t =
+  t,
+  t.parameters.repository_to_dump_mentors
+
+let get_repository_to_dump_national_diplomas t =
+  t,
+  t.parameters.repository_to_dump_national_diplomas
+
+let get_repository_to_dump_dens t =
+  t,
+  t.parameters.repository_to_dump_dens
+
 let get_repository_to_dump_gps_files t =
   t, t.parameters.repository_to_dump_gps_files
 
@@ -340,6 +364,22 @@ let get_repository_to_dump_missing_grades_prefix t =
 let get_repository_to_dump_missing_grades t =
   get_rep_gen
     get_repository_to_dump_missing_grades_prefix
+    t
+
+let get_repository_to_dump_national_diplomas_prefix t =
+  get_repository_to_dump_national_diplomas t
+
+let get_repository_to_dump_national_diplomas t =
+  get_rep_gen
+    get_repository_to_dump_national_diplomas_prefix
+    t
+
+let get_repository_to_dump_dens_prefix t =
+  get_repository_to_dump_dens t
+
+let get_repository_to_dump_dens t =
+  get_rep_gen
+    get_repository_to_dump_dens_prefix
     t
 
 let get_repository_to_dump_missing_ects_attributions_prefix t =
@@ -763,7 +803,26 @@ let get_ambiguous_internship_descriptions t = lift_get get_ambiguous_internship_
 let set_ambiguous_internship_descriptions ambiguous_internship_descriptions data =
     {data with ambiguous_internship_descriptions}
 let set_ambiguous_internship_descriptions ambiguous_internship_descriptions t =
-    lift_set set_ambiguous_internship_descriptions ambiguous_internship_descriptions t
+  lift_set set_ambiguous_internship_descriptions ambiguous_internship_descriptions t
+
+let get_mentors data =
+  data.mentors
+let get_mentors t = lift_get get_mentors t
+let set_mentors mentors data = {data with mentors}
+let set_mentors mentors t = lift_set set_mentors mentors t
+
+let get_national_diplomas data =
+  data.national_diplomas
+let get_national_diplomas t = lift_get get_national_diplomas t
+let set_national_diplomas national_diplomas data =
+      {data with national_diplomas}
+let set_national_diplomas national_diplomas t =
+  lift_set set_national_diplomas national_diplomas t
+
+let get_dens data = data.dens
+let get_dens t = lift_get get_dens t
+let set_dens dens data = {data with dens}
+let set_dens dens t = lift_set set_dens dens t
 
 
 let get_decisions data = data.decisions
@@ -1075,6 +1134,12 @@ let gen get set =
 
 let add_missing_grade, get_missing_grades =
   gen get_missing_grades set_missing_grades
+let add_dens, get_dens =
+  gen get_dens set_dens
+let add_national_diploma, get_national_diplomas =
+  gen get_national_diplomas set_national_diplomas
+let add_mentor, get_mentors =
+  gen get_mentors set_mentors
 let add_missing_mentor, get_missing_mentors =
   gen get_missing_mentors set_missing_mentors
 let add_missing_ects_attribution, get_missing_ects_attributions =

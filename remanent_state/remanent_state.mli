@@ -338,6 +338,33 @@ val get_picture_potential_locations:
 val get_target:
   t -> t * string option
 
+val add_mentor:
+  t -> Public_data.mentor -> t
+
+val get_mentors:
+  t -> t * Public_data.mentor list
+
+val get_repository_to_dump_mentors:
+  t -> t * string
+
+val add_dens:
+  t -> Public_data.dens -> t
+
+val get_dens:
+  t -> t * Public_data.dens list
+
+val get_repository_to_dump_dens:
+  t -> t * string
+
+val add_national_diploma:
+  t -> Public_data.diplome_national -> t
+
+val get_national_diplomas:
+  t -> t * Public_data.diplome_national list
+
+val get_repository_to_dump_national_diplomas:
+  t -> t * string
+
 val add_missing_grade:
   t -> Public_data.missing_grade -> t
 

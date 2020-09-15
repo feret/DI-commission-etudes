@@ -106,6 +106,12 @@ let state =
     )
     state
     students_list
+let state, academicyear =
+  Remanent_state.get_current_academic_year state
+let state =
+  Mentor_report.ReportListMentors.dump_per_year_mentor_student
+    ~academicyear ~file_name:"tuteurs.html"
+    state
 let state =
   Grades.MissingGrades.dump_per_dpt_student_year
     ~file_name:"notes_manquantes_par_dpt_et_cours.html"

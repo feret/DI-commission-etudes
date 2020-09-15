@@ -23,6 +23,9 @@ type step_kind =
   | Dump_missing_mentors
   | Dump_missing_internship_descriptions
   | Dump_ambiguous_internship_descriptions
+  | Dump_mentor_list
+  | Dump_national_diploma_list
+  | Dump_dens_result
 
 
 type step =
@@ -73,6 +76,9 @@ let string_of_step_kind x =
   | Dump_missing_mentors -> "Dump missing mentors"
   | Dump_missing_internship_descriptions -> "Dump missing internship description"
   | Dump_ambiguous_internship_descriptions -> "Dump ambiguous internship description"
+  | Dump_mentor_list -> "Dump list of mentors"
+  | Dump_national_diploma_list -> "Dump national diploma result"
+  | Dump_dens_result -> "Dump DENS result"
 
 let print_step_kind logger x =
   Loggers.print_cell logger
@@ -159,6 +165,9 @@ let is_dummy step_kind =
   | Dump_missing_mentors
   | Dump_missing_internship_descriptions
   | Dump_ambiguous_internship_descriptions
+  | Dump_mentor_list
+  | Dump_national_diploma_list
+  | Dump_dens_result 
     -> false
 
 let open_event

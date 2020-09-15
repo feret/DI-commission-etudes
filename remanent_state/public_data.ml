@@ -332,6 +332,41 @@ type missing_internship_description =
     missing_internship_intitule: string ;
   }
 
+type diplome_national =
+  {
+    diplome_firstname : string ;
+    diplome_lastname : string ;
+    diplome_promotion : string ;
+    diplome_niveau : string ;
+    diplome_dpt : string ;
+    diplome_moyenne : float ;
+    diplome_nb_ects : float ;
+    diplome_mention : string ;
+    diplome_recu : bool ;
+  }
+
+type dens =
+  {
+    dens_firstname : string ;
+    dens_lastname : string ;
+    dens_promotion : string ;
+    dens_total_ects : int ;
+    dens_current_year_ects : int ;
+    dens_nb_inscriptions : int ;
+  }
+
+type mentor =
+  {
+    mentor_academic_year : string ;
+    mentor_student_firstname : string ;
+    mentor_student_lastname : string ;
+    mentor_student_gender : genre  ;
+    mentor_student_promo : string ;
+    mentor_firstname : string ;
+    mentor_lastname : string ;
+    mentor_gender : genre ;
+  }
+
 type keywords =
   | Accord
   | Acronyme

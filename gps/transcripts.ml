@@ -2946,6 +2946,69 @@ let export_transcript
                  state,
                  ("",1.)
                | Some tuteur ->
+                 let state, genre =
+                   match
+                     gps_file.genre
+                   with
+                   | None ->
+                     Remanent_state.warn
+                       __POS__
+                       "missing gender"
+                       Exit
+                       state, Public_data.Masculin
+                   | Some a -> state, a in
+                 let state, genre_du_tuteur =
+                     match
+                       tuteur.Public_data.genre_du_tuteur
+                     with
+                     | None ->
+                       Remanent_state.warn
+                         __POS__
+                         "missing mentor gender"
+                         Exit
+                         state, Public_data.Masculin
+                     | Some a -> state, a in
+                 let state, nom_du_tuteur =
+                   match
+                     tuteur.Public_data.nom_du_tuteur
+                   with
+                   | None ->
+                   Remanent_state.warn
+                     __POS__
+                     "missing mentor name"
+                     Exit
+                     state, ""
+                   | Some a -> state, a
+                 in
+                 let state, prenom_du_tuteur =
+                   match
+                     tuteur.Public_data.prenom_du_tuteur
+                   with
+                   | None ->
+                   Remanent_state.warn
+                     __POS__
+                     "missing mentor first name"
+                     Exit
+                     state, ""
+                   | Some a -> state, a
+                 in
+
+                 let state =
+                   Remanent_state.add_mentor
+                     state
+                     {
+                       Public_data.mentor_gender = genre_du_tuteur;
+                       Public_data.mentor_lastname =
+                         nom_du_tuteur;
+                       Public_data.mentor_firstname =
+                         prenom_du_tuteur;
+                       Public_data.mentor_academic_year = year;
+                       Public_data.mentor_student_promo = promo ;
+                       Public_data.mentor_student_gender = genre;
+                       Public_data.mentor_student_lastname = lastname ;
+                       Public_data.mentor_student_firstname = firstname ;
+                     }
+                 in
                  begin
                    match
                      tuteur.Public_data.nom_du_tuteur,

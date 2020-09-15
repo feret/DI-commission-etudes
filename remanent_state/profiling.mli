@@ -23,6 +23,9 @@ type step_kind =
   | Dump_missing_mentors
   | Dump_missing_internship_descriptions
   | Dump_ambiguous_internship_descriptions
+  | Dump_mentor_list
+  | Dump_national_diploma_list
+  | Dump_dens_result 
 
 type log_info
 

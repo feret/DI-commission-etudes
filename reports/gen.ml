@@ -11,6 +11,8 @@ type 'elt filter =
   ?lastname:string ->
   ?codegps:string ->
   ?mentorname:string ->
+  ?mentorfirstname:string ->
+  ?mentorlastname:string ->
   ?teachername:string ->
   ?academicyear:string ->
   ?promo:string ->
@@ -22,6 +24,8 @@ let dump_elts
     ?lastname
     ?codegps
     ?mentorname
+    ?mentorfirstname
+    ?mentorlastname
     ?teachername
     ?academicyear
     ?promo
@@ -45,6 +49,8 @@ let dump_elts
            ?lastname
            ?codegps
            ?mentorname
+           ?mentorfirstname
+           ?mentorlastname
            ?teachername
            ?academicyear
            ?promo
@@ -159,9 +165,9 @@ let check elt_opt elt =
   | Some elt' -> elt = elt'
 
 let filter_grade
-    ?dpt ?firstname ?lastname ?codegps ?mentorname ?teachername ?academicyear ?promo
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?promo
     state grade =
-  let _  = mentorname in
+  let _  = mentorname, mentorfirstname, mentorlastname in
   state, check dpt grade.Public_data.missing_grade_dpt
   &&
   check firstname grade.Public_data.missing_grade_firstname
@@ -177,9 +183,9 @@ let filter_grade
   check promo grade.Public_data.missing_grade_promotion
 
 let filter_internship_description
-    ?dpt ?firstname ?lastname ?codegps ?mentorname ?teachername ?academicyear ?promo
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname  ?teachername ?academicyear ?promo
     state internship =
-  let _ = dpt, mentorname, teachername in
+  let _ = dpt, mentorname, teachername, mentorfirstname, mentorlastname in
   state,
   check
     firstname internship.Public_data.missing_internship_firstname
@@ -194,9 +200,9 @@ let filter_internship_description
   check promo internship.Public_data.missing_internship_promotion
 
 let filter_mentoring
-    ?dpt ?firstname ?lastname ?codegps ?mentorname ?teachername ?academicyear ?promo
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?promo
     state mentoring =
-  let _ = dpt, mentorname, teachername, codegps in
+  let _ = dpt, mentorname, mentorfirstname, mentorlastname, teachername, codegps in
   state,
   check firstname mentoring.Public_data.missing_mentor_firstname
   &&
@@ -205,6 +211,24 @@ let filter_mentoring
   check academicyear mentoring.Public_data.missing_mentor_year
   &&
   check promo mentoring.Public_data.missing_mentor_promotion
+
+let filter_mentoring_list
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?promo
+    state mentoring =
+  let _ = teachername, mentorname, codegps, dpt in 
+  state,
+  check firstname mentoring.Public_data.mentor_student_firstname
+  &&
+  check lastname mentoring.Public_data.mentor_student_lastname
+  &&
+  check academicyear mentoring.Public_data.mentor_academic_year
+  &&
+  check promo mentoring.Public_data.mentor_student_promo
+  &&
+  check mentorfirstname mentoring.Public_data.mentor_firstname
+  &&
+  check mentorlastname mentoring.Public_data.mentor_lastname
+
 
 module type Interface =
 sig

@@ -13,6 +13,8 @@ val dump_elts:
   ?lastname:string ->
   ?codegps:string ->
   ?mentorname:string ->
+  ?mentorfirstname:string ->
+  ?mentorlastname:string ->
   ?teachername:string ->
   ?academicyear:string ->
   ?promo:string ->
@@ -40,6 +42,8 @@ val filter_internship_description:
   Public_data.missing_internship_description filter
 val filter_mentoring:
   Public_data.missing_mentor filter
+val filter_mentoring_list:
+  Public_data.mentor filter
 
 module type Interface =
 sig
