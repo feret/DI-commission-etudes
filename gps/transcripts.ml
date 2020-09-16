@@ -1925,8 +1925,8 @@ let fetch_stage
         match filter state stages with
         | state, [] ->
           let state =
-            Remanent_state.add_missing_internship_description
-              state internship
+              Remanent_state.add_missing_internship_description
+                state internship
           in
           state, None
         | state, [a] -> state, Some a
@@ -2487,6 +2487,11 @@ let is_stage cours =
          (Tools.substring "intensif" a))
   end
 
+let do_report report =
+  match report with
+  | None -> false
+  | Some b -> b
+
 let fetch gen dft missing a =
   match (snd a).code_cours with
   | None -> missing
@@ -2629,7 +2634,9 @@ let add_dens year compensation course map =
 
 let add_mean _year _compensation _course map = map
 let export_transcript
-    ~output ?filter:(remove_non_valided_classes=Public_data.All_but_in_progress_in_current_academic_year)
+    ~output
+    ?report
+    ?filter:(remove_non_valided_classes=Public_data.All_but_in_progress_in_current_academic_year)
     state gps_file =
   let alloc_suffix =
     let l0 =
@@ -3036,6 +3043,8 @@ let export_transcript
                  in
 
                  let state =
+                   if do_report report
+                   then
                    Remanent_state.add_mentor
                      state
                      {
@@ -3050,6 +3059,7 @@ let export_transcript
                        Public_data.mentor_student_lastname = lastname ;
                        Public_data.mentor_student_firstname = firstname ;
                      }
+                   else state 
                  in
                  begin
                    match
@@ -3669,7 +3679,8 @@ let export_transcript
                               Public_data.missing_grade_lastname =
                                 lastname;
                               Public_data.missing_grade_firstname = firstname;
-                            })
+                            }
+                          )
                        state
                        list
                    in
@@ -3898,7 +3909,9 @@ let export_transcript
                         Remanent_state.fprintf state "%%\n\ "
                       in
                       let mean, dens =
-                        if year > current_year then mean, dens
+                        if year > current_year
+                        || not (do_report report)
+                        then mean, dens
                         else
                           match Tools.map_opt String.trim string
                           with
@@ -4263,7 +4276,7 @@ let export_transcript
       0
     in
     let state =
-      if n_inscription > 0 || dens_total_potential > 0.
+      if (n_inscription > 0 || dens_total_potential > 0. || dens_total > 0.)
       then
         Remanent_state.add_dens
           state

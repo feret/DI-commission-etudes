@@ -4,6 +4,7 @@ val get_gps_file:
   Remanent_state.t -> Remanent_state.t * gps_file option
 val export_transcript:
   output: string * string ->
+  ?report:bool ->
   ?filter: Public_data.remove_non_valided_classes -> 
   Remanent_state.t ->
   gps_file

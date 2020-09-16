@@ -95,9 +95,10 @@ let state =
          | None -> state
          | Some gps ->
            let filter = Public_data.All in
+           let report = true in 
            let state, output_opt =
              Transcripts.export_transcript
-               ~filter ~output state gps
+               ~filter ~output ~report state gps
            in
            match output_opt with
            | None -> state

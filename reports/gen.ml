@@ -133,6 +133,20 @@ let dump_elts
                         (List.rev headers))
             elts
         in
+        let msg =
+          Format.sprintf
+            "%s:%i->%i"
+            output_file_name
+            (List.length elts)
+            (List.length extended_elts)
+        in
+        let state =
+          Remanent_state.warn
+            __POS__
+            msg
+            Exit
+            state
+        in 
         let () =
           Tools.dump_report
             ~print_header:(Loggers.print_headers logger)
