@@ -19,6 +19,8 @@ val dump_elts:
   ?academicyear:string ->
   ?promo:string ->
   ?ninscription:int ->
+  ?niveau:string ->
+  ?recu:bool -> 
   ?output_repository:string ->
   ?prefix:string ->
   ?file_name:string ->
@@ -47,6 +49,10 @@ val filter_mentoring_list:
   Public_data.mentor filter
 val filter_dens:
   Public_data.dens filter
+val filter_national_diploma:
+  Public_data.diplome_national filter
+
+
 
 module type Interface =
 sig

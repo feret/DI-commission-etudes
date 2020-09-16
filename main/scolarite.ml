@@ -95,7 +95,7 @@ let state =
          | None -> state
          | Some gps ->
            let filter = Public_data.All in
-           let report = true in 
+           let report = true in
            let state, output_opt =
              Transcripts.export_transcript
                ~filter ~output ~report state gps
@@ -119,6 +119,15 @@ let state =
 let state =
   Dens_report.DensReport.dump_per_n_inscription
     ~file_name:"dens_par_nb_inscriptions.html" state
+let state =
+  Diploma_report.DiplomaReport.dump_per_result_per_student
+    ~file_name:"L3.html" ~niveau:"l" ~dpt:"informatique" state
+let state =
+  Diploma_report.DiplomaReport.dump_per_result_per_student
+    ~file_name:"M1.html" ~niveau:"m" ~dpt:"informatique" state
+let state =
+  Diploma_report.DiplomaReport.dump_per_result_per_student
+    ~file_name:"any.html" state
 let state =
   Grades.MissingGrades.dump_per_dpt_student_year
     ~file_name:"notes_manquantes_par_dpt_et_cours.html"

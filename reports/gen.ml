@@ -17,6 +17,8 @@ type 'elt filter =
   ?academicyear:string ->
   ?promo:string ->
   ?ninscription:int ->
+  ?niveau:string ->
+  ?recu:bool ->
   Remanent_state.t -> 'elt -> Remanent_state.t * bool
 
 let dump_elts
@@ -31,6 +33,8 @@ let dump_elts
     ?academicyear
     ?promo
     ?ninscription
+    ?niveau
+    ?recu
     ?output_repository ?prefix ?file_name
     ?event_opt
     ~get ~filter ~get_repository ~default_file_name
@@ -57,6 +61,8 @@ let dump_elts
            ?academicyear
            ?promo
            ?ninscription
+           ?niveau
+           ?recu
            state elt in
          if b then
            state, elt::l
@@ -146,7 +152,7 @@ let dump_elts
             msg
             Exit
             state
-        in 
+        in
         let () =
           Tools.dump_report
             ~print_header:(Loggers.print_headers logger)
@@ -183,9 +189,9 @@ let check elt_opt elt =
 
 let filter_grade
     ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?promo ?ninscription
-    state grade =
+    ?niveau ?recu state grade =
   let _  =
-    mentorname, mentorfirstname, mentorlastname, ninscription
+    niveau, recu, mentorname, mentorfirstname, mentorlastname, ninscription
   in
   state, check dpt grade.Public_data.missing_grade_dpt
   &&
@@ -203,9 +209,9 @@ let filter_grade
 
 let filter_internship_description
     ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname  ?teachername ?academicyear ?promo ?ninscription
-    state internship =
+    ?niveau ?recu state internship =
   let _ =
-    dpt, mentorname, teachername, mentorfirstname, mentorlastname, ninscription
+    dpt, mentorname, teachername, mentorfirstname, mentorlastname, ninscription, niveau, recu
   in
   state,
   check
@@ -222,9 +228,10 @@ let filter_internship_description
 
 let filter_mentoring
     ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?promo ?ninscription
-    state mentoring =
+    ?niveau
+    ?recu state mentoring =
   let _ =
-    dpt, mentorname, mentorfirstname, mentorlastname, teachername, codegps, ninscription
+    dpt, mentorname, mentorfirstname, mentorlastname, teachername, codegps, ninscription, niveau, recu
   in
   state,
   check firstname mentoring.Public_data.missing_mentor_firstname
@@ -237,9 +244,10 @@ let filter_mentoring
 
 let filter_mentoring_list
     ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?promo ?ninscription
-    state mentoring =
+    ?niveau
+    ?recu state mentoring =
   let _ =
-    teachername, mentorname, codegps, dpt, ninscription
+    teachername, mentorname, codegps, dpt, ninscription, niveau, recu
   in
   state,
   check firstname mentoring.Public_data.mentor_student_firstname
@@ -255,10 +263,11 @@ let filter_mentoring_list
   check mentorlastname mentoring.Public_data.mentor_lastname
 
 let filter_dens
-      ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?promo ?ninscription
+      ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?promo ?ninscription ?niveau
+      ?recu
       state dens =
   let _ =
-    dpt, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear
+    dpt, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, niveau, recu
   in
   state,
   check firstname dens.Public_data.dens_firstname
@@ -268,6 +277,26 @@ let filter_dens
   check promo dens.Public_data.dens_promotion
   &&
   check ninscription dens.Public_data.dens_nb_inscriptions
+
+  let filter_national_diploma
+        ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?promo ?ninscription
+        ?niveau
+        ?recu state dens =
+    let _ =
+      codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription 
+    in
+    state,
+    check firstname dens.Public_data.diplome_firstname
+    &&
+    check lastname dens.Public_data.diplome_lastname
+    &&
+    check promo dens.Public_data.diplome_promotion
+    &&
+    check dpt dens.Public_data.diplome_dpt
+    &&
+    check niveau dens.Public_data.diplome_niveau
+    &&
+    check recu dens.Public_data.diplome_recu
 
 module type Interface =
 sig
