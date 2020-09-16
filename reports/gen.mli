@@ -18,6 +18,7 @@ val dump_elts:
   ?teachername:string ->
   ?academicyear:string ->
   ?promo:string ->
+  ?ninscription:int ->
   ?output_repository:string ->
   ?prefix:string ->
   ?file_name:string ->
@@ -44,6 +45,8 @@ val filter_mentoring:
   Public_data.missing_mentor filter
 val filter_mentoring_list:
   Public_data.mentor filter
+val filter_dens:
+  Public_data.dens filter
 
 module type Interface =
 sig

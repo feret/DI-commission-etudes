@@ -254,8 +254,10 @@ type dens =
     dens_firstname : string ;
     dens_lastname : string ;
     dens_promotion : string ;
-    dens_total_ects : int ;
-    dens_current_year_ects : int ;
+    dens_total_ects : float ;
+    dens_current_year_ects : float ;
+    dens_total_potential_ects : float ;
+    dens_current_year_potential_ects : float ;
     dens_nb_inscriptions : int ;
   }
 

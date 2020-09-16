@@ -366,6 +366,14 @@ let get_repository_to_dump_missing_grades t =
     get_repository_to_dump_missing_grades_prefix
     t
 
+let get_repository_to_dump_mentors_prefix t =
+  get_repository_to_dump_mentors t
+
+let get_repository_to_dump_mentors t =
+  get_rep_gen
+    get_repository_to_dump_mentors_prefix
+    t
+
 let get_repository_to_dump_national_diplomas_prefix t =
   get_repository_to_dump_national_diplomas t
 

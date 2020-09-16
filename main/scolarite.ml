@@ -113,6 +113,12 @@ let state =
     ~academicyear ~file_name:"tuteurs.html"
     state
 let state =
+  Dens_report.DensReport.dump_per_promo
+    ~file_name:"dens_par_promo.html" state
+let state =
+  Dens_report.DensReport.dump_per_n_inscription
+    ~file_name:"dens_par_nb_inscriptions.html" state
+let state =
   Grades.MissingGrades.dump_per_dpt_student_year
     ~file_name:"notes_manquantes_par_dpt_et_cours.html"
     state
@@ -190,11 +196,6 @@ let state =
     ~file_name:"descriptions_de_stage_ambigues_par_etudiant.html"
     state
 let state =
-  Cloud_interaction.make_current_repository state
-let state =
-  Cloud_interaction.synchronize_shared_repository
-    state
-let state =
   match Remanent_state.get_missing_ects_attributions state
   with
   | state, [] -> state
@@ -244,6 +245,11 @@ let state =
       "Several descriptions may apply to a single internship"
       Exit
       state
+let state =
+  Cloud_interaction.make_current_repository state
+let state =
+  Cloud_interaction.synchronize_shared_repository
+    state
 let state =
     Remanent_state.print_errors "" state
 let state =

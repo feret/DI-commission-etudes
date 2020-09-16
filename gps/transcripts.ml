@@ -914,7 +914,7 @@ let store_cours  =
          Printf.sprintf
            "%s in %s" who c
        in
-       let state, note =
+       let state, note  =
          match remanent.prevalide, remanent.prenote with
          | Some (Public_data.Bool false | Public_data.Abs), None
            ->
@@ -2586,6 +2586,46 @@ let next_year i =
   with
   | _ -> None
 
+let mean_init = ()
+let dens_init = Public_data.YearMap.empty
+let add_dens_ok year course map =
+  match course.ects with
+  | None -> map
+  | Some f ->
+    let total,potential =
+      match
+        Public_data.YearMap.find_opt year map
+      with
+      | None -> (0.,0.)
+      | Some a -> a
+    in
+    Public_data.YearMap.add year (f+.total, potential) map
+let add_dens_potential year course map =
+  match course.ects with
+  | None -> map
+  | Some f ->
+    let total,potential =
+      match
+        Public_data.YearMap.find_opt year map
+      with
+      | None -> (0.,0.)
+      | Some a -> a
+    in
+    Public_data.YearMap.add year (total, potential+.f) map
+
+let add_dens year compensation course map =
+  match compensation, course.note with
+  | Some _, _ -> map
+  | None,None -> add_dens_potential year course map
+  | None,Some note ->
+      match
+        Notes.valide note
+      with
+      | Some true -> add_dens_ok year course map
+      | Some false -> map
+      | None -> add_dens_potential year course map
+
+let add_mean _year _compensation _course map = map
 let export_transcript
     ~output ?filter:(remove_non_valided_classes=Public_data.All_but_in_progress_in_current_academic_year)
     state gps_file =
@@ -2672,6 +2712,10 @@ let export_transcript
     in
     let promo =
       (Tools.unsome_string gps_file.promotion)
+    in
+    let state, current_year =
+      Remanent_state.get_current_academic_year
+        state
     in
     let who =
       Format.sprintf
@@ -2805,14 +2849,10 @@ let export_transcript
         (state, StringOptMap.empty, [])
         l_rev
     in
-    let state =
+    let state,mean,dens =
       List.fold_left
-        (fun state (year,situation,split_cours) ->
-           let state, current_year =
-             Remanent_state.get_current_academic_year
-               state
-           in
-           if year > current_year then state
+        (fun (state,mean,dens) (year,situation,split_cours) ->
+           if year > current_year then state,mean,dens
            else
              let backgroundcolor = Some Color.green in
              let who =
@@ -3512,9 +3552,9 @@ let export_transcript
               state, None
           end
         in
-        let admission_shown,state =
+        let admission_shown,state, mean, dens =
           StringOptMap.fold
-            (fun (string,dpt) list (admission_shown,state) ->
+            (fun (string,dpt) list (admission_shown,state,mean,dens) ->
                let admission_shown =
                  if string = Some "dens"
                  then
@@ -3685,9 +3725,9 @@ let export_transcript
                in
                let macro = "cours" in
                let list = Tools.sort fetch p list in
-               let state =
+               let state, mean, dens  =
                  List.fold_left
-                   (fun state ((diplome:string),cours) ->
+                   (fun (state, mean, dens)  ((diplome:string),cours) ->
                       let () =
                         Remanent_state.open_row
                           ~macro state
@@ -3833,7 +3873,7 @@ let export_transcript
                              cours.semestre)
                           state
                       in
-                      let state, string =
+                      let state, note_string =
                         match cours.note with
                         | None -> state, ""
                         | Some f ->
@@ -3841,7 +3881,7 @@ let export_transcript
                       in
                       let () =
                         Remanent_state.print_cell
-                          string
+                          note_string
                           state
                       in
                       let () =
@@ -3855,8 +3895,21 @@ let export_transcript
                       let () =
                         Remanent_state.fprintf state "%%\n\ "
                       in
-                      state)
-                   state
+                      let mean, dens =
+                        if year > current_year then mean, dens
+                        else
+                          match Tools.map_opt String.trim string
+                          with
+                          | None -> mean, dens
+                          | Some ("dens" | "DENS") ->
+                            mean,
+                            add_dens year compensation
+                              cours dens
+                          | Some _ ->
+                            add_mean year compensation cours mean, dens
+                      in
+                      state,mean, dens)
+                   (state,mean,dens)
                    list
                in
                let () =
@@ -4026,7 +4079,7 @@ let export_transcript
                  in
                  ects_string, potential_ects_string
                in
-                let rank =
+               let rank =
                  match rank_opt, effectif_opt with
                  | None, _ -> ""
                  | Some a, None ->
@@ -4154,9 +4207,9 @@ let export_transcript
                let () =
                  Remanent_state.print_newline state
                in
-               admission_shown,state)
+               admission_shown,state,mean,dens)
             split_cours
-            (false,state)
+            (false,state,mean,dens)
         in
         let () =
           if not admission_shown then
@@ -4173,10 +4226,57 @@ let export_transcript
         let () =
           Remanent_state.breakpage state
         in
-        state
+        state,mean,dens
         )
-        state
+        (state,mean_init,dens_init)
         l
+    in
+    let _ = mean in
+    let dens_total, dens_total_potential =
+      Public_data.YearMap.fold
+        (fun _ (t,pt) (t',pt') -> t+.t',pt+.pt')
+        dens
+        (0.,0.)
+    in
+    let dens_year, dens_year_potential =
+      match
+        Public_data.YearMap.find_opt
+          year
+          dens
+      with
+      | Some a -> a
+      | None -> (0.,0.)
+    in
+    let n_inscription =
+      Public_data.YearMap.fold
+        (fun year bilan n_inscription ->
+           if year > current_year
+           then
+             n_inscription
+           else 
+             match bilan.inscription_au_DENS with
+           | Some true -> n_inscription + 1
+           | Some false | None -> n_inscription)
+      gps_file.situation
+      0
+    in
+    let state =
+      if n_inscription > 0 || dens_total_potential > 0.
+      then
+        Remanent_state.add_dens
+          state
+          {
+            Public_data.dens_firstname = firstname ;
+            Public_data.dens_lastname = lastname;
+            Public_data.dens_promotion = promo;
+            Public_data.dens_total_ects = dens_total ;
+            Public_data.dens_current_year_ects = dens_year ;
+            Public_data.dens_total_potential_ects = dens_total_potential ;
+            Public_data.dens_current_year_potential_ects = dens_year_potential ;
+            Public_data.dens_nb_inscriptions = n_inscription ;
+          }
+      else
+        state
     in
     let state = Remanent_state.close_logger state in
     let state =
