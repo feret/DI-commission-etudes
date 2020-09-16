@@ -2481,8 +2481,10 @@ let is_stage cours =
     match cours.cours_libelle with
     | None -> false
     | Some a ->
-      Tools.substring "Internship" a
-      || Tools.substring "Stage" a
+      (Tools.substring "Internship" a
+       || Tools.substring "Stage" a) &&
+      (not
+         (Tools.substring "intensif" a))
   end
 
 let fetch gen dft missing a =
@@ -4253,7 +4255,7 @@ let export_transcript
            if year > current_year
            then
              n_inscription
-           else 
+           else
              match bilan.inscription_au_DENS with
            | Some true -> n_inscription + 1
            | Some false | None -> n_inscription)
