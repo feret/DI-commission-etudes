@@ -20,3 +20,6 @@ val command:
 val rm:
   (string * int * int * int) ->
   Remanent_state.t -> string -> Remanent_state.t
+
+val get_extension:
+  string -> string option 

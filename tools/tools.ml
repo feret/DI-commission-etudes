@@ -330,12 +330,40 @@ let prepare_report
     ~close_array
     ~string_of_headers
     ~string_of_column
+    ~settitle
+    ~setpreamble
+    ~setheadpage
+    ~setsignature
+    ?title
+    ?headpage
+    ?preamble
+    ?signature
     list =
+    let n = List.length list in
+    let () =
+      match title with
+      | None -> ()
+      | Some t -> settitle t
+    in
+    let _ =
+      match headpage with
+      | None -> ()
+      | Some f -> setheadpage (f n)
+    in
+    let _ =
+      match preamble with
+      | None -> ()
+      | Some f -> setpreamble (f n)
+    in
     let array_of_headers =
       Array.of_list string_of_headers
     in
     let compute_headers (a,b) c =
-      Format.sprintf "%s : %s" a (b c)
+      if a = ""
+      then
+        Format.sprintf "%s" (b c)
+      else
+        Format.sprintf "%s : %s" a (b c)
     in
     let compare_headers a b_opt =
       match b_opt
@@ -351,7 +379,7 @@ let prepare_report
         in
         aux 1 a b
     in
-    let dump_headers () =
+    (*  let dump_headers () =
       let () = open_row () in
       let () =
         List.iter
@@ -360,7 +388,7 @@ let prepare_report
       in
       let () = close_row () in
       ()
-    in
+        in*)
     let dump_row a =
       let () = open_row () in
       let () =
@@ -398,13 +426,13 @@ let prepare_report
                     aux (i+1) t
                 in
                 let () = aux i residue in
-                let _ =
+                let (_:bool) =
                   open_array
                     ~title:(List.rev_map
                               fst
                               (List.rev string_of_column))
                 in
-                let () = dump_headers () in
+                (*let () = dump_headers () in*)
                 let () = dump_row a in
                 Some (headers)
             end
@@ -416,5 +444,10 @@ let prepare_report
       match aux list None with
       | None -> ()
       | Some _ -> close_array ()
+    in
+    let () =
+      match signature with
+      | None -> ()
+      | Some f -> setsignature (f n)
     in
     ()

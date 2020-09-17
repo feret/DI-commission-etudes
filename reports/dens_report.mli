@@ -1,8 +1,12 @@
 type dump =
   ?firstname:string ->
   ?lastname:string ->
-  ?ninscription:int -> 
+  ?ninscription:int ->
   ?promo:string ->
+  ?headpage:(int -> string) ->
+  ?title:string ->
+  ?preamble:(int -> string) ->
+  ?signature:(int -> string) ->
   Gen.dump
 
 module type DensReport =

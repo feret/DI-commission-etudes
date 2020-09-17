@@ -84,3 +84,21 @@ let rm pos state filename =
       s
       (Sys_error s)
       state
+
+let get_extension c =
+  let n = String.length c in
+  let rec aux k =
+    if k<(-1) then None
+    else
+    if
+      try (String.get c k = '.')
+      with
+      | _ -> true
+    then
+      try (Some (String.sub c (k+1) (n-k-1)))
+      with
+      _ -> None
+    else
+      aux (k-1)
+  in
+  aux (n-1)

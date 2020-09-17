@@ -109,10 +109,16 @@ let state =
     students_list
 let state, academicyear =
   Remanent_state.get_current_academic_year state
+let title = "LISTE DES TUTEURS"
 let state =
   Mentor_report.ReportListMentors.dump_per_year_mentor_student
-    ~academicyear ~file_name:"tuteurs.html"
+    ~academicyear ~file_name:"tuteurs.html" ~title
     state
+let headpage s _ =
+  Format.sprintf
+    "Département Informatique \\\\Résultats 2019-2020\\\\%s\\\\Page \\thepage/\\pageref{LastPage}\\\\" s
+let signature _ =
+  "Paris \\ le 18 septembre 2020"
 let state =
   Dens_report.DensReport.dump_per_promo
     ~file_name:"dens_par_promo.html" state
@@ -123,12 +129,76 @@ let state, academicyear =
   Remanent_state.get_current_academic_year state
 let state =
   Diploma_report.DiplomaReport.dump_per_result_per_student
-    ~file_name:"M1.html"
-    ~academicyear ~niveau:"m" ~dpt:"informatique" state
+    ~file_name:"M1result.html"
+    ~academicyear ~niveau:"m" ~dpt:"informatique"
+    state
 let state =
   Diploma_report.DiplomaReport.dump_per_result_per_student
-    ~file_name:"L3.html"
+    ~file_name:"L3result.html"
     ~academicyear ~niveau:"l" ~dpt:"informatique" state
+let state =
+  Diploma_report.DiplomaReport.dump_per_student
+    ~file_name:"M1student.html"
+    ~academicyear ~niveau:"m" ~dpt:"informatique"
+    state
+let state =
+  Diploma_report.DiplomaReport.dump_per_student
+    ~file_name:"L3student.html"
+    ~academicyear ~niveau:"l" ~dpt:"informatique" state
+let state =
+  Mentor_report.ReportListMentors.dump_per_year_mentor_student
+    ~academicyear ~file_name:"tuteurs.tex" ~title
+    state
+let preamble i =
+  Format.sprintf
+    "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du 18 septembre 2020,} \\\\ Je soussigné \\textbf{Marc Pouzet}, directeur des études du département d'informatique de l'École Normale Supérieure, certifie que les \\\\ \\underline{\\textbf{%i étudiants inscrits en 2019-2020}}, en première et deuxième année du diplôme de l'École Normale Supérieure, ont obtenu les résultats suivant}" i
+let state =
+  Dens_report.DensReport.dump_per_promo
+    ~file_name:"dens_par_promo.tex" state
+    ~signature ~preamble ~headpage:(headpage "DENS")
+let state =
+  Dens_report.DensReport.dump_per_n_inscription
+    ~file_name:"dens_par_nb_inscriptions.tex" state
+    ~signature ~preamble ~headpage:(headpage "DENS")
+let state, academicyear =
+  Remanent_state.get_current_academic_year state
+let preamble s u i =
+  Format.sprintf
+    "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du 18 septembre 2020,} \\\\ Je soussigné \\textbf{Marc Pouzet}, directeur des études du département d'informatique de l'École Normale Supérieure, certifie que les \\\\ \\underline{\\textbf{%i étudiants inscrits en 2019-2020}}, à l'université %s, \\\\ \\textbf{en %s - parcours : Formation interuniversitaire en informatique de l'ENS Paris, ont obtenu les résultats suivant}" i u s
+
+let state =
+  Diploma_report.DiplomaReport.dump_per_result_per_student
+    ~file_name:"M1result.tex"
+    ~academicyear ~niveau:"m" ~dpt:"informatique"
+    ~headpage:(headpage "Master M1 d'informatique")
+    ~preamble:(preamble "Master M1 d'informatique" "Paris Dauphine")
+    ~signature
+    state
+let state =
+  Diploma_report.DiplomaReport.dump_per_student
+    ~file_name:"M1student.tex"
+    ~academicyear ~niveau:"m" ~dpt:"informatique"
+    ~headpage:(headpage "Master M1 d'informatique")
+    ~preamble:(preamble "Master M1 d'informatique" "Paris Dauphine")
+    ~signature
+    state
+let state =
+  Diploma_report.DiplomaReport.dump_per_result_per_student
+    ~file_name:"L3result.tex"
+    ~academicyear ~niveau:"l" ~dpt:"informatique"
+    ~headpage:(headpage "Licence L3 d'informatique")
+    ~preamble:(preamble "Licence L3 d'informatique" "Paris 7 - Denis Diderot")
+    ~signature
+    state
+    let state =
+      Diploma_report.DiplomaReport.dump_per_student
+        ~file_name:"L3student.tex"
+        ~academicyear ~niveau:"l" ~dpt:"informatique"
+        ~headpage:(headpage "Licence L3 d'informatique")
+        ~preamble:(preamble "Licence L3 d'informatique" "Paris 7 - Denis Diderot")
+        ~signature
+        state
+
 let state =
   Grades.MissingGrades.dump_per_dpt_student_year
     ~file_name:"notes_manquantes_par_dpt_et_cours.html"

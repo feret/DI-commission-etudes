@@ -87,7 +87,13 @@ val dump_report:
   close_row:(unit -> unit) ->
   print_cell:(string -> unit) ->
   close_array:(unit -> unit) ->
-  string_of_headers:(string * ('b -> string)) list ->
-  string_of_column:(string * ('a -> string)) list ->
-  ('b list * 'a) list ->
-  unit
+  string_of_headers:(string * ('a -> string)) list ->
+  string_of_column:(string * ('b -> string)) list ->
+  settitle:(string -> unit) ->
+  setpreamble:(string -> unit) ->
+  setheadpage:(string -> unit) ->
+  setsignature:(string -> unit) ->
+  ?title:string ->
+  ?headpage:(int -> string) ->
+  ?preamble:(int -> string) ->
+  ?signature:(int -> string) -> ('a list * 'b) list -> unit

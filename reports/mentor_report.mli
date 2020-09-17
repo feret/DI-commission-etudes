@@ -5,6 +5,7 @@ type dump =
   ?mentorlastname:string ->
   ?academicyear:string ->
   ?promo:string ->
+  ?title:string -> 
   Gen.dump
 
 module type ReportMentors =

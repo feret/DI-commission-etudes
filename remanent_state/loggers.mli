@@ -63,4 +63,9 @@ val without_lines: t -> t
 
 val encapsulate: encoding -> encoding
 
-val print_headers: t -> int -> string -> unit 
+val print_headers: t -> int -> string -> unit
+
+val maketitle: t -> string -> unit
+val setheadpage: t -> string -> unit
+val setsignature: t -> string -> unit
+val setpreamble: t -> string -> unit 

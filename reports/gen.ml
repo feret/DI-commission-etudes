@@ -37,6 +37,10 @@ let dump_elts
     ?recu
     ?output_repository ?prefix ?file_name
     ?event_opt
+    ?headpage
+    ?title
+    ?preamble
+    ?signature
     ~get ~filter ~get_repository ~default_file_name
     ~cmp ~headers ~columns state  =
   let state =
@@ -110,6 +114,9 @@ let dump_elts
         Printf.sprintf "%s/%s"
           output_repository output_file_name
     in
+    let extension_opt =
+      Safe_sys.get_extension output_file_name
+    in
     let state, output_channel_opt =
       try
         state, Some (open_out file)
@@ -130,29 +137,36 @@ let dump_elts
       match output_channel_opt with
       | None -> state
       | Some out ->
-        let mode = Loggers.HTML in
+        let state, mode =
+          match extension_opt with
+          | Some "html" -> state, Loggers.HTML
+          | Some "tex" -> state, Loggers.Latex Loggers.Normal
+          | Some _ ->
+            Remanent_state.warn
+              __POS__
+              (Printf.sprintf
+                 "Extension of file %s is invalid"
+                 output_file_name)
+              Exit
+              state, Loggers.HTML
+          | None ->
+          Remanent_state.warn
+            __POS__
+            (Printf.sprintf
+               "File %s has no extension"
+               output_file_name)
+            Exit
+            state, Loggers.HTML
+        in
         let logger = Loggers.open_logger_from_channel ~mode
             out in
+        let logger = Loggers.with_lines logger in 
         let extended_elts =
           Tools.prepare_report
             ~cmp
             ~headers:(List.rev_map (fun (_,_,a) -> a)
                         (List.rev headers))
             filtered_elts
-        in
-        let msg =
-          Format.sprintf
-            "%s:%i->%i"
-            output_file_name
-            (List.length elts)
-            (List.length extended_elts)
-        in
-        let state =
-          Remanent_state.warn
-            __POS__
-            msg
-            Exit
-            state
         in
         let () =
           Tools.dump_report
@@ -164,9 +178,18 @@ let dump_elts
             ~string_of_headers:(List.rev_map (fun (a,b,_) ->
                 a,b) (List.rev headers))
             ~string_of_column:columns
+            ~settitle:(Loggers.maketitle logger)
+            ~setheadpage:(Loggers.setheadpage logger)
+            ~setsignature:(Loggers.setsignature logger)
+            ~setpreamble:(Loggers.setpreamble logger)
             ~open_array:(Loggers.open_array logger)
+            ?title
+            ?headpage
+            ?preamble
+            ?signature
             extended_elts in
         let () = Loggers.flush_logger logger in
+        let () = Loggers.close_logger logger in
         state
     in
     let () =

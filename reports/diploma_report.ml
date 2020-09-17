@@ -6,11 +6,16 @@ type dump =
   ?dpt:string ->
   ?recu:bool ->
   ?academicyear:string ->
+  ?headpage:(int -> string) ->
+  ?title:string ->
+  ?preamble:(int -> string) ->
+  ?signature:(int -> string) ->
   Gen.dump
 
 module type DiplomaReport =
 sig
   val dump_per_result_per_student: dump
+  val dump_per_student: dump
 end
 
 module Build
@@ -26,6 +31,7 @@ struct
       ?dpt
       ?recu
       ?academicyear
+      ?headpage ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name
       cmp headers columns state  =
     let event_opt =
@@ -37,6 +43,7 @@ struct
     let get_repository = I.get_repository in
     Gen.dump_elts
       ?firstname ?lastname ?promo ?niveau ?dpt ?recu ?academicyear
+      ?headpage ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name ?event_opt
       ~cmp ~filter ~headers ~columns ~get ~default_file_name
       ~get_repository
@@ -69,7 +76,7 @@ struct
   let resultat =
     "Résultat",
     (fun a ->
-       if a.Public_data.diplome_recu then "Reçu" else "Ajourné(e)"
+       if a.Public_data.diplome_recu then "Reçu(e)" else "Ajourné(e)"
     )
   let departement =
     "Département",
@@ -82,8 +89,11 @@ struct
   let year =
     "Annee",(fun a -> a.Public_data.diplome_year)
 
-  let lift_id (a,b) = (a,(fun x -> x),b)
-
+  let lresultat =
+    "",(fun x -> x),
+    (fun a ->
+       if a.Public_data.diplome_recu then "Reçu(e)s" else "Ajourné(e)s"
+    )
   let dump_per_result_per_student
       ?firstname
       ?lastname
@@ -92,6 +102,7 @@ struct
       ?dpt
       ?recu
       ?academicyear
+      ?headpage ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
@@ -104,13 +115,39 @@ struct
     let columns = [prenom_etudiant;nom_etudiant;moyenne; mention] in
     let headers =
       [
-        lift_id resultat;
+        lresultat;
       ]
     in
     dump_national_diploma_list
       ?firstname ?lastname ?promo ?niveau ?dpt ?recu ?academicyear
+      ?headpage ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name cmp headers columns state
 
+  let dump_per_student
+      ?firstname
+      ?lastname
+      ?promo
+      ?niveau
+      ?dpt
+      ?recu
+      ?academicyear
+      ?headpage ?title ?preamble ?signature
+      ?output_repository ?prefix ?file_name
+      state =
+    let cmp =
+      [
+        Gen.lift_cmp (fun a -> a.Public_data.diplome_lastname);
+        Gen.lift_cmp (fun a -> a.Public_data.diplome_firstname) ;
+      ]
+    in
+    let columns = [prenom_etudiant;nom_etudiant;resultat;moyenne; mention] in
+    let headers =
+      []
+    in
+    dump_national_diploma_list
+      ?firstname ?lastname ?promo ?niveau ?dpt ?recu ?academicyear
+      ?headpage ?title ?preamble ?signature
+      ?output_repository ?prefix ?file_name cmp headers columns state
 
   end
 

@@ -3,6 +3,10 @@ type dump =
   ?lastname:string ->
   ?ninscription:int ->
   ?promo:string ->
+  ?headpage:(int -> string) ->
+  ?title:string ->
+  ?preamble:(int -> string) ->
+  ?signature:(int -> string) ->
   Gen.dump
 
 module type DensReport =
@@ -21,6 +25,7 @@ struct
     ?lastname
     ?promo
     ?ninscription
+    ?headpage ?title ?preamble ?signature
     ?output_repository ?prefix ?file_name
     cmp headers columns state  =
     let event_opt =
@@ -32,6 +37,7 @@ struct
     let get_repository = I.get_repository in
     Gen.dump_elts
       ?firstname ?lastname ?ninscription ?promo
+      ?headpage ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name ?event_opt
       ~cmp ~filter ~headers ~columns ~get ~default_file_name
       ~get_repository
@@ -67,6 +73,7 @@ struct
 
   let dump_per_promo
       ?firstname ?lastname ?ninscription ?promo
+      ?headpage ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
@@ -84,10 +91,12 @@ struct
     in
     dump_dens
       ?firstname ?lastname ?ninscription ?promo
+      ?headpage ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name cmp headers columns state
 
   let dump_per_n_inscription
       ?firstname ?lastname ?ninscription ?promo
+      ?headpage ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
@@ -105,8 +114,9 @@ struct
     in
     let state =
       dump_dens
-      ?firstname ?lastname ?ninscription ?promo
-      ?output_repository ?prefix ?file_name cmp headers columns state
+        ?firstname ?lastname ?ninscription ?promo
+        ?headpage ?title ?preamble ?signature
+        ?output_repository ?prefix ?file_name cmp headers columns state
     in
     let _ = Format.print_flush () in
     let _ = Format.print_newline () in

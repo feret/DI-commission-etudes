@@ -5,6 +5,7 @@ type dump =
 ?mentorlastname:string ->
 ?academicyear:string ->
 ?promo:string ->
+?title:string ->
   Gen.dump
 
 module type ReportMentors =
@@ -28,6 +29,7 @@ struct
       ?mentorlastname
       ?academicyear
       ?promo
+      ?title
       ?output_repository ?prefix ?file_name
     cmp headers columns state  =
     let event_opt =
@@ -41,7 +43,7 @@ struct
     let lastname = studentlastname in
     Gen.dump_elts
       ?firstname ?lastname ?mentorfirstname ?mentorlastname ?academicyear ?promo
-      ?output_repository ?prefix ?file_name ?event_opt
+      ?output_repository ?prefix ?file_name ?event_opt ?title
       ~cmp ~filter ~headers ~columns ~get ~default_file_name
       ~get_repository
       state
@@ -102,7 +104,7 @@ struct
   let dump_per_year_mentor_student
       ?studentfirstname ?studentlastname ?mentorfirstname
       ?mentorlastname
-      ?academicyear ?promo
+      ?academicyear ?promo ?title
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
@@ -123,13 +125,13 @@ struct
     in
     dump_mentor_list
       ?studentfirstname ?studentlastname ?mentorfirstname
-      ?mentorlastname ?academicyear ?promo
+      ?mentorlastname ?academicyear ?promo ?title
       ?output_repository ?prefix ?file_name cmp headers columns state
 
   let dump_per_year_student_mentor
       ?studentfirstname ?studentlastname ?mentorfirstname
       ?mentorlastname
-      ?academicyear ?promo
+      ?academicyear ?promo ?title
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
@@ -150,13 +152,13 @@ struct
     in
     dump_mentor_list
       ?studentfirstname ?studentlastname ?mentorfirstname
-      ?mentorlastname ?academicyear ?promo
+      ?mentorlastname ?academicyear ?promo ?title
       ?output_repository ?prefix ?file_name cmp headers columns state
 
   let dump_per_promo_mentor_student
       ?studentfirstname ?studentlastname ?mentorfirstname
       ?mentorlastname
-      ?academicyear ?promo
+      ?academicyear ?promo ?title
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
@@ -177,13 +179,13 @@ struct
     in
     dump_mentor_list
       ?studentfirstname ?studentlastname ?mentorfirstname
-      ?mentorlastname ?academicyear ?promo
+      ?mentorlastname ?academicyear ?promo ?title
       ?output_repository ?prefix ?file_name cmp headers columns state
 
   let dump_per_promo_student_mentor
       ?studentfirstname ?studentlastname ?mentorfirstname
       ?mentorlastname
-      ?academicyear ?promo
+      ?academicyear ?promo ?title
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
@@ -204,13 +206,13 @@ struct
     in
     dump_mentor_list
       ?studentfirstname ?studentlastname ?mentorfirstname
-      ?mentorlastname ?academicyear ?promo
+      ?mentorlastname ?academicyear ?promo ?title
       ?output_repository ?prefix ?file_name cmp headers columns state
 
   let dump_per_mentor_year_promo_student
       ?studentfirstname ?studentlastname ?mentorfirstname
       ?mentorlastname
-      ?academicyear ?promo
+      ?academicyear ?promo ?title
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
@@ -233,7 +235,7 @@ struct
     in
     dump_mentor_list
       ?studentfirstname ?studentlastname ?mentorfirstname
-      ?mentorlastname ?academicyear ?promo
+      ?mentorlastname ?academicyear ?promo ?title
       ?output_repository ?prefix ?file_name cmp headers columns state
 
   end

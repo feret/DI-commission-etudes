@@ -20,11 +20,15 @@ val dump_elts:
   ?promo:string ->
   ?ninscription:int ->
   ?niveau:string ->
-  ?recu:bool -> 
+  ?recu:bool ->
   ?output_repository:string ->
   ?prefix:string ->
   ?file_name:string ->
   ?event_opt:Sco_remanent_state.Profiling.step_kind ->
+  ?headpage:(int -> string) ->
+  ?title:string ->
+  ?preamble:(int -> string) ->
+  ?signature:(int -> string) ->
   get:(Remanent_state.t -> Remanent_state.t * 'a list) ->
   filter:'a filter ->
   get_repository:(Remanent_state.t -> Remanent_state.t * string) ->

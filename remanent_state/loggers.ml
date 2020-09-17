@@ -144,7 +144,7 @@ let fprintf ?fprintnewline:(fprintnewline=false) logger =
        let str =
          Special_char.correct_string_html str
        in
-       let str = Special_char.clean_spurious_uppercase_letters str in 
+       let str = Special_char.clean_spurious_uppercase_letters str in
        fprintf ~fprintnewline logger
          "%s" str)
     fmt_buffer
@@ -314,8 +314,45 @@ let draw_line logger =
       in ()
   | Json | HTML | HTML_encapsulated | HTML_Tabular | CSV | TXT | XLS -> ()
 
+let open_row ?macro logger =
+  match
+    logger.encoding
+  with
+  | HTML_Tabular | HTML | HTML_encapsulated
+    -> fprintf logger "<tr>"
+  | Latex _ | Latex_encapsulated ->
+    let macro =
+      match macro with
+      | None -> "row"
+      | Some x -> x
+    in
+    fprintf logger "\\%s" macro
+  | Json | XLS | TXT | CSV -> ()
 
-  let open_array ?size ?color ?bgcolor ?align ~title logger =
+let close_row logger =
+  match
+    logger.encoding
+  with
+  | HTML_Tabular | HTML | HTML_encapsulated  -> fprintf logger "<tr>@."
+  | Latex _ | Latex_encapsulated ->
+    let () = fprintf logger "\\innerline@. " in
+    print_newline logger
+  | Json | XLS | TXT | CSV -> fprintf logger "@."
+
+let print_cell logger s =
+  let open_cell_symbol,s,close_cell_symbol =
+    match
+      logger.encoding
+    with
+    | HTML | HTML_encapsulated | HTML_Tabular ->
+      "<TD>",s,"</TD>"
+    | Latex _ | Latex_encapsulated -> "{",s,"}"
+    | CSV  -> "",s,"\t"
+    | Json  | TXT | XLS -> "",s,""
+  in
+  fprintf logger "%s%s%s" open_cell_symbol s close_cell_symbol
+
+let open_array ?size ?color ?bgcolor ?align ~title logger =
   match logger.encoding with
     | Latex _ | Latex_encapsulated ->
     let size =
@@ -344,7 +381,19 @@ let draw_line logger =
     let () = fprintf logger "\\setcounter{potentialects}{0}%%\n\ " in
     let () = fprintf logger "\\setcounter{nrow}{0}%%\n\ " in
     let () = fprintf logger "{%%\n\ " in
-    let () = fprintf logger "\\begin{tabular}{" in
+    let () = fprintf logger "\\renewcommand{\\row}[%i]{" (List.length title) in
+    let _ =
+      List.fold_left
+        (fun (b,i) _ ->
+           let () = fprintf logger "%s#%i"
+               (if b then "" else "&")
+               i
+           in
+           false,i+1)
+        (true,1)
+        title
+    in
+    let () = fprintf logger "\\cr}\n\\begin{tabular}{" in
     let () = fprintf logger "|" in
     let rec aux title color bgcolor size align k error =
       match title with
@@ -417,7 +466,15 @@ let draw_line logger =
     let () = draw_line logger  in
     error
     | HTML | HTML_encapsulated | HTML_Tabular ->
-      let () = fprintf logger "<TABLE>\n" in false
+      let () = fprintf logger "<TABLE>\n" in
+      let () = open_row logger in
+      let () =
+        List.iter
+          (fun a -> print_cell logger (a:string))
+          title
+      in
+      let () = close_row logger in
+      false
   | Json | CSV | TXT | XLS -> false
 
   let close_array logger =
@@ -432,18 +489,6 @@ let draw_line logger =
       let () = fprintf logger "</TABLE>\n" in ()
     | Json | CSV | TXT | XLS -> ()
 
-let print_cell logger s =
-  let open_cell_symbol,s,close_cell_symbol =
-    match
-      logger.encoding
-    with
-    | HTML | HTML_encapsulated | HTML_Tabular ->
-      "<TD>",s,"</TD>"
-    | Latex _ | Latex_encapsulated -> "{",s,"}"
-    | CSV  -> "",s,"\t"
-    | Json  | TXT | XLS -> "",s,""
-  in
-  fprintf logger "%s%s%s" open_cell_symbol s close_cell_symbol
 
 let print_optional_cell logger s =
   let open_cell_symbol,s,close_cell_symbol =
@@ -477,7 +522,7 @@ let close_logger logger =
     | HTML_Tabular ->
       fprintf logger "</TABLE>\n</div>\n</body>"
     | Latex _ ->
-      fprintf logger "\\end{document}"
+      fprintf logger "\\label{LastPage}\\end{document}"
     | Json | TXT | CSV | XLS | HTML_encapsulated | Latex_encapsulated -> ()
   in
   let () = flush_logger logger in
@@ -496,7 +541,7 @@ let print_preamble ?decimalsepsymbol logger =
       match orientation with
       | Lanscape -> "\\usepackage{lscape}",
                     "\\landscape\n\n\\setlength{\\textwidth}{28.3cm}\n\\setlength{\\hoffset}{-1.84cm}\n\\setlength{\\headsep}{0pt}\n\\setlength{\\topmargin}{0mm}\n\\setlength{\\footskip}{0mm}\n\\setlength{\\oddsidemargin}{0pt}\n\\setlength{\\evensidemargin}{0pt}\n\\setlength{\\voffset}{-2.15cm}\n\\setlength{\\textheight}{19.6cm}\n\\setlength{\\paperwidth}{21cm}\n\\setlength{\\paperheight}{29.7cm}\n\\setlength\\parindent{0pt}\n"
-      | Normal -> "",""
+      | Normal -> "\\usepackage{fancyhdr}\\setlength{\\headheight}{5cm}\n",""
     in
     let decimal =
       match
@@ -522,7 +567,7 @@ let print_preamble ?decimalsepsymbol logger =
 \\def\\rmdefault{phv}%%\n\
 %%\n\
 %s\
-\\pagestyle{empty}\n\
+\\pagestyle{%s}\n\
 \n\
 \\newcounter{nrow}\n\
 \\setcounter{nrow}{0}\n\
@@ -567,7 +612,9 @@ let print_preamble ?decimalsepsymbol logger =
 }%%\n\
 {\\setcounter{cects}{0}}}%%\n\
 %%\n\
-       %%\n\ " package size  decimal
+       %%\n\ " package size
+      (match orientation with
+         Lanscape -> "empty" | Normal -> "fancy")   decimal
     in
     let () =
       List.iter
@@ -589,7 +636,8 @@ let print_preamble ?decimalsepsymbol logger =
 \\ifnum \\thenrow=\\thetotalrows%%\n\
 \\hline%%\n\
 \\else\\cline{1-1}\\cline{3-7}\\fi%%\n\
-}%%\n\
+         }%%\n\
+         \\newcommand{\\row}{}\n\
 \\newcommand{\\cours}[8][]{%%\n\
 \\addtocounter{nrow}{1}%%\n\
 \\StrSubstitute{#7}{,}{.}[\\res]%%\n\
@@ -684,30 +732,6 @@ let open_infinite_buffer ?mode:(mode=TXT) () =
   let () = print_preamble logger in
   logger
 
-let open_row ?macro logger =
-  match
-    logger.encoding
-  with
-  | HTML_Tabular | HTML | HTML_encapsulated
-    -> fprintf logger "<tr>"
-  | Latex _ | Latex_encapsulated ->
-    let macro =
-      match macro with
-      | None -> "row"
-      | Some x -> x
-    in
-    fprintf logger "\\%s" macro
-  | Json | XLS | TXT | CSV -> ()
-
-let close_row logger =
-  match
-    logger.encoding
-  with
-  | HTML_Tabular | HTML | HTML_encapsulated  -> fprintf logger "<tr>@."
-  | Latex _ | Latex_encapsulated ->
-    let () = fprintf logger "\\innerline@. " in
-    print_newline logger
-  | Json | XLS | TXT | CSV -> fprintf logger "@."
 
 let formatter_of_logger logger =
   match
@@ -807,11 +831,11 @@ let print_headers logger level title =
   | Latex _ | Latex_encapsulated ->
     let command =
       match level with
-      | 0 -> "\\section"
-      | 1 -> "\\subsection"
-      | 2 -> "\\subsubsection"
-      | 3 -> "\\paragraph"
-      | 4 -> "\\subparagraph"
+      | 1 -> "\\section"
+      | 2 -> "\\subsection"
+      | 3 -> "\\subsubsection"
+      | 4 -> "\\paragraph"
+      | 5 -> "\\subparagraph"
       | _ -> ""
     in
     let () = fprintf logger "%s{%s}" command title in
@@ -820,6 +844,80 @@ let print_headers logger level title =
   | HTML | HTML_encapsulated
   | HTML_Tabular ->
     let () = fprintf logger "<h%i>%s</h%i>" level title level in
+    let () = print_newline logger in
+    ()
+  | TXT
+  | CSV
+  | XLS
+  | Json -> ()
+
+let maketitle logger title =
+  match logger.encoding with
+  | HTML | HTML_encapsulated | HTML_Tabular ->
+    let () =
+      fprintf logger "<title>%s</title>" title
+    in
+    let () = print_newline logger in
+    ()
+  | Latex _ | Latex_encapsulated ->
+    let () =
+      fprintf logger "\\title{%s}" title
+    in
+    let () = print_newline logger in
+    let () =
+      fprintf logger "\\maketitle"
+    in
+    let () = print_newline logger in
+    ()
+  | TXT
+  | CSV
+  | XLS
+  | Json -> ()
+
+
+let setheadpage logger s =
+  match logger.encoding with
+  | Latex _ | Latex_encapsulated ->
+    let () = fprintf logger "\\chead[%s]{%s}\n\\rhead[]{}\n\\lhead[]{}" s s in
+    let () = print_newline logger in
+    ()
+  | HTML | HTML_encapsulated | HTML_Tabular
+  | TXT
+  | CSV
+  | XLS
+  | Json -> ()
+
+let setsignature logger s =
+  match logger.encoding with
+  | HTML | HTML_encapsulated | HTML_Tabular ->
+    let () =
+      fprintf logger "<P>%s</P>" s
+    in
+    let () = print_newline logger in
+    ()
+  | Latex _ | Latex_encapsulated ->
+    let () =
+      fprintf logger "\\begin{center}%s\\end{center}" s
+    in
+    let () = print_newline logger in
+    ()
+  | TXT
+  | CSV
+  | XLS
+  | Json -> ()
+
+let setpreamble logger s =
+  match logger.encoding with
+  | HTML | HTML_encapsulated | HTML_Tabular ->
+    let () =
+      fprintf logger "<P>%s</P>" s
+    in
+    let () = print_newline logger in
+    ()
+  | Latex _ | Latex_encapsulated ->
+    let () =
+      fprintf logger "%s" s
+    in
     let () = print_newline logger in
     ()
   | TXT
