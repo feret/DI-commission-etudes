@@ -5,6 +5,7 @@ type dump =
   ?niveau:string ->
   ?dpt:string ->
   ?recu:bool ->
+  ?academicyear:string -> 
   Gen.dump
 
 module type DiplomaReport =

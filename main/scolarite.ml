@@ -81,7 +81,7 @@ let state =
          | Some gps ->
            let state, output_opt =
              Transcripts.export_transcript
-               ~output state gps
+                ~output state gps
            in
            match output_opt with
            | None -> state
@@ -119,15 +119,16 @@ let state =
 let state =
   Dens_report.DensReport.dump_per_n_inscription
     ~file_name:"dens_par_nb_inscriptions.html" state
+let state, academicyear =
+  Remanent_state.get_current_academic_year state
 let state =
   Diploma_report.DiplomaReport.dump_per_result_per_student
-    ~file_name:"L3.html" ~niveau:"l" ~dpt:"informatique" state
+    ~file_name:"M1.html"
+    ~academicyear ~niveau:"m" ~dpt:"informatique" state
 let state =
   Diploma_report.DiplomaReport.dump_per_result_per_student
-    ~file_name:"M1.html" ~niveau:"m" ~dpt:"informatique" state
-let state =
-  Diploma_report.DiplomaReport.dump_per_result_per_student
-    ~file_name:"any.html" state
+    ~file_name:"L3.html"
+    ~academicyear ~niveau:"l" ~dpt:"informatique" state
 let state =
   Grades.MissingGrades.dump_per_dpt_student_year
     ~file_name:"notes_manquantes_par_dpt_et_cours.html"

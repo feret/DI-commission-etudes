@@ -50,20 +50,21 @@ let dump_elts
       (fun (state, l) elt ->
          let state, b =
            filter
-           ?dpt
-           ?firstname
-           ?lastname
-           ?codegps
-           ?mentorname
-           ?mentorfirstname
-           ?mentorlastname
-           ?teachername
-           ?academicyear
-           ?promo
-           ?ninscription
-           ?niveau
-           ?recu
-           state elt in
+             ?dpt
+             ?firstname
+             ?lastname
+             ?codegps
+             ?mentorname
+             ?mentorfirstname
+             ?mentorlastname
+             ?teachername
+             ?academicyear
+             ?promo
+             ?ninscription
+             ?niveau
+             ?recu
+             state elt
+         in
          if b then
            state, elt::l
          else
@@ -137,7 +138,7 @@ let dump_elts
             ~cmp
             ~headers:(List.rev_map (fun (_,_,a) -> a)
                         (List.rev headers))
-            elts
+            filtered_elts
         in
         let msg =
           Format.sprintf
@@ -283,7 +284,7 @@ let filter_dens
         ?niveau
         ?recu state dens =
     let _ =
-      codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription 
+      codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription
     in
     state,
     check firstname dens.Public_data.diplome_firstname
@@ -297,6 +298,8 @@ let filter_dens
     check niveau dens.Public_data.diplome_niveau
     &&
     check recu dens.Public_data.diplome_recu
+    &&
+    check academicyear dens.Public_data.diplome_year
 
 module type Interface =
 sig

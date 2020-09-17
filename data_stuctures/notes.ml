@@ -21,6 +21,22 @@ let correct_comma ?force_dec_sep_to_dot state t =
              else x)
           t
 
+let correct_comma_easy  t =
+  let corrected_size = (String.length t)-1 in
+  match t.[corrected_size] with
+  | '.' | ',' -> String.sub t 0 corrected_size
+  | _ ->
+    let comma = ',' in
+    if comma = '.'
+    then t
+    else
+      String.map
+        (fun x ->
+           if x = '.'
+           then comma
+           else x)
+        t
+
 let remove_comma =
   String.map
     (fun x ->
@@ -80,6 +96,10 @@ let int_of_string pos state t =
 let float_to_string ?force_dec_sep_to_dot state f =
   let s = string_of_float f in
   correct_comma ?force_dec_sep_to_dot state s
+
+let float_to_string_easy f =
+let s = Format.sprintf "%.2f" f in
+correct_comma_easy  s
 
 let valide_sans_note = Tools.valide_sans_note
 

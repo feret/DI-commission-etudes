@@ -2632,25 +2632,27 @@ let add_dens year compensation course map =
       | Some false -> map
       | None -> add_dens_potential year course map
 
-let add_mean_ok key course map =
-  let old =
+let add_mean_ok key course year map =
+  let old,y =
     match StringOptMap.find_opt key (fst map)
     with
-    | None -> []
-    | Some l -> l
+    | None -> [],0
+    | Some a -> a
   in
-  StringOptMap.add key ((course.note, course.ects)::old) (fst map),
-  snd map
+  StringOptMap.add key
+    ((course.note, course.ects)::old, max y year) (fst map),
 
-let add_mean key compensation course map =
+snd map
+
+let add_mean key compensation course year map =
   match compensation, course.note with
-  | Some _, _ -> add_mean_ok key course map
+  | Some _, _ -> add_mean_ok key course year map
   | None,None -> map
   | None,Some note ->
       match
         Notes.valide note
       with
-      | Some true -> add_mean_ok key course map
+      | Some true -> add_mean_ok key course year map
       | Some false | None -> map
 
 let add_mean_diplome d mean = fst mean, d::(snd mean)
@@ -3654,12 +3656,7 @@ let export_transcript
                        cursus.Public_data.pied
                in
                let state, key, b = alloc_suffix (string,dpt) state in
-               let  mean =
-                 if year = current_year
-                 then
-                   add_mean_diplome (string,dpt) mean
-                 else mean
-               in
+               let mean = add_mean_diplome (string,dpt) mean in
                let () =
                  if b
                  then
@@ -3949,7 +3946,8 @@ let export_transcript
                             add_dens year compensation
                               cours dens
                           | Some _ ->
-                            add_mean (string,dpt) compensation cours mean, dens
+                            add_mean (string,dpt) compensation cours (try int_of_string year with _ -> 0)
+                              mean, dens
                       in
                       state,mean, dens)
                    (state,mean,dens)
@@ -4304,7 +4302,8 @@ let export_transcript
       0
     in
     let state =
-      if (n_inscription > 0 || dens_total_potential > 0. || dens_total > 0.)
+      if do_report report &&
+         (n_inscription > 0 || dens_total_potential > 0. || dens_total > 0.)
       then
         Remanent_state.add_dens
           state
@@ -4321,9 +4320,7 @@ let export_transcript
       else
         state
     in
-    let list_national_diploma =
-      snd mean
-    in
+    let list_national_diploma = snd mean in
     let state =
       List.fold_left
         (fun state key ->
@@ -4331,16 +4328,17 @@ let export_transcript
              StringOptMap.find_opt key (fst mean)
            with
            | None -> state
-           | Some l ->
+           | Some (l,year) ->
              let state, total, ects_qui_comptent, ects =
                List.fold_left
                  (fun (state, total, ects_qui_comptent, ects) data  ->
                     match data with
                     | _, None -> state, total, ects_qui_comptent, ects
                     | Some Public_data.Float f, Some cours_ects ->
-                        state, total+.f,
-                        ects_qui_comptent+.cours_ects,
-                        ects+.cours_ects
+                      state,
+                      total+.f*.cours_ects,
+                      ects_qui_comptent+.cours_ects,
+                      ects+.cours_ects
                     | Some Public_data.Valide_sans_note, Some cours_ects  ->
                       state, total, ects_qui_comptent, ects+.cours_ects
                     | (None, _)
@@ -4357,7 +4355,7 @@ let export_transcript
                  l
              in
              let mean =
-               if ects_qui_comptent = 0.
+               if ects = 0.
                then
                  0.
                else
@@ -4374,12 +4372,15 @@ let export_transcript
                 Public_data.diplome_lastname = lastname ;
                 Public_data.diplome_promotion = promo ;
                 Public_data.diplome_nb_ects = ects ;
-                Public_data.diplome_moyenne = mean ;
+                Public_data.diplome_moyenne =
+                  if ects < 60. then None else Some mean ;
+                Public_data.diplome_year = string_of_int year ;
                 Public_data.diplome_mention =
-                  if mean <12. || ects < 60. then ""
-                  else if mean <14. then "Assez Bien"
-                  else if mean <16. then "Bien"
-                  else "Très bien";
+                  if ects < 60. then None
+                  else if mean <12. then Some ""
+                  else if mean <14. then Some "Assez Bien"
+                  else if mean <16. then Some "Bien"
+                  else Some "Très bien";
                 Public_data.diplome_recu =
                   if ects < 60. then false else true
                }

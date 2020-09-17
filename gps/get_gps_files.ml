@@ -202,6 +202,13 @@ let get_student_file
       state, output
     | [] ->
       begin
+        let state =
+          Remanent_state.warn
+            __POS__
+            (Format.sprintf "File %s is empty, use backup version indeed"  file_name)
+            Exit
+            state
+        in
         let state, rep =
           let state, r1 =
             Remanent_state.get_local_repository state

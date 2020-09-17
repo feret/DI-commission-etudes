@@ -40,44 +40,27 @@ struct
 
   let nom_etudiant =
     "NOM",
-    (fun a ->
-       let () =
-                Format.printf "%s," a.Public_data.dens_lastname
-       in
-       a.Public_data.dens_lastname)
+    (fun a -> a.Public_data.dens_lastname)
   let prenom_etudiant =
     "PRENOM",
-    (fun a ->
-      let () =
-        Format.printf "%s," a.Public_data.dens_firstname
-      in a.Public_data.dens_firstname)
+    (fun a -> a.Public_data.dens_firstname)
   let promotion =
     "PROMOTION",
-    (fun a ->
-       let () =
-         Format.printf "%s," a.Public_data.dens_promotion
-       in
-       a.Public_data.dens_promotion
-    )
+    (fun a -> a.Public_data.dens_promotion)
   let total_year =
     "ECTS (année courante)",
-    (fun a -> Notes.string_of_ects
+    (fun a ->
+       Notes.string_of_ects
         (Some (a.Public_data.dens_current_year_ects)))
   let total =
     "ECTC (cumul)",
     (fun a ->
-      let () =
-        Format.printf "%f," a.Public_data.dens_total_ects
-      in
        Notes.string_of_ects
         (Some (a.Public_data.dens_total_ects)))
 
   let inscriptions =
     "Inscriptions au DENS",
     (fun a ->
-       let () =
-         Format.printf "%i" a.Public_data.dens_nb_inscriptions
-       in
        string_of_int (a.Public_data.dens_nb_inscriptions))
 
   let lift_id (a,b) = (a,(fun x -> x),b)
@@ -93,7 +76,7 @@ struct
         Gen.lift_cmp (fun a -> a.Public_data.dens_firstname) ;
       ]
     in
-    let columns = [prenom_etudiant;nom_etudiant;inscriptions; total_year; total; promotion ] in
+    let columns = [prenom_etudiant;nom_etudiant;inscriptions; total_year; total ] in
     let headers =
       [
         lift_id promotion ;
@@ -114,7 +97,7 @@ struct
         Gen.lift_cmp (fun a -> a.Public_data.dens_firstname) ;
       ]
     in
-    let columns = [prenom_etudiant;nom_etudiant; promotion; total_year; total;inscriptions ] in
+    let columns = [prenom_etudiant;nom_etudiant; promotion; total_year; total ] in
     let headers =
       [
         lift_id inscriptions ;
@@ -127,7 +110,7 @@ struct
     in
     let _ = Format.print_flush () in
     let _ = Format.print_newline () in
-    state 
+    state
   end
 
 

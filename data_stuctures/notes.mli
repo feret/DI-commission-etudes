@@ -9,5 +9,5 @@ val a_compter: t -> bool option
 val string_of_ects: float option -> string
 val compensable: t -> bool
 val en_cours: t -> bool
-
+val float_to_string_easy: float -> string 
 val valide_sans_note: string

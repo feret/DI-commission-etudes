@@ -243,10 +243,11 @@ type diplome_national =
     diplome_promotion : string ;
     diplome_niveau : string ;
     diplome_dpt : string ;
-    diplome_moyenne : float ;
+    diplome_moyenne : float option;
     diplome_nb_ects : float ;
-    diplome_mention : string ;
+    diplome_mention : string option;
     diplome_recu : bool ;
+    diplome_year : string ;
   }
 
 type dens =
