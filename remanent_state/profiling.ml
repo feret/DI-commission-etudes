@@ -6,7 +6,7 @@ type step_kind =
   | Extract_gps_file of string * string
   | Extract_gps_file_from_handmade_files of string * string
   | Extract_gps_file_from_backup_files of string * string
-  | Extract_gps_file_from_database of string * string
+  | Extract_gps_file_from_database of string * string * string option
   | Patch_gps_file of string option
   | Build_keywords_automaton
   | Export_transcript of string option
@@ -57,12 +57,13 @@ let string_of_step_kind x =
       lastname firstname
   | Extract_gps_file_from_backup_files (lastname,firstname)->
     Printf.sprintf
-      "Extract GPS file (%s %s) from ENS database"
-      lastname firstname
-  | Extract_gps_file_from_database (lastname,firstname)->
-    Printf.sprintf
       "Look for a backup file (%s %s)"
       lastname firstname
+  | Extract_gps_file_from_database (lastname,firstname,dpt_opt)->
+    Printf.sprintf
+      "Extract GPS file (%s %s %s) from ENS database"
+      lastname firstname
+      (match dpt_opt with None -> "" | Some x -> x) 
   | Patch_gps_file None ->
     "Patch GPS output"
   | Patch_gps_file (Some file) ->

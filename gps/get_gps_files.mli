@@ -1,6 +1,7 @@
+type dpt = Maths | PE
 type access_type =
-    GPS | Backup | Preempt | Warn
-
+    GPS of dpt option | Backup | Preempt | Warn
+  
 type mode =
   {
     access_type: access_type;

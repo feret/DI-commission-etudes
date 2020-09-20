@@ -1,11 +1,25 @@
+type dpt = Maths | PE
 type access_type =
-       GPS | Backup | Preempt | Warn
+       GPS of dpt option | Backup | Preempt | Warn
 
 type mode =
   {
     access_type: access_type;
     avec_accent: bool
   }
+
+
+let string_of_dpt_opt =
+  function
+  | None -> ""
+  | Some Maths -> "&dept=maths"
+  | Some PE -> "&dept=pe"
+
+let profiling_label_of_dpt_opt =
+  function
+  | None -> None
+  | Some Maths -> Some "DMA"
+  | Some PE -> Some "PE"
 
 let build_output
     f student_id ?prefix ?output_repository ?output_file_name state =
@@ -118,7 +132,7 @@ let check ~output_repository ~output_file_name state =
 
 
 let get_student_file_gen
-    f student_id
+    f student_id ?dpt
     ?file_retriever ?command_line_options ?machine ?port ?input_repository ?output_repository ?prefix ?timeout ?checkoutperiod
     ?output_file_name ?log_file ?log_repository
     ?user_name ?password
@@ -128,7 +142,9 @@ let get_student_file_gen
   let lastname = f student_id.Public_data.lastname in
   let event_opt =
     Some
-      (Profiling.Extract_gps_file_from_database (firstname,lastname))
+      (Profiling.Extract_gps_file_from_database
+         (firstname,lastname,
+          profiling_label_of_dpt_opt dpt))
   in
   let state = Remanent_state.open_event_opt event_opt state in
   let promotion = student_id.Public_data.promotion in
@@ -195,12 +211,13 @@ let get_student_file_gen
   in
   let url =
     Printf.sprintf
-      "http://%s:%s/%s/gps.pl?last=\'%s\'&first=\'%s\'"
+      "http://%s:%s/%s/gps.pl?last=\'%s\'&first=\'%s\'%s"
       machine
       port
       input_repository
       lastname
       firstname
+      (string_of_dpt_opt dpt)
   in
   let state, output_repository, output_file_name =
     build_output
@@ -327,9 +344,9 @@ let try_get_student_file
   in
   let state, output =
     match mode.access_type with
-    | GPS ->
+    | GPS dpt ->
       get_student_file_gen
-        f student_id
+        f ?dpt student_id
         ?file_retriever ?command_line_options ?machine ?port
         ?input_repository ?output_repository ?prefix ?timeout
         ?checkoutperiod
@@ -435,9 +452,11 @@ let add_to_list simplified access_type l =
 
 let modelist_gen b =
   add_to_list b Preempt
-    (add_to_list b GPS
-       (add_to_list true Warn
-          (add_to_list b Backup [])))
+    (add_to_list b (GPS None)
+       (add_to_list b (GPS (Some Maths))
+          (add_to_list b (GPS (Some PE))
+             (add_to_list true Warn
+                (add_to_list b Backup [])))))
 
 let full_list = modelist_gen false
 let simplified_list = modelist_gen true
