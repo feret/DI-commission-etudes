@@ -291,7 +291,7 @@ let uppercase_char_map =
     CharMap.empty
     uppercase_char
 
-let correct_cute_in_char c =
+let correct_acute_in_char c =
 match
   CharMap.find_opt c special_char_map
 with
@@ -299,9 +299,9 @@ with
 | None -> c
 
 let correct_char c =
-  Char.lowercase_ascii (correct_cute_in_char c)
+  Char.lowercase_ascii (correct_acute_in_char c)
 
-let expand_cute_in_char c =
+let expand_acute_in_char c =
   match
     CharMap.find_opt c special_char_map
   with
@@ -318,8 +318,11 @@ let expand_char_upper_lower c =
 let expand_char c =
   List.flatten
     (List.rev_map
-       expand_cute_in_char
+       expand_acute_in_char
        (expand_char_upper_lower c))
+
+let remove_acute s =
+  String.map correct_acute_in_char s
 
 let correct_string s =
   String.map correct_char s

@@ -8,9 +8,9 @@ type mode =
   }
 
 let build_output
-    student_id ?prefix ?output_repository ?output_file_name state =
-  let firstname = student_id.Public_data.firstname in
-  let lastname = student_id.Public_data.lastname in
+    f student_id ?prefix ?output_repository ?output_file_name state =
+  let firstname = f student_id.Public_data.firstname in
+  let lastname = f student_id.Public_data.lastname in
   let promotion = student_id.Public_data.promotion in
   let state, output_repository =
     match output_repository with
@@ -124,8 +124,13 @@ let get_student_file_gen
     ?user_name ?password
     state
   =
-  let firstname = student_id.Public_data.firstname in
-  let lastname = student_id.Public_data.lastname in
+  let firstname = f student_id.Public_data.firstname in
+  let lastname = f student_id.Public_data.lastname in
+  let event_opt =
+    Some
+      (Profiling.Extract_gps_file_from_database (firstname,lastname))
+  in
+  let state = Remanent_state.open_event_opt event_opt state in
   let promotion = student_id.Public_data.promotion in
   let promotion = Tools.unsome_string promotion in
   let state, log_file =
@@ -194,11 +199,13 @@ let get_student_file_gen
       machine
       port
       input_repository
-      (f lastname)
-      (f firstname)
+      lastname
+      firstname
   in
   let state, output_repository, output_file_name =
-    build_output student_id ?prefix ?output_repository ?output_file_name state
+    build_output
+      (fun x -> x)
+      student_id ?prefix ?output_repository ?output_file_name state
   in
   let state, output =
     match
@@ -227,15 +234,27 @@ let get_student_file_gen
         Exit
         state, None
   in
+  let state = Remanent_state.close_event_opt event_opt state in
   state, output
 
 let copy
-    student_id ?prefix ?output_repository ?output_file_name backup_rep state =
+    f g student_id ?prefix ?output_repository ?output_file_name backup_rep state =
+  let firstname = f student_id.Public_data.firstname in
+  let lastname = f student_id.Public_data.lastname in
+  let event_opt =
+    Some
+      (g (firstname,lastname))
+  in
+  let state = Remanent_state.open_event_opt event_opt state in
   let promotion = student_id.Public_data.promotion in
   let promotion = Tools.unsome_string promotion in
   let state, output_repository, output_file_name =
     build_output
-      student_id ?prefix ?output_repository ?output_file_name state
+      (fun x -> x) student_id ?prefix ?output_repository ?output_file_name state
+  in
+  let state, _, input_file_name =
+    build_output
+      f student_id ?prefix ~output_repository ~output_file_name state
   in
   let state, rep =
     let state, r1 =
@@ -268,7 +287,7 @@ let copy
     | "" -> output_file_name
     | _ ->
       Printf.sprintf "%s/%s"
-        input_repository output_file_name
+        input_repository input_file_name
   in
   let output =
     match output_repository with
@@ -278,15 +297,19 @@ let copy
         output_repository output_file_name
   in
   let state, b =
-    Safe_sys.file_exists __POS__ state output
+    Safe_sys.file_exists __POS__ state input
   in
-  if b then
-    let command =
-      Printf.sprintf "cp %s %s" input output
-    in
-    let state = Safe_sys.command __POS__ state command in
-    state, Some (output_repository, output_file_name)
-  else state, None
+  let state, output =
+    if b then
+      let command =
+        Printf.sprintf "cp %s %s" input output
+      in
+      let state = Safe_sys.command __POS__ state command in
+      state, Some (output_repository, output_file_name)
+    else state, None
+  in
+  let state = Remanent_state.close_event_opt event_opt state in
+  state, output
 
 let try_get_student_file
     mode student_id
@@ -317,6 +340,9 @@ let try_get_student_file
         Remanent_state.get_repository_for_backup_gps_files
       in
       copy
+        f
+        (fun (a,b) ->
+           Profiling.Extract_gps_file_from_backup_files (a,b))
         student_id ?prefix ?output_repository ?output_file_name
         backup_rep state
     | Preempt ->
@@ -324,11 +350,14 @@ let try_get_student_file
         Remanent_state.get_repository_for_handmade_gps_files
       in
       copy
+        f
+        (fun (a,b) ->
+           Profiling.Extract_gps_file_from_handmade_files (a,b))
         student_id ?prefix ?output_repository ?output_file_name backup_rep state
     | Warn ->
       let state, output_repository, output_file_name =
         build_output
-          student_id ?prefix ?output_repository ?output_file_name state
+          f student_id ?prefix ?output_repository ?output_file_name state
       in
       let output_file_name =
         get_file_name output_repository output_file_name
@@ -438,8 +467,8 @@ let get_student_file
       match modelist with
       | Some modelist -> modelist
       | None ->
-        if Special_char.correct_string firstname = firstname
-        && Special_char.correct_string lastname = lastname
+        if Special_char.remove_acute firstname = firstname
+        && Special_char.remove_acute lastname = lastname
         then
           simplified_list
         else

@@ -4,6 +4,9 @@ type step_kind =
   | Cloud_synchronization
   | Extract_gps_data_base
   | Extract_gps_file of string * string
+  | Extract_gps_file_from_handmade_files of string * string
+  | Extract_gps_file_from_backup_files of string * string
+  | Extract_gps_file_from_database of string * string 
   | Patch_gps_file of string option
   | Build_keywords_automaton
   | Export_transcript of string option
@@ -25,7 +28,7 @@ type step_kind =
   | Dump_ambiguous_internship_descriptions
   | Dump_mentor_list
   | Dump_national_diploma_list
-  | Dump_dens_result 
+  | Dump_dens_result
 
 type log_info
 

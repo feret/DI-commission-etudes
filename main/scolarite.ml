@@ -158,7 +158,7 @@ let state =
 
 let preamble i =
   Format.sprintf
-    "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du 18 septembre 2020,} \\\\ Je soussigné \\textbf{Marc Pouzet}, directeur des études du département d'informatique de l'École Normale Supérieure, certifie que les \\\\ \\underline{\\textbf{%i étudiants inscrits en 2019-2020}}, en première et deuxième année du diplôme de l'École Normale Supérieure, ont obtenu les résultats suivant}" i
+    "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du 18 septembre 2020,} \\\\ Je soussigné \\textbf{Marc Pouzet}, directeur des études du département d'informatique de l'École Normale Supérieure, certifie que les \\\\ \\underline{\\textbf{%i étudiants inscrits en 2019-2020}}, en première et deuxième année du diplôme de l'École Normale Supérieure, ont obtenu les résultats suivant" i
 let state,input =
   Dens_report.DensReport.dump_per_promo
     ~file_name:"dens_par_promo.tex" state

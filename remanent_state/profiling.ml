@@ -4,6 +4,9 @@ type step_kind =
   | Cloud_synchronization
   | Extract_gps_data_base
   | Extract_gps_file of string * string
+  | Extract_gps_file_from_handmade_files of string * string
+  | Extract_gps_file_from_backup_files of string * string
+  | Extract_gps_file_from_database of string * string
   | Patch_gps_file of string option
   | Build_keywords_automaton
   | Export_transcript of string option
@@ -47,6 +50,18 @@ let string_of_step_kind x =
   | Extract_gps_file (lastname,firstname)->
     Printf.sprintf
       "Extract GPS file (%s %s)"
+      lastname firstname
+  | Extract_gps_file_from_handmade_files (lastname,firstname)->
+    Printf.sprintf
+      "Check whether there is a handmade file (%s %s)"
+      lastname firstname
+  | Extract_gps_file_from_backup_files (lastname,firstname)->
+    Printf.sprintf
+      "Extract GPS file (%s %s) from ENS database"
+      lastname firstname
+  | Extract_gps_file_from_database (lastname,firstname)->
+    Printf.sprintf
+      "Look for a backup file (%s %s)"
       lastname firstname
   | Patch_gps_file None ->
     "Patch GPS output"
@@ -146,6 +161,9 @@ let is_dummy step_kind =
   | Cloud_synchronization
   | Extract_gps_data_base
   | Extract_gps_file _
+  | Extract_gps_file_from_handmade_files _
+  | Extract_gps_file_from_backup_files _
+  | Extract_gps_file_from_database _
   | Patch_gps_file _
   | Build_keywords_automaton
   | Export_transcript _
@@ -167,7 +185,7 @@ let is_dummy step_kind =
   | Dump_ambiguous_internship_descriptions
   | Dump_mentor_list
   | Dump_national_diploma_list
-  | Dump_dens_result 
+  | Dump_dens_result
     -> false
 
 let open_event
@@ -200,9 +218,6 @@ let open_event
     let _ = print_task logger terminated_task in
     let _ = Loggers.close_row logger in
     let _ = flush_logger logger in
-    (*let () =
-      Remanent_parameters.save_current_phase_title parameter
-        (string_of_step_kind step_kind) in*)
     let current_task = task::log_info.current_task in
     error_handler,
     { log_info
