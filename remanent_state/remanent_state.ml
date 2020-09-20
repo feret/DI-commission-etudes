@@ -15,6 +15,7 @@ type parameters =
     repository_to_access_gps: string;
     repository_to_dump_gps_files: string;
     repository_for_handmade_gps_files: string;
+    repository_for_backup_gps_files: string;
     output_alias_repository: string;
     store_gps_file_according_to_their_promotions: bool;
     indicate_promotions_in_gps_file_names: bool;
@@ -72,6 +73,7 @@ let parameters =
     repository_to_dump_national_diplomas = "reports/diplomes_nationaux";
     repository_to_dump_mentors = "reports/tuteurs";
     repository_for_handmade_gps_files = "handmade_gps_files";
+    repository_for_backup_gps_files = "backup_gps_files";
     output_alias_repository = "courant";
     store_gps_file_according_to_their_promotions = true;
     indicate_promotions_in_gps_file_names = true;
@@ -268,6 +270,8 @@ let get_repository_to_dump_gps_files t =
 
 let get_repository_for_handmade_gps_files t =
   t, t.parameters.repository_for_handmade_gps_files
+  let get_repository_for_backup_gps_files t =
+    t, t.parameters.repository_for_backup_gps_files
 let get_output_alias_repository t =
   t, t.parameters.output_alias_repository
 

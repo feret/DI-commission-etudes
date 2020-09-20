@@ -3,7 +3,7 @@ type dump =
   ?prefix:string ->
   ?file_name:string ->
   Remanent_state.t ->
-  Remanent_state.t
+  Remanent_state.t * (string * string) option
 
 type 'elt filter
 
@@ -37,7 +37,7 @@ val dump_elts:
   headers:(string * ('b -> string) * ('a -> 'b)) list ->
   columns:(string * ('a -> string)) list ->
   Remanent_state.t ->
-  Remanent_state.t
+  Remanent_state.t * (string * string) option
 
 val lift_cmp:
   ('a -> 'b) -> 'a -> 'a -> int

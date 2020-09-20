@@ -95,6 +95,7 @@ val get_port_to_access_gps: t -> t * string
 val get_repository_to_access_gps: t -> t * string
 val get_repository_to_dump_gps_files: t -> t * string
 val get_repository_for_handmade_gps_files: t -> t * string
+val get_repository_for_backup_gps_files: t -> t * string 
 val get_store_gps_files_according_to_their_promotions: t -> t * bool
 val get_indicate_promotions_in_gps_file_names: t -> t * bool
 

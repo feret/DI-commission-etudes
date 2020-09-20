@@ -1,13 +1,133 @@
-let get_student_file
-    student_id
+type access_type =
+       GPS | Backup | Preempt | Warn
+
+type mode =
+  {
+    access_type: access_type;
+    avec_accent: bool
+  }
+
+let build_output
+    student_id ?prefix ?output_repository ?output_file_name state =
+  let firstname = student_id.Public_data.firstname in
+  let lastname = student_id.Public_data.lastname in
+  let promotion = student_id.Public_data.promotion in
+  let state, output_repository =
+    match output_repository with
+    | None ->
+      begin
+        let state, r1 =
+          Remanent_state.get_local_repository state
+        in
+        let state, r2 =
+            Remanent_state.get_repository_to_dump_gps_files
+              state
+        in
+        match r1,r2 with
+        | "","" -> state,""
+        | "",x | x,"" -> state,x
+        | x1,x2 -> state,Printf.sprintf "%s/%s" x1 x2
+    end
+    | Some rep -> state, rep
+  in
+  let promotion =
+    match promotion with
+    | None -> ""
+    | Some x -> x
+  in
+  let state, prefix =
+    match prefix with
+    | None ->
+      let state, bool =
+        Remanent_state.get_store_gps_files_according_to_their_promotions state
+      in
+      state, if bool then promotion else ""
+    | Some prefix -> state, prefix
+  in
+  let state, output_file_name =
+    match output_file_name with
+    | None ->
+      let state,bool =
+        Remanent_state.get_indicate_promotions_in_gps_file_names state
+      in
+      state, (if promotion = "" && not bool
+      then ""
+      else promotion^"_")^lastname^"_"^firstname^".gps.csv"
+    | Some file_name -> state, file_name
+  in
+  let output_file_name =
+    Tools.remove_space_from_string output_file_name
+  in
+  let output_repository =
+    match output_repository,prefix  with
+    | ".",prefix | "",prefix -> prefix
+    | x,"" -> x
+    | x1,x2 ->
+      Printf.sprintf "%s/%s" x1 x2
+  in
+  let state, output_repository =
+    Safe_sys.rec_mk_when_necessary
+      __POS__
+      state output_repository
+  in
+  state, output_repository, output_file_name
+
+let get_file_name output_repository output_file_name =
+  if output_repository = ""
+  then
+    output_file_name
+  else
+    Printf.sprintf "%s/%s"  output_repository output_file_name
+
+let check ~output_repository ~output_file_name state =
+  let file_name = get_file_name output_repository output_file_name in
+  let state, in_channel_opt =
+    try
+      state, Some (open_in file_name)
+    with _ ->
+      let () =
+        Format.printf
+          "Cannot open file %s@ "
+          file_name
+      in
+      Remanent_state.warn
+        __POS__
+        (Format.sprintf "Cannot open file %s"  file_name)
+        Exit
+        state ,
+      None
+  in
+  match in_channel_opt with
+  | None -> state, None
+  | Some in_channel ->
+    let state, separator =
+      Remanent_state.get_csv_separator state
+    in
+    let csv_channel =
+      Csv.of_channel ?separator in_channel
+    in
+    let csv =
+      Csv.input_all csv_channel
+    in
+    let () = close_in in_channel in
+    match csv with
+    | _::_ ->
+      state, Some (output_repository,output_file_name)
+    | [] -> state, None
+
+
+
+let get_student_file_gen
+    f student_id
     ?file_retriever ?command_line_options ?machine ?port ?input_repository ?output_repository ?prefix ?timeout ?checkoutperiod
-    ?file_name ?log_file ?log_repository
+    ?output_file_name ?log_file ?log_repository
     ?user_name ?password
     state
   =
   let firstname = student_id.Public_data.firstname in
   let lastname = student_id.Public_data.lastname in
   let promotion = student_id.Public_data.promotion in
+  let promotion = Tools.unsome_string promotion in
   let state, log_file =
     match log_file with
     | None ->
@@ -55,49 +175,6 @@ let get_student_file
         state
     | Some rep -> state, rep
   in
-  let state, output_repository =
-    match output_repository with
-    | None ->
-      begin
-        let state, r1 =
-          Remanent_state.get_local_repository state
-        in
-        let state, r2 =
-            Remanent_state.get_repository_to_dump_gps_files
-              state
-        in
-        match r1,r2 with
-        | "","" -> state,""
-        | "",x | x,"" -> state,x
-        | x1,x2 -> state,Printf.sprintf "%s/%s" x1 x2
-    end
-    | Some rep -> state, rep
-  in
-  let promotion =
-    match promotion with
-    | None -> ""
-    | Some x -> x
-  in
-  let state, prefix =
-    match prefix with
-    | None ->
-      let state, bool =
-        Remanent_state.get_store_gps_files_according_to_their_promotions state
-      in
-      state, if bool then promotion else ""
-    | Some prefix -> state, prefix
-  in
-  let state, output_file_name =
-    match file_name with
-    | None ->
-      let state,bool =
-        Remanent_state.get_indicate_promotions_in_gps_file_names state
-      in
-      state, (if promotion = "" && not bool
-      then ""
-      else promotion^"_")^lastname^"_"^firstname^".gps.csv"
-    | Some file_name -> state, file_name
-  in
   let state,timeout =
     match timeout with
     | None ->
@@ -111,29 +188,17 @@ let get_student_file
       Remanent_state.get_file_retriever_checking_period  state
     | Some t -> state,t
   in
-  let output_file_name =
-    Tools.remove_space_from_string output_file_name
-  in
   let url =
     Printf.sprintf
       "http://%s:%s/%s/gps.pl?last=\'%s\'&first=\'%s\'"
       machine
       port
       input_repository
-      (Special_char.uppercase lastname)
-      (Special_char.uppercase firstname)
+      (f lastname)
+      (f firstname)
   in
-  let output_repository =
-    match output_repository,prefix  with
-    | ".",prefix | "",prefix -> prefix
-    | x,"" -> x
-    | x1,x2 ->
-      Printf.sprintf "%s/%s" x1 x2
-  in
-  let state, output_repository =
-    Safe_sys.rec_mk_when_necessary
-      __POS__
-      state output_repository
+  let state, output_repository, output_file_name =
+    build_output student_id ?prefix ?output_repository ?output_file_name state
   in
   let state, output =
     match
@@ -148,7 +213,8 @@ let get_student_file
           ~period ~output_repository
           ~output_file_name
           ?timeout
-          file_retriever state, (output_repository,output_file_name)
+          file_retriever state,
+        Some (output_repository,output_file_name)
     | state, i ->
       let () =
         Remanent_state.log
@@ -159,112 +225,199 @@ let get_student_file
         (Printf.sprintf
            "The extraction of the GPS file for %s %s (%s) failed" firstname lastname promotion)
         Exit
-        state, (output_repository,output_file_name)
+        state, None
   in
-  let file_name =
-    if output_repository = ""
-    then
-      output_file_name
-    else
-      Printf.sprintf "%s/%s"  output_repository output_file_name
+  state, output
+
+let copy
+    student_id ?prefix ?output_repository ?output_file_name backup_rep state =
+  let promotion = student_id.Public_data.promotion in
+  let promotion = Tools.unsome_string promotion in
+  let state, output_repository, output_file_name =
+    build_output
+      student_id ?prefix ?output_repository ?output_file_name state
   in
-  let state, in_channel_opt =
-    try
-      state, Some (open_in file_name)
-    with _ ->
-      let () =
-        Format.printf
-          "Cannot open file %s@ "
-          file_name
+  let state, rep =
+    let state, r1 =
+      Remanent_state.get_local_repository state
+    in
+    let state, r2 = backup_rep state in
+    match r1,r2 with
+    | "","" -> state,""
+    | "",x | x,"" -> state,x
+    | x1,x2 -> state,Printf.sprintf "%s/%s" x1 x2
+  in
+  let state, prefix =
+    match prefix with
+    | None ->
+      let state, bool =
+        Remanent_state.get_store_gps_files_according_to_their_promotions          state
       in
+      state, if bool then promotion else ""
+    | Some prefix -> state, prefix
+  in
+  let input_repository =
+    match rep,prefix  with
+    | ".",prefix | "",prefix -> prefix
+    | x,"" -> x
+    | x1,x2 ->
+      Printf.sprintf "%s/%s" x1 x2
+  in
+  let input =
+    match input_repository with
+    | "" -> output_file_name
+    | _ ->
+      Printf.sprintf "%s/%s"
+        input_repository output_file_name
+  in
+  let output =
+    match output_repository with
+    | "" -> output_file_name
+    | _ ->
+      Printf.sprintf "%s/%s"
+        output_repository output_file_name
+  in
+  let state, b =
+    Safe_sys.file_exists __POS__ state output
+  in
+  if b then
+    let command =
+      Printf.sprintf "cp %s %s" input output
+    in
+    let state = Safe_sys.command __POS__ state command in
+    state, Some (output_repository, output_file_name)
+  else state, None
+
+let try_get_student_file
+    mode student_id
+    ?file_retriever ?command_line_options ?machine ?port
+    ?input_repository ?output_repository ?prefix ?timeout
+    ?checkoutperiod
+    ?output_file_name ?log_file ?log_repository
+    ?user_name ?password
+    state =
+  let f =
+    if mode.avec_accent then
+      Special_char.uppercase
+    else
+      (fun x -> Special_char.uppercase (Special_char.correct_string x))
+  in
+  let state, output =
+    match mode.access_type with
+    | GPS ->
+      get_student_file_gen
+        f student_id
+        ?file_retriever ?command_line_options ?machine ?port
+        ?input_repository ?output_repository ?prefix ?timeout
+        ?checkoutperiod
+        ?output_file_name ?log_file ?log_repository
+        ?user_name ?password state
+    | Backup ->
+      let backup_rep =
+        Remanent_state.get_repository_for_backup_gps_files
+      in
+      copy
+        student_id ?prefix ?output_repository ?output_file_name
+        backup_rep state
+    | Preempt ->
+      let backup_rep =
+        Remanent_state.get_repository_for_handmade_gps_files
+      in
+      copy
+        student_id ?prefix ?output_repository ?output_file_name backup_rep state
+    | Warn ->
+      let state, output_repository, output_file_name =
+        build_output
+          student_id ?prefix ?output_repository ?output_file_name state
+      in
+      let output_file_name =
+        get_file_name output_repository output_file_name
+      in
+      let state =
+        Remanent_state.warn
+          __POS__
+          (Format.sprintf "File %s is empty, use backup version indeed"
+             output_file_name)
+          Exit
+          state
+      in state, None
+  in
+  match output with
+  | None -> state, None
+  | Some (output_repository,output_file_name)->
+    check ~output_repository ~output_file_name state
+
+let get_student_file
+    student_id
+    ~modelist
+    ?file_retriever ?command_line_options ?machine ?port ?input_repository ?output_repository ?prefix ?timeout ?checkoutperiod
+    ?output_file_name ?log_file ?log_repository
+    ?user_name ?password
+    state
+  =
+  let rec aux l state =
+    match l with
+    | [] ->
+      let firstname = student_id.Public_data.firstname in
+      let lastname = student_id.Public_data.lastname in
+      let promotion = student_id.Public_data.promotion in
+      let promotion = Tools.unsome_string promotion in
       Remanent_state.warn
         __POS__
-        (Format.sprintf "Cannot open file %s"  file_name)
+        (Printf.sprintf
+           "Cannot extract information about %s %s %s"
+           firstname lastname
+           (if promotion = "" then "" else Printf.sprintf "(%s)" promotion))
         Exit
-        state ,
+        state,
       None
+    | h::t ->
+      match
+        try_get_student_file
+          h student_id
+          ?file_retriever ?command_line_options ?machine ?port
+          ?input_repository ?output_repository ?prefix ?timeout
+          ?checkoutperiod
+          ?output_file_name ?log_file ?log_repository
+          ?user_name ?password
+          state
+      with
+      | state, None -> aux t state
+      | state, output -> state, output
   in
-  match in_channel_opt with
-  | None -> state, output
-  | Some in_channel ->
-    let state, separator =
-      Remanent_state.get_csv_separator state
-    in
-    let csv_channel =
-      Csv.of_channel ?separator in_channel
-    in
-    let csv =
-      Csv.input_all csv_channel
-    in
-    let () = close_in in_channel in
-    match csv with
-    | _::_ ->
-      state, output
-    | [] ->
-      begin
-        let state =
-          Remanent_state.warn
-            __POS__
-            (Format.sprintf "File %s is empty, use backup version indeed"  file_name)
-            Exit
-            state
-        in
-        let state, rep =
-          let state, r1 =
-            Remanent_state.get_local_repository state
-          in
-          let state, r2 =
-            Remanent_state.get_repository_for_handmade_gps_files
-              state
-          in
-          match r1,r2 with
-          | "","" -> state,""
-          | "",x | x,"" -> state,x
-          | x1,x2 -> state,Printf.sprintf "%s/%s" x1 x2
-        in
-        let output_repository' =
-          match rep,prefix  with
-          | ".",prefix | "",prefix -> prefix
-          | x,"" -> x
-          | x1,x2 ->
-            Printf.sprintf "%s/%s" x1 x2
-        in
-        begin
-          match output_repository' with
-          | "" -> state, output
-          | _ ->
-            let output' =
-              Printf.sprintf "%s/%s"
-                output_repository' output_file_name
-            in
-            let output_ =
-              match output_repository with
-              | "" -> output_file_name
-              | _ ->
-                Printf.sprintf "%s/%s"
-                  output_repository output_file_name
-            in
-            let state, b =
-              Safe_sys.file_exists __POS__ state output'
-            in
-            let state =
-              if b then
-                let command =
-                  Printf.sprintf "cp %s %s" output' output_
-                in
-                Safe_sys.command __POS__ state
-                  command
-              else state
-            in
-            state, output
-        end
-      end
+  aux modelist state
 
+let add_to_list simplified access_type l =
+  if simplified
+  then
+    {
+      access_type ;
+      avec_accent = true;
+    }::l
+  else
+    {
+      access_type ;
+      avec_accent = true;
+    }::
+    {
+      access_type ;
+      avec_accent = false
+    }::l
 
-  let get_student_file
+let modelist_gen b =
+  add_to_list b Preempt
+    (add_to_list b GPS
+       (add_to_list true Warn
+          (add_to_list b Backup [])))
+
+let full_list = modelist_gen false
+let simplified_list = modelist_gen true
+
+let get_student_file
       student_id
+      ?modelist
       ?file_retriever ?command_line_options ?machine ?port ?input_repository ?output_repository ?prefix ?timeout ?checkoutperiod
-      ?file_name ?log_file ?log_repository
+      ?output_file_name ?log_file ?log_repository
       ?user_name ?password
       state
     =
@@ -279,12 +432,26 @@ let get_student_file
         event_opt
         state
     in
+    let firstname = student_id.Public_data.firstname in
+    let lastname = student_id.Public_data.lastname in
+    let modelist =
+      match modelist with
+      | Some modelist -> modelist
+      | None ->
+        if Special_char.correct_string firstname = firstname
+        && Special_char.correct_string lastname = lastname
+        then
+          simplified_list
+        else
+          full_list
+    in
     let state, output =
       get_student_file
         student_id
+        ~modelist
         ?file_retriever ?command_line_options ?machine ?port ?input_repository
         ?output_repository ?prefix ?timeout ?checkoutperiod
-        ?file_name ?log_file ?log_repository
+        ?output_file_name ?log_file ?log_repository
         ?user_name ?password
         state
     in

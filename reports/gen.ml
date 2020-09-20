@@ -3,7 +3,7 @@ type dump =
   ?prefix:string ->
   ?file_name:string ->
   Remanent_state.t ->
-  Remanent_state.t
+  Remanent_state.t * (string * string) option
 
 type 'elt filter =
   ?dpt:string ->
@@ -77,7 +77,7 @@ let dump_elts
       (state,[]) (List.rev elts)
   in
   match filtered_elts with
-  | [] -> state
+  | [] -> state, None 
   | _ ->
     let state, prefix =
       match prefix with
@@ -160,7 +160,7 @@ let dump_elts
         in
         let logger = Loggers.open_logger_from_channel ~mode
             out in
-        let logger = Loggers.with_lines logger in 
+        let logger = Loggers.with_lines logger in
         let extended_elts =
           Tools.prepare_report
             ~cmp
@@ -200,7 +200,7 @@ let dump_elts
     let state =
       Remanent_state.close_event_opt event_opt state
     in
-    state
+    state, Some (output_repository,output_file_name)
 
 let lift_cmp f a b =
   compare (f a) (f b)

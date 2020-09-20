@@ -1,4 +1,4 @@
-let latex_to_pdf ?rev ~input state =
+let latex_to_pdf ?rev ?times:(times=1) ~input state =
   let rev =
     match rev with
     | None | Some false -> false
@@ -30,9 +30,13 @@ let latex_to_pdf ?rev ~input state =
     let command =
       Printf.sprintf "pdflatex %s %s" options file_name
     in
-    let state =
-      Safe_sys.command __POS__ state command
+    let rec aux k state =
+      if k<1 then state
+      else
+        aux (k-1)
+          (Safe_sys.command __POS__ state command)
     in
+    let state = aux times state in
     let basename =
       Tools.basename file_name
     in
@@ -72,3 +76,8 @@ let latex_to_pdf ?rev ~input state =
         state
     in
     Safe_sys.chdir __POS__ state current
+
+let latex_opt_to_pdf ?rev ?times:(times=1) ~input state =
+  match input with
+  | None -> state
+  | Some input -> latex_to_pdf ?rev ~times ~input state
