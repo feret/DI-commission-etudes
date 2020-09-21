@@ -641,15 +641,16 @@ let print_preamble ?decimalsepsymbol logger =
 \\newcommand{\\cours}[8][]{%%\n\
 \\addtocounter{nrow}{1}%%\n\
 \\StrSubstitute{#7}{,}{.}[\\res]%%\n\
+\\StrSubstitute{#8}{,}{.}[\\resects]%%\n\
 \\myifdecimal{#7}%%\n\
 {%%\n\
 \\setcounter{cnote}{\\fpeval{\\res*\\factor}}%%\n\
 \\ifnum\\fpeval{\\res<10} = 1%%\n\
 \\IfStrEq{#1}{compensation}%%\n\
-{\\setcounter{cects}{#8}}%%\n\
+{\\setcounter{cects}{\\resects}}%%\n\
 {\\setcounter{cects}{0}}%%\n\
 \\else%%\n\
-\\setcounter{cects}{#8}%%\n\
+\\setcounter{cects}{\\resects}%%\n\
 \\fi%%\n\
 }%%\n\
 {%%\n\
@@ -659,7 +660,7 @@ let print_preamble ?decimalsepsymbol logger =
 %%\n\
 %%\n\
 \\IfStrEq{#7}{en cours}%%\n\
-{\\setcounter{pects}{#8}}%%\n\
+{\\setcounter{pects}{\\resects}}%%\n\
 {\\setcounter{pects}{0}}%%\n\
  %%\n\
  \\IfStrEq{#7}{%s}%%\n\
