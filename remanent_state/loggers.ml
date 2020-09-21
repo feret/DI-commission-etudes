@@ -591,7 +591,8 @@ let print_preamble ?decimalsepsymbol logger =
 \\setcounter{cnote}{0}\n\
 \n\
 \\begin{document}\n\ %s\n\
-\\newcommand{\\factor}{100000}\n\
+\\newcommand{\\factorsquare}{10000}\n\
+\\newcommand{\\factor}{100}\n\
 \\newcommand{\\myifdecimal}[3]{%%\n\
 \\StrGobbleRight{#1}{1}[\\prefix]%%\n\
 \\IfDecimal{#1}{#2}{%%\n\
@@ -639,17 +640,18 @@ let print_preamble ?decimalsepsymbol logger =
          }%%\n\
          \\newcommand{\\row}{}\n\
 \\newcommand{\\cours}[8][]{%%\n\
-\\addtocounter{nrow}{1}%%\n\
+\\addtocounter{nrow}{1}%%\n\ 
 \\StrSubstitute{#7}{,}{.}[\\res]%%\n\
+\\StrSubstitute{#8}{,}{.}[\\resects]%%\n\
 \\myifdecimal{#7}%%\n\
 {%%\n\
-\\setcounter{cnote}{\\fpeval{\\res*\\factor}}%%\n\
+\\setcounter{cnote}{\\fpeval{\\res*\\factorsquare}}%%\n\
 \\ifnum\\fpeval{\\res<10} = 1%%\n\
 \\IfStrEq{#1}{compensation}%%\n\
-{\\setcounter{cects}{#8}}%%\n\
+{\\setcounter{cects}{\\fpeval{\\resects*\\factor}}%%\n\
 {\\setcounter{cects}{0}}%%\n\
 \\else%%\n\
-\\setcounter{cects}{#8}%%\n\
+\\setcounter{cects}{\\fpeval{\\resects*\\factor}}%%\n\
 \\fi%%\n\
 }%%\n\
 {%%\n\
@@ -659,11 +661,11 @@ let print_preamble ?decimalsepsymbol logger =
 %%\n\
 %%\n\
 \\IfStrEq{#7}{en cours}%%\n\
-{\\setcounter{pects}{#8}}%%\n\
+{\\setcounter{pects}{\\fpeval{\\resects*\\factor}}}%%\n\
 {\\setcounter{pects}{0}}%%\n\
  %%\n\
  \\IfStrEq{#7}{%s}%%\n\
- {\\setcounter{vects}{#8}}%%\n\
+{\\setcounter{vects}{\\fpeval{\\resects*\\factor}}}%%\n\
  {\\setcounter{vects}{0}}%%\n\
   %%\n\
 \\addtocounter{total}{\\fpeval{\\thecects*\\thecnote}}%%\n\
