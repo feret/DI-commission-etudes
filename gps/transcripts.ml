@@ -4055,25 +4055,6 @@ let export_transcript
                       let () =
                         Remanent_state.close_row state
                       in
-                      (*  let () =
-                        Remanent_state.open_row state
-                      in
-                      let _ =
-                        Remanent_state.print_cell
-                          "\\mynumprint{\\theects}"
-                          state
-                      in
-                      let _ =
-                        Remanent_state.print_cell
-                          "\\mynumprint{\\thepotentialects}"
-                          state
-                      in
-                      let _ =
-                        Remanent_state.print_cell
-                          "\\mynumprint{\\thevsnects}"
-                          state
-                      in
-                          let _ = Remanent_state.close_row state in*)
                       let () =
                         Remanent_state.fprintf state "%%\n\ "
                       in
