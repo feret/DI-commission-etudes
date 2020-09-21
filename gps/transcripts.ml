@@ -4055,6 +4055,25 @@ let export_transcript
                       let () =
                         Remanent_state.close_row state
                       in
+                      (*  let () =
+                        Remanent_state.open_row state
+                      in
+                      let _ =
+                        Remanent_state.print_cell
+                          "\\mynumprint{\\theects}"
+                          state
+                      in
+                      let _ =
+                        Remanent_state.print_cell
+                          "\\mynumprint{\\thepotentialects}"
+                          state
+                      in
+                      let _ =
+                        Remanent_state.print_cell
+                          "\\mynumprint{\\thevsnects}"
+                          state
+                      in
+                          let _ = Remanent_state.close_row state in*)
                       let () =
                         Remanent_state.fprintf state "%%\n\ "
                       in
@@ -4148,7 +4167,7 @@ let export_transcript
                    in
                    let not_enough_ects =
                      Format.sprintf
-                       "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factor} < 60"
+                       "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)} < \\fpeval{60*\\factorsquare}"
                        key key key
                    in
                    let definitive =
@@ -4224,14 +4243,14 @@ let export_transcript
                  in
                  let total_ects =
                    Format.sprintf
-                     "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)/\\factor}"
+                     "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)/\\factorsquare}"
                      key key
                  in
                  let ects_string =
                    Latex_helper.case
                      Latex_helper.ifnum
                      [
-                       Format.sprintf "%s=0" total_ects,"";
+                       Format.sprintf "%s=0" total_ects_amp,"";
                        Format.sprintf "%s=%s" this_year_ects_amp total_ects_amp,
                        Format.sprintf "ECTS : %s " total_ects;
                      ]
@@ -4241,7 +4260,7 @@ let export_transcript
                    Latex_helper.ifnum
                      ~cond:(Format.sprintf "\\thepotentialects%s=0" key)
                      ~btrue:""
-                     ~bfalse:(Format.sprintf "\\hspace*{0.2cm} (potentiellement  {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factor}}} ects)" key key key)
+                     ~bfalse:(Format.sprintf "\\hspace*{0.2cm} (potentiellement  {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factorsquare}}} ects)" key key key)
                  in
                  ects_string, potential_ects_string
                in
