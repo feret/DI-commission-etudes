@@ -469,6 +469,7 @@ type statut =
   | Eleve
   | Etudiant
   | Eleve_bis
+  | Ex_boursier_si
   | Ex_eleve
   | Ex_etudiant
   | Hors_GPS
@@ -482,6 +483,7 @@ type origin =
   | PensionnaireEtranger
   | Psi
   | Sis
+  | M_MPRI 
 
 type remove_non_valided_classes =
   | All

@@ -205,6 +205,7 @@ let log_statut
              | Public_data.Eleve_bis -> "Eleve BIS"
              | Public_data.Eleve -> "Eleve"
              | Public_data.Etudiant -> "Etudiant"
+             | Public_data.Ex_boursier_si -> "Ancien boursier - selection internationale"
              | Public_data.Ex_eleve -> "Ancien eleve"
              | Public_data.Ex_etudiant -> "Ancien etudiant"
              | Public_data.Boursier_si ->
@@ -224,6 +225,7 @@ let string_of_origin_opt a =
    | Some Public_data.PensionnaireEtranger -> "Pensionnaire Étranger"
    | Some Public_data.Psi -> "CPGE Physique-Sciences de l'Ingénieur"
    | Some Public_data.Sis -> "sélection Internationale"
+   | Some Public_data.M_MPRI -> "Master Parisien de recherche en informatique"
 
 let string_of_origin_short_opt a =
   match a with
@@ -236,6 +238,7 @@ let string_of_origin_short_opt a =
   | Some Public_data.PensionnaireEtranger -> "Pensionnaire Étranger"
   | Some Public_data.Psi -> "PSI"
   | Some Public_data.Sis -> "SI"
+  | Some Public_data.M_MPRI -> "MPRI"
 
 let log_origine
     state (label, string_opt) =
@@ -1359,11 +1362,12 @@ let statuts =
     Public_data.Eleve_bis,["eleve bis"];
     Public_data.Ex_eleve,["ex - eleve"];
     Public_data.Ex_eleve,["ex - etudiant"];
+    Public_data.Ex_boursier_si,["ex - boursier si"];
     Public_data.Boursier_si,["boursier si"];
     Public_data.Hors_GPS,["hors gps"];
   ]
 
-let gen_fetch_opt_of_string_opt list err pos state s_opt =
+let gen_fetch_opt_of_string_opt ?who list err pos state s_opt =
   match s_opt with
   | None -> state, None
   | Some s ->
@@ -1375,9 +1379,15 @@ let gen_fetch_opt_of_string_opt list err pos state s_opt =
         match l with
         | [] ->
           let msg =
+            match who with
+            | None ->
+              Format.sprintf
+                "Ill-formed %s (%s)"
+                err s
+            | Some who ->
             Format.sprintf
-              "Ill-formed %s (%s)"
-              err s
+              "Ill-formed %s (%s for %s)"
+              err s who
           in
           Remanent_state.warn_dft
             pos
@@ -1394,8 +1404,8 @@ let gen_fetch_opt_of_string_opt list err pos state s_opt =
       in
       aux state list
 
-let statut_opt_of_string_opt =
-  gen_fetch_opt_of_string_opt statuts "status"
+let statut_opt_of_string_opt ?who =
+  gen_fetch_opt_of_string_opt ?who statuts "status"
 
 let origines =
   [
@@ -1407,10 +1417,27 @@ let origines =
     Public_data.Pc,["pc"];
     Public_data.Psi,["psi"];
     Public_data.Sis,["sis"];
+    Public_data.M_MPRI,["m-mpri"]
   ]
 
-let origin_opt_of_string_opt =
-  gen_fetch_opt_of_string_opt origines "origin"
+let concours =
+  [
+    Public_data.DensInfo,[];
+    Public_data.EchErasm,[];
+    Public_data.Info,["C-INFO"];
+    Public_data.Mpi,[];
+    Public_data.PensionnaireEtranger,[];
+    Public_data.Pc,[];
+    Public_data.Psi,[];
+    Public_data.Sis,[];
+    Public_data.M_MPRI,[]
+  ]
+
+let origin_opt_of_string_opt ?who =
+  gen_fetch_opt_of_string_opt ?who origines "origin"
+
+let origin_opt_of_concours ?who =
+  gen_fetch_opt_of_string_opt ?who concours "concours"
 
 let float_opt_of_string_opt _pos state s_opt =
   let state, float_opt_opt =
@@ -1981,6 +2008,7 @@ let lerasmus origine =
   | Some Public_data.PensionnaireEtranger
   | Some Public_data.Psi
   | Some Public_data.Sis
+  | Some Public_data.M_MPRI
   | None -> false
 
 let lpe origine =
@@ -1993,6 +2021,7 @@ let lpe origine =
   | Some Public_data.Pc
   | Some Public_data.Psi
   | Some Public_data.Sis
+  | Some Public_data.M_MPRI
   | None -> false
 
 
@@ -2746,14 +2775,99 @@ let export_transcript
     let promo =
       (Tools.unsome_string gps_file.promotion)
     in
-    let state, current_year =
-      Remanent_state.get_current_academic_year
-        state
+    let state, promo_int =
+      try
+        state, int_of_string promo
+      with
+        _ ->
+        Remanent_state.warn
+          __POS__
+          (Format.sprintf
+             "Promotion should be an integer %s %s %s"
+             promo
+             firstname
+             lastname)
+          Exit
+          state,
+        0
     in
+    let state, promo_int =
+      Public_data.YearMap.fold
+        (fun year _ (state, y') ->
+           let state, y_int =
+             try
+               state, int_of_string year
+             with
+               _ ->
+               Remanent_state.warn
+                 __POS__
+                 (Format.sprintf
+                    "Promotion should be an integer %s %s %s"
+                    year
+                    firstname
+                    lastname)
+              Exit
+              state,
+               y'
+           in
+           state, min y' y_int)
+        gps_file.situation
+        (state, promo_int)
+    in
+    let promo = string_of_int promo_int in
     let who =
       Format.sprintf
         "pour %s %s (%s)"
         firstname lastname promo
+    in
+    let state, origine =
+      match
+        gps_file.origine
+      with
+      |(Some
+           ( Public_data.DensInfo
+           |Public_data.EchErasm
+           |Public_data.Info
+           |Public_data.Mpi
+           |Public_data.Pc
+           |Public_data.PensionnaireEtranger
+           |Public_data.Psi
+           |Public_data.Sis)
+        | None) as x -> state, x
+      |
+        Some Public_data.M_MPRI ->
+        begin
+          match
+            Public_data.YearMap.find_opt
+              promo
+              gps_file.situation
+          with
+          | None ->
+            Remanent_state.warn
+              __POS__
+              (Format.sprintf
+                 "cannot find situation in %s (%s)"
+                 promo who)
+              Exit
+              state, None
+          | Some situation ->
+            let rec aux l state =
+              match l with
+              | [] -> state, None
+              | h::t ->
+                if h.grade = Some "Concours d'entrée ENS"
+                then
+                  origin_opt_of_concours
+                    ~who __POS__ state
+                    h.diplome_diplome
+                else
+                  aux t state
+            in aux situation.diplomes state
+        end
+    in
+    let state, current_year =
+      Remanent_state.get_current_academic_year
+        state
     in
     let l_rev,_ =
       List.fold_left
@@ -2836,7 +2950,6 @@ let export_transcript
                state remove_non_valided_classes
                 situation.cours
         in
-        let origine = gps_file.origine in
         let state, (cursus_map, split_cours) =
           List.fold_left
             (fun (state,
@@ -2904,6 +3017,7 @@ let export_transcript
              let state,statut,bourse,concours =
                match gps_file.statut with
                | None -> state,"","",""
+               | Some Public_data.Ex_boursier_si
                | Some Public_data.Boursier_si ->
                  state,
                  Format.sprintf "\\'Etudiant%s SI" genre,"",""
@@ -2911,7 +3025,7 @@ let export_transcript
                | Some Public_data.Eleve_bis
                | Some Public_data.Eleve ->
                  let state, concours =
-                   get_concours gps_file.origine state
+                   get_concours origine state
                  in
                  state,"\\'El\\`eve","",
                  concours
@@ -2938,7 +3052,7 @@ let export_transcript
                  end
                | Some Public_data.Hors_GPS ->
                  begin
-                   match gps_file.origine with
+                   match origine with
                    | None -> state, "","", ""
                    | Some Public_data.DensInfo
                    | Some Public_data.Info
@@ -2950,7 +3064,7 @@ let export_transcript
                      let msg =
                        Format.sprintf
                          "Les étudiants %s ne devraient par être hors GPS (%s)"
-                         (string_of_origin_opt gps_file.origine)
+                         (string_of_origin_opt origine)
                          who
                      in
                      let state =
@@ -2965,6 +3079,14 @@ let export_transcript
                      state,"Pensionnaire \\'Etranger","",""
                    | Some Public_data.EchErasm ->
                      state,"\\'Echange Erasmus","",""
+                   | Some Public_data.M_MPRI ->
+                     Remanent_state.warn
+                         __POS__
+                         (Format.sprintf
+                            "Illegal origin (M-MPRI) for %s" who)
+                         Exit
+                         state,
+                     "M-MPRI","",""
                  end
              in
              let () =
@@ -2990,7 +3112,7 @@ let export_transcript
                  ?lineproportion
                  state
                  "\\large Promotion : %s"
-                 (Tools.unsome_string gps_file.promotion)
+                 promo
              in
              let () =
                Remanent_state.print_newline state
@@ -3012,8 +3134,7 @@ let export_transcript
                        Public_data.missing_mentor_firstname=firstname;
                        Public_data.missing_mentor_lastname=lastname;
                        Public_data.missing_mentor_year=year;
-                       Public_data.missing_mentor_promotion=
-                         (Tools.unsome_string gps_file.promotion);
+                       Public_data.missing_mentor_promotion=promo;
                      }
                  in
                  state,
@@ -3146,8 +3267,8 @@ let export_transcript
                Printf.sprintf "%i -- %i" annee_int (annee_int+1)
              in
              let state, statut, nationaux_opt =
-               if lerasmus gps_file.origine
-               || lpe gps_file.origine
+               if lerasmus origine
+               || lpe origine
                then
                  state,
                  "Année d'étude au département d'informatique",
@@ -3337,8 +3458,8 @@ let export_transcript
                  then
                    state, "Bachelor de l'X"::dens_opt
                  else if
-                   lpe gps_file.origine
-                 || lerasmus gps_file.origine
+                   lpe origine
+                 || lerasmus origine
                  then
                    state, dens_opt
                  else
@@ -3355,7 +3476,11 @@ let export_transcript
                           | None ->
                             Remanent_state.warn
                               __POS__
-                              "internal error, cursus should be stored in cursus_map"
+                              (Printf.sprintf
+                                 "internal error, cursus should be stored in cursus_map %s %s %s"
+                                 (Tools.unsome_string string_opt)
+                                 dpt
+                                 who)
                               Exit
                               state,
                             inscriptions
@@ -3615,8 +3740,8 @@ let export_transcript
                let state,
                    entete,
                    footpage =
-                 if lpe gps_file.origine
-                 || lerasmus gps_file.origine
+                 if lpe origine
+                 || lerasmus origine
                  then
                    state, None, None
                  else
@@ -3640,10 +3765,11 @@ let export_transcript
                      | None ->
                        let msg =
                          Format.sprintf
-                           "Undocumented cursus %s %s %s"
+                           "Undocumented cursus %s %s %s for %s"
                            string
                            dpt
                            year
+                           who
                        in
                        Remanent_state.warn
                          __POS__
@@ -3689,8 +3815,7 @@ let export_transcript
                           Remanent_state.add_missing_ects_attribution
                             state
                             {
-                              Public_data.missing_grade_promotion =
-                                Tools.unsome_string gps_file.promotion;
+                              Public_data.missing_grade_promotion = promo;
                               Public_data.missing_grade_dpt=                                fetch_code elt ;
                               Public_data.missing_grade_dpt_indice =
                                 string_of_int (fetch elt);
@@ -3714,7 +3839,7 @@ let export_transcript
                  | Some ("LInfo" | "linfo") -> state, Some Color.yellow
                  | Some ("lmath" | "mmath" | "LMath" | "MMath") -> state, Some Color.orange
                  | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" ) ->
-                   color_of_dpt who __POS__ state dpt gps_file.origine
+                   color_of_dpt who __POS__ state dpt origine
                  | Some _  -> state, None
                in
                let bgcolor=[None;color;None;None;None;None;None] in
@@ -3803,7 +3928,7 @@ let export_transcript
                             state
                             {
                               Public_data.missing_grade_promotion =
-                                Tools.unsome_string gps_file.promotion;
+                                promo;
                               Public_data.missing_grade_firstname = firstname ;
                               Public_data.missing_grade_lastname = lastname  ;
                               Public_data.missing_grade_year = year ;
@@ -3840,7 +3965,7 @@ let export_transcript
                               state
                               ~internship:(
                                 {
-                                  Public_data.missing_internship_promotion = Tools.unsome_string gps_file.promotion ;
+                                  Public_data.missing_internship_promotion = promo ;
                                   Public_data.missing_internship_year=year;
                                   Public_data.missing_internship_firstname=firstname;
                                   Public_data.missing_internship_lastname=lastname;
@@ -3896,7 +4021,7 @@ let export_transcript
                              with
                              | Public_data.Masculin -> "M."
                              | Public_data.Feminin -> "Mme")
-                            (Special_char.lowercase a.Public_data.course_exception_firstname)
+                            (Special_char.capitalize a.Public_data.course_exception_firstname)
                             (Special_char.uppercase
                             a.Public_data.course_exception_lastname)
                       in
@@ -3970,7 +4095,7 @@ let export_transcript
                  match dpt, string with
                  | _, None | "dens", _ -> state, None
                  | _, Some program ->
-                   let state, dpt = acro_of_dpt who __POS__ state dpt gps_file.origine in
+                   let state, dpt = acro_of_dpt who __POS__ state dpt origine in
                    let dpt =
                      match dpt with
                      | None -> ""
