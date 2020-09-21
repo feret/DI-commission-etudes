@@ -393,7 +393,7 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
         (true,1)
         title
     in
-    let () = fprintf logger "\\cr}\n\\begin{tabular}{" in
+    let () = fprintf logger "\\cr}\n\\begin{tabularx}{" in
     let () = fprintf logger "|" in
     let rec aux title color bgcolor size align k error =
       match title with
@@ -482,7 +482,7 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
     | Latex _ | Latex_encapsulated ->
       let () = draw_line logger in
       let () = draw_line logger  in
-      let () = fprintf logger "\\end{tabular}}" in
+      let () = fprintf logger "\\end{tabularx}}" in
       let () = print_newline logger in
       ()
     | HTML | HTML_encapsulated | HTML_Tabular  ->
@@ -563,6 +563,7 @@ let print_preamble ?decimalsepsymbol logger =
 \\usepackage{numprint}%%\n\
 \\usepackage{multirow}%%\n\
 \\usepackage[table]{xcolor}%%\n\
+\\usepackage{ltablex}%%\n\
 \\usepackage{graphicx}%%\n\
 \\def\\rmdefault{phv}%%\n\
 %%\n\
@@ -606,7 +607,7 @@ let print_preamble ?decimalsepsymbol logger =
 \\newcommand{\\correctnum}[1]%%\n\
 {\\StrSubstitute{#1}{,}{.}[\\res]\\myifdecimal{#1}{\res}{0}}%%\n\
 %%\n\
-       %%\n\ " package size
+%%\n\ " package size
       (match orientation with
          Lanscape -> "empty" | Normal -> "fancy")   decimal
     in
