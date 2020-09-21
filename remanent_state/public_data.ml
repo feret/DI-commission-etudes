@@ -368,6 +368,7 @@ type mentor =
     mentor_firstname : string ;
     mentor_lastname : string ;
     mentor_gender : genre ;
+    mentor_student_dpt: string; 
   }
 
 type keywords =
@@ -483,7 +484,7 @@ type origin =
   | PensionnaireEtranger
   | Psi
   | Sis
-  | M_MPRI 
+  | M_MPRI
 
 type remove_non_valided_classes =
   | All

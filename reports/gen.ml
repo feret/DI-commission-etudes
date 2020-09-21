@@ -77,7 +77,7 @@ let dump_elts
       (state,[]) (List.rev elts)
   in
   match filtered_elts with
-  | [] -> state, None 
+  | [] -> state, None
   | _ ->
     let state, prefix =
       match prefix with
@@ -271,9 +271,12 @@ let filter_mentoring_list
     ?niveau
     ?recu state mentoring =
   let _ =
-    teachername, mentorname, codegps, dpt, ninscription, niveau, recu
+    teachername, mentorname, codegps, ninscription, niveau, recu
   in
   state,
+  check dpt
+    mentoring.Public_data.mentor_student_dpt
+  &&
   check firstname mentoring.Public_data.mentor_student_firstname
   &&
   check lastname mentoring.Public_data.mentor_student_lastname

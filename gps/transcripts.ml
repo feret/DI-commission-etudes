@@ -3029,19 +3029,7 @@ let export_transcript
                  in
                  state,"\\'El\\`eve","",
                  concours
-
-                                             (*   | Some Public_data.Ex_eleve ->
-                 state,
-                                               Format.sprintf "Ancien%s \\'el\\`eve" ne,""*)
-               | Some Public_data.Ex_etudiant (* ->
-                 begin
-                   let state, bourse =
-                     get_bourse ~firstname ~lastname ~er state
-                   in
-                   state,
-                   Format.sprintf "Ancien%s \\'etudiant%s"
-                     ne genre,bourse
-                                                end*)
+               | Some Public_data.Ex_etudiant
                | Some Public_data.Etudiant ->
                  begin
                    let state, bourse =
@@ -3186,7 +3174,13 @@ let export_transcript
                      state, ""
                    | Some a -> state, a
                  in
-
+                 let current_dpt =
+                   match
+                     situation.departement_principal
+                   with
+                   | Some a -> a
+                   | None -> "" 
+                 in
                  let state =
                    if do_report report
                    then
@@ -3203,6 +3197,8 @@ let export_transcript
                        Public_data.mentor_student_gender = genre;
                        Public_data.mentor_student_lastname = lastname ;
                        Public_data.mentor_student_firstname = firstname ;
+                       Public_data.mentor_student_dpt =
+                         current_dpt ;
                      }
                    else state
                  in
