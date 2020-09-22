@@ -44,6 +44,7 @@ type parameters =
     repository_to_dump_national_diplomas: string;
     repository_to_dump_dens: string;
     repository_to_dump_mentors: string;
+    signature: string;
   }
 
 
@@ -94,6 +95,7 @@ let parameters =
     comma_symbol = ',';
     current_academic_year = "2019";
     target = None ;
+    signature = "/users/absint3/feret/Nextcloud/feret+tampon.pdf"
   }
 
 type data =
@@ -229,6 +231,9 @@ let get_machine_to_access_gps t =
 
 let get_port_to_access_gps t =
   t, t.parameters.port_to_access_gps
+
+let get_signature t =
+  t, t.parameters.signature
 
 let get_repository_to_access_gps t =
   t, t.parameters.repository_to_access_gps

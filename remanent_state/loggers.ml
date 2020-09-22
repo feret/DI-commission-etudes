@@ -1,4 +1,4 @@
-type orientation = Lanscape | Normal
+type orientation = Landscape | Normal
 type encoding =
   | HTML | HTML_Tabular | HTML_encapsulated
   | TXT | CSV | XLS | Json | Latex of orientation
@@ -377,7 +377,7 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
     in
     let () =
       match logger.encoding with
-      | Latex Lanscape | Latex_encapsulated ->
+      | Latex Landscape | Latex_encapsulated ->
         let () =
           fprintf logger "\\setcounter{total}{0}%%\n\ "
         in
@@ -411,7 +411,7 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
            logger.encoding
          with
          | Latex Normal -> "longtable"
-         | Latex Lanscape | Latex_encapsulated
+         | Latex Landscape | Latex_encapsulated
          | HTML
          | HTML_Tabular
          | HTML_encapsulated
@@ -510,7 +510,7 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
              logger.encoding
            with
            | Latex Normal -> "longtable"
-           | Latex Lanscape | Latex_encapsulated
+           | Latex Landscape | Latex_encapsulated
            | HTML
            | HTML_Tabular
            | HTML_encapsulated
@@ -572,7 +572,7 @@ let print_preamble ?decimalsepsymbol logger =
   | Latex orientation ->
     let package, size =
       match orientation with
-      | Lanscape -> "\\usepackage{lscape}",
+      | Landscape -> "\\usepackage{lscape}",
                     "\\landscape\n\n\\setlength{\\textwidth}{28.3cm}\n\\setlength{\\hoffset}{-1.84cm}\n\\setlength{\\headsep}{0pt}\n\\setlength{\\topmargin}{0mm}\n\\setlength{\\footskip}{0mm}\n\\setlength{\\oddsidemargin}{0pt}\n\\setlength{\\evensidemargin}{0pt}\n\\setlength{\\voffset}{-2.15cm}\n\\setlength{\\textheight}{19.6cm}\n\\setlength{\\paperwidth}{21cm}\n\\setlength{\\paperheight}{29.7cm}\n\\setlength\\parindent{0pt}\n"
       | Normal -> "\\usepackage{fancyhdr}\\setlength{\\headheight}{5cm}\n",""
     in
@@ -586,7 +586,7 @@ let print_preamble ?decimalsepsymbol logger =
     in
     let () =
       fprintf logger
-      "\\documentclass[10pt]{extarticle}%%\n%%\n\
+      "\\documentclass[10pt]{%sarticle}%%\n%%\n\
 \\usepackage[latin1]{inputenc}%%\n\
 %s\n\
 \\usepackage[french]{babel}%%\n\
@@ -640,9 +640,13 @@ let print_preamble ?decimalsepsymbol logger =
 \\newcommand{\\correctnum}[1]%%\n\
 {\\StrSubstitute{#1}{,}{.}[\\res]\\myifdecimal{#1}{\res}{0}}%%\n\
 %%\n\
-%%\n\ " package size
+       %%\n\ "
       (match orientation with
-         Lanscape -> "empty" | Normal -> "fancy")   decimal
+         Landscape -> "ext"
+       | Normal -> "")
+      package size
+      (match orientation with
+         Landscape -> "empty" | Normal -> "fancy")   decimal
     in
     let () =
       List.iter

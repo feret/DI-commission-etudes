@@ -2689,6 +2689,7 @@ let add_mean_diplome d mean = fst mean, d::(snd mean)
 
 let export_transcript
     ~output
+    ?signature
     ?report
     ?filter:(remove_non_valided_classes=Public_data.All_but_in_progress_in_current_academic_year)
     state gps_file =
@@ -2756,7 +2757,7 @@ let export_transcript
   match output_channel_opt with
   | None -> state, None
   | Some out ->
-    let mode = Loggers.Latex Loggers.Lanscape in
+    let mode = Loggers.Latex Loggers.Landscape in
     let logger = Loggers.open_logger_from_channel ~mode out in
     let old_logger = Remanent_state.save_std_logger state in
     let state = Remanent_state.set_std_logger state logger in
@@ -3285,7 +3286,7 @@ let export_transcript
                        match i with
                        | 1 -> state, "Première année :"
                        | 2 -> state, "Seconde année :"
-                       | 3 -> state, "Troisème année :"
+                       | 3 -> state, "Troisième année :"
                        | 4 -> state, "Quatrième année :"
                        | _ ->
                          let msg =
@@ -4389,6 +4390,17 @@ let export_transcript
                 state
                 "\\textbf{%s}"
                 admission.Public_data.admission_decision
+        in
+        let () =
+          match signature with
+          | None -> ()
+          | Some f ->
+          let () =
+            Remanent_state.fprintf
+              state
+              "\\begin{center}%%\n\ \\today\\\\%%\n\ \\IfFileExists{%s}%%\n\ {\ {\\includegraphics[height=3cm]{%s}}}%%\n\ {}\\end{center}"
+              f f
+          in ()
         in
         let () =
           Remanent_state.breakpage state

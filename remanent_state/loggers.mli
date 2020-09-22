@@ -1,4 +1,4 @@
-type orientation = Lanscape | Normal
+type orientation = Landscape | Normal
 type encoding =
   | HTML | HTML_Tabular | HTML_encapsulated
   | TXT | CSV | XLS | Json | Latex of orientation
@@ -68,4 +68,4 @@ val print_headers: t -> int -> string -> unit
 val maketitle: t -> string -> unit
 val setheadpage: t -> string -> unit
 val setsignature: t -> string -> unit
-val setpreamble: t -> string -> unit 
+val setpreamble: t -> string -> unit

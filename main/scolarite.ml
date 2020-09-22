@@ -124,6 +124,25 @@ let state =
                Latex_engine.latex_opt_to_pdf ~rev:true state ~input
          in
          let output =
+           (fst output0,
+            (Tools.basename (snd
+                               output0))^".signed.tex")
+         in
+         let state, signature =
+           Remanent_state.get_signature state
+         in
+         let state =
+           match gps with
+           | None -> state
+           | Some gps ->
+             let state, input =
+               Transcripts.export_transcript
+                 ~signature ~output state gps
+             in
+               Latex_engine.latex_opt_to_pdf ~rev:true state ~input
+         in
+
+         let output =
            (fst output0, (Tools.basename (snd output0))^".all.tex")
          in
          let state =
