@@ -1424,8 +1424,8 @@ let concours =
   [
     Public_data.DensInfo,[];
     Public_data.EchErasm,[];
-    Public_data.Info,["C-INFO"];
-    Public_data.Mpi,[];
+    Public_data.Info,["c-info"];
+    Public_data.Mpi,["c-mpi"];
     Public_data.PensionnaireEtranger,[];
     Public_data.Pc,[];
     Public_data.Psi,[];
