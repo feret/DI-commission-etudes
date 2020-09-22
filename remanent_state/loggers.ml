@@ -375,25 +375,48 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
       | None -> List.rev_map (fun _ -> None) title
       | Some a -> a
     in
-    let () = fprintf logger "\\setcounter{total}{0}%%\n\ " in
-    let () = fprintf logger "\\setcounter{ects}{0}%%\n\ " in
-    let () = fprintf logger "\\setcounter{vsnects}{0}%%\n\ " in
-    let () = fprintf logger "\\setcounter{potentialects}{0}%%\n\ " in
-    let () = fprintf logger "\\setcounter{nrow}{0}%%\n\ " in
+    let () =
+      match logger.encoding with
+      | Latex Lanscape | Latex_encapsulated ->
+        let () =
+          fprintf logger "\\setcounter{total}{0}%%\n\ "
+        in
+        let () = fprintf logger "\\setcounter{ects}{0}%%\n\ " in
+        let () = fprintf logger "\\setcounter{vsnects}{0}%%\n\ " in
+        let () = fprintf logger
+            "\\setcounter{potentialects}{0}%%\n\ " in
+        let () = fprintf logger "\\setcounter{nrow}{0}%%\n\ " in
+        ()
+      | Latex Normal
+      | HTML
+      | HTML_Tabular
+      | HTML_encapsulated
+      | TXT | CSV | XLS | Json -> ()
+    in
     let () = fprintf logger "{%%\n\ " in
     let () = fprintf logger "\\renewcommand{\\row}[%i]{" (List.length title) in
-    let _ =
-      List.fold_left
-        (fun (b,i) _ ->
-           let () = fprintf logger "%s#%i"
-               (if b then "" else "&")
-               i
-           in
-           false,i+1)
-        (true,1)
+        let _ =
+          List.fold_left
+            (fun (b,i) _ ->
+               let () = fprintf logger "%s#%i"
+                   (if b then "" else "&")
+                   i
+               in
+               false,i+1)
+            (true,1)
         title
     in
-    let () = fprintf logger "\\cr}\n\\begin{longtable}{" in
+    let () = fprintf logger "\\cr}\n\\begin{%s}{"
+        (match
+           logger.encoding
+         with
+         | Latex Normal -> "longtable"
+         | Latex Lanscape | Latex_encapsulated
+         | HTML
+         | HTML_Tabular
+         | HTML_encapsulated
+         | TXT | CSV | XLS | Json  -> "tabular")
+    in
     let () = fprintf logger "|" in
     let rec aux title color bgcolor size align k error =
       match title with
@@ -482,7 +505,17 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
     | Latex _ | Latex_encapsulated ->
       let () = draw_line logger in
       let () = draw_line logger  in
-      let () = fprintf logger "\\end{longtable}}" in
+      let () = fprintf logger "\\end{%s}}"
+          (match
+             logger.encoding
+           with
+           | Latex Normal -> "longtable"
+           | Latex Lanscape | Latex_encapsulated
+           | HTML
+           | HTML_Tabular
+           | HTML_encapsulated
+           | TXT | CSV | XLS | Json             -> "tabular")
+      in
       let () = print_newline logger in
       ()
     | HTML | HTML_encapsulated | HTML_Tabular  ->
