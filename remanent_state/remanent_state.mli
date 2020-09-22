@@ -95,7 +95,7 @@ val get_port_to_access_gps: t -> t * string
 val get_repository_to_access_gps: t -> t * string
 val get_repository_to_dump_gps_files: t -> t * string
 val get_repository_for_handmade_gps_files: t -> t * string
-val get_repository_for_backup_gps_files: t -> t * string 
+val get_repository_for_backup_gps_files: t -> t * string
 val get_store_gps_files_according_to_their_promotions: t -> t * bool
 val get_indicate_promotions_in_gps_file_names: t -> t * bool
 
@@ -196,6 +196,13 @@ val get_mentoring:
   ?tuteur_gps:Public_data.tutorat ->
   t ->
   t * Public_data.tutorat option
+
+val get_mentoring_list:
+  ?tuteur_firstname:string ->
+  ?tuteur_lastname:string ->
+  ?year:Public_data.annee ->
+  t ->
+  t * Public_data.tutorat list 
 
 val get_course_exception:
   codegps:string ->

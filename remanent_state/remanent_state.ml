@@ -270,7 +270,7 @@ let get_repository_to_dump_gps_files t =
 
 let get_repository_for_handmade_gps_files t =
   t, t.parameters.repository_for_handmade_gps_files
-  let get_repository_for_backup_gps_files t =
+let get_repository_for_backup_gps_files t =
     t, t.parameters.repository_for_backup_gps_files
 let get_output_alias_repository t =
   t, t.parameters.output_alias_repository
@@ -890,6 +890,13 @@ let add_mentoring unify =
     get_mentoring
     set_mentoring
     (Mentoring.add_mentoring unify)
+
+let get_mentoring_list
+    ?tuteur_firstname
+    ?tuteur_lastname
+    ?year
+    t =
+  t, Mentoring.get_mentoring_list ?year ?tuteur_lastname ?tuteur_firstname (get_mentoring t)
 
 let get_mentoring ~firstname ~lastname ~year ?tuteur_gps t =
     let mentoring_opt =

@@ -229,6 +229,7 @@ let string_of_gender s =
   match s with
   | Public_data.Masculin -> "M"
   | Public_data.Feminin -> "F"
+  | Public_data.Unknown -> "?"
 
 let lift_fbool1, lift_fbool2 = build_lift string_of_bool
 let lift_fint1, lift_fint2 = build_lift string_of_int

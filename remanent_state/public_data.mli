@@ -7,6 +7,7 @@ type annee = string
 type genre =
   | Feminin
   | Masculin
+  | Unknown 
 
 type student_id =
   {
@@ -272,7 +273,7 @@ type mentor =
     mentor_firstname : string ;
     mentor_lastname : string ;
     mentor_gender : genre ;
-    mentor_student_dpt: string ; 
+    mentor_student_dpt: string ;
   }
 
 type keywords =

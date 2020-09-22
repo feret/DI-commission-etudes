@@ -190,7 +190,8 @@ let log_genre
         state "%s: %s" label
         (match a with
          | Public_data.Masculin -> "M"
-         | Public_data.Feminin -> "F")
+         | Public_data.Feminin -> "F"
+         | Public_data.Unknown -> "?")
     in state
 
 let log_statut
@@ -2762,7 +2763,7 @@ let export_transcript
     let l = Public_data.YearMap.bindings gps_file.situation in
     let genre,er,_ne =
       match gps_file.genre with
-      | None -> "(e)","er(\\`ere)","(ne)"
+      | None | Some Public_data.Unknown -> "(e)","er(\\`ere)","(ne)"
       | Some Public_data.Masculin -> "","er",""
       | Some Public_data.Feminin -> "e","\\`ere","ne"
     in
@@ -3041,28 +3042,6 @@ let export_transcript
                | Some Public_data.Hors_GPS ->
                  begin
                    match origine with
-                   | None -> state, "","", ""
-                   | Some Public_data.DensInfo
-                   | Some Public_data.Info
-                   | Some Public_data.Mpi
-                   | Some Public_data.Pc
-                   | Some Public_data.Psi
-                   | Some Public_data.Sis
-                     ->
-                     let msg =
-                       Format.sprintf
-                         "Les étudiants %s ne devraient par être hors GPS (%s)"
-                         (string_of_origin_opt origine)
-                         who
-                     in
-                     let state =
-                       Remanent_state.warn
-                         __POS__
-                         msg
-                         Exit
-                         state
-                     in
-                     state, "","", ""
                    | Some Public_data.PensionnaireEtranger ->
                      state,"Pensionnaire \\'Etranger","",""
                    | Some Public_data.EchErasm ->
@@ -3075,7 +3054,29 @@ let export_transcript
                          Exit
                          state,
                      "M-MPRI","",""
-                 end
+                   | None -> state, "","", ""
+                   | Some Public_data.DensInfo ->
+                     let state, bourse =
+                       get_bourse ~firstname ~lastname
+                        ~er state
+                     in
+                     state,
+                     Format.sprintf "\\'Etudiant%s"
+                      genre,bourse,""
+                   | Some Public_data.Info
+                   | Some Public_data.Mpi
+                   | Some Public_data.Pc
+                   | Some Public_data.Psi ->
+                   let state, concours =
+                     get_concours origine state
+                   in
+                   state,"\\'El\\`eve","",
+                   concours
+                   | Some Public_data.Sis
+                     ->
+                     state,
+                     Format.sprintf "\\'Etudiant%s SI" genre,"",""
+                    end
              in
              let () =
                Remanent_state.log
@@ -3137,7 +3138,7 @@ let export_transcript
                        __POS__
                        "missing gender"
                        Exit
-                       state, Public_data.Masculin
+                       state, Public_data.Unknown
                    | Some a -> state, a in
                  let state, genre_du_tuteur =
                      match
@@ -3148,7 +3149,7 @@ let export_transcript
                          __POS__
                          "missing mentor gender"
                          Exit
-                         state, Public_data.Masculin
+                         state, Public_data.Unknown
                      | Some a -> state, a in
                  let state, nom_du_tuteur =
                    match
@@ -3228,9 +3229,11 @@ let export_transcript
                         "%s %s %s"
                         (match z with
                          | Public_data.Masculin -> "Tuteur : "
-                         | Public_data.Feminin -> "Tutrice : ")
+                         | Public_data.Feminin -> "Tutrice : "
+                                                  | Public_data.Unknown -> "")
                         (Special_char.capitalize y)
-                        (Special_char.uppercase x), 2./.3.)
+                        (Special_char.uppercase x), 2./.3.
+                     )
                    | None, _, _, Some x -> state, (x, 2./.3.)
                    | Some x, _, _, _ -> state, (x, 2./.3.)
                  end
@@ -4017,7 +4020,8 @@ let export_transcript
                                a.Public_data.course_exception_genre
                              with
                              | Public_data.Masculin -> "M."
-                             | Public_data.Feminin -> "Mme")
+                             | Public_data.Feminin -> "Mme"
+                             | Public_data.Unknown -> "")
                             (Special_char.capitalize a.Public_data.course_exception_firstname)
                             (Special_char.uppercase
                             a.Public_data.course_exception_lastname)

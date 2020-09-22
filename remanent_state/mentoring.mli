@@ -10,3 +10,5 @@ val add_mentoring:
    Public_data.tutorat ->
    Public_data.tutorat -> 'state * Public_data.tutorat) ->
   (string * int * int * int) -> 'state -> Public_data.tutorat -> t -> 'state * t
+val get_mentoring_list:
+  ?year:string -> ?tuteur_lastname:string -> ?tuteur_firstname:string -> t -> Public_data.tutorat list

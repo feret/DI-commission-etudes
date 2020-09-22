@@ -208,3 +208,61 @@ let add_mentoring
   state, mentoring
 
 let get_mentoring = get_mentoring ~strong:false
+
+let fold_left_rev f a b = List.fold_left (fun a b -> f b a) b a
+let get_mentoring_list
+    ?year ?tuteur_lastname ?tuteur_firstname
+    t =
+  match year with
+  | Some _ ->
+    let acc1 =
+      Public_data.YearExtendedMap.collect
+        year
+        t.per_year
+        []
+    in
+    let acc2 =
+      fold_left_rev
+        (Public_data.LastNameExtendedMap.collect
+           tuteur_lastname)
+        acc1
+        []
+    in
+    fold_left_rev
+      (Public_data.FirstNameExtendedMap.collect
+         tuteur_firstname)
+      acc2
+      []
+  | None ->
+    let acc1 =
+      Public_data.LastNameExtendedMap.collect
+        tuteur_lastname
+        t.per_mentor
+        []
+    in
+    let acc2 =
+      fold_left_rev
+        (Public_data.FirstNameExtendedMap.collect
+           tuteur_firstname)
+        acc1
+        []
+    in
+    let acc3 =
+      fold_left_rev
+        (Public_data.YearExtendedMap.collect
+           None)
+        acc2
+        []
+    in
+    let acc4 =
+      fold_left_rev
+        (Public_data.LastNameExtendedMap.collect
+           None)
+        acc3
+        []
+    in
+    fold_left_rev
+      (Public_data.FirstNameExtendedMap.collect
+         None)
+      acc4
+      []

@@ -44,7 +44,7 @@ struct
     let firstname = studentfirstname in
     let lastname = studentlastname in
     Gen.dump_elts
-      ?firstname ?lastname ?mentorfirstname ?mentorlastname ?academicyear ?promo ?dpt 
+      ?firstname ?lastname ?mentorfirstname ?mentorlastname ?academicyear ?promo ?dpt
       ?output_repository ?prefix ?file_name ?event_opt ?title
       ~cmp ~filter ~headers ~columns ~get ~default_file_name
       ~get_repository
@@ -54,6 +54,7 @@ struct
     match m with
     | Public_data.Masculin -> "M. "
     | Public_data.Feminin -> "Mme. "
+    | Public_data.Unknown -> ""
   let whoshort first last =
     Printf.sprintf "%s %s"
       (Special_char.capitalize first)
