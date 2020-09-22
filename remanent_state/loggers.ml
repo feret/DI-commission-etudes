@@ -393,7 +393,7 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
         (true,1)
         title
     in
-    let () = fprintf logger "\\cr}\n\\begin{tabularx}{" in
+    let () = fprintf logger "\\cr}\n\\begin{longtable}{" in
     let () = fprintf logger "|" in
     let rec aux title color bgcolor size align k error =
       match title with
@@ -482,7 +482,7 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
     | Latex _ | Latex_encapsulated ->
       let () = draw_line logger in
       let () = draw_line logger  in
-      let () = fprintf logger "\\end{tabularx}}" in
+      let () = fprintf logger "\\end{longtable}}" in
       let () = print_newline logger in
       ()
     | HTML | HTML_encapsulated | HTML_Tabular  ->

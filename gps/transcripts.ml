@@ -3178,8 +3178,9 @@ let export_transcript
                    match
                      situation.departement_principal
                    with
-                   | Some a -> a
-                   | None -> "" 
+                   | Some a ->
+                     Special_char.lowercase a
+                   | None -> ""
                  in
                  let state =
                    if do_report report

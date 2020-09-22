@@ -118,6 +118,12 @@ let state,_ =
   Mentor_report.ReportListMentors.dump_per_year_mentor_student
     ~academicyear ~dpt:"informatique" ~file_name:"tuteurs.html" ~title
     state
+let state, input =
+  Mentor_report.ReportListMentors.dump_per_year_mentor_student
+    ~academicyear ~dpt:"informatique" ~file_name:"tuteurs.tex" ~title
+    state
+let state =
+  Latex_engine.latex_opt_to_pdf state ~input
 let headpage s _ =
   Format.sprintf
     "Département Informatique \\\\Résultats 2019-2020\\\\%s\\\\Page \\thepage/\\pageref{LastPage}\\\\" s
@@ -149,13 +155,6 @@ let state,_ =
   Diploma_report.DiplomaReport.dump_per_student
     ~file_name:"L3student.html"
     ~academicyear ~niveau:"l" ~dpt:"informatique" state
-let state, input =
-  Mentor_report.ReportListMentors.dump_per_year_mentor_student
-    ~academicyear ~dpt:"informatique" ~file_name:"tuteurs.tex" ~title
-    state
-let state =
-  Latex_engine.latex_opt_to_pdf state ~input
-
 let preamble i =
   Format.sprintf
     "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du 18 septembre 2020,} \\\\ Je soussigné \\textbf{Marc Pouzet}, directeur des études du département d'informatique de l'École Normale Supérieure, certifie que les \\\\ \\underline{\\textbf{%i étudiants inscrits en 2019-2020}}, en première et deuxième année du diplôme de l'École Normale Supérieure, ont obtenu les résultats suivant" i
