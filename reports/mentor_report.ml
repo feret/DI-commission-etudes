@@ -43,6 +43,10 @@ struct
     let get_repository = I.get_repository in
     let firstname = studentfirstname in
     let lastname = studentlastname in
+    let _ =
+      Format.fprintf "DUMP MENTOR LIST: %s @ "
+        (Tools.unsome_string file_name)
+    in
     Gen.dump_elts
       ?firstname ?lastname ?mentorfirstname ?mentorlastname ?academicyear ?promo ?dpt
       ?output_repository ?prefix ?file_name ?event_opt ?title
@@ -111,6 +115,10 @@ struct
       ?title ?dpt
       ?output_repository ?prefix ?file_name
       state =
+      let _ =
+        Format.fprintf "DUMP PER YEAR MENTOR STUDENT: %s @ "
+          (Tools.unsome_string file_name)
+      in
     let cmp =
       [ Gen.lift_cmp (fun a ->
           a.Public_data.mentor_student_dpt);

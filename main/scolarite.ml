@@ -149,11 +149,11 @@ let state, academicyear =
 let title = "LISTE DES TUTEURS"
 let state,_ =
   Mentor_report.ReportListMentors.dump_per_year_mentor_student
-    ~academicyear (*~dpt:"informatique"*) ~file_name:"tuteurs.html" ~title
+    ~academicyear (*~dpt:"informatique"*) ~file_name:"tutorat_2020_par_tuteur.html" ~title
     state
 let state, input =
   Mentor_report.ReportListMentors.dump_per_year_mentor_student
-    ~academicyear (*~dpt:"informatique"*) ~file_name:"tuteurs.tex" ~title
+    ~academicyear (*~dpt:"informatique"*) ~file_name:"tutorat_2020_.tex" ~title
     state
 let state =
   Latex_engine.latex_opt_to_pdf state ~input
