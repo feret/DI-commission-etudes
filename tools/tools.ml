@@ -347,7 +347,7 @@ let prepare_report
     in
     let _ =
       match headpage with
-      | None -> ()
+      | None -> setheadpage "" 
       | Some f -> setheadpage (f n)
     in
     let _ =

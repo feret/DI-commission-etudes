@@ -574,6 +574,19 @@ type gps_file =
     stages: stage list;
   }
 
+
+let need_a_mentor gps_file =
+  match gps_file.statut with
+    Some ( Public_data.Eleve_bis
+         | Public_data.Eleve
+         | Public_data.Etudiant
+         | Public_data.Boursier_si) -> true
+  | Some (
+      Public_data.Ex_boursier_si
+    | Public_data.Ex_eleve
+    | Public_data.Ex_etudiant
+    | Public_data.Hors_GPS) | None  -> false
+
 let _log_gps_file state gps =
   let state =
     List.fold_left
@@ -2929,6 +2942,7 @@ let export_transcript
         in
         let state =
           if do_report report
+          && need_a_mentor gps_file
           then
           Remanent_state.add_mentor
             state

@@ -29,10 +29,10 @@ val print_as_logger: t -> (Format.formatter -> unit) -> unit
 val flush_logger: t -> unit
 val close_logger: t -> unit
 
-val open_infinite_buffer: ?mode:encoding -> unit -> t
+val open_infinite_buffer: ?headerextralength:int -> ?mode:encoding -> unit -> t
 val open_circular_buffer: ?mode:encoding -> ?size:int -> unit -> t
-val open_logger_from_formatter: ?mode:encoding -> Format.formatter -> t
-val open_logger_from_channel: ?mode:encoding -> out_channel -> t
+val open_logger_from_formatter: ?headerextralength:int -> ?mode:encoding -> Format.formatter -> t
+val open_logger_from_channel: ?headerextralength:int -> ?mode:encoding -> out_channel -> t
 
 val open_array: ?size: float option list -> ?color: Color.color option list -> ?bgcolor: Color.color option list -> ?align: char option list -> title:string list -> t -> bool
 val close_array: t -> unit

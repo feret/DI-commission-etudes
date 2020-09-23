@@ -561,7 +561,9 @@ let close_logger logger =
   let () = flush_logger logger in
   ()
 
-let print_preamble ?decimalsepsymbol logger =
+let print_preamble
+    ?headerextralength:(headerextralength=0)
+    ?decimalsepsymbol logger =
   match
     logger.encoding
   with
@@ -574,7 +576,11 @@ let print_preamble ?decimalsepsymbol logger =
       match orientation with
       | Landscape -> "\\usepackage{lscape}",
                     "\\landscape\n\n\\setlength{\\textwidth}{28.3cm}\n\\setlength{\\hoffset}{-1.84cm}\n\\setlength{\\headsep}{0pt}\n\\setlength{\\topmargin}{0mm}\n\\setlength{\\footskip}{0mm}\n\\setlength{\\oddsidemargin}{0pt}\n\\setlength{\\evensidemargin}{0pt}\n\\setlength{\\voffset}{-2.15cm}\n\\setlength{\\textheight}{19.6cm}\n\\setlength{\\paperwidth}{21cm}\n\\setlength{\\paperheight}{29.7cm}\n\\setlength\\parindent{0pt}\n"
-      | Normal -> "\\usepackage{fancyhdr}\\setlength{\\headheight}{5cm}\n",""
+      | Normal -> Format.sprintf "\\usepackage{fancyhdr}%s\n"
+                    (if headerextralength=0 then "" else
+                       Format.sprintf "\\addtolength{\\headheight}{%icm}\\addtolength{\\textheight}{-%icm}"
+                         headerextralength
+                         headerextralength),""
     in
     let decimal =
       match
@@ -586,7 +592,7 @@ let print_preamble ?decimalsepsymbol logger =
     in
     let () =
       fprintf logger
-      "\\documentclass[10pt]{%sarticle}%%\n%%\n\
+      "\\documentclass[10pt]{extarticle}%%\n%%\n\
 \\usepackage[latin1]{inputenc}%%\n\
 %s\n\
 \\usepackage[french]{babel}%%\n\
@@ -641,9 +647,6 @@ let print_preamble ?decimalsepsymbol logger =
 {\\StrSubstitute{#1}{,}{.}[\\res]\\myifdecimal{#1}{\res}{0}}%%\n\
 %%\n\
        %%\n\ "
-      (match orientation with
-         Landscape -> "ext"
-       | Normal -> "")
       package size
       (match orientation with
          Landscape -> "empty" | Normal -> "fancy")   decimal
@@ -716,7 +719,9 @@ let breakpage t =
   | Latex _ | Latex_encapsulated -> fprintf t "\\clearpage%%\n\ "
   | HTML | HTML_Tabular | HTML_encapsulated| Json | TXT | CSV | XLS -> ()
 
-let open_logger_from_channel ?mode:(mode=TXT) channel =
+let open_logger_from_channel
+    ?headerextralength:(headerextralength=0)
+    ?mode:(mode=TXT)  channel =
   let formatter = Format.formatter_of_out_channel channel in
   let logger =
     {
@@ -727,10 +732,12 @@ let open_logger_from_channel ?mode:(mode=TXT) channel =
       with_lines = false;
     }
   in
-  let () = print_preamble logger in
+  let () = print_preamble ~headerextralength logger in
   logger
 
-let open_logger_from_formatter ?mode:(mode=TXT) formatter =
+let open_logger_from_formatter
+    ?headerextralength:(headerextralength=0)
+    ?mode:(mode=TXT) formatter =
   let logger =
     {
       logger = Formatter formatter;
@@ -740,7 +747,7 @@ let open_logger_from_formatter ?mode:(mode=TXT) formatter =
       with_lines = false;
     }
   in
-  let () = print_preamble logger in
+  let () = print_preamble ~headerextralength logger in
   logger
 
 let open_circular_buffer ?mode:(mode=TXT) ?size:(size=10) () =
@@ -752,7 +759,7 @@ let open_circular_buffer ?mode:(mode=TXT) ?size:(size=10) () =
     with_lines = false;
   }
 
-let open_infinite_buffer ?mode:(mode=TXT) () =
+let open_infinite_buffer ?headerextralength:(headerextralength=0) ?mode:(mode=TXT) () =
   let logger =
     {
       logger = Infinite_buffer (ref (Infinite_buffers.create 0 ""));
@@ -762,7 +769,7 @@ let open_infinite_buffer ?mode:(mode=TXT) () =
       with_lines = false;
     }
   in
-  let () = print_preamble logger in
+  let () = print_preamble ~headerextralength logger in
   logger
 
 
