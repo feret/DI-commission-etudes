@@ -2832,7 +2832,51 @@ let export_transcript
     let promo =
       (Tools.unsome_string gps_file.promotion)
     in
-
+    let state, promo_int =
+      try
+        state, int_of_string promo
+      with
+        _ ->
+        Remanent_state.warn
+          __POS__
+          (Format.sprintf
+             "Promotion should be an integer %s %s %s"
+             promo
+             firstname
+             lastname)
+          Exit
+          state,
+        0
+    in
+    let state, promo_int =
+      Public_data.YearMap.fold
+        (fun year _ (state, y') ->
+           let state, y_int =
+             try
+               state, int_of_string year
+             with
+               _ ->
+               Remanent_state.warn
+                 __POS__
+                 (Format.sprintf
+                    "Promotion should be an integer %s %s %s"
+                    year
+                    firstname
+                    lastname)
+              Exit
+              state,
+               y'
+           in
+           state, min y' y_int)
+        gps_file.situation
+        (state, promo_int)
+    in
+    let promo = string_of_int promo_int in
+    let who =
+      Format.sprintf
+        "pour %s %s (%s)"
+        firstname lastname promo
+    in
     let state, additional_courses =
       Remanent_state.get_additional_course
         ~firstname ~lastname
@@ -2963,51 +3007,6 @@ let export_transcript
           else state
         in
         state
-    in
-    let state, promo_int =
-      try
-        state, int_of_string promo
-      with
-        _ ->
-        Remanent_state.warn
-          __POS__
-          (Format.sprintf
-             "Promotion should be an integer %s %s %s"
-             promo
-             firstname
-             lastname)
-          Exit
-          state,
-        0
-    in
-    let state, promo_int =
-      Public_data.YearMap.fold
-        (fun year _ (state, y') ->
-           let state, y_int =
-             try
-               state, int_of_string year
-             with
-               _ ->
-               Remanent_state.warn
-                 __POS__
-                 (Format.sprintf
-                    "Promotion should be an integer %s %s %s"
-                    year
-                    firstname
-                    lastname)
-              Exit
-              state,
-               y'
-           in
-           state, min y' y_int)
-        gps_file.situation
-        (state, promo_int)
-    in
-    let promo = string_of_int promo_int in
-    let who =
-      Format.sprintf
-        "pour %s %s (%s)"
-        firstname lastname promo
     in
     let state, origine =
       match
@@ -3372,7 +3371,9 @@ let export_transcript
                    | None -> ""
                  in
                  let state =
-                   if do_report report
+                   if do_report report &&
+                      (year <= current_year ||
+                         need_a_mentor gps_file)
                    then
                    Remanent_state.add_mentor
                      state

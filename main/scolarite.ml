@@ -31,9 +31,24 @@ let state, l =
   Remanent_state.get_mentoring_list
     ~year:"2020"
     state
+let s string =
+  Special_char.lowercase
+    (Special_char.correct_string_txt
+       (String.trim string))
 let state =
   List.fold_left
     (fun state elt ->
+       if List.exists
+           (fun student ->
+              s student.Public_data.firstname
+              = s elt.Public_data.prenom_de_l_etudiant &&
+              s student.Public_data.lastname
+              =
+              s elt.Public_data.nom_de_l_etudiant
+           )
+           students_list
+       then state
+       else
        Remanent_state.add_mentor
          state
          {
