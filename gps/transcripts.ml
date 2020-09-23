@@ -2816,6 +2816,10 @@ let export_transcript
     let firstname =
       Special_char.capitalize (Tools.unsome_string gps_file.prenom)
     in
+    let promo =
+      (Tools.unsome_string gps_file.promotion)
+    in
+
     let state, additional_courses =
       Remanent_state.get_additional_course
         ~firstname ~lastname
@@ -2828,11 +2832,19 @@ let export_transcript
         gps_file
         additional_courses
     in
+    let state, currentyear =
+      Remanent_state.get_current_academic_year state
+    in
     let state, nextyear =
-      let state, year =
-        Remanent_state.get_current_academic_year
-      in
-      state, next_year year
+      match next_year currentyear
+      with
+      | None ->
+        Remanent_state.warn
+          __POS__
+          (Format.sprintf "Bad year %s" currentyear)
+          Exit
+          state, currentyear
+      | Some y -> state, y
     in
     let state, tuteur =
       Remanent_state.get_mentoring
@@ -2840,6 +2852,22 @@ let export_transcript
         ~lastname
         ~firstname
         state
+    in
+    let state, situation =
+      match
+        Public_data.YearMap.find_opt
+          currentyear
+          gps_file.situation
+      with
+      | None ->
+        Remanent_state.warn
+          __POS__
+          (Format.sprintf
+             "Missing situation for current year %s %s" firstname lastname)
+          Exit
+          state,
+        empty_bilan_annuel
+      | Some a -> state, a
     in
     let state =
       match tuteur with
@@ -2910,7 +2938,7 @@ let export_transcript
                 nom_du_tuteur;
               Public_data.mentor_firstname =
                 prenom_du_tuteur;
-              Public_data.mentor_academic_year = year;
+              Public_data.mentor_academic_year = nextyear;
               Public_data.mentor_student_promo = promo ;
               Public_data.mentor_student_gender = genre;
               Public_data.mentor_student_lastname = lastname ;
@@ -2921,9 +2949,6 @@ let export_transcript
           else state
         in
         state
-    in 
-    let promo =
-      (Tools.unsome_string gps_file.promotion)
     in
     let state, promo_int =
       try
@@ -4546,7 +4571,7 @@ let export_transcript
           let () =
             Remanent_state.fprintf
               state
-              "\\vfill\\\\\\vspace*{-2.5cm}\\begin{center}%%\n\ Paris, le \\today\\\\%%\n\ \\IfFileExists{%s}%%\n\ {\ {\\includegraphics{%s}}}%%\n\ {}\\end{center}"
+              "\\vfill\\\\\\vspace*{-1.cm}\\begin{center}%%\n\ Paris, le \\today\\\\%%\n\ \\IfFileExists{%s}%%\n\ {\ {\\includegraphics{%s}}}%%\n\ {}\\end{center}"
               f f
           in ()
         in
