@@ -112,6 +112,7 @@ type data =
     decisions: Decisions.t;
     admissions: Admissions.t;
     compensations: Compensations.t;
+    additional_courses: Cours_a_ajouter.t;
     dispenses: Dispenses.t;
     missing_grades: Public_data.missing_grade list;
     missing_ects_attributions: Public_data.missing_grade list;
@@ -132,6 +133,7 @@ let empty_data =
     dpts =  Departments.empty;
     cursus = Cursus.empty;
     programs = Programs.empty;
+    additional_courses = Cours_a_ajouter.empty;
     output_alias = None;
     cursus_exceptions = Cursus_exception.empty;
     decisions = Decisions.empty;
@@ -436,6 +438,12 @@ let get_dispenses_list_prefix t =
 
 let get_dispenses_list_repository t =
       get_rep_gen get_dispenses_list_prefix t
+
+let get_additional_courses_list_prefix t =
+  t, "cours_a_ajouter"
+
+let get_additional_courses_list_repository t =
+  get_rep_gen get_additional_courses_list_prefix t
 
 let get_csv_separator t = t, Some ','
 
@@ -863,6 +871,14 @@ let set_dispenses dispenses data =
 let set_dispenses dispenses t =
   lift_set set_dispenses dispenses t
 
+let get_additional_course data = data.additional_courses
+let get_additional_course t =
+  lift_get get_additional_course t
+let set_additional_course additional_courses data =
+    {data with additional_courses}
+let set_additional_course additional_courses t =
+    lift_set set_additional_course additional_courses t
+
 let add_gen get set add pos data t =
   let t, acc =
     add
@@ -1003,6 +1019,20 @@ let get_dispenses
         t.data.dispenses
     in
     t, dispense_opt
+
+let add_additional_course _ =
+  add_gen
+    get_additional_course
+    set_additional_course
+    (Cours_a_ajouter.add_additional_course)
+
+let get_additional_course
+    ~firstname ~lastname
+    t =
+  t,
+  Cours_a_ajouter.get_additional_courses
+    ~firstname ~lastname
+    t.data.additional_courses
 
 let add_decision unify =
   add_gen

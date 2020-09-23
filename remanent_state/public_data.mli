@@ -7,7 +7,7 @@ type annee = string
 type genre =
   | Feminin
   | Masculin
-  | Unknown 
+  | Unknown
 
 type student_id =
   {
@@ -37,6 +37,7 @@ module LastNameMap : Map.S with type key = string
 module YearMap: Map.S with type key = annee
 module AcronymMap: Map.S with type key = string
 module ProgramMap: Map.S with type key = string
+module LibelleMap: Map.S with type key = string 
 module LevelMap: Map.S with type key = string
 
 module CodeExtendedMap : Map_tools.Collect
@@ -96,6 +97,21 @@ type course_exception =
   }
 
 val empty_course_exception: course_exception
+
+type cours_a_ajouter =
+  {
+    coursaj_nom: string;
+    coursaj_prenom: string;
+    coursaj_code:string option;
+    coursaj_libelle:string;
+    coursaj_dpt:string option;
+    coursaj_level:string;
+    coursaj_note:float option;
+    coursaj_ects:float;
+    coursaj_annee:annee;
+  }
+
+val empty_cours_a_ajouter:cours_a_ajouter
 
 type tutorat =
   {

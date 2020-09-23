@@ -51,7 +51,7 @@ type annee = string
 type genre =
   | Feminin
   | Masculin
-  | Unknown 
+  | Unknown
 
 type student_id =
   {
@@ -118,6 +118,32 @@ let empty_course_exception =
     course_exception_genre=Masculin;
     course_exception_firstname="";
     course_exception_lastname="";
+  }
+
+type cours_a_ajouter =
+  {
+    coursaj_nom: string;
+    coursaj_prenom: string;
+    coursaj_code:string option;
+    coursaj_libelle:string;
+    coursaj_dpt:string option;
+    coursaj_level:string;
+    coursaj_note:float option;
+    coursaj_ects:float;
+    coursaj_annee:annee;
+  }
+
+let empty_cours_a_ajouter =
+  {
+    coursaj_nom= "";
+    coursaj_prenom="";
+    coursaj_code=None;
+    coursaj_libelle="";
+    coursaj_dpt=None;
+    coursaj_level="";
+    coursaj_note=None;
+    coursaj_ects=0.;
+    coursaj_annee=""
   }
 
 type tutorat =
@@ -503,6 +529,7 @@ module FirstNameMap = StringMap
 module LastNameMap = StringMap
 module AcronymMap = StringMap
 module ProgramMap = StringMap
+module LibelleMap = StringMap 
 module YearMap =
   Map.Make
     (struct

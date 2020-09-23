@@ -96,7 +96,7 @@ val get_repository_to_access_gps: t -> t * string
 val get_repository_to_dump_gps_files: t -> t * string
 val get_repository_for_handmade_gps_files: t -> t * string
 val get_repository_for_backup_gps_files: t -> t * string
-val get_signature: t -> t * string 
+val get_signature: t -> t * string
 val get_store_gps_files_according_to_their_promotions: t -> t * bool
 val get_indicate_promotions_in_gps_file_names: t -> t * bool
 
@@ -141,6 +141,9 @@ val get_admissions_list_repository: t -> t * string
 
 val get_dispenses_list_prefix: t -> t * string
 val get_dispenses_list_repository: t -> t * string
+
+val get_additional_courses_list_prefix: t -> t * string
+val get_additional_courses_list_repository: t -> t * string
 
 val get_launching_date: t -> t * string
 
@@ -335,6 +338,20 @@ val add_dispense:
 val get_dispenses:
   ?firstname:string -> ?lastname:string -> ?year:string -> ?program:string -> ?dpt:string->
   t -> t * Public_data.dispense list
+
+val add_additional_course:
+  (string * int * int * int ->
+   t ->
+   Public_data.cours_a_ajouter ->
+   Public_data.cours_a_ajouter -> t * Public_data.cours_a_ajouter) ->
+  (string * int * int * int) ->
+  Public_data.cours_a_ajouter ->
+  t -> t
+
+val get_additional_course:
+  firstname:string -> lastname:string ->
+  t -> t * Public_data.cours_a_ajouter list
+
 
 val get_current_academic_year:
   t -> t * Public_data.annee

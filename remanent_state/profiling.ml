@@ -10,6 +10,7 @@ type step_kind =
   | Patch_gps_file of string option
   | Build_keywords_automaton
   | Export_transcript of string option
+  | Collect_additional_courses
   | Collect_admissions
   | Collect_scholarships
   | Collect_mentoring
@@ -63,7 +64,7 @@ let string_of_step_kind x =
     Printf.sprintf
       "Extract GPS file (%s %s %s) from ENS database"
       lastname firstname
-      (match dpt_opt with None -> "" | Some x -> x) 
+      (match dpt_opt with None -> "" | Some x -> x)
   | Patch_gps_file None ->
     "Patch GPS output"
   | Patch_gps_file (Some file) ->
@@ -76,6 +77,7 @@ let string_of_step_kind x =
     Printf.sprintf
       "Export transcript (%s)"
       x
+  | Collect_additional_courses -> "Collect data about not-in-gps courses"
   | Collect_scholarships -> "Collect data about scholarships"
   | Collect_mentoring -> "Collect data about mentoring"
   | Collect_departement -> "Collect data about teaching departments"
@@ -168,6 +170,7 @@ let is_dummy step_kind =
   | Patch_gps_file _
   | Build_keywords_automaton
   | Export_transcript _
+  | Collect_additional_courses
   | Collect_scholarships
   | Collect_mentoring
   | Collect_departement

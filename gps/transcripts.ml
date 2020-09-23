@@ -1030,6 +1030,48 @@ let store_cours  =
        state, {remanent.rem_cours with note ; code_cours ; accord ; commentaire})
     (fun state bilan cours -> state, {bilan with cours})
 
+let add_extra_course cours_a_ajouter gps_file =
+  let situation = gps_file.situation in
+  let bilan =
+    match
+      Public_data.YearMap.find_opt
+        cours_a_ajouter.Public_data.coursaj_annee
+        situation
+    with
+    | None -> empty_bilan_annuel
+    | Some b -> b
+  in
+  let elt =
+    {
+      semestre = None ;
+      code_cours = cours_a_ajouter.Public_data.coursaj_code;
+      responsable = None ;
+      cours_libelle = Some (cours_a_ajouter.Public_data.coursaj_libelle);
+      cours_etablissement = None ;
+      duree = None ;
+      ects = Some cours_a_ajouter.Public_data.coursaj_ects;
+      diplome = Some cours_a_ajouter.Public_data.coursaj_level ;
+      contrat = None ;
+      accord = None ;
+      note =
+        (match cours_a_ajouter.Public_data.coursaj_note
+        with
+        | Some f ->
+          Some (Public_data.Float f)
+        | None ->
+          Some (Public_data.Valide_sans_note)) ;
+        lettre = None;
+      commentaire = [];
+    }
+  in
+  let bilan = {bilan with cours = elt::bilan.cours} in
+  {gps_file with situation =
+  Public_data.YearMap.add cours_a_ajouter.Public_data.coursaj_annee bilan gps_file.situation}
+
+
+
+
+
 let store_stage pos ~who state current_file current_file' output=
   let _ = pos, who in
   let stage = current_file'.stage in
@@ -2774,6 +2816,18 @@ let export_transcript
     let firstname =
       Special_char.capitalize (Tools.unsome_string gps_file.prenom)
     in
+    let state, additional_courses =
+      Remanent_state.get_additional_course
+        ~firstname ~lastname
+        state
+    in
+    let gps_file =
+      List.fold_left
+        (fun gps_file course ->
+           add_extra_course course gps_file)
+        gps_file
+        additional_courses
+    in
     let promo =
       (Tools.unsome_string gps_file.promotion)
     in
@@ -4398,7 +4452,7 @@ let export_transcript
           let () =
             Remanent_state.fprintf
               state
-              "\\begin{center}%%\n\ \\today\\\\%%\n\ \\IfFileExists{%s}%%\n\ {\ {\\includegraphics[height=3cm]{%s}}}%%\n\ {}\\end{center}"
+              "\\vfill\\\\\\vspace*{-2.5cm}\\begin{center}%%\n\ Paris, le \\today\\\\%%\n\ \\IfFileExists{%s}%%\n\ {\ {\\includegraphics{%s}}}%%\n\ {}\\end{center}"
               f f
           in ()
         in
