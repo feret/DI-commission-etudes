@@ -5,9 +5,9 @@ type access_type =
 type mode =
   {
     access_type: access_type;
-    avec_accent: bool
+    avec_accent_sur_le_nom: bool;
+    avec_accent_sur_le_prenom: bool;
   }
-
 
 let string_of_dpt_opt =
   function
@@ -22,9 +22,9 @@ let profiling_label_of_dpt_opt =
   | Some PE -> Some "PE"
 
 let build_output
-    f student_id ?prefix ?output_repository ?output_file_name state =
-  let firstname = f student_id.Public_data.firstname in
-  let lastname = f student_id.Public_data.lastname in
+    ~f_firstname ~f_lastname student_id ?prefix ?output_repository ?output_file_name state =
+  let firstname = f_firstname  student_id.Public_data.firstname in
+  let lastname = f_lastname student_id.Public_data.lastname in
   let promotion = student_id.Public_data.promotion in
   let state, output_repository =
     match output_repository with
@@ -132,14 +132,18 @@ let check ~output_repository ~output_file_name state =
 
 
 let get_student_file_gen
-    f student_id ?dpt
+    ~f_firstname ~f_lastname student_id ?dpt
     ?file_retriever ?command_line_options ?machine ?port ?input_repository ?output_repository ?prefix ?timeout ?checkoutperiod
     ?output_file_name ?log_file ?log_repository
     ?user_name ?password
     state
   =
-  let firstname = f student_id.Public_data.firstname in
-  let lastname = f student_id.Public_data.lastname in
+  let firstname =
+    f_firstname student_id.Public_data.firstname
+  in
+  let lastname =
+    f_lastname  student_id.Public_data.lastname
+  in
   let event_opt =
     Some
       (Profiling.Extract_gps_file_from_database
@@ -221,7 +225,8 @@ let get_student_file_gen
   in
   let state, output_repository, output_file_name =
     build_output
-      (fun x -> x)
+      ~f_firstname:(fun x -> x)
+      ~f_lastname:(fun x -> x)
       student_id ?prefix ?output_repository ?output_file_name state
   in
   let state, output =
@@ -255,9 +260,13 @@ let get_student_file_gen
   state, output
 
 let copy
-    f g student_id ?prefix ?output_repository ?output_file_name backup_rep state =
-  let firstname = f student_id.Public_data.firstname in
-  let lastname = f student_id.Public_data.lastname in
+    ~f_firstname ~f_lastname g student_id ?prefix ?output_repository ?output_file_name backup_rep state =
+  let firstname =
+    f_firstname  student_id.Public_data.firstname
+  in
+  let lastname =
+    f_lastname student_id.Public_data.lastname
+  in
   let event_opt =
     Some
       (g (firstname,lastname))
@@ -267,11 +276,13 @@ let copy
   let promotion = Tools.unsome_string promotion in
   let state, output_repository, output_file_name =
     build_output
-      (fun x -> x) student_id ?prefix ?output_repository ?output_file_name state
+      ~f_firstname:(fun x -> x)
+      ~f_lastname:(fun x -> x)
+      student_id ?prefix ?output_repository ?output_file_name state
   in
   let state, _, input_file_name =
     build_output
-      f student_id ?prefix ~output_repository ~output_file_name state
+      ~f_firstname ~f_lastname student_id ?prefix ~output_repository ~output_file_name state
   in
   let state, rep =
     let state, r1 =
@@ -336,8 +347,14 @@ let try_get_student_file
     ?output_file_name ?log_file ?log_repository
     ?user_name ?password
     state =
-  let f =
-    if mode.avec_accent then
+  let f_firstname =
+    if mode.avec_accent_sur_le_prenom then
+      Special_char.uppercase
+    else
+      (fun x -> Special_char.uppercase (Special_char.correct_string x))
+  in
+  let f_lastname =
+    if mode.avec_accent_sur_le_nom then
       Special_char.uppercase
     else
       (fun x -> Special_char.uppercase (Special_char.correct_string x))
@@ -346,7 +363,7 @@ let try_get_student_file
     match mode.access_type with
     | GPS dpt ->
       get_student_file_gen
-        f ?dpt student_id
+        ~f_firstname ~f_lastname ?dpt student_id
         ?file_retriever ?command_line_options ?machine ?port
         ?input_repository ?output_repository ?prefix ?timeout
         ?checkoutperiod
@@ -357,7 +374,7 @@ let try_get_student_file
         Remanent_state.get_repository_for_backup_gps_files
       in
       copy
-        f
+        ~f_firstname ~f_lastname
         (fun (a,b) ->
            Profiling.Extract_gps_file_from_backup_files (a,b))
         student_id ?prefix ?output_repository ?output_file_name
@@ -367,14 +384,16 @@ let try_get_student_file
         Remanent_state.get_repository_for_handmade_gps_files
       in
       copy
-        f
+        ~f_firstname ~f_lastname
         (fun (a,b) ->
            Profiling.Extract_gps_file_from_handmade_files (a,b))
         student_id ?prefix ?output_repository ?output_file_name backup_rep state
     | Warn ->
       let state, output_repository, output_file_name =
         build_output
-          f student_id ?prefix ?output_repository ?output_file_name state
+          ~f_firstname ~f_lastname
+          student_id ?prefix ?output_repository
+          ?output_file_name state
       in
       let output_file_name =
         get_file_name output_repository output_file_name
@@ -433,33 +452,47 @@ let get_student_file
   in
   aux modelist state
 
-let add_to_list simplified access_type l =
-  if simplified
-  then
-    {
-      access_type ;
-      avec_accent = true;
-    }::l
-  else
-    {
-      access_type ;
-      avec_accent = true;
-    }::
-    {
-      access_type ;
-      avec_accent = false
-    }::l
+let add_to_list simplified_firstname simplified_lastname access_type l =
+  let firstname_list =
+    if simplified_firstname then
+      [true]
+    else
+      [true;false]
+  in
+  let lastname_list =
+    if simplified_lastname then
+      [true]
+    else
+      [true;false]
+  in
+  List.fold_left
+    (fun l avec_accent_sur_le_nom ->
+       List.fold_left
+         (fun l avec_accent_sur_le_prenom ->
+            {access_type;
+             avec_accent_sur_le_nom; avec_accent_sur_le_prenom}::l)
+         l
+         firstname_list
+    )
+    l
+    lastname_list
 
-let modelist_gen b =
-  add_to_list b Preempt
-    (add_to_list b (GPS None)
-       (add_to_list b (GPS (Some Maths))
-          (add_to_list b (GPS (Some PE))
-             (add_to_list true Warn
-                (add_to_list b Backup [])))))
+let modelist_gen b1 b2 =
+  add_to_list b1 b2 Preempt
+    (add_to_list b1 b2 (GPS None)
+       (add_to_list b1 b2 (GPS (Some Maths))
+          (add_to_list b1 b2 (GPS (Some PE))
+             (add_to_list true true Warn
+                (add_to_list b1 b2 Backup [])))))
 
-let full_list = modelist_gen false
-let simplified_list = modelist_gen true
+let modelist_true_true =
+  modelist_gen true true
+let modelist_true_false =
+  modelist_gen true false
+let modelist_false_true =
+  modelist_gen false true
+let modelist_false_false =
+  modelist_gen false false
 
 let get_student_file
       student_id
@@ -486,12 +519,15 @@ let get_student_file
       match modelist with
       | Some modelist -> modelist
       | None ->
-        if Special_char.remove_acute firstname = firstname
-        && Special_char.remove_acute lastname = lastname
-        then
-          simplified_list
-        else
-          full_list
+        begin
+          match Special_char.remove_acute firstname = firstname,
+                Special_char.remove_acute lastname = lastname
+          with
+          | true, true -> modelist_true_true
+          | true, false -> modelist_true_false
+          | false, true -> modelist_false_true
+          | false, false -> modelist_false_false
+        end
     in
     let state, output =
       get_student_file
@@ -832,7 +868,8 @@ let patch_student_file
       Csv.input_all csv_channel
     in
     let state, csv =
-      patch_student_csv state ?firstname ?lastname ~file_name csv
+      patch_student_csv
+        state ?firstname ?lastname ~file_name csv
     in
     let () = close_in in_channel in
     let state =

@@ -5,7 +5,8 @@ type access_type =
 type mode =
   {
     access_type: access_type;
-    avec_accent: bool
+    avec_accent_sur_le_nom: bool;
+    avec_accent_sur_le_prenom: bool;
   }
 
 val get_student_file :
