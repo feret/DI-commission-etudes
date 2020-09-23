@@ -2828,6 +2828,100 @@ let export_transcript
         gps_file
         additional_courses
     in
+    let state, nextyear =
+      let state, year =
+        Remanent_state.get_current_academic_year
+      in
+      state, next_year year
+    in
+    let state, tuteur =
+      Remanent_state.get_mentoring
+        ~year:nextyear
+        ~lastname
+        ~firstname
+        state
+    in
+    let state =
+      match tuteur with
+      | None -> state
+      | Some tuteur ->
+        let state, genre =
+          match
+            gps_file.genre
+          with
+          | None ->
+            Remanent_state.warn
+              __POS__
+              "missing gender"
+              Exit
+              state, Public_data.Unknown
+          | Some a -> state, a in
+        let state, genre_du_tuteur =
+            match
+              tuteur.Public_data.genre_du_tuteur
+            with
+            | None ->
+              Remanent_state.warn
+                __POS__
+                "missing mentor gender"
+                Exit
+                state, Public_data.Unknown
+            | Some a -> state, a in
+        let state, nom_du_tuteur =
+          match
+            tuteur.Public_data.nom_du_tuteur
+          with
+          | None ->
+          Remanent_state.warn
+            __POS__
+            "missing mentor name"
+            Exit
+            state, ""
+          | Some a -> state, a
+        in
+        let state, prenom_du_tuteur =
+          match
+            tuteur.Public_data.prenom_du_tuteur
+          with
+          | None ->
+          Remanent_state.warn
+            __POS__
+            "missing mentor first name"
+            Exit
+            state, ""
+          | Some a -> state, a
+        in
+        let current_dpt =
+          match
+            situation.departement_principal
+          with
+          | Some a ->
+            Special_char.lowercase a
+          | None -> ""
+        in
+        let state =
+          if do_report report
+          then
+          Remanent_state.add_mentor
+            state
+            {
+              Public_data.mentor_gender = genre_du_tuteur;
+              Public_data.mentor_lastname =
+                nom_du_tuteur;
+              Public_data.mentor_firstname =
+                prenom_du_tuteur;
+              Public_data.mentor_academic_year = year;
+              Public_data.mentor_student_promo = promo ;
+              Public_data.mentor_student_gender = genre;
+              Public_data.mentor_student_lastname = lastname ;
+              Public_data.mentor_student_firstname = firstname ;
+              Public_data.mentor_student_dpt =
+                current_dpt ;
+            }
+          else state
+        in
+        state
+    in 
     let promo =
       (Tools.unsome_string gps_file.promotion)
     in
