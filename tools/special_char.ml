@@ -424,7 +424,7 @@ let capitalize s =
       let () =
         a.(k)<-(if bool then uppercase_char s.[k] else s.[k])
       in
-      aux (k+1) (s.[k]=' ' || s.[k]='-')
+      aux (k+1) (s.[k]=' ' || s.[k]='-' || (bool && s.[k]='\195'))
   in
   let () = aux 0 true in
   String.init n (fun i -> a.(i))
