@@ -114,6 +114,8 @@ let state =
          let state,patched_file_opt =
            Get_gps_files.patch_student_file
              state
+             ~firstname:id.Public_data.firstname
+             ~lastname:id.Public_data.lastname
              ~input:output
              ~output:output
          in

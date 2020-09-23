@@ -1,7 +1,7 @@
 type dpt = Maths | PE
 type access_type =
     GPS of dpt option | Backup | Preempt | Warn
-  
+
 type mode =
   {
     access_type: access_type;
@@ -36,6 +36,8 @@ val get_students_list:
   Remanent_state.t
 
 val patch_student_file:
+  ?firstname:string ->
+  ?lastname:string ->
   input:(string * string) ->
   output:(string * string) ->
   Remanent_state.t -> Remanent_state.t *  (string * string) option

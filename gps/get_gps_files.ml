@@ -640,7 +640,9 @@ let get_students_list
 
 let key = "Année académique"
 
-let patch_student_csv state ?file_name csv =
+let patch_student_csv
+    state
+    ?firstname ?lastname ?file_name csv =
   let rec aux state residual acc =
     match
       residual
@@ -663,7 +665,7 @@ let patch_student_csv state ?file_name csv =
             | [] ->
               List.rev firstname, []
           in
-          let genre, firstname, lastname =
+          let genre, firstname', lastname' =
             match list_of_string with
             | [] | [_] -> "","",""
             | g::t ->
@@ -671,6 +673,16 @@ let patch_student_csv state ?file_name csv =
               g,
               String.concat " " firstnamelist,
               String.concat " " lastnamelist
+          in
+          let firstname =
+              match firstname with
+              | None -> firstname'
+              | Some a -> a
+          in
+          let lastname =
+            match lastname with
+            | None -> lastname'
+            | Some a -> a
           in
           if firstname = "" || lastname = ""
           then
@@ -771,15 +783,15 @@ let patch_student_csv state ?file_name csv =
   in
   step1 state csv []
 
-let patch_student_csv state ?file_name csv =
+let patch_student_csv state ?firstname ?lastname ?file_name csv =
   let event_opt = Some (Profiling.Patch_gps_file file_name) in
   let state = Remanent_state.open_event_opt event_opt state in
-  let state, output = patch_student_csv state ?file_name csv in
+  let state, output = patch_student_csv state ?firstname ?lastname ?file_name csv in
   let state = Remanent_state.close_event_opt event_opt state in
   state, output
 
 let patch_student_file
-    ~input
+    ?firstname ?lastname ~input
     ~output
     state
   =
@@ -820,7 +832,7 @@ let patch_student_file
       Csv.input_all csv_channel
     in
     let state, csv =
-      patch_student_csv state ~file_name csv
+      patch_student_csv state ?firstname ?lastname ~file_name csv
     in
     let () = close_in in_channel in
     let state =
