@@ -217,6 +217,8 @@ let state, input =
     state
 let state =
     Latex_engine.latex_opt_to_pdf state ~input
+let state =
+  Diploma_report.dump_pvs state
 let headpage s _ =
   Format.sprintf
     "Département Informatique \\\\Résultats 2019-2020\\\\%s\\\\Page \\thepage/\\pageref{LastPage}\\\\" s
@@ -256,17 +258,13 @@ let state,input =
     ~file_name:"dens_par_promo.tex" state
     ~signature ~preamble ~headpage:(headpage "DENS")
 let state =
-  Latex_engine.latex_opt_to_pdf state ~input
-let state =
-  Latex_engine.latex_opt_to_pdf state ~input
+  Latex_engine.latex_opt_to_pdf state ~times:2 ~input
 let state,input =
   Dens_report.DensReport.dump_per_n_inscription
     ~file_name:"dens_par_nb_inscriptions.tex" state
     ~signature ~preamble ~headpage:(headpage "DENS")
 let state =
-  Latex_engine.latex_opt_to_pdf state ~input
-let state =
-  Latex_engine.latex_opt_to_pdf state ~input
+  Latex_engine.latex_opt_to_pdf state ~times:2 ~input
 let state, academicyear =
   Remanent_state.get_current_academic_year state
 let preamble s u i =
@@ -282,9 +280,7 @@ let state,input =
     ~signature
     state
 let state =
-  Latex_engine.latex_opt_to_pdf state ~input
-let state =
-  Latex_engine.latex_opt_to_pdf state ~input
+  Latex_engine.latex_opt_to_pdf ~times:2 state ~input
 let state,input =
   Diploma_report.DiplomaReport.dump_per_student
     ~file_name:"M1student.tex"
@@ -294,9 +290,7 @@ let state,input =
     ~signature
     state
 let state =
-  Latex_engine.latex_opt_to_pdf ~rev:false state ~input
-let state =
-  Latex_engine.latex_opt_to_pdf ~rev:false state ~input
+  Latex_engine.latex_opt_to_pdf ~rev:false ~times:2 state ~input
 let state, input =
   Diploma_report.DiplomaReport.dump_per_result_per_student
     ~file_name:"L3result.tex"
@@ -306,9 +300,7 @@ let state, input =
     ~signature
     state
 let state =
-  Latex_engine.latex_opt_to_pdf state ~input
-let state =
-  Latex_engine.latex_opt_to_pdf state ~input
+  Latex_engine.latex_opt_to_pdf state ~times:2 ~input
 let state, input =
   Diploma_report.DiplomaReport.dump_per_student
     ~file_name:"L3student.tex"
@@ -318,9 +310,7 @@ let state, input =
     ~signature
     state
 let state =
-  Latex_engine.latex_opt_to_pdf state ~input
-let state =
-  Latex_engine.latex_opt_to_pdf state ~input
+  Latex_engine.latex_opt_to_pdf state ~times:2 ~input
 let state,_ =
   Grades.MissingGrades.dump_per_dpt_student_year
     ~file_name:"notes_manquantes_par_dpt_et_cours.html"

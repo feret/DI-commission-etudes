@@ -23,68 +23,30 @@ let profiling_label_of_dpt_opt =
 
 let build_output
     ~f_firstname ~f_lastname student_id ?prefix ?output_repository ?output_file_name state =
-  let firstname = f_firstname  student_id.Public_data.firstname in
-  let lastname = f_lastname student_id.Public_data.lastname in
+  let firstname = student_id.Public_data.firstname in
+  let lastname = student_id.Public_data.lastname in
   let promotion = student_id.Public_data.promotion in
-  let state, output_repository =
-    match output_repository with
-    | None ->
-      begin
-        let state, r1 =
-          Remanent_state.get_local_repository state
-        in
-        let state, r2 =
-            Remanent_state.get_repository_to_dump_gps_files
-              state
-        in
-        match r1,r2 with
-        | "","" -> state,""
-        | "",x | x,"" -> state,x
-        | x1,x2 -> state,Printf.sprintf "%s/%s" x1 x2
-    end
-    | Some rep -> state, rep
+  let get_local_repository =
+    Remanent_state.get_local_repository
   in
-  let promotion =
-    match promotion with
-    | None -> ""
-    | Some x -> x
+  let get_repository =
+    Remanent_state.get_repository_to_dump_gps_files
   in
-  let state, prefix =
-    match prefix with
-    | None ->
-      let state, bool =
-        Remanent_state.get_store_gps_files_according_to_their_promotions state
-      in
-      state, if bool then promotion else ""
-    | Some prefix -> state, prefix
+  let get_store_according_promotion =
+    Remanent_state.get_store_gps_files_according_to_their_promotions
   in
-  let state, output_file_name =
-    match output_file_name with
-    | None ->
-      let state,bool =
-        Remanent_state.get_indicate_promotions_in_gps_file_names state
-      in
-      state, (if promotion = "" && not bool
-      then ""
-      else promotion^"_")^lastname^"_"^firstname^".gps.csv"
-    | Some file_name -> state, file_name
+  let get_indicate_promotions_in_file_names =
+    Remanent_state.get_indicate_promotions_in_gps_file_names
   in
-  let output_file_name =
-    Tools.remove_space_from_string output_file_name
-  in
-  let output_repository =
-    match output_repository,prefix  with
-    | ".",prefix | "",prefix -> prefix
-    | x,"" -> x
-    | x1,x2 ->
-      Printf.sprintf "%s/%s" x1 x2
-  in
-  let state, output_repository =
+  let rec_mk_when_necessary =
     Safe_sys.rec_mk_when_necessary
-      __POS__
-      state output_repository
   in
-  state, output_repository, output_file_name
+  Tools.build_output
+    ~get_local_repository ~get_repository
+    ~get_store_according_promotion
+    ~get_indicate_promotions_in_file_names
+    ~rec_mk_when_necessary
+    ~f_firstname ~f_lastname ~firstname ~lastname ~promotion ?prefix ?output_repository ?output_file_name state
 
 let get_file_name output_repository output_file_name =
   if output_repository = ""
@@ -227,6 +189,7 @@ let get_student_file_gen
     build_output
       ~f_firstname:(fun x -> x)
       ~f_lastname:(fun x -> x)
+      ~extension:".gps.csv"
       student_id ?prefix ?output_repository ?output_file_name state
   in
   let state, output =
@@ -278,11 +241,14 @@ let copy
     build_output
       ~f_firstname:(fun x -> x)
       ~f_lastname:(fun x -> x)
-      student_id ?prefix ?output_repository ?output_file_name state
+      student_id ?prefix ?output_repository
+      ~extension:".gps.csv"
+      ?output_file_name state
   in
   let state, _, input_file_name =
     build_output
-      ~f_firstname ~f_lastname student_id ?prefix ~output_repository ~output_file_name state
+      ~f_firstname ~f_lastname student_id ?prefix ~output_repository ~output_file_name
+      ~extension:".gps.csv" state
   in
   let state, rep =
     let state, r1 =
@@ -391,7 +357,7 @@ let try_get_student_file
     | Warn ->
       let state, output_repository, output_file_name =
         build_output
-          ~f_firstname ~f_lastname
+          ~f_firstname ~f_lastname ~extension:".gps.csv"
           student_id ?prefix ?output_repository
           ?output_file_name state
       in

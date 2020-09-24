@@ -15,7 +15,19 @@ type dump =
 module type DiplomaReport =
 sig
   val dump_per_result_per_student: dump
-  val dump_per_student: dump 
+  val dump_per_student: dump
 end
 
 module DiplomaReport: DiplomaReport
+
+val dump_pv:
+  ?output_repository:string ->
+  ?prefix:string ->
+  ?output_file_name:string ->
+  Public_data.diplome_national ->
+  Remanent_state.t ->
+  Remanent_state.t * (string * string) option
+
+val dump_pvs:
+  ?output_repository:string ->
+  ?prefix:string -> Remanent_state.t -> Remanent_state.t

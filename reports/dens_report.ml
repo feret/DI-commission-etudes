@@ -41,6 +41,7 @@ struct
       ?output_repository ?prefix ?file_name ?event_opt
       ~cmp ~filter ~headers ~columns ~get ~default_file_name
       ~get_repository
+      ~headerextralength:5
       state
 
 

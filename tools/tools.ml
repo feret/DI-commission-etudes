@@ -347,7 +347,7 @@ let prepare_report
     in
     let _ =
       match headpage with
-      | None -> setheadpage "" 
+      | None -> setheadpage ""
       | Some f -> setheadpage (f n)
     in
     let _ =
@@ -451,3 +451,72 @@ let prepare_report
       | Some f -> setsignature (f n)
     in
     ()
+
+
+let build_output
+    ~get_local_repository
+    ~get_repository
+    ~get_store_according_promotion
+    ~get_indicate_promotions_in_file_names
+    ~rec_mk_when_necessary
+    ~f_firstname ~f_lastname ~firstname ~lastname ~promotion ?prefix ?output_repository ?output_file_name ~extension state =
+  let firstname = f_firstname firstname in
+  let lastname = f_lastname lastname in
+  let state, output_repository =
+    match output_repository with
+    | None ->
+      begin
+        let state, r1 =
+          get_local_repository state
+        in
+        let state, r2 =
+          get_repository state
+        in
+        match r1,r2 with
+        | "","" -> state,""
+        | "",x | x,"" -> state,x
+        | x1,x2 -> state,Printf.sprintf "%s/%s" x1 x2
+      end
+    | Some rep -> state, rep
+  in
+  let promotion =
+    match promotion with
+    | None -> ""
+    | Some x -> x
+  in
+  let state, prefix =
+    match prefix with
+    | None ->
+      let state, bool =
+        get_store_according_promotion state
+      in
+      state, if bool then promotion else ""
+    | Some prefix -> state, prefix
+  in
+  let state, output_file_name =
+    match output_file_name with
+    | None ->
+      let state,bool =
+        get_indicate_promotions_in_file_names state
+      in
+      state, (if promotion = "" && not bool
+              then ""
+              else promotion^"_")^lastname^"_"^firstname^extension
+    | Some file_name -> state, file_name
+  in
+  let output_file_name =
+    remove_space_from_string output_file_name
+  in
+  let output_repository =
+    match output_repository,prefix  with
+    | ".",prefix | "",prefix -> prefix
+    | x,"" -> x
+    | x1,x2 ->
+      Printf.sprintf "%s/%s" x1 x2
+  in
+  let state, output_repository =
+    rec_mk_when_necessary
+      __POS__
+      state output_repository
+  in
+  state, output_repository, output_file_name

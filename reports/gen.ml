@@ -41,6 +41,7 @@ let dump_elts
     ?title
     ?preamble
     ?signature
+    ?headerextralength:(headerextralength=0)
     ~get ~filter ~get_repository ~default_file_name
     ~cmp ~headers ~columns state  =
   let state =
@@ -158,7 +159,8 @@ let dump_elts
             Exit
             state, Loggers.HTML
         in
-        let logger = Loggers.open_logger_from_channel ~mode
+        let logger = Loggers.open_logger_from_channel ~mode  ~headerextralength
+
             out in
         let logger = Loggers.with_lines logger in
         let extended_elts =

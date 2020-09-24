@@ -4781,7 +4781,7 @@ let export_transcript
                       ()
                     in
                     let state =
-                      if i mod 2 = 0
+                      if i mod 2 = 0 || i = nprogram
                       then
                         let state =
                           foot signature state

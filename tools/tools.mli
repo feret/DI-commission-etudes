@@ -97,3 +97,20 @@ val dump_report:
   ?headpage:(int -> string) ->
   ?preamble:(int -> string) ->
   ?signature:(int -> string) -> ('a list * 'b) list -> unit
+
+val build_output:
+  get_local_repository:('a -> 'b * string) ->
+  get_repository:('b -> 'a * string) ->
+  get_store_according_promotion:('a -> 'a * bool) ->
+  get_indicate_promotions_in_file_names:('a -> 'a * bool) ->
+  rec_mk_when_necessary:(string * int * int * int ->
+                                'a -> string -> 'c * 'd) ->
+  f_firstname:(string -> string)->
+  f_lastname:(string -> string) ->
+  firstname:string ->
+  lastname:string ->
+  promotion:string option ->
+  ?prefix:string ->
+  ?output_repository:string ->
+  ?output_file_name:string ->
+  extension:string -> 'a -> 'c * 'd * string

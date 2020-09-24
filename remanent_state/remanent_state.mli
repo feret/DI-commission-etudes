@@ -100,6 +100,11 @@ val get_signature: t -> t * string
 val get_store_gps_files_according_to_their_promotions: t -> t * bool
 val get_indicate_promotions_in_gps_file_names: t -> t * bool
 
+val get_repository_to_dump_pvs_files: t -> t * string
+val get_store_pvs_files_according_to_their_promotions: t -> t * bool
+val get_indicate_promotions_in_pv_file_names: t -> t * bool
+
+
 (** CSV *)
 val get_csv_separator: t -> t * char option
 

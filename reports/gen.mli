@@ -29,6 +29,7 @@ val dump_elts:
   ?title:string ->
   ?preamble:(int -> string) ->
   ?signature:(int -> string) ->
+  ?headerextralength:int -> 
   get:(Remanent_state.t -> Remanent_state.t * 'a list) ->
   filter:'a filter ->
   get_repository:(Remanent_state.t -> Remanent_state.t * string) ->
