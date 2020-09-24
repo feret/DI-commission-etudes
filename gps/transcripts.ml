@@ -3533,6 +3533,678 @@ let heading
       ()
   in state
 
+let foot signature state  =
+  let () =
+    match signature with
+    | None -> ()
+    | Some f ->
+    let () =
+      Remanent_state.fprintf
+        state
+        "\\vfill\n\n\\vspace*{-1.cm}\n\n\\begin{center}%%\n\ Paris, le \\today\\\\%%\n\ \\IfFileExists{%s}%%\n\ {\ {\\includegraphics{%s}}}%%\n\ {}\\end{center}"
+        f f
+    in ()
+  in
+  let () =
+    Remanent_state.breakpage state
+  in
+  state
+
+let program
+    ~origine ~string ~dpt ~year ~who ~alloc_suffix ~mean ~firstname ~lastname ~promo ~cursus_map
+    ~size ~stages ~current_year ~report ~dens
+    list state =
+  let state,
+      entete,
+      footpage =
+    if lpe origine
+    || lerasmus origine
+    then
+      state, None, None
+    else
+      match string with
+      | None -> state, None, None
+      | Some s when String.trim s = "" ->
+        state, None, None
+      | Some string ->
+        let state, cursus_opt =
+          Remanent_state.get_cursus
+            __POS__
+            ~level:string
+            ?dpt:(match string, dpt with
+                | "dens",_
+                | _,"" -> None
+                | _ ->
+                  Some dpt)
+            ~year
+            state
+        in
+        match cursus_opt with
+        | None ->
+          let msg =
+            Format.sprintf
+              "Undocumented cursus %s %s %s for %s"
+              string
+              dpt
+              year
+              who
+          in
+          Remanent_state.warn
+            __POS__
+            msg
+            Exit
+            state,
+          None, None
+        | Some cursus ->
+          state, cursus.Public_data.entete,
+          cursus.Public_data.pied
+  in
+  let state, key, b =
+    alloc_suffix (string,dpt) state
+  in
+  let mean =
+    add_mean_diplome (string,dpt) mean
+  in
+  let () =
+    if b
+    then
+      let () =
+        Remanent_state.fprintf
+          state
+          "\\newcounter{validatedwogradeects%s}%%\n\ \\newcounter{grade%s}%%\n\ \\newcounter{gradedects%s}%%\n\ \\newcounter{potentialects%s}%%\n"
+          key key key key
+      in
+      let () =
+        Remanent_state.fprintf
+          state
+          "\\setcounter{validatedwogradeects%s}{0}%%\n\ \\setcounter{grade%s}{0}%%\n\ \\setcounter{gradedects%s}{0}%%\n\ \\setcounter{potentialects%s}{0}%%\n" key key key key
+      in
+      ()
+  in
+  let state, color =
+    match Tools.map_opt String.trim string
+    with
+    | None ->
+      let state =
+        List.fold_left
+          (fun state elt ->
+             let _,cours = elt in
+             Remanent_state.add_missing_ects_attribution
+               state
+               {
+                 Public_data.missing_grade_promotion =
+                   promo;
+                 Public_data.missing_grade_dpt=
+                   fetch_code elt ;
+                 Public_data.missing_grade_dpt_indice =
+                   string_of_int (fetch elt);
+                 Public_data.missing_grade_teacher =
+                   Tools.unsome_string
+                    cours.responsable ;
+                 Public_data.missing_grade_intitule =
+                   Tools.unsome_string
+                     cours.cours_libelle  ;
+                 Public_data.missing_grade_code_gps =
+                   Tools.unsome_string
+                     cours.code_cours ;
+                 Public_data.missing_grade_year = year ;
+                 Public_data.missing_grade_lastname =
+                   lastname;
+                 Public_data.missing_grade_firstname =
+                   firstname;
+               }
+          )
+          state
+          list
+      in
+      state,None
+    | Some ("DENS" | "dens") -> state, Some Color.blue
+    | Some ("LInfo" | "linfo") ->
+      state, Some Color.yellow
+    | Some ("lmath" | "mmath" | "LMath" | "MMath") ->
+      state, Some Color.orange
+    | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" ) ->
+      color_of_dpt who __POS__ state dpt origine
+    | Some _  -> state, None
+  in
+  let bgcolor=[None;color;None;None;None;None;None] in
+  let () =
+    Remanent_state.fprintf state
+      "\\setcounter{totalrows}{%i}%%%%\n\ "
+      (List.length list)
+  in
+  let () =
+    match entete with
+    | None -> ()
+    | Some x ->
+      Remanent_state.fprintf
+        state
+        "%s%s"
+        x
+        (match
+           StringOptMap.find_opt
+             (string,dpt)
+             cursus_map, footpage
+         with
+         | None, _
+         | Some (_,None),_
+         | _,None -> ""
+         | Some (_,Some x),Some y ->
+           if x = year then
+             Format.sprintf
+               "\\footnote{%s}"
+               y
+           else
+             ""
+        )
+  in
+  let _ =
+    Remanent_state.print_newline state
+  in
+  let state =
+    Remanent_state.open_array
+      __POS__
+      ~bgcolor
+      ~size
+      ~with_lines:true
+      ~title:["Code";"Dipl\\^ome";"Intitul\\'e";
+              "Enseignant";"Semestre";"Note";"ECTS"]
+      state
+  in
+  let macro = "cours" in
+  let list = Tools.sort fetch p list in
+  let state, mean, dens  =
+    List.fold_left
+      (fun
+        (state, mean, dens)
+        ((diplome:string),cours) ->
+        let () =
+          Remanent_state.open_row ~macro state
+        in
+        let codecours =
+          string_of_stringopt cours.code_cours
+        in
+        let state, compensation =
+          Remanent_state.get_compensation
+            state
+            ~firstname ~lastname ~year ~codecours
+        in
+        let () =
+          match
+            compensation
+          with
+          | Some _ ->
+            Remanent_state.print_optional_cell
+              "compensation"
+              state
+          | None -> ()
+        in
+        let state =
+          if
+            match cours.note with
+            | None -> true
+            | Some a ->
+              Notes.en_cours a
+          then
+            let dpt = fetch_code (diplome,cours) in
+            let dpt_indice =
+              string_of_int (fetch (diplome,cours))
+            in
+            Remanent_state.add_missing_grade
+              state
+              {
+                Public_data.missing_grade_promotion =
+                  promo;
+                Public_data.missing_grade_firstname =
+                  firstname ;
+                Public_data.missing_grade_lastname =
+                  lastname  ;
+                Public_data.missing_grade_year = year ;
+                Public_data.missing_grade_dpt = dpt ;
+                Public_data.missing_grade_dpt_indice = dpt_indice ;
+                Public_data.missing_grade_code_gps =                              Tools.unsome_string cours.code_cours;
+                Public_data.missing_grade_teacher = Tools.unsome_string cours.responsable;
+                Public_data.missing_grade_intitule = Tools.unsome_string cours.cours_libelle
+              }
+          else
+            state
+        in
+        let () =
+          Remanent_state.print_cell
+            codecours
+            state
+        in
+        let () =
+          Remanent_state.print_cell
+            diplome
+            state
+        in
+        let state, f =
+          special_course state cours
+        in
+        let state, libelle =
+          match cours.cours_libelle with
+          | None -> state, None
+          | Some l ->
+            if is_stage cours
+            then
+              let state, stage_opt =
+                fetch_stage
+                  state
+                  ~internship:(
+                    {
+                      Public_data.missing_internship_promotion = promo ;
+                      Public_data.missing_internship_year=year;
+                      Public_data.missing_internship_firstname=firstname;
+                      Public_data.missing_internship_lastname=lastname;
+                      Public_data.missing_internship_intitule=
+                        Tools.unsome_string  cours.cours_libelle ;
+                      Public_data.missing_internship_code_gps=
+                        Tools.unsome_string
+                          cours.code_cours
+                    })
+                  cours.commentaire stages
+              in
+              match stage_opt with
+              | None -> state, Some l
+              | Some stage ->
+                let sujet =
+                  match stage.sujet with
+                  | None -> ""
+                  | Some a ->
+                    if l = ""
+                    then a
+                    else "\\newline \""^a^"\""
+                in
+                let directeur =
+                  match stage.directeur_de_stage with
+                  | None -> ""
+                  | Some a ->
+                    if l = "" && sujet=""
+                    then a else "\\newline dirigé par  "^a
+                in
+                state,
+                Some
+                  (Format.sprintf "%s%s%s" l sujet directeur)
+            else state, Some l
+        in
+        let () =
+          Remanent_state.print_cell
+            (f (string_of_stringopt libelle))
+           state
+        in
+        let state, responsable_opt =
+          match cours.code_cours with
+          | Some codegps ->
+            Remanent_state.get_course_exception
+              ~codegps
+              ~year
+              state
+          | None -> state, None
+        in
+        let responsable =
+          match responsable_opt with
+          | None ->
+            (string_of_stringopt cours.responsable)
+          | Some a ->
+            Format.sprintf "%s %s %s"
+              (match
+                 a.Public_data.course_exception_genre
+               with
+               | Public_data.Masculin -> "M."
+               | Public_data.Feminin -> "Mme"
+               | Public_data.Unknown -> "")
+              (Special_char.capitalize
+                 a.Public_data.course_exception_firstname)
+              (Special_char.uppercase
+                 a.Public_data.course_exception_lastname)
+        in
+        let () =
+          Remanent_state.print_cell
+            responsable
+            state
+        in
+        let () =
+          Remanent_state.print_cell
+            (string_of_stringopt cours.semestre)
+            state
+        in
+        let state, note_string =
+          match cours.note with
+          | None -> state, ""
+          | Some f ->
+            Notes.to_string __POS__ state f
+        in
+        let () =
+          Remanent_state.print_cell
+            note_string
+            state
+        in
+        let () =
+          Remanent_state.print_cell
+            (Notes.string_of_ects cours.ects)
+            state
+        in
+        let () =
+          Remanent_state.close_row state
+        in
+        let () =
+          Remanent_state.fprintf state "%%\n\ "
+        in
+        let mean, dens =
+          if year > current_year
+          || not (do_report report)
+          then mean, dens
+          else
+            match Tools.map_opt String.trim string
+            with
+            | None -> mean, dens
+            | Some ("dens" | "DENS") ->
+              mean,
+              add_dens year compensation cours dens
+            | Some _ ->
+              add_mean
+                (string,dpt) compensation cours
+                (try int_of_string year with _ -> 0)
+                mean, dens
+        in
+        state,mean, dens)
+      (state,mean,dens)
+      list
+  in
+  let () =
+    Remanent_state.close_array state
+  in
+  let () =
+    Remanent_state.fprintf
+      state
+      "\n\ \n\ \\vspace*{2mm}\n\ \n\ "
+  in
+  let () =
+    Remanent_state.log
+      state
+      "\\addtocounter{validatedwogradeects%s}{\\thevsnects}%%\n\ \\addtocounter{grade%s}{\\thetotal}%%\n\ \\addtocounter{gradedects%s}{\\theects}%%\n\ \\addtocounter{potentialects%s}{\\thepotentialects}" key key key key
+  in
+  let state, decision_opt =
+    match dpt, string with
+    | _, None | "dens", _ -> state, None
+    | _, Some program ->
+      let state, dpt =
+        acro_of_dpt who __POS__ state dpt origine
+      in
+      let dpt =
+        match dpt with
+        | None -> ""
+        | Some a -> a
+      in
+      Remanent_state.get_decision
+        ~firstname
+        ~lastname
+        ~year
+        ~dpt
+        ~program
+        state
+  in
+  let
+    moyenne_opt, mention_opt,
+    rank_opt, effectif_opt,
+    date_opt, commission_name_opt,
+    decision_opt, _validated_opt
+    =
+    match decision_opt with
+    | None ->
+      None, None, None, None, None, None, None, None
+    | Some d ->
+      d.Public_data.decision_mean,
+      d.Public_data.decision_mention,
+      d.Public_data.decision_rank,
+      d.Public_data.decision_effectif,
+      d.Public_data.decision_date,
+      d.Public_data.decision_commission_name,
+      d.Public_data.decision_decision,
+      d.Public_data.decision_validated
+  in
+  let moyenne_value =
+    Format.sprintf
+      "\\thegrade%s/\\thegradedects%s"
+      key
+      key
+  in
+  let no_definitive_ects, not_enough_ects, moyenne, update_moyenne, mention =
+    if string = Some "DENS" || string = Some "dens"
+    then "","","","",""
+    else
+      let mean =
+        Format.sprintf
+          "\\numprint{\\fpeval{%s}}"
+          moyenne_value
+      in
+      let no_definitive_ects =
+        Format.sprintf
+          "\\thegradedects%s=0"
+          key
+      in
+      let not_enough_ects =
+        Format.sprintf
+          "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)} < \\fpeval{60*\\factorsquare}"
+          key key key
+      in
+      let definitive =
+        Format.sprintf
+          "\\thepotentialects%s=0"
+          key
+      in
+      let mean_string =
+        Latex_helper.case
+          Latex_helper.ifnum
+          [ no_definitive_ects,"";
+            not_enough_ects,"";
+            definitive,
+            Format.sprintf "Moyenne : \\textbf{\\numprint{\\fpeval{\\mean}}}/20 \\hspace*{1cm}%%\n\ "]
+          ~otherwise:(Format.sprintf "Moyenne provisoire : \\numprint{\\fpeval{\\mean}}/20 \\hspace*{1cm}%%\n\ ")
+      in
+      let update_mean =
+        match moyenne_opt with
+        | None ->
+          Format.sprintf
+            "\\renewcommand{\\mean}{%s}"
+            moyenne_value
+        | Some m ->
+          Format.sprintf
+            "%%Moyenne changee en commission\n\ %s%%Nouvelle moyenne\n\ %s\n\ %%\\renewcommand{\\mean}{%s}\n\ \\renewcommand{\\mean}{%f}"
+            (Latex_helper.comment mean)
+            (Latex_helper.comment
+               (Format.sprintf "%f" m))
+            moyenne_value
+            m
+      in
+      let mention =
+        if string = Some "DENS" || string = Some "dens"
+        then ""
+        else
+          let mention =
+            Latex_helper.case
+              Latex_helper.ifnum
+              [no_definitive_ects,"";
+               not_enough_ects,"";
+               definitive,
+               Latex_helper.case
+                 Latex_helper.ifnum
+                 [
+                   Format.sprintf
+                     "\\fpeval{\\mean<12}  = 1","";
+                   Format.sprintf
+                     "\\fpeval{\\mean<14} = 1",
+                   "Mention : \\textbf{Assez Bien}";
+                   Format.sprintf
+                     "\\fpeval{\\mean<16} = 1 ",
+                   "Mention : \\textbf{Bien}";
+                 ]
+                 ~otherwise:"Mention : \\textbf{Très Bien}"]
+              ~otherwise:""
+          in
+          match mention_opt with
+          | None -> mention
+          | Some a ->
+            Format.sprintf
+              "Mention : \\textbf{%s} \\hspace*{1cm}"
+              a
+      in
+      no_definitive_ects, not_enough_ects,
+      mean_string, update_mean, mention
+  in
+  let ects,pects =
+    let
+      this_year_ects_amp =
+      Format.sprintf
+        "\\fpeval{(\\theects+\\thevsnects)}"
+    in
+    let total_ects_amp =
+      Format.sprintf
+        "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)}"
+        key key
+    in
+    let total_ects =
+      Format.sprintf
+        "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)/\\factorsquare}"
+        key key
+    in
+    let ects_string =
+      Latex_helper.case
+        Latex_helper.ifnum
+        [
+          Format.sprintf "%s=0" total_ects_amp,"";
+          Format.sprintf "%s=%s" this_year_ects_amp
+            total_ects_amp,
+          Format.sprintf "ECTS : %s " total_ects;
+        ]
+        ~otherwise:(Format.sprintf
+                      "ECTS (cumulés) : %s"
+                      total_ects)
+    in
+    let potential_ects_string  =
+      Latex_helper.ifnum
+        ~cond:(Format.sprintf "\\thepotentialects%s=0" key)
+        ~btrue:""
+        ~bfalse:(Format.sprintf "\\hspace*{0.2cm} (potentiellement  {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factorsquare}}} ects)" key key key)
+    in
+    ects_string, potential_ects_string
+  in
+  let rank =
+    match rank_opt, effectif_opt with
+    | None, _ -> ""
+    | Some a, None ->
+      Format.sprintf "Rang : %i \\hspace*{1cm}" a
+    | Some a, Some b ->
+      Format.sprintf "Rang : %i/%i \\hspace*{1cm}" a b
+  in
+  let commission =
+    match
+      commission_name_opt, date_opt
+    with
+    | None, _ -> ""
+    | Some a, None ->
+      Format.sprintf
+        "Décision de %s \n\n"
+        a
+    | Some a, Some b ->
+      Format.sprintf
+        "Décision de %s du %s \n\n"
+        a b
+  in
+  let decision =
+    match decision_opt with
+    | None -> ""
+    | Some x ->
+      Format.sprintf "%s \\hspace*{1cm}" x
+  in
+  let lineproportion = 0.9 in
+  let () =
+    Remanent_state.log
+      ~lineproportion
+      state
+      "%s"
+      commission
+  in
+  let () =
+    Remanent_state.print_newline state
+  in
+  let () =
+    Remanent_state.fprintf
+      state
+      "\\nprounddigits{2}%%\n\ "
+  in
+  let () =
+    Remanent_state.fprintf
+      state
+      "%s"
+      update_moyenne
+  in
+  let lineproportion = 0.30 in
+  let () =
+    if not (string = Some "DENS" || string = Some "dens")
+    then
+      let s =
+        Remanent_state.log_string
+          ~lineproportion
+          state
+          moyenne
+      in
+      let s =
+        Latex_helper.case
+          Latex_helper.ifnum
+          [ no_definitive_ects,"";
+            not_enough_ects,"";
+          ]
+          ~otherwise:s
+      in
+      let () =
+        Remanent_state.fprintf
+          state
+          "%s"
+          s
+      in
+      ()
+  in
+  let () =
+    (fun s ->
+       if s = "" then () else
+         Remanent_state.log
+           ~lineproportion
+           state
+           "%s"
+           s)
+      (
+        if ects = "" then pects
+        else if pects = ""
+        then ects
+        else
+          ects^pects)
+  in
+  let () =
+    Remanent_state.fprintf
+      state
+      "\\npnoround%%\n\ \n\n"
+  in
+  let () = Remanent_state.print_newline state in
+  let () =
+    List.iter
+      (fun s ->
+         if s = "" then () else
+           Remanent_state.log
+             ~lineproportion
+             state
+             "%s"
+             s)
+      [decision;rank;mention]
+  in
+  let () = Remanent_state.print_newline state in
+  let () = Remanent_state.fprintf state "\\vfill\n\ " in
+  let () = Remanent_state.print_newline state in
+  let () = Remanent_state.print_newline state in
+  let () = Remanent_state.print_newline state in
+  state,mean,dens
+
 let export_transcript
     ~output
     ?signature
@@ -4001,37 +4673,23 @@ let export_transcript
         let sum =
           List.fold_left
             (fun total a -> total+.a)
-            0.
-            l
-             in
-             let state =
-               heading
-               ~who ~firstname ~lastname ~promo ~origine
-               ~year ~current_year ~situation ~report
-               cursus_map split_cours picture_list false gps_file state
-             in
-             let size =
-               List.rev_map
-                 (fun a -> Some (a/.(sum*.1.12)))
-                 (List.rev l)
-             in
-             let () =
-               Remanent_state.fprintf state "\n\ \\vfill\n\ \n\ "
-             in
-             let state, admission_opt =
-               let year' = next_year year in
-               begin
-                 match year' with
-                 | Some year ->
-                   Remanent_state.get_admission
-                     ~firstname
-                     ~lastname
-                     ~year
-                     state
-                 | None ->
-                   let msg =
-                     Format.sprintf
-                       "Illegal year %s for %s (admission)" year who
+            0. l
+        in
+        let state, admission_opt =
+          let year' = next_year year in
+          begin
+            match year' with
+            | Some year ->
+              Remanent_state.get_admission
+                ~firstname
+                ~lastname
+                ~year
+                state
+            | None ->
+              let msg =
+                Format.sprintf
+                  "Illegal year %s for %s (admission)"
+                  year who
               in
               let state =
                 Remanent_state.warn
@@ -4043,698 +4701,110 @@ let export_transcript
               state, None
           end
         in
-        let admission_shown,state, mean, dens =
+        let nprogram =
+          StringOptMap.cardinal split_cours
+        in
+        let _, dens_pos =
           StringOptMap.fold
-            (fun (string,dpt) list (admission_shown,state,mean,dens) ->
-               let admission_shown =
-                 if string = Some "dens"
-                 then
-                 let () =
-                   match admission_opt with
-                   | None -> ()
-                   | Some admission ->
-                     let lineproportion = 1. in
-                     Remanent_state.log
-                       ~lineproportion
-                       state
-                       "\\textbf{%s}"
-                       admission.Public_data.admission_decision
-                 in
-                 let () =
-                   Remanent_state.fprintf state "\\vfill\n\ "
-                 in
-                 true
-                 else
-                   admission_shown
-               in
-               let state,
-                   entete,
-                   footpage =
-                 if lpe origine
-                 || lerasmus origine
-                 then
-                   state, None, None
-                 else
-                   match string with
-                   | None -> state, None, None
-                   | Some s when String.trim s = "" -> state, None, None
-                   | Some string ->
-                     let state, cursus_opt =
-                       Remanent_state.get_cursus
-                         __POS__
-                         ~level:string
-                         ?dpt:(match string, dpt with
-                             | "dens",_
-                             | _,"" -> None
-                             | _ ->
-                               Some dpt)
-                         ~year
-                         state
-                     in
-                     match cursus_opt with
-                     | None ->
-                       let msg =
-                         Format.sprintf
-                           "Undocumented cursus %s %s %s for %s"
-                           string
-                           dpt
-                           year
-                           who
-                       in
-                       Remanent_state.warn
-                         __POS__
-                         msg
-                         Exit
-                         state,
-                       None, None
-                     | Some cursus ->
-                       state, cursus.Public_data.entete,
-                       cursus.Public_data.pied
-               in
-               let state, key, b = alloc_suffix (string,dpt) state in
-               let mean = add_mean_diplome (string,dpt) mean in
-               let () =
-                 if b
-                 then
-                   let () =
-                     Remanent_state.fprintf
-                       state
-                       "\\newcounter{validatedwogradeects%s}%%\n\ \\newcounter{grade%s}%%\n\ \\newcounter{gradedects%s}%%\n\ \\newcounter{potentialects%s}%%\n"
-                       key key key key
-                   in
-                   ()
-               in
-               let () =
-                 if b
-                 then
-                   let () =
-                     Remanent_state.fprintf
-                       state
-                       "\\setcounter{validatedwogradeects%s}{0}%%\n\ \\setcounter{grade%s}{0}%%\n\ \\setcounter{gradedects%s}{0}%%\n\ \\setcounter{potentialects%s}{0}%%\n" key key key key
-                   in
-                   ()
-               in
-               let state, color =
-                 match Tools.map_opt String.trim string
-                 with
-                 | None ->
-                   let state =
-                     List.fold_left
-                       (fun state elt ->
-                          let _,cours = elt in
-                          Remanent_state.add_missing_ects_attribution
-                            state
-                            {
-                              Public_data.missing_grade_promotion = promo;
-                              Public_data.missing_grade_dpt=                                fetch_code elt ;
-                              Public_data.missing_grade_dpt_indice =
-                                string_of_int (fetch elt);
-                              Public_data.missing_grade_teacher =
-                                Tools.unsome_string cours.responsable ;
-                              Public_data.missing_grade_intitule =
-                                Tools.unsome_string  cours.cours_libelle  ;
-                              Public_data.missing_grade_code_gps =
-                                Tools.unsome_string  cours.code_cours ;
-                              Public_data.missing_grade_year = year ;
-                              Public_data.missing_grade_lastname =
-                                lastname;
-                              Public_data.missing_grade_firstname = firstname;
-                            }
-                          )
-                       state
-                       list
-                   in
-                   state,None
-                 | Some ("DENS" | "dens") -> state, Some Color.blue
-                 | Some ("LInfo" | "linfo") -> state, Some Color.yellow
-                 | Some ("lmath" | "mmath" | "LMath" | "MMath") -> state, Some Color.orange
-                 | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" ) ->
-                   color_of_dpt who __POS__ state dpt origine
-                 | Some _  -> state, None
-               in
-               let bgcolor=[None;color;None;None;None;None;None] in
-
-               let () =
-                 Remanent_state.fprintf state
-                   "\\setcounter{totalrows}{%i}%%%%\n\ "
-                   (List.length list)
-               in
-               let () =
-                 match entete with
-                 | None -> ()
-                 | Some x ->
-                   Remanent_state.fprintf
-                     state
-                     "%s%s"
-                     x
-                     (match
-                        StringOptMap.find_opt
-                          (string,dpt)
-                          cursus_map, footpage
-                    with
-                    | None, _
-                    | Some (_,None),_
-                    | _,None -> ""
-                    | Some (_,Some x),Some y ->
-                      if x = year then
-                        Format.sprintf
-                          "\\footnote{%s}"
-                          y
-                      else
-                        ""
-                   )
-               in
-               let _ =
-                 Remanent_state.print_newline state in
-               let state =
-                 Remanent_state.open_array
-                   __POS__
-                   ~bgcolor
-                   ~size
-                   ~with_lines:true
-                   ~title:["Code";"Dipl\\^ome";"Intitul\\'e"
-                          ;"Enseignant";"Semestre";"Note";"ECTS"]
-                   state
-               in
-               let macro = "cours" in
-               let list = Tools.sort fetch p list in
-               let state, mean, dens  =
-                 List.fold_left
-                   (fun (state, mean, dens)  ((diplome:string),cours) ->
-                      let () =
-                        Remanent_state.open_row
-                          ~macro state
-                      in
-                      let codecours =
-                        string_of_stringopt cours.code_cours
-                      in
-                      let state, compensation =
-                        Remanent_state.get_compensation
-                          state
-                          ~firstname ~lastname ~year ~codecours
-                      in
-                      let () =
-                        match
-                          compensation
-                        with
-                        | Some _ ->
-                          Remanent_state.print_optional_cell
-                            "compensation"
-                            state
-                        | None -> ()
-                      in
-                      let state =
-                        if
-                          match cours.note with
-                          | None -> true
-                          | Some a ->
-                            Notes.en_cours a
-                        then
-                          let dpt = fetch_code (diplome,cours) in
-                          let dpt_indice =
-                            string_of_int (fetch (diplome,cours))
-                          in
-                          Remanent_state.add_missing_grade
-                            state
-                            {
-                              Public_data.missing_grade_promotion =
-                                promo;
-                              Public_data.missing_grade_firstname = firstname ;
-                              Public_data.missing_grade_lastname = lastname  ;
-                              Public_data.missing_grade_year = year ;
-                              Public_data.missing_grade_dpt = dpt ;
-                              Public_data.missing_grade_dpt_indice = dpt_indice ;
-                              Public_data.missing_grade_code_gps =                              Tools.unsome_string cours.code_cours;
-                              Public_data.missing_grade_teacher = Tools.unsome_string cours.responsable;
-                              Public_data.missing_grade_intitule = Tools.unsome_string cours.cours_libelle
-                            }
-                        else
-                          state
-                      in
-                      let () =
-                        Remanent_state.print_cell
-                          codecours
-                          state
-                      in
-                      let () =
-                        Remanent_state.print_cell
-                          diplome
-                          state
-                      in
-                      let state, f =
-                        special_course state cours
-                      in
-                      let state, libelle =
-                        match cours.cours_libelle with
-                        | None -> state, None
-                        | Some l ->
-                        if is_stage cours
-                        then
-                          let state, stage_opt =
-                            fetch_stage
-                              state
-                              ~internship:(
-                                {
-                                  Public_data.missing_internship_promotion = promo ;
-                                  Public_data.missing_internship_year=year;
-                                  Public_data.missing_internship_firstname=firstname;
-                                  Public_data.missing_internship_lastname=lastname;
-                                  Public_data.missing_internship_intitule= Tools.unsome_string cours.cours_libelle ;
-                                  Public_data.missing_internship_code_gps= Tools.unsome_string  cours.code_cours
-                                })
-                              cours.commentaire stages
-                          in
-                          match stage_opt with
-                          | None -> state, Some l
-                          | Some stage ->
-                          let sujet =
-                            match stage.sujet with
-                            | None -> ""
-                            | Some a ->
-                              if l = "" then a else "\\newline \""^a^"\""
-                          in
-                          let directeur =
-                            match stage.directeur_de_stage with
-                            | None -> ""
-                            | Some a ->
-                              if l = "" && sujet=""
-                              then a else "\\newline dirigé par "^a
-                          in
-                          state, Some (Format.sprintf "%s%s%s" l sujet directeur)
-                        else state, Some l
-                      in
-                      let () =
-                        Remanent_state.print_cell
-                          (f
-                             (string_of_stringopt
-                                libelle))
-                          state
-                      in
-                      let state, responsable_opt =
-                        match cours.code_cours with
-                        | Some codegps ->
-                          Remanent_state.get_course_exception
-                            ~codegps
-                            ~year
-                            state
-                        | None -> state, None
-                      in
-                      let responsable =
-                        match responsable_opt with
-                        | None ->
-                          (string_of_stringopt
-                             cours.responsable)
-                        | Some a ->
-                          Format.sprintf "%s %s %s"
-                            (match
-                               a.Public_data.course_exception_genre
-                             with
-                             | Public_data.Masculin -> "M."
-                             | Public_data.Feminin -> "Mme"
-                             | Public_data.Unknown -> "")
-                            (Special_char.capitalize a.Public_data.course_exception_firstname)
-                            (Special_char.uppercase
-                            a.Public_data.course_exception_lastname)
-                      in
-                      let () =
-                        Remanent_state.print_cell
-                          responsable
-                          state
-                      in
-                      let () =
-                        Remanent_state.print_cell
-                          (string_of_stringopt
-                             cours.semestre)
-                          state
-                      in
-                      let state, note_string =
-                        match cours.note with
-                        | None -> state, ""
-                        | Some f ->
-                          Notes.to_string __POS__ state f
-                      in
-                      let () =
-                        Remanent_state.print_cell
-                          note_string
-                          state
-                      in
-                      let () =
-                        Remanent_state.print_cell
-                          (Notes.string_of_ects cours.ects)
-                          state
-                      in
-                      let () =
-                        Remanent_state.close_row state
-                      in
-                      let () =
-                        Remanent_state.fprintf state "%%\n\ "
-                      in
-                      let mean, dens =
-                        if year > current_year
-                        || not (do_report report)
-                        then mean, dens
-                        else
-                          match Tools.map_opt String.trim string
-                          with
-                          | None -> mean, dens
-                          | Some ("dens" | "DENS") ->
-                            mean,
-                            add_dens year compensation
-                              cours dens
-                          | Some _ ->
-                            add_mean (string,dpt) compensation cours (try int_of_string year with _ -> 0)
-                              mean, dens
-                      in
-                      state,mean, dens)
-                   (state,mean,dens)
-                   list
-               in
-               let () =
-                 Remanent_state.close_array state
-               in
-               let () =
-                 Remanent_state.fprintf
-                   state
-                   "\n\ \n\ \\vspace*{2mm}\n\ \n\ "
-               in
-               let () =
-                 Remanent_state.log
-                   state
-                   "\\addtocounter{validatedwogradeects%s}{\\thevsnects}%%\n\ \\addtocounter{grade%s}{\\thetotal}%%\n\ \\addtocounter{gradedects%s}{\\theects}%%\n\ \\addtocounter{potentialects%s}{\\thepotentialects}" key key key key
-               in
-               let state, decision_opt =
-                 match dpt, string with
-                 | _, None | "dens", _ -> state, None
-                 | _, Some program ->
-                   let state, dpt = acro_of_dpt who __POS__ state dpt origine in
-                   let dpt =
-                     match dpt with
-                     | None -> ""
-                     | Some a -> a
-                   in
-                   Remanent_state.get_decision
-                     ~firstname
-                     ~lastname
-                     ~year
-                     ~dpt
-                     ~program
-                     state
-               in
-               let moyenne_opt, mention_opt,
-                   rank_opt, effectif_opt,
-                   date_opt, commission_name_opt,
-                   decision_opt, _validated_opt
-                 =
-                 match decision_opt with
-                 | None -> None, None, None, None, None, None, None, None
-                 | Some d ->
-                   d.Public_data.decision_mean,
-                   d.Public_data.decision_mention,
-                   d.Public_data.decision_rank,
-                   d.Public_data.decision_effectif,
-                   d.Public_data.decision_date,
-                   d.Public_data.decision_commission_name,
-                   d.Public_data.decision_decision,
-                   d.Public_data.decision_validated
-               in
-               let moyenne_value =
-                 Format.sprintf
-                   "\\thegrade%s/\\thegradedects%s"
-                   key
-                   key
-               in
-               let no_definitive_ects, not_enough_ects, moyenne, update_moyenne, mention =
-                 if string = Some "DENS" || string = Some "dens"
-                 then "","","","",""
-                 else
-                   let mean =
-                     Format.sprintf
-                       "\\numprint{\\fpeval{%s}}"
-                       moyenne_value
-                   in
-                   let no_definitive_ects =
-                     Format.sprintf
-                       "\\thegradedects%s=0"
-                       key
-                   in
-                   let not_enough_ects =
-                     Format.sprintf
-                       "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)} < \\fpeval{60*\\factorsquare}"
-                       key key key
-                   in
-                   let definitive =
-                     Format.sprintf
-                       "\\thepotentialects%s=0"
-                       key
-                   in
-                   let mean_string =
-                     Latex_helper.case
-                       Latex_helper.ifnum
-                       [ no_definitive_ects,"";
-                         not_enough_ects,"";
-                         definitive,
-                         Format.sprintf "Moyenne : \\textbf{\\numprint{\\fpeval{\\mean}}}/20 \\hspace*{1cm}%%\n\ "]
-                       ~otherwise:(Format.sprintf "Moyenne provisoire : \\numprint{\\fpeval{\\mean}}/20 \\hspace*{1cm}%%\n\ ")
-                   in
-                   let update_mean =
-                     match moyenne_opt with
-                     | None ->
-                       Format.sprintf
-                         "\\renewcommand{\\mean}{%s}" moyenne_value
-                     | Some m ->
-                       Format.sprintf
-                         "%%Moyenne changee en commission\n\ %s%%Nouvelle moyenne\n\ %s\n\ %%\\renewcommand{\\mean}{%s}\n\ \\renewcommand{\\mean}{%f}"
-                         (Latex_helper.comment mean)
-                         (Latex_helper.comment
-                            (Format.sprintf "%f" m))
-                        moyenne_value
-                        m
-                   in
-                   let mention =
-                     if string = Some "DENS" || string = Some "dens"
-                     then ""
-                     else
-                       let mention =
-                         Latex_helper.case
-                           Latex_helper.ifnum
-                           [no_definitive_ects,"";
-                            not_enough_ects,"";
-                            definitive,
-                            Latex_helper.case
-                              Latex_helper.ifnum
-                              [
-                                Format.sprintf "\\fpeval{\\mean<12} = 1","";
-                                Format.sprintf "\\fpeval{\\mean<14} = 1",
-                                "Mention : \\textbf{Assez Bien}";
-                                Format.sprintf "\\fpeval{\\mean<16} = 1 ",
-                                "Mention : \\textbf{Bien}";
-                              ]
-                              ~otherwise:"Mention : \\textbf{Très Bien}"]
-                           ~otherwise:""
-                       in
-                       match mention_opt with
-                     | None -> mention
-                     | Some a ->
-                       Format.sprintf
-                         "Mention : \\textbf{%s} \\hspace*{1cm}"
-                         a
-                   in
-                   no_definitive_ects, not_enough_ects,
-                   mean_string, update_mean, mention
-               in
-               let ects,pects =
-                 let
-                   this_year_ects_amp =
-                   Format.sprintf
-                     "\\fpeval{(\\theects+\\thevsnects)}"
-                 in
-                 let total_ects_amp =
-                   Format.sprintf
-                     "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)}"
-                     key key
-                 in
-                 let total_ects =
-                   Format.sprintf
-                     "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)/\\factorsquare}"
-                     key key
-                 in
-                 let ects_string =
-                   Latex_helper.case
-                     Latex_helper.ifnum
-                     [
-                       Format.sprintf "%s=0" total_ects_amp,"";
-                       Format.sprintf "%s=%s" this_year_ects_amp total_ects_amp,
-                       Format.sprintf "ECTS : %s " total_ects;
-                     ]
-                     ~otherwise:(Format.sprintf "ECTS (cumulés) : %s" total_ects)
-                 in
-                 let potential_ects_string  =
-                   Latex_helper.ifnum
-                     ~cond:(Format.sprintf "\\thepotentialects%s=0" key)
-                     ~btrue:""
-                     ~bfalse:(Format.sprintf "\\hspace*{0.2cm} (potentiellement  {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factorsquare}}} ects)" key key key)
-                 in
-                 ects_string, potential_ects_string
-               in
-               let rank =
-                 match rank_opt, effectif_opt with
-                 | None, _ -> ""
-                 | Some a, None ->
-                   Format.sprintf "Rang : %i \\hspace*{1cm}" a
-                 | Some a, Some b ->
-                   Format.sprintf "Rang : %i/%i \\hspace*{1cm}" a b
-               in
-                let commission =
-                 match
-                   commission_name_opt, date_opt
-                 with
-                 | None, _ -> ""
-                 | Some a, None ->
-                   Format.sprintf
-                     "Décision de %s \n\n"
-                     a
-                 | Some a, Some b ->
-                   Format.sprintf
-                     "Décision de %s du %s \n\n"
-                     a b
-               in
-               let decision =
-                 match decision_opt with
-                 | None -> ""
-                 | Some x ->
-                   Format.sprintf "%s \\hspace*{1cm}" x
-               in
-               let lineproportion = 0.9 in
-               let () =
-                 Remanent_state.log
-                   ~lineproportion
-                   state
-                   "%s"
-                   commission
-               in
-               let () =
-                 Remanent_state.print_newline
-                   state
-               in
-               let () =
-                 Remanent_state.fprintf
-                   state
-                   "\\nprounddigits{2}%%\n\ "
-               in
-               let () =
-                 Remanent_state.fprintf
-                   state
-                   "%s"
-                   update_moyenne
-               in
-               let lineproportion = 0.30 in
-               let () =
-                 if not (string = Some "DENS" || string = Some "dens")
-                 then
-                   let s =
-                     Remanent_state.log_string
-                       ~lineproportion
-                       state
-                       moyenne
-                   in
-                   let s =
-                     Latex_helper.case
-                       Latex_helper.ifnum
-                       [ no_definitive_ects,"";
-                         not_enough_ects,"";
-                       ]
-                       ~otherwise:s
-                   in
-                   let () =
-                     Remanent_state.fprintf
-                       state
-                       "%s"
-                       s
-                   in
-                   ()
-               in
-               let () =
-                   (fun s ->
-                      if s = "" then () else
-                      Remanent_state.log
-                        ~lineproportion
-                        state
-                        "%s"
-                        s)
-                     (
-                    if ects = "" then pects
-                    else if pects = ""
-                    then ects
-                    else
-                      ects^pects)
-               in
-               let () =
-                 Remanent_state.fprintf
-                   state
-                   "\\npnoround%%\n\ \n\n"
-               in
-               let () =
-                 Remanent_state.print_newline
-                   state
-               in
-               let () =
-                 List.iter
-                   (fun s ->
-                      if s = "" then () else
-                      Remanent_state.log
-                        ~lineproportion
-                        state
-                        "%s"
-                        s)
-                   [decision;rank;mention]
-               in
-               let () =
-                 Remanent_state.print_newline
-                   state
-               in
-               let () =
-                 Remanent_state.fprintf state "\\vfill\n\ "
-               in
-               let () =
-                 Remanent_state.print_newline state
-               in
-               let () =
-                 Remanent_state.print_newline state
-               in
-               let () =
-                 Remanent_state.print_newline state
-               in
-               admission_shown,state,mean,dens)
+            (fun (string,_) _ (i,opt) ->
+               match string with
+               | Some "dens" -> (i+1,Some i)
+               | _ -> (i+1,opt)
+            )
             split_cours
-            (false,state,mean,dens)
+            (1,None)
         in
-        let () =
-          if not admission_shown then
-            match admission_opt with
-            | None -> ()
-            | Some admission ->
-              let lineproportion = 1. in
-              Remanent_state.log
-                ~lineproportion
-                state
-                "\\textbf{%s}"
-                admission.Public_data.admission_decision
+        let size =
+          List.rev_map
+            (fun a -> Some (a/.(sum*.1.12)))
+            (List.rev l)
         in
-        let () =
-          match signature with
-          | None -> ()
-          | Some f ->
-          let () =
-            Remanent_state.fprintf
-              state
-              "\\vfill\\\\\\vspace*{-1.cm}\\begin{center}%%\n\ Paris, le \\today\\\\%%\n\ \\IfFileExists{%s}%%\n\ {\ {\\includegraphics{%s}}}%%\n\ {}\\end{center}"
-              f f
-          in ()
-        in
-        let () =
-          Remanent_state.breakpage state
-        in
-        state,mean,dens
+        let _, state, mean, dens =
+          StringOptMap.fold
+            (fun (string,dpt) list (i,state,mean,dens)
+              ->
+                let state =
+                  if i mod 2 = 1
+                  then
+                    let suite = i<>1 in
+                    let state =
+                      heading
+                        ~who ~firstname ~lastname
+                        ~promo ~origine
+                        ~year ~current_year ~situation ~report
+                        cursus_map split_cours picture_list suite gps_file state
+                    in
+                    let () =
+                      Remanent_state.fprintf
+                        state "\n\ \\vfill\n\ \n\ "
+                    in
+                    state
+                  else state
+                in
+                let
+                  (state,mean,dens)
+                      =
+                      program
+                        ~origine ~string ~dpt ~year ~who ~alloc_suffix ~mean ~firstname ~lastname ~promo ~cursus_map ~size ~stages ~current_year ~report ~dens
+                      list state
+                in
+                let () =
+                  Remanent_state.fprintf
+                    state "\n\ \\vfill\n\ \n\ "
+                in
+                let () =
+                  if
+                    begin
+                      match
+                        dens_pos
+                      with
+                      | None -> i = nprogram
+                      | Some 1 -> true
+                      | Some p -> i = p-1
+                    end
+                  then
+                    match admission_opt with
+                    | None -> ()
+                    | Some admission ->
+                      let lineproportion = 1. in
+                      let () =
+                        Remanent_state.log
+                          ~lineproportion
+                          state
+                          "\\textbf{%s}"
+                          admission.Public_data.admission_decision
+                      in
+                      let () =
+                        Remanent_state.fprintf
+                          state "\n\ \\vfill\n\ \n\ "
+                      in
+                      ()
+                    in
+                    let state =
+                      if i mod 2 = 0
+                      then
+                        let state =
+                          foot signature state
+                        in
+                        let () =
+                          Remanent_state.fprintf
+                            state "\n\ \\vfill\n\ \n\ "
+                        in
+                        state
+                      else
+                        state in
+                    let () =
+                      if i mod 2 = 0 || i = nprogram
+                      then
+                        Remanent_state.fprintf
+                          state "\\pagebreak\n\ "
+                    in
+                    (i+1,state,mean,dens)
+                 )
+                 split_cours
+                 (1,state,mean,dens)
+             in
+             state,mean,dens
         )
         (state,mean_init,dens_init)
         l
