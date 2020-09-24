@@ -300,6 +300,11 @@ val get_decision:
   program:string -> dpt:string ->
   t -> t * Public_data.decision option
 
+val get_decision_list:
+    firstname:string -> lastname:string -> year:string ->
+    ?program:string -> ?dpt:string ->
+    t -> t * Public_data.decision list
+
 val add_admission:
   (string * int * int * int ->
    t ->

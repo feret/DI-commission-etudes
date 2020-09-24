@@ -5,11 +5,13 @@ val get_decision:
   firstname: string ->
   lastname:string ->
   year:string ->
-  program: string ->
-  dpt:string ->
-  t -> Public_data.decision option
+  ?program: string ->
+  ?dpt:string ->
+  t -> Public_data.decision list
 
 val add_decision:
+  (string * int * int * int -> string -> exn -> 'state -> 'state)
+  ->
   ((string * int * int * int) ->
    'state ->
    Public_data.decision ->

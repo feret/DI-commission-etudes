@@ -1038,18 +1038,34 @@ let add_decision unify =
   add_gen
     get_decisions
     set_decisions
-    (Decisions.add_decision unify)
+    (Decisions.add_decision warn unify)
 
 let get_decision
     ~firstname ~lastname ~year
     ~program ~dpt t =
-  let decision_opt =
+  match
     Decisions.get_decision
       ~firstname ~lastname ~year
       ~program ~dpt
       t.data.decisions
-  in
-  t, decision_opt
+  with
+  | [] -> t, None
+  | [a] -> t, Some a
+  | _::_::_ ->
+    warn
+      __POS__
+      "Several decisions for the same diploma, same year, and same students"
+      Exit
+      t,
+    None
+
+let get_decision_list
+    ~firstname ~lastname ~year
+    ?program ?dpt t =
+  t, Decisions.get_decision
+      ~firstname ~lastname ~year
+      ?program ?dpt
+      t.data.decisions
 
 let add_admission unify =
   add_gen

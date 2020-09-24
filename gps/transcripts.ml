@@ -2515,6 +2515,29 @@ let acro_of_dpt who pos state dpt origine =
       None
       state
 
+let dpt_of_acro who pos state dpt origine =
+  if lerasmus origine || lpe origine
+  then
+    state, None
+  else
+  if dpt = acro_dpt_info
+  then state, Some dpt_info
+  else if dpt = acro_dpt_maths
+  then state, Some dpt_maths
+  else if dpt = acro_dpt_phys
+  then state, Some dpt_phys
+  else
+    let msg =
+      Format.sprintf "Unknown departement (%s) for %s"
+        dpt who
+    in
+    Remanent_state.warn_dft
+      pos
+      msg
+      Exit
+      None
+      state
+
 
 let stage = 250
 let memoire = 240
@@ -3136,18 +3159,18 @@ let export_transcript
            let state, filtered_classes =
              filter_class ~firstname ~lastname ~year
                state remove_non_valided_classes
-                situation.cours
-        in
-        let state, (cursus_map, split_cours) =
-          List.fold_left
-            (fun (state,
-                  (cursus_map,
-                   course_map)) elt ->
-               match elt.code_cours with
-               | Some code_cours  ->
-                 let state,
-                     (diplome_key,diplome_label,diplome_dpt,
-                      dispense)
+               situation.cours
+           in
+           let state, (cursus_map, split_cours) =
+             List.fold_left
+               (fun (state,
+                     (cursus_map,
+                      course_map)) elt ->
+                 match elt.code_cours with
+                 | Some code_cours  ->
+                   let state,
+                       (diplome_key,diplome_label,
+                        diplome_dpt,dispense)
                   =
                   translate_diplome
                     ~origine ~situation ~firstname ~lastname
@@ -3178,7 +3201,73 @@ let export_transcript
             )
             (state, (cursus_map,StringOptMap.empty))
             filtered_classes
-        in
+           in
+           let state, decision_list =
+             Remanent_state.get_decision_list
+               ~firstname
+               ~lastname
+               ~year
+               state
+           in
+           let state, cursus_map, split_cours =
+             List.fold_left
+               (fun (state, cursus_map,split_cours) decision ->
+                  let diplome_key =
+                    Some (Special_char.lowercase
+                            (String.trim decision.Public_data.decision_program))
+                  in
+                  let diplome_dpt =
+                    (String.trim
+                         (decision.Public_data.decision_dpt))
+                  in
+                  let state, diplome_dpt =
+                    dpt_of_acro who __POS__ state diplome_dpt origine
+                  in
+                  let state, b =
+                    match diplome_dpt
+                    with
+                    | None -> state, true
+                    | Some diplome_dpt ->
+                      StringOptMap.fold
+                      (fun (key,dpt) _ (state,b) ->
+                         let () =
+                           Format.printf "%s %s %s %s @ "
+                             (Tools.unsome_string diplome_key) diplome_dpt (Tools.unsome_string key) dpt
+                         in
+                         let () = Format.print_flush () in
+                         state,
+                         (diplome_key,
+                         diplome_dpt)=(key,dpt) || b
+                      )
+                      split_cours (state,false)
+                  in
+                  if b
+                  then
+                    state, cursus_map, split_cours
+                  else
+                    match diplome_dpt with
+                    | None -> state, cursus_map, split_cours
+                    | Some diplome_dpt ->
+                    let state, cursus_map =
+                     addfirstlast
+                       state
+                       (diplome_key,
+                        diplome_dpt)
+                       false
+                       year
+                       cursus_map
+                   in
+                   let split_cours =
+                     StringOptMap.add
+                       (diplome_key,
+                        diplome_dpt)
+                       [] split_cours
+                   in
+                   state, cursus_map, split_cours
+               )
+               (state,cursus_map,split_cours) decision_list
+           in
+
         state, cursus_map, (year,situation,split_cours)::l)
         (state, StringOptMap.empty, [])
         l_rev

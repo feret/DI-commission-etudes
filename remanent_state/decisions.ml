@@ -8,14 +8,16 @@ type t =
 
 let empty = Public_data.LastNameMap.empty
 
-let get_decision ~firstname ~lastname ~year ~program ~dpt
-    decisions =
+let fold_left_rev f a b = List.fold_left (fun a b -> f b a) b a
+
+let get_decision ~firstname ~lastname ~year ?program ?dpt
+    (decisions:t) =
   match
     Public_data.LastNameMap.find_opt
       lastname
       decisions
   with
-  | None -> None
+  | None -> []
   | Some map
     ->
     match
@@ -23,29 +25,29 @@ let get_decision ~firstname ~lastname ~year ~program ~dpt
         firstname
         map
     with
-    | None -> None
+    | None -> []
     | Some map ->
       match
         Public_data.YearMap.find_opt
           year
           map
       with
-      | None -> None
+      | None -> []
       | Some map ->
-        match
-          Public_data.ProgramMap.find_opt
+        let acc =
+          Public_data.ProgramExtendedMap.collect
             program
             map
-        with
-        | None -> None
-        | Some map ->
-          Public_data.AcronymMap.find_opt dpt map
-
+            []
+        in
+        fold_left_rev
+          (Public_data.AcronymExtendedMap.collect  dpt)
+            acc  []
 
 
 let add_decision
-    unify pos state
-    decision decisions  =
+    warn unify (pos:string * int * int *int) state
+    (decision:Public_data.decision) (decisions:t)  =
   let program = decision.Public_data.decision_program in
   let year = decision.Public_data.decision_annee in
   let firstname = decision.Public_data.decision_firstname in
@@ -56,8 +58,15 @@ let add_decision
   in
   let state, decision =
     match decision_opt' with
-  | None -> state, decision
-  | Some decision' -> unify pos state decision decision'
+    | [] -> state, decision
+    | [decision'] -> unify pos state decision decision'
+    | _::_::_ ->
+      warn
+        pos
+        "Several decisions for the same diploma, student and year"
+        Exit
+        state,
+      decision
   in
   let map1 =
     match
