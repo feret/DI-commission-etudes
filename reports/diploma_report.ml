@@ -182,13 +182,13 @@ let dump_pv
   in
   let get_local_repository = Remanent_state.get_local_repository in
   let get_repository =
-    Remanent_state.get_repository_to_dump_pvs_files
+    Remanent_state.get_repository_to_dump_attestations
   in
   let get_store_according_promotion =
-    Remanent_state.get_store_pvs_files_according_to_their_promotions
+    Remanent_state.get_store_attestations_according_to_their_promotions
   in
   let get_indicate_promotions_in_file_names =
-    Remanent_state.get_indicate_promotions_in_pv_file_names
+    Remanent_state.get_indicate_promotions_in_attestation_file_names
   in
   let rec_mk_when_necessary =
     Safe_sys.rec_mk_when_necessary

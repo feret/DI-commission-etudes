@@ -37,7 +37,7 @@ module LastNameMap : Map.S with type key = string
 module YearMap: Map.S with type key = annee
 module AcronymMap: Map.S with type key = string
 module ProgramMap: Map.S with type key = string
-module LibelleMap: Map.S with type key = string 
+module LibelleMap: Map.S with type key = string
 module LevelMap: Map.S with type key = string
 
 module CodeExtendedMap : Map_tools.Collect
@@ -281,6 +281,7 @@ type dens =
 
 type mentor =
   {
+    mentor_attribution_year : string ; 
     mentor_academic_year : string ;
     mentor_student_firstname : string ;
     mentor_student_lastname : string ;

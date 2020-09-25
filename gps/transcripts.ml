@@ -3013,7 +3013,8 @@ let heading
         then
           Remanent_state.add_mentor
             state
-            {
+            {Public_data.mentor_attribution_year =
+               tuteur.Public_data.annee_academique; 
               Public_data.mentor_gender =
                 genre_du_tuteur;
               Public_data.mentor_lastname =
@@ -4484,6 +4485,8 @@ let export_transcript
               Public_data.mentor_student_firstname = firstname ;
               Public_data.mentor_student_dpt =
                 current_dpt ;
+              Public_data.mentor_attribution_year =
+                tuteur.Public_data.annee_academique;
             }
           else state
         in

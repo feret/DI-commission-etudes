@@ -387,6 +387,7 @@ type dens =
 
 type mentor =
   {
+    mentor_attribution_year : string ; 
     mentor_academic_year : string ;
     mentor_student_firstname : string ;
     mentor_student_lastname : string ;
@@ -529,7 +530,7 @@ module FirstNameMap = StringMap
 module LastNameMap = StringMap
 module AcronymMap = StringMap
 module ProgramMap = StringMap
-module LibelleMap = StringMap 
+module LibelleMap = StringMap
 module YearMap =
   Map.Make
     (struct

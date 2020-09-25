@@ -14,14 +14,14 @@ type parameters =
     port_to_access_gps: string;
     repository_to_access_gps: string;
     repository_to_dump_gps_files: string;
-    repository_to_dump_pv_files: string;
+    repository_to_dump_attestations: string;
     repository_for_handmade_gps_files: string;
     repository_for_backup_gps_files: string;
     output_alias_repository: string;
     store_gps_file_according_to_their_promotions: bool;
-    store_pvs_file_according_to_their_promotions: bool;
+    store_attestations_according_to_their_promotions: bool;
     indicate_promotions_in_gps_file_names: bool;
-    indicate_promotions_in_pv_file_names: bool;
+    indicate_promotions_in_attestation_file_names: bool;
     repository_to_access_pictures: string;
     pictures_stored_according_to_promotions: bool;
     picture_file_names_mention_promotion: bool;
@@ -68,7 +68,7 @@ let parameters =
     port_to_access_gps = "8080";
     repository_to_access_gps = "gps";
     repository_to_dump_gps_files = "gps_files";
-    repository_to_dump_pv_files = "pvs";
+    repository_to_dump_attestations = "attestations";
     repository_to_dump_missing_grades = "known_issues/missing_grades";
     repository_to_dump_missing_mentors = "known_issues/missing_mentors";
     repository_to_dump_missing_ects_attributions = "known_issues/missing_ects_attributions";
@@ -81,9 +81,9 @@ let parameters =
     repository_for_backup_gps_files = "backup_gps_files";
     output_alias_repository = "courant";
     store_gps_file_according_to_their_promotions = true;
-    store_pvs_file_according_to_their_promotions = true;
+    store_attestations_according_to_their_promotions = true;
     indicate_promotions_in_gps_file_names = true;
-    indicate_promotions_in_pv_file_names = true;
+    indicate_promotions_in_attestation_file_names = true;
     repository_to_access_pictures = "pictures";
     pictures_stored_according_to_promotions = true ;
     picture_file_names_mention_promotion = false;
@@ -280,8 +280,8 @@ let get_repository_to_dump_dens t =
 
 let get_repository_to_dump_gps_files t =
   t, t.parameters.repository_to_dump_gps_files
-let get_repository_to_dump_pvs_files t =
-  t, t.parameters.repository_to_dump_pv_files
+let get_repository_to_dump_attestations t =
+  t, t.parameters.repository_to_dump_attestations
 
 let get_repository_for_handmade_gps_files t =
   t, t.parameters.repository_for_handmade_gps_files
@@ -302,17 +302,17 @@ let get_store_gps_files_according_to_their_promotions t =
   t,
   t.parameters.store_gps_file_according_to_their_promotions
 
-let get_store_pvs_files_according_to_their_promotions t =
+let get_store_attestations_according_to_their_promotions t =
   t,
-  t.parameters.store_pvs_file_according_to_their_promotions
+  t.parameters.store_attestations_according_to_their_promotions
 
 let get_indicate_promotions_in_gps_file_names t =
   t,
   t.parameters.indicate_promotions_in_gps_file_names
 
-let get_indicate_promotions_in_pv_file_names t =
+let get_indicate_promotions_in_attestation_file_names t =
   t,
-  t.parameters.indicate_promotions_in_pv_file_names
+  t.parameters.indicate_promotions_in_attestation_file_names
 
 let get_rep_gen get_prefix t =
   let t, main = get_local_repository t in

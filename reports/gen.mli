@@ -17,6 +17,7 @@ val dump_elts:
   ?mentorlastname:string ->
   ?teachername:string ->
   ?academicyear:string ->
+  ?attributionyear:string -> 
   ?promo:string ->
   ?ninscription:int ->
   ?niveau:string ->
@@ -29,7 +30,7 @@ val dump_elts:
   ?title:string ->
   ?preamble:(int -> string) ->
   ?signature:(int -> string) ->
-  ?headerextralength:int -> 
+  ?headerextralength:int ->
   get:(Remanent_state.t -> Remanent_state.t * 'a list) ->
   filter:'a filter ->
   get_repository:(Remanent_state.t -> Remanent_state.t * string) ->

@@ -51,7 +51,8 @@ let state =
        else
        Remanent_state.add_mentor
          state
-         {
+         {Public_data.mentor_attribution_year =
+            elt.Public_data.annee_academique ;
            Public_data.mentor_gender =
              (match
                elt.Public_data.genre_du_tuteur
@@ -184,6 +185,33 @@ let state =
     students_list
 let state, academicyear =
   Remanent_state.get_current_academic_year state
+let title = "TUTEURS NOUVELLEMENT ATTRIBUÉS en 2020"
+let state,_ =
+  Mentor_report.ReportListMentors.dump_per_mentor_year_promo_student
+    ~attributionyear:"2020"
+    ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tuteurs_nouvelles_affectations_2020_par_tuteur.html" ~title
+    state
+let state, input =
+  Mentor_report.ReportListMentors.dump_per_mentor_year_promo_student
+    ~attributionyear:"2020"
+    ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tuteurs_nouvelles_affectations_2020_par_tuteur.tex" ~title
+    state
+let state =
+  Latex_engine.latex_opt_to_pdf state ~input
+let state,_ =
+  Mentor_report.ReportListMentors.dump_per_student
+    ~attributionyear:"2020"
+    ~academicyear:"2020" ~dpt:"informatique"
+    ~file_name:"tuteurs_nouvelles_affectations_2020_par_étudiants.html" ~title
+        state
+    let state, input =
+      Mentor_report.ReportListMentors.dump_per_student
+        ~attributionyear:"2020"
+        ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tuteurs_nouvelles_affectations_2020_par_étudiants.tex" ~title
+        state
+let state =
+  Latex_engine.latex_opt_to_pdf state ~input
+
 let title = "LISTE DES TUTEURS 2020"
 let state,_ =
   Mentor_report.ReportListMentors.dump_per_year_mentor_student
