@@ -1236,3 +1236,11 @@ let add_missing_internship_description, get_missing_internship_descriptions =
   gen get_missing_internship_descriptions set_missing_internship_descriptions
 let add_ambiguous_internship_description, get_ambiguous_internship_descriptions =
     gen get_ambiguous_internship_descriptions set_ambiguous_internship_descriptions
+
+let get_ENSPSL_logo state =
+  let state, local = get_local_repository state in
+  if local = ""
+  then
+    state, "LOGOs/ENSPSL.png"
+  else
+    state, Format.sprintf "%s/LOGOs/ENSPSL.png" local

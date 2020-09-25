@@ -445,3 +445,5 @@ val get_ambiguous_internship_descriptions:
 
 val get_repository_to_dump_ambiguous_internship_descriptions:
     t -> t * string
+
+val get_ENSPSL_logo: t -> t * string 

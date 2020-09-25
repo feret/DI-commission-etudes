@@ -3014,7 +3014,7 @@ let heading
           Remanent_state.add_mentor
             state
             {Public_data.mentor_attribution_year =
-               tuteur.Public_data.annee_academique; 
+               tuteur.Public_data.annee_academique;
               Public_data.mentor_gender =
                 genre_du_tuteur;
               Public_data.mentor_lastname =
@@ -4166,7 +4166,7 @@ let program
   in
   let lineproportion = 0.30 in
   let () =
-    if not (string = Some "DENS" || string = Some "dens")
+    if (not (string = Some "DENS" || string = Some "dens")) && can_put_mean_mention
     then
       let s =
         Remanent_state.log_string

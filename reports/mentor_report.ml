@@ -17,7 +17,7 @@ sig
   val dump_per_promo_mentor_student: dump
   val dump_per_promo_student_mentor: dump
   val dump_per_mentor_year_promo_student: dump
-  val dump_per_student: dump 
+  val dump_per_student: dump
 end
 
 module Build
@@ -127,10 +127,13 @@ struct
     in
     let columns = [nom_etudiant; promotion] in
     let headers =
+      match academicyear with
+      | None ->
       [
         lift_id annee ;
         lift_id nom_tuteur
       ]
+      | Some _ -> [lift_id nom_tuteur]
     in
     dump_mentor_list
       ?studentfirstname ?studentlastname ?mentorfirstname
@@ -156,10 +159,13 @@ struct
     in
     let columns = [nom_tuteur] in
     let headers =
+      match academicyear with
+      | None ->
       [
         lift_id annee ;
-        lift_id nom_etudiant_long
+        lift_id nom_tuteur
       ]
+      | Some _ -> [lift_id nom_tuteur]
     in
     dump_mentor_list
       ?studentfirstname ?studentlastname ?mentorfirstname
@@ -182,12 +188,22 @@ struct
         Gen.lift_cmp (fun a -> a.Public_data.mentor_student_firstname)
       ]
     in
-    let columns = [annee; nom_etudiant] in
+    let columns =
+      match academicyear with
+      | None ->
+      [
+        annee; nom_etudiant
+      ]
+      | Some _ -> [nom_etudiant]
+    in
     let headers =
+      match promo with
+      | None ->
       [
         lift_id promotion ;
         lift_id nom_tuteur
       ]
+      | Some _ -> [lift_id nom_tuteur]
     in
     dump_mentor_list
       ?studentfirstname ?studentlastname ?mentorfirstname
@@ -210,12 +226,19 @@ struct
         Gen.lift_cmp (fun a -> a.Public_data.mentor_firstname);
       ]
     in
-    let columns = [annee;nom_tuteur] in
+    let columns =
+      match academicyear with
+      | None -> [ annee ; nom_tuteur ]
+      | Some _ -> [nom_tuteur]
+    in
     let headers =
+      match promo with
+      | None ->
       [
         lift_id promotion ;
         lift_id nom_etudiant_long
       ]
+      | Some _ -> [lift_id nom_etudiant_long]
     in
     dump_mentor_list
       ?studentfirstname ?studentlastname ?mentorfirstname
@@ -247,10 +270,13 @@ struct
          | _ -> columns
     in
     let headers =
+      match promo with
+      | None ->
       [
         lift_id promotion ;
         lift_id nom_etudiant_long
       ]
+      | Some _ -> [lift_id nom_etudiant_long]
     in
     dump_mentor_list
       ?studentfirstname ?studentlastname ?mentorfirstname
@@ -275,19 +301,25 @@ struct
 
       ]
     in
-    let columns = [promotion;nom_etudiant] in
+    let columns =
+      match promo with
+      | None -> [nom_etudiant]
+      | Some _ -> [promotion;nom_etudiant]
+    in
     let headers =
-      [
-        lift_id nom_tuteur ;
-        lift_id annee
-      ]
+      match academicyear with
+      | None -> [lift_id nom_tuteur]
+      | Some _ ->
+        [
+          lift_id nom_tuteur ;
+          lift_id annee
+        ]
     in
     dump_mentor_list
       ?studentfirstname ?studentlastname ?mentorfirstname
       ?mentorlastname ?academicyear ?attributionyear
       ?promo ?title ?dpt
       ?output_repository ?prefix ?file_name cmp headers columns state
-
   end
 
 
@@ -295,7 +327,6 @@ module ReportListMentors =
   Build
     (struct
       type elt = Public_data.mentor
-
       let default_file_name = "tuteurs.html"
       let get = Remanent_state.get_mentors
       let get_repository =

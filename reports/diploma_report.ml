@@ -266,6 +266,15 @@ let dump_pv
     in
     let logger = Loggers.open_logger_from_channel ~mode
         out in
+    let state, enspsl =
+      Remanent_state.get_ENSPSL_logo state
+    in
+    let () =
+      Loggers.setheadpage logger
+        (Format.sprintf
+           "\\IfFileExists{%s}%%\n\ {{\\hfill\\includegraphics{%s}}}%%\n\ {"
+           enspsl enspsl)
+    in
     let body =
       Format.sprintf
         "\\vfill\n\n\\begin{center}\\underline{ATTESTATION}\\end{center}\n\ \\vfill\n\n\  Je soussigné, \\textbf{%s}, directeur des études du département d’Informatique de l’École Normale Supérieure,\\bigskip\\\\CERTIFIE que,\\bigskip\\\\conformément aux dispositions générales de la scolarité au sein de la formation universitaire en informatique de l’ENS et aux décisions de la commission des études du département d’informatique de l’ENS, \\bigskip\\\\\\textbf{%s %s}, a obtenu en %s-%s\\\\\\textbf{%s}\\Parcours : \\textbf{Formation interuniversitaire en informatique – ENS} Paris.\bigskip\\%s \\\\\\vfill\n\\begin{center}Fait à Paris le %s\\smallskip\\\\Pour valoir et servir ce que de droit\\end{center}\\vfill"
@@ -278,7 +287,7 @@ let dump_pv
         "VALIDÉE"
         "\\today"
     in
-    let _ = Remanent_state.fprintf state  "%s" body in
+    let _ = Loggers.fprintf logger  "%s" body in
     let () = Loggers.close_logger logger in
     state, Some (output_repository,output_file_name)
 

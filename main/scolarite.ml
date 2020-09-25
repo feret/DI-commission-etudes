@@ -247,9 +247,10 @@ let state =
     Latex_engine.latex_opt_to_pdf state ~input
 let state =
   Diploma_report.dump_pvs state
+let state, enspsl = Remanent_state.get_ENSPSL_logo state
 let headpage s _ =
   Format.sprintf
-    "Département Informatique \\\\Résultats 2019-2020\\\\%s\\\\Page \\thepage/\\pageref{LastPage}\\\\" s
+    "\\IfFileExists{%s}%%\n\ {{\\hfill\\includegraphics[height=2cm]{%s}}\\mbox{}}%%\\\\\n\nDépartement Informatique \\\\Résultats 2019-2020\\\\%s\\\\Page \\thepage/\\pageref{LastPage}\\\\" enspsl enspsl s
 let signature _ =
   "Paris \\ le 18 septembre 2020"
 let state,_ =
