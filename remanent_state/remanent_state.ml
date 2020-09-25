@@ -1076,12 +1076,14 @@ let get_decision
     None
 
 let get_decision_list
-    ~firstname ~lastname ~year
+    ~firstname ~lastname
+    ?year
     ?program ?dpt t =
   t, Decisions.get_decision
-      ~firstname ~lastname ~year
-      ?program ?dpt
-      t.data.decisions
+    ~firstname ~lastname
+    ?year
+    ?program ?dpt
+    t.data.decisions
 
 let add_admission unify =
   add_gen

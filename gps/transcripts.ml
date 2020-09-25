@@ -3925,9 +3925,9 @@ let program
       state
       "\\addtocounter{validatedwogradeects%s}{\\thevsnects}%%\n\ \\addtocounter{grade%s}{\\thetotal}%%\n\ \\addtocounter{gradedects%s}{\\theects}%%\n\ \\addtocounter{potentialects%s}{\\thepotentialects}" key key key key
   in
-  let state, decision_opt =
+  let state, decision_opt, can_put_mean_mention =
     match dpt, string with
-    | _, None | "dens", _ -> state, None
+    | _, None | "dens", _ -> state, None, false
     | _, Some program ->
       let state, dpt =
         acro_of_dpt who __POS__ state dpt origine
@@ -3937,13 +3937,29 @@ let program
         | None -> ""
         | Some a -> a
       in
-      Remanent_state.get_decision
-        ~firstname
-        ~lastname
-        ~year
-        ~dpt
-        ~program
-        state
+      match
+        Remanent_state.get_decision
+          ~firstname
+          ~lastname
+          ~year
+          ~dpt
+          ~program
+          state
+      with
+      | state, Some a -> state, Some a, true
+      | state, None ->
+        begin
+          match
+            Remanent_state.get_decision_list
+              ~firstname
+              ~lastname
+              ~dpt
+              ~program
+              state
+          with
+          | state, [] -> state, None, true
+          | state, _::_ -> state, None, false
+        end
   in
   let
     moyenne_opt, mention_opt,
@@ -3971,7 +3987,9 @@ let program
       key
   in
   let no_definitive_ects, not_enough_ects, moyenne, update_moyenne, mention =
-    if string = Some "DENS" || string = Some "dens"
+    if (not can_put_mean_mention)
+    ||
+    string = Some "DENS" || string = Some "dens"
     then "","","","",""
     else
       let mean =
@@ -4019,7 +4037,12 @@ let program
             m
       in
       let mention =
-        if string = Some "DENS" || string = Some "dens"
+        if
+          (not can_put_mean_mention)
+          ||
+          string = Some "DENS"
+          ||
+          string = Some "dens"
         then ""
         else
           let mention =

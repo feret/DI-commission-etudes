@@ -10,7 +10,7 @@ let empty = Public_data.LastNameMap.empty
 
 let fold_left_rev f a b = List.fold_left (fun a b -> f b a) b a
 
-let get_decision ~firstname ~lastname ~year ?program ?dpt
+let get_decision ~firstname ~lastname ?year ?program ?dpt
     (decisions:t) =
   match
     Public_data.LastNameMap.find_opt
@@ -27,22 +27,22 @@ let get_decision ~firstname ~lastname ~year ?program ?dpt
     with
     | None -> []
     | Some map ->
-      match
-        Public_data.YearMap.find_opt
+      let acc1 =
+        Public_data.YearExtendedMap.collect
           year
           map
-      with
-      | None -> []
-      | Some map ->
-        let acc =
-          Public_data.ProgramExtendedMap.collect
-            program
-            map
+          []
+      in
+      let acc2 =
+        fold_left_rev
+          (Public_data.ProgramExtendedMap.collect
+             program)
+            acc1
             []
         in
         fold_left_rev
           (Public_data.AcronymExtendedMap.collect  dpt)
-            acc  []
+            acc2  []
 
 
 let add_decision

@@ -4,7 +4,7 @@ val empty: t
 val get_decision:
   firstname: string ->
   lastname:string ->
-  year:string ->
+  ?year:string ->
   ?program: string ->
   ?dpt:string ->
   t -> Public_data.decision list
