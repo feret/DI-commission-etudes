@@ -223,6 +223,16 @@ let state, input =
     state
 let state =
   Latex_engine.latex_opt_to_pdf state ~input
+  let state,_ =
+    Mentor_report.ReportListMentors.dump_per_year_mentor_student
+      ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tutorat_2020_par_tuteur.html" ~title
+      state
+  let state, input =
+    Mentor_report.ReportListMentors.dump_per_year_student_mentor
+      ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tutorat_2020_par_etudiant.tex" ~title
+      state
+  let state =
+    Latex_engine.latex_opt_to_pdf state ~input
 let title = "LISTE DES TUTEURS 2019"
 let state,_ =
   Mentor_report.ReportListMentors.dump_per_year_mentor_student
@@ -250,7 +260,10 @@ let state =
 let state, enspsl = Remanent_state.get_ENSPSL_logo state
 let headpage s _ =
   Format.sprintf
-    "\\IfFileExists{%s}%%\n\ {{\\hfill\\includegraphics[height=2cm]{%s}}\\mbox{}}%%\\\\\n\nDépartement Informatique \\\\Résultats 2019-2020\\\\%s\\\\Page \\thepage/\\pageref{LastPage}\\\\" enspsl enspsl s
+    "\\begin{center}\\IfFileExists{%s}{\\includegraphics{%s}}\\end{center}\n\n Résultats 2019-2020\\\\%s\\\\Page \\thepage/\\pageref{LastPage}\\\\" 
+    enspsl enspsl s
+let footpage =
+  "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32  20 45 --  Fax : + 33 (0) 1 44 32 20 75 - diplome@di.ens.fr}"
 let signature _ =
   "Paris \\ le 18 septembre 2020"
 let state,_ =
@@ -286,12 +299,14 @@ let state,input =
   Dens_report.DensReport.dump_per_promo
     ~file_name:"dens_par_promo.tex" state
     ~signature ~preamble ~headpage:(headpage "DENS")
+    ~footpage
 let state =
   Latex_engine.latex_opt_to_pdf state ~times:2 ~input
 let state,input =
   Dens_report.DensReport.dump_per_n_inscription
     ~file_name:"dens_par_nb_inscriptions.tex" state
     ~signature ~preamble ~headpage:(headpage "DENS")
+    ~footpage
 let state =
   Latex_engine.latex_opt_to_pdf state ~times:2 ~input
 let state, academicyear =
@@ -306,6 +321,7 @@ let state,input =
     ~academicyear ~niveau:"m" ~dpt:"informatique"
     ~headpage:(headpage "Master M1 d'informatique")
     ~preamble:(preamble "Master M1 d'informatique" "Paris Dauphine")
+    ~footpage
     ~signature
     state
 let state =
@@ -315,6 +331,7 @@ let state,input =
     ~file_name:"M1student.tex"
     ~academicyear ~niveau:"m" ~dpt:"informatique"
     ~headpage:(headpage "Master M1 d'informatique fondamental")
+    ~footpage
     ~preamble:(preamble "Master M1 d'informatique fondamentale" "PSL")
     ~signature
     state
@@ -325,6 +342,7 @@ let state, input =
     ~file_name:"L3result.tex"
     ~academicyear ~niveau:"l" ~dpt:"informatique"
     ~headpage:(headpage "Licence L3 d'informatique")
+    ~footpage
     ~preamble:(preamble "Licence L3 d'informatique" "Paris 7 - Denis Diderot")
     ~signature
     state
@@ -334,6 +352,7 @@ let state, input =
   Diploma_report.DiplomaReport.dump_per_student
     ~file_name:"L3student.tex"
     ~academicyear ~niveau:"l" ~dpt:"informatique"
+    ~footpage
     ~headpage:(headpage "Licence L3 d'informatique")
     ~preamble:(preamble "Licence L3 d'informatique" "Paris 7 - Denis Diderot")
     ~signature

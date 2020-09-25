@@ -92,9 +92,11 @@ val dump_report:
   settitle:(string -> unit) ->
   setpreamble:(string -> unit) ->
   setheadpage:(string -> unit) ->
+  setfootpage:(string -> unit) ->
   setsignature:(string -> unit) ->
   ?title:string ->
   ?headpage:(int -> string) ->
+  ?footpage:string -> 
   ?preamble:(int -> string) ->
   ?signature:(int -> string) -> ('a list * 'b) list -> unit
 

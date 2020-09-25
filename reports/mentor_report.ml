@@ -265,9 +265,9 @@ struct
     let columns = [nom_etudiant;nom_tuteur] in
     let columns =
       match academicyear
-      with None ->
-        annee::columns
-         | _ -> columns
+      with
+      | None -> annee::columns
+      | Some _ -> columns
     in
     let headers =
       match promo with
@@ -303,17 +303,18 @@ struct
     in
     let columns =
       match promo with
-      | None -> [nom_etudiant]
-      | Some _ -> [promotion;nom_etudiant]
+      | None -> [promotion;nom_etudiant]
+      | Some _ -> [nom_etudiant]
     in
     let headers =
       match academicyear with
-      | None -> [lift_id nom_tuteur]
-      | Some _ ->
+      | None ->
         [
           lift_id nom_tuteur ;
           lift_id annee
         ]
+      | Some _ ->
+        [lift_id nom_tuteur]
     in
     dump_mentor_list
       ?studentfirstname ?studentlastname ?mentorfirstname

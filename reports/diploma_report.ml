@@ -7,6 +7,7 @@ type dump =
   ?recu:bool ->
   ?academicyear:string ->
   ?headpage:(int -> string) ->
+  ?footpage:string ->
   ?title:string ->
   ?preamble:(int -> string) ->
   ?signature:(int -> string) ->
@@ -31,7 +32,7 @@ struct
       ?dpt
       ?recu
       ?academicyear
-      ?headpage ?title ?preamble ?signature
+      ?headpage ?footpage ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name
       cmp headers columns state  =
     let event_opt =
@@ -43,9 +44,9 @@ struct
     let get_repository = I.get_repository in
     Gen.dump_elts
       ?firstname ?lastname ?promo ?niveau ?dpt ?recu ?academicyear
-      ?headpage ?title ?preamble ?signature
+      ?headpage ?footpage ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name ?event_opt
-      ~headerextralength:5
+      ~headerextralength:8
       ~cmp ~filter ~headers ~columns ~get ~default_file_name
       ~get_repository
       state
@@ -103,7 +104,7 @@ struct
       ?dpt
       ?recu
       ?academicyear
-      ?headpage ?title ?preamble ?signature
+      ?headpage ?footpage ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
@@ -121,7 +122,7 @@ struct
     in
     dump_national_diploma_list
       ?firstname ?lastname ?promo ?niveau ?dpt ?recu ?academicyear
-      ?headpage ?title ?preamble ?signature
+      ?headpage ?footpage ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name cmp headers columns state
 
   let dump_per_student
@@ -132,7 +133,7 @@ struct
       ?dpt
       ?recu
       ?academicyear
-      ?headpage ?title ?preamble ?signature
+      ?headpage ?footpage ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
@@ -147,7 +148,7 @@ struct
     in
     dump_national_diploma_list
       ?firstname ?lastname ?promo ?niveau ?dpt ?recu ?academicyear
-      ?headpage ?title ?preamble ?signature
+      ?headpage ?footpage ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name cmp headers columns state
 
   end
@@ -264,7 +265,9 @@ let dump_pv
           Exit
           state, Loggers.HTML
     in
-    let logger = Loggers.open_logger_from_channel ~mode
+    let logger =
+      Loggers.open_logger_from_channel
+        ~headerextralength:4 ~mode
         out in
     let state, enspsl =
       Remanent_state.get_ENSPSL_logo state
@@ -272,8 +275,12 @@ let dump_pv
     let () =
       Loggers.setheadpage logger
         (Format.sprintf
-           "\\IfFileExists{%s}%%\n\ {{\\hfill\\includegraphics{%s}}}%%\n\ {"
+           "\\IfFileExists{%s}{\\includegraphics{%s}}"
            enspsl enspsl)
+    in
+    let () =
+      Loggers.setfootpage logger
+        "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32  20 45 --  Fax : + 33 (0) 1 44 32 20 75 - diplome@di.ens.fr}"
     in
     let body =
       Format.sprintf

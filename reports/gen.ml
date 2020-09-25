@@ -40,6 +40,7 @@ let dump_elts
     ?output_repository ?prefix ?file_name
     ?event_opt
     ?headpage
+    ?footpage
     ?title
     ?preamble
     ?signature
@@ -185,11 +186,13 @@ let dump_elts
             ~string_of_column:columns
             ~settitle:(Loggers.maketitle logger)
             ~setheadpage:(Loggers.setheadpage logger)
+            ~setfootpage:(Loggers.setfootpage logger)
             ~setsignature:(Loggers.setsignature logger)
             ~setpreamble:(Loggers.setpreamble logger)
             ~open_array:(Loggers.open_array logger)
             ?title
             ?headpage
+            ?footpage 
             ?preamble
             ?signature
             extended_elts in

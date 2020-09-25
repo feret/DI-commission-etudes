@@ -69,3 +69,4 @@ val maketitle: t -> string -> unit
 val setheadpage: t -> string -> unit
 val setsignature: t -> string -> unit
 val setpreamble: t -> string -> unit
+val setfootpage: t -> string -> unit 

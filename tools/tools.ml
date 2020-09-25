@@ -333,9 +333,11 @@ let prepare_report
     ~settitle
     ~setpreamble
     ~setheadpage
+    ~setfootpage
     ~setsignature
     ?title
     ?headpage
+    ?footpage
     ?preamble
     ?signature
     list =
@@ -350,6 +352,11 @@ let prepare_report
       | None -> setheadpage ""
       | Some f -> setheadpage (f n)
     in
+    let _ =
+      match footpage with
+      | None -> setfootpage ""
+      | Some f -> setfootpage f
+    in 
     let _ =
       match preamble with
       | None -> ()

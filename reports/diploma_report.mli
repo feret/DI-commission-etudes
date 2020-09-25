@@ -7,6 +7,7 @@ type dump =
   ?recu:bool ->
   ?academicyear:string ->
   ?headpage:(int -> string) ->
+  ?footpage:string -> 
   ?title:string ->
   ?preamble:(int -> string) ->
   ?signature:(int -> string) ->

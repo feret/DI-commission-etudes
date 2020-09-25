@@ -927,6 +927,18 @@ let setheadpage logger s =
   | XLS
   | Json -> ()
 
+let setfootpage logger s =
+  match logger.encoding with
+  | Latex _ | Latex_encapsulated ->
+    let () = fprintf logger "\\cfoot[%s]{%s}\n\\rfoot[]{}\n\\lfoot[]{}" s s in
+    let () = print_newline logger in
+    ()
+  | HTML | HTML_encapsulated | HTML_Tabular
+  | TXT
+  | CSV
+  | XLS
+  | Json -> ()
+
 let setsignature logger s =
   match logger.encoding with
   | HTML | HTML_encapsulated | HTML_Tabular ->

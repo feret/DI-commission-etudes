@@ -17,7 +17,7 @@ val dump_elts:
   ?mentorlastname:string ->
   ?teachername:string ->
   ?academicyear:string ->
-  ?attributionyear:string -> 
+  ?attributionyear:string ->
   ?promo:string ->
   ?ninscription:int ->
   ?niveau:string ->
@@ -27,6 +27,7 @@ val dump_elts:
   ?file_name:string ->
   ?event_opt:Sco_remanent_state.Profiling.step_kind ->
   ?headpage:(int -> string) ->
+  ?footpage:string -> 
   ?title:string ->
   ?preamble:(int -> string) ->
   ?signature:(int -> string) ->
