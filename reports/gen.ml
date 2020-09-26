@@ -45,6 +45,8 @@ let dump_elts
     ?preamble
     ?signature
     ?headerextralength:(headerextralength=0)
+    ?headcolor
+    ?footcolor
     ~get ~filter ~get_repository ~default_file_name
     ~cmp ~headers ~columns state  =
   let state =
@@ -163,9 +165,10 @@ let dump_elts
             Exit
             state, Loggers.HTML
         in
-        let logger = Loggers.open_logger_from_channel ~mode  ~headerextralength
-
-            out in
+        let logger =
+          Loggers.open_logger_from_channel
+            ~mode  ~headerextralength out
+        in
         let logger = Loggers.with_lines logger in
         let extended_elts =
           Tools.prepare_report
@@ -192,7 +195,9 @@ let dump_elts
             ~open_array:(Loggers.open_array logger)
             ?title
             ?headpage
-            ?footpage 
+            ?footpage
+            ?headcolor
+            ?footcolor
             ?preamble
             ?signature
             extended_elts in
@@ -301,6 +306,7 @@ let filter_mentoring_list
     mentoring.Public_data.mentor_attribution_year
 
 let filter_dens
+    ?nb_inscription_list
     ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear
     ?promo ?ninscription ?niveau
     ?recu
@@ -309,6 +315,16 @@ let filter_dens
     dpt, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, niveau, recu, attributionyear
   in
   state,
+  begin
+    match nb_inscription_list with
+    | None -> true
+    | Some l ->
+      List.mem
+        dens.Public_data.dens_nb_inscriptions
+        l
+  end
+  &&
+
   check firstname dens.Public_data.dens_firstname
   &&
   check lastname dens.Public_data.dens_lastname

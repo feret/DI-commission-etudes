@@ -8,6 +8,7 @@ type dump =
   ?academicyear:string ->
   ?headpage:(int -> string) ->
   ?footpage:string ->
+  ?footcolor:Color.color ->
   ?title:string ->
   ?preamble:(int -> string) ->
   ?signature:(int -> string) ->
@@ -32,7 +33,8 @@ struct
       ?dpt
       ?recu
       ?academicyear
-      ?headpage ?footpage ?title ?preamble ?signature
+      ?headpage ?footpage ?footcolor
+      ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name
       cmp headers columns state  =
     let event_opt =
@@ -44,7 +46,8 @@ struct
     let get_repository = I.get_repository in
     Gen.dump_elts
       ?firstname ?lastname ?promo ?niveau ?dpt ?recu ?academicyear
-      ?headpage ?footpage ?title ?preamble ?signature
+      ?headpage ?footpage ?footcolor
+      ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name ?event_opt
       ~headerextralength:8
       ~cmp ~filter ~headers ~columns ~get ~default_file_name
@@ -78,7 +81,13 @@ struct
   let resultat =
     "Résultat",
     (fun a ->
-       if a.Public_data.diplome_recu then "Reçu(e)" else "Ajourné(e)"
+       Format.sprintf
+         "%s%s"
+         (if a.Public_data.diplome_recu then "Reçu" else "Ajourné")
+         (match a.Public_data.diplome_gender with
+          | Public_data.Masculin -> ""
+          | Public_data.Feminin -> "e"
+          | Public_data.Unknown -> "(e)")
     )
   let departement =
     "Département",
@@ -104,7 +113,8 @@ struct
       ?dpt
       ?recu
       ?academicyear
-      ?headpage ?footpage ?title ?preamble ?signature
+      ?headpage ?footpage ?footcolor
+      ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
@@ -122,7 +132,8 @@ struct
     in
     dump_national_diploma_list
       ?firstname ?lastname ?promo ?niveau ?dpt ?recu ?academicyear
-      ?headpage ?footpage ?title ?preamble ?signature
+      ?headpage ?footpage ?footcolor
+      ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name cmp headers columns state
 
   let dump_per_student
@@ -133,7 +144,8 @@ struct
       ?dpt
       ?recu
       ?academicyear
-      ?headpage ?footpage ?title ?preamble ?signature
+      ?headpage ?footpage ?footcolor
+      ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
@@ -148,7 +160,8 @@ struct
     in
     dump_national_diploma_list
       ?firstname ?lastname ?promo ?niveau ?dpt ?recu ?academicyear
-      ?headpage ?footpage ?title ?preamble ?signature
+      ?headpage ?footpage ?footcolor
+      ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name cmp headers columns state
 
   end
@@ -179,8 +192,6 @@ let dump_pv
   state =
   let firstname = diplome.Public_data.diplome_firstname in
   let lastname = diplome.Public_data.diplome_lastname in
-  let promotion = Some (diplome.Public_data.diplome_promotion)
-  in
   let get_local_repository = Remanent_state.get_local_repository in
   let get_repository =
     Remanent_state.get_repository_to_dump_attestations
@@ -194,8 +205,28 @@ let dump_pv
   let rec_mk_when_necessary =
     Safe_sys.rec_mk_when_necessary
   in
+  let dpt = diplome.Public_data.diplome_dpt in
+  let promotion =
+    Some (diplome.Public_data.diplome_promotion)
+  in
+  let level = diplome.Public_data.diplome_niveau in
   let f_firstname = (fun x -> x) in
   let f_lastname = (fun x -> x) in
+  let state, y =
+    try
+       let y = int_of_string
+           diplome.Public_data.diplome_year
+       in
+       state, Printf.sprintf "%i-%i." y (y+1)
+     with _ ->
+       Remanent_state.warn
+         __POS__
+         (Format.sprintf
+            "illegal string for academic year (%s)"
+            diplome.Public_data.diplome_year)
+         Exit
+         state, ""
+  in
   let state, output_repository, output_file_name =
     Tools.build_output
       ~get_local_repository
@@ -208,7 +239,15 @@ let dump_pv
       ~firstname
       ~lastname
       ~promotion
-      ~extension:(Format.sprintf ".%s.tex" diplome.Public_data.diplome_niveau)
+      ~extension:(Format.sprintf ".attestation.%s.%stex"
+                    begin
+                      match
+                        level
+                      with
+                      | "l" -> "L3"
+                      | "m" -> "M1"
+                      | x -> x
+                    end y)
       ?prefix
       ?output_repository
       ?output_file_name
@@ -275,24 +314,65 @@ let dump_pv
     let () =
       Loggers.setheadpage logger
         (Format.sprintf
-           "\\IfFileExists{%s}{\\includegraphics{%s}}"
+           "\\IfFileExists{%s}{\\includegraphics{%s}}{}"
            enspsl enspsl)
     in
     let () =
-      Loggers.setfootpage logger
-        "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32  20 45 --  Fax : + 33 (0) 1 44 32 20 75 - diplome@di.ens.fr}"
+      let color = Color.digreen in
+      Loggers.setfootpage logger ~color
+        "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32  20 45 --  Fax : + 33 (0) 1 44 32 20 75 - direction.etudes@di.ens.fr}"
+    in
+    let state, s = Remanent_state.get_signature state in
+    let year = diplome.Public_data.diplome_year in
+    let level = diplome.Public_data.diplome_niveau in
+    let state, cursus_opt =
+      Remanent_state.get_cursus
+        __POS__
+        ~level
+        ?dpt:(match level, dpt with
+            | "dens",_
+            | _,"" -> None
+            | _ ->
+              Some dpt)
+        ~year
+        state
+    in
+    let state, libelle =
+      match cursus_opt with
+      | None ->
+        Remanent_state.warn
+          __POS__
+          (Format.sprintf
+             "unknown cursus %s %s"
+             level dpt)
+          Exit
+          state, ""
+      | Some cursus ->
+        match
+          cursus.Public_data.inscription
+        with
+        | None ->
+        Remanent_state.warn
+          __POS__
+          (Format.sprintf
+             "The field inscritpion of cursus %s %s is missing"
+             level dpt)
+          Exit
+          state, ""
+        | Some a -> state, a
     in
     let body =
       Format.sprintf
-        "\\vfill\n\n\\begin{center}\\underline{ATTESTATION}\\end{center}\n\ \\vfill\n\n\  Je soussigné, \\textbf{%s}, directeur des études du département d’Informatique de l’École Normale Supérieure,\\bigskip\\\\CERTIFIE que,\\bigskip\\\\conformément aux dispositions générales de la scolarité au sein de la formation universitaire en informatique de l’ENS et aux décisions de la commission des études du département d’informatique de l’ENS, \\bigskip\\\\\\textbf{%s %s}, a obtenu en %s-%s\\\\\\textbf{%s}\\Parcours : \\textbf{Formation interuniversitaire en informatique – ENS} Paris.\bigskip\\%s \\\\\\vfill\n\\begin{center}Fait à Paris le %s\\smallskip\\\\Pour valoir et servir ce que de droit\\end{center}\\vfill"
+        "\\vfill\n\n\\begin{center}\\underline{ATTESTATION}\\end{center}\n\ \\vfill\n\n\  Je soussigné, \\textbf{%s}, directeur des études du département d'Informatique de l'École Normale Supérieure,\\bigskip\\\\CERTIFIE que,\\bigskip\\\\conformément aux dispositions générales de la scolarité au sein de la formation universitaire en informatique de l'ENS et aux décisions de la commission des études du département d'informatique de l'ENS, \\bigskip\\\\\\textbf{%s %s}, a obtenu en %s-%s\\\\\\textbf{%s}\\\\Parcours : \\textbf{Formation interuniversitaire en informatique -- ENS Paris}.\\\\ %s \n\n\\vfill\n\\begin{center}Fait à Paris le %s\\smallskip\n\nPour valoir et servir ce que de droit \n\n\n\n\\IfFileExists{%s}%%\n\ {\ {\\includegraphics{%s}}}%%\n\ {}\\end{center}\\vfill"
         "Jérôme FERET"
-        diplome.Public_data.diplome_lastname
-        diplome.Public_data.diplome_firstname
-        diplome.Public_data.diplome_year
-        (next_year diplome.Public_data.diplome_year)
-        diplome.Public_data.diplome_niveau
+        lastname
+        firstname
+        year
+        (next_year year)
+        libelle
         "VALIDÉE"
         "\\today"
+        s s
     in
     let _ = Loggers.fprintf logger  "%s" body in
     let () = Loggers.close_logger logger in
@@ -300,21 +380,34 @@ let dump_pv
 
 let dump_pvs
     ?output_repository
+    ?diplome_list
     ?prefix
     state =
+  let p =
+    match diplome_list with
+    | None -> (fun _ -> true)
+    | Some l ->
+      (fun a ->
+         List.mem a.Public_data.diplome_niveau l)
+  in
   let state, diplome_list =
     Remanent_state.get_national_diplomas state
   in
   List.fold_left
     (fun state diplome ->
-       let
-         state, input =
-         dump_pv
-           ?output_repository
-           ?prefix
-           diplome
-           state
-       in
-       Latex_engine.latex_opt_to_pdf state ~input)
+       if
+         p diplome
+       then
+         let
+           state, input =
+           dump_pv
+             ?output_repository
+             ?prefix
+             diplome
+             state
+         in
+         Latex_engine.latex_opt_to_pdf state ~input
+       else
+         state)
     state
     diplome_list

@@ -4,10 +4,12 @@ type dump =
   ?ninscription:int ->
   ?promo:string ->
   ?headpage:(int -> string) ->
-  ?footpage:string -> 
+  ?footpage:string ->
+  ?footcolor:Color.color ->
   ?title:string ->
   ?preamble:(int -> string) ->
   ?signature:(int -> string) ->
+  ?nb_inscription_list:int list ->
   Gen.dump
 
 module type DensReport =

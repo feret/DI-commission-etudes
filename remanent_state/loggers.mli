@@ -66,7 +66,7 @@ val encapsulate: encoding -> encoding
 val print_headers: t -> int -> string -> unit
 
 val maketitle: t -> string -> unit
-val setheadpage: t -> string -> unit
+val setheadpage:  t -> ?color:Color.color -> string -> unit
 val setsignature: t -> string -> unit
-val setpreamble: t -> string -> unit
-val setfootpage: t -> string -> unit 
+val setpreamble:  t -> string -> unit
+val setfootpage:  t -> ?color:Color.color -> string -> unit

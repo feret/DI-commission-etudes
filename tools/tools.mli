@@ -91,12 +91,14 @@ val dump_report:
   string_of_column:(string * ('b -> string)) list ->
   settitle:(string -> unit) ->
   setpreamble:(string -> unit) ->
-  setheadpage:(string -> unit) ->
-  setfootpage:(string -> unit) ->
+  setheadpage:(?color:Color.color -> string -> unit) ->
+  setfootpage:(?color:Color.color -> string -> unit) ->
   setsignature:(string -> unit) ->
   ?title:string ->
   ?headpage:(int -> string) ->
-  ?footpage:string -> 
+  ?headcolor:Color.color ->
+  ?footpage:string ->
+  ?footcolor:Color.color ->
   ?preamble:(int -> string) ->
   ?signature:(int -> string) -> ('a list * 'b) list -> unit
 

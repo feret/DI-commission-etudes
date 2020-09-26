@@ -27,11 +27,13 @@ val dump_elts:
   ?file_name:string ->
   ?event_opt:Sco_remanent_state.Profiling.step_kind ->
   ?headpage:(int -> string) ->
-  ?footpage:string -> 
+  ?footpage:string ->
   ?title:string ->
   ?preamble:(int -> string) ->
   ?signature:(int -> string) ->
   ?headerextralength:int ->
+  ?headcolor:Color.color ->
+  ?footcolor:Color.color ->
   get:(Remanent_state.t -> Remanent_state.t * 'a list) ->
   filter:'a filter ->
   get_repository:(Remanent_state.t -> Remanent_state.t * string) ->
@@ -55,7 +57,7 @@ val filter_mentoring:
 val filter_mentoring_list:
   Public_data.mentor filter
 val filter_dens:
-  Public_data.dens filter
+  ?nb_inscription_list:int list -> Public_data.dens filter
 val filter_national_diploma:
   Public_data.diplome_national filter
 

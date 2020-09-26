@@ -456,18 +456,26 @@ let clean_spurious_uppercase_letters string =
           then
             lower acc
         in
-        aux (k+2) false []
+        f (k+1)
       else
         let has_lowercase =
           has_lowercase
           || ((c = lowercase_char c)
               && (c <> uppercase_char c))
         in
-        let acc =
+          let acc =
           if buggy k
-          then k::acc
+          then
+            k::acc
           else acc
         in
-        aux (k+1) has_lowercase acc
-  in
-  aux 1 false []
+          aux (k+1) has_lowercase acc
+  and
+    f k =
+    if k>=n then Bytes.to_string string
+    else
+      let c = Bytes.get string k in
+      if c = '\195'
+      then f (k+1)
+      else aux (k+1) false []
+  in f 0

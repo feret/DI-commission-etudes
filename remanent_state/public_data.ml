@@ -363,6 +363,7 @@ type diplome_national =
   {
     diplome_firstname : string ;
     diplome_lastname : string ;
+    diplome_gender : genre ; 
     diplome_promotion : string ;
     diplome_niveau : string ;
     diplome_dpt : string ;
@@ -387,7 +388,7 @@ type dens =
 
 type mentor =
   {
-    mentor_attribution_year : string ; 
+    mentor_attribution_year : string ;
     mentor_academic_year : string ;
     mentor_student_firstname : string ;
     mentor_student_lastname : string ;

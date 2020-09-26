@@ -332,12 +332,14 @@ let prepare_report
     ~string_of_column
     ~settitle
     ~setpreamble
-    ~setheadpage
-    ~setfootpage
+    ~(setheadpage: ?color:Color.color -> string -> unit)
+    ~(setfootpage: ?color:Color.color -> string -> unit)
     ~setsignature
     ?title
     ?headpage
+    ?headcolor
     ?footpage
+    ?footcolor
     ?preamble
     ?signature
     list =
@@ -350,13 +352,17 @@ let prepare_report
     let _ =
       match headpage with
       | None -> setheadpage ""
-      | Some f -> setheadpage (f n)
+      | Some f ->
+        let color = headcolor in
+        setheadpage ?color (f n)
     in
     let _ =
       match footpage with
       | None -> setfootpage ""
-      | Some f -> setfootpage f
-    in 
+      | Some f ->
+        let color = footcolor in
+        setfootpage ?color f
+    in
     let _ =
       match preamble with
       | None -> ()

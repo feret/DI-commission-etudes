@@ -157,15 +157,14 @@ struct
         Gen.lift_cmp (fun a -> a.Public_data.mentor_firstname);
       ]
     in
-    let columns = [nom_tuteur] in
+    let columns = [nom_etudiant_long;nom_tuteur] in
     let headers =
       match academicyear with
       | None ->
       [
         lift_id annee ;
-        lift_id nom_tuteur
-      ]
-      | Some _ -> [lift_id nom_tuteur]
+          ]
+      | Some _ -> []
     in
     dump_mentor_list
       ?studentfirstname ?studentlastname ?mentorfirstname
@@ -267,16 +266,17 @@ struct
       match academicyear
       with
       | None -> annee::columns
-      | Some _ -> columns
+      | Some _ -> [nom_etudiant;promotion;nom_tuteur]
     in
     let headers =
-      match promo with
-      | None ->
+      match academicyear, promo with
+      | Some _, _ -> []
+      | _, None ->
       [
         lift_id promotion ;
         lift_id nom_etudiant_long
       ]
-      | Some _ -> [lift_id nom_etudiant_long]
+      | _,Some _ -> [lift_id nom_etudiant_long]
     in
     dump_mentor_list
       ?studentfirstname ?studentlastname ?mentorfirstname

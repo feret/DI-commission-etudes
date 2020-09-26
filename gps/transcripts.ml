@@ -4933,6 +4933,13 @@ let export_transcript
                   | Some a -> a);
                 Public_data.diplome_firstname = firstname ;
                 Public_data.diplome_lastname = lastname ;
+                Public_data.diplome_gender =
+                  begin
+                    match gps_file.genre
+                    with
+                    | Some a -> a
+                    | None -> Public_data.Unknown
+                  end ; 
                 Public_data.diplome_promotion = promo ;
                 Public_data.diplome_nb_ects = ects ;
                 Public_data.diplome_moyenne =

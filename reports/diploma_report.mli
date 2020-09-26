@@ -7,7 +7,8 @@ type dump =
   ?recu:bool ->
   ?academicyear:string ->
   ?headpage:(int -> string) ->
-  ?footpage:string -> 
+  ?footpage:string ->
+  ?footcolor:Color.color ->
   ?title:string ->
   ?preamble:(int -> string) ->
   ?signature:(int -> string) ->
@@ -31,4 +32,5 @@ val dump_pv:
 
 val dump_pvs:
   ?output_repository:string ->
+  ?diplome_list:string list -> 
   ?prefix:string -> Remanent_state.t -> Remanent_state.t

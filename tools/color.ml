@@ -56,7 +56,8 @@ let light_duck_blue =
   {name="lightduckblue";red=27;green=152;blue=177}
 let dark_duck_blue =
   {name="darkduckblue";red=31;green=77;blue=86}
-
+let di_green =
+  {name="digreen";red=58;green=113;blue=104}
 let label c = c.name
 let rgb_code c = c.red, c.green, c.blue
 
@@ -68,7 +69,7 @@ let rgb_list =
     light_orange;dark_orange;
     light_red;dark_red;
     light_duck_blue; dark_duck_blue;
-    black;white
+    black;white;di_green
   ]
 
 let duckblue = build_color ~background:light_duck_blue dark_duck_blue "duck blue"
@@ -80,17 +81,29 @@ let black = build_color black "black"
 let white= build_color white "white"
 let orange = build_color ~background:light_orange dark_orange "orange"
 let pink = build_color ~background:light_pink dark_pink "pink"
-
+let digreen = build_color ~background:di_green di_green
+    "digreen" 
 let color_list =
-  [pink;blue;green;yellow;red;black;white;orange;duckblue]
+  [
+    pink;
+    blue;
+    green;
+    yellow;
+    red;
+    black;
+    white;
+    orange;
+    duckblue;
+    digreen
+  ]
 
 let color_of_string s =
   match s with
-  | "duckblue" | "bleucanard" | "duck blue" | "bleu canard"
-    -> Some duckblue
+  | "duckblue" | "bleucanard" | "duck blue" | "bleu canard" -> Some duckblue
   | "pink" | "rose" -> Some pink
   | "blue" | "bleu" -> Some blue
   | "green" | "vert" -> Some green
+  | "digreen" -> Some digreen
   | "yellow" | "jaune" -> Some yellow
   | "red" | "rouge"-> Some red
   | "black" | "noir" -> Some black

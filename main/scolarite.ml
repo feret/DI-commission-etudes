@@ -146,7 +146,7 @@ let state =
          let output =
            (fst output0,
             (Tools.basename (snd
-                               output0))^".signed.tex")
+                               output0))^".signe_JF.tex")
          in
          let state, signature =
            Remanent_state.get_signature state
@@ -255,83 +255,93 @@ let state, input =
     state
 let state =
     Latex_engine.latex_opt_to_pdf state ~input
+let diplome_list = ["l";"m"]
 let state =
-  Diploma_report.dump_pvs state
+  Diploma_report.dump_pvs ~diplome_list state
 let state, enspsl = Remanent_state.get_ENSPSL_logo state
 let headpage s _ =
   Format.sprintf
-    "\\begin{center}\\IfFileExists{%s}{\\includegraphics{%s}}\\end{center}\n\n Résultats 2019-2020\\\\%s\\\\Page \\thepage/\\pageref{LastPage}\\\\" 
+    "\\IfFileExists{%s}{\\includegraphics{%s}}{} \\\\ Résultats 2019-2020\\\\%s\\\\Page \\thepage/\\pageref{LastPage}\\\\"
     enspsl enspsl s
 let footpage =
-  "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32  20 45 --  Fax : + 33 (0) 1 44 32 20 75 - diplome@di.ens.fr}"
+  "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32 20 45 --  Fax : + 33 (0) 1 44 32 20 75 - direction.etudes@di.ens.fr}"
+let footcolor = Color.digreen
+let state, s =
+  Remanent_state.get_signature state
 let signature _ =
-  "Paris \\ le 18 septembre 2020"
+  Format.sprintf
+    "Certifié exact à Paris \\\\ le 18 septembre 2020 \\\\ \\IfFileExists{%s}{\\includegraphics{%s}}{}" s s
+let nb_inscription_list = [1;2]
 let state,_ =
   Dens_report.DensReport.dump_per_promo
-    ~file_name:"dens_par_promo.html" state
+    ~file_name:"PV_DENS_par_promotion.html"
+    ~nb_inscription_list
+    state
 let state,_ =
   Dens_report.DensReport.dump_per_n_inscription
-    ~file_name:"dens_par_nb_inscriptions.html" state
+    ~file_name:"PV_DENS_par_nb_inscriptions.html"
+    ~nb_inscription_list
+    state
 let state, academicyear =
   Remanent_state.get_current_academic_year state
 let state,_ =
   Diploma_report.DiplomaReport.dump_per_result_per_student
-    ~file_name:"M1result.html"
+    ~file_name:"PV_M1_par_resultat.html"
     ~academicyear ~niveau:"m" ~dpt:"informatique"
     state
 let state,_ =
   Diploma_report.DiplomaReport.dump_per_result_per_student
-    ~file_name:"L3result.html"
+    ~file_name:"PV_L3_par_resultat.html"
     ~academicyear ~niveau:"l" ~dpt:"informatique" state
 let state,_ =
   Diploma_report.DiplomaReport.dump_per_student
-    ~file_name:"M1student.html"
+    ~file_name:"PV_M1_alphabetic.html"
     ~academicyear ~niveau:"m" ~dpt:"informatique"
     state
 let state,_ =
   Diploma_report.DiplomaReport.dump_per_student
-    ~file_name:"L3student.html"
+    ~file_name:"PV_L3_alphabetic.html"
     ~academicyear ~niveau:"l" ~dpt:"informatique" state
 let preamble i =
   Format.sprintf
-    "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du 18 septembre 2020,} \\\\ Je soussigné \\textbf{Marc Pouzet}, directeur des études du département d'informatique de l'École Normale Supérieure, certifie que les \\\\ \\underline{\\textbf{%i étudiants inscrits en 2019-2020}}, en première et deuxième année du diplôme de l'École Normale Supérieure, ont obtenu les résultats suivant" i
+    "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du 18 septembre 2020,} \\\\ je soussigné \\textbf{Jérôme Feret}, directeur des études du département d'informatique de l'École Normale Supérieure, certifie que les \\\\ \\underline{\\textbf{%i étudiants inscrits en 2019-2020}}, en première et deuxième année du diplôme de l'École Normale Supérieure, ont obtenu les résultats suivant" i
 let state,input =
   Dens_report.DensReport.dump_per_promo
-    ~file_name:"dens_par_promo.tex" state
+    ~file_name:"PV_DENS_par_promotion.tex" state
     ~signature ~preamble ~headpage:(headpage "DENS")
-    ~footpage
+    ~footpage ~footcolor ~nb_inscription_list
 let state =
   Latex_engine.latex_opt_to_pdf state ~times:2 ~input
 let state,input =
   Dens_report.DensReport.dump_per_n_inscription
-    ~file_name:"dens_par_nb_inscriptions.tex" state
+    ~file_name:"PV_DENS_par_nb_inscriptions.tex" state
     ~signature ~preamble ~headpage:(headpage "DENS")
-    ~footpage
+    ~footpage ~footcolor ~nb_inscription_list
 let state =
   Latex_engine.latex_opt_to_pdf state ~times:2 ~input
 let state, academicyear =
   Remanent_state.get_current_academic_year state
 let preamble s u i =
   Format.sprintf
-    "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du 18 septembre 2020,} \\\\ Je soussigné \\textbf{Marc Pouzet}, directeur des études du département d'informatique de l'École Normale Supérieure, certifie que les \\\\ \\underline{\\textbf{%i étudiants inscrits en 2019-2020}}, à l'université %s, \\\\ \\textbf{en %s - parcours : Formation interuniversitaire en informatique de l'ENS Paris, ont obtenu les résultats suivant}" i u s
+    "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du 18 septembre 2020,} \\\\ Je soussigné \\textbf{Jérôme Feret}, directeur des études du département d'informatique de l'École Normale Supérieure, certifie que les \\\\ \\underline{\\textbf{%i étudiants inscrits en 2019-2020}}, à l'université %s, \\\\ \\textbf{en %s - parcours : Formation interuniversitaire en informatique de l'ENS Paris, ont obtenu les résultats suivant}" i u s
 
 let state,input =
   Diploma_report.DiplomaReport.dump_per_result_per_student
-    ~file_name:"M1result.tex"
+    ~file_name:"PV_M1_par_resultat_signe_JF.tex"
     ~academicyear ~niveau:"m" ~dpt:"informatique"
     ~headpage:(headpage "Master M1 d'informatique")
     ~preamble:(preamble "Master M1 d'informatique" "Paris Dauphine")
-    ~footpage
+    ~footpage ~footcolor
     ~signature
     state
 let state =
   Latex_engine.latex_opt_to_pdf ~times:2 state ~input
 let state,input =
   Diploma_report.DiplomaReport.dump_per_student
-    ~file_name:"M1student.tex"
+    ~file_name:"PV_M1_alphabetic_signe_JF.tex"
     ~academicyear ~niveau:"m" ~dpt:"informatique"
     ~headpage:(headpage "Master M1 d'informatique fondamental")
-    ~footpage
+    ~footpage ~footcolor
     ~preamble:(preamble "Master M1 d'informatique fondamentale" "PSL")
     ~signature
     state
@@ -339,10 +349,10 @@ let state =
   Latex_engine.latex_opt_to_pdf ~rev:false ~times:2 state ~input
 let state, input =
   Diploma_report.DiplomaReport.dump_per_result_per_student
-    ~file_name:"L3result.tex"
+    ~file_name:"PV_L3_par_résultat_signe_JF.tex"
     ~academicyear ~niveau:"l" ~dpt:"informatique"
     ~headpage:(headpage "Licence L3 d'informatique")
-    ~footpage
+    ~footpage ~footcolor
     ~preamble:(preamble "Licence L3 d'informatique" "Paris 7 - Denis Diderot")
     ~signature
     state
@@ -350,9 +360,9 @@ let state =
   Latex_engine.latex_opt_to_pdf state ~times:2 ~input
 let state, input =
   Diploma_report.DiplomaReport.dump_per_student
-    ~file_name:"L3student.tex"
+    ~file_name:"PV_L3_alphabetic_signe_JF.tex"
     ~academicyear ~niveau:"l" ~dpt:"informatique"
-    ~footpage
+    ~footpage ~footcolor
     ~headpage:(headpage "Licence L3 d'informatique")
     ~preamble:(preamble "Licence L3 d'informatique" "Paris 7 - Denis Diderot")
     ~signature
@@ -401,15 +411,15 @@ let state,_ =
     state
 let state,_ =
   Mentors.ReportMissingMentors.dump_per_student
-    ~file_name:"mentors_manquants_par_etudiant.html"
+    ~file_name:"tuteurs_manquants_par_etudiant.html"
     state
 let state,_ =
   Mentors.ReportMissingMentors.dump_per_year
-    ~file_name:"mentors_manquants_par_annee.html"
+    ~file_name:"tuteurs_manquants_par_annee.html"
     state
 let state,_ =
   Mentors.ReportMissingMentors.dump_per_promotion
-    ~file_name:"mentors_manquants_par_promotion.html"
+    ~file_name:"tuteurs_manquants_par_promotion.html"
     state
 let state,_ =
   Internship_descriptions.MissingInternshipDescriptions.dump_per_year

@@ -350,7 +350,9 @@ let print_cell logger s =
     | CSV  -> "",s,"\t"
     | Json  | TXT | XLS -> "",s,""
   in
-  fprintf logger "%s%s%s" open_cell_symbol s close_cell_symbol
+  let () = fprintf logger "%s" open_cell_symbol in
+  let () = fprintf logger "%s" s in
+  fprintf logger "%s"  close_cell_symbol
 
 let open_array ?size ?color ?bgcolor ?align ~title logger =
   match logger.encoding with
@@ -576,7 +578,8 @@ let print_preamble
       match orientation with
       | Landscape -> "\\usepackage{lscape}",
                     "\\landscape\n\n\\setlength{\\textwidth}{28.3cm}\n\\setlength{\\hoffset}{-1.84cm}\n\\setlength{\\headsep}{0pt}\n\\setlength{\\topmargin}{0mm}\n\\setlength{\\footskip}{0mm}\n\\setlength{\\oddsidemargin}{0pt}\n\\setlength{\\evensidemargin}{0pt}\n\\setlength{\\voffset}{-2.15cm}\n\\setlength{\\textheight}{19.6cm}\n\\setlength{\\paperwidth}{21cm}\n\\setlength{\\paperheight}{29.7cm}\n\\setlength\\parindent{0pt}\n"
-      | Normal -> Format.sprintf "\\usepackage{fancyhdr}%s\n"
+      | Normal ->
+        Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\fancyfootoffset{3cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n"
                     (if headerextralength=0 then "" else
                        Format.sprintf "\\addtolength{\\headheight}{%icm}\\addtolength{\\textheight}{-%icm}"
                          headerextralength
@@ -915,10 +918,23 @@ let maketitle logger title =
   | Json -> ()
 
 
-let setheadpage logger s =
+let setheadpage logger ?color s =
   match logger.encoding with
   | Latex _ | Latex_encapsulated ->
-    let () = fprintf logger "\\chead[%s]{%s}\n\\rhead[]{}\n\\lhead[]{}" s s in
+    let txtcolor =
+      match color with
+      | None -> "",""
+      | Some a ->
+        Format.sprintf
+          "{\\color{%s}"
+          (Color.label (Color.get_font_color a)),
+        "}"
+    in
+    let () =
+      fprintf logger "\\renewcommand{\\headrulewidth}{0pt}\n\\chead[%s%s%s]{%s%s%s}\n\\rhead[]{}\n\\lhead[]{}"
+        (fst txtcolor) s (snd txtcolor)
+        (fst txtcolor) s (snd txtcolor)
+    in
     let () = print_newline logger in
     ()
   | HTML | HTML_encapsulated | HTML_Tabular
@@ -927,10 +943,25 @@ let setheadpage logger s =
   | XLS
   | Json -> ()
 
-let setfootpage logger s =
+let setfootpage logger ?color s =
   match logger.encoding with
   | Latex _ | Latex_encapsulated ->
-    let () = fprintf logger "\\cfoot[%s]{%s}\n\\rfoot[]{}\n\\lfoot[]{}" s s in
+    let txtcolor =
+      match color with
+      | None -> "",""
+      | Some a ->
+        Format.sprintf
+          "{\\color{%s}"
+          (Color.label (Color.get_font_color a)),
+        "}"
+    in
+    let () =
+      fprintf logger
+        "\\renewcommand{\\footrulewidth  }{%s}\n\\cfoot[%s%s%s]{%s%s%s}\n\\rfoot[]{}\n\\lfoot[]{}"
+        (if s="" then "0pt" else "1pt")
+        (fst txtcolor) s (snd txtcolor)
+        (fst txtcolor) s (snd txtcolor)
+    in
     let () = print_newline logger in
     ()
   | HTML | HTML_encapsulated | HTML_Tabular
