@@ -71,6 +71,13 @@ struct
          (Special_char.capitalize first)
          (Special_char.uppercase last))
 
+  let wholong genre first last email =
+    if String.trim email = ""
+    then who genre first last
+    else
+      Printf.sprintf "%s (%s)"
+        (who genre first last)
+        email
 
   let nom_etudiant =
     "ÉTUDIANT",
@@ -88,10 +95,12 @@ struct
   let nom_tuteur =
     "TUTEUR",
     (fun a ->
-       who
+       wholong
          a.Public_data.mentor_gender
          a.Public_data.mentor_firstname
-         a.Public_data.mentor_lastname)
+         a.Public_data.mentor_lastname
+         a.Public_data.mentor_email)
+
   let promotion =
     "PROMOTION",
     (fun a -> a.Public_data.mentor_student_promo)
@@ -118,7 +127,10 @@ struct
     let cmp =
       [ Gen.lift_cmp (fun a ->
           a.Public_data.mentor_student_dpt);
-        Gen.lift_cmp (fun a -> a.Public_data.mentor_academic_year);
+        Gen.op_cmp
+          (Gen.lift_cmp
+             (fun a ->
+                a.Public_data.mentor_academic_year));
         Gen.lift_cmp (fun a -> a.Public_data.mentor_lastname);
         Gen.lift_cmp (fun a -> a.Public_data.mentor_firstname);
         Gen.lift_cmp (fun a -> a.Public_data.mentor_student_lastname);
@@ -150,7 +162,8 @@ struct
       state =
     let cmp =
       [
-        Gen.lift_cmp (fun a -> a.Public_data.mentor_academic_year);
+        Gen.op_cmp
+          (Gen.lift_cmp (fun a -> a.Public_data.mentor_academic_year));
         Gen.lift_cmp (fun a -> a.Public_data.mentor_student_lastname);
         Gen.lift_cmp (fun a -> a.Public_data.mentor_student_firstname);
         Gen.lift_cmp (fun a -> a.Public_data.mentor_lastname);

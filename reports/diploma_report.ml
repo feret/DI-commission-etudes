@@ -306,7 +306,7 @@ let dump_pv
     in
     let logger =
       Loggers.open_logger_from_channel
-        ~headerextralength:4 ~mode
+        ~headerextralength:8 ~mode
         out in
     let state, enspsl =
       Remanent_state.get_ENSPSL_logo state
@@ -385,10 +385,11 @@ let dump_pvs
     state =
   let p =
     match diplome_list with
-    | None -> (fun _ -> true)
+    | None -> (fun a -> a.Public_data.diplome_recu)
     | Some l ->
       (fun a ->
-         List.mem a.Public_data.diplome_niveau l)
+         a.Public_data.diplome_recu
+           && List.mem a.Public_data.diplome_niveau l)
   in
   let state, diplome_list =
     Remanent_state.get_national_diplomas state

@@ -446,7 +446,12 @@ let clean_spurious_uppercase_letters string =
       l
   in
   let rec aux k has_lowercase acc =
-    if k>=n then Bytes.to_string string
+    if k>=n then
+      let () =
+        if has_lowercase then
+          lower acc
+      in
+      Bytes.to_string string
     else
       let c = Bytes.get string k in
       if List.mem c delimiter
@@ -463,7 +468,7 @@ let clean_spurious_uppercase_letters string =
           || ((c = lowercase_char c)
               && (c <> uppercase_char c))
         in
-          let acc =
+        let acc =
           if buggy k
           then
             k::acc
@@ -479,3 +484,11 @@ let clean_spurious_uppercase_letters string =
       then f (k+1)
       else aux (k+1) false []
   in f 0
+
+let () =
+  Format.printf "%s @ "
+    (clean_spurious_uppercase_letters "Clément")
+
+let () =
+  Format.printf "%s @ "
+    (clean_spurious_uppercase_letters "ClÉment")

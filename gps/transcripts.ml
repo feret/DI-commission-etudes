@@ -2740,6 +2740,16 @@ let add_dens year compensation course map =
       | Some false -> map
       | None -> add_dens_potential year course map
 
+let add_mean_empty key year map =
+  let old,y =
+    match StringOptMap.find_opt key (fst map)
+    with
+    | None -> [],0
+    | Some a -> a
+  in
+  StringOptMap.add key (old, max y year) (fst map),
+  snd map
+
 let add_mean_ok key course year map =
   let old,y =
     match StringOptMap.find_opt key (fst map)
@@ -2749,8 +2759,7 @@ let add_mean_ok key course year map =
   in
   StringOptMap.add key
     ((course.note, course.ects)::old, max y year) (fst map),
-
-snd map
+  snd map
 
 let add_mean key compensation course year map =
   match compensation, course.note with
@@ -2763,7 +2772,9 @@ let add_mean key compensation course year map =
       | Some true -> add_mean_ok key course year map
       | Some false | None -> map
 
-let add_mean_diplome d mean = fst mean, d::(snd mean)
+let add_mean_diplome d year mean =
+  add_mean_empty
+      d year (fst mean, d::(snd mean))
 
 let get_origine who promo gps_file state =
   match
@@ -3030,6 +3041,9 @@ let heading
               Public_data.mentor_student_firstname = firstname ;
               Public_data.mentor_student_dpt =
                 current_dpt ;
+             Public_data.mentor_email =
+               Tools.unsome_string
+                 tuteur.Public_data.courriel_du_tuteur ;
             }
         else state
       in
@@ -3604,7 +3618,14 @@ let program
     alloc_suffix (string,dpt) state
   in
   let mean =
-    add_mean_diplome (string,dpt) mean
+    if do_report report
+    then
+      add_mean_diplome
+        (string,dpt)
+        (try int_of_string year with _ -> 0)
+        mean
+    else
+      mean
   in
   let () =
     if b
@@ -4487,6 +4508,9 @@ let export_transcript
                 current_dpt ;
               Public_data.mentor_attribution_year =
                 tuteur.Public_data.annee_academique;
+              Public_data.mentor_email =
+                Tools.unsome_string
+                  tuteur.Public_data.courriel_du_tuteur
             }
           else state
         in
@@ -4939,7 +4963,7 @@ let export_transcript
                     with
                     | Some a -> a
                     | None -> Public_data.Unknown
-                  end ; 
+                  end ;
                 Public_data.diplome_promotion = promo ;
                 Public_data.diplome_nb_ects = ects ;
                 Public_data.diplome_moyenne =

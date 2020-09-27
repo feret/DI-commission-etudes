@@ -65,7 +65,10 @@ let state =
            Public_data.mentor_firstname =
              Tools.unsome_string
                elt.Public_data.prenom_du_tuteur;
-           Public_data.mentor_academic_year =
+          Public_data.mentor_email =
+            Tools.unsome_string
+              elt.Public_data.courriel_du_tuteur;
+          Public_data.mentor_academic_year =
              elt.Public_data.annee_academique;
            Public_data.mentor_student_promo = "2020" ;
            Public_data.mentor_student_gender =
@@ -78,7 +81,6 @@ let state =
     l
 let state =
   Collect_programs.get_cursus state
-let () = Remanent_state.list_all_cursus state
 let state =
   Collect_programs.get_dpt state
 let state =

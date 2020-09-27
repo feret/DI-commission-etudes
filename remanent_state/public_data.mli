@@ -257,7 +257,7 @@ type diplome_national =
   {
     diplome_firstname : string ;
     diplome_lastname : string ;
-    diplome_gender : genre ; 
+    diplome_gender : genre ;
     diplome_promotion : string ;
     diplome_niveau : string ;
     diplome_dpt : string ;
@@ -291,6 +291,7 @@ type mentor =
     mentor_firstname : string ;
     mentor_lastname : string ;
     mentor_gender : genre ;
+    mentor_email : string ; 
     mentor_student_dpt: string ;
   }
 
