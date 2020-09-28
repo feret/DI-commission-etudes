@@ -48,7 +48,7 @@ struct
       ?output_repository ?prefix ?file_name ?event_opt
       ~cmp ~filter ~headers ~columns ~get ~default_file_name
       ~get_repository
-      ~headerextralength:8
+      ~headerextralength:5
       state
 
 
@@ -62,12 +62,12 @@ struct
     "PROMOTION",
     (fun a -> a.Public_data.dens_promotion)
   let total_year =
-    "ECTS (année courante)",
+    "\\makecell{ECTS \\\\ (année courante)}",
     (fun a ->
        Notes.string_of_ects
         (Some (a.Public_data.dens_current_year_ects)))
   let total =
-    "ECTC (cumul)",
+    "\\makecell{ECTC \\\\ (cumul)}",
     (fun a ->
        Notes.string_of_ects
         (Some (a.Public_data.dens_total_ects)))

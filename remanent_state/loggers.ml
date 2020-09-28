@@ -579,7 +579,7 @@ let print_preamble
       | Landscape -> "\\usepackage{lscape}",
                     "\\landscape\n\n\\setlength{\\textwidth}{28.3cm}\n\\setlength{\\hoffset}{-1.84cm}\n\\setlength{\\headsep}{0pt}\n\\setlength{\\topmargin}{0mm}\n\\setlength{\\footskip}{0mm}\n\\setlength{\\oddsidemargin}{0pt}\n\\setlength{\\evensidemargin}{0pt}\n\\setlength{\\voffset}{-2.15cm}\n\\setlength{\\textheight}{19.6cm}\n\\setlength{\\paperwidth}{21cm}\n\\setlength{\\paperheight}{29.7cm}\n\\setlength\\parindent{0pt}\n"
       | Normal ->
-        Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{15.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\setlength{\\topmargin}{-2in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{27.7cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n"
+        Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{15.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\setlength{\\topmargin}{-1in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{27.7cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n"
                     (if headerextralength=0 then "" else
                        Format.sprintf "\\addtolength{\\headheight}{%icm}\\addtolength{\\textheight}{-%icm}"
                          headerextralength
@@ -607,7 +607,7 @@ let print_preamble
 \\usepackage[table]{xcolor}%%\n\
 \\usepackage{ltablex}%%\n\
 \\usepackage{graphicx}%%\n\
-\\def\\rmdefault{phv}%%\n\
+\\usepackage{makecell}%%\n\ \\def\\rmdefault{phv}%%\n\
 %%\n\
 %s\
 \\pagestyle{%s}\n\
@@ -980,7 +980,7 @@ let setsignature logger s =
     ()
   | Latex _ | Latex_encapsulated ->
     let () =
-      fprintf logger "\\begin{center}%s\\end{center}" s
+      fprintf logger "\\vfill\n\n\\begin{center}%s\\end{center}\\vfill\n\n\\mbox{}\n" s
     in
     let () = print_newline logger in
     ()

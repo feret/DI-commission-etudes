@@ -49,7 +49,7 @@ struct
       ?headpage ?footpage ?footcolor
       ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name ?event_opt
-      ~headerextralength:8
+      ~headerextralength:5
       ~cmp ~filter ~headers ~columns ~get ~default_file_name
       ~get_repository
       state
@@ -306,7 +306,7 @@ let dump_pv
     in
     let logger =
       Loggers.open_logger_from_channel
-        ~headerextralength:8 ~mode
+        ~headerextralength:5 ~mode
         out in
     let state, enspsl =
       Remanent_state.get_ENSPSL_logo state

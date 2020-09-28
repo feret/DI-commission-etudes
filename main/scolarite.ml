@@ -263,7 +263,7 @@ let state =
 let state, enspsl = Remanent_state.get_ENSPSL_logo state
 let headpage s _ =
   Format.sprintf
-    "\\IfFileExists{%s}{\\includegraphics{%s}}{} \\\\ Résultats 2019-2020\\\\%s\\\\Page \\thepage/\\pageref{LastPage}\\\\"
+    "\\IfFileExists{%s}{\\includegraphics{%s} \\\\}{} Résultats 2019-2020\\\\%s\\\\Page \\thepage/\\pageref{LastPage}\\\\"
     enspsl enspsl s
 let footpage =
   "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32 20 45 --  Fax : + 33 (0) 1 44 32 20 75 - direction.etudes@di.ens.fr}"
