@@ -2145,7 +2145,7 @@ let mva = gen_master "M-MVA" "gps2228" "INFO-M2-MVASTAGE-S2"
 let iasd = gen_master "M-IASD" "gps76822" "INFO-M2-IASD-STG-S2"
 let mash = gen_master "M-MASH" "gps59622" "INFO-M2-MASH-STG-S2"
 let mint = gen_master "M-Interaction" "gps78864" "XT 00000000000647168"
-let mlmfi = gen_master "M-LMFI" "gps2005" ""
+let mlmfi = gen_master "M-LMFI" "gps2005" "NOWAY"
 
 let string_of_stringopt s_opt =
   match s_opt with
