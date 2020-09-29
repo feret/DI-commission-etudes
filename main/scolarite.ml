@@ -349,19 +349,39 @@ let state =
   Latex_engine.latex_opt_to_pdf state ~times:2 ~input
 let state, academicyear =
   Remanent_state.get_current_academic_year state
-let preamble s u i =
+let preamble who s u i =
   Format.sprintf
-    "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du 18 septembre 2020,} je soussigné \\textbf{Jérôme Feret}, directeur des études du département d'informatique de l'École Normale Supérieure, certifie que les \\underline{\\textbf{%i étudiants inscrits en 2019-2020}}, à l'université %s, \\textbf{en %s - parcours : Formation interuniversitaire en informatique de l'ENS Paris, ont obtenu les résultats suivants}" i u s
+    "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du 18 septembre 2020,} je soussigné \\textbf{%s}, directeur des études du département d'informatique de l'École Normale Supérieure, certifie que les \\underline{\\textbf{%i étudiants inscrits en 2019-2020}}, à l'université %s, \\textbf{en %s - parcours : Formation interuniversitaire en informatique de l'ENS Paris, ont obtenu les résultats suivants}" who i u s
 
 let state,input =
   Diploma_report.DiplomaReport.dump_per_result_per_student
     ~file_name:"PV_M1_par_resultat_signe_JF.tex"
     ~academicyear ~niveau:"m" ~dpt:"informatique"
     ~headpage:(headpage "Master M1 d'informatique")
-    ~preamble:(preamble "Master M1 d'informatique" "Paris Dauphine")
+    ~preamble:(preamble "Jérôme Feret" "Master M1 d'informatique" "Paris Dauphine")
     ~footpage ~footcolor
     ~signature
     state
+let state =
+      Latex_engine.latex_opt_to_pdf ~times:2 state ~input
+let state,input =
+  Diploma_report.DiplomaReport.dump_per_result_per_student
+    ~file_name:"PV_M1_par_resultat_sans_signature_JF.tex"
+    ~academicyear ~niveau:"m" ~dpt:"informatique"
+    ~headpage:(headpage "Master M1 d'informatique")
+    ~preamble:(preamble "Jérôme Feret" "Master M1 d'informatique" "Paris Dauphine")
+    ~footpage ~footcolor
+    state
+let state =
+      Latex_engine.latex_opt_to_pdf ~times:2 state ~input
+let state,input =
+  Diploma_report.DiplomaReport.dump_per_result_per_student
+    ~file_name:"PV_M1_par_resultat_sans_signature_MP.tex"
+    ~academicyear ~niveau:"m" ~dpt:"informatique"
+    ~headpage:(headpage "Master M1 d'informatique")
+        ~preamble:(preamble "Marc Pouzet" "Master M1 d'informatique" "Paris Dauphine")
+        ~footpage ~footcolor
+        state
 let state =
   Latex_engine.latex_opt_to_pdf ~times:2 state ~input
 let state,input =
@@ -370,19 +390,72 @@ let state,input =
     ~academicyear ~niveau:"m" ~dpt:"informatique"
     ~headpage:(headpage "Master M1 d'informatique fondamental")
     ~footpage ~footcolor
-    ~preamble:(preamble "Master M1 d'informatique fondamentale" "PSL")
+    ~preamble:(preamble "Jérôme Feret" "Master M1 d'informatique fondamentale" "PSL")
     ~signature
     state
 let state =
   Latex_engine.latex_opt_to_pdf ~rev:false ~times:2 state ~input
+  let state,input =
+    Diploma_report.DiplomaReport.dump_per_student
+      ~file_name:"PV_M1_alphabetic_signe_JF.tex"
+      ~academicyear ~niveau:"m" ~dpt:"informatique"
+      ~headpage:(headpage "Master M1 d'informatique fondamental")
+      ~footpage ~footcolor
+      ~preamble:(preamble "Jérôme Feret" "Master M1 d'informatique fondamentale" "PSL")
+      ~signature
+      state
+let state =
+  Latex_engine.latex_opt_to_pdf ~rev:false ~times:2
+    state ~input
+let state,input =
+  Diploma_report.DiplomaReport.dump_per_student
+    ~file_name:"PV_M1_alphabetic_sans_signature_JF.tex"
+    ~academicyear ~niveau:"m" ~dpt:"informatique"
+    ~headpage:(headpage "Master M1 d'informatique fondamental")
+    ~footpage ~footcolor
+    ~preamble:(preamble "Jérôme Feret" "Master M1 d'informatique fondamentale" "PSL")
+    state
+let state =
+      Latex_engine.latex_opt_to_pdf ~rev:false ~times:2 state ~input
+let state,input =
+  Diploma_report.DiplomaReport.dump_per_student
+    ~file_name:"PV_M1_alphabetic_sans_signature_MP.tex"
+    ~academicyear ~niveau:"m" ~dpt:"informatique"
+    ~headpage:(headpage "Master M1 d'informatique fondamental")
+    ~footpage ~footcolor
+    ~preamble:(preamble "Marc Pouzet" "Master M1 d'informatique fondamentale" "PSL")
+    state
+let state =
+  Latex_engine.latex_opt_to_pdf ~rev:false ~times:2 state ~input
+
 let state, input =
   Diploma_report.DiplomaReport.dump_per_result_per_student
     ~file_name:"PV_L3_par_résultat_signe_JF.tex"
     ~academicyear ~niveau:"l" ~dpt:"informatique"
     ~headpage:(headpage "Licence L3 d'informatique")
     ~footpage ~footcolor
-    ~preamble:(preamble "Licence L3 d'informatique" "Paris 7 - Denis Diderot")
+    ~preamble:(preamble "Jérôme Feret" "Licence L3 d'informatique" "Paris 7 - Denis Diderot")
     ~signature
+    state
+let state =
+  Latex_engine.latex_opt_to_pdf state ~times:2 ~input
+  let state, input =
+    Diploma_report.DiplomaReport.dump_per_result_per_student
+      ~file_name:"PV_L3_par_résultat_sans_signature_JF.tex"
+      ~academicyear ~niveau:"l" ~dpt:"informatique"
+      ~headpage:(headpage "Licence L3 d'informatique")
+      ~footpage ~footcolor
+      ~preamble:(preamble "Jérôme Feret" "Licence L3 d'informatique" "Paris 7 - Denis Diderot")
+      state
+  let state =
+    Latex_engine.latex_opt_to_pdf state ~times:2 ~input
+let state, input =
+  Diploma_report.DiplomaReport.dump_per_result_per_student
+    ~file_name:"PV_L3_par_résultat_sans_signature_MP.tex"
+    ~academicyear ~niveau:"l" ~dpt:"informatique"
+    ~headpage:(headpage "Licence L3 d'informatique")
+    ~footpage ~footcolor
+    ~preamble:(preamble "Marc Pouzet" "Licence L3 d'informatique" "Paris 7 - Denis Diderot")
     state
 let state =
   Latex_engine.latex_opt_to_pdf state ~times:2 ~input
@@ -392,11 +465,32 @@ let state, input =
     ~academicyear ~niveau:"l" ~dpt:"informatique"
     ~footpage ~footcolor
     ~headpage:(headpage "Licence L3 d'informatique")
-    ~preamble:(preamble "Licence L3 d'informatique" "Paris 7 - Denis Diderot")
+    ~preamble:(preamble "Jérôme Feret" "Licence L3 d'informatique" "Paris 7 - Denis Diderot")
     ~signature
     state
 let state =
   Latex_engine.latex_opt_to_pdf state ~times:2 ~input
+let state, input =
+  Diploma_report.DiplomaReport.dump_per_student
+    ~file_name:"PV_L3_alphabetic_sans_signature_MP.tex"
+    ~academicyear ~niveau:"l" ~dpt:"informatique"
+    ~footpage ~footcolor
+    ~headpage:(headpage "Licence L3 d'informatique")
+    ~preamble:(preamble "Marc Pouzet" "Licence L3 d'informatique" "Paris 7 - Denis Diderot")
+    state
+let state =
+  Latex_engine.latex_opt_to_pdf state ~times:2 ~input
+let state, input =
+  Diploma_report.DiplomaReport.dump_per_student
+    ~file_name:"PV_L3_alphabetic_sans_signature_JF.tex"
+    ~academicyear ~niveau:"l" ~dpt:"informatique"
+    ~footpage ~footcolor
+    ~headpage:(headpage "Licence L3 d'informatique")
+    ~preamble:(preamble "Jérôme Feret" "Licence L3 d'informatique" "Paris 7 - Denis Diderot")
+    state
+let state =
+  Latex_engine.latex_opt_to_pdf state ~times:2 ~input
+
 let state,_ =
   Grades.MissingGrades.dump_per_dpt_student_year
     ~file_name:"notes_manquantes_par_dpt_et_cours.html"
