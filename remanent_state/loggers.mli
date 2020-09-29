@@ -70,3 +70,5 @@ val setheadpage:  t -> ?color:Color.color -> string -> unit
 val setsignature: t -> string -> unit
 val setpreamble:  t -> string -> unit
 val setfootpage:  t -> ?color:Color.color -> string -> unit
+
+val correct_email: t -> string -> string 

@@ -188,72 +188,95 @@ let state =
 let state, academicyear =
   Remanent_state.get_current_academic_year state
 let title = "TUTEURS NOUVELLEMENT ATTRIBUÉS en 2020"
+let correct_email = fun x -> x
 let state,_ =
   Mentor_report.ReportListMentors.dump_per_mentor_year_promo_student
     ~attributionyear:"2020"
     ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tuteurs_nouvelles_affectations_2020_par_tuteur.html" ~title
+    ~correct_email
     state
+let correct_email =
+  Special_char.correct_string_email_latex
 let state, input =
   Mentor_report.ReportListMentors.dump_per_mentor_year_promo_student
     ~attributionyear:"2020"
-    ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tuteurs_nouvelles_affectations_2020_par_tuteur.tex" ~title
+    ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tuteurs_nouvelles_affectations_2020_par_tuteur.tex" ~title ~correct_email
     state
 let state =
   Latex_engine.latex_opt_to_pdf state ~input
+let correct_email = fun x -> x
 let state,_ =
   Mentor_report.ReportListMentors.dump_per_student
     ~attributionyear:"2020"
     ~academicyear:"2020" ~dpt:"informatique"
-    ~file_name:"tuteurs_nouvelles_affectations_2020_par_étudiants.html" ~title
-        state
-    let state, input =
-      Mentor_report.ReportListMentors.dump_per_student
+    ~file_name:"tuteurs_nouvelles_affectations_2020_par_étudiants.html" ~title ~correct_email
+    state
+let correct_email =
+  Special_char.correct_string_email_latex
+let state, input =
+  Mentor_report.ReportListMentors.dump_per_student
         ~attributionyear:"2020"
-        ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tuteurs_nouvelles_affectations_2020_par_étudiants.tex" ~title
+        ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tuteurs_nouvelles_affectations_2020_par_étudiants.tex"
+        ~title ~correct_email
         state
 let state =
   Latex_engine.latex_opt_to_pdf state ~input
 
 let title = "LISTE DES TUTEURS 2020"
+let correct_email = fun x -> x
 let state,_ =
   Mentor_report.ReportListMentors.dump_per_year_mentor_student
-    ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tutorat_2020_par_tuteur.html" ~title
+    ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tutorat_2020_par_tuteur.html" ~title ~correct_email
     state
+let correct_email =
+      Special_char.correct_string_email_latex
 let state, input =
   Mentor_report.ReportListMentors.dump_per_year_mentor_student
-    ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tutorat_2020_par_tuteur.tex" ~title
+    ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tutorat_2020_par_tuteur.tex"
+    ~title ~correct_email
     state
+let correct_email = fun x -> x
 let state =
   Latex_engine.latex_opt_to_pdf state ~input
   let state,_ =
     Mentor_report.ReportListMentors.dump_per_year_mentor_student
-      ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tutorat_2020_par_tuteur.html" ~title
+      ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tutorat_2020_par_tuteur.html" ~title ~correct_email
       state
-  let state, input =
+let correct_email =
+  Special_char.correct_string_email_latex
+let state, input =
     Mentor_report.ReportListMentors.dump_per_year_student_mentor
-      ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tutorat_2020_par_etudiant.tex" ~title
+      ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tutorat_2020_par_etudiant.tex" ~title ~correct_email
       state
   let state =
     Latex_engine.latex_opt_to_pdf state ~input
 let title = "LISTE DES TUTEURS 2019"
+let correct_email = fun x -> x
 let state,_ =
   Mentor_report.ReportListMentors.dump_per_year_mentor_student
-    ~academicyear ~dpt:"informatique" ~file_name:"tutorat_2019_par_tuteur.html" ~title
+    ~academicyear ~dpt:"informatique" ~file_name:"tutorat_2019_par_tuteur.html" ~title ~correct_email
     state
+let correct_email =
+  Special_char.correct_string_email_latex
 let state, input =
   Mentor_report.ReportListMentors.dump_per_year_mentor_student
-    ~academicyear ~dpt:"informatique" ~file_name:"tutorat_2019_par_tuteur.tex" ~title
+    ~academicyear ~dpt:"informatique" ~file_name:"tutorat_2019_par_tuteur.tex"
+    ~title ~correct_email
     state
 let state =
   Latex_engine.latex_opt_to_pdf state ~input
 let title = "HISTORIQUE DES TUTEURS "
+let correct_email = fun x -> x 
 let state,_ =
     Mentor_report.ReportListMentors.dump_per_year_mentor_student
-       ~dpt:"informatique" ~file_name:"tutorat_all_par_tuteur.html" ~title
+       ~dpt:"informatique" ~file_name:"tutorat_all_par_tuteur.html" ~title ~correct_email
       state
+let correct_email =
+  Special_char.correct_string_email_latex
 let state, input =
   Mentor_report.ReportListMentors.dump_per_year_mentor_student
-    ~dpt:"informatique" ~file_name:"tutorat_all_par_tuteur.tex" ~title
+    ~dpt:"informatique" ~file_name:"tutorat_all_par_tuteur.tex"
+    ~title ~correct_email
     state
 let state =
     Latex_engine.latex_opt_to_pdf state ~input

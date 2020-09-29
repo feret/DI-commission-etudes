@@ -8,6 +8,7 @@ type dump =
   ?promo:string ->
   ?title:string ->
   ?dpt:string ->
+  correct_email:(string -> string) -> 
   Gen.dump
 
 module type ReportMentors =

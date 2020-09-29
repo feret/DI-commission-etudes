@@ -27,8 +27,9 @@ let special_char_latex =
       '\149', "{\\~O}";
       '\150', "{\\\"O}";
       '\152', "{\\c E}";
-      '\153', "{\\` U}";
+      '\153', "{\\`U}";
       '\155', "{\\^U}";
+      '\156', "{\\\"U}";
       '\160', "{\\`a}";
       '\161', "{\\'a}";
       '\162', "{\\^a}";
@@ -77,6 +78,7 @@ let special_char_html =
     '\152', "&Ecedil;";
     '\153', "&Ugrave;";
     '\155', "&Ucirc;";
+    '\156', "&Uuml;";
     '\160', "&agrave;";
     '\161', "&aacute;";
     '\162', "&acirc;";
@@ -126,6 +128,7 @@ let special_char_url =
     (*'\152', "{\\c E}";*)
     '\153', "%D9";
     '\155', "%DB";
+    '\156', "%DC";
     '\160', "%E0";
     '\161', "%E1";
     '\162', "%E2";
@@ -149,6 +152,9 @@ let special_char_url =
     '\187', "%FA";
     '\195', "";
   ]
+
+let special_char_email_latex =
+  ['_',"\\_"]
 
 let lowercase_char =
   [
@@ -174,6 +180,7 @@ let lowercase_char =
     '\152', '\184';
     '\153', '\185';
     '\155', '\187';
+    '\156', '\188'
 ]
 
 let uppercase_char =
@@ -206,6 +213,7 @@ let special_char =
     '\152', 'E';
     '\153', 'U';
     '\155', 'U';
+    '\156', 'U';
     '\160', 'a';
     '\161', 'a';
     '\162', 'a';
@@ -227,6 +235,7 @@ let special_char =
     '\182', 'o';
     '\185', 'u';
     '\187', 'u';
+    '\188', 'u'
   ]
 
 let special_char_txt =
@@ -248,6 +257,13 @@ let special_char_url_map =
        CharMap.add x y map)
     CharMap.empty
     special_char_url
+
+let special_char_email_latex =
+  List.fold_left
+    (fun map (x,y) ->
+       CharMap.add x y map)
+    CharMap.empty
+    special_char_email_latex
 
 let special_char_latex_map =
   List.fold_left
@@ -382,6 +398,9 @@ let correct_string_gen map s =
 
 let correct_string_url s =
   correct_string_gen special_char_url_map s
+
+let correct_string_email_latex s =
+  correct_string_gen special_char_email_latex s
 
 let correct_string_latex s =
   correct_string_gen special_char_latex_map s

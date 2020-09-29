@@ -1,7 +1,8 @@
 val correct_string: string -> string
-val remove_acute: string -> string 
+val remove_acute: string -> string
 val correct_string_txt: string -> string
 val correct_string_latex: string -> string
+val correct_string_email_latex: string -> string 
 val correct_string_html: string -> string
 val correct_string_url: string -> string
 val correct_string_filename: string -> string

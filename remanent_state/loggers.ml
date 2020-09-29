@@ -1007,3 +1007,13 @@ let setpreamble logger s =
   | CSV
   | XLS
   | Json -> ()
+
+let correct_email logger string =
+  match logger.encoding with
+  | Latex _ | Latex_encapsulated ->
+    Special_char.correct_string_email_latex string
+  | HTML | HTML_encapsulated | HTML_Tabular
+  | TXT
+  | CSV
+  | XLS
+  | Json -> string 
