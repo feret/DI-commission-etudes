@@ -31,6 +31,9 @@ val dump_pv:
   Remanent_state.t * (string * string) option
 
 val dump_pvs:
+  ?recu:bool ->
+  ?academicyear:string ->
+  ?niveau:string ->
+  ?dpt:string ->
   ?output_repository:string ->
-  ?diplome_list:string list -> 
   ?prefix:string -> Remanent_state.t -> Remanent_state.t

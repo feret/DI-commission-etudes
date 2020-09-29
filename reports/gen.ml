@@ -355,6 +355,45 @@ let filter_dens
     &&
     check academicyear dens.Public_data.diplome_year
 
+let filter ?dpt
+?firstname
+?lastname
+?codegps
+?mentorname
+?mentorfirstname
+?mentorlastname
+?teachername
+?academicyear
+?attributionyear
+?promo
+?ninscription
+?niveau
+?recu p state list =
+  List.fold_left
+    (fun (state,list) elt ->
+       let state,b =
+         p
+           ?dpt
+           ?firstname
+           ?lastname
+           ?codegps
+           ?mentorname
+           ?mentorfirstname
+           ?mentorlastname
+           ?teachername
+           ?academicyear
+           ?attributionyear
+           ?promo
+           ?ninscription
+           ?niveau
+           ?recu
+           state elt in
+      if b then
+        state, elt::list
+      else
+        state, list)
+    (state,[]) (List.rev list)
+
 module type Interface =
 sig
   type elt

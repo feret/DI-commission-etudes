@@ -280,9 +280,12 @@ let state, input =
     state
 let state =
     Latex_engine.latex_opt_to_pdf state ~input
-let diplome_list = ["l";"m"]
 let state =
-  Diploma_report.dump_pvs ~diplome_list state
+  Diploma_report.dump_pvs
+    ~recu:true ~academicyear ~niveau:"m" ~dpt:"informatique" state
+let state =
+  Diploma_report.dump_pvs
+    ~recu:true ~academicyear ~niveau:"l" ~dpt:"informatique" state
 let state, enspsl = Remanent_state.get_ENSPSL_logo state
 let headpage s _ =
   Format.sprintf

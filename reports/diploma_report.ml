@@ -379,36 +379,30 @@ let dump_pv
     state, Some (output_repository,output_file_name)
 
 let dump_pvs
+    ?recu ?academicyear ?niveau ?dpt
     ?output_repository
-    ?diplome_list
     ?prefix
     state =
-  let p =
-    match diplome_list with
-    | None -> (fun a -> a.Public_data.diplome_recu)
-    | Some l ->
-      (fun a ->
-         a.Public_data.diplome_recu
-           && List.mem a.Public_data.diplome_niveau l)
-  in
   let state, diplome_list =
     Remanent_state.get_national_diplomas state
   in
+  let state, diplome_list =
+    Gen.filter
+      Gen.filter_national_diploma
+      ?recu ?academicyear ?niveau ?dpt
+      state
+      diplome_list
+  in
   List.fold_left
     (fun state diplome ->
-       if
-         p diplome
-       then
-         let
-           state, input =
-           dump_pv
-             ?output_repository
-             ?prefix
-             diplome
-             state
-         in
-         Latex_engine.latex_opt_to_pdf state ~input
-       else
-         state)
+       let
+         state, input =
+         dump_pv
+           ?output_repository
+           ?prefix
+           diplome
+           state
+       in
+       Latex_engine.latex_opt_to_pdf state ~input)
     state
     diplome_list

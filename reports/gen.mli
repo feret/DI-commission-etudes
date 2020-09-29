@@ -44,6 +44,25 @@ val dump_elts:
   Remanent_state.t ->
   Remanent_state.t * (string * string) option
 
+val filter:
+  ?dpt:string ->
+  ?firstname:string ->
+  ?lastname:string ->
+  ?codegps:string ->
+  ?mentorname:string ->
+  ?mentorfirstname:string ->
+  ?mentorlastname:string ->
+  ?teachername:string ->
+  ?academicyear:string ->
+  ?attributionyear:string ->
+  ?promo:string ->
+  ?ninscription:int ->
+  ?niveau:string ->
+  ?recu:bool ->
+  'a filter ->
+  Remanent_state.t ->
+  'a list -> Remanent_state.t * 'a list
+
 val lift_cmp:
   ('a -> 'b) -> 'a -> 'a -> int
 val op_cmp: ('a -> 'a -> int) -> 'a -> 'a -> int
