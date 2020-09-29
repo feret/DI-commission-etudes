@@ -266,7 +266,7 @@ let state, input =
 let state =
   Latex_engine.latex_opt_to_pdf state ~input
 let title = "HISTORIQUE DES TUTEURS "
-let correct_email = fun x -> x 
+let correct_email = fun x -> x
 let state,_ =
     Mentor_report.ReportListMentors.dump_per_year_mentor_student
        ~dpt:"informatique" ~file_name:"tutorat_all_par_tuteur.html" ~title ~correct_email
@@ -329,7 +329,7 @@ let state,_ =
     ~academicyear ~niveau:"l" ~dpt:"informatique" state
 let preamble i =
   Format.sprintf
-    "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du 18 septembre 2020,} \\\\ je soussigné \\textbf{Jérôme Feret}, directeur des études du département d'informatique de l'École Normale Supérieure, certifie que les \\\\ \\underline{\\textbf{%i étudiants inscrits en 2019-2020}}, en première et deuxième année du diplôme de l'École Normale Supérieure, ont obtenu les résultats suivant" i
+    "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du 18 septembre 2020,} je soussigné \\textbf{Jérôme Feret}, directeur des études du département d'informatique de l'École Normale Supérieure, certifie que les \\underline{\\textbf{%i étudiants inscrits en 2019-2020}}, en première et deuxième année du diplôme de l'École Normale Supérieure, ont obtenu les résultats suivants" i
 let state,input =
   Dens_report.DensReport.dump_per_promo
     ~file_name:"PV_DENS_par_promotion.tex" state
@@ -348,7 +348,7 @@ let state, academicyear =
   Remanent_state.get_current_academic_year state
 let preamble s u i =
   Format.sprintf
-    "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du 18 septembre 2020,} \\\\ Je soussigné \\textbf{Jérôme Feret}, directeur des études du département d'informatique de l'École Normale Supérieure, certifie que les \\\\ \\underline{\\textbf{%i étudiants inscrits en 2019-2020}}, à l'université %s, \\\\ \\textbf{en %s - parcours : Formation interuniversitaire en informatique de l'ENS Paris, ont obtenu les résultats suivant}" i u s
+    "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du 18 septembre 2020,} je soussigné \\textbf{Jérôme Feret}, directeur des études du département d'informatique de l'École Normale Supérieure, certifie que les \\underline{\\textbf{%i étudiants inscrits en 2019-2020}}, à l'université %s, \\textbf{en %s - parcours : Formation interuniversitaire en informatique de l'ENS Paris, ont obtenu les résultats suivants}" i u s
 
 let state,input =
   Diploma_report.DiplomaReport.dump_per_result_per_student
