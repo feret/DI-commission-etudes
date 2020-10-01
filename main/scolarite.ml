@@ -192,7 +192,7 @@ let correct_email = fun x -> x
 let state,_ =
   Mentor_report.ReportListMentors.dump_per_mentor_year_promo_student
     ~attributionyear:"2020"
-    ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tuteurs_nouvelles_affectations_2020_par_tuteur.html" ~title
+    ~academicyear:"2020"  ~file_name:"tuteurs_nouvelles_affectations_2020_par_tuteur.html" ~title
     ~correct_email
     state
 let correct_email =
@@ -200,7 +200,7 @@ let correct_email =
 let state, input =
   Mentor_report.ReportListMentors.dump_per_mentor_year_promo_student
     ~attributionyear:"2020"
-    ~academicyear:"2020" ~dpt:"informatique" ~file_name:"tuteurs_nouvelles_affectations_2020_par_tuteur.tex" ~title ~correct_email
+    ~academicyear:"2020"  ~file_name:"tuteurs_nouvelles_affectations_2020_par_tuteur.tex" ~title ~correct_email
     state
 let state =
   Latex_engine.latex_opt_to_pdf state ~input
@@ -208,7 +208,7 @@ let correct_email = fun x -> x
 let state,_ =
   Mentor_report.ReportListMentors.dump_per_student
     ~attributionyear:"2020"
-    ~academicyear:"2020" ~dpt:"informatique"
+    ~academicyear:"2020" 
     ~file_name:"tuteurs_nouvelles_affectations_2020_par_étudiants.html" ~title ~correct_email
     state
 let correct_email =
