@@ -1078,12 +1078,12 @@ let add_extra_course cours_a_ajouter gps_file =
     }
   in
   let bilan = {bilan with cours = elt::bilan.cours} in
-  {gps_file with situation =
-  Public_data.YearMap.add cours_a_ajouter.Public_data.coursaj_annee bilan gps_file.situation}
-
-
-
-
+  {gps_file with
+   situation =
+     Public_data.YearMap.add
+       cours_a_ajouter.Public_data.coursaj_annee
+       bilan gps_file.situation
+  }
 
 let store_stage pos ~who state current_file current_file' output=
   let _ = pos, who in
@@ -4862,7 +4862,6 @@ let export_transcript
         (state,mean_init,dens_init)
         l
     in
-    let _ = mean in
     let dens_total, dens_total_potential =
       Public_data.YearMap.fold
         (fun _ (t,pt) (t',pt') -> t+.t',pt+.pt')
@@ -4945,11 +4944,52 @@ let export_transcript
                  l
              in
              let mean =
-               if ects = 0.
+               if ects < 60.
                then
-                 0.
+                 None
                else
-                 total /. ects_qui_comptent
+                 Some (total /. ects_qui_comptent)
+             in
+             let mention =
+               match mean with
+               | None -> None
+               | Some mean ->
+                  if mean <12. then Some ""
+                  else if mean <14. then Some "Assez Bien"
+                  else if mean <16. then Some "Bien"
+                  else Some "Très bien";
+             in
+             let state, decision_opt =
+               Remanent_state.get_decision
+                 ~firstname
+                 ~lastname
+                 ~year:(string_of_int year)
+                 ~dpt:(snd key)
+                 ~program:(match fst key with
+                     | None -> ""
+                     | Some a -> a)
+                 state
+             in
+             let mean,mention =
+               match
+                 decision_opt
+               with
+               | None -> mean, mention
+               | Some d ->
+                 begin
+                   match
+                     d.Public_data.decision_mean
+                   with
+                   | None -> mean
+                   | (Some _) as mean_opt -> mean_opt
+                 end,
+                 begin
+                   match
+                     d.Public_data.decision_mention
+                   with
+                   | None -> mention
+                   | (Some _) as mention_opt-> mention_opt
+                 end
              in
              Remanent_state.add_national_diploma
                state
@@ -4970,16 +5010,16 @@ let export_transcript
                 Public_data.diplome_promotion = promo ;
                 Public_data.diplome_nb_ects = ects ;
                 Public_data.diplome_moyenne =
-                  if ects < 60. then None else Some mean ;
+                  mean ;
                 Public_data.diplome_year = string_of_int year ;
                 Public_data.diplome_mention =
-                  if ects < 60. then None
-                  else if mean <12. then Some ""
-                  else if mean <14. then Some "Assez Bien"
-                  else if mean <16. then Some "Bien"
-                  else Some "Très bien";
+                  mention
+               ;
                 Public_data.diplome_recu =
-                  if ects < 60. then false else true
+                  match mean with
+                  | None -> false
+                  | Some mean -> mean >= 10.
+
                }
         )
         state
