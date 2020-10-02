@@ -1228,6 +1228,9 @@ let add_national_diploma, get_national_diplomas =
   gen get_national_diplomas set_national_diplomas
 let add_mentor, get_mentors =
   gen get_mentors set_mentors
+let add_mentor state elt =
+  add_mentor state elt
+
 let add_missing_mentor, get_missing_mentors =
   gen get_missing_mentors set_missing_mentors
 let add_missing_ects_attribution, get_missing_ects_attributions =

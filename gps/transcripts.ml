@@ -2775,9 +2775,9 @@ let add_mean key compensation course year map =
       | Some true -> add_mean_ok key course year map
       | Some false | None -> map
 
-let add_mean_diplome d year mean =
+let add_mean_diplome d mean_opt mention_opt year mean =
   add_mean_empty
-      d year (fst mean, d::(snd mean))
+    d year (fst mean, (d,mean_opt,mention_opt)::(snd mean))
 
 let get_origine who promo gps_file state =
   match
@@ -3620,11 +3620,68 @@ let program
   let state, key, b =
     alloc_suffix (string,dpt) state
   in
+  let state, decision_opt, can_put_mean_mention =
+    match dpt, string with
+    | _, None | "dens", _ -> state, None, false
+    | _, Some program ->
+      let state, dpt =
+        acro_of_dpt who __POS__ state dpt origine
+      in
+      let dpt =
+        match dpt with
+        | None -> ""
+        | Some a -> a
+      in
+      match
+        Remanent_state.get_decision
+          ~firstname
+          ~lastname
+          ~year
+          ~dpt
+          ~program
+          state
+      with
+      | state, Some a -> state, Some a, true
+      | state, None ->
+        begin
+          match
+            Remanent_state.get_decision_list
+              ~firstname
+              ~lastname
+              ~dpt
+              ~program
+              state
+          with
+          | state, [] -> state, None, true
+          | state, _::_ -> state, None, false
+        end
+  in
+  let
+    moyenne_opt, mention_opt,
+    rank_opt, effectif_opt,
+    date_opt, commission_name_opt,
+    decision_opt, _validated_opt
+    =
+    match decision_opt with
+    | None ->
+      None, None, None, None, None, None, None, None
+    | Some d ->
+      d.Public_data.decision_mean,
+      d.Public_data.decision_mention,
+      d.Public_data.decision_rank,
+      d.Public_data.decision_effectif,
+      d.Public_data.decision_date,
+      d.Public_data.decision_commission_name,
+      d.Public_data.decision_decision,
+      d.Public_data.decision_validated
+  in
   let mean =
     if do_report report
     then
       add_mean_diplome
         (string,dpt)
+        moyenne_opt
+        mention_opt
         (try int_of_string year with _ -> 0)
         mean
     else
@@ -3950,68 +4007,15 @@ let program
       state
       "\\addtocounter{validatedwogradeects%s}{\\thevsnects}%%\n\ \\addtocounter{grade%s}{\\thetotal}%%\n\ \\addtocounter{gradedects%s}{\\theects}%%\n\ \\addtocounter{potentialects%s}{\\thepotentialects}" key key key key
   in
-  let state, decision_opt, can_put_mean_mention =
-    match dpt, string with
-    | _, None | "dens", _ -> state, None, false
-    | _, Some program ->
-      let state, dpt =
-        acro_of_dpt who __POS__ state dpt origine
-      in
-      let dpt =
-        match dpt with
-        | None -> ""
-        | Some a -> a
-      in
-      match
-        Remanent_state.get_decision
-          ~firstname
-          ~lastname
-          ~year
-          ~dpt
-          ~program
-          state
-      with
-      | state, Some a -> state, Some a, true
-      | state, None ->
-        begin
-          match
-            Remanent_state.get_decision_list
-              ~firstname
-              ~lastname
-              ~dpt
-              ~program
-              state
-          with
-          | state, [] -> state, None, true
-          | state, _::_ -> state, None, false
-        end
-  in
-  let
-    moyenne_opt, mention_opt,
-    rank_opt, effectif_opt,
-    date_opt, commission_name_opt,
-    decision_opt, _validated_opt
-    =
-    match decision_opt with
-    | None ->
-      None, None, None, None, None, None, None, None
-    | Some d ->
-      d.Public_data.decision_mean,
-      d.Public_data.decision_mention,
-      d.Public_data.decision_rank,
-      d.Public_data.decision_effectif,
-      d.Public_data.decision_date,
-      d.Public_data.decision_commission_name,
-      d.Public_data.decision_decision,
-      d.Public_data.decision_validated
-  in
   let moyenne_value =
     Format.sprintf
       "\\thegrade%s/\\thegradedects%s"
       key
       key
   in
-  let no_definitive_ects, not_enough_ects, moyenne, update_moyenne, mention =
+  let no_definitive_ects,
+      not_enough_ects,
+      moyenne, update_moyenne, mention =
     if (not can_put_mean_mention)
     ||
     string = Some "DENS" || string = Some "dens"
@@ -4556,10 +4560,9 @@ let export_transcript
 
         ([],0) l
     in
-    let year = promo in
     let state, picture_list =
       Remanent_state.get_picture_potential_locations
-        ~firstname ~lastname ~year state
+        ~firstname ~lastname ~year:promo state
     in
     let state, b =
       let rec aux state l =
@@ -4722,7 +4725,9 @@ let export_transcript
            in
            if year > current_year then state,mean,dens
            else
-        let l = [21.0;11.67;48.33;26.67;7.3;10.00;5.17] in
+             let l =
+               [21.0;11.67;48.33;26.67;7.3;10.00;5.17]
+             in
         let sum =
           List.fold_left
             (fun total a -> total+.a)
@@ -4796,10 +4801,11 @@ let export_transcript
                 in
                 let
                   (state,mean,dens)
-                      =
-                      program
-                        ~origine ~string ~dpt ~year ~who ~alloc_suffix ~mean ~firstname ~lastname ~promo ~cursus_map ~size ~stages ~current_year ~report ~dens
-                      list state
+                  =
+                  program
+                    ~origine ~string ~dpt ~year ~who
+                    ~alloc_suffix ~mean ~firstname ~lastname ~promo ~cursus_map ~size ~stages ~current_year ~report ~dens
+                    list state
                 in
                 let () =
                   Remanent_state.fprintf
@@ -4871,7 +4877,7 @@ let export_transcript
     let dens_year, dens_year_potential =
       match
         Public_data.YearMap.find_opt
-          year
+          current_year
           dens
       with
       | Some a -> a
@@ -4912,7 +4918,7 @@ let export_transcript
     let list_national_diploma = snd mean in
     let state =
       List.fold_left
-        (fun state key ->
+        (fun state (key, moyenne_opt, mention_opt)  ->
            match
              StringOptMap.find_opt key (fst mean)
            with
@@ -4959,37 +4965,19 @@ let export_transcript
                   else if mean <16. then Some "Bien"
                   else Some "Très bien";
              in
-             let state, decision_opt =
-               Remanent_state.get_decision
-                 ~firstname
-                 ~lastname
-                 ~year:(string_of_int year)
-                 ~dpt:(snd key)
-                 ~program:(match fst key with
-                     | None -> ""
-                     | Some a -> a)
-                 state
-             in
-             let mean,mention =
+             let mean =
                match
-                 decision_opt
+                 moyenne_opt
                with
-               | None -> mean, mention
-               | Some d ->
-                 begin
-                   match
-                     d.Public_data.decision_mean
-                   with
-                   | None -> mean
-                   | (Some _) as mean_opt -> mean_opt
-                 end,
-                 begin
-                   match
-                     d.Public_data.decision_mention
-                   with
+               | None -> mean
+               | Some _ -> moyenne_opt
+             in
+             let mention =
+               match
+                 mention_opt
+               with
                    | None -> mention
-                   | (Some _) as mention_opt-> mention_opt
-                 end
+                   | (Some _) -> mention_opt
              in
              Remanent_state.add_national_diploma
                state
