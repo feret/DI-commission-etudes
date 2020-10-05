@@ -4979,36 +4979,40 @@ let export_transcript
                    | None -> mention
                    | (Some _) -> mention_opt
              in
-             Remanent_state.add_national_diploma
+             if lpoly situation then
                state
-               {Public_data.diplome_dpt = (snd key);
-                Public_data.diplome_niveau =
-                  (match fst key with
-                  | None -> ""
-                  | Some a -> a);
-                Public_data.diplome_firstname = firstname ;
-                Public_data.diplome_lastname = lastname ;
-                Public_data.diplome_gender =
-                  begin
-                    match gps_file.genre
-                    with
-                    | Some a -> a
-                    | None -> Public_data.Unknown
-                  end ;
-                Public_data.diplome_promotion = promo ;
-                Public_data.diplome_nb_ects = ects ;
-                Public_data.diplome_moyenne =
-                  mean ;
-                Public_data.diplome_year = string_of_int year ;
-                Public_data.diplome_mention =
-                  mention
-               ;
-                Public_data.diplome_recu =
-                  match mean with
-                  | None -> false
-                  | Some mean -> mean >= 10.
-
-               }
+             else
+               Remanent_state.add_national_diploma
+                 state
+                 {Public_data.diplome_dpt = (snd key);
+                  Public_data.diplome_niveau =
+                    (match fst key with
+                     | None -> ""
+                     | Some a -> a);
+                  Public_data.diplome_firstname =
+                  firstname ;
+                  Public_data.diplome_lastname = lastname ;
+                  Public_data.diplome_gender =
+                    begin
+                      match gps_file.genre
+                      with
+                      | Some a -> a
+                      | None -> Public_data.Unknown
+                    end ;
+                  Public_data.diplome_promotion = promo ;
+                  Public_data.diplome_nb_ects = ects ;
+                  Public_data.diplome_moyenne =
+                    mean ;
+                  Public_data.diplome_year =
+                    string_of_int year ;
+                  Public_data.diplome_mention =
+                    mention
+                 ;
+                  Public_data.diplome_recu =
+                    match mean with
+                    | None -> false
+                    | Some mean -> mean >= 10.
+                 }
         )
         state
         list_national_diploma
