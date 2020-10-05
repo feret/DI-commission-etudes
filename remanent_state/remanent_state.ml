@@ -99,7 +99,7 @@ let parameters =
     error_log_file = "error.txt";
     date = Tools.date ();
     comma_symbol = ',';
-    current_academic_year = "2019";
+    current_academic_year = "2020";
     target = None ;
     signature = "/users/absint3/feret/Nextcloud/feret+tampon.pdf"
   }
