@@ -2021,29 +2021,23 @@ let fetch_stage
     [filter_stage_year year ;filter_stage_cvt commentaires ;filter_stage_id commentaires]
     stages
 
-let lgen grade gps dpt d =
-  if List.exists
-      (fun diplome ->
-         match diplome.grade with
-         | None -> false
-         | Some s ->
-           simplify_string s = grade)
-      d.diplomes
-  then
+let lgen _grade gps dpt d =
     List.exists
       (fun diplome -> diplome.diplome_diplome=Some gps)
       d.diplomes
-  else
-    d.nannee = Some 1
-    &&
-    dpt <> ""
-    &&
-     (match d.departement_principal,d.departement_secondaire with
-     | None, None -> false
-     | Some x, None | None, Some x ->
-       simplify_string x = dpt
-     | Some x, Some y ->
-       simplify_string x = dpt || simplify_string y = dpt)
+    ||
+    begin
+      d.nannee = Some 1
+      &&
+      dpt <> ""
+      &&
+      (match d.departement_principal,d.departement_secondaire with
+       | None, None -> false
+       | Some x, None | None, Some x ->
+         simplify_string x = dpt
+       | Some x, Some y ->
+         simplify_string x = dpt || simplify_string y = dpt)
+    end
 
 let lmath d =
   lgen "licence" "gps2274" dpt_maths_gps_name d
