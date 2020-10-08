@@ -467,7 +467,6 @@ let prepare_report
 
 
 let build_output
-    ~get_local_repository
     ~get_repository
     ~get_store_according_promotion
     ~get_indicate_promotions_in_file_names
@@ -477,19 +476,7 @@ let build_output
   let lastname = f_lastname lastname in
   let state, output_repository =
     match output_repository with
-    | None ->
-      begin
-        let state, r1 =
-          get_local_repository state
-        in
-        let state, r2 =
-          get_repository state
-        in
-        match r1,r2 with
-        | "","" -> state,""
-        | "",x | x,"" -> state,x
-        | x1,x2 -> state,Printf.sprintf "%s/%s" x1 x2
-      end
+    | None -> get_repository state
     | Some rep -> state, rep
   in
   let promotion =

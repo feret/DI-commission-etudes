@@ -192,12 +192,11 @@ let dump_pv
   state =
   let firstname = diplome.Public_data.diplome_firstname in
   let lastname = diplome.Public_data.diplome_lastname in
-  let get_local_repository = Remanent_state.get_local_repository in
   let get_repository =
     Remanent_state.get_repository_to_dump_attestations
   in
   let get_store_according_promotion =
-    Remanent_state.get_store_attestations_according_to_their_promotions
+    Remanent_state.get_store_output_according_to_their_promotions
   in
   let get_indicate_promotions_in_file_names =
     Remanent_state.get_indicate_promotions_in_attestation_file_names
@@ -229,7 +228,6 @@ let dump_pv
   in
   let state, output_repository, output_file_name =
     Tools.build_output
-      ~get_local_repository
       ~get_repository
       ~get_store_according_promotion
       ~get_indicate_promotions_in_file_names

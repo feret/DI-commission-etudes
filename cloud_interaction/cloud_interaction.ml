@@ -91,17 +91,8 @@ let get_dated_repository state =
   | state, None ->
     begin
       let state, date = Remanent_state.get_launching_date state in
-      let state,local_rep =
-        Remanent_state.get_local_repository state
-      in
-      let state,gps_rep =
-        Remanent_state.get_repository_to_dump_gps_files state
-      in
-      let rep =
-        match local_rep,gps_rep with
-        | "","" -> ""
-        | "",x1 | x1,"" -> x1
-        | x1,x2 -> Printf.sprintf "%s/%s" x1 x2
+      let state, rep =
+        Remanent_state.get_output_repository state
       in
       let state, current_dir = Safe_sys.getcwd __POS__ state in
       let state = Safe_sys.chdir __POS__ state rep in
@@ -115,7 +106,11 @@ let get_dated_repository state =
       else
         state
       in
-      let state = Safe_sys.command __POS__ state (Printf.sprintf "mkdir %s" date) in
+      let state =
+        Safe_sys.command
+          __POS__ state
+          (Printf.sprintf "mkdir %s" date)
+      in
       let state, courant =
         Remanent_state.get_output_alias_repository
           state
@@ -130,7 +125,7 @@ let get_dated_repository state =
         | state, Some _ -> state, true
       in
       let state =
-        if f_exists && not is_target 
+        if f_exists && not is_target
         then
           let command =
             Printf.sprintf "rm -rf %s" courant
@@ -178,8 +173,15 @@ let create_hard_copy ?alias t =
   let state, (output_rep, alias_rep) =
     make_output_dir ?alias t
   in
-  Safe_sys.command __POS__ state
-    (Printf.sprintf "cp -rf %s %s" output_rep alias_rep)
+  let state, f_exists =
+    Safe_sys.file_exists __POS__ state alias_rep
+  in
+  if f_exists then
+    Safe_sys.command __POS__ state
+      (Printf.sprintf "cp -rf %s/* %s" output_rep alias_rep)
+  else
+    Safe_sys.command __POS__ state
+      (Printf.sprintf "cp -rf %s %s" output_rep alias_rep)
 
 let make_current_repository ?alias t =
   let t, b =

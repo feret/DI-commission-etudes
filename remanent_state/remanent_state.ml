@@ -13,13 +13,19 @@ type parameters =
     machine_to_access_gps: string ;
     port_to_access_gps: string;
     repository_to_access_gps: string;
+    output_repository: string;
+    database_repository: string;
+    study_repository:string;
+    parameters_repository:string;
+    gps_backup_repository:string;
     repository_to_dump_gps_files: string;
     repository_to_dump_attestations: string;
     repository_for_handmade_gps_files: string;
     repository_for_backup_gps_files: string;
+    repository_to_dump_issues: string;
+    repository_to_dump_reports: string;
     output_alias_repository: string;
-    store_gps_file_according_to_their_promotions: bool;
-    store_attestations_according_to_their_promotions: bool;
+    store_output_according_to_their_promotions: bool;
     indicate_promotions_in_gps_file_names: bool;
     indicate_promotions_in_attestation_file_names: bool;
     repository_to_access_pictures: string;
@@ -31,14 +37,27 @@ type parameters =
     file_retriever_log_file: string;
     file_retriever_time_out_in_seconds: int option;
     file_retriever_checking_period_in_seconds : int;
+    tmp_profiling_repository: string;
     profiling_log_file_repository: string;
     profiling_log_file: string;
+    tmp_error_repository:string ;
     error_log_repository: string;
     error_log_file: string;
-    date: string;
     comma_symbol: char;
     current_academic_year: Public_data.annee;
     target: string option;
+    repository_for_bourses: string;
+    repository_for_tuteurs: string;
+    repository_for_cours: string;
+    repository_for_departements: string;
+    repository_for_cursus: string;
+    repository_for_diplomes: string;
+    repository_for_cursus_exceptions: string;
+    repository_for_decisions: string;
+    repository_for_admissions: string;
+    repository_for_compensation: string;
+    repository_for_dispenses: string;
+    repository_for_additional_courses: string;
     repository_to_dump_missing_grades: string;
     repository_to_dump_missing_mentors: string;
     repository_to_dump_missing_ects_attributions: string;
@@ -67,24 +86,42 @@ let parameters =
     machine_to_access_gps = "violette.ens.fr" ;
     port_to_access_gps = "8080";
     repository_to_access_gps = "gps";
-    repository_to_dump_gps_files = "gps_files";
+    output_repository = "sortie" ;
+    database_repository = "base_de_données";
+    study_repository = "études";
+    parameters_repository = "paramètres" ;
+    gps_backup_repository = "gps_backup" ;
+    repository_to_dump_gps_files = "fiches_de_notes";
+    repository_to_dump_issues = "problèmes";
+    repository_to_dump_reports = "rapports";
     repository_to_dump_attestations = "attestations";
-    repository_to_dump_missing_grades = "known_issues/missing_grades";
-    repository_to_dump_missing_mentors = "known_issues/missing_mentors";
-    repository_to_dump_missing_ects_attributions = "known_issues/missing_ects_attributions";
-    repository_to_dump_missing_internship_descriptions = "known_issues/missing_internships";
-    repository_to_dump_ambiguous_internship_descriptions = "known_issues/ambiguous_internships";
-    repository_to_dump_dens = "reports/dens";
-    repository_to_dump_national_diplomas = "reports/diplomes_nationaux";
-    repository_to_dump_mentors = "reports/tuteurs";
-    repository_for_handmade_gps_files = "handmade_gps_files";
-    repository_for_backup_gps_files = "backup_gps_files";
+    repository_to_dump_missing_grades = "notes_manquantes";
+    repository_to_dump_missing_mentors = "tuteurs_manquants";
+    repository_to_dump_missing_ects_attributions = "ects_non_attribuées";
+    repository_to_dump_missing_internship_descriptions = "stages_manquants";
+    repository_to_dump_ambiguous_internship_descriptions = "stages_ambigus";
+    repository_for_bourses = "bourses";
+    repository_for_tuteurs = "tuteurs";
+    repository_for_cours = "cours";
+    repository_for_departements = "départements";
+    repository_for_cursus = "cursus";
+    repository_for_diplomes = "diplômes";
+    repository_for_cursus_exceptions = "exceptions_cursus";
+    repository_for_decisions = "décisions";
+    repository_for_admissions = "admissions";
+    repository_for_compensation = "compensations";
+    repository_for_dispenses = "dispenses";
+    repository_for_additional_courses = "cours_à_ajouter";
+    repository_to_dump_dens = "dens";
+    repository_to_dump_national_diplomas = "diplômes_nationaux";
+    repository_to_dump_mentors = "tuteurs";
+    repository_for_handmade_gps_files = "fichier_gps_fait_à_la_main";
+    repository_for_backup_gps_files = "fichier_gps_de_secours";
     output_alias_repository = "courant";
-    store_gps_file_according_to_their_promotions = true;
-    store_attestations_according_to_their_promotions = true;
+    store_output_according_to_their_promotions = true;
     indicate_promotions_in_gps_file_names = true;
     indicate_promotions_in_attestation_file_names = true;
-    repository_to_access_pictures = "pictures";
+    repository_to_access_pictures = "photos";
     pictures_stored_according_to_promotions = true ;
     picture_file_names_mention_promotion = false;
     file_retriever  = Public_data.WGET ;
@@ -93,15 +130,16 @@ let parameters =
     file_retriever_log_file = "gps_access.log";
     file_retriever_time_out_in_seconds = Some 300;
     file_retriever_checking_period_in_seconds = 5;
-    profiling_log_file_repository = "/users/absint3/feret/tmp";
+    tmp_profiling_repository = "/users/absint3/feret/tmp";
+    profiling_log_file_repository = "profiling";
     profiling_log_file = "profiling.html";
-    error_log_repository = "/users/absint3/feret/tmp";
+    tmp_error_repository = "/users/absint3/feret/tmp";
+    error_log_repository = "erreurs_internes";
     error_log_file = "error.txt";
-    date = Tools.date ();
     comma_symbol = ',';
     current_academic_year = "2019";
     target = None ;
-    signature = "/users/absint3/feret/Nextcloud/feret+tampon.pdf"
+    signature = "feret+tampon.pdf"
   }
 
 type data =
@@ -166,7 +204,12 @@ type t =
     profiling_logger: Loggers.t option ;
     error_logger: Loggers.t option ;
     data: data;
+    date: string;
   }
+
+
+let get_launching_date t =
+  t,t.date
 
 let get_logger_gen access t =
   t,
@@ -200,6 +243,7 @@ let get_pdfgenerator_engine t =
 
 let get_pdfgenerator_options t =
   t,t.parameters.pdfgenerator_options
+
 let get_local_repository t =
   let t, cloud =
     get_cloud_repository t
@@ -241,52 +285,163 @@ let get_port_to_access_gps t =
   t, t.parameters.port_to_access_gps
 
 let get_signature t =
-  t, t.parameters.signature
+  let t, rep = get_local_repository t in
+  if rep = ""
+  then
+    t, t.parameters.signature
+  else
+    t, Format.sprintf "%s/%s" rep t.parameters.signature
 
 let get_repository_to_access_gps t =
   t, t.parameters.repository_to_access_gps
 
+let get_output_repository t =
+  let t, local = get_local_repository t in
+  match
+    local, t.parameters.output_repository
+  with
+  | "","" -> t, ""
+  | "",a | a,""-> t, a
+  | a,b -> t, Format.sprintf "%s/%s" a b
+
+let get_dated_output_repository t =
+  let t, output = get_output_repository t in
+  let t, date = get_launching_date t in
+  match output with
+  | "" -> t, date
+  | _ ->
+    t, Format.sprintf "%s/%s" output date
+
+let get_repository_to_dump_issues t =
+  let t, output =
+    get_dated_output_repository t
+  in
+  match
+    output,
+    t.parameters.repository_to_dump_issues
+  with
+  | "","" -> t, ""
+  | "",a | a,""-> t, a
+  | a,b -> t, Format.sprintf "%s/%s" a b
+
+let get_repository_to_dump_missing_gen get t =
+  let t, rep = get_repository_to_dump_issues t in
+  match rep with
+  | "" -> t, get t
+  | _ -> t, Format.sprintf "%s/%s" rep (get t)
+
 let get_repository_to_dump_missing_grades t =
-  t,
-  t.parameters.repository_to_dump_missing_grades
+  get_repository_to_dump_missing_gen
+    (fun t ->
+       t.parameters.repository_to_dump_missing_grades
+    )
+    t
 
 let get_repository_to_dump_missing_mentors t =
-  t,
-  t.parameters.repository_to_dump_missing_mentors
+  get_repository_to_dump_missing_gen
+    (fun t ->
+       t.parameters.repository_to_dump_missing_mentors)
+    t
 
 let get_repository_to_dump_missing_internship_descriptions t =
-  t,
-  t.parameters.repository_to_dump_missing_internship_descriptions
+  get_repository_to_dump_missing_gen
+    (fun t ->
+       t.parameters.repository_to_dump_missing_internship_descriptions)
+    t
 
 let get_repository_to_dump_missing_ects_attributions t =
-  t,
-  t.parameters.repository_to_dump_missing_ects_attributions
+  get_repository_to_dump_missing_gen
+    (fun t ->
+       t.parameters.repository_to_dump_missing_ects_attributions)
+    t
 
 let get_repository_to_dump_ambiguous_internship_descriptions t =
-  t,
-  t.parameters.repository_to_dump_ambiguous_internship_descriptions
+  get_repository_to_dump_missing_gen
+    (fun t ->
+       t.parameters.repository_to_dump_ambiguous_internship_descriptions)
+    t
+
+let get_repository_to_dump_reports t =
+  let t, output =
+    get_dated_output_repository t
+  in
+  match
+    output,
+    t.parameters.repository_to_dump_reports
+  with
+  | "","" -> t, ""
+  | "",a | a,""-> t, a
+  | a,b -> t, Format.sprintf "%s/%s" a b
+
+let get_repository_to_dump_reports_gen get t =
+  let t, rep = get_repository_to_dump_reports t in
+  match rep with
+  | "" -> t, get t
+  | _ -> t, Format.sprintf "%s/%s" rep (get t)
 
 let get_repository_to_dump_mentors t =
-  t,
-  t.parameters.repository_to_dump_mentors
+  get_repository_to_dump_reports_gen
+    (fun t ->
+       t.parameters.repository_to_dump_mentors)
+    t
 
 let get_repository_to_dump_national_diplomas t =
-  t,
-  t.parameters.repository_to_dump_national_diplomas
+  get_repository_to_dump_reports_gen
+    (fun t ->
+       t.parameters.repository_to_dump_national_diplomas)
+    t
 
 let get_repository_to_dump_dens t =
-  t,
-  t.parameters.repository_to_dump_dens
+  get_repository_to_dump_reports_gen
+    (fun t ->
+       t.parameters.repository_to_dump_dens)
+    t
 
-let get_repository_to_dump_gps_files t =
-  t, t.parameters.repository_to_dump_gps_files
+let get_repository_to_dump_gps_files ?output_repository t =
+  let t, output =
+    match output_repository with
+    | Some rep -> t, rep
+    | None -> get_dated_output_repository t
+  in
+  match
+    output,
+    t.parameters.repository_to_dump_gps_files
+  with
+  | "","" -> t, ""
+  | "",a | a,""-> t, a
+  | a,b -> t, Format.sprintf "%s/%s" a b
+
 let get_repository_to_dump_attestations t =
-  t, t.parameters.repository_to_dump_attestations
+  let t, output =
+    get_dated_output_repository t
+  in
+  match
+    output,
+    t.parameters.repository_to_dump_attestations
+  with
+  | "","" -> t, ""
+  | "",a | a,""-> t, a
+  | a,b -> t, Format.sprintf "%s/%s" a b
+
 
 let get_repository_for_handmade_gps_files t =
-  t, t.parameters.repository_for_handmade_gps_files
+  match
+    t.parameters.gps_backup_repository,
+    t.parameters.repository_for_handmade_gps_files
+  with
+  | "","" -> t,""
+  | "",a | a,"" -> t,a
+  | a,b -> t, Format.sprintf "%s/%s" a b
+
 let get_repository_for_backup_gps_files t =
-    t, t.parameters.repository_for_backup_gps_files
+  match
+    t.parameters.gps_backup_repository,
+    t.parameters.repository_for_backup_gps_files
+  with
+  | "","" -> t,""
+  | "",a | a,"" -> t,a
+  | a,b -> t, Format.sprintf "%s/%s" a b
+
 let get_output_alias_repository t =
   t, t.parameters.output_alias_repository
 
@@ -298,13 +453,9 @@ let set_output_alias t output_alias =
   let data = {t.data with output_alias} in
   {t with data }
 
-let get_store_gps_files_according_to_their_promotions t =
+let get_store_output_according_to_their_promotions t =
   t,
-  t.parameters.store_gps_file_according_to_their_promotions
-
-let get_store_attestations_according_to_their_promotions t =
-  t,
-  t.parameters.store_attestations_according_to_their_promotions
+  t.parameters.store_output_according_to_their_promotions
 
 let get_indicate_promotions_in_gps_file_names t =
   t,
@@ -314,152 +465,102 @@ let get_indicate_promotions_in_attestation_file_names t =
   t,
   t.parameters.indicate_promotions_in_attestation_file_names
 
-let get_rep_gen get_prefix t =
-  let t, main = get_local_repository t in
+
+let get_rep_gen get_main get_prefix t =
+  let t, main = get_main t in
   let t, repository = get_prefix t in
   t, Printf.sprintf "%s/%s" main repository
 
 let get_students_list_prefix t =
-  t, "etudiants"
+  t, "étudiants"
+
+let get_study t =
+  let t, local = get_local_repository t in
+  match local, t.parameters.study_repository with
+  | "", "" -> t, ""
+  | a,"" | "",a -> t, a
+  | a,b -> t, Format.sprintf "%s/%s" a b
+
+let get_bdd t =
+  let t, local = get_local_repository t in
+  match local, t.parameters.database_repository with
+  | "", "" -> t, ""
+  | a,"" | "",a -> t, a
+  | a,b -> t, Format.sprintf "%s/%s" a b
 
 let get_students_list_repository t =
-  get_rep_gen get_students_list_prefix t
+  get_rep_gen get_bdd get_students_list_prefix t
 
 let get_scholarships_list_prefix t =
-  t, "bourses"
+  t, t.parameters.repository_for_bourses
 
 let get_scholarships_list_repository t =
-  get_rep_gen get_scholarships_list_prefix t
+  get_rep_gen get_bdd get_scholarships_list_prefix t
 
 let get_monitoring_list_prefix t =
-    t, "tuteurs"
+    t, t.parameters.repository_for_tuteurs
 
 let get_monitoring_list_repository t =
-  get_rep_gen get_monitoring_list_prefix t
+  get_rep_gen get_bdd get_monitoring_list_prefix t
 
 let get_course_exceptions_list_prefix t =
-      t, "cours"
+      t, t.parameters.repository_for_cours
 
 let get_course_exceptions_list_repository t =
-  get_rep_gen get_course_exceptions_list_prefix t
+  get_rep_gen get_bdd get_course_exceptions_list_prefix t
 
 let get_departments_list_prefix t =
-       t, "departements"
+       t, t.parameters.repository_for_departements
 
 let get_departments_list_repository t =
-  get_rep_gen get_departments_list_prefix t
+  get_rep_gen get_study get_departments_list_prefix t
 
 let get_cursus_list_prefix t =
-  t, "cursus"
+  t, t.parameters.repository_for_cursus
 
 let get_cursus_list_repository t =
-  get_rep_gen get_cursus_list_prefix t
+  get_rep_gen get_study get_cursus_list_prefix t
 
 let get_programs_list_prefix t =
-  t, "diplomes"
+  t, t.parameters.repository_for_diplomes
 
 let get_programs_list_repository t =
-  get_rep_gen get_programs_list_prefix t
+  get_rep_gen get_study get_programs_list_prefix t
 
 let get_cursus_exceptions_list_prefix t =
-  t, "exceptions_cursus"
+  t, t.parameters.repository_for_cursus_exceptions
 
 let get_cursus_exceptions_list_repository t =
-  get_rep_gen get_cursus_exceptions_list_prefix t
+  get_rep_gen get_bdd get_cursus_exceptions_list_prefix t
 
 let get_decisions_list_prefix t =
-  t, "decisions"
+  t, t.parameters.repository_for_decisions
 
 let get_decisions_list_repository t =
-  get_rep_gen get_decisions_list_prefix t
+  get_rep_gen get_bdd get_decisions_list_prefix t
 
 let get_admissions_list_prefix t =
-  t, "admissions"
+  t, t.parameters.repository_for_admissions
 
 let get_admissions_list_repository t =
-  get_rep_gen get_admissions_list_prefix t
+  get_rep_gen get_bdd get_admissions_list_prefix t
 
 let get_compensations_list_prefix t =
-    t, "compensations"
+    t, t.parameters.repository_for_compensation
 
 let get_compensations_list_repository t =
-  get_rep_gen get_compensations_list_prefix t
-
-let get_repository_to_dump_missing_grades_prefix t =
-  get_repository_to_dump_missing_grades t
-
-let get_repository_to_dump_missing_grades t =
-  get_rep_gen
-    get_repository_to_dump_missing_grades_prefix
-    t
-
-let get_repository_to_dump_mentors_prefix t =
-  get_repository_to_dump_mentors t
-
-let get_repository_to_dump_mentors t =
-  get_rep_gen
-    get_repository_to_dump_mentors_prefix
-    t
-
-let get_repository_to_dump_national_diplomas_prefix t =
-  get_repository_to_dump_national_diplomas t
-
-let get_repository_to_dump_national_diplomas t =
-  get_rep_gen
-    get_repository_to_dump_national_diplomas_prefix
-    t
-
-let get_repository_to_dump_dens_prefix t =
-  get_repository_to_dump_dens t
-
-let get_repository_to_dump_dens t =
-  get_rep_gen
-    get_repository_to_dump_dens_prefix
-    t
-
-let get_repository_to_dump_missing_ects_attributions_prefix t =
-  get_repository_to_dump_missing_ects_attributions t
-
-let get_repository_to_dump_missing_ects_attributions t =
-  get_rep_gen
-    get_repository_to_dump_missing_ects_attributions_prefix
-    t
-
-let get_repository_to_dump_missing_mentors_prefix t =
-  get_repository_to_dump_missing_mentors t
-
-let get_repository_to_dump_missing_mentors t =
-  get_rep_gen
-    get_repository_to_dump_missing_mentors_prefix
-    t
-
-let get_repository_to_dump_missing_internship_descriptions_prefix t =
-  get_repository_to_dump_missing_internship_descriptions t
-
-let get_repository_to_dump_missing_internship_descriptions t =
-  get_rep_gen
-    get_repository_to_dump_missing_internship_descriptions_prefix
-    t
-
-let get_repository_to_dump_ambiguous_internship_descriptions_prefix t =
-  get_repository_to_dump_ambiguous_internship_descriptions t
-
-let get_repository_to_dump_ambiguous_internship_descriptions t =
-  get_rep_gen
-    get_repository_to_dump_ambiguous_internship_descriptions_prefix
-    t
+  get_rep_gen get_bdd get_compensations_list_prefix t
 
 let get_dispenses_list_prefix t =
-  t, "dispenses"
+  t, t.parameters.repository_for_dispenses
 
 let get_dispenses_list_repository t =
-      get_rep_gen get_dispenses_list_prefix t
+      get_rep_gen get_bdd get_dispenses_list_prefix t
 
 let get_additional_courses_list_prefix t =
-  t, "cours_a_ajouter"
-
+  t, t.parameters.repository_for_additional_courses
 let get_additional_courses_list_repository t =
-  get_rep_gen get_additional_courses_list_prefix t
+  get_rep_gen get_bdd get_additional_courses_list_prefix t
 
 let get_csv_separator t = t, Some ','
 
@@ -538,18 +639,19 @@ let init () =
   let profiling_info =
     Some (Profiling.init_log_info ())
   in
+  let error_log =
+    Exception.empty_error_handler
+  in
   let std_logger =
     Some
       (Loggers.open_logger_from_formatter Format.std_formatter)
   in
-  let error_log =
-    Exception.empty_error_handler
-  in
+  let date = Tools.date () in
   let parameters =
     get_option_quick parameters
   in
-  let rep = parameters.error_log_repository in
-  let file = parameters.error_log_file in
+  let rep = parameters.tmp_error_repository in
+  let file = parameters.error_log_file  in
   let error_logger =
     let fic = open_out (Printf.sprintf "%s/%s" rep file) in
     Some
@@ -557,13 +659,13 @@ let init () =
          ~mode:Loggers.TXT
          fic)
   in
-  let rep = parameters.profiling_log_file_repository in
+  let rep = parameters.tmp_profiling_repository in
   let file = parameters.profiling_log_file in
   let profiling_logger =
     let fic = open_out (Printf.sprintf "%s/%s" rep file) in
     Some
       (Loggers.open_logger_from_channel
-         ~mode:Loggers.HTML_Tabular
+         ~mode:Loggers.HTML 
          fic)
   in
   let data = empty_data in
@@ -578,10 +680,39 @@ let init () =
       profiling_logger ;
       error_logger ;
       data ;
+      date ;
     }
   in
   let state = get_option state in
   state
+
+
+let copy pos mk cp t tmp_rep main_rep rep file =
+  let output_rep =
+    match main_rep, rep with
+    | "","" -> ""
+    | a,"" | "",a -> a
+    | a,b -> Format.sprintf "%s/%s" a b
+  in
+  let t, output_rep = mk __POS__ t output_rep in
+  let t =
+    cp pos t
+      (Format.sprintf "%s/%s" tmp_rep file)
+      (Format.sprintf "%s/%s" output_rep file)
+  in
+  t
+
+let store_errors_and_profiling_info mk cp t =
+  let t,main_rep = get_dated_output_repository t in
+  let tmp_rep = t.parameters.tmp_error_repository in
+  let file = t.parameters.error_log_file  in
+  let output_rep = t.parameters.error_log_repository in
+  let t = copy __POS__ mk cp t tmp_rep main_rep output_rep file in
+  let tmp_rep = t.parameters.tmp_profiling_repository in
+  let file = t.parameters.profiling_log_file in
+  let output_rep = t.parameters.profiling_log_file_repository in
+  let t = copy __POS__ mk cp t tmp_rep main_rep output_rep file in
+  t
 
 let warn_dft pos message exn default t =
   let t,error_handler = get_error_handler t in
@@ -727,8 +858,6 @@ type save_logger = Loggers.t option
 let save_std_logger t = t.std_logger
 let restore_std_logger t std_logger = {t with std_logger}
 
-let get_launching_date t =
-  t,Tools.date ()
 
 let get_comma_symbol t =
   t,t.parameters.comma_symbol
@@ -1143,9 +1272,12 @@ let get_pictures_stored_according_to_promotions t =
   t, t.parameters.pictures_stored_according_to_promotions
 
 let get_pictures_repository t =
-  let t, main = get_local_repository t in
-  let t, repository = get_pictures_prefix t in
-  t, Printf.sprintf "%s/%s" main repository
+  let t, local = get_local_repository t in
+  let t, rep = get_pictures_prefix t in
+  match local, rep with
+    | "", "" -> t, ""
+    | a,"" | "",a -> t, a
+    | a,b -> t, Format.sprintf "%s/%s" a b
 
 let get_picture_potential_locations
     ~firstname ~lastname ~year t =

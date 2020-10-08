@@ -103,12 +103,16 @@ let state, output_repository =
   with
   | state, None -> state, fst output
   | state, Some _ -> state, snd output
+let state, output_repository_gps =
+  Remanent_state.get_repository_to_dump_gps_files
+    ~output_repository
+    state
 let state =
   List.fold_left
     (fun state id ->
        let state, output =
          Get_gps_files.get_student_file
-           ~output_repository
+           ~output_repository:output_repository_gps
            id state
        in
        match output with
@@ -192,7 +196,8 @@ let correct_email = fun x -> x
 let state,_ =
   Mentor_report.ReportListMentors.dump_per_mentor_year_promo_student
     ~attributionyear:"2020"
-    ~academicyear:"2020"  ~file_name:"tuteurs_nouvelles_affectations_2020_par_tuteur.html" ~title
+    ~academicyear:"2020"  ~file_name:"tuteurs_nouvelles_affectations_2020_par_tuteur.html"
+    ~title
     ~correct_email
     state
 let correct_email =
@@ -200,7 +205,8 @@ let correct_email =
 let state, input =
   Mentor_report.ReportListMentors.dump_per_mentor_year_promo_student
     ~attributionyear:"2020"
-    ~academicyear:"2020"  ~file_name:"tuteurs_nouvelles_affectations_2020_par_tuteur.tex" ~title ~correct_email
+    ~academicyear:"2020"  ~file_name:"tuteurs_nouvelles_affectations_2020_par_tuteur.tex"
+    ~title ~correct_email
     state
 let state =
   Latex_engine.latex_opt_to_pdf state ~input
@@ -208,7 +214,7 @@ let correct_email = fun x -> x
 let state,_ =
   Mentor_report.ReportListMentors.dump_per_student
     ~attributionyear:"2020"
-    ~academicyear:"2020" 
+    ~academicyear:"2020"
     ~file_name:"tuteurs_nouvelles_affectations_2020_par_étudiants.html" ~title ~correct_email
     state
 let correct_email =
@@ -627,3 +633,13 @@ let state =
     Remanent_state.print_errors "" state
 let state =
     Remanent_state.print_errors ~logger:(Remanent_state.std_logger) "" state
+let state =
+  Remanent_state.store_errors_and_profiling_info
+    Safe_sys.rec_mk_when_necessary
+    Safe_sys.cp
+    state
+let state =
+      Cloud_interaction.make_current_repository state
+let state =
+  Cloud_interaction.synchronize_shared_repository
+    state

@@ -26,14 +26,11 @@ let build_output
   let firstname = student_id.Public_data.firstname in
   let lastname = student_id.Public_data.lastname in
   let promotion = student_id.Public_data.promotion in
-  let get_local_repository =
-    Remanent_state.get_local_repository
-  in
   let get_repository =
-    Remanent_state.get_repository_to_dump_gps_files
+    Remanent_state.get_repository_to_dump_gps_files ?output_repository
   in
   let get_store_according_promotion =
-    Remanent_state.get_store_gps_files_according_to_their_promotions
+    Remanent_state.get_store_output_according_to_their_promotions
   in
   let get_indicate_promotions_in_file_names =
     Remanent_state.get_indicate_promotions_in_gps_file_names
@@ -42,11 +39,12 @@ let build_output
     Safe_sys.rec_mk_when_necessary
   in
   Tools.build_output
-    ~get_local_repository ~get_repository
+    ~get_repository
     ~get_store_according_promotion
     ~get_indicate_promotions_in_file_names
     ~rec_mk_when_necessary
-    ~f_firstname ~f_lastname ~firstname ~lastname ~promotion ?prefix ?output_repository ?output_file_name state
+    ~f_firstname ~f_lastname ~firstname ~lastname ~promotion
+    ?prefix ?output_repository ?output_file_name state
 
 let get_file_name output_repository output_file_name =
   if output_repository = ""
@@ -250,21 +248,12 @@ let copy
       ~f_firstname ~f_lastname student_id ?prefix ~output_repository ~output_file_name
       ~extension:".gps.csv" state
   in
-  let state, rep =
-    let state, r1 =
-      Remanent_state.get_local_repository state
-    in
-    let state, r2 = backup_rep state in
-    match r1,r2 with
-    | "","" -> state,""
-    | "",x | x,"" -> state,x
-    | x1,x2 -> state,Printf.sprintf "%s/%s" x1 x2
-  in
+  let state, rep = backup_rep state in
   let state, prefix =
     match prefix with
     | None ->
       let state, bool =
-        Remanent_state.get_store_gps_files_according_to_their_promotions          state
+        Remanent_state.get_store_output_according_to_their_promotions          state
       in
       state, if bool then promotion else ""
     | Some prefix -> state, prefix
@@ -293,6 +282,10 @@ let copy
   let state, b =
     Safe_sys.file_exists __POS__ state input
   in
+  let event_opt_bis =
+    Some
+      (g (input,output))
+  in
   let state, output =
     if b then
       let command =
@@ -302,6 +295,7 @@ let copy
       state, Some (output_repository, output_file_name)
     else state, None
   in
+  let state = Remanent_state.close_event_opt event_opt_bis state in 
   let state = Remanent_state.close_event_opt event_opt state in
   state, output
 

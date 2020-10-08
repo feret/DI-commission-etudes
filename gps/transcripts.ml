@@ -3698,13 +3698,22 @@ let program
       ()
   in
   let state, color =
-    match Tools.map_opt String.trim string
+    match
+      Tools.map_opt String.trim string
     with
     | None ->
       let state =
         List.fold_left
           (fun state elt ->
              let _,cours = elt in
+             match cours.note with
+             | Some Public_data.En_cours
+             | Some Public_data.Absent
+             | Some Public_data.Abandon 
+             | None ->
+               state
+             | Some Public_data.Float _
+             | Some Public_data.Valide_sans_note ->
              Remanent_state.add_missing_ects_attribution
                state
                {

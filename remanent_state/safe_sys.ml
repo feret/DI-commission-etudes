@@ -8,7 +8,8 @@ let is_directory _pos state x =
 let command pos state s =
   try
     if Sys.command s = 0
-    then state
+    then
+      state
     else
       Remanent_state.warn
         pos (Printf.sprintf "\"Sys.command %s\" failed" s)
@@ -19,7 +20,8 @@ let command pos state s =
       pos (Printf.sprintf "\"Sys.command %s\" failed" s)
       exn state
 
-
+let cp pos t a b =
+  command pos t (Format.sprintf "cp %s %s" a b)
 
 let rec_mk_when_necessary pos state output_repository =
   let list_of_reps =
@@ -40,6 +42,7 @@ let rec_mk_when_necessary pos state output_repository =
           with
           | Sys_error x ->
             try
+              let () = Format.printf "mkdir %s" (safe new_repository) in
               if Sys.command (Printf.sprintf "mkdir %s" (safe new_repository)) = 0
               then state, true
               else

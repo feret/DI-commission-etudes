@@ -503,11 +503,3 @@ let clean_spurious_uppercase_letters string =
       then f (k+1)
       else aux (k+1) false []
   in f 0
-
-let () =
-  Format.printf "%s @ "
-    (clean_spurious_uppercase_letters "Clément")
-
-let () =
-  Format.printf "%s @ "
-    (clean_spurious_uppercase_letters "ClÉment")

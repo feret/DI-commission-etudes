@@ -76,6 +76,7 @@ val get_cloud_client_options: t -> t * string
 val get_cloud_support_dynamic_link: t -> t * bool
 val get_pdfgenerator_engine: t -> t * Public_data.pdf_generator
 val get_pdfgenerator_options: t -> t * string
+val get_output_repository: t -> t * string
 val get_output_alias_repository: t -> t * string
 val get_output_alias: t -> t * (string * string) option
 val set_output_alias: t -> (string * string) -> t
@@ -93,15 +94,14 @@ val get_file_retriever_checking_period: t -> t * int
 val get_machine_to_access_gps: t -> t * string
 val get_port_to_access_gps: t -> t * string
 val get_repository_to_access_gps: t -> t * string
-val get_repository_to_dump_gps_files: t -> t * string
+val get_repository_to_dump_gps_files:
+  ?output_repository:string -> t -> t * string
 val get_repository_for_handmade_gps_files: t -> t * string
 val get_repository_for_backup_gps_files: t -> t * string
 val get_signature: t -> t * string
-val get_store_gps_files_according_to_their_promotions: t -> t * bool
+val get_store_output_according_to_their_promotions: t -> t * bool
 val get_indicate_promotions_in_gps_file_names: t -> t * bool
-
 val get_repository_to_dump_attestations: t -> t * string
-val get_store_attestations_according_to_their_promotions: t -> t * bool
 val get_indicate_promotions_in_attestation_file_names: t -> t * bool
 
 
@@ -446,4 +446,8 @@ val get_ambiguous_internship_descriptions:
 val get_repository_to_dump_ambiguous_internship_descriptions:
     t -> t * string
 
-val get_ENSPSL_logo: t -> t * string 
+val get_ENSPSL_logo: t -> t * string
+
+val store_errors_and_profiling_info :
+  (string * int * int * int -> t -> string -> t * string) ->
+  (string * int * int * int -> t -> string -> string -> t) -> t -> t
