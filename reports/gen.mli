@@ -79,7 +79,8 @@ val filter_dens:
   ?nb_inscription_list:int list -> Public_data.dens filter
 val filter_national_diploma:
   Public_data.diplome_national filter
-
+val filter_student_list:
+  Public_data.student filter 
 
 
 module type Interface =

@@ -30,6 +30,7 @@ type step_kind =
   | Dump_mentor_list
   | Dump_national_diploma_list
   | Dump_dens_result
+  | Dump_student_list
 
 type log_info
 

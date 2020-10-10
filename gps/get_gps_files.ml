@@ -282,10 +282,6 @@ let copy
   let state, b =
     Safe_sys.file_exists __POS__ state input
   in
-  let event_opt_bis =
-    Some
-      (g (input,output))
-  in
   let state, output =
     if b then
       let command =
@@ -295,7 +291,6 @@ let copy
       state, Some (output_repository, output_file_name)
     else state, None
   in
-  let state = Remanent_state.close_event_opt event_opt_bis state in 
   let state = Remanent_state.close_event_opt event_opt state in
   state, output
 
@@ -349,22 +344,21 @@ let try_get_student_file
            Profiling.Extract_gps_file_from_handmade_files (a,b))
         student_id ?prefix ?output_repository ?output_file_name backup_rep state
     | Warn ->
-      let state, output_repository, output_file_name =
-        build_output
-          ~f_firstname ~f_lastname ~extension:".gps.csv"
-          student_id ?prefix ?output_repository
-          ?output_file_name state
-      in
-      let output_file_name =
-        get_file_name output_repository output_file_name
-      in
       let state =
-        Remanent_state.warn
-          __POS__
-          (Format.sprintf "File %s is empty, use backup version indeed"
-             output_file_name)
-          Exit
+        Remanent_state.add_gps_server_faillure
           state
+          {
+            Public_data.student_firstname_report =
+              student_id.Public_data.firstname ;
+            Public_data.student_lastname_report =
+              student_id.Public_data.lastname ;
+            Public_data.student_promo_report =
+              match
+                student_id.Public_data.promotion
+              with
+              | None -> ""
+              | Some a -> a;
+          }
       in state, None
   in
   match output with

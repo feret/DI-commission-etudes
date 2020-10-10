@@ -15,3 +15,4 @@ end
 
 module MissingInternshipDescriptions: ReportInternshipDescriptions
 module AmbiguousInternshipDescriptions: ReportInternshipDescriptions
+module NonValidatedInternships: ReportInternshipDescriptions

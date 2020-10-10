@@ -19,6 +19,7 @@ type parameters =
     parameters_repository:string;
     gps_backup_repository:string;
     repository_to_dump_gps_files: string;
+    repository_to_dump_gps_server_faillures: string;
     repository_to_dump_attestations: string;
     repository_for_handmade_gps_files: string;
     repository_for_backup_gps_files: string;
@@ -58,6 +59,9 @@ type parameters =
     repository_for_compensation: string;
     repository_for_dispenses: string;
     repository_for_additional_courses: string;
+    repository_to_dump_missing_pictures: string;
+    repository_to_dump_non_accepted_grades: string;
+    repository_to_dump_non_validated_internships: string;
     repository_to_dump_missing_grades: string;
     repository_to_dump_missing_mentors: string;
     repository_to_dump_missing_ects_attributions: string;
@@ -87,35 +91,39 @@ let parameters =
     port_to_access_gps = "8080";
     repository_to_access_gps = "gps";
     output_repository = "sortie" ;
-    database_repository = "base_de_données";
-    study_repository = "études";
-    parameters_repository = "paramètres" ;
+    database_repository = "base_de_donnees";
+    study_repository = "etudes";
+    parameters_repository = "parametres" ;
     gps_backup_repository = "gps_backup" ;
     repository_to_dump_gps_files = "fiches_de_notes";
-    repository_to_dump_issues = "problèmes";
+    repository_to_dump_issues = "problemes";
     repository_to_dump_reports = "rapports";
+    repository_to_dump_missing_pictures = "photos_manquantes";
+    repository_to_dump_gps_server_faillures = "echecs_extraction_gps";
+    repository_to_dump_non_accepted_grades = "notes_non_acceptees" ;
+    repository_to_dump_non_validated_internships = "stages_non_acceptes";
     repository_to_dump_attestations = "attestations";
     repository_to_dump_missing_grades = "notes_manquantes";
     repository_to_dump_missing_mentors = "tuteurs_manquants";
-    repository_to_dump_missing_ects_attributions = "ects_non_attribuées";
+    repository_to_dump_missing_ects_attributions = "ects_non_attribuees";
     repository_to_dump_missing_internship_descriptions = "stages_manquants";
     repository_to_dump_ambiguous_internship_descriptions = "stages_ambigus";
     repository_for_bourses = "bourses";
     repository_for_tuteurs = "tuteurs";
     repository_for_cours = "cours";
-    repository_for_departements = "départements";
+    repository_for_departements = "departements";
     repository_for_cursus = "cursus";
-    repository_for_diplomes = "diplômes";
+    repository_for_diplomes = "diplomes";
     repository_for_cursus_exceptions = "exceptions_cursus";
-    repository_for_decisions = "décisions";
+    repository_for_decisions = "decisions";
     repository_for_admissions = "admissions";
     repository_for_compensation = "compensations";
     repository_for_dispenses = "dispenses";
-    repository_for_additional_courses = "cours_à_ajouter";
+    repository_for_additional_courses = "cours_a_ajouter";
     repository_to_dump_dens = "dens";
-    repository_to_dump_national_diplomas = "diplômes_nationaux";
+    repository_to_dump_national_diplomas = "diplomes_nationaux";
     repository_to_dump_mentors = "tuteurs";
-    repository_for_handmade_gps_files = "fichier_gps_fait_à_la_main";
+    repository_for_handmade_gps_files = "fichier_gps_fait_a_la_main";
     repository_for_backup_gps_files = "fichier_gps_de_secours";
     output_alias_repository = "courant";
     store_output_according_to_their_promotions = true;
@@ -158,6 +166,11 @@ type data =
     compensations: Compensations.t;
     additional_courses: Cours_a_ajouter.t;
     dispenses: Dispenses.t;
+    missing_pictures: Public_data.student list;
+    gps_server_faillures: Public_data.student list;
+    non_accepted_grades: Public_data.missing_grade list;
+    non_validated_internships:
+      Public_data.missing_internship_description list;
     missing_grades: Public_data.missing_grade list;
     missing_ects_attributions: Public_data.missing_grade list;
     missing_mentors: Public_data.missing_mentor list;
@@ -184,11 +197,15 @@ let empty_data =
     admissions = Admissions.empty;
     compensations = Compensations.empty;
     dispenses = Dispenses.empty;
+    missing_pictures = [];
+    gps_server_faillures = [];
+    non_accepted_grades = [];
     missing_grades = [];
     missing_ects_attributions = [];
     missing_mentors = [];
     missing_internship_descriptions = [];
     ambiguous_internship_descriptions = [];
+    non_validated_internships = [];
     mentors = [];
     national_diplomas = [];
     dens = [];
@@ -329,6 +346,31 @@ let get_repository_to_dump_missing_gen get t =
   match rep with
   | "" -> t, get t
   | _ -> t, Format.sprintf "%s/%s" rep (get t)
+
+let get_repository_to_dump_missing_pictures t =
+  get_repository_to_dump_missing_gen
+    (fun t ->
+       t.parameters.repository_to_dump_missing_pictures)
+    t
+
+let get_repository_to_dump_gps_server_faillures t =
+  get_repository_to_dump_missing_gen
+    (fun t ->
+       t.parameters.repository_to_dump_gps_server_faillures)
+    t
+
+let get_repository_to_dump_non_validated_internships t =
+  get_repository_to_dump_missing_gen
+    (fun t ->
+       t.parameters.repository_to_dump_non_validated_internships)
+    t
+
+let get_repository_to_dump_non_accepted_grades t =
+  get_repository_to_dump_missing_gen
+    (fun t ->
+       t.parameters.repository_to_dump_non_accepted_grades)
+    t
+
 
 let get_repository_to_dump_missing_grades t =
   get_repository_to_dump_missing_gen
@@ -472,7 +514,7 @@ let get_rep_gen get_main get_prefix t =
   t, Printf.sprintf "%s/%s" main repository
 
 let get_students_list_prefix t =
-  t, "étudiants"
+  t, "etudiants"
 
 let get_study t =
   let t, local = get_local_repository t in
@@ -665,7 +707,7 @@ let init () =
     let fic = open_out (Printf.sprintf "%s/%s" rep file) in
     Some
       (Loggers.open_logger_from_channel
-         ~mode:Loggers.HTML 
+         ~mode:Loggers.HTML
          fic)
   in
   let data = empty_data in
@@ -945,6 +987,28 @@ let set_missing_grades missing_grades data =
 let set_missing_grades missing_grades t =
   lift_set set_missing_grades missing_grades t
 
+let get_non_accepted_grades data = data.non_accepted_grades
+let get_non_accepted_grades t = lift_get get_non_accepted_grades t
+let set_non_accepted_grades non_accepted_grades data =
+  {data with non_accepted_grades}
+let set_non_accepted_grades non_accepted_grades t =
+  lift_set set_non_accepted_grades non_accepted_grades t
+
+let get_missing_pictures data = data.missing_pictures
+let get_missing_pictures t = lift_get get_missing_pictures t
+let set_missing_pictures missing_pictures data =
+  {data with missing_pictures}
+let set_missing_pictures missing_pictures t =
+  lift_set set_missing_pictures missing_pictures t
+
+let get_gps_server_faillures data = data.gps_server_faillures
+let get_gps_server_faillures t =
+  lift_get get_gps_server_faillures t
+let set_gps_server_faillures gps_server_faillures data =
+    {data with gps_server_faillures}
+let set_gps_server_faillures gps_server_faillures t =
+    lift_set set_gps_server_faillures gps_server_faillures t
+
 let get_missing_mentors data = data.missing_mentors
 let get_missing_mentors t = lift_get get_missing_mentors t
 let set_missing_mentors missing_mentors data =
@@ -966,6 +1030,14 @@ let set_missing_internship_descriptions missing_internship_descriptions data =
   {data with missing_internship_descriptions}
 let set_missing_internship_descriptions missing_internship_descriptions t =
   lift_set set_missing_internship_descriptions missing_internship_descriptions t
+
+let get_non_validated_internships data =
+  data.non_validated_internships
+let get_non_validated_internships t = lift_get get_non_validated_internships t
+let set_non_validated_internships non_validated_internships data =
+  {data with non_validated_internships}
+let set_non_validated_internships non_validated_internships t =
+    lift_set set_non_validated_internships non_validated_internships t
 
 let get_ambiguous_internship_descriptions data =
     data.ambiguous_internship_descriptions
@@ -1106,7 +1178,7 @@ let get_cursus ~year ~level ?dpt pos t =
   | None ->
     let msg =
       Format.sprintf
-        "Pas de cursus pour %s%s en %s dans les fichiers du département"
+        "Pas de cursus pour %s%s en %s dans les fichiers du dÃ©partement"
         level
         (match dpt with
          | None -> "" | Some i -> Format.sprintf " %s" i)
@@ -1352,8 +1424,15 @@ let gen get set =
   let get t = t, get t in
   add, get
 
+let add_missing_picture, get_missing_pictures =
+  gen get_missing_pictures set_missing_pictures
+let add_gps_server_faillure, get_gps_server_faillures =
+  gen get_gps_server_faillures set_gps_server_faillures
+
 let add_missing_grade, get_missing_grades =
   gen get_missing_grades set_missing_grades
+let add_non_accepted_grade, get_non_accepted_grades =
+  gen get_non_accepted_grades set_non_accepted_grades
 let add_dens, get_dens =
   gen get_dens set_dens
 let add_national_diploma, get_national_diplomas =
@@ -1369,6 +1448,8 @@ let add_missing_ects_attribution, get_missing_ects_attributions =
   gen get_missing_ects_attributions set_missing_ects_attributions
 let add_missing_internship_description, get_missing_internship_descriptions =
   gen get_missing_internship_descriptions set_missing_internship_descriptions
+let add_non_validated_internship, get_non_validated_internships =
+    gen get_non_validated_internships set_non_validated_internships
 let add_ambiguous_internship_description, get_ambiguous_internship_descriptions =
     gen get_ambiguous_internship_descriptions set_ambiguous_internship_descriptions
 

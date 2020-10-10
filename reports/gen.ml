@@ -355,6 +355,20 @@ let filter_dens
     &&
     check academicyear dens.Public_data.diplome_year
 
+let filter_student_list
+    ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
+    ?niveau
+    ?recu state student =
+  let _ =
+    dpt, niveau, recu, academicyear, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription, attributionyear
+  in
+  state,
+  check firstname student.Public_data.student_firstname_report
+  &&
+  check lastname student.Public_data.student_lastname_report
+  &&
+  check promo student.Public_data.student_promo_report
+
 let filter ?dpt
 ?firstname
 ?lastname

@@ -30,6 +30,8 @@ type step_kind =
   | Dump_mentor_list
   | Dump_national_diploma_list
   | Dump_dens_result
+  | Dump_student_list
+
 
 
 type step =
@@ -97,6 +99,7 @@ let string_of_step_kind x =
   | Dump_mentor_list -> "Dump list of mentors"
   | Dump_national_diploma_list -> "Dump national diploma result"
   | Dump_dens_result -> "Dump DENS result"
+  | Dump_student_list -> "Dump student list"
 
 let print_step_kind logger x =
   Loggers.print_cell logger
@@ -190,6 +193,7 @@ let is_dummy step_kind =
   | Dump_mentor_list
   | Dump_national_diploma_list
   | Dump_dens_result
+  | Dump_student_list
     -> false
 
 let open_event

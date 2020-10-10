@@ -154,3 +154,14 @@ module AmbiguousInternshipDescriptions =
       let get_repository =
         Remanent_state.get_repository_to_dump_ambiguous_internship_descriptions
     end)
+
+module NonValidatedInternships =
+  Build
+    (struct
+      type elt = Public_data.missing_internship_description
+
+      let default_file_name = "non_validated_internship.html"
+      let get = Remanent_state.get_non_validated_internships
+      let get_repository =
+        Remanent_state.get_repository_to_dump_non_validated_internships
+    end)

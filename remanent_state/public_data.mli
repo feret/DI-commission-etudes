@@ -222,6 +222,13 @@ type dispense =
 
 val empty_dispense: dispense
 
+type student =
+  {
+    student_firstname_report : string ;
+    student_lastname_report : string ;
+    student_promo_report : string ;
+  }
+
 type missing_grade =
   {
     missing_grade_firstname : string ;
@@ -291,7 +298,7 @@ type mentor =
     mentor_firstname : string ;
     mentor_lastname : string ;
     mentor_gender : genre ;
-    mentor_email : string ; 
+    mentor_email : string ;
     mentor_student_dpt: string ;
   }
 

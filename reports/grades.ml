@@ -391,6 +391,19 @@ module MissingGrades =
         Remanent_state.get_repository_to_dump_missing_grades
     end)
 
+
+
+module NonAcceptedGrades =
+  Build
+    (struct
+      type elt = Public_data.missing_grade
+
+      let default_file_name = "non_accedpted_grades.html"
+      let get = Remanent_state.get_non_accepted_grades
+      let get_repository =
+        Remanent_state.get_repository_to_dump_non_accepted_grades
+    end)
+
 module MissingECTSAttributions =
   Build
     (struct

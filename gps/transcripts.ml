@@ -3709,7 +3709,7 @@ let program
              match cours.note with
              | Some Public_data.En_cours
              | Some Public_data.Absent
-             | Some Public_data.Abandon 
+             | Some Public_data.Abandon
              | None ->
                state
              | Some Public_data.Float _
@@ -3751,6 +3751,51 @@ let program
     | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" | "lmfi") ->
       color_of_dpt who __POS__ state dpt origine
     | Some _  -> state, None
+  in
+  let state =
+    List.fold_left
+      (fun state elt ->
+         let _,cours = elt in
+         match cours.note with
+         | Some Public_data.En_cours
+         | Some Public_data.Absent
+         | Some Public_data.Abandon
+         | None ->
+           state
+         | Some Public_data.Float _
+         | Some Public_data.Valide_sans_note ->
+           begin
+             match
+               cours.contrat, cours.accord
+             with
+             | Some true, _ | _, Some true -> state
+             | (Some false | None), (Some false | None) ->
+               Remanent_state.add_non_accepted_grade
+                 state
+                 {
+                   Public_data.missing_grade_promotion =
+                     promo;
+                   Public_data.missing_grade_dpt=
+                     fetch_code elt ;
+                   Public_data.missing_grade_dpt_indice =
+                     string_of_int (fetch elt);
+                   Public_data.missing_grade_teacher =
+                     Tools.unsome_string
+                       cours.responsable ;
+                   Public_data.missing_grade_intitule =
+                     Tools.unsome_string
+                       cours.cours_libelle  ;
+                   Public_data.missing_grade_code_gps =
+                     Tools.unsome_string
+                       cours.code_cours ;
+                   Public_data.missing_grade_year = year ;
+                   Public_data.missing_grade_lastname =
+                     lastname;
+                   Public_data.missing_grade_firstname =
+                     firstname;
+                 }
+           end)
+      state list
   in
   let bgcolor=[None;color;None;None;None;None;None] in
   let () =
@@ -3873,26 +3918,59 @@ let program
           | Some l ->
             if is_stage cours
             then
+              let internship =
+                  {
+                    Public_data.missing_internship_promotion = promo ;
+                    Public_data.missing_internship_year=year;
+                    Public_data.missing_internship_firstname=firstname;
+                    Public_data.missing_internship_lastname=lastname;
+                    Public_data.missing_internship_intitule=
+                      Tools.unsome_string  cours.cours_libelle ;
+                    Public_data.missing_internship_code_gps=
+                      Tools.unsome_string
+                        cours.code_cours
+                  }
+              in 
               let state, stage_opt =
                 fetch_stage
                   state
-                  ~internship:(
-                    {
-                      Public_data.missing_internship_promotion = promo ;
-                      Public_data.missing_internship_year=year;
-                      Public_data.missing_internship_firstname=firstname;
-                      Public_data.missing_internship_lastname=lastname;
-                      Public_data.missing_internship_intitule=
-                        Tools.unsome_string  cours.cours_libelle ;
-                      Public_data.missing_internship_code_gps=
-                        Tools.unsome_string
-                          cours.code_cours
-                    })
+                  ~internship
                   cours.commentaire stages
               in
               match stage_opt with
               | None -> state, Some l
               | Some stage ->
+                let issue =
+                  match
+                    cours.note
+                  with
+                  | Some Public_data.En_cours
+                  | Some Public_data.Absent
+                  | Some Public_data.Abandon
+                  | None ->
+                    begin
+                      match stage.stage_valide with
+                      | None
+                      | Some (Public_data.Abs | Public_data.Bool false) -> false
+                      | Some (Public_data.Bool true) -> true
+                    end
+                  | Some Public_data.Float _
+                  | Some Public_data.Valide_sans_note ->
+                    begin
+                      match stage.stage_valide, stage.stage_accord with
+                      | (None | Some (Public_data.Abs | Public_data.Bool false)), _
+                      | _, (None | Some false) ->
+                        true
+                        | Some (Public_data.Bool true), Some true -> false
+                    end
+                in
+                let state =
+                  if issue then
+                    Remanent_state.add_non_validated_internship
+                      state internship
+                  else
+                    state
+                in
                 let sujet =
                   match stage.sujet with
                   | None -> ""
@@ -4583,21 +4661,13 @@ let export_transcript
       then
         state
       else
-        let msg =
-          Printf.sprintf
-            "No pictures for %s" who
-        in
-        let msg =
-          List.fold_left
-            (fun s s' -> Printf.sprintf "%s %s" s s')
-            msg
-            picture_list
-        in
-        Remanent_state.warn
-          __POS__
-          msg
-          Exit
+        Remanent_state.add_missing_picture
           state
+          {
+            Public_data.student_firstname_report = firstname ;
+            Public_data.student_lastname_report = lastname ;
+            Public_data.student_promo_report = promo ;
+          }
     in
     let stages =
         gps_file.stages
@@ -4605,7 +4675,6 @@ let export_transcript
     let state, origine =
       get_origine who promo gps_file state
     in
-
     let state, cursus_map, l =
       List.fold_left
         (fun (state, cursus_map, l) (year, situation) ->

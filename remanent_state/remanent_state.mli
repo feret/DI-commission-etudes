@@ -401,6 +401,24 @@ val get_national_diplomas:
 val get_repository_to_dump_national_diplomas:
   t -> t * string
 
+val get_repository_to_dump_missing_pictures:
+  t -> t * string
+
+val get_missing_pictures:
+  t -> t * Public_data.student list
+
+val add_missing_picture:
+  t -> Public_data.student -> t
+
+val get_repository_to_dump_gps_server_faillures:
+  t -> t * string
+
+val add_gps_server_faillure:
+  t -> Public_data.student -> t
+
+val get_gps_server_faillures:
+  t -> t * Public_data.student list
+
 val add_missing_grade:
   t -> Public_data.missing_grade -> t
 
@@ -408,6 +426,15 @@ val get_missing_grades:
   t -> t * Public_data.missing_grade list
 
 val get_repository_to_dump_missing_grades:
+    t -> t * string
+
+val add_non_accepted_grade:
+    t -> Public_data.missing_grade -> t
+
+val get_non_accepted_grades:
+    t -> t * Public_data.missing_grade list
+
+val get_repository_to_dump_non_accepted_grades:
   t -> t * string
 
 val add_missing_mentor:
@@ -433,6 +460,16 @@ val add_missing_internship_description:
 
 val get_missing_internship_descriptions:
   t -> t * Public_data.missing_internship_description list
+
+val get_repository_to_dump_non_validated_internships:
+  t -> t * string
+
+val add_non_validated_internship:
+  t -> Public_data.missing_internship_description -> t
+
+val get_non_validated_internships:
+  t -> t * Public_data.missing_internship_description list
+
 
 val get_repository_to_dump_missing_internship_descriptions:
   t -> t * string

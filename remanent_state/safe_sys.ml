@@ -42,7 +42,6 @@ let rec_mk_when_necessary pos state output_repository =
           with
           | Sys_error x ->
             try
-              let () = Format.printf "mkdir %s" (safe new_repository) in
               if Sys.command (Printf.sprintf "mkdir %s" (safe new_repository)) = 0
               then state, true
               else
