@@ -46,6 +46,7 @@ type parameters =
     error_log_file: string;
     comma_symbol: char;
     current_academic_year: Public_data.annee;
+    commission: (string * Public_data.annee) option;
     target: string option;
     repository_for_bourses: string;
     repository_for_tuteurs: string;
@@ -71,6 +72,7 @@ type parameters =
     repository_to_dump_dens: string;
     repository_to_dump_mentors: string;
     signature: string;
+    log_mkdir: bool;
   }
 
 
@@ -78,6 +80,7 @@ type parameters =
 let parameters =
   {
     safe_mode = true;
+    log_mkdir = true;
     cloud_synchronization_mode = Public_data.CommandLine ;
     cloud_client = Public_data.NextCloudCmd ;
     cloud_client_options = "-n --silent" ;
@@ -145,7 +148,8 @@ let parameters =
     error_log_repository = "erreurs_internes";
     error_log_file = "error.txt";
     comma_symbol = ',';
-    current_academic_year = "2019";
+    current_academic_year = "2020";
+    commission = Some ("18 septembre 2020", "2019");
     target = None ;
     signature = "feret+tampon.pdf"
   }
@@ -224,6 +228,7 @@ type t =
     date: string;
   }
 
+let log_mkdir t = t,t.parameters.log_mkdir 
 
 let get_launching_date t =
   t,t.date
@@ -302,7 +307,7 @@ let get_port_to_access_gps t =
   t, t.parameters.port_to_access_gps
 
 let get_signature t =
-  let t, rep = get_local_repository t in
+  let t, rep = get_cloud_repository t in
   if rep = ""
   then
     t, t.parameters.signature
@@ -466,9 +471,19 @@ let get_repository_to_dump_attestations t =
   | a,b -> t, Format.sprintf "%s/%s" a b
 
 
+let get_backup_repository t =
+  let t, local = get_local_repository t in
+  match local, t.parameters.gps_backup_repository with
+  | "", "" -> t, ""
+  | a,"" | "",a -> t, a
+  | a,b -> t, Format.sprintf "%s/%s" a b
+
 let get_repository_for_handmade_gps_files t =
+  let t, rep =
+    get_backup_repository t
+  in
   match
-    t.parameters.gps_backup_repository,
+    rep,
     t.parameters.repository_for_handmade_gps_files
   with
   | "","" -> t,""
@@ -476,8 +491,11 @@ let get_repository_for_handmade_gps_files t =
   | a,b -> t, Format.sprintf "%s/%s" a b
 
 let get_repository_for_backup_gps_files t =
+  let t, rep =
+    get_backup_repository t
+  in
   match
-    t.parameters.gps_backup_repository,
+    rep,
     t.parameters.repository_for_backup_gps_files
   with
   | "","" -> t,""
@@ -1333,6 +1351,9 @@ let get_cursus_exception
 
 let get_current_academic_year t =
   t, t.parameters.current_academic_year
+
+let get_commission t =
+  t, t.parameters.commission
 
 let get_pictures_prefix t =
   t, t.parameters.repository_to_access_pictures

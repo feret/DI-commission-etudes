@@ -485,6 +485,10 @@ val get_repository_to_dump_ambiguous_internship_descriptions:
 
 val get_ENSPSL_logo: t -> t * string
 
+val get_commission: t -> t * (string * Public_data.annee) option
+
+val log_mkdir: t -> t * bool
+
 val store_errors_and_profiling_info :
   (string * int * int * int -> t -> string -> t * string) ->
   (string * int * int * int -> t -> string -> string -> t) -> t -> t

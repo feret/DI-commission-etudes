@@ -22,6 +22,7 @@ let profiling_label_of_dpt_opt =
   | Some PE -> Some "PE"
 
 let build_output
+    pos ~has_promo
     ~f_firstname ~f_lastname student_id ?prefix ?output_repository ?output_file_name state =
   let firstname = student_id.Public_data.firstname in
   let lastname = student_id.Public_data.lastname in
@@ -39,6 +40,8 @@ let build_output
     Safe_sys.rec_mk_when_necessary
   in
   Tools.build_output
+    pos
+    ~has_promo
     ~get_repository
     ~get_store_according_promotion
     ~get_indicate_promotions_in_file_names
@@ -185,6 +188,8 @@ let get_student_file_gen
   in
   let state, output_repository, output_file_name =
     build_output
+      __POS__
+      ~has_promo:false
       ~f_firstname:(fun x -> x)
       ~f_lastname:(fun x -> x)
       ~extension:".gps.csv"
@@ -237,6 +242,8 @@ let copy
   let promotion = Tools.unsome_string promotion in
   let state, output_repository, output_file_name =
     build_output
+      __POS__
+      ~has_promo:false
       ~f_firstname:(fun x -> x)
       ~f_lastname:(fun x -> x)
       student_id ?prefix ?output_repository
@@ -245,7 +252,10 @@ let copy
   in
   let state, _, input_file_name =
     build_output
-      ~f_firstname ~f_lastname student_id ?prefix ~output_repository ~output_file_name
+      __POS__
+      ~has_promo:true 
+      ~f_firstname ~f_lastname student_id ?prefix
+      ~output_repository ~output_file_name
       ~extension:".gps.csv" state
   in
   let state, rep = backup_rep state in

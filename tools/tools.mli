@@ -103,6 +103,8 @@ val dump_report:
   ?signature:(int -> string) -> ('a list * 'b) list -> unit
 
 val build_output:
+  (string * int * int * int) ->
+  has_promo:bool -> 
   get_repository:('a -> 'a * string) ->
   get_store_according_promotion:('a -> 'a * bool) ->
   get_indicate_promotions_in_file_names:('a -> 'a * bool) ->

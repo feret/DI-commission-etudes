@@ -467,6 +467,8 @@ let prepare_report
 
 
 let build_output
+    pos
+    ~has_promo 
     ~get_repository
     ~get_store_according_promotion
     ~get_indicate_promotions_in_file_names
@@ -490,7 +492,7 @@ let build_output
       let state, bool =
         get_store_according_promotion state
       in
-      state, if bool then promotion else ""
+      state, if bool && not has_promo then promotion else ""
     | Some prefix -> state, prefix
   in
   let state, output_file_name =
@@ -516,7 +518,7 @@ let build_output
   in
   let state, output_repository =
     rec_mk_when_necessary
-      __POS__
+      pos
       state output_repository
   in
   state, output_repository, output_file_name

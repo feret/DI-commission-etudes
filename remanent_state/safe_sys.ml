@@ -42,20 +42,44 @@ let rec_mk_when_necessary pos state output_repository =
           with
           | Sys_error x ->
             try
+              let state, b =
+                Remanent_state.log_mkdir state
+              in
+              let state =
+                if b
+                then
+                  let msg =
+                    Format.sprintf
+                      "mkdir %s->%s"
+                      output_repository
+                      (safe new_repository)
+                  in
+                  let state =
+                    Remanent_state.warn
+                      pos
+                      msg
+                      Exit
+                      state
+                  in
+                  state
+                else
+                  state
+              in
               if Sys.command (Printf.sprintf "mkdir %s" (safe new_repository)) = 0
               then state, true
               else
                 let _ =
                   Remanent_state.stop pos
-                    (Printf.sprintf "Cannot create repository %s (%s)" new_repository x)
+                    (Printf.sprintf "Cannot create repository %s (%s)"
+                       new_repository x)
                     Exit state
                 in state, true
             with
               Sys_error x ->
               let state =
-              Remanent_state.stop pos
-                (Printf.sprintf "Cannot create repository %s (%s)" new_repository x)
-                Exit state
+                Remanent_state.stop pos
+                  (Printf.sprintf "Cannot create repository %s (%s)" new_repository x)
+                  Exit state
               in
               state, true
         in

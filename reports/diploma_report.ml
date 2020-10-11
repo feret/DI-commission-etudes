@@ -228,6 +228,8 @@ let dump_pv
   in
   let state, output_repository, output_file_name =
     Tools.build_output
+      __POS__
+      ~has_promo:false 
       ~get_repository
       ~get_store_according_promotion
       ~get_indicate_promotions_in_file_names

@@ -44,10 +44,13 @@ let synchronize_shared_repository
           cloud_client options local_repository
           distant_repository
       in
+      let _ = Format.printf "%s @ " command in
       let output = Sys.command command in
       match output with
-      | 0 -> state
-      | _ ->
+      | 0 -> let _ = Format.printf "OK @ " in
+        state
+      | i ->
+        let _ = Format.printf "KO %i @ " i in 
         error_handling
           __POS__
           "Cloud synchronization failed"
