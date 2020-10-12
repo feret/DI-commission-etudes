@@ -8,17 +8,31 @@ type dump =
 ?promo:string ->
 ?title:string ->
 ?dpt:string ->
-correct_email:(string -> string) ->
   Gen.dump
 
 module type ReportMentors =
 sig
-  val dump_per_year_mentor_student: dump
-  val dump_per_year_student_mentor: dump
-  val dump_per_promo_mentor_student: dump
-  val dump_per_promo_student_mentor: dump
-  val dump_per_mentor_year_promo_student: dump
-  val dump_per_student: dump
+  val dump_per_year_mentor_student: correct_email:(string -> string) -> dump
+  val dump_per_year_student_mentor: correct_email:(string -> string) -> dump
+  val dump_per_promo_mentor_student: correct_email:(string -> string) -> dump
+  val dump_per_promo_student_mentor: correct_email:(string -> string) -> dump
+  val dump_per_mentor_year_promo_student: correct_email:(string -> string) -> dump
+  val dump_per_student: correct_email:(string -> string) -> dump
+  val dump:
+    ?studentfirstname:string ->
+    ?studentlastname:string ->
+    ?mentorfirstname:string ->
+    ?mentorlastname:string ->
+    ?academicyear:string ->
+    ?attributionyear:string ->
+    ?promo:string ->
+    ?title:string ->
+    ?dpt:string ->
+    ?output_repository:string ->
+    ?prefix:string ->
+    ?file_name:(string -> string -> string) ->
+    Remanent_state.t -> Remanent_state.t
+
 end
 
 module Build
@@ -119,11 +133,11 @@ struct
   let lift_id (a,b) = (a,(fun x -> x),b)
 
   let dump_per_year_mentor_student
+      ~correct_email
       ?studentfirstname ?studentlastname ?mentorfirstname
       ?mentorlastname
       ?academicyear ?attributionyear ?promo
       ?title ?dpt
-      ~correct_email
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
@@ -158,11 +172,11 @@ struct
       cmp headers columns state
 
   let dump_per_year_student_mentor
+      ~correct_email
       ?studentfirstname ?studentlastname ?mentorfirstname
       ?mentorlastname
       ?academicyear ?attributionyear
       ?promo ?title ?dpt
-      ~correct_email
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
@@ -197,10 +211,10 @@ struct
       cmp headers columns state
 
   let dump_per_promo_mentor_student
+      ~correct_email
       ?studentfirstname ?studentlastname ?mentorfirstname
       ?mentorlastname
       ?academicyear ?attributionyear ?promo ?title ?dpt
-      ~correct_email
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
@@ -241,10 +255,10 @@ struct
       cmp headers columns state
 
   let dump_per_promo_student_mentor
+      ~correct_email
       ?studentfirstname ?studentlastname ?mentorfirstname
       ?mentorlastname
       ?academicyear ?attributionyear ?promo ?title ?dpt
-      ~correct_email
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
@@ -279,10 +293,10 @@ struct
 
 
   let dump_per_student
+      ~correct_email
       ?studentfirstname ?studentlastname ?mentorfirstname
       ?mentorlastname
       ?academicyear ?attributionyear ?promo ?title ?dpt
-      ~correct_email
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
@@ -327,10 +341,10 @@ struct
       cmp headers columns state
 
   let dump_per_mentor_year_promo_student
+      ~correct_email
       ?studentfirstname ?studentlastname ?mentorfirstname
       ?mentorlastname
       ?academicyear ?attributionyear ?promo ?title ?dpt
-      ~correct_email
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
@@ -362,9 +376,89 @@ struct
     dump_mentor_list
       ?studentfirstname ?studentlastname ?mentorfirstname
       ?mentorlastname ?academicyear ?attributionyear
-      ?promo ?title ?dpt 
+      ?promo ?title ?dpt
       ?output_repository ?prefix ?file_name
       cmp headers columns state
+
+  let dump
+      ?studentfirstname ?studentlastname ?mentorfirstname
+      ?mentorlastname
+      ?academicyear ?attributionyear ?promo ?title ?dpt
+      ?output_repository ?prefix ?file_name state
+    =
+    let file_name =
+      match file_name with
+      | Some f -> f
+      | None ->
+        begin
+          let new_or_not =
+            match academicyear,attributionyear
+            with
+            | Some y, Some y' when y=y' -> "_nouvelles_affectations"
+            | _, Some y ->
+              Format.sprintf "_affectés_en_%s" y
+            | _, None -> ""
+          in
+          let year =
+            match academicyear with
+            | None -> "all"
+            | Some y -> y
+          in
+          (fun s ext ->
+          Format.sprintf "tuteurs%s_%s%s.%s" new_or_not year s ext)
+        end
+    in
+    let correct_email = fun x -> x in
+    let state,_ =
+      dump_per_year_student_mentor
+        ?studentfirstname ?studentlastname ?mentorfirstname
+        ?mentorlastname
+        ?academicyear ?attributionyear ?promo ?title ?dpt
+        ?output_repository ?prefix
+        ~file_name:(file_name "_par_étudiant" "html")
+        ~correct_email
+        state
+    in
+    let state,_ =
+      dump_per_year_mentor_student
+        ?studentfirstname ?studentlastname
+        ?mentorfirstname ?mentorlastname
+        ?academicyear ?attributionyear ?promo ?title ?dpt
+        ?output_repository ?prefix
+        ~file_name:(file_name "_par_tuteur" "html")
+        ~correct_email
+        state
+    in
+    let correct_email =
+          Special_char.correct_string_email_latex
+    in
+    let state, input =
+      dump_per_year_mentor_student
+        ?studentfirstname ?studentlastname
+        ?mentorfirstname ?mentorlastname
+        ?academicyear ?attributionyear ?promo ?title ?dpt
+        ?output_repository ?prefix
+        ~file_name:(file_name "_par_tuteur" "tex")
+        ~correct_email
+        state
+    in
+    let state =
+      Latex_engine.latex_opt_to_pdf state ~input
+    in
+    let state, input =
+      dump_per_year_student_mentor
+        ?studentfirstname ?studentlastname
+        ?mentorfirstname ?mentorlastname
+        ?academicyear ?attributionyear ?promo ?title ?dpt
+        ?output_repository ?prefix
+        ~file_name:(file_name "par_étudiant" "tex")
+        ~correct_email
+        state
+    in
+    let state =
+      Latex_engine.latex_opt_to_pdf state ~input
+    in
+    state
   end
 
 

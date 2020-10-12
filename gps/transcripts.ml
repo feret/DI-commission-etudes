@@ -3345,15 +3345,32 @@ let heading
                   cursus_map
               with
               | None ->
-                Remanent_state.warn
-                  __POS__
-                  (Printf.sprintf
-                     "internal error, cursus should be stored in cursus_map %s %s %s"
-                     (Tools.unsome_string string_opt)
-                     dpt
-                     who)
-                  Exit
-                  state,
+                let state =
+                  Remanent_state.warn
+                    __POS__
+                    (Printf.sprintf
+                       "internal error, cursus should be stored in cursus_map %s %s %s"
+                       (Tools.unsome_string string_opt)
+                       dpt
+                       who)
+                    Exit
+                    state
+                in
+                let state =
+                  StringOptMap.fold
+                    (fun (string_opt,dpt) _ state ->
+                       Remanent_state.warn
+                         __POS__
+                         (Format.sprintf
+                            "-> %s %s"
+                            (Tools.unsome_string string_opt)
+                            dpt)
+                         Exit
+                         state)
+                    cursus_map
+                    state
+                in
+                state,
                 inscriptions
               | Some (debut,fin) ->
                 try
@@ -3930,7 +3947,7 @@ let program
                       Tools.unsome_string
                         cours.code_cours
                   }
-              in 
+              in
               let state, stage_opt =
                 fetch_stage
                   state
@@ -4480,133 +4497,8 @@ let export_transcript
         gps_file
         additional_courses
     in
-    let state, currentyear =
-      Remanent_state.get_current_academic_year state
-    in
-    let state, nextyear =
-      match next_year currentyear
-      with
-      | None ->
-        Remanent_state.warn
-          __POS__
-          (Format.sprintf "Bad year %s" currentyear)
-          Exit
-          state, currentyear
-      | Some y -> state, y
-    in
-    let state, tuteur =
-      Remanent_state.get_mentoring
-        ~year:nextyear
-        ~lastname
-        ~firstname
-        state
-    in
-    let state, situation =
-      match
-        Public_data.YearMap.find_opt
-          currentyear
-          gps_file.situation
-      with
-      | None ->
-        Remanent_state.warn
-          __POS__
-          (Format.sprintf
-             "Missing situation for current year %s %s" firstname lastname)
-          Exit
-          state,
-        empty_bilan_annuel
-      | Some a -> state, a
-    in
-    let state =
-      match tuteur with
-      | None -> state
-      | Some tuteur ->
-        let state, genre =
-          match
-            gps_file.genre
-          with
-          | None ->
-            Remanent_state.warn
-              __POS__
-              "missing gender"
-              Exit
-              state, Public_data.Unknown
-          | Some a -> state, a in
-        let state, genre_du_tuteur =
-            match
-              tuteur.Public_data.genre_du_tuteur
-            with
-            | None ->
-              Remanent_state.warn
-                __POS__
-                "missing mentor gender"
-                Exit
-                state, Public_data.Unknown
-            | Some a -> state, a in
-        let state, nom_du_tuteur =
-          match
-            tuteur.Public_data.nom_du_tuteur
-          with
-          | None ->
-          Remanent_state.warn
-            __POS__
-            "missing mentor name"
-            Exit
-            state, ""
-          | Some a -> state, a
-        in
-        let state, prenom_du_tuteur =
-          match
-            tuteur.Public_data.prenom_du_tuteur
-          with
-          | None ->
-          Remanent_state.warn
-            __POS__
-            "missing mentor first name"
-            Exit
-            state, ""
-          | Some a -> state, a
-        in
-        let current_dpt =
-          match
-            situation.departement_principal
-          with
-          | Some a ->
-            Special_char.lowercase a
-          | None -> ""
-        in
-        let state =
-          if do_report report
-          && need_a_mentor gps_file
-          then
-          Remanent_state.add_mentor
-            state
-            {
-              Public_data.mentor_gender = genre_du_tuteur;
-              Public_data.mentor_lastname =
-                nom_du_tuteur;
-              Public_data.mentor_firstname =
-                prenom_du_tuteur;
-              Public_data.mentor_academic_year = nextyear;
-              Public_data.mentor_student_promo = promo ;
-              Public_data.mentor_student_gender = genre;
-              Public_data.mentor_student_lastname = lastname ;
-              Public_data.mentor_student_firstname = firstname ;
-              Public_data.mentor_student_dpt =
-                current_dpt ;
-              Public_data.mentor_attribution_year =
-                tuteur.Public_data.annee_academique;
-              Public_data.mentor_email =
-                Tools.unsome_string
-                  tuteur.Public_data.courriel_du_tuteur
-            }
-          else state
-        in
-        state
-    in
     let state, current_year =
-      Remanent_state.get_current_academic_year
-        state
+      Remanent_state.get_current_academic_year state
     in
     let l_rev,_ =
       List.fold_left
@@ -4800,137 +4692,141 @@ let export_transcript
              let l =
                [21.0;11.67;48.33;26.67;7.3;10.00;5.17]
              in
-        let sum =
-          List.fold_left
-            (fun total a -> total+.a)
-            0. l
-        in
-        let state, admission_opt =
-          let year' = next_year year in
-          begin
-            match year' with
-            | Some year ->
-              Remanent_state.get_admission
-                ~firstname
-                ~lastname
-                ~year
-                state
-            | None ->
-              let msg =
-                Format.sprintf
-                  "Illegal year %s for %s (admission)"
-                  year who
-              in
-              let state =
-                Remanent_state.warn
-                  __POS__
-                  msg
-                  Exit
-                  state
-              in
-              state, None
-          end
-        in
-        let nprogram =
-          StringOptMap.cardinal split_cours
-        in
-        let _, dens_pos =
-          StringOptMap.fold
-            (fun (string,_) _ (i,opt) ->
-               match string with
-               | Some "dens" -> (i+1,Some i)
-               | _ -> (i+1,opt)
-            )
-            split_cours
-            (1,None)
-        in
-        let size =
-          List.rev_map
-            (fun a -> Some (a/.(sum*.1.12)))
-            (List.rev l)
-        in
-        let _, state, mean, dens =
-          StringOptMap.fold
-            (fun (string,dpt) list (i,state,mean,dens)
-              ->
-                let state =
-                  if i mod 2 = 1
-                  then
-                    let suite = i<>1 in
-                    let state =
-                      heading
-                        ~who ~firstname ~lastname
-                        ~promo ~origine
-                        ~year ~current_year ~situation ~report
-                        cursus_map split_cours picture_list suite gps_file state
-                    in
-                    let () =
-                      Remanent_state.fprintf
-                        state "\n\ \\vfill\n\ \n\ "
-                    in
-                    state
-                  else state
-                in
-                let
-                  (state,mean,dens)
-                  =
-                  program
-                    ~origine ~string ~dpt ~year ~who
-                    ~alloc_suffix ~mean ~firstname ~lastname ~promo ~cursus_map ~size ~stages ~current_year ~report ~dens
-                    list state
-                in
-                let () =
-                  Remanent_state.fprintf
-                    state "\n\ \\vfill\n\ \n\ "
-                in
-                let () =
-                  if
-                    begin
-                      match
-                        dens_pos
-                      with
-                      | None -> i = nprogram
-                      | Some 1 -> true
-                      | Some p -> i = p-1
-                    end
-                  then
-                    match admission_opt with
-                    | None -> ()
-                    | Some admission ->
-                      let lineproportion = 1. in
-                      let () =
-                        Remanent_state.log
-                          ~lineproportion
-                          state
-                          "\\textbf{%s}"
-                          admission.Public_data.admission_decision
-                      in
-                      let () =
-                        Remanent_state.fprintf
-                          state "\n\ \\vfill\n\ \n\ "
-                      in
-                      ()
-                    in
-                    let state =
-                      if i mod 2 = 0 || i = nprogram
-                      then
-                        let state =
-                          foot signature state
-                        in
-                        let () =
-                          Remanent_state.fprintf
-                            state "\n\ \\vfill\n\ \n\ "
-                        in
-                        state
-                      else
-                        state in
-                    let () =
-                      if i mod 2 = 0 || i = nprogram
-                      then
-                        Remanent_state.fprintf
-                          state "\\pagebreak\n\ "
-                    in
-                    (i+1,state,mean,dens)
+             let sum =
+               List.fold_left
+                 (fun total a -> total+.a)
+                 0. l
+             in
+             let state, admission_opt =
+               let year' = next_year year in
+               begin
+                 match year' with
+                 | Some year ->
+                   Remanent_state.get_admission
+                     ~firstname
+                     ~lastname
+                     ~year
+                     state
+                 | None ->
+                   let msg =
+                     Format.sprintf
+                       "Illegal year %s for %s (admission)"
+                       year who
+                   in
+                   let state =
+                     Remanent_state.warn
+                       __POS__
+                       msg
+                       Exit
+                       state
+                   in
+                   state, None
+               end
+             in
+             let nprogram =
+               StringOptMap.cardinal split_cours
+             in
+             let _, dens_pos =
+               StringOptMap.fold
+                 (fun (string,_) _ (i,opt) ->
+                    match string with
+                    | Some "dens" -> (i+1,Some i)
+                    | _ -> (i+1,opt)
+                 )
+                 split_cours
+                 (1,None)
+             in
+             let size =
+               List.rev_map
+                 (fun a -> Some (a/.(sum*.1.12)))
+                 (List.rev l)
+             in
+             let _, state, mean, dens =
+               StringOptMap.fold
+                 (fun (string,dpt) list (i,state,mean,dens)
+                   ->
+                     let state =
+                       if i mod 2 = 1
+                       then
+                         let suite = i<>1 in
+                         let state =
+                           heading
+                             ~who ~firstname ~lastname
+                             ~promo ~origine
+                             ~year ~current_year ~situation
+                             ~report
+                             cursus_map split_cours picture_list suite gps_file state
+                         in
+                         let () =
+                           Remanent_state.fprintf
+                             state "\n\ \\vfill\n\ \n\ "
+                         in
+                         state
+                       else state
+                     in
+                     let
+                       (state,mean,dens)
+                       =
+                       program
+                         ~origine ~string ~dpt ~year ~who
+                         ~alloc_suffix ~mean ~firstname
+                         ~lastname ~promo ~cursus_map ~size ~stages ~current_year ~report ~dens
+                         list state
+                     in
+                     let () =
+                       Remanent_state.fprintf
+                         state "\n\ \\vfill\n\ \n\ "
+                     in
+                     let () =
+                       if
+                         begin
+                           match
+                             dens_pos
+                           with
+                           | None -> i = nprogram
+                           | Some 1 -> true
+                           | Some p -> i = p-1
+                         end
+                       then
+                         match admission_opt with
+                         | None -> ()
+                         | Some admission ->
+                           let lineproportion = 1. in
+                           let () =
+                             Remanent_state.log
+                               ~lineproportion
+                               state
+                               "\\textbf{%s}"
+                               admission.Public_data.admission_decision
+                           in
+                           let () =
+                             Remanent_state.fprintf
+                               state "\n\ \\vfill\n\ \n\ "
+                           in
+                           ()
+                     in
+                     let state =
+                       if i mod 2 = 0 || i = nprogram
+                       then
+                         let state =
+                           foot signature state
+
+                         in
+
+                         let () =
+                           Remanent_state.fprintf
+                             state "\n\ \\vfill\n\ \n\ "
+                         in
+                         state
+                       else
+                         state in
+                     let () =
+                       if i mod 2 = 0 || i = nprogram
+                       then
+                         Remanent_state.fprintf
+                           state "\\pagebreak\n\ "
+                     in
+                     (i+1,state,mean,dens)
                  )
                  split_cours
                  (1,state,mean,dens)
@@ -4955,139 +4851,177 @@ let export_transcript
       | Some a -> a
       | None -> (0.,0.)
     in
-    let n_inscription =
-      Public_data.YearMap.fold
-        (fun year bilan n_inscription ->
-           if year > current_year
-           then
-             n_inscription
-           else
-             match bilan.inscription_au_DENS with
-           | Some true -> n_inscription + 1
-           | Some false | None -> n_inscription)
-      gps_file.situation
-      0
+    let prevyear y =
+      try
+        Some (string_of_int ((int_of_string y)-1))
+      with
+        _ -> None
+    in
+    let state, p, prev_com_year  =
+      match Remanent_state.get_commission state
+      with
+      | state, Some (a,_) ->
+        state, (fun y -> y<a), prevyear a
+      | state, None ->
+        state, (fun _ -> false), None
+    in
+    let situation =
+      match prev_com_year with
+      | None -> None
+      | Some prev_com_year ->
+        Public_data.YearMap.find_opt
+          prev_com_year
+          gps_file.situation
     in
     let state =
-      if do_report report &&
-         (n_inscription > 0 || dens_total_potential > 0. || dens_total > 0.)
-      then
-        Remanent_state.add_dens
+      match situation with
+      | None -> state
+      | Some situation ->
+        begin
+          let n_inscription =
+            Public_data.YearMap.fold
+              (fun year bilan n_inscription ->
+                 if p year
+                 then
+                   match bilan.inscription_au_DENS with
+                   | Some true -> n_inscription + 1
+                   | Some false | None -> n_inscription
+                 else n_inscription)
+              gps_file.situation
+              0
+          in
+          let state =
+            if do_report report &&
+               (n_inscription > 0 || dens_total_potential > 0.
+                || dens_total > 0.)
+            then
+              Remanent_state.add_dens
+                state
+                {
+                  Public_data.dens_firstname = firstname ;
+                  Public_data.dens_lastname = lastname;
+                  Public_data.dens_promotion = promo;
+                  Public_data.dens_total_ects = dens_total ;
+                  Public_data.dens_current_year_ects =
+                    dens_year ;
+                  Public_data.dens_total_potential_ects =
+                    dens_total_potential ;
+                  Public_data.dens_current_year_potential_ects = dens_year_potential ;
+                  Public_data.dens_nb_inscriptions = n_inscription ;
+                }
+            else
+              state
+          in
+          let list_national_diploma = snd mean in
+          let state =
+            List.fold_left
+              (fun state (key, moyenne_opt, mention_opt)  ->
+                 match
+                   StringOptMap.find_opt key (fst mean)
+                 with
+                 | None -> state
+                 | Some (l,year) ->
+                   let state, total, ects_qui_comptent, ects =
+                     List.fold_left
+                       (fun (state, total, ects_qui_comptent,
+                             ects) data  ->
+                         match data with
+                         | _, None -> state, total,
+                                      ects_qui_comptent, ects
+                         | Some Public_data.Float f, Some
+                             cours_ects ->
+                           state,
+                           total+.f*.cours_ects,
+                           ects_qui_comptent+.cours_ects,
+                           ects+.cours_ects
+                         | Some Public_data.Valide_sans_note,
+                           Some cours_ects  ->
+                           state, total, ects_qui_comptent,
+                           ects+.cours_ects
+                         | (None, _)
+                         | (Some (Public_data.Abandon | Public_data.En_cours | Public_data.Absent),_) ->
+                           (Remanent_state.warn
+                              __POS__
+                              "Incompatible grade"
+                              Exit
+                              state),
+                           total, ects_qui_comptent, ects
+                       )
+                       (state, 0., 0., 0.)
+                       l
+                   in
+                   let mean =
+                     if ects < 60.
+                     then
+                       None
+                     else
+                       Some (total /. ects_qui_comptent)
+                   in
+                   let mention =
+                     match mean with
+                     | None -> None
+                     | Some mean ->
+                       if mean <12. then Some ""
+                       else if mean <14. then Some "Assez Bien"
+                       else if mean <16. then Some "Bien"
+                       else Some "Très bien";
+                   in
+                   let mean =
+                     match
+                       moyenne_opt
+                     with
+                     | None -> mean
+                     | Some _ -> moyenne_opt
+                   in
+                   let mention =
+                     match
+                       mention_opt
+                     with
+                     | None -> mention
+                     | (Some _) -> mention_opt
+                   in
+                   if lpoly situation then
+                     state
+                   else
+                     Remanent_state.add_national_diploma
+                       state
+                       {Public_data.diplome_dpt = (snd key);
+                        Public_data.diplome_niveau =
+                          (match fst key with
+                           | None -> ""
+                           | Some a -> a);
+                        Public_data.diplome_firstname =
+                          firstname ;
+                        Public_data.diplome_lastname =
+                          lastname ;
+                        Public_data.diplome_gender =
+                          begin
+                            match gps_file.genre
+                            with
+                            | Some a -> a
+                            | None -> Public_data.Unknown
+                          end ;
+                        Public_data.diplome_promotion = promo
+                       ;
+                        Public_data.diplome_nb_ects = ects ;
+                        Public_data.diplome_moyenne =
+                          mean ;
+                        Public_data.diplome_year =
+                          string_of_int year ;
+                        Public_data.diplome_mention =
+                          mention
+                       ;
+                        Public_data.diplome_recu =
+                          match mean with
+                          | None -> false
+                          | Some mean -> mean >= 10.
+                       }
+              )
+              state
+              list_national_diploma
+          in
           state
-          {
-            Public_data.dens_firstname = firstname ;
-            Public_data.dens_lastname = lastname;
-            Public_data.dens_promotion = promo;
-            Public_data.dens_total_ects = dens_total ;
-            Public_data.dens_current_year_ects = dens_year ;
-            Public_data.dens_total_potential_ects = dens_total_potential ;
-            Public_data.dens_current_year_potential_ects = dens_year_potential ;
-            Public_data.dens_nb_inscriptions = n_inscription ;
-          }
-      else
-        state
-    in
-    let list_national_diploma = snd mean in
-    let state =
-      List.fold_left
-        (fun state (key, moyenne_opt, mention_opt)  ->
-           match
-             StringOptMap.find_opt key (fst mean)
-           with
-           | None -> state
-           | Some (l,year) ->
-             let state, total, ects_qui_comptent, ects =
-               List.fold_left
-                 (fun (state, total, ects_qui_comptent, ects) data  ->
-                    match data with
-                    | _, None -> state, total, ects_qui_comptent, ects
-                    | Some Public_data.Float f, Some cours_ects ->
-                      state,
-                      total+.f*.cours_ects,
-                      ects_qui_comptent+.cours_ects,
-                      ects+.cours_ects
-                    | Some Public_data.Valide_sans_note, Some cours_ects  ->
-                      state, total, ects_qui_comptent, ects+.cours_ects
-                    | (None, _)
-                    | (Some (Public_data.Abandon | Public_data.En_cours | Public_data.Absent),_) ->
-                        (Remanent_state.warn
-                          __POS__
-                          "Incompatible grade"
-                          Exit
-                          state),
-                        total, ects_qui_comptent, ects
-
-                 )
-                 (state, 0., 0., 0.)
-                 l
-             in
-             let mean =
-               if ects < 60.
-               then
-                 None
-               else
-                 Some (total /. ects_qui_comptent)
-             in
-             let mention =
-               match mean with
-               | None -> None
-               | Some mean ->
-                  if mean <12. then Some ""
-                  else if mean <14. then Some "Assez Bien"
-                  else if mean <16. then Some "Bien"
-                  else Some "Très bien";
-             in
-             let mean =
-               match
-                 moyenne_opt
-               with
-               | None -> mean
-               | Some _ -> moyenne_opt
-             in
-             let mention =
-               match
-                 mention_opt
-               with
-                   | None -> mention
-                   | (Some _) -> mention_opt
-             in
-             if lpoly situation then
-               state
-             else
-               Remanent_state.add_national_diploma
-                 state
-                 {Public_data.diplome_dpt = (snd key);
-                  Public_data.diplome_niveau =
-                    (match fst key with
-                     | None -> ""
-                     | Some a -> a);
-                  Public_data.diplome_firstname =
-                  firstname ;
-                  Public_data.diplome_lastname = lastname ;
-                  Public_data.diplome_gender =
-                    begin
-                      match gps_file.genre
-                      with
-                      | Some a -> a
-                      | None -> Public_data.Unknown
-                    end ;
-                  Public_data.diplome_promotion = promo ;
-                  Public_data.diplome_nb_ects = ects ;
-                  Public_data.diplome_moyenne =
-                    mean ;
-                  Public_data.diplome_year =
-                    string_of_int year ;
-                  Public_data.diplome_mention =
-                    mention
-                 ;
-                  Public_data.diplome_recu =
-                    match mean with
-                    | None -> false
-                    | Some mean -> mean >= 10.
-                 }
-        )
-        state
-        list_national_diploma
+        end
     in
     let state = Remanent_state.close_logger state in
     let state =

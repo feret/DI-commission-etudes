@@ -184,7 +184,7 @@ let next_year year =
   with
   | _ -> year
 
-let dump_pv
+let dump_attestation
   ?output_repository
   ?prefix
   ?output_file_name
@@ -229,7 +229,7 @@ let dump_pv
   let state, output_repository, output_file_name =
     Tools.build_output
       __POS__
-      ~has_promo:false 
+      ~has_promo:false
       ~get_repository
       ~get_store_according_promotion
       ~get_indicate_promotions_in_file_names
@@ -378,7 +378,7 @@ let dump_pv
     let () = Loggers.close_logger logger in
     state, Some (output_repository,output_file_name)
 
-let dump_pvs
+let dump_attestations
     ?recu ?academicyear ?niveau ?dpt
     ?output_repository
     ?prefix
@@ -397,7 +397,7 @@ let dump_pvs
     (fun state diplome ->
        let
          state, input =
-         dump_pv
+         dump_attestation
            ?output_repository
            ?prefix
            diplome

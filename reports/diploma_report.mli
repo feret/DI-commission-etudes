@@ -22,7 +22,7 @@ end
 
 module DiplomaReport: DiplomaReport
 
-val dump_pv:
+val dump_attestation:
   ?output_repository:string ->
   ?prefix:string ->
   ?output_file_name:string ->
@@ -30,7 +30,7 @@ val dump_pv:
   Remanent_state.t ->
   Remanent_state.t * (string * string) option
 
-val dump_pvs:
+val dump_attestations:
   ?recu:bool ->
   ?academicyear:string ->
   ?niveau:string ->

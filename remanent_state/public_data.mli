@@ -28,6 +28,7 @@ type scholarship =
 
 val empty_scholarship: scholarship
 
+module StringMap: Map.S with type key = string
 module DptOptMap : Map.S with type key = string option
 module CodeMap : Map.S with type key = string
 module PromoMap : Map.S with type key = string
@@ -424,3 +425,43 @@ type remove_non_valided_classes =
   | All_but_in_progress
   | All_but_in_progress_in_current_academic_year
   | All_but_in_progress_in_years of annee list
+
+type 'a direction_des_etudes =
+  {
+    direction_initiales: string;
+    direction_nom_complet: string;
+    direction_signature:
+      ('a -> 'a * string) option;
+    direction_titre: string;
+    direction_departement: string;
+  }
+
+type diplome_nat =
+  {
+    dn_key: string;
+    dn_short: string;
+    dn_long: string;
+    dn_universite: string;
+    dn_niveau: string;
+    dn_departement:string;
+  }
+
+type diplome_ens =
+  {
+    dens_key: string; 
+    nb_inscription_list: int list;
+    dens_short: string;
+    which_year_string: string;
+  }
+
+type sous_commission =
+  | Diplome_National of diplome_nat
+  | Diplome_ENS of diplome_ens
+
+type 'a commission =
+  {
+    commission_signataires: 'a direction_des_etudes list;
+    commission_sous_commissions: sous_commission list;
+    commission_long_date: string;
+    commission_year: annee;
+  }

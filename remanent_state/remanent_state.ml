@@ -80,7 +80,7 @@ type parameters =
 let parameters =
   {
     safe_mode = true;
-    log_mkdir = true;
+    log_mkdir = false; 
     cloud_synchronization_mode = Public_data.CommandLine ;
     cloud_client = Public_data.NextCloudCmd ;
     cloud_client_options = "-n --silent" ;
@@ -228,7 +228,7 @@ type t =
     date: string;
   }
 
-let log_mkdir t = t,t.parameters.log_mkdir 
+let log_mkdir t = t,t.parameters.log_mkdir
 
 let get_launching_date t =
   t,t.date
