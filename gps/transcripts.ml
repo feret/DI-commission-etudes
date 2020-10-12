@@ -82,7 +82,13 @@ let max_year = gen_year max
 let addfirstlast state x dispense data map =
   let data = Some data in
   if dispense
-  then state, map
+  then
+    match
+      StringOptMap.find_opt x map
+    with
+    | None ->
+      state, StringOptMap.add x (None,None) map
+    | Some _ -> state, map
   else
     let state, answer =
       match
@@ -3379,13 +3385,14 @@ let heading
                     &&
                     begin
                       match debut with
-                      | None -> true
+                      | None -> false
                       | Some debut ->
                         int_of_string debut <=
                         int_of_string year
                     end
-                    &&                             match fin with
-                    | None -> true
+                    &&
+                    match fin with
+                    | None -> false
                     | Some fin ->
                       int_of_string year <= int_of_string
                         fin
@@ -4585,28 +4592,29 @@ let export_transcript
                    let state,
                        (diplome_key,diplome_label,
                         diplome_dpt,dispense)
-                  =
-                  translate_diplome
-                    ~origine ~situation ~firstname ~lastname
-                    ~year ~code_cours state
-                    elt.diplome
-                in
-                let state, cursus_map =
-                  addfirstlast
-                    state
-                    (diplome_key,diplome_dpt)
-                    dispense
-                    year
-                    cursus_map
-                in
-                state,
-                (
-                  cursus_map,
-                  addmap
-                    (diplome_key,diplome_dpt)
-                    (diplome_label,elt) course_map)
-               | None ->
-                 Remanent_state.warn_dft
+                     =
+                     translate_diplome
+                       ~origine ~situation ~firstname
+                       ~lastname
+                       ~year ~code_cours state
+                       elt.diplome
+                   in
+                   let state, cursus_map =
+                     addfirstlast
+                       state
+                       (diplome_key,diplome_dpt)
+                       dispense
+                       year
+                       cursus_map
+                   in
+                   state,
+                   (
+                     cursus_map,
+                     addmap
+                       (diplome_key,diplome_dpt)
+                       (diplome_label,elt) course_map)
+                 | None ->
+                   Remanent_state.warn_dft
                    __POS__
                    "The code of a course is missing"
                    Exit
