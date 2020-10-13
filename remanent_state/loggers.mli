@@ -19,6 +19,7 @@ type t
 val devnul: t
 val get_encoding_format: t -> encoding
 val fprintf: t -> ('a, Format.formatter, unit) format -> 'a
+val fprintf_verbatim: t -> ('a, Format.formatter, unit) format -> 'a
 val log: ?backgroundcolor:Color.color -> ?textcolor:Color.color ->
   ?lineproportion:float -> t -> ('a, Format.formatter, unit) format -> 'a
 
@@ -71,4 +72,4 @@ val setsignature: t -> string -> unit
 val setpreamble:  t -> string -> unit
 val setfootpage:  t -> ?color:Color.color -> string -> unit
 
-val correct_email: t -> string -> string 
+val correct_email: t -> string -> string

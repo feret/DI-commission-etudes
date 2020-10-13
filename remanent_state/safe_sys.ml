@@ -6,6 +6,9 @@ let is_directory _pos state x =
   state, Sys.is_directory (safe x)
 
 let command pos state s =
+  let () =
+    Format.printf "%s @ " s
+  in
   try
     if Sys.command s = 0
     then
@@ -98,6 +101,11 @@ let readdir _pos state x =
 
 let getcwd _pos state = state, Sys.getcwd ()
 let chdir _pos state x =
+  let () =
+    Format.printf
+      "chdir %s @ "
+      x
+  in
   let () = Sys.chdir x in state
 
 let rm pos state filename =

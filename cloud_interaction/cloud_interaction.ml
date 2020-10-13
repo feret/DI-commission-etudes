@@ -50,7 +50,7 @@ let synchronize_shared_repository
       | 0 -> let _ = Format.printf "OK @ " in
         state
       | i ->
-        let _ = Format.printf "KO %i @ " i in 
+        let _ = Format.printf "KO %i @ " i in
         error_handling
           __POS__
           "Cloud synchronization failed"
@@ -137,6 +137,7 @@ let get_dated_repository state =
         else
           state
       in
+      let _ = Format.printf "%s %s %s @ " rep date courant in  
       let full_output_rep, full_courant =
         match rep with
         | "" -> date,"courant"

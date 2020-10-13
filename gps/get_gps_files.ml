@@ -253,7 +253,7 @@ let copy
   let state, _, input_file_name =
     build_output
       __POS__
-      ~has_promo:true 
+      ~has_promo:true
       ~f_firstname ~f_lastname student_id ?prefix
       ~output_repository ~output_file_name
       ~extension:".gps.csv" state
@@ -738,20 +738,7 @@ let patch_student_csv
     | h::t ->
       step1 state t (h::output)
     | [] ->
-      let output =
-        List.fold_left
-          (fun output elt -> elt::output)
-          output
-          residual
-      in
-      let state =
-        Remanent_state.warn
-          __POS__
-          "Ill-formed GPS file"
-          Exit
-          state
-      in
-      state, output
+      state, List.rev output
   and
     step2 state residual output =
     match residual with
@@ -766,12 +753,6 @@ let patch_student_csv
     | _::t ->
       step2 state t output
     | [] ->
-      let output =
-        List.fold_left
-          (fun output elt -> elt::output)
-          output
-          residual
-      in
       let state =
         Remanent_state.warn
           __POS__
@@ -779,7 +760,7 @@ let patch_student_csv
           Exit
           state
       in
-      state, output
+      state, List.rev output
   in
   step1 state csv []
 

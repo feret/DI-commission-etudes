@@ -451,7 +451,7 @@ struct
         ?mentorfirstname ?mentorlastname
         ?academicyear ?attributionyear ?promo ?title ?dpt
         ?output_repository ?prefix
-        ~file_name:(file_name "par_étudiant" "tex")
+        ~file_name:(file_name "_par_étudiant" "tex")
         ~correct_email
         state
     in

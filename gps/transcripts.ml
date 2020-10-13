@@ -37,9 +37,9 @@ let dpt_maths_gps_name = "mathematiques et applications"
 let acro_dpt_phys = "PHYS"
 let acro_dpt_info = "DI"
 let acro_dpt_maths = "DMA"
-let dpt_info_full = "DÃ©partement d'Informatique"
-let dpt_maths_full = "DÃ©partement de MathÃ©matiques et Applications"
-let dpt_phys_full = "DÃ©partement de Physique"
+let dpt_info_full = "Département d'Informatique"
+let dpt_maths_full = "Département de Mathématiques et Applications"
+let dpt_phys_full = "Département de Physique"
 
 let simplify_string s =
   Special_char.lowercase
@@ -229,9 +229,9 @@ let string_of_origin_opt a =
    | Some Public_data.Info -> "CPGE Informatique"
    | Some Public_data.Mpi -> "CPGE Math-Physique-Info"
    | Some Public_data.Pc  -> "CPGE Physique-Chimie"
-   | Some Public_data.PensionnaireEtranger -> "Pensionnaire Ã‰tranger"
-   | Some Public_data.Psi -> "CPGE Physique-Sciences de l'IngÃ©nieur"
-   | Some Public_data.Sis -> "sÃ©lection Internationale"
+   | Some Public_data.PensionnaireEtranger -> "Pensionnaire Étranger"
+   | Some Public_data.Psi -> "CPGE Physique-Sciences de l'Ingénieur"
+   | Some Public_data.Sis -> "sélection Internationale"
    | Some Public_data.M_MPRI -> "Master Parisien de recherche en informatique"
 
 let string_of_origin_short_opt a =
@@ -242,7 +242,7 @@ let string_of_origin_short_opt a =
   | Some Public_data.Info -> "Info"
   | Some Public_data.Mpi -> "MPI"
   | Some Public_data.Pc  -> "PC"
-  | Some Public_data.PensionnaireEtranger -> "Pensionnaire Ã‰tranger"
+  | Some Public_data.PensionnaireEtranger -> "Pensionnaire Étranger"
   | Some Public_data.Psi -> "PSI"
   | Some Public_data.Sis -> "SI"
   | Some Public_data.M_MPRI -> "MPRI"
@@ -445,7 +445,7 @@ let log_stage state stage =
   in
   let state =
     log_string state
-      ("validÃ©", valide)
+      ("validé", valide)
   in
   let state =
       log_bool
@@ -518,10 +518,10 @@ let log_bilan_annuel state bilan =
       [
         "situation administrative",
         bilan.situation_administrative;
-        "programme d'Ã©tudes",bilan.programme_d_etudes;
-        "dÃ©partement principal",
+        "programme d'études",bilan.programme_d_etudes;
+        "département principal",
         bilan.departement_principal;
-        "dÃ©partement secondaire",
+        "département secondaire",
         bilan.departement_secondaire;
         "code_option",
         bilan.code_option;
@@ -1429,7 +1429,7 @@ let statuts =
     Public_data.Hors_GPS,["hors gps"];
   ]
 
-let gen_fetch_opt_of_string_opt ?who list err pos state s_opt =
+let gen_fetch_opt_of_string_opt ?who ?gps_file list err pos state s_opt =
   match s_opt with
   | None -> state, None
   | Some s ->
@@ -1440,16 +1440,31 @@ let gen_fetch_opt_of_string_opt ?who list err pos state s_opt =
       let rec aux state l =
         match l with
         | [] ->
-          let msg =
+          let who =
             match who with
+            | Some who -> who
             | None ->
-              Format.sprintf
-                "Ill-formed %s (%s)"
-                err s
-            | Some who ->
+              begin
+                match gps_file with
+                | None -> ""
+                | Some gps ->
+                    Format.sprintf
+                      "%s %s %s"
+                      (Tools.unsome_string gps.nom)
+                      (Tools.unsome_string gps.prenom)
+                      (Tools.unsome_string gps.promotion)
+              end
+          in
+          let who =
+            let who = String.trim who in
+            if who = "" then ""
+            else Format.sprintf " for %s" who
+          in
+          let msg =
             Format.sprintf
-              "Ill-formed %s (%s for %s)"
-              err s who
+              "Ill-formed %s (%s%s)"
+              err s
+              who
           in
           Remanent_state.warn_dft
             pos
@@ -1466,8 +1481,8 @@ let gen_fetch_opt_of_string_opt ?who list err pos state s_opt =
       in
       aux state list
 
-let statut_opt_of_string_opt ?who =
-  gen_fetch_opt_of_string_opt ?who statuts "status"
+let statut_opt_of_string_opt ?who ?gps_file  =
+  gen_fetch_opt_of_string_opt ?who ?gps_file statuts "status"
 
 let origines =
   [
@@ -1495,8 +1510,8 @@ let concours =
     Public_data.M_MPRI,[]
   ]
 
-let origin_opt_of_string_opt ?who =
-  gen_fetch_opt_of_string_opt ?who origines "origin"
+let origin_opt_of_string_opt ?who ?gps_file =
+  gen_fetch_opt_of_string_opt ?who ?gps_file origines "origin"
 
 let origin_opt_of_concours ?who =
   gen_fetch_opt_of_string_opt ?who concours "concours"
@@ -1597,14 +1612,14 @@ let asso_list =
       lift_gps_state
         (fun state origine gps_file ->
           let state, origine =
-            origin_opt_of_string_opt __POS__ state origine
+            origin_opt_of_string_opt __POS__ ~gps_file state origine
           in
           state,{gps_file with origine});
       Public_data.Statut,
       lift_gps_state
         (fun state genre gps_file ->
            let state, statut =
-             statut_opt_of_string_opt __POS__ state genre
+             statut_opt_of_string_opt __POS__ ~gps_file state genre
            in
            state,{gps_file with statut});
       Public_data.Annee_en_Cours,
@@ -1961,7 +1976,8 @@ let state, output =
   match
     list
   with
-  | [a] -> state, Some a.gps_file
+  | [a] ->
+    state, Some a.gps_file
   | _ ->
     let msg =
       Printf.sprintf
@@ -2310,7 +2326,7 @@ let translate_diplome
         let dpt =
           match dpt.Public_data.dpt_acronyme with
           | "DI" -> "informatique"
-          | "DMA" -> "mathÃ©matiques"
+          | "DMA" -> "mathématiques"
           | "PHYS" -> "physique"
           | _ -> ""
         in
@@ -2347,16 +2363,16 @@ let translate_diplome
     | Some dpt, _  ->
       let dpt = Special_char.lowercase dpt in
       let dpt =
-        if dpt = "mathÃ©matiques et applications"
+        if dpt = "mathématiques et applications"
         then
-          "mathÃ©matiques"
+          "mathématiques"
         else
           dpt
       in
       if label = "L3" || label ="M1"
       then
         let state, (dpt, diplome)  =
-          if dpt = "mathÃ©matiques"
+          if dpt = "mathématiques"
           && not (is_dma_course code_cours year)
           then
             if is_di_course code_cours year
@@ -2398,21 +2414,21 @@ let translate_diplome
       if lpoly situation
       then
         check_dpt __POS__ state origine "L"
-          "Bachelor de l'Ã‰cole Polytechnique"
+          "Bachelor de l'École Polytechnique"
           code_cours year
           situation
       else
       if lerasmus origine
       then
         check_dpt __POS__ state origine "L"
-          "AnnÃ©e d'Ã©change"
+          "Année d'échange"
           code_cours year
           situation
       else
       if lpe origine
       then
       check_dpt __POS__ state origine "L"
-        "AnnÃ©e d'Ã©change"
+        "Année d'échange"
         code_cours year
         situation
       else
@@ -2421,7 +2437,7 @@ let translate_diplome
         if is_dma_course code_cours year
         then
           state,
-          (Some "L","L3 de mathÃ©matiques",dpt_maths,false)
+          (Some "L","L3 de mathématiques",dpt_maths,false)
         else
           state,
           (Some "L","L3 de physique",dpt_phys,false)
@@ -2431,7 +2447,7 @@ let translate_diplome
         if is_dma_course code_cours year
         then
           state,
-          (Some "L","L3 de mathÃ©matiques",dpt_maths,false)
+          (Some "L","L3 de mathématiques",dpt_maths,false)
         else
           state,
           (Some "L","L3 d'informatique",dpt_info,false)
@@ -2442,7 +2458,7 @@ let translate_diplome
     end
   | Some "M" ->
     if mmaths situation then
-      state, (Some "M","M1 de mathÃ©matiques",dpt_maths,false)
+      state, (Some "M","M1 de mathématiques",dpt_maths,false)
     else
     if mpri situation then
       state, (Some "MPRI","M2 du MPRI",dpt_info,false)
@@ -2814,7 +2830,7 @@ let get_origine who promo gps_file state =
           match l with
           | [] -> state, None
           | h::t ->
-            if h.grade = Some "Concours d'entrÃ©e ENS"
+            if h.grade = Some "Concours d'entrée ENS"
             then
               origin_opt_of_concours
                 ~who __POS__ state
@@ -3123,14 +3139,14 @@ let heading
     || lpe origine
     then
       state,
-      "AnnÃ©e d'Ã©tude au dÃ©partement d'informatique",
+      "Année d'étude au département d'informatique",
       None
     else
       match
         situation.nannee
       with
       | None ->
-        state, "CÃ©sure", None
+        state, "Césure", None
       | Some i ->
         begin
           let is_suite =
@@ -3141,27 +3157,27 @@ let heading
           let state, prefix =
             match i with
             | 1 -> state,
-                   Format.sprintf "PremiÃ¨re annÃ©e %s:"
+                   Format.sprintf "Première année %s:"
                      is_suite
             | 2 -> state,
-                   Format.sprintf "Seconde annÃ©e %s :"
+                   Format.sprintf "Seconde année %s :"
                     is_suite
             | 3 -> state,
-                   Format.sprintf "TroisiÃ¨me annÃ©e %s :" is_suite
+                   Format.sprintf "Troisième année %s :" is_suite
             | 4 -> state,
-                   Format.sprintf "QuatriÃ¨me annÃ©e %s:"
+                   Format.sprintf "Quatrième année %s:"
                      is_suite
             | _ ->
               let msg =
                 Printf.sprintf
-                  "max 4 ans de scolaritÃ© pour %s"
+                  "max 4 ans de scolarité pour %s"
                   who
               in
               Remanent_state.warn_dft
                 __POS__
                 msg
                 Exit
-                ((string_of_int i)^"Ã¨me annÃ©e :")
+                ((string_of_int i)^"ème année :")
                 state
           in
           let state, suffix, nationaux_opt
@@ -3211,10 +3227,10 @@ let heading
               in
               state,
               Printf.sprintf
-                "Cursus maths-info et rattachÃ©%s au %s"
+                "Cursus maths-info et rattaché%s au %s"
                 genre dpt,
               Some
-                "Licence L3 Info et L3 Maths UniversitÃ© Paris Diderot"
+                "Licence L3 Info et L3 Maths Université Paris Diderot"
             else if
               lmathphys situation
             then
@@ -3260,7 +3276,7 @@ let heading
               in
               state,
               Printf.sprintf
-                "Cursus maths-physique et rattachÃ© au %s" dpt,
+                "Cursus maths-physique et rattaché au %s" dpt,
               Some "maths-phys"
             else
               let state, string =
@@ -3282,7 +3298,7 @@ let heading
     | Some true ->
       begin
         match nationaux_opt with
-        | Some _ -> state, ["DiplÃ´me de  l'ENS"]
+        | Some _ -> state, ["Diplôme de  l'ENS"]
         | _ ->
           let state, cursus_opt =
             if lmath situation
@@ -4008,7 +4024,7 @@ let program
                   | None -> ""
                   | Some a ->
                     if l = "" && sujet=""
-                    then a else "\\newline dirigÃ© par  "^a
+                    then a else "\\newline dirigé par  "^a
                 in
                 state,
                 Some
@@ -4197,7 +4213,7 @@ let program
                      "\\fpeval{\\mean<16} = 1 ",
                    "Mention : \\textbf{Bien}";
                  ]
-                 ~otherwise:"Mention : \\textbf{TrÃ¨s Bien}"]
+                 ~otherwise:"Mention : \\textbf{Très Bien}"]
               ~otherwise:""
           in
           match mention_opt with
@@ -4236,7 +4252,7 @@ let program
           Format.sprintf "ECTS : %s " total_ects;
         ]
         ~otherwise:(Format.sprintf
-                      "ECTS (cumulÃ©s) : %s"
+                      "ECTS (cumulés) : %s"
                       total_ects)
     in
     let potential_ects_string  =
@@ -4262,11 +4278,11 @@ let program
     | None, _ -> ""
     | Some a, None ->
       Format.sprintf
-        "DÃ©cision de %s \n\n"
+        "Décision de %s \n\n"
         a
     | Some a, Some b ->
       Format.sprintf
-        "DÃ©cision de %s du %s \n\n"
+        "Décision de %s du %s \n\n"
         a b
   in
   let decision =
@@ -4689,6 +4705,12 @@ let export_transcript
         (state, StringOptMap.empty, [])
         l_rev
     in
+    let l =
+      match l with
+      | [] ->
+        [current_year, empty_bilan_annuel, StringOptMap.empty]
+      | _ -> l
+    in
     let state,mean,dens =
       List.fold_left
         (fun (state,mean,dens) (year,situation,split_cours) ->
@@ -4972,7 +4994,7 @@ let export_transcript
                        if mean <12. then Some ""
                        else if mean <14. then Some "Assez Bien"
                        else if mean <16. then Some "Bien"
-                       else Some "TrÃ¨s bien";
+                       else Some "Très bien";
                    in
                    let mean =
                      match

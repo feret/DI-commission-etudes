@@ -118,6 +118,7 @@ let fprintf ?fprintnewline:(fprintnewline=false) logger =
          logger.current_line <- (String (if bool then str else clean_string str) )::logger.current_line)
       fmt_buffer
 
+let fprintf_verbatim  logger = fprintf ~fprintnewline:false logger
 let fprintf ?fprintnewline:(fprintnewline=false) logger =
   match logger.encoding with
   | Latex _ | Latex_encapsulated ->
