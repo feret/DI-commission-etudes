@@ -31,15 +31,19 @@ module StringOptMap =
 let dpt_maths = "mathematiques"
 let dpt_info = "informatique"
 let dpt_phys = "physique"
+let dpt_bio = "biologie"
 let dpt_info_gps_name = dpt_info
 let dpt_phys_gps_name = dpt_phys
 let dpt_maths_gps_name = "mathematiques et applications"
+let dpt_bio_gps_name = dpt_bio
 let acro_dpt_phys = "PHYS"
 let acro_dpt_info = "DI"
 let acro_dpt_maths = "DMA"
-let dpt_info_full = "Département d'Informatique"
-let dpt_maths_full = "Département de Mathématiques et Applications"
-let dpt_phys_full = "Département de Physique"
+let acro_dpt_bio = "IBENS"
+let dpt_info_full = "DÃ©partement d'Informatique"
+let dpt_maths_full = "DÃ©partement de MathÃ©matiques et Applications"
+let dpt_phys_full = "DÃ©partement de Physique"
+let dpt_bio_full = "Institut de Biologie"
 
 let simplify_string s =
   Special_char.lowercase
@@ -229,9 +233,9 @@ let string_of_origin_opt a =
    | Some Public_data.Info -> "CPGE Informatique"
    | Some Public_data.Mpi -> "CPGE Math-Physique-Info"
    | Some Public_data.Pc  -> "CPGE Physique-Chimie"
-   | Some Public_data.PensionnaireEtranger -> "Pensionnaire Étranger"
-   | Some Public_data.Psi -> "CPGE Physique-Sciences de l'Ingénieur"
-   | Some Public_data.Sis -> "sélection Internationale"
+   | Some Public_data.PensionnaireEtranger -> "Pensionnaire Ã‰tranger"
+   | Some Public_data.Psi -> "CPGE Physique-Sciences de l'IngÃ©nieur"
+   | Some Public_data.Sis -> "sÃ©lection Internationale"
    | Some Public_data.M_MPRI -> "Master Parisien de recherche en informatique"
 
 let string_of_origin_short_opt a =
@@ -242,7 +246,7 @@ let string_of_origin_short_opt a =
   | Some Public_data.Info -> "Info"
   | Some Public_data.Mpi -> "MPI"
   | Some Public_data.Pc  -> "PC"
-  | Some Public_data.PensionnaireEtranger -> "Pensionnaire Étranger"
+  | Some Public_data.PensionnaireEtranger -> "Pensionnaire Ã‰tranger"
   | Some Public_data.Psi -> "PSI"
   | Some Public_data.Sis -> "SI"
   | Some Public_data.M_MPRI -> "MPRI"
@@ -445,7 +449,7 @@ let log_stage state stage =
   in
   let state =
     log_string state
-      ("validé", valide)
+      ("validÃ©", valide)
   in
   let state =
       log_bool
@@ -518,10 +522,10 @@ let log_bilan_annuel state bilan =
       [
         "situation administrative",
         bilan.situation_administrative;
-        "programme d'études",bilan.programme_d_etudes;
-        "département principal",
+        "programme d'Ã©tudes",bilan.programme_d_etudes;
+        "dÃ©partement principal",
         bilan.departement_principal;
-        "département secondaire",
+        "dÃ©partement secondaire",
         bilan.departement_secondaire;
         "code_option",
         bilan.code_option;
@@ -1153,11 +1157,11 @@ let store_gen_fields
           updated
           list_bool
       in
-        set_bilan_annuel
-          state
-          current_file
-          year
-          updated
+      set_bilan_annuel
+        state
+        current_file
+        year
+        updated
   in
   state,
   current_file,
@@ -2180,15 +2184,15 @@ let translate_dpt state d =
   | Some s ->
     begin
       match simplify_string s with
-      | x when x=dpt_info  -> state, dpt_info_full
+      | x when x=dpt_info -> state, dpt_info_full
       | x when x=dpt_maths -> state, dpt_maths_full
-      | x when x=dpt_phys  -> state, dpt_phys_full
+      | x when x=dpt_phys -> state, dpt_phys_full
+      | x when x=dpt_bio -> state, dpt_bio_full
       | x -> state,
              Printf.sprintf
-               "Departement de %s"
+               "DÃ©partement de %s"
                (Special_char.capitalize
-                  (Special_char.lowercase x
-                  ))
+                  (Special_char.lowercase x))
     end
 
 let keep_class state filter year note =
@@ -2274,7 +2278,7 @@ let is_dma_course code_cours year =
   begin
     try
       let i = int_of_string year in
-      if i <= 2015 then code_cours = "INFO-L3-MIIME-S2"
+      if i <= 2015 then code_cours = "INFO-L3-MIIMC-S2"
       else if i <= 2018 then code_cours = "INFO-L3-THEOIC-S2"
       else code_cours = "INFO-L3-APPREN-S2"
     with
@@ -2326,7 +2330,7 @@ let translate_diplome
         let dpt =
           match dpt.Public_data.dpt_acronyme with
           | "DI" -> "informatique"
-          | "DMA" -> "mathématiques"
+          | "DMA" -> "mathÃ©matiques"
           | "PHYS" -> "physique"
           | _ -> ""
         in
@@ -2363,16 +2367,16 @@ let translate_diplome
     | Some dpt, _  ->
       let dpt = Special_char.lowercase dpt in
       let dpt =
-        if dpt = "mathématiques et applications"
+        if dpt = "mathÃ©matiques et applications"
         then
-          "mathématiques"
+          "mathÃ©matiques"
         else
           dpt
       in
       if label = "L3" || label ="M1"
       then
         let state, (dpt, diplome)  =
-          if dpt = "mathématiques"
+          if dpt = "mathÃ©matiques"
           && not (is_dma_course code_cours year)
           then
             if is_di_course code_cours year
@@ -2414,21 +2418,21 @@ let translate_diplome
       if lpoly situation
       then
         check_dpt __POS__ state origine "L"
-          "Bachelor de l'École Polytechnique"
+          "Bachelor de l'Ã‰cole Polytechnique"
           code_cours year
           situation
       else
       if lerasmus origine
       then
         check_dpt __POS__ state origine "L"
-          "Année d'échange"
+          "AnnÃ©e d'Ã©change"
           code_cours year
           situation
       else
       if lpe origine
       then
       check_dpt __POS__ state origine "L"
-        "Année d'échange"
+        "AnnÃ©e d'Ã©change"
         code_cours year
         situation
       else
@@ -2437,7 +2441,7 @@ let translate_diplome
         if is_dma_course code_cours year
         then
           state,
-          (Some "L","L3 de mathématiques",dpt_maths,false)
+          (Some "L","L3 de mathÃ©matiques",dpt_maths,false)
         else
           state,
           (Some "L","L3 de physique",dpt_phys,false)
@@ -2447,7 +2451,7 @@ let translate_diplome
         if is_dma_course code_cours year
         then
           state,
-          (Some "L","L3 de mathématiques",dpt_maths,false)
+          (Some "L","L3 de mathÃ©matiques",dpt_maths,false)
         else
           state,
           (Some "L","L3 d'informatique",dpt_info,false)
@@ -2458,7 +2462,7 @@ let translate_diplome
     end
   | Some "M" ->
     if mmaths situation then
-      state, (Some "M","M1 de mathématiques",dpt_maths,false)
+      state, (Some "M","M1 de mathÃ©matiques",dpt_maths,false)
     else
     if mpri situation then
       state, (Some "MPRI","M2 du MPRI",dpt_info,false)
@@ -2498,6 +2502,8 @@ let color_of_dpt who pos state dpt origine =
   then state, Some Color.orange
   else if dpt = dpt_phys
   then state, Some Color.duckblue
+  else if dpt = dpt_bio
+  then state, Some Color.green
   else
     let msg =
       Format.sprintf "Unknown departement (%s) for %s"
@@ -2516,12 +2522,14 @@ let acro_of_dpt who pos state dpt origine =
   then
     state, None
   else
-  if dpt = dpt_info
+  if List.mem dpt [dpt_info;dpt_info_gps_name]
   then state, Some acro_dpt_info
-  else if dpt = dpt_maths
+  else if List.mem dpt [dpt_maths;dpt_maths_gps_name]
   then state, Some acro_dpt_maths
-  else if dpt = dpt_phys
+  else if List.mem dpt [dpt_phys;dpt_phys_gps_name]
   then state, Some acro_dpt_phys
+  else if List.mem dpt [dpt_bio;dpt_bio_gps_name]
+  then state, Some acro_dpt_bio
   else
     let msg =
       Format.sprintf "Unknown departement (%s) for %s"
@@ -2545,6 +2553,8 @@ let dpt_of_acro who pos state dpt origine =
   then state, Some dpt_maths
   else if dpt = acro_dpt_phys
   then state, Some dpt_phys
+  else if dpt = acro_dpt_bio
+  then state, Some dpt_bio
   else
     let msg =
       Format.sprintf "Unknown departement (%s) for %s"
@@ -2759,40 +2769,42 @@ let add_dens year compensation course map =
       | Some false -> map
       | None -> add_dens_potential year course map
 
-let add_mean_empty key year map =
+let add_mean_empty state key year map =
   let old,y =
     match StringOptMap.find_opt key (fst map)
     with
     | None -> [],0
     | Some a -> a
   in
-  StringOptMap.add key (old, max y year) (fst map),
-  snd map
+  state,
+  (StringOptMap.add key (old, max y year) (fst map),
+   snd map)
 
-let add_mean_ok key course year map =
+let add_mean_ok state key course year map =
   let old,y =
     match StringOptMap.find_opt key (fst map)
     with
     | None -> [],0
     | Some a -> a
   in
-  StringOptMap.add key
+  state, (StringOptMap.add key
     ((course.note, course.ects)::old, max y year) (fst map),
-  snd map
+          snd map)
 
-let add_mean key compensation course year map =
+let add_mean state key compensation course year map =
   match compensation, course.note with
-  | Some _, _ -> add_mean_ok key course year map
-  | None,None -> map
+  | Some _, _ -> add_mean_ok state key course year map
+  | None,None -> state, map
   | None,Some note ->
       match
         Notes.valide note
       with
-      | Some true -> add_mean_ok key course year map
-      | Some false | None -> map
+      | Some true -> add_mean_ok state key course year map
+      | Some false | None ->
+        state, map
 
-let add_mean_diplome d mean_opt mention_opt year mean =
-  add_mean_empty
+let add_mean_diplome state d mean_opt mention_opt year mean =
+  add_mean_empty state
     d year (fst mean, (d,mean_opt,mention_opt)::(snd mean))
 
 let get_origine who promo gps_file state =
@@ -2830,7 +2842,7 @@ let get_origine who promo gps_file state =
           match l with
           | [] -> state, None
           | h::t ->
-            if h.grade = Some "Concours d'entrée ENS"
+            if h.grade = Some "Concours d'entrÃ©e ENS"
             then
               origin_opt_of_concours
                 ~who __POS__ state
@@ -2842,7 +2854,7 @@ let get_origine who promo gps_file state =
 
 let heading
     ~who ~firstname ~lastname ~promo ~origine
-    ~year ~current_year ~situation ~report
+    ~year ~situation ~tuteur
     cursus_map split_cours picture_list is_suite gps_file state =
   let genre,er,_ne =
     match gps_file.genre with
@@ -2959,152 +2971,7 @@ let heading
   let () =
     Remanent_state.print_newline state
   in
-  let state, tuteur =
-    Remanent_state.get_mentoring
-      ~year
-      ~lastname
-      ~firstname
-      state
-  in
-  let state, (tuteur, lineproportion) =
-    match tuteur with
-    | None ->
-      let state =
-        Remanent_state.add_missing_mentor
-          state
-          {
-            Public_data.missing_mentor_firstname=firstname;
-            Public_data.missing_mentor_lastname=lastname;
-            Public_data.missing_mentor_year=year;
-            Public_data.missing_mentor_promotion=promo;
-          }
-      in
-      state,
-      ("",1.)
-    | Some tuteur ->
-      let state, genre =
-        match
-          gps_file.genre
-        with
-        | None ->
-          Remanent_state.warn
-            __POS__
-            "missing gender"
-            Exit
-            state, Public_data.Unknown
-        | Some a -> state, a in
-      let state, genre_du_tuteur =
-        match
-          tuteur.Public_data.genre_du_tuteur
-        with
-        | None ->
-          Remanent_state.warn
-            __POS__
-            "missing mentor gender"
-            Exit
-            state, Public_data.Unknown
-        | Some a -> state, a in
-      let state, nom_du_tuteur =
-        match
-          tuteur.Public_data.nom_du_tuteur
-        with
-        | None ->
-          Remanent_state.warn
-            __POS__
-            "missing mentor name"
-            Exit
-            state, ""
-        | Some a -> state, a
-      in
-      let state, prenom_du_tuteur =
-        match
-          tuteur.Public_data.prenom_du_tuteur
-        with
-        | None ->
-          Remanent_state.warn
-            __POS__
-            "missing mentor first name"
-            Exit
-            state, ""
-        | Some a -> state, a
-      in
-      let current_dpt =
-        match
-          situation.departement_principal
-        with
-        | Some a ->
-          Special_char.lowercase a
-        | None -> ""
-      in
-      let state =
-        if do_report report &&
-           (year <= current_year ||
-            need_a_mentor gps_file)
-        then
-          Remanent_state.add_mentor
-            state
-            {Public_data.mentor_attribution_year =
-               tuteur.Public_data.annee_academique;
-              Public_data.mentor_gender =
-                genre_du_tuteur;
-              Public_data.mentor_lastname =
-                nom_du_tuteur;
-              Public_data.mentor_firstname
-              =
-                prenom_du_tuteur;
-              Public_data.mentor_academic_year = year;
-              Public_data.mentor_student_promo = promo ;
-              Public_data.mentor_student_gender = genre;
-              Public_data.mentor_student_lastname =
-                lastname ;
-              Public_data.mentor_student_firstname = firstname ;
-              Public_data.mentor_student_dpt =
-                current_dpt ;
-             Public_data.mentor_email =
-               Tools.unsome_string
-                 tuteur.Public_data.courriel_du_tuteur ;
-            }
-        else state
-      in
-      begin
-        match
-          tuteur.Public_data.nom_du_tuteur,           tuteur.Public_data.prenom_du_tuteur,
-          tuteur.Public_data.genre_du_tuteur,
-          tuteur.Public_data.courriel_du_tuteur
-        with
-        | None, (None | Some _),
-          (None | Some _), None ->
-          let msg =
-            Printf.sprintf
-              "Tuteur inconnu pour %s"
-              who
-          in
-          Remanent_state.warn_dft
-            __POS__
-            msg
-            Exit
-            ("",1.)
-            state
-        | Some x, Some y, Some z, _ ->
-          state,
-          (Printf.sprintf
-             "%s %s %s"
-             (match z with
-              | Public_data.Masculin ->
-                "Tuteur : "
-              | Public_data.Feminin ->
-                "Tutrice : "
-              | Public_data.Unknown -> "")
-             (Special_char.capitalize y)
-             (Special_char.uppercase x),
-           2./.3.
-          )
-        | None, _, _, Some x ->
-          state, (x, 2./.3.)
-        | Some x, _, _, _ ->
-          state, (x, 2./.3.)
-      end
-  in
+  let tuteur, lineproportion = tuteur in
   let backgroundcolor =
     match
       situation.nannee
@@ -3139,14 +3006,14 @@ let heading
     || lpe origine
     then
       state,
-      "Année d'étude au département d'informatique",
+      "AnnÃ©e d'Ã©tude au dÃ©partement d'informatique",
       None
     else
       match
         situation.nannee
       with
       | None ->
-        state, "Césure", None
+        state, "CÃ©sure", None
       | Some i ->
         begin
           let is_suite =
@@ -3157,27 +3024,27 @@ let heading
           let state, prefix =
             match i with
             | 1 -> state,
-                   Format.sprintf "Première année %s:"
+                   Format.sprintf "PremiÃ¨re annÃ©e %s:"
                      is_suite
             | 2 -> state,
-                   Format.sprintf "Seconde année %s :"
+                   Format.sprintf "Seconde annÃ©e %s :"
                     is_suite
             | 3 -> state,
-                   Format.sprintf "Troisième année %s :" is_suite
+                   Format.sprintf "TroisiÃ¨me annÃ©e %s :" is_suite
             | 4 -> state,
-                   Format.sprintf "Quatrième année %s:"
+                   Format.sprintf "QuatriÃ¨me annÃ©e %s:"
                      is_suite
             | _ ->
               let msg =
                 Printf.sprintf
-                  "max 4 ans de scolarité pour %s"
+                  "max 4 ans de scolaritÃ© pour %s"
                   who
               in
               Remanent_state.warn_dft
                 __POS__
                 msg
                 Exit
-                ((string_of_int i)^"ème année :")
+                ((string_of_int i)^"Ã¨me annÃ©e :")
                 state
           in
           let state, suffix, nationaux_opt
@@ -3227,10 +3094,10 @@ let heading
               in
               state,
               Printf.sprintf
-                "Cursus maths-info et rattaché%s au %s"
+                "Cursus maths-info et rattachÃ©%s au %s"
                 genre dpt,
               Some
-                "Licence L3 Info et L3 Maths Université Paris Diderot"
+                "Licence L3 Info et L3 Maths UniversitÃ© Paris Diderot"
             else if
               lmathphys situation
             then
@@ -3276,7 +3143,7 @@ let heading
               in
               state,
               Printf.sprintf
-                "Cursus maths-physique et rattaché au %s" dpt,
+                "Cursus maths-physique et rattachÃ© au %s" dpt,
               Some "maths-phys"
             else
               let state, string =
@@ -3298,7 +3165,7 @@ let heading
     | Some true ->
       begin
         match nationaux_opt with
-        | Some _ -> state, ["Diplôme de  l'ENS"]
+        | Some _ -> state, ["DiplÃ´me de  l'ENS"]
         | _ ->
           let state, cursus_opt =
             if lmath situation
@@ -3709,17 +3576,18 @@ let program
       d.Public_data.decision_decision,
       d.Public_data.decision_validated
   in
-  let mean =
+  let state, mean =
     if do_report report
     then
       add_mean_diplome
+        state
         (string,dpt)
         moyenne_opt
         mention_opt
         (try int_of_string year with _ -> 0)
         mean
     else
-      mean
+      state, mean
   in
   let () =
     if b
@@ -4024,7 +3892,7 @@ let program
                   | None -> ""
                   | Some a ->
                     if l = "" && sujet=""
-                    then a else "\\newline dirigé par  "^a
+                    then a else "\\newline dirigÃ© par  "^a
                 in
                 state,
                 Some
@@ -4094,22 +3962,24 @@ let program
         let () =
           Remanent_state.fprintf state "%%\n\ "
         in
-        let mean, dens =
+        let state, mean, dens =
           if year > current_year
           || not (do_report report)
-          then mean, dens
+          then state, mean, dens
           else
             match Tools.map_opt String.trim string
             with
-            | None -> mean, dens
+            | None -> state, mean, dens
             | Some ("dens" | "DENS") ->
-              mean,
+              state, mean,
               add_dens year compensation cours dens
             | Some _ ->
-              add_mean
+              let state, mean =
+                add_mean state
                 (string,dpt) compensation cours
                 (try int_of_string year with _ -> 0)
-                mean, dens
+                mean
+              in state, mean, dens
         in
         state,mean, dens)
       (state,mean,dens)
@@ -4213,7 +4083,7 @@ let program
                      "\\fpeval{\\mean<16} = 1 ",
                    "Mention : \\textbf{Bien}";
                  ]
-                 ~otherwise:"Mention : \\textbf{Très Bien}"]
+                 ~otherwise:"Mention : \\textbf{TrÃ¨s Bien}"]
               ~otherwise:""
           in
           match mention_opt with
@@ -4252,7 +4122,7 @@ let program
           Format.sprintf "ECTS : %s " total_ects;
         ]
         ~otherwise:(Format.sprintf
-                      "ECTS (cumulés) : %s"
+                      "ECTS (cumulÃ©s) : %s"
                       total_ects)
     in
     let potential_ects_string  =
@@ -4278,11 +4148,11 @@ let program
     | None, _ -> ""
     | Some a, None ->
       Format.sprintf
-        "Décision de %s \n\n"
+        "DÃ©cision de %s \n\n"
         a
     | Some a, Some b ->
       Format.sprintf
-        "Décision de %s du %s \n\n"
+        "DÃ©cision de %s du %s \n\n"
         a b
   in
   let decision =
@@ -4717,6 +4587,152 @@ let export_transcript
            let who =
              Format.sprintf "%s in %s" who year
            in
+           let state, tuteur =
+             Remanent_state.get_mentoring
+               ~year
+               ~lastname
+               ~firstname
+               state
+           in
+           let state, tuteur =
+             match tuteur with
+             | None ->
+               let state =
+                 Remanent_state.add_missing_mentor
+                   state
+                   {
+                     Public_data.missing_mentor_firstname=firstname;
+                     Public_data.missing_mentor_lastname=lastname;
+                     Public_data.missing_mentor_year=year;
+                     Public_data.missing_mentor_promotion=promo;
+                   }
+               in
+               state,
+               ("",1.)
+             | Some tuteur ->
+               let state, genre =
+                 match
+                   gps_file.genre
+                 with
+                 | None ->
+                   Remanent_state.warn
+                     __POS__
+                     "missing gender"
+                     Exit
+                     state, Public_data.Unknown
+                 | Some a -> state, a in
+               let state, genre_du_tuteur =
+                 match
+                   tuteur.Public_data.genre_du_tuteur
+                 with
+                 | None ->
+                   Remanent_state.warn
+                     __POS__
+                     "missing mentor gender"
+                     Exit
+                     state, Public_data.Unknown
+                 | Some a -> state, a in
+               let state, nom_du_tuteur =
+                 match
+                   tuteur.Public_data.nom_du_tuteur
+                 with
+                 | None ->
+                   Remanent_state.warn
+                     __POS__
+                     "missing mentor name"
+                     Exit
+                     state, ""
+                 | Some a -> state, a
+               in
+               let state, prenom_du_tuteur =
+                 match
+                   tuteur.Public_data.prenom_du_tuteur
+                 with
+                 | None ->
+                   Remanent_state.warn
+                     __POS__
+                     "missing mentor first name"
+                     Exit
+                     state, ""
+                 | Some a -> state, a
+               in
+               let current_dpt =
+                 match
+                   situation.departement_principal
+                 with
+                 | Some a ->
+                   Special_char.lowercase a
+                 | None -> ""
+               in
+               let state =
+                 if do_report report &&
+                    (year <= current_year ||
+                     need_a_mentor gps_file)
+                 then
+                   Remanent_state.add_mentor
+                     state
+                     {Public_data.mentor_attribution_year =
+                        tuteur.Public_data.annee_academique;
+                      Public_data.mentor_gender =
+                        genre_du_tuteur;
+                      Public_data.mentor_lastname =
+                        nom_du_tuteur;
+                      Public_data.mentor_firstname
+                      =
+                        prenom_du_tuteur;
+                      Public_data.mentor_academic_year = year;
+                      Public_data.mentor_student_promo = promo ;
+                      Public_data.mentor_student_gender = genre;
+                      Public_data.mentor_student_lastname =
+                        lastname ;
+                      Public_data.mentor_student_firstname = firstname ;
+                      Public_data.mentor_student_dpt =
+                        current_dpt ;
+                      Public_data.mentor_email =
+                        Tools.unsome_string
+                          tuteur.Public_data.courriel_du_tuteur ;
+                     }
+                 else state
+               in
+               begin
+                 match
+                   tuteur.Public_data.nom_du_tuteur,           tuteur.Public_data.prenom_du_tuteur,
+                   tuteur.Public_data.genre_du_tuteur,
+                   tuteur.Public_data.courriel_du_tuteur
+                 with
+                 | None, (None | Some _),
+                   (None | Some _), None ->
+                   let msg =
+                     Printf.sprintf
+                       "Tuteur inconnu pour %s"
+                       who
+                   in
+                   Remanent_state.warn_dft
+                     __POS__
+                     msg
+                     Exit
+                     ("",1.)
+                     state
+                 | Some x, Some y, Some z, _ ->
+                   state,
+                   (Printf.sprintf
+                      "%s %s %s"
+                      (match z with
+                       | Public_data.Masculin ->
+                         "Tuteur : "
+                       | Public_data.Feminin ->
+                         "Tutrice : "
+                       | Public_data.Unknown -> "")
+                      (Special_char.capitalize y)
+                      (Special_char.uppercase x),
+                    2./.3.
+                   )
+                 | None, _, _, Some x ->
+                   state, (x, 2./.3.)
+                 | Some x, _, _, _ ->
+                   state, (x, 2./.3.)
+               end
+           in
            if year > current_year then state,mean,dens
            else
              let l =
@@ -4783,8 +4799,8 @@ let export_transcript
                            heading
                              ~who ~firstname ~lastname
                              ~promo ~origine
-                             ~year ~current_year ~situation
-                             ~report
+                             ~year ~situation
+                             ~tuteur
                              cursus_map split_cours picture_list suite gps_file state
                          in
                          let () =
@@ -4872,40 +4888,44 @@ let export_transcript
         dens
         (0.,0.)
     in
-    let dens_year, dens_year_potential =
-      match
-        Public_data.YearMap.find_opt
-          current_year
-          dens
-      with
-      | Some a -> a
-      | None -> (0.,0.)
-    in
-    let prevyear y =
-      try
-        Some (string_of_int ((int_of_string y)-1))
-      with
-        _ -> None
-    in
-    let state, p, prev_com_year  =
+    let state, p, com_year  =
       match Remanent_state.get_commission state
       with
-      | state, Some (a,_) ->
-        state, (fun y -> y<a), prevyear a
+      | state, Some (_,a) ->
+        state, (fun y -> y<=a), Some a
       | state, None ->
         state, (fun _ -> false), None
     in
+    let dens_year, dens_year_potential =
+      match com_year with
+      | None -> (0.,0.)
+      | Some com_year ->
+        match
+          Public_data.YearMap.find_opt
+            com_year
+            dens
+        with
+        | Some a -> a
+        | None -> (0.,0.)
+    in
     let situation =
-      match prev_com_year with
+      match com_year with
       | None -> None
-      | Some prev_com_year ->
+      | Some com_year ->
         Public_data.YearMap.find_opt
-          prev_com_year
+          com_year
           gps_file.situation
     in
     let state =
       match situation with
-      | None -> state
+      | None ->
+      let state =
+        Remanent_state.warn
+          __POS__
+          "NO SITUATION"
+          Exit
+          state
+      in  state
       | Some situation ->
         begin
           let n_inscription =
@@ -4994,7 +5014,7 @@ let export_transcript
                        if mean <12. then Some ""
                        else if mean <14. then Some "Assez Bien"
                        else if mean <16. then Some "Bien"
-                       else Some "Très bien";
+                       else Some "TrÃ¨s bien";
                    in
                    let mean =
                      match
@@ -5053,6 +5073,67 @@ let export_transcript
           state
         end
     in
+    let state =
+      if do_report report &&
+         (match gps_file.annee_en_cours with
+          | Some a -> a < current_year
+          | None -> false) &&
+          (need_a_mentor gps_file)
+      then
+        let state, tuteur =
+          Remanent_state.get_mentoring
+            ~year:current_year
+            ~lastname
+            ~firstname
+            state
+        in
+        match tuteur with
+        | Some tuteur ->
+          if
+            tuteur.Public_data.annee_academique =
+             current_year
+          then
+          Remanent_state.add_mentor
+            state
+            {Public_data.mentor_attribution_year =
+               tuteur.Public_data.annee_academique;
+             Public_data.mentor_gender =
+             (match tuteur.Public_data.genre_du_tuteur
+             with Some a -> a
+                | None -> Public_data.Unknown);
+             Public_data.mentor_lastname =
+               Tools.unsome_string
+                 tuteur.Public_data.nom_du_tuteur;
+             Public_data.mentor_firstname
+             =
+               Tools.unsome_string
+                 tuteur.Public_data.prenom_du_tuteur
+                ;
+             Public_data.mentor_academic_year = current_year;
+             Public_data.mentor_student_promo = promo ;
+             Public_data.mentor_student_gender =
+               (match gps_file.genre
+               with Some a -> a
+                  | None -> Public_data.Unknown);
+             Public_data.mentor_student_lastname =
+               lastname ;
+             Public_data.mentor_student_firstname = firstname ;
+             Public_data.mentor_student_dpt =
+               dpt_info ;
+             Public_data.mentor_email =
+               Tools.unsome_string
+                 tuteur.Public_data.courriel_du_tuteur ;
+                }
+          else state
+        | _ ->
+          Remanent_state.warn
+            __POS__
+            (Format.sprintf "No tuteur for current year %s %s" who current_year)
+            Exit
+            state
+      else state
+    in
+
     let state = Remanent_state.close_logger state in
     let state =
       Remanent_state.restore_std_logger state old_logger
