@@ -6,7 +6,11 @@ type dump =
   ?academicyear:string ->
   ?attributionyear:string ->
   ?promo:string ->
-  ?title:string ->
+  ?title:((Loggers.t ->
+           (string -> unit, Format.formatter, unit) format ->
+           string -> unit) *
+          string)
+      list ->
   ?dpt:string ->
   Gen.dump
 
@@ -26,7 +30,11 @@ sig
     ?academicyear:string ->
     ?attributionyear:string ->
     ?promo:string ->
-    ?title:string ->
+    ?title:((Sco_remanent_state.Loggers.t ->
+                    (string -> unit, Format.formatter, unit) format ->
+                    string -> unit) *
+                   string)
+                  list ->
     ?dpt:string ->
     ?output_repository:string ->
     ?prefix:string ->

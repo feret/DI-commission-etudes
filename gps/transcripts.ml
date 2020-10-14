@@ -3374,7 +3374,7 @@ let heading
     List.fold_left
       (fun n x ->
          let () =
-           Remanent_state.fprintf
+           Remanent_state.fprintf_verbatim
              state
              "\\IfFileExists{%s}%%\n\ {\\vspace*{-2cm}{\\hfill\\includegraphics[height=2cm]{%s}}\\hspace*{5mm}\\mbox{}}%%\n\ {"
              x x
@@ -3745,8 +3745,8 @@ let program
       ~bgcolor
       ~size
       ~with_lines:true
-      ~title:["Code";"Dipl\\^ome";"Intitul\\'e";
-              "Enseignant";"Semestre";"Note";"ECTS"]
+      ~title:[["Code"];["Dipl\\^ome"];["Intitul\\'e"];
+              ["Enseignant"];["Semestre"];["Note"];["ECTS"]]
       state
   in
   let macro = "cours" in
@@ -4919,13 +4919,7 @@ let export_transcript
     let state =
       match situation with
       | None ->
-      let state =
-        Remanent_state.warn
-          __POS__
-          "NO SITUATION"
-          Exit
-          state
-      in  state
+        state
       | Some situation ->
         begin
           let n_inscription =

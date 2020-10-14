@@ -3,12 +3,32 @@ type dump =
   ?lastname:string ->
   ?ninscription:int ->
   ?promo:string ->
-  ?headpage:(int -> string) ->
-  ?footpage:string ->
+  ?headpage:(int -> ((Loggers.t ->
+                      (string -> unit, Format.formatter, unit) format ->
+                      string -> unit) *
+                     string)
+               list ) ->
+  ?footpage:((Loggers.t ->
+           (string -> unit, Format.formatter, unit) format ->
+           string -> unit) *
+          string)
+      list ->
   ?footcolor:Color.color ->
-  ?title:string ->
-  ?preamble:(int -> string) ->
-  ?signature:(int -> string) ->
+  ?title:((Loggers.t ->
+           (string -> unit, Format.formatter, unit) format ->
+           string -> unit) *
+          string)
+      list ->
+  ?preamble:(int -> ((Loggers.t ->
+                      (string -> unit, Format.formatter, unit) format ->
+                      string -> unit) *
+                     string)
+               list ) ->
+  ?signature:(int -> ((Loggers.t ->
+                       (string -> unit, Format.formatter, unit) format ->
+                       string -> unit) *
+                      string)
+                list ) ->
   ?nb_inscription_list:int list ->
   Gen.dump
 

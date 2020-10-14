@@ -6,7 +6,11 @@ type dump =
 ?academicyear:string ->
 ?attributionyear:string ->
 ?promo:string ->
-?title:string ->
+?title:((Sco_remanent_state.Loggers.t ->
+                    (string -> unit, Format.formatter, unit) format ->
+                    string -> unit) *
+                   string)
+                  list ->
 ?dpt:string ->
   Gen.dump
 
@@ -26,7 +30,11 @@ sig
     ?academicyear:string ->
     ?attributionyear:string ->
     ?promo:string ->
-    ?title:string ->
+    ?title:((Sco_remanent_state.Loggers.t ->
+                        (string -> unit, Format.formatter, unit) format ->
+                        string -> unit) *
+                       string)
+                      list ->
     ?dpt:string ->
     ?output_repository:string ->
     ?prefix:string ->
@@ -95,7 +103,7 @@ struct
         (correct_email email)
 
   let nom_etudiant =
-    "ÉTUDIANT",
+    ["ÉTUDIANT"],
     (fun a ->
        whoshort
          a.Public_data.mentor_student_firstname
@@ -108,7 +116,7 @@ struct
           (a.Public_data.mentor_student_promo))
 
   let nom_tuteur correct_email =
-    "TUTEUR",
+    ["TUTEUR"],
     (fun a ->
        wholong correct_email
          a.Public_data.mentor_gender
@@ -117,11 +125,11 @@ struct
          a.Public_data.mentor_email)
 
   let promotion =
-    "PROMOTION",
+    ["PROMOTION"],
     (fun a -> a.Public_data.mentor_student_promo)
 
   let annee =
-    "ANNÉE ACADÉMIQUE",
+    ["ANNÉE ACADÉMIQUE"],
     (fun a ->
        let a = a.Public_data.mentor_academic_year in
        try

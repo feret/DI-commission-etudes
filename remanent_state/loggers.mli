@@ -25,6 +25,7 @@ val log: ?backgroundcolor:Color.color -> ?textcolor:Color.color ->
 
 val print_newline: t -> unit
 val print_cell: t -> string -> unit
+val print_multirow_cell: t -> string list -> unit
 val print_optional_cell: t -> string -> unit
 val print_as_logger: t -> (Format.formatter -> unit) -> unit
 val flush_logger: t -> unit
@@ -35,7 +36,7 @@ val open_circular_buffer: ?mode:encoding -> ?size:int -> unit -> t
 val open_logger_from_formatter: ?headerextralength:int -> ?mode:encoding -> Format.formatter -> t
 val open_logger_from_channel: ?headerextralength:int -> ?mode:encoding -> out_channel -> t
 
-val open_array: ?size: float option list -> ?color: Color.color option list -> ?bgcolor: Color.color option list -> ?align: char option list -> title:string list -> t -> bool
+val open_array: ?size: float option list -> ?color: Color.color option list -> ?bgcolor: Color.color option list -> ?align: char option list -> title:string list list -> t -> bool
 val close_array: t -> unit
 val open_row: ?macro:string -> t -> unit
 val close_row: t -> unit
@@ -66,10 +67,14 @@ val encapsulate: encoding -> encoding
 
 val print_headers: t -> int -> string -> unit
 
-val maketitle: t -> string -> unit
-val setheadpage:  t -> ?color:Color.color -> string -> unit
-val setsignature: t -> string -> unit
-val setpreamble:  t -> string -> unit
-val setfootpage:  t -> ?color:Color.color -> string -> unit
-
+val maketitle: t -> ((t -> (string -> unit , Format.formatter, unit) format -> string -> unit) * string) list -> unit
+val setheadpage:
+  t -> ?color:Color.color ->
+  ((t -> (string -> unit, Format.formatter, unit) format -> string -> unit) * string) list-> unit
+val setsignature: t ->
+((t -> (string -> unit , Format.formatter, unit) format -> string -> unit) * string) list-> unit
+val setpreamble:  t ->
+((t -> (string -> unit , Format.formatter, unit) format -> string -> unit) * string) list-> unit
+val setfootpage:  t -> ?color:Color.color ->
+((t -> (string -> unit, Format.formatter, unit) format -> string -> unit) * string) list-> unit
 val correct_email: t -> string -> string

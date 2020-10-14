@@ -355,6 +355,19 @@ let print_cell logger s =
   let () = fprintf logger "%s" s in
   fprintf logger "%s"  close_cell_symbol
 
+  let print_multirow_cell logger s =
+    match
+      logger.encoding
+    with
+    | HTML | HTML_encapsulated | HTML_Tabular
+    | CSV | Json  | TXT | XLS ->
+      print_cell logger
+          (String.concat " " s)
+    | Latex _ | Latex_encapsulated ->
+      print_cell logger
+        (Format.sprintf "\\makecell{%s}"
+           (String.concat "\\\\ " s))
+
 let open_array ?size ?color ?bgcolor ?align ~title logger =
   match logger.encoding with
     | Latex _ | Latex_encapsulated ->
@@ -398,15 +411,16 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
     in
     let () = fprintf logger "{%%\n\ " in
     let () = fprintf logger "\\renewcommand{\\row}[%i]{" (List.length title) in
-        let _ =
-          List.fold_left
-            (fun (b,i) _ ->
-               let () = fprintf logger "%s#%i"
-                   (if b then "" else "&")
-                   i
-               in
-               false,i+1)
-            (true,1)
+    let _ =
+      List.fold_left
+        (fun (b,i) _ ->
+           let () =
+             fprintf logger "%s#%i"
+               (if b then "" else "&")
+               i
+           in
+           false,i+1)
+        (true,1)
         title
     in
     let () = fprintf logger "\\cr}\n\\begin{%s}{"
@@ -480,8 +494,9 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
     let _ =
       List.fold_left (fun is_start title ->
           let () =
-            fprintf logger "%s\\cellcolor{white}{%s}"
-              (if is_start then "" else "&") title
+            fprintf logger "%s\\makecell{\\cellcolor{white}{%s}}"
+              (if is_start then "" else "&")
+              (String.concat "\\\\ " title)
           in
           false)
         true
@@ -496,7 +511,7 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
       let () = open_row logger in
       let () =
         List.iter
-          (fun a -> print_cell logger (a:string))
+          (fun a -> print_cell logger (String.concat " " a))
           title
       in
       let () = close_row logger in
@@ -895,17 +910,35 @@ let print_headers logger level title =
   | XLS
   | Json -> ()
 
-let maketitle logger title =
+let maketitle logger
+    (title:((t -> (string->unit, Format.formatter, unit) format -> string -> unit) * string) list)  =
   match logger.encoding with
   | HTML | HTML_encapsulated | HTML_Tabular ->
     let () =
-      fprintf logger "<title>%s</title>" title
+      fprintf logger "<title>"
+    in
+    let () =
+      List.iter
+        (fun (f,x) ->
+           f logger ("%s":('a, Format.formatter, unit) format) x)
+        title
+    in
+    let () =
+      fprintf logger "</title>"
     in
     let () = print_newline logger in
     ()
   | Latex _ | Latex_encapsulated ->
     let () =
-      fprintf logger "\\title{%s}" title
+      fprintf logger "\\title{" in
+    let () =
+      List.iter
+        (fun (f,x) ->
+           f logger ("%s":('a, Format.formatter, unit) format) x)
+          title
+    in
+    let () =
+      fprintf logger "}"
     in
     let () = print_newline logger in
     let () =
@@ -919,7 +952,9 @@ let maketitle logger title =
   | Json -> ()
 
 
-let setheadpage logger ?color s =
+let setgenpage ~lbl ~norule
+    (logger:t) ?color
+    (s:((t -> (string->unit, Format.formatter, unit) format -> string -> unit) * string) list) =
   match logger.encoding with
   | Latex _ | Latex_encapsulated ->
     let txtcolor =
@@ -932,9 +967,33 @@ let setheadpage logger ?color s =
         "}"
     in
     let () =
-      fprintf logger "\\renewcommand{\\headrulewidth}{0pt}\n\\chead[%s%s%s]{%s%s%s}\n\\rhead[]{}\n\\lhead[]{}"
-        (fst txtcolor) s (snd txtcolor)
-        (fst txtcolor) s (snd txtcolor)
+      fprintf logger "\\renewcommand{\\%srulewidth}{%s}\n\\c%s[%s"
+        lbl
+        (if s=[] || norule then "0pt" else "1pt")
+        lbl (fst txtcolor)
+    in
+    let () =
+      List.iter
+        (fun (f,(x:string)) ->
+           (f:(t -> ('a, Format.formatter, unit) format -> 'a))
+             logger ("%s":('a, Format.formatter, unit) format) x)
+        s
+    in
+    let () = fprintf logger "%s]{%s" (snd txtcolor)
+        (fst txtcolor)
+    in
+    let () =
+      List.iter
+        (fun (f,x) ->
+           f
+             logger
+             ("%s":('a, Format.formatter, unit) format)
+             x)
+        s
+    in
+    let () =
+      fprintf logger "%s}\n\\r%s[]{}\n\\l%s[]{}"
+         (snd txtcolor) lbl lbl
     in
     let () = print_newline logger in
     ()
@@ -944,44 +1003,37 @@ let setheadpage logger ?color s =
   | XLS
   | Json -> ()
 
-let setfootpage logger ?color s =
-  match logger.encoding with
-  | Latex _ | Latex_encapsulated ->
-    let txtcolor =
-      match color with
-      | None -> "",""
-      | Some a ->
-        Format.sprintf
-          "{\\color{%s}"
-          (Color.label (Color.get_font_color a)),
-        "}"
-    in
-    let () =
-      fprintf logger
-        "\\renewcommand{\\footrulewidth  }{%s}\n\\cfoot[%s%s%s]{%s%s%s}\n\\rfoot[]{}\n\\lfoot[]{}"
-        (if s="" then "0pt" else "1pt")
-        (fst txtcolor) s (snd txtcolor)
-        (fst txtcolor) s (snd txtcolor)
-    in
-    let () = print_newline logger in
-    ()
-  | HTML | HTML_encapsulated | HTML_Tabular
-  | TXT
-  | CSV
-  | XLS
-  | Json -> ()
+let setheadpage = setgenpage ~lbl:"head" ~norule:true
+let setfootpage = setgenpage ~lbl:"foot" ~norule:false
 
-let setsignature logger s =
+let setgenparagraph
+    latex_begin
+    latex_end
+    logger
+    (s:((t -> (string->unit, Format.formatter, unit) format -> string -> unit) * string) list)  =
   match logger.encoding with
   | HTML | HTML_encapsulated | HTML_Tabular ->
     let () =
-      fprintf logger "<P>%s</P>" s
+      List.iter (fun (f,x) ->
+          fprintf logger "<P>";
+          f logger  ("%s":('a, Format.formatter, unit) format)
+           x;
+          fprintf logger "</P>")
+        s
     in
     let () = print_newline logger in
     ()
   | Latex _ | Latex_encapsulated ->
+    let () = latex_begin logger in
     let () =
-      fprintf logger "\\vfill\n\n\\begin{center}%s\\end{center}\\vfill\n\n\\mbox{}\n" s
+      List.iter
+        (fun (f,s) -> f logger  ("%s":('a, Format.formatter, unit) format)
+         s)
+        s
+    in
+    let () = latex_end logger in
+    let () =
+      fprintf logger "\\end{center}\\vfill\n\n\\mbox{}\n"
     in
     let () = print_newline logger in
     ()
@@ -990,24 +1042,16 @@ let setsignature logger s =
   | XLS
   | Json -> ()
 
-let setpreamble logger s =
-  match logger.encoding with
-  | HTML | HTML_encapsulated | HTML_Tabular ->
-    let () =
-      fprintf logger "<P>%s</P>" s
-    in
-    let () = print_newline logger in
-    ()
-  | Latex _ | Latex_encapsulated ->
-    let () =
-      fprintf logger "%s" s
-    in
-    let () = print_newline logger in
-    ()
-  | TXT
-  | CSV
-  | XLS
-  | Json -> ()
+let setsignature =
+  setgenparagraph
+    (fun logger ->
+       fprintf logger "\\vfill\n\n\\begin{center}")
+    (fun logger ->
+       fprintf logger "\\end{center}\\vfill\n\n\\mbox{}\n")
+
+let setpreamble =
+  setgenparagraph
+    (fun _ -> ()) (fun _ -> ())
 
 let correct_email logger string =
   match logger.encoding with

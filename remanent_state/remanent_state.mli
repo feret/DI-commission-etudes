@@ -30,6 +30,9 @@ val print_errors:
 val fprintf:
   ?logger:Loggers.t -> t -> ('a, Format.formatter, unit) format -> 'a
 
+val fprintf_verbatim:
+  ?logger:Loggers.t -> t -> ('a, Format.formatter, unit) format -> 'a
+
 val log:
   ?logger:Loggers.t ->
   ?backgroundcolor:Color.color ->
@@ -45,7 +48,7 @@ val log_string:
 val open_array:
   (string * int * int * int) ->
   ?logger:Loggers.t ->
-  with_lines:bool -> ?size:float option list -> ?color: Color.color option list -> ?bgcolor:Color.color option list -> ?align:char option list -> title:string list -> t -> t
+  with_lines:bool -> ?size:float option list -> ?color: Color.color option list -> ?bgcolor:Color.color option list -> ?align:char option list -> title:string list list -> t -> t
 val close_array: ?logger:Loggers.t -> t -> unit
 val open_row: ?logger:Loggers.t -> ?macro:string -> t -> unit
 val close_row: ?logger:Loggers.t -> t -> unit

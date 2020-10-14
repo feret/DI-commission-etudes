@@ -80,7 +80,7 @@ type parameters =
 let parameters =
   {
     safe_mode = true;
-    log_mkdir = false; 
+    log_mkdir = false;
     cloud_synchronization_mode = Public_data.CommandLine ;
     cloud_client = Public_data.NextCloudCmd ;
     cloud_client_options = "-n --silent" ;
@@ -806,6 +806,11 @@ let which_logger ?logger t =
 
 let fprintf ?logger t x =
   Loggers.fprintf
+    (which_logger ?logger t)
+    x
+
+let fprintf_verbatim ?logger t x =
+  Loggers.fprintf_verbatim
     (which_logger ?logger t)
     x
 

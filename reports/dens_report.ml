@@ -3,12 +3,33 @@ type dump =
   ?lastname:string ->
   ?ninscription:int ->
   ?promo:string ->
-  ?headpage:(int -> string) ->
-  ?footpage:string ->
+  ?headpage:
+    (int -> ((Loggers.t ->
+              (string -> unit, Format.formatter, unit) format ->
+              string -> unit) *
+             string)
+       list ) ->
+  ?footpage:((Loggers.t ->
+           (string -> unit, Format.formatter, unit) format ->
+           string -> unit) *
+          string)
+      list ->
   ?footcolor:Color.color ->
-  ?title:string ->
-  ?preamble:(int -> string) ->
-  ?signature:(int -> string) ->
+  ?title:((Loggers.t ->
+           (string -> unit, Format.formatter, unit) format ->
+           string -> unit) *
+          string)
+      list  ->
+  ?preamble:(int -> ((Loggers.t ->
+                      (string -> unit, Format.formatter, unit) format ->
+                      string -> unit) *
+                     string)
+               list ) ->
+  ?signature:(int -> ((Loggers.t ->
+                       (string -> unit, Format.formatter, unit) format ->
+                       string -> unit) *
+                      string)
+                list ) ->
   ?nb_inscription_list:int list
   ->
   Gen.dump
@@ -53,27 +74,27 @@ struct
 
 
   let nom_etudiant =
-    "NOM",
+    ["NOM"],
     (fun a -> a.Public_data.dens_lastname)
   let prenom_etudiant =
-    "PRENOM",
+    ["PRENOM"],
     (fun a -> a.Public_data.dens_firstname)
   let promotion =
-    "PROMOTION",
+    ["PROMOTION"],
     (fun a -> a.Public_data.dens_promotion)
   let total_year =
-    "\\makecell{ECTS \\\\ (année courante)}",
+    ["ECTS";"(année courante)"],
     (fun a ->
        Notes.string_of_ects
         (Some (a.Public_data.dens_current_year_ects)))
   let total =
-    "\\makecell{ECTC \\\\ (cumul)}",
+    ["ECTC";"(cumul)"],
     (fun a ->
        Notes.string_of_ects
         (Some (a.Public_data.dens_total_ects)))
 
   let inscriptions =
-    "Inscriptions au DENS",
+    ["Inscriptions au DENS"],
     (fun a ->
        string_of_int (a.Public_data.dens_nb_inscriptions))
 

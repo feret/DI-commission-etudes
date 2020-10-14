@@ -81,30 +81,36 @@ val prepare_report:
 
 val dump_report:
   print_header:
-    (int -> string  -> unit) ->
-  open_array:(title:string list -> bool) ->
+    (int -> string -> unit) ->
+  open_array:(title:string list list -> bool) ->
   open_row:(unit -> unit) ->
   close_row:(unit -> unit) ->
   print_cell:(string -> unit) ->
   close_array:(unit -> unit) ->
-  string_of_headers:(string * ('a -> string)) list ->
-  string_of_column:(string * ('b -> string)) list ->
-  settitle:(string -> unit) ->
-  setpreamble:(string -> unit) ->
-  setheadpage:(?color:Color.color -> string -> unit) ->
-  setfootpage:(?color:Color.color -> string -> unit) ->
-  setsignature:(string -> unit) ->
-  ?title:string ->
-  ?headpage:(int -> string) ->
+  string_of_headers:(string list * ('a -> string)) list ->
+  string_of_column:(string list * ('b -> string)) list ->
+  settitle:(
+            (('logger -> ('c, Format.formatter, unit) format -> 'c) * string) list  -> unit) ->
+  setpreamble:(
+            (('logger -> ('d, Format.formatter, unit) format -> 'd) * string) list  -> unit) ->
+  setheadpage:(?color:Color.color ->
+  (('logger -> ('e, Format.formatter, unit) format -> 'e) * string) list  -> unit) ->
+  setfootpage:(?color:Color.color ->
+               (('logger -> ('f, Format.formatter, unit) format -> 'f) * string) list  -> unit) ->
+  setsignature:(
+            (('logger -> ('g, Format.formatter, unit) format -> 'g) * string) list  -> unit) ->
+  ?title:((('logger -> ('c, Format.formatter, unit) format -> 'c) * string) list) ->
+  ?headpage:(int -> (('logger -> ('e, Format.formatter, unit) format -> 'e) * string) list) ->
   ?headcolor:Color.color ->
-  ?footpage:string ->
+  ?footpage:((('logger -> ('f, Format.formatter, unit) format -> 'f) * string) list) ->
   ?footcolor:Color.color ->
-  ?preamble:(int -> string) ->
-  ?signature:(int -> string) -> ('a list * 'b) list -> unit
+  ?preamble:(int -> (('logger -> ('d, Format.formatter, unit) format -> 'd) * string) list) ->
+  ?signature:(int ->(('logger -> ('g, Format.formatter, unit) format -> 'g) * string) list)
+  -> ('a list * 'b) list -> unit
 
 val build_output:
   (string * int * int * int) ->
-  has_promo:bool -> 
+  has_promo:bool ->
   get_repository:('a -> 'a * string) ->
   get_store_according_promotion:('a -> 'a * bool) ->
   get_indicate_promotions_in_file_names:('a -> 'a * bool) ->

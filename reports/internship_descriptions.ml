@@ -36,10 +36,10 @@ module Build
 
     let columns =
       [
-        "PRÉNOM",(fun a -> a.Public_data.missing_internship_firstname) ;
-        "NOM",(fun a -> a.Public_data.missing_internship_lastname);
-        "PROMOTION",(fun a -> a.Public_data.missing_internship_promotion);
-        "ANNÉE ACADÉMIQUE",
+        ["PRÉNOM"],(fun a -> a.Public_data.missing_internship_firstname) ;
+        ["NOM"],(fun a -> a.Public_data.missing_internship_lastname);
+        ["PROMOTION"],(fun a -> a.Public_data.missing_internship_promotion);
+        ["ANNÉE ACADÉMIQUE"],
         (fun a ->
            let year = a.Public_data.missing_internship_year in
            try
@@ -49,8 +49,8 @@ module Build
              Printf.sprintf "%i -- %i" year (year+1)
            with
              _ -> year);
-        "CODE GPS",(fun a -> a.Public_data.missing_internship_code_gps);
-        "INTITULÉ",(fun a -> a.Public_data.missing_internship_intitule);
+        ["CODE GPS"],(fun a -> a.Public_data.missing_internship_code_gps);
+        ["INTITULÉ"],(fun a -> a.Public_data.missing_internship_intitule);
       ]
 
     let dump_per_student

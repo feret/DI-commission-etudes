@@ -61,16 +61,16 @@ module Build
       in
       let headers =
         [
-          "Département",(fun x -> x),
+          ["Département"],(fun x -> x),
           (fun a ->
              a.Public_data.missing_grade_dpt);
-          "Etudiant",(fun x -> x),
+          ["Etudiant"],(fun x -> x),
           (fun a ->
              Printf.sprintf "%s %s (PROMO %s)"
                a.Public_data.missing_grade_lastname
                a.Public_data.missing_grade_firstname
                a.Public_data.missing_grade_promotion);
-          "Année académique",
+          ["Année académique"],
           (fun x -> x),
           (fun a ->
              let year = a.Public_data.missing_grade_year in
@@ -84,9 +84,9 @@ module Build
         ] in
       let columns =
         [
-          "CODE GPS",(fun a -> a.Public_data.missing_grade_code_gps);
-          "COURS",(fun a -> a.Public_data.missing_grade_intitule);
-          "ENSEIGNANT(E)",(fun a -> a.Public_data.missing_grade_teacher)
+          ["CODE GPS"],(fun a -> a.Public_data.missing_grade_code_gps);
+          ["COURS"],(fun a -> a.Public_data.missing_grade_intitule);
+          ["ENSEIGNANT(E)"],(fun a -> a.Public_data.missing_grade_teacher)
         ] in
       dump_missing_grades
         ?dpt ?firstname ?lastname ?codegps ?teachername
@@ -113,10 +113,10 @@ module Build
       in
       let headers =
         [
-          "Département",(fun x -> x),
+          ["Département"],(fun x -> x),
           (fun a ->
              a.Public_data.missing_grade_dpt);
-          "Année académique",
+          ["Année académique"],
           (fun x -> x),
           (fun a ->
              let year = a.Public_data.missing_grade_year in
@@ -127,7 +127,7 @@ module Build
                Printf.sprintf "%i -- %i" year (year+1)
              with
                _ -> year);
-          "Etudiant",(fun x -> x),
+          ["Étudiant"],(fun x -> x),
           (fun a ->
              Printf.sprintf "%s %s (PROMO %s)"
                a.Public_data.missing_grade_lastname
@@ -136,9 +136,9 @@ module Build
         ] in
       let columns =
         [
-          "CODE GPS",(fun a -> a.Public_data.missing_grade_code_gps);
-          "COURS",(fun a -> a.Public_data.missing_grade_intitule);
-          "ENSEIGNANT(E)",(fun a -> a.Public_data.missing_grade_teacher)
+          ["CODE GPS"],(fun a -> a.Public_data.missing_grade_code_gps);
+          ["COURS"],(fun a -> a.Public_data.missing_grade_intitule);
+          ["ENSEIGNANT(E)"],(fun a -> a.Public_data.missing_grade_teacher)
         ] in
       dump_missing_grades
         ?dpt ?firstname ?lastname ?codegps ?teachername
@@ -164,10 +164,10 @@ module Build
       in
       let headers =
         [
-          "Département",(fun x -> x),
+          ["Département"],(fun x -> x),
           (fun a ->
              a.Public_data.missing_grade_dpt);
-          "Cours",(fun x -> x),
+          ["Cours"],(fun x -> x),
           (fun a ->
              match
                String.trim a.Public_data.missing_grade_teacher,
@@ -183,7 +183,7 @@ module Build
                  "%s (%s / %s)"
                  a.Public_data.missing_grade_intitule s s'
           );
-          "Année académique",
+          ["Année académique"],
           (fun x -> x),
           (fun a ->
              let year = a.Public_data.missing_grade_year in
@@ -197,9 +197,9 @@ module Build
         ] in
       let columns =
         [
-          "NOM",(fun a -> a.Public_data.missing_grade_lastname);
-          "PRÉNOM",(fun a -> a.Public_data.missing_grade_firstname);
-          "PROMOTION",(fun a -> a.Public_data.missing_grade_promotion);
+          ["NOM"],(fun a -> a.Public_data.missing_grade_lastname);
+          ["PRÉNOM"],(fun a -> a.Public_data.missing_grade_firstname);
+          ["PROMOTION"],(fun a -> a.Public_data.missing_grade_promotion);
         ]
       in
       dump_missing_grades
@@ -229,10 +229,10 @@ module Build
       in
       let headers =
         [
-          "Département",(fun x -> x),
+          ["Département"],(fun x -> x),
           (fun a ->
              a.Public_data.missing_grade_dpt);
-          "Année académique",
+          ["Année académique"],
           (fun x -> x),
           (fun a ->
              let year = a.Public_data.missing_grade_year in
@@ -243,7 +243,7 @@ module Build
                Printf.sprintf "%i -- %i" year (year+1)
              with
                _ -> year);
-          "Cours",(fun x -> x),
+          ["Cours"],(fun x -> x),
           (fun a ->
              match
                String.trim a.Public_data.missing_grade_teacher,
@@ -262,9 +262,9 @@ module Build
         ] in
       let columns =
         [
-          "NOM",(fun a -> a.Public_data.missing_grade_lastname);
-          "PRÉNOM",(fun a -> a.Public_data.missing_grade_firstname);
-          "PROMOTION",(fun a -> a.Public_data.missing_grade_promotion);
+          ["NOM"],(fun a -> a.Public_data.missing_grade_lastname);
+          ["PRÉNOM"],(fun a -> a.Public_data.missing_grade_firstname);
+          ["PROMOTION"],(fun a -> a.Public_data.missing_grade_promotion);
         ]
       in
       dump_missing_grades
@@ -293,13 +293,13 @@ module Build
       in
       let headers =
         [
-          "Étudiant",(fun x -> x),
+          ["Étudiant"],(fun x -> x),
           (fun a ->
              Printf.sprintf "%s %s (PROMO %s)"
                a.Public_data.missing_grade_lastname
                a.Public_data.missing_grade_firstname
                a.Public_data.missing_grade_promotion);
-          "Année académique",
+          ["Année académique"],
           (fun x -> x),
           (fun a ->
              let year = a.Public_data.missing_grade_year in
@@ -314,10 +314,10 @@ module Build
       in
       let columns =
         [
-          "DÉPARTEMENT",(fun a -> a.Public_data.missing_grade_dpt);
-          "CODE GPS",(fun a -> a.Public_data.missing_grade_code_gps);
-          "COURS",(fun a -> a.Public_data.missing_grade_intitule);
-          "ENSEIGNANT",(fun a -> a.Public_data.missing_grade_teacher);
+          ["DÉPARTEMENT"],(fun a -> a.Public_data.missing_grade_dpt);
+          ["CODE GPS"],(fun a -> a.Public_data.missing_grade_code_gps);
+          ["COURS"],(fun a -> a.Public_data.missing_grade_intitule);
+          ["ENSEIGNANT"],(fun a -> a.Public_data.missing_grade_teacher);
         ]
       in
       dump_missing_grades
@@ -344,14 +344,14 @@ let dump_per_promotion
   in
   let headers =
     [
-      "Promotion",(fun x ->x),(fun a -> a.Public_data.missing_grade_promotion);
-      "Étudiant",(fun x -> x),
+      ["Promotion"],(fun x ->x),(fun a -> a.Public_data.missing_grade_promotion);
+      ["Étudiant"],(fun x -> x),
       (fun a ->
          Printf.sprintf "%s %s"
            a.Public_data.missing_grade_lastname
            a.Public_data.missing_grade_firstname
            );
-      "Année académique",
+      ["Année académique"],
       (fun x -> x),
       (fun a ->
          let year = a.Public_data.missing_grade_year in
@@ -366,10 +366,10 @@ let dump_per_promotion
   in
   let columns =
     [
-      "DÉPARTEMENT",(fun a -> a.Public_data.missing_grade_dpt);
-      "CODE GPS",(fun a -> a.Public_data.missing_grade_code_gps);
-      "COURS",(fun a -> a.Public_data.missing_grade_intitule);
-      "ENSEIGNANT",(fun a -> a.Public_data.missing_grade_teacher);
+      ["DÉPARTEMENT"],(fun a -> a.Public_data.missing_grade_dpt);
+      ["CODE GPS"],(fun a -> a.Public_data.missing_grade_code_gps);
+      ["COURS"],(fun a -> a.Public_data.missing_grade_intitule);
+      ["ENSEIGNANT"],(fun a -> a.Public_data.missing_grade_teacher);
     ]
   in
   dump_missing_grades

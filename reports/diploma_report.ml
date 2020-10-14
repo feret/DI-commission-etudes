@@ -6,12 +6,25 @@ type dump =
   ?dpt:string ->
   ?recu:bool ->
   ?academicyear:string ->
-  ?headpage:(int -> string) ->
-  ?footpage:string ->
+  ?headpage:(int -> ((Loggers.t -> (string -> unit, Format.formatter, unit) format -> string -> unit) *
+                     string)
+               list) 
+  ->
+  ?footpage:((Loggers.t ->
+                       (string -> unit, Format.formatter, unit) format ->
+                       string -> unit) *
+                      string)
+                     list ->
   ?footcolor:Color.color ->
-  ?title:string ->
-  ?preamble:(int -> string) ->
-  ?signature:(int -> string) ->
+  ?title:(((Loggers.t -> (string -> unit, Format.formatter, unit) format -> string -> unit) *
+           string)
+            list)  ->
+  ?preamble:(int -> ((Loggers.t -> (string -> unit, Format.formatter, unit) format -> string -> unit) *
+                     string)
+               list)  ->
+  ?signature:(int -> ((Loggers.t -> (string -> unit, Format.formatter, unit) format -> string -> unit) *
+                      string)
+                list) ->
   Gen.dump
 
 module type DiplomaReport =
@@ -56,30 +69,30 @@ struct
 
 
   let nom_etudiant =
-    "NOM",
+    ["NOM"],
     (fun a -> a.Public_data.diplome_lastname)
   let prenom_etudiant =
-    "PRENOM",
+    ["PRENOM"],
     (fun a -> a.Public_data.diplome_firstname)
   let promotion =
-    "PROMOTION",
+    ["PROMOTION"],
     (fun a -> a.Public_data.diplome_promotion
     )
   let moyenne =
-    "Moyenne",
+    ["Moyenne"],
     (fun a ->
        match a.Public_data.diplome_moyenne with
        | None -> ""
        | Some f ->
          Notes.float_to_string_easy f)
   let mention =
-    "Mention",
+    ["Mention"],
     (fun a ->
        match a.Public_data.diplome_mention with
        | None -> ""
        | Some a -> a)
   let resultat =
-    "Résultat",
+    ["Résultat"],
     (fun a ->
        Format.sprintf
          "%s%s"
@@ -90,18 +103,18 @@ struct
           | Public_data.Unknown -> "(e)")
     )
   let departement =
-    "Département",
+    ["Département"],
     (fun a -> a.Public_data.diplome_dpt)
   let level =
-    "Niveau",
+    ["Niveau"],
     (fun a -> a.Public_data.diplome_niveau)
   let ects =
-    "Nbects",(fun a -> string_of_float (a.Public_data.diplome_nb_ects))
+    ["Nbects"],(fun a -> string_of_float (a.Public_data.diplome_nb_ects))
   let year =
-    "Annee",(fun a -> a.Public_data.diplome_year)
+    ["Année"],(fun a -> a.Public_data.diplome_year)
 
   let lresultat =
-    "",(fun x -> x),
+    [],(fun x -> x),
     (fun a ->
        if a.Public_data.diplome_recu then "Reçu(e)s" else "Ajourné(e)s"
     )
@@ -313,14 +326,19 @@ let dump_attestation
     in
     let () =
       Loggers.setheadpage logger
-        (Format.sprintf
+        [
+          Loggers.fprintf_verbatim,
+         (Format.sprintf
            "\\IfFileExists{%s}{\\includegraphics{%s}}{}"
-           enspsl enspsl)
+           enspsl enspsl)]
     in
     let () =
       let color = Color.digreen in
       Loggers.setfootpage logger ~color
-        "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32  20 45 --  Fax : + 33 (0) 1 44 32 20 75 - direction.etudes@di.ens.fr}"
+        [
+          Loggers.fprintf,
+          "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32  20 45 --  Fax : + 33 (0) 1 44 32 20 75 - direction.etudes@di.ens.fr}"
+        ]
     in
     let state, s = Remanent_state.get_signature state in
     let year = diplome.Public_data.diplome_year in
@@ -363,7 +381,7 @@ let dump_attestation
     in
     let body =
       Format.sprintf
-        "\\vfill\n\n\\begin{center}\\underline{ATTESTATION}\\end{center}\n\ \\vfill\n\n\  Je soussigné, \\textbf{%s}, directeur des études du département d'Informatique de l'École Normale Supérieure,\\bigskip\\\\CERTIFIE que,\\bigskip\\\\conformément aux dispositions générales de la scolarité au sein de la formation universitaire en informatique de l'ENS et aux décisions de la commission des études du département d'informatique de l'ENS, \\bigskip\\\\\\textbf{%s %s}, a obtenu en %s-%s\\\\\\textbf{%s}\\\\Parcours : \\textbf{Formation interuniversitaire en informatique -- ENS Paris}.\\\\ %s \n\n\\vfill\n\\begin{center}Fait à Paris le %s\\smallskip\n\nPour valoir et servir ce que de droit \n\n\n\n\\IfFileExists{%s}%%\n\ {\ {\\includegraphics{%s}}}%%\n\ {}\\end{center}\\vfill"
+        "\\vfill\n\n\\begin{center}\\underline{ATTESTATION}\\end{center}\n\ \\vfill\n\n\  Je soussigné, \\textbf{%s}, directeur des études du département d'Informatique de l'École Normale Supérieure,\\bigskip\\\\CERTIFIE que,\\bigskip\\\\conformément aux dispositions générales de la scolarité au sein de la formation universitaire en informatique de l'ENS et aux décisions de la commission des études du département d'informatique de l'ENS, \\bigskip\\\\\\textbf{%s %s}, a obtenu en %s-%s\\\\\\textbf{%s}\\\\Parcours : \\textbf{Formation interuniversitaire en informatique -- ENS Paris}.\\\\ %s \n\n\\vfill\n\\begin{center}Fait à Paris le %s\\smallskip\n\nPour valoir et servir ce que de droit \n\n\n\n"
         "Jérôme FERET"
         lastname
         firstname
@@ -371,10 +389,13 @@ let dump_attestation
         (next_year year)
         libelle
         "VALIDÉE"
-        "\\today"
+        "\\today",
+      Format.sprintf
+        "\\IfFileExists{%s}%%\n\ {\ {\\includegraphics{%s}}}%%\n\ {}\\end{center}\\vfill"
         s s
     in
-    let _ = Loggers.fprintf logger  "%s" body in
+    let _ = Loggers.fprintf logger  "%s" (fst body) in
+    let _ = Loggers.fprintf_verbatim logger  "%s" (snd body) in
     let () = Loggers.close_logger logger in
     state, Some (output_repository,output_file_name)
 

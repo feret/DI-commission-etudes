@@ -38,15 +38,15 @@ struct
       state
 
   let nom =
-    "NOM",
+    ["NOM"],
     (fun a -> a.Public_data.student_lastname_report)
 
   let prenom =
-    "PRÉNOM",
+    ["PRÉNOM"],
     (fun a -> a.Public_data.student_firstname_report)
 
   let promotion =
-    "PROMOTION",
+    ["PROMOTION"],
     (fun a -> a.Public_data.student_promo_report)
 
   let lift_id (a,b) = (a,(fun x -> x),b)

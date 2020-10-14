@@ -26,7 +26,7 @@ let lb =
     Public_data.direction_initiales = "LB";
     Public_data.direction_nom_complet = "Linda Boulevart";
     Public_data.direction_signature =
-      Some Remanent_state.get_signature;
+      None;
     Public_data.direction_titre = "Secrétaire pédagogique";
     Public_data.direction_departement = "d'informatique";
 
@@ -76,7 +76,7 @@ let todo =
     TODO_DENS
       (Dens_report.DensReport.dump_per_promo,"_par_promotion");
     TODO_DENS
-      (Dens_report.DensReport.dump_per_promo,"_par_nb_inscriptions")
+      (Dens_report.DensReport.dump_per_n_inscription,"_par_nb_inscriptions")
   ]
 
 let direction_etude =
@@ -129,12 +129,17 @@ let print_sous_commission
     begin
       let state, enspsl = Remanent_state.get_ENSPSL_logo state in
       let headpage s _ =
-        Format.sprintf
-          "\\IfFileExists{%s}{\\includegraphics{%s} \\\\}{} Résultats %s\\\\%s\\\\Page \\thepage/\\pageref{LastPage}\\\\"
-          enspsl enspsl full_year s
+        [Loggers.fprintf_verbatim,
+         Format.sprintf "\\IfFileExists{%s}{\\includegraphics{%s} \\\\}{}"
+           enspsl enspsl;
+         Loggers.fprintf,
+           Format.sprintf
+             "Résultats %s\\\\%s\\\\Page \\thepage/\\pageref{LastPage}\\\\"
+           full_year s]
       in
       let footpage =
-        "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32 20 45 --  Fax : + 33 (0) 1 44 32 20 75 - direction.etudes@di.ens.fr}"
+        [Loggers.fprintf,
+         "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32 20 45 --  Fax : + 33 (0) 1 44 32 20 75 - direction.etudes@di.ens.fr}"]
       in
       let footcolor = Color.digreen in
       match todo, sous_commission with
@@ -152,25 +157,32 @@ let print_sous_commission
           | None -> state
           | Some s ->
             let preamble i =
-              Format.sprintf
+              [Loggers.fprintf,
+               Format.sprintf
                 "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du %s,} je soussigné \\textbf{%s}, %s du département %s de l'École Normale Supérieure, certifie que les \\underline{\\textbf{%i étudiants inscrits en %s}}, %s du diplôme de l'École Normale Supérieure, ont obtenu les résultats suivants" commission_date
                 direction.Public_data.direction_nom_complet
                 direction.Public_data.direction_titre
                 direction.Public_data.direction_departement
                 i
                 full_year
-                dip.Public_data.which_year_string
+                dip.Public_data.which_year_string]
             in
             let state, s =
               s state
             in
             let signature _ =
-              Format.sprintf
-                "Certifié exact à Paris \\\\ le %s \\\\ \\IfFileExists{%s}{\\includegraphics{%s}}{}"
-                commission_date s s
+              [
+                Loggers.fprintf,
+                Format.sprintf
+                 "Certifié exact à Paris \\\\ le %s \\\\"
+                 commission_date;
+                Loggers.fprintf_verbatim,
+                Format.sprintf  "\\IfFileExists{%s}{\\includegraphics{%s}}{}"
+                 s s
+              ]
             in
             let state,input =
-              Dens_report.DensReport.dump_per_promo
+              f
                 ~file_name:"PV_DENS_par_promotion.tex" state
                 ~signature ~preamble ~headpage:headpage
                 ~footpage ~footcolor
@@ -195,7 +207,8 @@ let print_sous_commission
             state
         in
         let preamble i =
-          Format.sprintf
+          [Loggers.fprintf,
+           Format.sprintf
             "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du %s,} je soussigné \\textbf{%s}, %s du département %s de l'École Normale Supérieure, certifie que les \\underline{\\textbf{%i étudiants inscrits en %s}}, à l'université %s, \\textbf{en %s - parcours : Formation interuniversitaire en informatique de l'ENS Paris, ont obtenu les résultats suivants}"
             commission_date
             direction.Public_data.direction_nom_complet
@@ -203,10 +216,10 @@ let print_sous_commission
             direction.Public_data.direction_departement
             i full_year
             dip.Public_data.dn_universite
-            dip.Public_data.dn_long
+            dip.Public_data.dn_long]
         in
         let state,input =
-          Diploma_report.DiplomaReport.dump_per_result_per_student
+          f
             ~file_name:(Format.sprintf "PV_%s%s_sans_signature_%s.tex"
                           dip.Public_data.dn_short lbl direction.Public_data.direction_initiales)
             ~academicyear:commission_year
@@ -227,12 +240,19 @@ let print_sous_commission
             s state
           in
           let signature _ =
-            Format.sprintf
-              "Certifié exact à Paris \\\\ le %s \\\\ \\IfFileExists{%s}{\\includegraphics{%s}}{}"
-              commission_date s s
+            [
+              Loggers.fprintf,
+              Format.sprintf
+                "Certifié exact à Paris \\\\ le %s \\\\"
+                commission_date ;
+              Loggers.fprintf_verbatim,
+              Format.sprintf
+                "\\IfFileExists{%s}{\\includegraphics{%s}}{}"
+                s s
+            ]
           in
           let state,input =
-            Diploma_report.DiplomaReport.dump_per_result_per_student
+            f
               ~file_name:(Format.sprintf "PV_%s%s_signe_%s.tex"
                             dip.Public_data.dn_short lbl direction.Public_data.direction_initiales)
               ~academicyear:commission_year

@@ -194,9 +194,10 @@ let state =
 let state, academicyear =
   Remanent_state.get_current_academic_year state
 let title =
-  Format.sprintf
+  [Loggers.fprintf,
+   Format.sprintf
     "TUTEURS NOUVELLEMENT ATTRIBUÉS en %s"
-    current_year
+    current_year]
 let state =
   Mentor_report.ReportListMentors.dump
     ~attributionyear:current_year
@@ -205,16 +206,19 @@ let state =
     ~title
     state
 let title =
-  Format.sprintf
-    "LISTE DES TUTEURS EN %s"
-    current_year
+  [Loggers.fprintf,
+   Format.sprintf
+     "LISTE DES TUTEURS EN %s"
+     current_year]
 let state =
   Mentor_report.ReportListMentors.dump
     ~academicyear:current_year ~dpt:"informatique"
     ~title
     ~file_name:(fun s ext -> Format.sprintf "tuteurs_%s%s.%s" current_year s ext)
     state
-let title = "HISTORIQUE DES TUTEURS "
+let title =
+  [Loggers.fprintf,
+   "HISTORIQUE DES TUTEURS"]
 let correct_email = fun x -> x
 let state =
     Mentor_report.ReportListMentors.dump

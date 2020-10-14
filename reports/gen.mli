@@ -26,11 +26,34 @@ val dump_elts:
   ?prefix:string ->
   ?file_name:string ->
   ?event_opt:Sco_remanent_state.Profiling.step_kind ->
-  ?headpage:(int -> string) ->
-  ?footpage:string ->
-  ?title:string ->
-  ?preamble:(int -> string) ->
-  ?signature:(int -> string) ->
+  ?headpage:(int ->
+                      ((Loggers.t ->
+                        (string -> unit, Format.formatter, unit) format ->
+                        string -> unit) *
+                       string)
+                      list) ->
+           ?footpage:((Loggers.t ->
+                       (string -> unit, Format.formatter, unit) format ->
+                       string -> unit) *
+                      string)
+                     list ->
+           ?title:((Loggers.t ->
+                    (string -> unit, Format.formatter, unit) format ->
+                    string -> unit) *
+                   string)
+                  list ->
+           ?preamble:(int ->
+                      ((Loggers.t ->
+                        (string -> unit, Format.formatter, unit) format ->
+                        string -> unit) *
+                       string)
+                      list) ->
+           ?signature:(int ->
+                       ((Loggers.t ->
+                         (string -> unit, Format.formatter, unit) format ->
+                         string -> unit) *
+                        string)
+                       list) ->
   ?headerextralength:int ->
   ?headcolor:Color.color ->
   ?footcolor:Color.color ->
@@ -39,8 +62,8 @@ val dump_elts:
   get_repository:(Remanent_state.t -> Remanent_state.t * string) ->
   default_file_name:string ->
   cmp:('a -> 'a -> int) list ->
-  headers:(string * ('b -> string) * ('a -> 'b)) list ->
-  columns:(string * ('a -> string)) list ->
+  headers:(string list * ('b -> string) * ('a -> 'b)) list ->
+  columns:(string list * ('a -> string)) list ->
   Remanent_state.t ->
   Remanent_state.t * (string * string) option
 
@@ -80,7 +103,7 @@ val filter_dens:
 val filter_national_diploma:
   Public_data.diplome_national filter
 val filter_student_list:
-  Public_data.student filter 
+  Public_data.student filter
 
 
 module type Interface =

@@ -38,10 +38,10 @@ struct
 
   let columns =
     [
-      "NOM",(fun a -> a.Public_data.missing_mentor_lastname);
-      "PRÉNOM",(fun a -> a.Public_data.missing_mentor_firstname);
-      "PROMOTION",(fun a -> a.Public_data.missing_mentor_promotion);
-      "ANNÉE ACADÉMIQUE",
+      ["NOM"],(fun a -> a.Public_data.missing_mentor_lastname);
+      ["PRÉNOM"],(fun a -> a.Public_data.missing_mentor_firstname);
+      ["PROMOTION"],(fun a -> a.Public_data.missing_mentor_promotion);
+      ["ANNÉE ACADÉMIQUE"],
       (fun a ->
          let year = a.Public_data.missing_mentor_year in
          try

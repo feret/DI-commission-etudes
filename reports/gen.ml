@@ -177,6 +177,10 @@ let dump_elts
                         (List.rev headers))
             filtered_elts
         in
+        let headpage =
+          match headpage with None -> (fun _ -> [])
+                            | Some a -> a
+        in
         let () =
           Tools.dump_report
             ~print_header:(Loggers.print_headers logger)
@@ -185,16 +189,17 @@ let dump_elts
             ~print_cell:(Loggers.print_cell logger)
             ~close_array:(fun () -> Loggers.close_array logger)
             ~string_of_headers:(List.rev_map (fun (a,b,_) ->
-                a,b) (List.rev headers))
+                (a:string list),b) (List.rev headers))
             ~string_of_column:columns
             ~settitle:(Loggers.maketitle logger)
-            ~setheadpage:(Loggers.setheadpage logger)
+            ~setheadpage:(fun ?color s ->
+                Loggers.setheadpage logger ?color s)
             ~setfootpage:(Loggers.setfootpage logger)
             ~setsignature:(Loggers.setsignature logger)
             ~setpreamble:(Loggers.setpreamble logger)
             ~open_array:(Loggers.open_array logger)
             ?title
-            ?headpage
+            ~headpage
             ?footpage
             ?headcolor
             ?footcolor

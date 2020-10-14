@@ -330,11 +330,18 @@ let prepare_report
     ~close_array
     ~string_of_headers
     ~string_of_column
-    ~settitle
-    ~setpreamble
-    ~(setheadpage: ?color:Color.color -> string -> unit)
-    ~(setfootpage: ?color:Color.color -> string -> unit)
-    ~setsignature
+    ~(settitle:(('logger -> ('c, Format.formatter, unit) format -> 'c) * string)
+          list -> unit)
+    ~(setpreamble:(('logger -> ('d, Format.formatter, unit) format -> 'd) * string)
+          list -> unit)
+    ~(setheadpage:
+    ?color:Color.color ->
+      (('logger -> ('e, Format.formatter, unit) format -> 'e) * string) list  -> unit)
+    ~(setfootpage:
+      ?color:Color.color ->
+        (('logger -> ('f, Format.formatter, unit) format -> 'f) * string) list  -> unit)
+    ~(setsignature:(('logger -> ('g, Format.formatter, unit) format -> 'g) * string)
+         list -> unit)
     ?title
     ?headpage
     ?headcolor
@@ -351,14 +358,15 @@ let prepare_report
     in
     let _ =
       match headpage with
-      | None -> setheadpage ""
+      | None ->
+        setheadpage []
       | Some f ->
         let color = headcolor in
         setheadpage ?color (f n)
     in
     let _ =
       match footpage with
-      | None -> setfootpage ""
+      | None -> setfootpage []
       | Some f ->
         let color = footcolor in
         setfootpage ?color f
@@ -372,6 +380,7 @@ let prepare_report
       Array.of_list string_of_headers
     in
     let compute_headers (a,b) c =
+      let a = String.trim (String.concat " " a) in
       if a = ""
       then
         Format.sprintf "%s" (b c)
@@ -392,16 +401,6 @@ let prepare_report
         in
         aux 1 a b
     in
-    (*  let dump_headers () =
-      let () = open_row () in
-      let () =
-        List.iter
-          (fun (a,_) -> print_cell (a:string))
-          string_of_column
-      in
-      let () = close_row () in
-      ()
-        in*)
     let dump_row a =
       let () = open_row () in
       let () =
@@ -445,7 +444,6 @@ let prepare_report
                               fst
                               (List.rev string_of_column))
                 in
-                (*let () = dump_headers () in*)
                 let () = dump_row a in
                 Some (headers)
             end
@@ -468,7 +466,7 @@ let prepare_report
 
 let build_output
     pos
-    ~has_promo 
+    ~has_promo
     ~get_repository
     ~get_store_according_promotion
     ~get_indicate_promotions_in_file_names
