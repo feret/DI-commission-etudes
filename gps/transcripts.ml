@@ -32,18 +32,22 @@ let dpt_maths = "mathematiques"
 let dpt_info = "informatique"
 let dpt_phys = "physique"
 let dpt_bio = "biologie"
+let dpt_dec = "etudes cognitives"
 let dpt_info_gps_name = dpt_info
 let dpt_phys_gps_name = dpt_phys
 let dpt_maths_gps_name = "mathematiques et applications"
+let dpt_dec_gps_name = dpt_dec
 let dpt_bio_gps_name = dpt_bio
 let acro_dpt_phys = "PHYS"
 let acro_dpt_info = "DI"
 let acro_dpt_maths = "DMA"
 let acro_dpt_bio = "IBENS"
+let acro_dpt_dec = "DEC"
 let dpt_info_full = "Département d'Informatique"
 let dpt_maths_full = "Département de Mathématiques et Applications"
 let dpt_phys_full = "Département de Physique"
 let dpt_bio_full = "Institut de Biologie"
+let dpt_dec_full = "Département d'Études Cognitives"
 
 let simplify_string s =
   Special_char.lowercase
@@ -2188,6 +2192,7 @@ let translate_dpt state d =
       | x when x=dpt_maths -> state, dpt_maths_full
       | x when x=dpt_phys -> state, dpt_phys_full
       | x when x=dpt_bio -> state, dpt_bio_full
+      | x when x=dpt_dec -> state, dpt_dec_full
       | x -> state,
              Printf.sprintf
                "Département de %s"
@@ -2504,6 +2509,8 @@ let color_of_dpt who pos state dpt origine =
   then state, Some Color.duckblue
   else if dpt = dpt_bio
   then state, Some Color.green
+  else if dpt = dpt_dec
+  then state, Some Color.red
   else
     let msg =
       Format.sprintf "Unknown departement (%s) for %s"
@@ -2530,6 +2537,8 @@ let acro_of_dpt who pos state dpt origine =
   then state, Some acro_dpt_phys
   else if List.mem dpt [dpt_bio;dpt_bio_gps_name]
   then state, Some acro_dpt_bio
+  else if List.mem dpt [dpt_dec;dpt_dec_gps_name]
+  then state, Some acro_dpt_dec
   else
     let msg =
       Format.sprintf "Unknown departement (%s) for %s"
@@ -2555,6 +2564,8 @@ let dpt_of_acro who pos state dpt origine =
   then state, Some dpt_phys
   else if dpt = acro_dpt_bio
   then state, Some dpt_bio
+  else if dpt = acro_dpt_dec
+  then state, Some dpt_dec
   else
     let msg =
       Format.sprintf "Unknown departement (%s) for %s"
@@ -2769,26 +2780,46 @@ let add_dens year compensation course map =
       | Some false -> map
       | None -> add_dens_potential year course map
 
-let add_mean_empty state key year map =
-  let old,y =
+let add_mean_empty state ~dens ~decision ~exception_cursus key year  map =
+  let ects,old,y =
     match StringOptMap.find_opt key (fst map)
     with
-    | None -> [],0
+    | None -> 0.,[],0
     | Some a -> a
   in
-  state,
-  (StringOptMap.add key (old, max y year) (fst map),
-   snd map)
+  if ects < 60. || exception_cursus || decision || dens
+  then
+    state,
+    (StringOptMap.add key (ects,old, max y year) (fst map),
+     snd map)
+  else
+    state, map
 
 let add_mean_ok state key course year map =
-  let old,y =
+  let ects,old,y =
     match StringOptMap.find_opt key (fst map)
     with
-    | None -> [],0
+    | None -> 0.,[],0
     | Some a -> a
   in
   state, (StringOptMap.add key
-    ((course.note, course.ects)::old, max y year) (fst map),
+            (ects+.(match course.note
+                    with
+                    | None -> 0.
+                    | Some a ->
+                      begin
+                        match  Notes.valide a with
+                        | None | Some false -> 0.
+                        | Some true ->
+                          begin
+                            match course.ects
+                            with
+                            |  None -> 0.
+                            |  Some a -> a
+                          end
+                      end
+                   )
+            ,(course.note, course.ects)::old, max y year) (fst map),
           snd map)
 
 let add_mean state key compensation course year map =
@@ -2803,8 +2834,8 @@ let add_mean state key compensation course year map =
       | Some false | None ->
         state, map
 
-let add_mean_diplome state d mean_opt mention_opt year mean =
-  add_mean_empty state
+let add_mean_diplome state ~dens ~decision ~exception_cursus d mean_opt mention_opt year mean =
+  add_mean_empty state ~dens ~decision ~exception_cursus
     d year (fst mean, (d,mean_opt,mention_opt)::(snd mean))
 
 let get_origine who promo gps_file state =
@@ -3523,7 +3554,7 @@ let program
   in
   let state, decision_opt, can_put_mean_mention =
     match dpt, string with
-    | _, None | "dens", _ -> state, None, false
+    | _, (None |  Some "dens") -> state, None, false
     | _, Some program ->
       let state, dpt =
         acro_of_dpt who __POS__ state dpt origine
@@ -3579,8 +3610,41 @@ let program
   let state, mean =
     if do_report report
     then
+      let state, exception_cursus =
+        let rec aux state l =
+          match l with
+          | [] -> state, false
+          | (_,h)::t ->
+            begin
+              match
+                h.code_cours
+              with
+              | None -> aux state t
+              | Some code_gps ->
+                match
+                  Remanent_state.get_cursus_exception
+                    ~firstname ~lastname ~year ~code_gps state
+                with
+                | state, Some _  -> state, true
+                | state, None ->
+                  aux state t
+            end
+        in
+        aux state list
+      in
+      let dens = string = Some "dens" in
+      let decision =
+        match
+          decision_opt
+        with
+        | None -> false
+        | Some _ -> true
+      in
       add_mean_diplome
         state
+        ~dens
+        ~exception_cursus
+        ~decision
         (string,dpt)
         moyenne_opt
         mention_opt
@@ -4964,7 +5028,7 @@ let export_transcript
                    StringOptMap.find_opt key (fst mean)
                  with
                  | None -> state
-                 | Some (l,year) ->
+                 | Some (_,l,year) ->
                    let state, total, ects_qui_comptent, ects =
                      List.fold_left
                        (fun (state, total, ects_qui_comptent,

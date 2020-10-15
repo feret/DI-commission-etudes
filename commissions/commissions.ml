@@ -36,9 +36,9 @@ let dens_two =
   Public_data.Diplome_ENS
     {
       Public_data.dens_key = "dens_two";
-    Public_data.nb_inscription_list=[1;2];
-    Public_data.dens_short= "DENS";
-    Public_data.which_year_string="première et deuxième année";
+      Public_data.nb_inscription_list=[1;2];
+      Public_data.dens_short= "DENS";
+      Public_data.which_year_string="première et deuxième année";
   }
 
 let l =
@@ -183,7 +183,9 @@ let print_sous_commission
             in
             let state,input =
               f
-                ~file_name:"PV_DENS_par_promotion.tex" state
+                ~file_name:(Format.sprintf "PV_%s%s.tex"
+                              dip.Public_data.dens_short lbl)
+                state
                 ~signature ~preamble ~headpage:headpage
                 ~footpage ~footcolor
                 ~nb_inscription_list:dip.Public_data.nb_inscription_list

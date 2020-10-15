@@ -494,7 +494,9 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
     let _ =
       List.fold_left (fun is_start title ->
           let () =
-            fprintf logger "%s\\makecell{\\cellcolor{white}{%s}}"
+            fprintf
+              logger
+              "%s\\cellcolor{white}{\\makecell{%s}}"
               (if is_start then "" else "&")
               (String.concat "\\\\ " title)
           in
