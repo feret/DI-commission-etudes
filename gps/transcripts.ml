@@ -225,6 +225,8 @@ let log_statut
              | Public_data.Ex_etudiant -> "Ancien etudiant"
              | Public_data.Boursier_si ->
                "Boursier - selection internationale"
+             | Public_data.Ex_hors_GPS ->
+               "Ex hors GPS"
              | Public_data.Hors_GPS ->
                "Hors GPS")
         in state
@@ -599,6 +601,7 @@ let need_a_mentor gps_file =
       Public_data.Ex_boursier_si
     | Public_data.Ex_eleve
     | Public_data.Ex_etudiant
+    | Public_data.Ex_hors_GPS
     | Public_data.Hors_GPS) | None  -> false
 
 let _log_gps_file state gps =
@@ -1435,6 +1438,7 @@ let statuts =
     Public_data.Ex_boursier_si,["ex - boursier si"];
     Public_data.Boursier_si,["boursier si"];
     Public_data.Hors_GPS,["hors gps"];
+    Public_data.Ex_hors_GPS,["ex - hors gps"]
   ]
 
 let gen_fetch_opt_of_string_opt ?who ?gps_file list err pos state s_opt =
@@ -2934,7 +2938,8 @@ let heading
         Format.sprintf "\\'Etudiant%s"
           genre,bourse,""
       end
-    | Some Public_data.Hors_GPS ->
+    | Some Public_data.Hors_GPS
+    | Some Public_data.Ex_hors_GPS  ->
       begin
         match origine with
         | Some
@@ -4392,7 +4397,6 @@ let export_transcript
     let old_logger = Remanent_state.save_std_logger state in
     let state = Remanent_state.set_std_logger state logger in
     let l = Public_data.YearMap.bindings gps_file.situation in
-
     let lastname =
       Special_char.uppercase (Tools.unsome_string gps_file.nom)
     in
@@ -4482,6 +4486,8 @@ let export_transcript
                    | Some "OPT1" -> true
                    | Some _ | None -> false
                  end
+                 ||
+                 counter = 0
                | Some sit ->
                  simplify_string sit = "scolarite a l'ens"
              end
@@ -4856,6 +4862,15 @@ let export_transcript
                  (fun a -> Some (a/.(sum*.1.12)))
                  (List.rev l)
              in
+
+             let split_cours =
+               if StringOptMap.is_empty split_cours
+               then
+                 StringOptMap.add
+                   (None,"") [] split_cours
+               else
+                 split_cours
+             in
              let _, state, mean, dens =
                StringOptMap.fold
                  (fun (string,dpt) list (i,state,mean,dens)
@@ -4925,9 +4940,7 @@ let export_transcript
                        then
                          let state =
                            foot signature state
-
                          in
-
                          let () =
                            Remanent_state.fprintf
                              state "\n\ \\vfill\n\ \n\ "

@@ -506,13 +506,24 @@ let clean_spurious_uppercase_letters string =
       else aux (k+1) false []
   in f 0
 
-let clean_mlle s =
-  let a = String.split_on_char ' ' s in
+let clean_mlle_gen char s =
+  let a = String.split_on_char char s in
   let a =
     List.rev_map
-      (fun x -> match x with
-         | "Mlle" -> "Mme"
-         | x -> x)
+      (fun x ->
+         let n = String.length x in
+         if n<4 then x
+         else
+         if String.sub x (n-4) 4 = "Mlle"
+         then
+           (String.sub x 0 (n-4))^"Mme"
+         else x)
       (List.rev a )
   in
-  String.concat " " a
+  let a = String.concat (String.make 1 char) a in
+  a
+
+let clean_mlle s =
+  List.fold_left
+    (fun s char -> clean_mlle_gen char s)
+    s [' ';'}']

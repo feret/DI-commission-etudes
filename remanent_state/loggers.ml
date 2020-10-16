@@ -119,6 +119,7 @@ let fprintf ?fprintnewline:(fprintnewline=false) logger =
       fmt_buffer
 
 let fprintf_verbatim  logger = fprintf ~fprintnewline:false logger
+
 let fprintf ?fprintnewline:(fprintnewline=false) logger =
   match logger.encoding with
   | Latex _ | Latex_encapsulated ->
@@ -128,6 +129,7 @@ let fprintf ?fprintnewline:(fprintnewline=false) logger =
       (fun _ ->
          let () = Format.pp_print_flush fmt_buffer () in
          let str = Buffer.contents b in
+         let str = Special_char.clean_mlle str in
          let str = Special_char.clean_spurious_uppercase_letters str in
          let str =
            Special_char.correct_string_latex str
@@ -1034,9 +1036,6 @@ let setgenparagraph
         s
     in
     let () = latex_end logger in
-    let () =
-      fprintf logger "\\end{center}\\vfill\n\n\\mbox{}\n"
-    in
     let () = print_newline logger in
     ()
   | TXT

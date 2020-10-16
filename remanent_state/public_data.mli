@@ -406,6 +406,7 @@ type statut =
   | Ex_eleve
   | Ex_etudiant
   | Hors_GPS
+  | Ex_hors_GPS
 
 type origin =
   | DensInfo
@@ -448,7 +449,7 @@ type diplome_nat =
 
 type diplome_ens =
   {
-    dens_key: string; 
+    dens_key: string;
     nb_inscription_list: int list;
     dens_short: string;
     which_year_string: string;

@@ -511,6 +511,7 @@ type statut =
   | Ex_eleve
   | Ex_etudiant
   | Hors_GPS
+  | Ex_hors_GPS
 
 type origin =
   | DensInfo
@@ -569,7 +570,7 @@ type 'a direction_des_etudes =
 
 type diplome_nat =
   {
-    dn_key: string; 
+    dn_key: string;
     dn_short: string;
     dn_long: string;
     dn_universite: string;
