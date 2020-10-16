@@ -2170,6 +2170,7 @@ let iasd = gen_master "M-IASD" "gps76822" "INFO-M2-IASD-STG-S2"
 let mash = gen_master "M-MASH" "gps59622" "INFO-M2-MASH-STG-S2"
 let mint = gen_master "M-Interaction" "gps78864" "XT 00000000000647168"
 let mlmfi = gen_master "M-LMFI" "gps2005" "NOWAY"
+let mimalis = gen_master "M-ScVivant" "" "BIO-M2-E14-S2"
 
 let string_of_stringopt s_opt =
   match s_opt with
@@ -2481,6 +2482,8 @@ let translate_diplome
       state, (Some "Interaction", "M2 Interaction", dpt_info,false)
     else if mlmfi situation then
       state, (Some "LMFI", "M2 LMFI", dpt_info, false)
+    else if mimalis situation then
+      state, (Some "IMALIS","M2 IMALIS", dpt_bio,false)
     else
       check_dpt __POS__ state origine
         "M" "M1" code_cours year
@@ -3720,6 +3723,8 @@ let program
       state, Some Color.yellow
     | Some ("lmath" | "mmath" | "LMath" | "MMath") ->
       state, Some Color.orange
+    | Some ("imalis") ->
+      state, Some Color.green
     | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" | "lmfi") ->
       color_of_dpt who __POS__ state dpt origine
     | Some _  -> state, None
