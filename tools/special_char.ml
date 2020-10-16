@@ -453,6 +453,7 @@ let delimiter =
   [' ';'-';
    '\"';'\'';
    '\\';',';'.';'?';':';'!';'{';'}';'_';'[';']';'#']
+
 let clean_spurious_uppercase_letters string =
   let n = String.length string in
   let string = Bytes.of_string string in
@@ -504,3 +505,14 @@ let clean_spurious_uppercase_letters string =
       then f (k+1)
       else aux (k+1) false []
   in f 0
+
+let clean_mlle s =
+  let a = String.split_on_char ' ' s in
+  let a =
+    List.rev_map
+      (fun x -> match x with
+         | "Mlle" -> "Mme"
+         | x -> x)
+      (List.rev a )
+  in
+  String.concat " " a
