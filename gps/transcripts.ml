@@ -233,7 +233,8 @@ let log_statut
 
 let string_of_origin_opt a =
   match a with
-   | None -> ""
+  | None -> ""
+  | Some Public_data.DensDEC -> "concours universitaire sciences cognitives"
    | Some Public_data.DensInfo -> "concours universitaire informatique"
    | Some Public_data.EchErasm -> "Erasmus"
    | Some Public_data.Info -> "CPGE Informatique"
@@ -247,7 +248,7 @@ let string_of_origin_opt a =
 let string_of_origin_short_opt a =
   match a with
   | None -> ""
-  | Some Public_data.DensInfo -> "universitaire"
+  | Some (Public_data.DensInfo | Public_data.DensDEC) -> "universitaire"
   | Some Public_data.EchErasm -> "Erasmus"
   | Some Public_data.Info -> "Info"
   | Some Public_data.Mpi -> "MPI"
@@ -1499,6 +1500,7 @@ let statut_opt_of_string_opt ?who ?gps_file  =
 let origines =
   [
     Public_data.DensInfo,["dens-info"];
+    Public_data.DensDEC,["dens-dec"];
     Public_data.EchErasm,["e-echerasm"];
     Public_data.Info,["info"];
     Public_data.Mpi,["mpi"];
@@ -2085,27 +2087,31 @@ let lpoly d =
 let lerasmus origine =
   match origine with
   | Some Public_data.EchErasm -> true
-  | Some Public_data.DensInfo
-  | Some Public_data.Info
-  | Some Public_data.Mpi
-  | Some Public_data.Pc
-  | Some Public_data.PensionnaireEtranger
-  | Some Public_data.Psi
-  | Some Public_data.Sis
-  | Some Public_data.M_MPRI
+  | Some
+      (Public_data.DensInfo
+      | Public_data.DensDEC
+      | Public_data.Info
+      | Public_data.Mpi
+      | Public_data.Pc
+      | Public_data.PensionnaireEtranger
+      | Public_data.Psi
+      | Public_data.Sis
+      | Public_data.M_MPRI)
   | None -> false
 
 let lpe origine =
   match origine with
   | Some Public_data.PensionnaireEtranger -> true
-  | Some Public_data.DensInfo
-  | Some Public_data.EchErasm
-  | Some Public_data.Info
-  | Some Public_data.Mpi
-  | Some Public_data.Pc
-  | Some Public_data.Psi
-  | Some Public_data.Sis
-  | Some Public_data.M_MPRI
+  | Some
+      (Public_data.DensInfo
+      | Public_data.DensDEC
+      | Public_data.EchErasm
+      | Public_data.Info
+      | Public_data.Mpi
+      | Public_data.Pc
+      | Public_data.Psi
+      | Public_data.Sis
+      | Public_data.M_MPRI)
   | None -> false
 
 
@@ -2851,6 +2857,7 @@ let get_origine who promo gps_file state =
   with
   |(Some
       ( Public_data.DensInfo
+      | Public_data.DensDEC
       |Public_data.EchErasm
       |Public_data.Info
       |Public_data.Mpi
@@ -2956,7 +2963,8 @@ let heading
             state,
           "M-MPRI","",""
         | None -> state, "","", ""
-        | Some Public_data.DensInfo ->
+        | Some ( Public_data.DensInfo | Public_data.DensDEC)
+          ->
           let state, bourse =
             get_bourse
               ~firstname ~lastname ~er state

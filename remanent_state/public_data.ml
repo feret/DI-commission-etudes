@@ -514,6 +514,7 @@ type statut =
   | Ex_hors_GPS
 
 type origin =
+  | DensDEC 
   | DensInfo
   | EchErasm
   | Info
