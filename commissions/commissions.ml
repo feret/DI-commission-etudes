@@ -139,7 +139,7 @@ let print_sous_commission
       in
       let footpage =
         [Loggers.fprintf,
-         "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32 20 45 --  Fax : + 33 (0) 1 44 32 20 75 - direction.etudes@di.ens.fr}"]
+         "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32 20 45 --  Fax : + 33 (0) 1 44 32 20 75 -- direction.etudes@di.ens.fr}"]
       in
       let footcolor = Color.digreen in
       match todo, sous_commission with
