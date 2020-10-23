@@ -1776,8 +1776,14 @@ let asso_list =
            match data with
            | None -> state, remanent
            | Some data ->
+             let context =
+               Some (Format.sprintf "%s %s (%s)"
+                       (Tools.unsome_string remanent.gps_file.nom)
+                       (Tools.unsome_string remanent.gps_file.prenom)
+                       (Tools.unsome_string remanent.gps_file.promotion))
+             in
              let state, prevalide =
-               Valide.of_string __POS__ state data
+               Valide.of_string __POS__ ?context state data
              in
              state, {remanent with prevalide});
       Public_data.Note,
@@ -3081,10 +3087,13 @@ let heading
             | 4 -> state,
                    Format.sprintf "Quatrième année %s:"
                      is_suite
+            | 5 -> state,
+                   Format.sprintf "Cinquième année %s:"
+                     is_suite
             | _ ->
               let msg =
                 Printf.sprintf
-                  "max 4 ans de scolarité pour %s"
+                  "max 5 ans de scolarité pour %s"
                   who
               in
               Remanent_state.warn_dft

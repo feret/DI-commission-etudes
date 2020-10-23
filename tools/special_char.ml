@@ -51,7 +51,7 @@ let special_char_latex =
       '\182', "{\\\"o}";
       '\185', "{\\`u}";
       '\187', "{\\^u}";
-      '_', "{$\\_$}";
+      '_', "\\_";
       '\195', "";
     ]
 
@@ -155,7 +155,7 @@ let special_char_url =
   ]
 
 let special_char_email_latex =
-  ['_',"\\_"]
+  [] (*['_',"\\_"]*)
 
 let lowercase_char =
   [

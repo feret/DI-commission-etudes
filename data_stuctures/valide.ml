@@ -5,7 +5,7 @@ let to_string _pos  state t =
   | Public_data.Bool true-> state, "oui"
   | Public_data.Bool false -> state, "non"
 
-let of_string pos state s =
+let of_string ?context pos state s =
   if Tools.space_only s then
     state, None
   else
@@ -27,9 +27,15 @@ let of_string pos state s =
     then
       state, Some Public_data.Abs
     else
+      let context =
+        match context with
+        | None -> ""
+        | Some s -> Format.sprintf " %s" s
+      in
       let msg =
         Printf.sprintf
-          "wrong format for the field validity (%s)" s
+          "wrong format for the field validity (%s)%s" s
+          context
       in
       Remanent_state.warn_dft
         pos
