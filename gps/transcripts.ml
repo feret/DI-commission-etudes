@@ -4879,104 +4879,129 @@ let export_transcript
                  (fun a -> Some (a/.(sum*.1.12)))
                  (List.rev l)
              in
-
-             let split_cours =
-               if StringOptMap.is_empty split_cours
-               then
-                 StringOptMap.add
-                   (None,"") [] split_cours
-               else
-                 split_cours
-             in
-             let _, state, mean, dens =
-               StringOptMap.fold
-                 (fun (string,dpt) list (i,state,mean,dens)
-                   ->
-                     let state =
-                       if i mod 2 = 1
-                       then
-                         let suite = i<>1 in
+             if StringOptMap.is_empty split_cours
+             then
+               let suite = false in 
+               let state =
+                 heading
+                   ~who ~firstname ~lastname
+                   ~promo ~origine
+                   ~year ~situation
+                   ~tuteur
+                   cursus_map split_cours
+                   picture_list suite gps_file state
+               in
+               let () =
+                 Remanent_state.fprintf
+                   state "\n\ \\vfill\n\ \n\ "
+               in
+               let state =
+                 foot signature state
+               in
+               let () =
+                 Remanent_state.fprintf
+                   state "\n\ \\vfill\n\ \n\ "
+               in
+               let () =
+                   Remanent_state.fprintf
+                     state "\\pagebreak\n\ "
+               in
+               state, mean, dens
+             else
+               begin
+                 let _, state, mean, dens =
+                   StringOptMap.fold
+                     (fun (string,dpt) list (i,state,mean,dens)
+                       ->
                          let state =
-                           heading
-                             ~who ~firstname ~lastname
-                             ~promo ~origine
-                             ~year ~situation
-                             ~tuteur
-                             cursus_map split_cours picture_list suite gps_file state
+                           if i mod 2 = 1
+                           then
+                             let suite = i<>1 in
+                             let state =
+                               heading
+                                 ~who ~firstname ~lastname
+                                 ~promo ~origine
+                                 ~year ~situation
+                                 ~tuteur
+                                 cursus_map split_cours
+                                 picture_list suite gps_file state
+                             in
+                             let () =
+                               Remanent_state.fprintf
+                                 state "\n\ \\vfill\n\ \n\ "
+                             in
+                             state
+                           else state
+                         in
+                         let
+                           (state,mean,dens)
+                           =
+                           program
+                             ~origine ~string ~dpt ~year ~who
+                             ~alloc_suffix ~mean ~firstname
+                             ~lastname ~promo ~cursus_map ~size
+                             ~stages ~current_year ~report ~dens
+                             list state
                          in
                          let () =
                            Remanent_state.fprintf
                              state "\n\ \\vfill\n\ \n\ "
                          in
-                         state
-                       else state
-                     in
-                     let
-                       (state,mean,dens)
-                       =
-                       program
-                         ~origine ~string ~dpt ~year ~who
-                         ~alloc_suffix ~mean ~firstname
-                         ~lastname ~promo ~cursus_map ~size ~stages ~current_year ~report ~dens
-                         list state
-                     in
-                     let () =
-                       Remanent_state.fprintf
-                         state "\n\ \\vfill\n\ \n\ "
-                     in
-                     let () =
-                       if
-                         begin
-                           match
-                             dens_pos
-                           with
-                           | None -> i = nprogram
-                           | Some 1 -> true
-                           | Some p -> i = p-1
-                         end
-                       then
-                         match admission_opt with
-                         | None -> ()
-                         | Some admission ->
-                           let lineproportion = 1. in
-                           let () =
-                             Remanent_state.log
-                               ~lineproportion
-                               state
-                               "\\textbf{%s}"
-                               admission.Public_data.admission_decision
-                           in
-                           let () =
+                         let () =
+                           if
+                             begin
+                               match
+                                 dens_pos
+                               with
+                               | None -> i = nprogram
+                               | Some 1 -> true
+                               | Some p -> i = p-1
+                             end
+                           then
+                             match admission_opt with
+                             | None -> ()
+                             | Some admission ->
+                               let lineproportion = 1. in
+                               let () =
+                                 Remanent_state.log
+                                   ~lineproportion
+                                   state
+                                   "\\textbf{%s}"
+                                   admission.Public_data.admission_decision
+                               in
+                               let () =
+                                 Remanent_state.fprintf
+                                   state "\n\ \\vfill\n\ \n\ "
+                               in
+                               ()
+                         in
+                         let state =
+                           if i mod 2 = 0 || i = nprogram
+                           then
+                             let state =
+                               foot signature state
+                             in
+                             let () =
+                               Remanent_state.fprintf
+                                 state "\n\ \\vfill\n\ \n\ "
+                             in
+                             state
+                           else
+                             state
+                         in
+                         let () =
+                           if i mod 2 = 0 || i = nprogram
+                           then
                              Remanent_state.fprintf
-                               state "\n\ \\vfill\n\ \n\ "
-                           in
-                           ()
-                     in
-                     let state =
-                       if i mod 2 = 0 || i = nprogram
-                       then
-                         let state =
-                           foot signature state
+                               state "\\pagebreak\n\ "
                          in
-                         let () =
-                           Remanent_state.fprintf
-                             state "\n\ \\vfill\n\ \n\ "
-                         in
-                         state
-                       else
-                         state in
-                     let () =
-                       if i mod 2 = 0 || i = nprogram
-                       then
-                         Remanent_state.fprintf
-                           state "\\pagebreak\n\ "
-                     in
-                     (i+1,state,mean,dens)
-                 )
-                 split_cours
-                 (1,state,mean,dens)
-             in
-             state,mean,dens
+                         (i+1,state,mean,dens)
+                     )
+                     split_cours
+                     (1,state,mean,dens)
+                 in
+                 state,mean,dens
+               end
         )
         (state,mean_init,dens_init)
         l
