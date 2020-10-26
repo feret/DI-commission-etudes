@@ -4507,6 +4507,17 @@ let export_transcript
                  counter = 0
                | Some sit ->
                  simplify_string sit = "scolarite a l'ens"
+                 &&
+                 not
+                   (List.exists
+                      (fun dip ->
+                         let code = dip.diplome_diplome in
+                         match code with
+                         | None -> false
+                         | Some dip ->
+                           if String.length dip < 3 then false
+                           else String.sub dip 0 3 = "CES")
+                      annee.diplomes)
              end
            then
              let counter = counter + 1 in
@@ -4881,7 +4892,7 @@ let export_transcript
              in
              if StringOptMap.is_empty split_cours
              then
-               let suite = false in 
+               let suite = false in
                let state =
                  heading
                    ~who ~firstname ~lastname
