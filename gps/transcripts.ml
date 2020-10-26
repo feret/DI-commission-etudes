@@ -2720,6 +2720,7 @@ let count_for_maths state cours =
           "DMA-L3-A05-S2";
           "DMA-L3-A02-S1";
           "DMA-L3-A04-S1";
+          "INFO-L3-APPREN-S2"; 
           "INFO-M2-MODGEO-S2";
           "INFO-L3-SAA-S1";
           "INFO-L3-THEOIC-S2";
