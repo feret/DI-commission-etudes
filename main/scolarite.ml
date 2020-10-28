@@ -264,9 +264,9 @@ let state = Report.dump_issues state
 let state = Report.warn state
 let state =
   Cloud_interaction.make_current_repository state
-let state =
+(*let state =
   Cloud_interaction.synchronize_shared_repository
-    state
+    state*)
 let state =
     Remanent_state.print_errors "" state
 let state =
