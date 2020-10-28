@@ -2720,7 +2720,7 @@ let count_for_maths state cours =
           "DMA-L3-A05-S2";
           "DMA-L3-A02-S1";
           "DMA-L3-A04-S1";
-          "INFO-L3-APPREN-S2"; 
+          "INFO-L3-APPREN-S2";
           "INFO-M2-MODGEO-S2";
           "INFO-L3-SAA-S1";
           "INFO-L3-THEOIC-S2";
@@ -3757,44 +3757,33 @@ let program
       (fun state elt ->
          let _,cours = elt in
          match cours.note with
-         | Some Public_data.En_cours
-         | Some Public_data.Absent
-         | Some Public_data.Abandon
-         | None ->
-           state
-         | Some Public_data.Float _
-         | Some Public_data.Valide_sans_note ->
-           begin
-             match
-               cours.contrat, cours.accord
-             with
-             | Some true, _ | _, Some true -> state
-             | (Some false | None), (Some false | None) ->
-               Remanent_state.add_non_accepted_grade
-                 state
-                 {
-                   Public_data.missing_grade_promotion =
-                     promo;
-                   Public_data.missing_grade_dpt=
-                     fetch_code elt ;
-                   Public_data.missing_grade_dpt_indice =
-                     string_of_int (fetch elt);
-                   Public_data.missing_grade_teacher =
-                     Tools.unsome_string
-                       cours.responsable ;
-                   Public_data.missing_grade_intitule =
-                     Tools.unsome_string
-                       cours.cours_libelle  ;
-                   Public_data.missing_grade_code_gps =
-                     Tools.unsome_string
-                       cours.code_cours ;
-                   Public_data.missing_grade_year = year ;
-                   Public_data.missing_grade_lastname =
-                     lastname;
-                   Public_data.missing_grade_firstname =
-                     firstname;
-                 }
-           end)
+         | None -> state
+         | Some note ->
+           match
+             Notes.valide note, cours.contrat, cours.accord
+           with
+           | (Some false | None), _, _
+           | _, Some true, _ | _, _, Some true -> state
+           | _, (Some false | None), (Some false | None) ->
+             Remanent_state.add_non_accepted_grade
+               state
+               {
+                 Public_data.missing_grade_promotion = promo;
+                 Public_data.missing_grade_dpt=
+                   fetch_code elt ;
+                 Public_data.missing_grade_dpt_indice =
+                   string_of_int (fetch elt);
+                 Public_data.missing_grade_teacher =
+                   Tools.unsome_string cours.responsable ;
+                 Public_data.missing_grade_intitule =
+                   Tools.unsome_string cours.cours_libelle  ;
+                 Public_data.missing_grade_code_gps =
+                   Tools.unsome_string cours.code_cours ;
+                 Public_data.missing_grade_year = year ;
+                 Public_data.missing_grade_lastname = lastname;
+                 Public_data.missing_grade_firstname = firstname;
+               }
+      )
       state list
   in
   let bgcolor=[None;color;None;None;None;None;None] in
