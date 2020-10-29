@@ -11,6 +11,7 @@ type parameters =
     local_repository: string ;
     distant_repository: string ;
     machine_to_access_gps: string ;
+    url_to_access_annuaire: string ;
     port_to_access_gps: string;
     repository_to_access_gps: string;
     output_repository: string;
@@ -32,10 +33,15 @@ type parameters =
     repository_to_access_pictures: string;
     pictures_stored_according_to_promotions: bool;
     picture_file_names_mention_promotion: bool;
+    url_prefix_for_photos: string;
     file_retriever: Public_data.file_retriever ;
     file_retriever_options: string ;
+    gps_access_options: string ;
+    annuaire_access_options: string ;
     file_retriever_log_repository: string ;
     file_retriever_log_file: string;
+    file_retriever_annuaire_html_file: string ;
+    tmp_annuaire_repository: string ;
     file_retriever_time_out_in_seconds: int option;
     file_retriever_checking_period_in_seconds : int;
     tmp_profiling_repository: string;
@@ -91,6 +97,7 @@ let parameters =
     local_repository = "di/suivi_pedagogique" ;
     distant_repository = "https://cloud.di.ens.fr/" ;
     machine_to_access_gps = "violette.ens.fr" ;
+    url_to_access_annuaire = "http://annuaireweb.ens.fr/" ;
     port_to_access_gps = "8080";
     repository_to_access_gps = "gps";
     output_repository = "sortie" ;
@@ -132,13 +139,18 @@ let parameters =
     store_output_according_to_their_promotions = true;
     indicate_promotions_in_gps_file_names = true;
     indicate_promotions_in_attestation_file_names = true;
+    url_prefix_for_photos = "http://annuaireweb.ens.fr/photos/";
     repository_to_access_pictures = "photos";
     pictures_stored_according_to_promotions = true ;
     picture_file_names_mention_promotion = false;
     file_retriever  = Public_data.WGET ;
     file_retriever_options = "" ;
+    gps_access_options = "" ;
+    annuaire_access_options = "--no-hsts" ;
     file_retriever_log_repository = "/users/absint3/feret/tmp" ;
     file_retriever_log_file = "gps_access.log";
+    tmp_annuaire_repository = "/users/absint3/feret/tmp";
+    file_retriever_annuaire_html_file = "annuaire.html";
     file_retriever_time_out_in_seconds = Some 300;
     file_retriever_checking_period_in_seconds = 5;
     tmp_profiling_repository = "/users/absint3/feret/tmp";
@@ -279,12 +291,32 @@ let get_distant_repository t =
 let get_cloud_client_options t =
   t,t.parameters.cloud_client_options
 
+let get_url_prefix_for_photos t =
+  t, t.parameters.url_prefix_for_photos
+
 let get_file_retriever t =
   t, t.parameters.file_retriever
 
 let get_file_retriever_options t =
   t,
   t.parameters.file_retriever_options
+
+let get_annuaire_access_options t =
+  t, t.parameters.annuaire_access_options
+
+let get_gps_access_options t =
+  t, t.parameters.gps_access_options
+
+let get_file_retriever_options ?more_options t =
+  let t, option1 = get_file_retriever_options t in
+  let t, option2 =
+    match more_options with
+    | None -> t, ""
+    | Some get -> get t
+  in
+  match option1,option2 with
+  | "",a | a,"" -> t,a
+  | a,b -> t,Format.sprintf "%s %s" a b
 
 let get_file_retriever_log_repository t =
   t,
@@ -293,6 +325,14 @@ let get_file_retriever_log_repository t =
 let get_file_retriever_log_file t =
   t,
   t.parameters.file_retriever_log_file
+
+let get_file_retriever_annuaire_tmp_repository t =
+  t,
+  t.parameters.tmp_annuaire_repository
+
+let get_file_retriever_annuaire_html_file t =
+  t,
+  t.parameters.file_retriever_annuaire_html_file
 
 let get_file_retriever_time_out_in_second t =
   t, t.parameters.file_retriever_time_out_in_seconds
@@ -305,6 +345,9 @@ let get_machine_to_access_gps t =
 
 let get_port_to_access_gps t =
   t, t.parameters.port_to_access_gps
+
+let get_url_to_access_annuaire t =
+  t, t.parameters.url_to_access_annuaire
 
 let get_signature t =
   let t, rep = get_cloud_repository t in
@@ -822,6 +865,20 @@ let log ?logger ?backgroundcolor ?textcolor ?lineproportion t x =
     (which_logger ?logger t)
     ?backgroundcolor ?textcolor ?lineproportion
     x
+
+let warn_and_log
+    ?logger ?backgroundcolor
+    ?textcolor ?lineproportion
+    pos msg exn t
+  =
+  let () =
+    log
+      ?logger ?backgroundcolor ?textcolor  ?lineproportion t "%s" msg
+  in
+  warn pos msg exn t
+
+
+
 
 let log_string ?logger ?backgroundcolor ?textcolor ?lineproportion t x =
   let mode =
@@ -1486,3 +1543,39 @@ let get_ENSPSL_logo state =
     state, "LOGOs/ENSPSL.png"
   else
     state, Format.sprintf "%s/LOGOs/ENSPSL.png" local
+
+let simplify s =
+  Special_char.lowercase
+    (Special_char.correct_string_txt
+       (String.trim s))
+
+let get_promo ~firstname ~lastname t =
+  let list = get_students t in
+  let firstname = simplify firstname in
+  let lastname = simplify lastname in
+  let list =
+    List.filter
+      (fun a ->
+         simplify a.Public_data.firstname = firstname
+         && simplify a.Public_data.lastname = lastname)
+      list
+  in
+  match list with
+  | [] ->
+    warn
+      __POS__
+      (Format.sprintf
+         "Unknown student %s %s" firstname lastname )
+         Exit
+         t,
+    None
+  | _::_::_ ->
+    warn
+      __POS__
+      (Format.sprintf
+         "Several students %s %s" firstname lastname )
+      Exit
+      t,
+    None
+  | [a] ->
+    t, a.Public_data.promotion

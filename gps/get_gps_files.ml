@@ -141,7 +141,9 @@ let get_student_file_gen
   let state, options =
     match command_line_options with
     | None ->
-      Remanent_state.get_file_retriever_options state
+      Remanent_state.get_file_retriever_options
+        ~more_options:Remanent_state.get_gps_access_options
+        state
     | Some options -> state, options
   in
   let state, machine =

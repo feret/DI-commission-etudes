@@ -11,6 +11,15 @@ val warn:
 -> string -> exn  -> t
 -> t
 
+val warn_and_log:
+  ?logger:Loggers.t
+  -> ?backgroundcolor:Sco_tools.Color.color
+  -> ?textcolor:Sco_tools.Color.color
+  -> ?lineproportion:float
+  -> (string * int * int * int)
+  -> string -> exn  -> t
+  -> t
+
 (** log an exception and output a default value *)
 val warn_dft:
   (string * int * int * int)
@@ -87,15 +96,20 @@ val set_output_alias: t -> (string * string) -> t
 (** http access *)
 val get_file_retriever:
   t -> t * Public_data.file_retriever
-val get_file_retriever_options: t -> t * string
+val get_file_retriever_options: ?more_options:(t -> t * string) -> t -> t * string
+val get_annuaire_access_options: t -> t * string
+val get_gps_access_options: t -> t * string
 val get_file_retriever_log_repository: t -> t * string
 val get_file_retriever_log_file: t -> t * string
+val get_file_retriever_annuaire_tmp_repository: t -> t * string
+val get_file_retriever_annuaire_html_file: t -> t * string
 val get_file_retriever_time_out_in_second: t -> t * int option
 val get_file_retriever_checking_period: t -> t * int
 
 (** gps crawler *)
 val get_machine_to_access_gps: t -> t * string
 val get_port_to_access_gps: t -> t * string
+val get_url_to_access_annuaire: t -> t * string
 val get_repository_to_access_gps: t -> t * string
 val get_repository_to_dump_gps_files:
   ?output_repository:string -> t -> t * string
@@ -107,6 +121,7 @@ val get_indicate_promotions_in_gps_file_names: t -> t * bool
 val get_repository_to_dump_attestations: t -> t * string
 val get_indicate_promotions_in_attestation_file_names: t -> t * bool
 
+val get_url_prefix_for_photos: t -> t * string
 
 (** CSV *)
 val get_csv_separator: t -> t * char option
@@ -495,3 +510,6 @@ val log_mkdir: t -> t * bool
 val store_errors_and_profiling_info :
   (string * int * int * int -> t -> string -> t * string) ->
   (string * int * int * int -> t -> string -> string -> t) -> t -> t
+
+val get_promo:
+  firstname:string -> lastname:string -> t -> t*string option

@@ -7,6 +7,9 @@ type step_kind =
   | Extract_gps_file_from_handmade_files of string * string
   | Extract_gps_file_from_backup_files of string * string
   | Extract_gps_file_from_database of string * string * string option
+  | Collect_picture of string * string * string
+  | Collect_picture_from_url of string * string * string * string
+  | Collect_record_from_url of string * string * string * string
   | Patch_gps_file of string option
   | Build_keywords_automaton
   | Export_transcript of string option
@@ -67,6 +70,18 @@ let string_of_step_kind x =
       "Extract GPS file (%s %s %s) from ENS database"
       lastname firstname
       (match dpt_opt with None -> "" | Some x -> x)
+  | Collect_picture (lastname, firstname, promo) ->
+    Printf.sprintf
+      "Extract photo (%s %s %s) from ens member directory"
+      lastname firstname promo
+  | Collect_record_from_url (lastname, firstname, promo, url) ->
+    Printf.sprintf
+      "Try url %s to extract the record of (%s %s %s) from ens member directory"
+      url lastname firstname promo
+  | Collect_picture_from_url (lastname, firstname, promo, url) ->
+    Printf.sprintf
+      "Try url %s to extract the picture of (%s %s %s) from ens member directory"
+      url lastname firstname promo
   | Patch_gps_file None ->
     "Patch GPS output"
   | Patch_gps_file (Some file) ->
@@ -170,6 +185,9 @@ let is_dummy step_kind =
   | Extract_gps_file_from_handmade_files _
   | Extract_gps_file_from_backup_files _
   | Extract_gps_file_from_database _
+  | Collect_picture _
+  | Collect_picture_from_url _
+  | Collect_record_from_url _
   | Patch_gps_file _
   | Build_keywords_automaton
   | Export_transcript _

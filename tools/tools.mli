@@ -19,7 +19,9 @@ val is_fully_capitalised: string -> bool
 val map_opt:  ('a -> 'b) -> 'a option -> 'b option
 val map_opt_state:  ('a -> 'b -> 'a * 'c) -> 'a -> 'b option -> 'a * ('c option)
 
+val split_rep_filename: string -> string * string
 val basename: string -> string
+val extension: string -> string
 
 val space_only: string -> bool
 
@@ -125,3 +127,9 @@ val build_output:
   ?output_repository:string ->
   ?output_file_name:string ->
   extension:string -> 'a -> 'c * 'd * string
+
+val find_starting_with:
+  file_exists:(string * int * int * int -> 'a -> string -> 'b * bool) ->
+  warn:(string * int * int * int -> string -> exn -> 'b -> 'b) ->
+  prefix:string ->
+  between:char -> 'a -> string -> 'b * string option

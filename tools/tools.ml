@@ -96,12 +96,22 @@ let map_opt_state f state a_opt =
     let state, output = f state a in
     state, Some output
 
+let split_rep_filename s =
+  match String.rindex_opt s '/' with
+  | Some i -> String.sub s 0 i, String.sub s (i+1) (String.length s - (i+1))
+  | None -> "",s
+
 let basename x =
   match String.rindex_opt x '.' with
   | Some i -> String.sub x 0 i
   | None -> x
 
-  let space_only s =
+let extension x =
+  match String.rindex_opt x '.' with
+  | Some i -> String.sub x (i+1) (String.length x - (i+1))
+  | None -> ""
+
+let space_only s =
     let size = String.length s in
     let rec aux k =
       if k>=size then true
@@ -520,3 +530,66 @@ let build_output
       state output_repository
   in
   state, output_repository, output_file_name
+
+let find_starting_with
+    ~file_exists ~warn
+    ~prefix ~between state file_name =
+  let state, b =
+    file_exists
+      __POS__
+      state
+      file_name
+  in
+  if not b then
+    warn __POS__
+      (Printf.sprintf
+         "While picture extraction, file %s has not been produced" file_name)
+      Exit
+      state,
+    None
+  else
+  let channel =
+    open_in file_name
+  in
+  let n = String.length prefix in
+  let rec aux acc =
+    let a =
+      try
+        Some (input_line channel)
+      with
+      | End_of_file -> None
+    in
+    match a with
+    | None -> acc
+    | Some s ->
+      begin
+        let ls = String.split_on_char between s in
+        let acc =
+          List.fold_left
+            (fun acc elt ->
+               if String.length elt > n && String.sub elt 0 n = prefix
+               then elt::acc
+               else acc)
+            acc ls
+        in
+        aux acc
+      end
+  in
+  let state, output =
+    match aux [] with
+    | [] ->
+      warn
+        __POS__
+        "no url found"
+        Exit
+        state, None
+    | a::_::_ ->
+      warn
+        __POS__
+        "several urls found"
+        Exit
+        state, Some a
+    | [a] -> state, Some a
+  in
+  let () = close_in channel in
+  state, output

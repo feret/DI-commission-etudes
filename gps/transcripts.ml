@@ -4542,8 +4542,8 @@ let export_transcript
         ([],0) l
     in
     let state, picture_list =
-      Remanent_state.get_picture_potential_locations
-        ~firstname ~lastname ~year:promo state
+      Photos.get
+        ~firstname ~lastname ~promo state
     in
     let state, b =
       let rec aux state l =

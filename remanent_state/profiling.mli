@@ -7,6 +7,9 @@ type step_kind =
   | Extract_gps_file_from_handmade_files of string * string
   | Extract_gps_file_from_backup_files of string * string
   | Extract_gps_file_from_database of string * string * string option
+  | Collect_picture of string * string * string
+  | Collect_picture_from_url of string * string * string * string
+  | Collect_record_from_url of string * string * string * string 
   | Patch_gps_file of string option
   | Build_keywords_automaton
   | Export_transcript of string option
