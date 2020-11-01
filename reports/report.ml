@@ -21,7 +21,12 @@ let dump_issues state =
   in
   let state,_ =
     Grades.MissingGrades.dump_per_dpt_student_year
-      ~file_name:"notes_manquantes_par_dpt_et_cours.html"
+      ~file_name:"notes_manquantes_par_dpt_et_étudiant.html"
+      state
+  in
+  let state,_ =
+    Grades.MissingGrades.dump_per_year_dpt_student
+      ~file_name:"notes_manquantes_par_année_dpt_et_étudiant.html"
       state
   in
   let state,_ =
@@ -51,7 +56,12 @@ let dump_issues state =
   in
   let state,_ =
     Grades.NonAcceptedGrades.dump_per_dpt_student_year
-      ~file_name:"cours_non_acceptes_par_dpt_et_cours.html"
+      ~file_name:"cours_non_acceptes_par_dpt_et_étudiant.html"
+      state
+  in
+  let state,_ =
+    Grades.NonAcceptedGrades.dump_per_year_dpt_student
+      ~file_name:"cours_non_acceptes_par_année_dpt_et_étudiant.html"
       state
   in
   let state,_ =
@@ -81,7 +91,12 @@ let dump_issues state =
   in
   let state,_ =
     Grades.MissingECTSAttributions.dump_per_dpt_student_year
-      ~file_name:"attributions_de_notes_manquantes_par_dpt_et_cours.html"
+      ~file_name:"attributions_de_notes_manquantes_par_dpt_et_étudiant.html"
+      state
+  in
+  let state,_ =
+    Grades.MissingECTSAttributions.dump_per_year_dpt_student
+      ~file_name:"attributions_de_notes_manquantes_par_année_dpt_et_étudiant.html"
       state
   in
   let state,_ =
