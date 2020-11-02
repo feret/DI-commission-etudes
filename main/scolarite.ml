@@ -77,7 +77,8 @@ let state =
              Public_data.Unknown ;
            Public_data.mentor_student_lastname = elt.Public_data.nom_de_l_etudiant ;
            Public_data.mentor_student_firstname = elt.Public_data.prenom_de_l_etudiant ;
-           Public_data.mentor_student_dpt = "informatique" ;
+          Public_data.mentor_student_dpt = "informatique" ;
+          Public_data.mentor_secondary = None ;
          })
     state
     l

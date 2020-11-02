@@ -57,6 +57,22 @@ let lift_string =
   (Lift.string empty_cours Public_data.empty_cours_a_ajouter).Lift.safe
 let lift_string_opt =
     (Lift.string empty_cours Public_data.empty_cours_a_ajouter).Lift.opt_safe
+let lift_float_opt =
+  (Lift.float empty_cours Public_data.empty_cours_a_ajouter).Lift.opt_safe
+let lift_float =
+  (Lift.float empty_cours Public_data.empty_cours_a_ajouter).Lift.safe
+
+let collect_float suffix pos state =
+  Tools.collect_float
+    (fun msg state ->
+       let msg = msg^suffix in
+       Remanent_state.warn
+         pos
+         msg
+         Exit
+         state
+    )
+    state
 
 let mandatory_fields =
   [
@@ -112,21 +128,62 @@ let all_fields =
       ~field_name:"GPS code"
       ~pos:__POS__
       ~record_name;
-      lift_string
-        ~keyword:Public_data.Libelle
-        ~set_tmp:(Tools.collect_string
+    lift_string
+      ~keyword:Public_data.Libelle
+      ~set_tmp:(Tools.collect_string
                   (fun libelle x -> { x with libelle}))
-        ~get_tmp:(fun a -> a.libelle)
-        ~get:(fun a -> a.Public_data.coursaj_libelle)
-        ~set:(fun coursaj_libelle a ->
-            {a with Public_data.coursaj_libelle})
-        ~field_name:"COURSE NAME"
+      ~get_tmp:(fun a -> a.libelle)
+      ~get:(fun a -> a.Public_data.coursaj_libelle)
+      ~set:(fun coursaj_libelle a ->
+          {a with Public_data.coursaj_libelle})
+      ~field_name:"COURSE NAME"
+      ~pos:__POS__
+      ~record_name;
+    lift_string
+      ~keyword:Public_data.Niveau
+      ~set_tmp:(Tools.collect_string (fun level x -> { x with level}))
+        ~get_tmp:(fun a -> a.level)
+        ~get:(fun a -> a.Public_data.coursaj_level)
+        ~set:(fun coursaj_level a ->
+            {a with Public_data.coursaj_level})
+        ~field_name:"COURSE LEVEL"
         ~pos:__POS__
         ~record_name;
-    (*  Public_data.Grade;
-      Public_data.ECTS;
+    lift_string_opt
+      ~keyword:Public_data.Departement
+      ~set_tmp:(Tools.collect_string (fun dpt x -> { x with dpt}))
+            ~get_tmp:(fun a -> a.dpt)
+            ~get:(fun a -> a.Public_data.coursaj_dpt)
+            ~set:(fun coursaj_dpt a ->
+                {a with Public_data.coursaj_dpt})
+            ~field_name:"COURSE DPT"
+            ~pos:__POS__
+            ~record_name;
+    lift_float
+      ~keyword:Public_data.ECTS
+      ~set_tmp:(collect_float "ects" __POS__
+                  (fun ects x -> { x with ects}))
+      ~get_tmp:(fun a -> a.ects)
+      ~get:(fun a -> a.Public_data.coursaj_ects)
+      ~set:(fun coursaj_ects a ->
+          {a with Public_data.coursaj_ects})
+      ~field_name:"ECTS"
+      ~pos:__POS__
+      ~record_name;
+    lift_float_opt
+      ~keyword:Public_data.Grade
+      ~set_tmp:(collect_float "Note" __POS__
+                    (fun note x -> { x with note}))
+        ~get_tmp:(fun a -> a.note)
+        ~get:(fun a -> a.Public_data.coursaj_note)
+        ~set:(fun coursaj_note a ->
+            {a with Public_data.coursaj_note})
+        ~field_name:"NOTE"
+        ~pos:__POS__
+        ~record_name;
+    (*   Public_data.ECTS;
       Public_data.Departement;
-        Public_data.Niveau*)
+        *)
 
   ]
 

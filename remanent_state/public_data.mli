@@ -74,6 +74,9 @@ module ProgramExtendedMap: Map_tools.Collect
   with type key = ProgramMap.key
    and type 'a t = 'a ProgramMap.t
 
+module DptOptExtendedMap: Map_tools.Collect
+  with type key = DptOptMap.key
+   and type 'a t = 'a DptOptMap.t 
 
 
 type course =
@@ -122,7 +125,8 @@ type tutorat =
     genre_du_tuteur: genre option;
     courriel_du_tuteur: string option;
     nom_de_l_etudiant: string ;
-    prenom_de_l_etudiant: string
+    prenom_de_l_etudiant: string;
+    secondaire: string option;
   }
 
 val empty_tutorat: tutorat
@@ -301,6 +305,7 @@ type mentor =
     mentor_gender : genre ;
     mentor_email : string ;
     mentor_student_dpt: string ;
+    mentor_secondary : string option ;
   }
 
 type keywords =
@@ -375,6 +380,7 @@ type keywords =
   | Recu
   | Responsable
   | Responsable_local
+  | Secondaire
   | Semestre
   | Service_Labo_Dpt
   | Situation
@@ -409,7 +415,7 @@ type statut =
   | Ex_hors_GPS
 
 type origin =
-  | DensDEC 
+  | DensDEC
   | DensInfo
   | EchErasm
   | Info

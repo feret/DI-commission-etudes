@@ -154,7 +154,8 @@ type tutorat =
     genre_du_tuteur: genre option;
     courriel_du_tuteur: string option;
     nom_de_l_etudiant: string;
-    prenom_de_l_etudiant: string
+    prenom_de_l_etudiant: string;
+    secondaire: string option;
   }
 
 let empty_tutorat =
@@ -166,6 +167,7 @@ let empty_tutorat =
     courriel_du_tuteur = None ;
     nom_de_l_etudiant = "" ;
     prenom_de_l_etudiant = "" ;
+    secondaire = None;
   }
 
 type cursus =
@@ -406,6 +408,7 @@ type mentor =
     mentor_gender : genre ;
     mentor_email : string ;
     mentor_student_dpt: string;
+    mentor_secondary: string option ;
   }
 
 type keywords =
@@ -480,6 +483,7 @@ type keywords =
   | Recu
   | Responsable
   | Responsable_local
+  | Secondaire
   | Semestre
   | Service_Labo_Dpt
   | Situation
@@ -514,7 +518,7 @@ type statut =
   | Ex_hors_GPS
 
 type origin =
-  | DensDEC 
+  | DensDEC
   | DensInfo
   | EchErasm
   | Info
@@ -558,6 +562,7 @@ module LastNameExtendedMap = Map_tools.Collect(LastNameMap)
 module AcronymExtendedMap = Map_tools.Collect(AcronymMap)
 module ProgramExtendedMap = Map_tools.Collect(ProgramMap)
 module YearExtendedMap = Map_tools.Collect(YearMap)
+module DptOptExtendedMap = Map_tools.Collect(DptOptMap)
 
 type 'a direction_des_etudes =
   {

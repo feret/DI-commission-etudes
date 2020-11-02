@@ -292,8 +292,9 @@ let filter_mentoring_list
     teachername, mentorname, codegps, ninscription, niveau, recu
   in
   state,
-  check dpt
-    mentoring.Public_data.mentor_student_dpt
+  (check dpt
+     mentoring.Public_data.mentor_student_dpt
+   || check (Some dpt) mentoring.Public_data.mentor_secondary)
   &&
   check firstname mentoring.Public_data.mentor_student_firstname
   &&

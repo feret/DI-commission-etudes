@@ -71,22 +71,22 @@ let dump_issues state =
   in
   let state,_ =
     Grades.NonAcceptedGrades.dump_per_dpt_year_student
-      ~file_name:"cours_non_accepted_par_dpt_et_année_et_étudiant.html"
+      ~file_name:"cours_non_acceptes_par_dpt_et_année_et_étudiant.html"
       state
   in
   let state,_ =
     Grades.NonAcceptedGrades.dump_per_dpt_year_class
-      ~file_name:"cours_non_accepted_par_dpt_et_année_et_cours.html"
+      ~file_name:"cours_non_acceptes_par_dpt_et_année_et_cours.html"
       state
   in
   let state,_ =
     Grades.NonAcceptedGrades.dump_per_student
-      ~file_name:"cours_non_accepted_par_étudiant.html"
+      ~file_name:"cours_non_acceptes_par_étudiant.html"
       state
   in
   let state,_ =
     Grades.MissingGrades.dump_per_promotion
-      ~file_name:"cours_non_accepted_par_promotion.html"
+      ~file_name:"cours_non_acceptes_par_promotion.html"
       state
   in
   let state,_ =

@@ -7,7 +7,8 @@ type mentoring_id =
     mentor_lastname: string option;
     mentor_firstname: string option;
     mentor_gender: Public_data.genre option;
-    mentor_email: string option
+    mentor_email: string option;
+    mentor_secondary: string option
   }
 
 
@@ -20,6 +21,7 @@ let empty_mentoring =
     mentor_firstname = None ;
     mentor_gender = None ;
     mentor_email = None ;
+    mentor_secondary = None ;
   }
 
 let fun_ignore =
@@ -34,6 +36,7 @@ let keywords_list =
     Public_data.Prenom_du_tuteur ;
     Public_data.Genre_du_tuteur ;
     Public_data.Courriel_du_tuteur;
+    Public_data.Secondaire;
   ]
 
 let keywords_of_interest =
@@ -207,7 +210,26 @@ let all_fields =
             Special_char.lowercase mentor_email})
      ~field_name:"mentor's email"
      ~record_name
-     ~pos:__POS__
+     ~pos:__POS__;
+   lift_string_opt
+       ~keyword:Public_data.Secondaire
+       ~set_tmp:(fun state mentor_dpt_bis x ->
+           state,
+           let mentor_secondary =
+             match mentor_dpt_bis with
+             | Some x when String.trim x = "" -> None
+             | _ -> mentor_dpt_bis
+           in
+           {x with mentor_secondary})
+       ~get_tmp:(fun a -> a.mentor_secondary)
+       ~get:(fun a -> a.Public_data.secondaire)
+       ~set:(fun mentor_secondary a ->
+          {a with Public_data.secondaire =
+            Tools.map_opt
+              Special_char.lowercase mentor_secondary})
+       ~field_name:"mentor's secondary department"
+       ~record_name
+       ~pos:__POS__
 ]
 
 let get_mentoring

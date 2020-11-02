@@ -1061,7 +1061,7 @@ let store_cours  =
        state, {remanent.rem_cours with note ; code_cours ; accord ; commentaire})
     (fun state bilan cours -> state, {bilan with cours})
 
-let add_extra_course cours_a_ajouter gps_file =
+let add_extra_course state cours_a_ajouter gps_file =
   let situation = gps_file.situation in
   let bilan =
     match
@@ -1075,7 +1075,12 @@ let add_extra_course cours_a_ajouter gps_file =
   let elt =
     {
       semestre = None ;
-      code_cours = cours_a_ajouter.Public_data.coursaj_code;
+      code_cours =
+        begin
+          match cours_a_ajouter.Public_data.coursaj_code with
+          | None -> Some " "
+          | a -> a
+        end;
       responsable = None ;
       cours_libelle = Some (cours_a_ajouter.Public_data.coursaj_libelle);
       cours_etablissement = None ;
@@ -1083,7 +1088,7 @@ let add_extra_course cours_a_ajouter gps_file =
       ects = Some cours_a_ajouter.Public_data.coursaj_ects;
       diplome = Some cours_a_ajouter.Public_data.coursaj_level ;
       contrat = None ;
-      accord = None ;
+      accord = Some true ;
       note =
         (match cours_a_ajouter.Public_data.coursaj_note
         with
@@ -1096,6 +1101,7 @@ let add_extra_course cours_a_ajouter gps_file =
     }
   in
   let bilan = {bilan with cours = elt::bilan.cours} in
+  state,
   {gps_file with
    situation =
      Public_data.YearMap.add
@@ -3222,7 +3228,7 @@ let heading
     | Some true ->
       begin
         match nationaux_opt with
-        | Some _ -> state, ["Diplôme de  l'ENS"]
+        | Some _ -> state, ["Diplôme de l'ENS"]
         | _ ->
           let state, cursus_opt =
             if lmath situation
@@ -4403,7 +4409,6 @@ let export_transcript
     let logger = Loggers.open_logger_from_channel ~mode out in
     let old_logger = Remanent_state.save_std_logger state in
     let state = Remanent_state.set_std_logger state logger in
-    let l = Public_data.YearMap.bindings gps_file.situation in
     let lastname =
       Special_char.uppercase (Tools.unsome_string gps_file.nom)
     in
@@ -4463,13 +4468,14 @@ let export_transcript
         ~firstname ~lastname
         state
     in
-    let gps_file =
+    let state, gps_file =
       List.fold_left
-        (fun gps_file course ->
-           add_extra_course course gps_file)
-        gps_file
+        (fun (state, gps_file) course ->
+           add_extra_course state course gps_file)
+        (state, gps_file)
         additional_courses
     in
+    let l = Public_data.YearMap.bindings gps_file.situation in
     let state, current_year =
       Remanent_state.get_current_academic_year state
     in
@@ -4538,7 +4544,6 @@ let export_transcript
              ((y,annee)::l,counter)
            else
              (y,annee)::l,counter)
-
         ([],0) l
     in
     let state, picture_list =
@@ -4709,6 +4714,18 @@ let export_transcript
                ~firstname
                state
            in
+           let state, tuteurs_secondaires =
+             Remanent_state.get_mentoring_list
+               ~year
+               ~lastname
+               ~firstname
+               state
+           in
+           let tuteurs_secondaires =
+             List.filter
+               (fun p -> p.Public_data.secondaire <> None)
+               tuteurs_secondaires
+           in
            let state, tuteur =
              match tuteur with
              | None ->
@@ -4735,7 +4752,8 @@ let export_transcript
                      "missing gender"
                      Exit
                      state, Public_data.Unknown
-                 | Some a -> state, a in
+                 | Some a -> state, a
+               in
                let state, genre_du_tuteur =
                  match
                    tuteur.Public_data.genre_du_tuteur
@@ -4746,7 +4764,8 @@ let export_transcript
                      "missing mentor gender"
                      Exit
                      state, Public_data.Unknown
-                 | Some a -> state, a in
+                 | Some a -> state, a
+               in
                let state, nom_du_tuteur =
                  match
                    tuteur.Public_data.nom_du_tuteur
@@ -4784,29 +4803,115 @@ let export_transcript
                     (year <= current_year ||
                      need_a_mentor gps_file)
                  then
-                   Remanent_state.add_mentor
-                     state
-                     {Public_data.mentor_attribution_year =
-                        tuteur.Public_data.annee_academique;
-                      Public_data.mentor_gender =
-                        genre_du_tuteur;
-                      Public_data.mentor_lastname =
-                        nom_du_tuteur;
-                      Public_data.mentor_firstname
-                      =
-                        prenom_du_tuteur;
-                      Public_data.mentor_academic_year = year;
-                      Public_data.mentor_student_promo = promo ;
-                      Public_data.mentor_student_gender = genre;
-                      Public_data.mentor_student_lastname =
-                        lastname ;
-                      Public_data.mentor_student_firstname = firstname ;
-                      Public_data.mentor_student_dpt =
-                        current_dpt ;
-                      Public_data.mentor_email =
-                        Tools.unsome_string
-                          tuteur.Public_data.courriel_du_tuteur ;
-                     }
+                   let state =
+                     Remanent_state.add_mentor
+                       state
+                       {Public_data.mentor_attribution_year =
+                          tuteur.Public_data.annee_academique;
+                        Public_data.mentor_gender =
+                          genre_du_tuteur;
+                        Public_data.mentor_lastname =
+                          nom_du_tuteur;
+                        Public_data.mentor_firstname
+                        =
+                          prenom_du_tuteur;
+                        Public_data.mentor_academic_year = year;
+                        Public_data.mentor_student_promo =
+                         promo ;
+                        Public_data.mentor_student_gender =
+                          genre;
+                        Public_data.mentor_student_lastname =
+                          lastname ;
+                        Public_data.mentor_student_firstname =
+                          firstname ;
+                        Public_data.mentor_student_dpt =
+                          current_dpt ;
+                        Public_data.mentor_email =
+                          Tools.unsome_string
+                            tuteur.Public_data.courriel_du_tuteur ;
+                        Public_data.mentor_secondary =
+                          tuteur.Public_data.secondaire
+                       }
+                   in
+                   List.fold_left
+                     (fun state tuteur ->
+                       let state, genre =
+                         match
+                           gps_file.genre
+                         with
+                         | None ->
+                           Remanent_state.warn
+                             __POS__
+                             "missing gender"
+                             Exit
+                             state, Public_data.Unknown
+                         | Some a -> state, a
+                       in
+                       let state, genre_du_tuteur =
+                         match
+                           tuteur.Public_data.genre_du_tuteur
+                         with
+                         | None ->
+                           Remanent_state.warn
+                             __POS__
+                             "missing mentor gender"
+                             Exit
+                             state, Public_data.Unknown
+                         | Some a -> state, a
+                       in
+                       let state, nom_du_tuteur =
+                         match
+                           tuteur.Public_data.nom_du_tuteur
+                         with
+                         | None ->
+                           Remanent_state.warn
+                             __POS__
+                             "missing mentor name"
+                             Exit
+                             state, ""
+                         | Some a -> state, a
+                       in
+                       let state, prenom_du_tuteur =
+                         match
+                           tuteur.Public_data.prenom_du_tuteur
+                         with
+                         | None ->
+                           Remanent_state.warn
+                             __POS__
+                             "missing mentor first name"
+                             Exit
+                             state, ""
+                         | Some a -> state, a
+                       in
+                       Remanent_state.add_mentor
+                          state
+                          {Public_data.mentor_attribution_year =
+                             tuteur.Public_data.annee_academique;
+                           Public_data.mentor_gender =
+                             genre_du_tuteur;
+                           Public_data.mentor_lastname =
+                             nom_du_tuteur;
+                           Public_data.mentor_firstname
+                           =
+                             prenom_du_tuteur;
+                           Public_data.mentor_academic_year = year;
+                           Public_data.mentor_student_promo =
+                             promo ;
+                           Public_data.mentor_student_gender =
+                             genre;
+                           Public_data.mentor_student_lastname =
+                             lastname ;
+                           Public_data.mentor_student_firstname =
+                             firstname ;
+                           Public_data.mentor_student_dpt =
+                             current_dpt ;
+                           Public_data.mentor_email =
+                             Tools.unsome_string
+                               tuteur.Public_data.courriel_du_tuteur ;
+                           Public_data.mentor_secondary =
+                             tuteur.Public_data.secondaire
+                          })
+                     state tuteurs_secondaires
                  else state
                in
                begin
@@ -5221,6 +5326,13 @@ let export_transcript
           | None -> false) &&
           (need_a_mentor gps_file)
       then
+        let state, tuteurs =
+          Remanent_state.get_mentoring_list
+            ~year:current_year
+            ~lastname
+            ~firstname
+            state
+        in
         let state, tuteur =
           Remanent_state.get_mentoring
             ~year:current_year
@@ -5228,53 +5340,58 @@ let export_transcript
             ~firstname
             state
         in
-        match tuteur with
-        | Some tuteur ->
-          if
-            tuteur.Public_data.annee_academique =
-             current_year
-          then
-          Remanent_state.add_mentor
-            state
-            {Public_data.mentor_attribution_year =
-               tuteur.Public_data.annee_academique;
-             Public_data.mentor_gender =
-             (match tuteur.Public_data.genre_du_tuteur
-             with Some a -> a
-                | None -> Public_data.Unknown);
-             Public_data.mentor_lastname =
-               Tools.unsome_string
-                 tuteur.Public_data.nom_du_tuteur;
-             Public_data.mentor_firstname
-             =
-               Tools.unsome_string
-                 tuteur.Public_data.prenom_du_tuteur
-                ;
-             Public_data.mentor_academic_year = current_year;
-             Public_data.mentor_student_promo = promo ;
-             Public_data.mentor_student_gender =
-               (match gps_file.genre
-               with Some a -> a
-                  | None -> Public_data.Unknown);
-             Public_data.mentor_student_lastname =
-               lastname ;
-             Public_data.mentor_student_firstname = firstname ;
-             Public_data.mentor_student_dpt =
-               dpt_info ;
-             Public_data.mentor_email =
-               Tools.unsome_string
-                 tuteur.Public_data.courriel_du_tuteur ;
-                }
-          else state
-        | _ ->
-          Remanent_state.warn
-            __POS__
-            (Format.sprintf "No tuteur for current year %s %s" who current_year)
-            Exit
-            state
+        let tuteurs =
+          match tuteur with
+          | None -> tuteurs
+          | Some tuteur ->
+            if List.mem tuteur tuteurs
+            then tuteurs
+            else tuteur::tuteurs
+        in
+        List.fold_left
+          (fun state tuteur ->
+             if
+               tuteur.Public_data.annee_academique =
+               current_year
+             then
+               Remanent_state.add_mentor
+                 state
+                 {Public_data.mentor_attribution_year =
+                    tuteur.Public_data.annee_academique;
+                  Public_data.mentor_gender =
+                    (match tuteur.Public_data.genre_du_tuteur
+                     with Some a -> a
+                        | None -> Public_data.Unknown);
+                  Public_data.mentor_lastname =
+                    Tools.unsome_string
+                      tuteur.Public_data.nom_du_tuteur;
+                  Public_data.mentor_firstname
+                  =
+                    Tools.unsome_string
+                      tuteur.Public_data.prenom_du_tuteur
+                 ;
+                  Public_data.mentor_academic_year =
+                    current_year;
+                  Public_data.mentor_student_promo = promo ;
+                  Public_data.mentor_student_gender =
+                    (match gps_file.genre
+                     with Some a -> a
+                        | None -> Public_data.Unknown);
+                  Public_data.mentor_student_lastname =
+                    lastname ;
+                  Public_data.mentor_student_firstname =
+                    firstname ;
+                  Public_data.mentor_student_dpt =
+                    dpt_info ;
+                  Public_data.mentor_email =
+                    Tools.unsome_string
+                      tuteur.Public_data.courriel_du_tuteur ;
+                  Public_data.mentor_secondary =
+                    tuteur.Public_data.secondaire ;
+                 } else state)
+          state tuteurs
       else state
     in
-
     let state = Remanent_state.close_logger state in
     let state =
       Remanent_state.restore_std_logger state old_logger

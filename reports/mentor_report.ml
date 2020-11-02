@@ -82,32 +82,47 @@ struct
     | Public_data.Masculin -> "M. "
     | Public_data.Feminin -> "Mme. "
     | Public_data.Unknown -> ""
-  let whoshort first last =
-    Printf.sprintf "%s %s"
+
+  let whoshort ?with_secondaire first last main_dpt tut_dpt =
+    let tut =
+      match with_secondaire, main_dpt, tut_dpt with
+      | (None | Some false), _, _ | _, _, None -> ""
+      | _, a, Some a' when a = a' -> ""
+      | _, _, Some _ -> " (tuteur secondaire)"
+    in
+    Printf.sprintf "%s %s%s"
       (Special_char.capitalize first)
       (Special_char.uppercase last)
+      tut
 
-  let who genre first last =
+  let who ?with_secondaire genre first last main_dpt tut_dpt =
     Printf.sprintf "%s%s"
       (string_of_gender genre)
       (whoshort
+         ?with_secondaire
          (Special_char.capitalize first)
-         (Special_char.uppercase last))
+         (Special_char.uppercase last)
+         main_dpt tut_dpt
+      )
 
-  let wholong correct_email genre first last email =
+  let wholong ?with_secondaire correct_email genre first last email main_dpt tut_dpt =
     if String.trim email = ""
-    then who genre first last
+    then who ?with_secondaire genre first last main_dpt tut_dpt
     else
       Printf.sprintf "%s (%s)"
-        (who genre first last)
+        (who ?with_secondaire genre first last main_dpt tut_dpt)
         (correct_email email)
 
   let nom_etudiant =
     ["ÉTUDIANT"],
     (fun a ->
        whoshort
+         ~with_secondaire:true
          a.Public_data.mentor_student_firstname
-         a.Public_data.mentor_student_lastname)
+         a.Public_data.mentor_student_lastname
+         a.Public_data.mentor_student_dpt
+         a.Public_data.mentor_secondary
+    )
   let nom_etudiant_long =
     let l,f = nom_etudiant in
     l, (fun a ->
@@ -122,7 +137,9 @@ struct
          a.Public_data.mentor_gender
          a.Public_data.mentor_firstname
          a.Public_data.mentor_lastname
-         a.Public_data.mentor_email)
+         a.Public_data.mentor_email
+         a.Public_data.mentor_student_dpt
+         a.Public_data.mentor_secondary)
 
   let promotion =
     ["PROMOTION"],
@@ -149,8 +166,7 @@ struct
       ?output_repository ?prefix ?file_name
       state =
     let cmp =
-      [ Gen.lift_cmp (fun a ->
-          a.Public_data.mentor_student_dpt);
+      [
         Gen.op_cmp
           (Gen.lift_cmp
              (fun a ->

@@ -225,6 +225,8 @@ val get_mentoring:
   t * Public_data.tutorat option
 
 val get_mentoring_list:
+  ?firstname:string ->
+  ?lastname:string ->
   ?tuteur_firstname:string ->
   ?tuteur_lastname:string ->
   ?year:Public_data.annee ->

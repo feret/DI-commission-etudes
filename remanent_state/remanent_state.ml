@@ -1210,11 +1210,13 @@ let add_mentoring unify =
     (Mentoring.add_mentoring unify)
 
 let get_mentoring_list
+    ?firstname
+    ?lastname
     ?tuteur_firstname
     ?tuteur_lastname
     ?year
     t =
-  t, Mentoring.get_mentoring_list ?year ?tuteur_lastname ?tuteur_firstname (get_mentoring t)
+  t, Mentoring.get_mentoring_list ?year ?firstname ?lastname ?tuteur_lastname ?tuteur_firstname (get_mentoring t)
 
 let get_mentoring ~firstname ~lastname ~year ?tuteur_gps t =
     let mentoring_opt =

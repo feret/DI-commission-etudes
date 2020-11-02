@@ -163,6 +163,7 @@ let asso_list =
     Public_data.Responsable, ["responsable"];
     Public_data.Responsable_local,
     ["responsable local"];
+    Public_data.Secondaire, ["secondaire";"secondary"]; 
     Public_data.Semestre, ["semestre"];
     Public_data.Service_Labo_Dpt,
     ["service/labo/dpt"];
