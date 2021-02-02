@@ -9,6 +9,8 @@ type parameters =
     pdfgenerator : Public_data.pdf_generator ;
     pdfgenerator_options : string ;
     local_repository: string ;
+    scholarships_repository: string ;
+    repository_to_dump_transcripts: string ;
     distant_repository: string ;
     machine_to_access_gps: string ;
     url_to_access_annuaire: string ;
@@ -95,6 +97,8 @@ let parameters =
     pdfgenerator = Public_data.PdfLatex ;
     pdfgenerator_options = "-interaction=nonstopmode";
     local_repository = "di/suivi_pedagogique" ;
+    scholarships_repository = "di/scolarite/ELEVES" ;
+    repository_to_dump_transcripts = "fiches_de_notes" ;
     distant_repository = "https://cloud.di.ens.fr/" ;
     machine_to_access_gps = "violette.ens.fr" ;
     url_to_access_annuaire = "http://annuaireweb.ens.fr/" ;
@@ -1581,3 +1585,50 @@ let get_promo ~firstname ~lastname t =
     None
   | [a] ->
     t, a.Public_data.promotion
+
+
+let get_student_personal_repository ?promo ~firstname ~lastname t =
+  let t, cloud_rep = get_cloud_repository t in
+  let main_rep = t.parameters.scholarships_repository in
+  let fiche = t.parameters.repository_to_dump_transcripts in
+  let t,promo =
+    match promo with
+    | Some p -> t,p
+    | None ->
+      match get_promo ~firstname ~lastname t with
+      | t, None -> t,""
+      | t, Some p -> t, p
+  in
+  let promo =
+    Printf.sprintf "Promo%s" promo in
+  let f_firstname =
+    if false then
+      (fun x -> Special_char.correct_string_filename
+          (Special_char.capitalize x))
+    else
+      (fun x -> Special_char.correct_string_filename (Special_char.capitalize (Special_char.correct_string x)))
+  in
+  let f_lastname =
+    if false then
+      (fun x -> Special_char.correct_string_filename
+          (Special_char.uppercase x))
+    else
+      (fun x ->
+         Special_char.correct_string_filename
+           (Special_char.uppercase
+              (Special_char.correct_string x)))
+  in
+  let lastname = f_lastname lastname in
+  let firstname = f_firstname firstname in
+  let rep =
+    match main_rep, fiche with
+    | "","" -> Printf.sprintf "%s/%s/%s.%s/" cloud_rep promo lastname firstname
+    | _,"" -> Printf.sprintf "%s/%s/%s/%s.%s/" cloud_rep main_rep promo lastname firstname
+    | "",_ ->
+      Printf.sprintf "%s/%s/%s.%s/%s" cloud_rep promo lastname firstname
+        fiche
+    | _,_ ->
+      Printf.sprintf "%s/%s/%s/%s.%s/%s" cloud_rep main_rep promo lastname
+      firstname fiche
+  in
+  t, rep

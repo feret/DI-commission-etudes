@@ -515,3 +515,6 @@ val store_errors_and_profiling_info :
 
 val get_promo:
   firstname:string -> lastname:string -> t -> t*string option
+
+val get_student_personal_repository:
+  ?promo:string -> firstname:string -> lastname:string -> t -> t * string 

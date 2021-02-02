@@ -121,11 +121,14 @@ let state =
        match output with
        | None -> state
        | Some output ->
+         let firstname =  id.Public_data.firstname in
+         let lastname = id.Public_data.lastname in
+         let promo = id.Public_data.promotion in
          let state,patched_file_opt =
            Get_gps_files.patch_student_file
              state
-             ~firstname:id.Public_data.firstname
-             ~lastname:id.Public_data.lastname
+             ~firstname
+             ~lastname
              ~input:output
              ~output:output
          in
@@ -150,7 +153,7 @@ let state =
                Transcripts.export_transcript
                  ~output state gps
              in
-               Latex_engine.latex_opt_to_pdf ~rev:true state ~input
+             Latex_engine.latex_opt_to_pdf ~rev:true state ~input
          in
          let output =
            (fst output0,
@@ -168,7 +171,15 @@ let state =
                Transcripts.export_transcript
                  ~signature ~output state gps
              in
-               Latex_engine.latex_opt_to_pdf ~rev:true state ~input
+             let state, save_rep =
+               let state,rep  =
+                   Remanent_state.get_student_personal_repository
+                     ~firstname ~lastname ?promo state
+               in
+               let rep = Printf.sprintf "%s/" rep in
+               state, Some rep
+             in
+             Latex_engine.latex_opt_to_pdf ?save_rep ~rev:true state ~input
          in
 
          let output =
