@@ -170,6 +170,13 @@ let parameters =
     signature = "feret+tampon.pdf"
   }
 
+let set_dma parameters =
+  {
+    parameters with
+      local_repository = "dma/suivi_pedagogique" ;
+      scholarships_repository = "dma/scolarite/ELEVES" ;
+  }
+
 type data =
   {
     students: Public_data.student_id list ;
@@ -712,21 +719,51 @@ let open_event_opt step_kind_opt t =
 let close_event_opt step_kind_opt t =
   gen_profiler Profiling.close_event_opt step_kind_opt t
 
+let list_dpt =
+  ["DI";"di";"DMA";"dma"]
+
+let get_cmd_options () =
+  let a = Sys.argv in
+  let n = Array.length a in
+  let rec aux k sol =
+    if k < 1 then sol
+    else
+      aux (k-1) (a.(k)::sol)
+  in
+  aux (n-1) []
+
+let _get_dpt =
+  List.filter
+    (fun p ->
+       List.mem p list_dpt)
+
+let _get_others =
+  List.filter
+    (fun p ->
+       not (List.mem p list_dpt))
+
+let split_dpt =
+  List.partition
+    (fun p ->
+       List.mem p list_dpt)
+
 let get_option parameters =
+  let l = get_cmd_options () in
+  let dpt, others = split_dpt l in
+  let parameters =
+    match dpt with
+    | ("dma"|"DMA")::_ -> set_dma parameters
+    | _ -> parameters
+  in
   let target =
-    if Array.length Sys.argv > 1
-    then Some Sys.argv.(1)
-    else None
+    match others with
+    | [] -> None
+    | h::_ -> Some h
   in
   {parameters with target}
 
 let get_option_quick parameters =
-  let target =
-    if Array.length Sys.argv > 1
-    then Some Sys.argv.(1)
-    else None
-  in
-  {parameters with target}
+  get_option parameters
 
 let get_option state =
   let state =
