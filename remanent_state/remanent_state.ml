@@ -1,6 +1,7 @@
 type parameters =
   {
     safe_mode: bool;
+    main_dpt: Public_data.main_dpt;
     cloud_synchronization_mode: Public_data.cloud_synchronization_mode ;
     cloud_client: Public_data.cloud_client ;
     cloud_client_options: string ;
@@ -88,6 +89,7 @@ type parameters =
 let parameters =
   {
     safe_mode = true;
+    main_dpt = Public_data.DI;
     log_mkdir = false;
     cloud_synchronization_mode = Public_data.CommandLine ;
     cloud_client = Public_data.NextCloudCmd ;
@@ -173,8 +175,9 @@ let parameters =
 let set_dma parameters =
   {
     parameters with
-      local_repository = "dma/suivi_pedagogique" ;
-      scholarships_repository = "dma/scolarite/ELEVES" ;
+    main_dpt = Public_data.DMA ;
+    local_repository = "dma/suivi_pedagogique" ;
+    scholarships_repository = "dma/scolarite/ELEVES" ;
   }
 
 type data =
@@ -1669,3 +1672,14 @@ let get_student_personal_repository ?promo ~firstname ~lastname t =
       firstname fiche
   in
   t, rep
+
+let get_main_dpt t =
+  t, t.parameters.main_dpt
+
+let is_main_dpt_di t =
+  let t,dpt = get_main_dpt t in
+  t, dpt = Public_data.DI
+
+let is_main_dpt_dma t =
+  let t,dpt = get_main_dpt t in
+  t, dpt = Public_data.DMA 

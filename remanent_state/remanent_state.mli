@@ -517,4 +517,8 @@ val get_promo:
   firstname:string -> lastname:string -> t -> t*string option
 
 val get_student_personal_repository:
-  ?promo:string -> firstname:string -> lastname:string -> t -> t * string 
+  ?promo:string -> firstname:string -> lastname:string -> t -> t * string
+
+val get_main_dpt: t -> t * Public_data.main_dpt
+val is_main_dpt_di: t -> t * bool
+val is_main_dpt_dma: t -> t * bool 

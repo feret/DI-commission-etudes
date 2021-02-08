@@ -13,4 +13,6 @@ val uppercase: string -> string
 val capitalize: string -> string
 
 val clean_spurious_uppercase_letters: string -> string
-val clean_mlle: string -> string 
+val clean_mlle: string -> string
+
+val split_name: string -> string * string * string

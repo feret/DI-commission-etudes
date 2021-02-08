@@ -527,3 +527,28 @@ let clean_mlle s =
   List.fold_left
     (fun s char -> clean_mlle_gen char s)
     s [' ';'}']
+
+let split_name s =
+  let a = String.split_on_char ' ' s in
+  let rec aux to_do gender firstname lastname =
+    match to_do with
+    | [] ->
+      String.concat " " gender,
+      String.concat " " firstname,
+      String.concat " " lastname
+    | h::t ->
+      begin
+        if
+          List.mem (lowercase h)
+            ["m";"mr";"monsieur";"m.";"mr.";
+             "mlle";"mme";"mlle.";"mme.";"madame";"mademoiselle"]
+        then
+          aux t (h::gender) firstname lastname
+        else
+        if capitalize h = h
+        then aux t gender (h::firstname) lastname
+        else
+          aux t gender firstname (h::lastname)
+      end
+  in
+  aux (List.rev a ) [] [] []

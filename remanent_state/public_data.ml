@@ -603,3 +603,5 @@ type 'a commission =
     commission_long_date: string;
     commission_year: annee;
   }
+
+type main_dpt = DI | DMA

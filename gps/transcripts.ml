@@ -10,6 +10,9 @@ module StringOptMap =
           | None, None -> 0
           | None, _ -> 1
           | _, None -> -1
+          | Some "", Some "" -> 0
+          | Some "", _ ->  1
+          | _ , Some "" -> -1
           | Some "dens", Some "dens" -> 0
           | Some "dens", _ ->  1
           | _ , Some "dens" -> -1
@@ -1413,13 +1416,13 @@ let genre_opt_of_string_opt pos state s_opt =
       let s = Special_char.lowercase s in
       if
         List.mem
-          s ["m";"mr";"monsieur";"m.";"mr"]
+          s ["m";"mr";"monsieur";"m.";"mr."]
       then
           state, Some Public_data.Masculin
       else if
         List.mem
           s
-          ["mlle";"mme";"madame";"mademoiselle"]
+          ["mlle.";"mme.";"mlle";"mme";"madame";"mademoiselle"]
       then
         state, Some Public_data.Feminin
       else
@@ -2696,32 +2699,37 @@ let p (t,(_,cours)) (t',(_,cours')) =
   else cmp
 
 let is_mandatory state cours =
-  state,
-  if match cours.code_cours with
-  | None -> false
-  | Some a ->
-    List.mem
-      (String.trim a)
-      [
-        "INFO-L3-ALGOPRO-S1";
-        "INFO-L3-LAPROCO-S1";
-        "INFO-L3-SYSDIG-S1";
-        "INFO-L3-LAFORMCC-S1";
-        "INFO-L3-SYSRES-S2";
-      ]
-  then
-    (fun x -> Format.sprintf "\\mandatory{%s}" x)
-  else
-    (fun x -> x)
+  match Remanent_state.get_main_dpt state with
+  | state,Public_data.DI ->
+    state, if
+      match cours.code_cours with
+      | None -> false
+      | Some a ->
+        List.mem
+          (String.trim a)
+          [
+            "INFO-L3-ALGOPRO-S1";
+            "INFO-L3-LAPROCO-S1";
+            "INFO-L3-SYSDIG-S1";
+            "INFO-L3-LAFORMCC-S1";
+            "INFO-L3-SYSRES-S2";
+          ]
+    then
+      (fun x -> Format.sprintf "\\mandatory{%s}" x)
+    else
+      (fun x -> x)
+  | state, Public_data.DMA -> state, (fun x -> x)
 
 let count_for_maths state cours =
-  state,
-  if match cours.code_cours with
-    | None -> false
-    | Some a ->
-      List.mem
-        (String.trim a)
-        [
+  match Remanent_state.get_main_dpt state with
+  | state,Public_data.DI ->
+    state,
+    if match cours.code_cours with
+      | None -> false
+      | Some a ->
+        List.mem
+          (String.trim a)
+          [
           "DMA-L3-A01-S1";
           "DMA-L3-A05-S2";
           "DMA-L3-A02-S1";
@@ -2731,12 +2739,13 @@ let count_for_maths state cours =
           "INFO-L3-SAA-S1";
           "INFO-L3-THEOIC-S2";
         ]
-      ||
-      Tools.substring "DMA" a
-  then
-    (fun x -> Format.sprintf "\\countformaths{%s}" x)
-  else
-    (fun x -> x)
+        ||
+        Tools.substring "DMA" a
+    then
+      (fun x -> Format.sprintf "\\countformaths{%s}" x)
+    else
+      (fun x -> x)
+  | state, Public_data.DMA -> state, (fun x -> x)
 
 let special_course state cours =
   let state, f = is_mandatory state cours in
@@ -2769,6 +2778,8 @@ let next_year i =
 
 let mean_init = (StringOptMap.empty,[])
 let dens_init = Public_data.YearMap.empty
+let n_att_init = Public_data.YearMap.empty
+
 let add_dens_ok year course map =
   match course.ects with
   | None -> map
@@ -2806,14 +2817,14 @@ let add_dens year compensation course map =
       | Some false -> map
       | None -> add_dens_potential year course map
 
-let add_mean_empty state ~dens ~decision ~exception_cursus key year  map =
+let add_mean_empty state ~dens ~natt ~decision ~exception_cursus key year  map =
   let ects,old,y =
     match StringOptMap.find_opt key (fst map)
     with
     | None -> 0.,[],0
     | Some a -> a
   in
-  if ects < 60. || exception_cursus || decision || dens
+  if ects < 60. || exception_cursus || decision || dens || natt
   then
     state,
     (StringOptMap.add key (ects,old, max y year) (fst map),
@@ -2860,8 +2871,8 @@ let add_mean state key compensation course year map =
       | Some false | None ->
         state, map
 
-let add_mean_diplome state ~dens ~decision ~exception_cursus d mean_opt mention_opt year mean =
-  add_mean_empty state ~dens ~decision ~exception_cursus
+let add_mean_diplome state ~dens ~natt ~decision ~exception_cursus d mean_opt mention_opt year mean =
+  add_mean_empty state ~dens ~natt ~decision ~exception_cursus
     d year (fst mean, (d,mean_opt,mention_opt)::(snd mean))
 
 let get_origine who promo gps_file state =
@@ -2921,11 +2932,23 @@ let heading
     | Some Public_data.Feminin -> "e","\\`ere","ne"
   in
   let backgroundcolor = Some Color.green in
-  let () =
-    Remanent_state.log
-      ?backgroundcolor
+  let state =
+    match Remanent_state.get_main_dpt state with
+    | state, Public_data.DI ->
+      let () =
+        Remanent_state.log
+          ?backgroundcolor
+          state
+          "D\\'epartement d'Informatique.  \\'Ecole  Normale  Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Tel : +33 (0)1 44 32 20 45."
+      in state
+    | state, Public_data.DMA ->
+      let () =
+        Remanent_state.log
+          ?backgroundcolor
+          state
+          "D\\'epartement de Math\\'ematiques et applications. \\'Ecole  Normale  Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Tel : +33 (0)1 44 32 20 49."
+      in
       state
-      "D\\'epartement d'Informatique.  \\'Ecole  Normale  Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Tel : +33 (0)1 44 32 20 45."
   in
   let () =
     Remanent_state.print_newline state in
@@ -3534,7 +3557,7 @@ let foot signature state  =
 
 let program
     ~origine ~string ~dpt ~year ~who ~alloc_suffix ~mean ~firstname ~lastname ~promo ~cursus_map
-    ~size ~stages ~current_year ~report ~dens
+    ~size ~stages ~current_year ~report ~dens ~natt
     list state =
   let state,
       entete,
@@ -3665,6 +3688,7 @@ let program
         aux state list
       in
       let dens = string = Some "dens" in
+      let natt = string = Some "" in
       let decision =
         match
           decision_opt
@@ -3675,6 +3699,7 @@ let program
       add_mean_diplome
         state
         ~dens
+        ~natt
         ~exception_cursus
         ~decision
         (string,dpt)
@@ -3838,10 +3863,10 @@ let program
   in
   let macro = "cours" in
   let list = Tools.sort fetch p list in
-  let state, mean, dens  =
+  let state, mean, dens, natt  =
     List.fold_left
       (fun
-        (state, mean, dens)
+        (state, mean, dens, natt)
         ((diplome:string),cours) ->
         let () =
           Remanent_state.open_row ~macro state
@@ -4049,27 +4074,31 @@ let program
         let () =
           Remanent_state.fprintf state "%%\n\ "
         in
-        let state, mean, dens =
+        let state, mean, dens, natt =
           if year > current_year
           || not (do_report report)
-          then state, mean, dens
+          then state, mean, dens, natt
           else
             match Tools.map_opt String.trim string
             with
-            | None -> state, mean, dens
+            | None
+            | Some ""->
+              state, mean, dens,
+              add_dens year compensation cours natt
+
             | Some ("dens" | "DENS") ->
               state, mean,
-              add_dens year compensation cours dens
+              add_dens year compensation cours dens, natt
             | Some _ ->
               let state, mean =
                 add_mean state
                 (string,dpt) compensation cours
                 (try int_of_string year with _ -> 0)
                 mean
-              in state, mean, dens
+              in state, mean, dens, natt
         in
-        state,mean, dens)
-      (state,mean,dens)
+        state,mean, dens, natt)
+      (state,mean,dens,natt)
       list
   in
   let () =
@@ -4095,8 +4124,10 @@ let program
       not_enough_ects,
       moyenne, update_moyenne, mention =
     if (not can_put_mean_mention)
-    ||
-    string = Some "DENS" || string = Some "dens"
+    || string = Some "DENS"
+    || string = Some "dens"
+    || string = None
+    || string = Some ""
     then "","","","",""
     else
       let mean =
@@ -4146,10 +4177,10 @@ let program
       let mention =
         if
           (not can_put_mean_mention)
-          ||
-          string = Some "DENS"
-          ||
-          string = Some "dens"
+          || string = Some "DENS"
+          || string = Some "dens"
+          || string = None
+          || string = Some ""
         then ""
         else
           let mention =
@@ -4272,7 +4303,10 @@ let program
   in
   let lineproportion = 0.30 in
   let () =
-    if (not (string = Some "DENS" || string = Some "dens")) && can_put_mean_mention
+    if (not (string = Some "DENS"
+             || string = Some "dens"
+             || string = None
+             || string = Some "")) && can_put_mean_mention
     then
       let s =
         Remanent_state.log_string
@@ -4333,7 +4367,7 @@ let program
   let () = Remanent_state.print_newline state in
   let () = Remanent_state.print_newline state in
   let () = Remanent_state.print_newline state in
-  state,mean,dens
+  state,mean,dens,natt
 
 let export_transcript
     ~output
@@ -4701,9 +4735,9 @@ let export_transcript
         [current_year, empty_bilan_annuel, StringOptMap.empty]
       | _ -> l
     in
-    let state,mean,dens =
+    let state,mean,dens,natt =
       List.fold_left
-        (fun (state,mean,dens) (year,situation,split_cours) ->
+        (fun (state,mean,dens,natt) (year,situation,split_cours) ->
            let who =
              Format.sprintf "%s in %s" who year
            in
@@ -4714,6 +4748,7 @@ let export_transcript
                ~firstname
                state
            in
+
            let state, tuteurs_secondaires =
              Remanent_state.get_mentoring_list
                ~year
@@ -4728,7 +4763,44 @@ let export_transcript
            in
            let state, tuteur =
              match tuteur with
+             | Some t -> state, Some t
              | None ->
+               begin
+                 match Remanent_state.get_main_dpt state with
+                 | state, Public_data.DI -> state, None
+                 | state, Public_data.DMA ->
+                   begin
+                     match
+                       gps_file.tuteur
+                     with
+                     | None -> state, None
+                     | Some s ->
+                       let t_genre, t_firstname, t_fullname =
+                         Special_char.split_name s
+                       in
+                       let state, t_genre =
+                         genre_opt_of_string_opt __POS__ state (Some t_genre);
+                       in
+                       state,
+                       Some
+                         {
+                           Public_data.genre_du_tuteur= t_genre;
+                           Public_data.nom_du_tuteur=Some t_fullname ;
+                           Public_data.prenom_du_tuteur=Some t_firstname ;
+                           Public_data.annee_academique=year;
+                           Public_data.courriel_du_tuteur=None;
+                           Public_data.nom_de_l_etudiant=lastname;
+                           Public_data.prenom_de_l_etudiant=firstname;
+                           Public_data.secondaire=None;
+                   }
+                 end
+
+               end
+           in
+           let state, tuteur =
+             match tuteur with
+             | None ->
+               begin
                let state =
                  Remanent_state.add_missing_mentor
                    state
@@ -4741,6 +4813,8 @@ let export_transcript
                in
                state,
                ("",1.)
+             end
+
              | Some tuteur ->
                let state, genre =
                  match
@@ -4953,7 +5027,7 @@ let export_transcript
                    state, (x, 2./.3.)
                end
            in
-           if year > current_year then state,mean,dens
+           if year > current_year then state,mean,dens,natt
            else
              let l =
                [21.0;11.67;48.33;26.67;7.3;10.00;5.17]
@@ -5034,12 +5108,14 @@ let export_transcript
                    Remanent_state.fprintf
                      state "\\pagebreak\n\ "
                in
-               state, mean, dens
+               state, mean, dens, natt
              else
                begin
-                 let _, state, mean, dens =
+                 let _, state, mean, dens, natt =
                    StringOptMap.fold
-                     (fun (string,dpt) list (i,state,mean,dens)
+                     (fun
+                       (string,dpt) list
+                       (i,state,mean,dens,natt)
                        ->
                          let state =
                            if i mod 2 = 1
@@ -5062,14 +5138,14 @@ let export_transcript
                            else state
                          in
                          let
-                           (state,mean,dens)
+                           (state,mean,dens,natt)
                            =
                            program
                              ~origine ~string ~dpt ~year ~who
                              ~alloc_suffix ~mean ~firstname
                              ~lastname ~promo ~cursus_map ~size
                              ~stages ~current_year ~report ~dens
-                             list state
+                             ~natt list state
                          in
                          let () =
                            Remanent_state.fprintf
@@ -5123,17 +5199,18 @@ let export_transcript
                              Remanent_state.fprintf
                                state "\\pagebreak\n\ "
                          in
-                         (i+1,state,mean,dens)
+                         (i+1,state,mean,dens,natt)
                      )
                      split_cours
-                     (1,state,mean,dens)
+                     (1,state,mean,dens,natt)
                  in
-                 state,mean,dens
+                 state,mean,dens,natt
                end
         )
-        (state,mean_init,dens_init)
+        (state,mean_init,dens_init,n_att_init)
         l
     in
+    let _ = natt in
     let dens_total, dens_total_potential =
       Public_data.YearMap.fold
         (fun _ (t,pt) (t',pt') -> t+.t',pt+.pt')

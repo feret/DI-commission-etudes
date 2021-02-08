@@ -153,7 +153,20 @@ let state =
                Transcripts.export_transcript
                  ~output state gps
              in
-             Latex_engine.latex_opt_to_pdf ~rev:true state ~input
+             let state, save_rep =
+               match Remanent_state.is_main_dpt_dma state with
+               | state, true ->
+                 let state,rep  =
+                   Remanent_state.get_student_personal_repository
+                     ~firstname ~lastname ?promo state
+                 in
+                 let rep = Printf.sprintf "%s/" rep in
+                 state, Some rep
+               | state, false ->
+                 state, None
+             in
+             Latex_engine.latex_opt_to_pdf
+               ?save_rep ~rev:true state ~input
          in
          let output =
            (fst output0,
@@ -172,14 +185,20 @@ let state =
                  ~signature ~output state gps
              in
              let state, save_rep =
-               let state,rep  =
+               match Remanent_state.is_main_dpt_di state
+               with
+               | state, true ->
+                 let state,rep  =
                    Remanent_state.get_student_personal_repository
                      ~firstname ~lastname ?promo state
-               in
-               let rep = Printf.sprintf "%s/" rep in
-               state, Some rep
+                 in
+                 let rep = Printf.sprintf "%s/" rep in
+                 state, Some rep
+               | state, false ->
+                 state, None
              in
-             Latex_engine.latex_opt_to_pdf ?save_rep ~rev:true state ~input
+             Latex_engine.latex_opt_to_pdf
+               ?save_rep ~rev:true state ~input
          in
 
          let output =

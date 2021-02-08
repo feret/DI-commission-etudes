@@ -76,7 +76,7 @@ module ProgramExtendedMap: Map_tools.Collect
 
 module DptOptExtendedMap: Map_tools.Collect
   with type key = DptOptMap.key
-   and type 'a t = 'a DptOptMap.t 
+   and type 'a t = 'a DptOptMap.t
 
 
 type course =
@@ -473,3 +473,5 @@ type 'a commission =
     commission_long_date: string;
     commission_year: annee;
   }
+
+type main_dpt = DI | DMA 
