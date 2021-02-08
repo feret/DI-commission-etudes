@@ -2946,7 +2946,7 @@ let heading
         Remanent_state.log
           ?backgroundcolor
           state
-          "D\\'epartement de Math\\'ematiques et applications. \\'Ecole  Normale  Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Tel : +33 (0)1 44 32 20 49."
+          "D\\'epartement de Math\\'ematiques et Applications. \\'Ecole  Normale  Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Tel : +33 (0)1 44 32 20 49."
       in
       state
   in
