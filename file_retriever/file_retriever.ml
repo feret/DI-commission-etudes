@@ -4,6 +4,14 @@ let launch
     t ~url ~output_repository ~output_file_name
     state
   =
+  let state, output_repository =
+    if output_repository = ""
+    then state, output_repository
+    else
+      Safe_sys.rec_mk_when_necessary
+        __POS__ state
+        output_repository
+  in   
   let output =
     if output_repository = ""
     then output_file_name
