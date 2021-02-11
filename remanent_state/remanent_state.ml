@@ -1626,21 +1626,38 @@ let get_promo ~firstname ~lastname t =
   | [a] ->
     t, a.Public_data.promotion
 
-
-let get_student_personal_repository ?promo ~firstname ~lastname t =
+let get_promos_personnal_repository t =
   let t, cloud_rep = get_cloud_repository t in
   let main_rep = t.parameters.scholarships_repository in
-  let fiche = t.parameters.repository_to_dump_transcripts in
-  let t,promo =
-    match promo with
-    | Some p -> t,p
-    | None ->
-      match get_promo ~firstname ~lastname t with
-      | t, None -> t,""
-      | t, Some p -> t, p
+  let rep =
+    match main_rep with
+    | "" -> Printf.sprintf "%s" cloud_rep
+    | _ -> Printf.sprintf "%s/%s" cloud_rep main_rep
   in
+  t, rep
+
+let get_promo_personnal_repository ~promo t =
+  let t, cloud_rep = get_cloud_repository t in
+  let main_rep = t.parameters.scholarships_repository in
   let promo =
-    Printf.sprintf "Promo%s" promo in
+    Printf.sprintf "Promo%s" promo
+  in
+  let rep =
+    match main_rep with
+    | "" -> Printf.sprintf "%s/%s" cloud_rep promo
+    | _ -> Printf.sprintf "%s/%s/%s" cloud_rep main_rep promo
+  in
+  t, rep
+
+let get_student_personnal_repository ?promo ~firstname ~lastname t =
+  let t, promo_rep =
+    match promo with
+    | Some promo ->
+      get_promo_personnal_repository ~promo t
+    | None ->
+      get_cloud_repository t
+  in
+  let fiche = t.parameters.repository_to_dump_transcripts in
   let f_firstname =
     if false then
       (fun x -> Special_char.correct_string_filename
@@ -1661,17 +1678,25 @@ let get_student_personal_repository ?promo ~firstname ~lastname t =
   let lastname = f_lastname lastname in
   let firstname = f_firstname firstname in
   let rep =
-    match main_rep, fiche with
-    | "","" -> Printf.sprintf "%s/%s/%s.%s/" cloud_rep promo lastname firstname
-    | _,"" -> Printf.sprintf "%s/%s/%s/%s.%s/" cloud_rep main_rep promo lastname firstname
+    match promo_rep, fiche with
+    | "","" -> Printf.sprintf "%s.%s/" lastname firstname
+    | _,"" -> Printf.sprintf "%s/%s.%s/" promo_rep lastname firstname
     | "",_ ->
-      Printf.sprintf "%s/%s/%s.%s/%s" cloud_rep promo lastname firstname
+      Printf.sprintf "%s.%s/%s" lastname firstname
         fiche
     | _,_ ->
-      Printf.sprintf "%s/%s/%s/%s.%s/%s" cloud_rep main_rep promo lastname
-      firstname fiche
+      Printf.sprintf "%s/%s.%s/%s" promo_rep  lastname
+        firstname fiche
   in
   t, rep
+
+let get_students_personnal_files ~promo t =
+  let promo_string = promo in
+  let promo = Some promo in
+  let t, rep =
+    get_student_personnal_repository ?promo ~firstname:"*" ~lastname:"*" t
+  in
+  t, Format.sprintf "%s/%s*.pdf" rep promo_string
 
 let get_main_dpt t =
   t, t.parameters.main_dpt
@@ -1682,4 +1707,4 @@ let is_main_dpt_di t =
 
 let is_main_dpt_dma t =
   let t,dpt = get_main_dpt t in
-  t, dpt = Public_data.DMA 
+  t, dpt = Public_data.DMA

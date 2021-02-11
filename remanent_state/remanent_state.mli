@@ -516,9 +516,18 @@ val store_errors_and_profiling_info :
 val get_promo:
   firstname:string -> lastname:string -> t -> t*string option
 
-val get_student_personal_repository:
+val get_student_personnal_repository:
   ?promo:string -> firstname:string -> lastname:string -> t -> t * string
+
+val get_promo_personnal_repository:
+  promo:string -> t -> t * string
+
+val get_promos_personnal_repository:
+   t -> t * string
+
+val get_students_personnal_files:
+    promo:string  -> t -> t * string
 
 val get_main_dpt: t -> t * Public_data.main_dpt
 val is_main_dpt_di: t -> t * bool
-val is_main_dpt_dma: t -> t * bool 
+val is_main_dpt_dma: t -> t * bool

@@ -91,3 +91,19 @@ let latex_opt_to_pdf ?save_rep ?rev ?times:(times=1) ~input state =
   match input with
   | None -> state
   | Some input -> latex_to_pdf ?save_rep ?rev ~times ~input state
+
+let concat_pdf ~pattern ~output state =
+  let state, output_rep =
+    Safe_sys.rec_mk_when_necessary __POS__ state (fst output)
+  in
+  let output =
+    match output_rep with
+    | "" -> snd output
+    | _ -> Format.sprintf "%s/%s" output_rep (snd output)
+  in
+  let command =
+    Format.sprintf
+      "pdftk %s cat output %s" pattern output
+  in
+  let state = Safe_sys.command __POS__ state command in
+  state

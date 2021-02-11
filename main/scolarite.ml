@@ -1,3 +1,6 @@
+module StringSet =
+  Set.Make
+    (struct type t = string let compare = compare end)
 let state = Remanent_state.init ()
 let state =
   Cloud_interaction.safe_synchronize_shared_repository
@@ -157,7 +160,7 @@ let state =
                match Remanent_state.is_main_dpt_dma state with
                | state, true ->
                  let state,rep  =
-                   Remanent_state.get_student_personal_repository
+                   Remanent_state.get_student_personnal_repository
                      ~firstname ~lastname ?promo state
                  in
                  let rep = Printf.sprintf "%s/" rep in
@@ -189,7 +192,7 @@ let state =
                with
                | state, true ->
                  let state,rep  =
-                   Remanent_state.get_student_personal_repository
+                   Remanent_state.get_student_personnal_repository
                      ~firstname ~lastname ?promo state
                  in
                  let rep = Printf.sprintf "%s/" rep in
@@ -222,6 +225,34 @@ let state =
     )
     state
     students_list
+let years =
+  List.fold_left
+    (fun set id ->
+       match id.Public_data.promotion with
+       | None -> set
+       | Some promo ->
+         StringSet.add promo set)
+    StringSet.empty students_list
+let state =
+  StringSet.fold
+    (fun promo state ->
+       let state,pattern  =
+         Remanent_state.get_students_personnal_files
+            ~promo state
+       in
+       let state, output_rep =
+         Remanent_state.get_promos_personnal_repository
+            state
+       in
+       let output = (output_rep,Format.sprintf "promo%s.pdf" promo)
+       in
+       let state =
+         Latex_engine.concat_pdf ~pattern ~output
+           state
+       in
+       state)
+    years
+    state
 let state, academicyear =
   Remanent_state.get_current_academic_year state
 let title =
