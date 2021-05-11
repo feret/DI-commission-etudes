@@ -60,6 +60,10 @@ type student_id =
     promotion: string option;
   }
 
+type language = French | English
+type repartition = Annee_de_validation_du_cours | Annee_obtention_du_diplome
+
+
 let empty_student_id =
   {
     firstname = "";

@@ -593,3 +593,8 @@ let find_starting_with
   in
   let () = close_in channel in
   state, output
+
+let get_option state get opt =
+  match opt with
+  | None -> get state
+  | Some x -> state, x 

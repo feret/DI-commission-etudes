@@ -133,3 +133,5 @@ val find_starting_with:
   warn:(string * int * int * int -> string -> exn -> 'b -> 'b) ->
   prefix:string ->
   between:char -> 'a -> string -> 'b * string option
+
+val get_option: 'state -> ('state -> 'state * 'a) -> 'a option -> 'state * 'a 

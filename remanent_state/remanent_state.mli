@@ -169,8 +169,11 @@ val get_additional_courses_list_prefix: t -> t * string
 val get_additional_courses_list_repository: t -> t * string
 
 val get_launching_date: t -> t * string
-
 val get_comma_symbol: t -> t * char
+
+
+val get_language: t -> t * Public_data.language
+val get_repartition: t -> t * Public_data.repartition
 
 type save_logger
 val save_std_logger: t -> save_logger

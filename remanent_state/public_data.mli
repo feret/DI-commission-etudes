@@ -4,6 +4,10 @@ type file_retriever = WGET
 type cloud_synchronization_mode = Daemon | CommandLine
 type annee = string
 
+type language = French | English
+
+type repartition = Annee_de_validation_du_cours | Annee_obtention_du_diplome
+
 type genre =
   | Feminin
   | Masculin
@@ -474,4 +478,4 @@ type 'a commission =
     commission_year: annee;
   }
 
-type main_dpt = DI | DMA 
+type main_dpt = DI | DMA

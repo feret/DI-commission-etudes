@@ -121,6 +121,63 @@ let addfirstlast state x dispense data map =
     in
     state, StringOptMap.add x answer map
 
+let is_dens x =
+  match x with
+    Some "dens", _ -> true
+  | _ -> false
+
+let get_display_year pos msg state year x map =
+  if is_dens x then state, year
+  else
+    begin
+      match
+        StringOptMap.find_opt
+          x map
+      with
+      | None ->
+        begin
+          Remanent_state.warn
+            pos
+            msg
+            Exit
+            state, year
+        end
+      | Some (_,Some y)-> state, y
+      | Some (_,None) ->
+      begin
+        Remanent_state.warn
+          pos
+          msg
+          Exit
+          state, year
+      end
+    end
+
+let add_course pos msg state year  key courses map =
+  match
+    Public_data.YearMap.find_opt year map
+  with
+  | None ->
+    begin
+      Remanent_state.warn
+        pos
+        msg
+        Exit
+        state, map
+    end
+  | Some (a,b,d_map) ->
+    let old =
+      match
+        StringOptMap.find_opt key d_map
+      with
+      | None -> []
+      | Some old -> old
+    in
+    let d_map =
+      StringOptMap.add key (List.concat [courses;old]) d_map
+    in
+    state, Public_data.YearMap.add year (a,b,d_map) map
+
 type diplome =
   {
     grade: string option;
@@ -4371,10 +4428,24 @@ let program
 
 let export_transcript
     ~output
+    ?language
+    ?repartition
     ?signature
     ?report
     ?filter:(remove_non_valided_classes=Public_data.All_but_in_progress_in_current_academic_year)
     state gps_file =
+  let state, _language =
+    Tools.get_option
+      state
+      Remanent_state.get_language
+      language
+  in
+  let state, repartition =
+    Tools.get_option
+      state
+      Remanent_state.get_repartition
+      repartition
+  in
   let alloc_suffix =
     let l0 =
       ["a";"b";"c";"d";"e";"f";"g";"h";"i";"j";"k";"l";"m";"n"]
@@ -4734,6 +4805,50 @@ let export_transcript
       | [] ->
         [current_year, empty_bilan_annuel, StringOptMap.empty]
       | _ -> l
+    in
+    let state, l =
+      match repartition with
+      | Public_data.Annee_de_validation_du_cours -> state, l
+      | Public_data.Annee_obtention_du_diplome ->
+        begin
+          let map =
+            List.fold_left
+              (fun map (year,situation,_) ->
+                 Public_data.YearMap.add year
+                   (year,situation,StringOptMap.empty)
+                   map)
+              Public_data.YearMap.empty
+              l
+          in
+          let state, l =
+            List.fold_left
+              (fun
+                (state, map)
+                (year,_,split_cours) ->
+                 StringOptMap.fold
+                   (fun key course (state, map) ->
+                      let state, year =
+                        get_display_year
+                          __POS__ "last year should be defined"
+                          state year key cursus_map
+                      in
+                      add_course
+                        __POS__ "diploma is not defined"
+                        state year key course map
+                   )
+                   split_cours
+                   (state,map))
+              (state,map)
+              l
+          in
+          let l =
+            Public_data.YearMap.fold
+              (fun _ x l -> x::l)
+              l
+              []
+          in
+          state, l
+        end
     in
     let state,mean,dens,natt =
       List.fold_left

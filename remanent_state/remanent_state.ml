@@ -82,6 +82,8 @@ type parameters =
     repository_to_dump_mentors: string;
     signature: string;
     log_mkdir: bool;
+    language: Public_data.language;
+    repartition: Public_data.repartition;
   }
 
 
@@ -169,7 +171,10 @@ let parameters =
     current_academic_year = "2020";
     commission = Some ("18 septembre 2020", "2019");
     target = None ;
-    signature = "feret+tampon.pdf"
+    signature = "feret+tampon.pdf";
+    language  = Public_data.French;
+    repartition = Public_data.Annee_de_validation_du_cours;
+
   }
 
 let set_dma parameters =
@@ -178,6 +183,7 @@ let set_dma parameters =
     main_dpt = Public_data.DMA ;
     local_repository = "dma/suivi_pedagogique" ;
     scholarships_repository = "dma/scolarite/ELEVES" ;
+    repartition = Public_data.Annee_obtention_du_diplome ;
   }
 
 type data =
@@ -1708,3 +1714,9 @@ let is_main_dpt_di t =
 let is_main_dpt_dma t =
   let t,dpt = get_main_dpt t in
   t, dpt = Public_data.DMA
+
+let get_language t =
+  t, t.parameters.language
+
+let get_repartition t =
+  t, t.parameters.repartition
