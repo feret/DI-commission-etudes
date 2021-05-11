@@ -4517,9 +4517,7 @@ let export_transcript
       List.fold_left
         (fun (l,counter) (y,annee) ->
            if
-             not (annee.code_option = Some "OPT2")
-             &&
-              begin
+             begin
                match annee.situation_administrative
                with
                | None ->
@@ -4538,41 +4536,40 @@ let export_transcript
                  ||
                  counter = 0
                | Some sit ->
-                 (
-                  (simplify_string sit = "scolarite a l'ens"
+                 (simplify_string sit = "scolarite a l'ens"
+                 &&
+                 not
+                   (List.exists
+                      (fun dip ->
+                         let code = dip.diplome_diplome in
+                         match code with
+                         | None -> false
+                         | Some dip ->
+                           if String.length dip < 3 then false
+                           else String.sub dip 0 3 = "CES")
+                      annee.diplomes))
+                 ||
+                 (simplify_string sit = "autre cas"
                   &&
-                  not
+                  (not
                     (List.exists
-                        (fun dip ->
+                       (fun dip ->
                           let code = dip.diplome_diplome in
                           match code with
                           | None -> false
                           | Some dip ->
                             if String.length dip < 3 then false
                             else String.sub dip 0 3 = "CES")
-                        annee.diplomes)))
-                 ||
-                  (simplify_string sit = "autre cas"
-                    &&
-                    (not
-                       (List.exists
-                          (fun dip ->
-                             let code = dip.diplome_diplome in
-                             match code with
-                             | None -> false
-                             | Some dip ->
-                               if String.length dip < 3 then false
-                               else String.sub dip 0 3 = "CES")
-                          annee.diplomes))
-                    &&
-                    (annee.derniere_annee = Some true
-                     || begin
-                       match
-                         annee.code_option
-                       with
-                       | Some "OPT1" -> true
-                       | Some _ | None -> false
-                     end))
+                       annee.diplomes))
+                  &&
+                  (annee.derniere_annee = Some true
+                   || begin
+                     match
+                       annee.code_option
+                     with
+                     | Some "OPT1" -> true
+                     | Some _ | None -> false
+                   end))
              end
            then
              let counter = counter + 1 in

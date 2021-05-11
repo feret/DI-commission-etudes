@@ -51,9 +51,7 @@ let special_char_latex =
       '\182', "{\\\"o}";
       '\185', "{\\`u}";
       '\187', "{\\^u}";
-      '\191', "'";
       '_', "\\_";
-      '\194',"";
       '\195', "";
     ]
 
@@ -103,8 +101,6 @@ let special_char_html =
     '\182', "&ouml;";
     '\185', "&ugrave;";
     '\187', "&ucirc";
-    '\191', "'";
-    '\194', "";
     '\195', "";
   ]
 
@@ -155,7 +151,6 @@ let special_char_url =
     '\182', "%F6";
     '\185', "%F9";
     '\187', "%FA";
-    '\194', "";
     '\195', "";
   ]
 
@@ -241,12 +236,11 @@ let special_char =
     '\182', 'o';
     '\185', 'u';
     '\187', 'u';
-    '\188', 'u';
-    '\191', '\'';
+    '\188', 'u'
   ]
 
 let special_char_txt =
-  ('\194',"")::('\195',"")::(List.rev_map (fun (a,b) -> a,String.make 1 b) (List.rev special_char))
+  ('\195',"")::(List.rev_map (fun (a,b) -> a,String.make 1 b) (List.rev special_char))
 
 let special_char_file_name =
   (' ', "")::special_char_txt
@@ -450,7 +444,7 @@ let capitalize s =
       let () =
         a.(k)<-(if bool then uppercase_char s.[k] else s.[k])
       in
-      aux (k+1) (s.[k]=' ' || s.[k]='-' || (bool && (s.[k]='\195' || s.[k]='\194')))
+      aux (k+1) (s.[k]=' ' || s.[k]='-' || (bool && s.[k]='\195'))
   in
   let () = aux 0 true in
   String.init n (fun i -> a.(i))
@@ -507,7 +501,7 @@ let clean_spurious_uppercase_letters string =
     if k>=n then Bytes.to_string string
     else
       let c = Bytes.get string k in
-      if c = '\195' || c = '\194'
+      if c = '\195'
       then f (k+1)
       else aux (k+1) false []
   in f 0
