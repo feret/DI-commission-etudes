@@ -572,6 +572,7 @@ type 'a direction_des_etudes =
   {
     direction_initiales: string;
     direction_nom_complet: string;
+    direction_genre : genre;
     direction_signature:
       ('a -> 'a * string) option;
     direction_titre: string;

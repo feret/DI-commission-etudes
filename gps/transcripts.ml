@@ -2928,9 +2928,9 @@ let add_mean state key compensation course year map =
       | Some false | None ->
         state, map
 
-let add_mean_diplome state ~dens ~natt ~decision ~exception_cursus d mean_opt mention_opt year mean =
+let add_mean_diplome state ~dens ~natt ~decision ~exception_cursus d mean_opt mention_opt validated_opt year mean =
   add_mean_empty state ~dens ~natt ~decision ~exception_cursus
-    d year (fst mean, (d,mean_opt,mention_opt)::(snd mean))
+    d year (fst mean, (d,mean_opt,mention_opt,validated_opt)::(snd mean))
 
 let get_origine who promo gps_file state =
   match
@@ -3704,7 +3704,7 @@ let program
     moyenne_opt, mention_opt,
     rank_opt, effectif_opt,
     date_opt, commission_name_opt,
-    decision_opt, _validated_opt
+    decision_opt, validated_opt
     =
     match decision_opt with
     | None ->
@@ -3762,6 +3762,7 @@ let program
         (string,dpt)
         moyenne_opt
         mention_opt
+        validated_opt
         (try int_of_string year with _ -> 0)
         mean
     else
@@ -5403,7 +5404,7 @@ let export_transcript
           let list_national_diploma = snd mean in
           let state =
             List.fold_left
-              (fun state (key, moyenne_opt, mention_opt)  ->
+              (fun state (key, moyenne_opt, mention_opt, validated_opt)  ->
                  match
                    StringOptMap.find_opt key (fst mean)
                  with
@@ -5468,6 +5469,14 @@ let export_transcript
                      | None -> mention
                      | (Some _) -> mention_opt
                    in
+                   let validated =
+                     match validated_opt with
+                     | Some v -> v
+                     | None ->
+                       match mean with
+                       | None -> false
+                       | Some mean -> mean >= 10.
+                   in
                    if lpoly situation then
                      state
                    else
@@ -5499,10 +5508,7 @@ let export_transcript
                         Public_data.diplome_mention =
                           mention
                        ;
-                        Public_data.diplome_recu =
-                          match mean with
-                          | None -> false
-                          | Some mean -> mean >= 10.
+                        Public_data.diplome_recu = validated
                        }
               )
               state

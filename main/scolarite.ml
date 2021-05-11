@@ -297,12 +297,19 @@ let state =
   | state, None -> state
   | state, Some (commission_date,commission_year) ->
     begin
+      let state, dpt, signataires =
+        match
+          Remanent_state.get_main_dpt state
+        with
+        | state, Public_data.DI -> state, "informatique", ["JF";"MP";"LB"]
+        | state, Public_data.DMA -> state, "mathématiques", ["AM"]
+      in
       let state =
         Diploma_report.dump_attestations
           ~recu:true
           ~academicyear:commission_year
           ~niveau:"m"
-          ~dpt:"informatique"
+          ~dpt
           state
       in
       let state =
@@ -310,11 +317,12 @@ let state =
           ~recu:true
           ~academicyear:commission_year
           ~niveau:"l"
-          ~dpt:"informatique"
+          ~dpt
           state
       in
       let state =
         Commissions.prepare_commission
+          ~signataires
           ~annee:commission_year
           ~date_complete:commission_date
           state

@@ -346,14 +346,22 @@ let filter_dens
     let _ =
       codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription, attributionyear
     in
+    let state =
+      Remanent_state.warn
+        __POS__
+        (Format.sprintf "DEP %s %s" (match dpt with None -> "None" | Some x -> x) dens.Public_data.diplome_dpt)
+        Exit
+        state
+        (* to remove *)
+    in
     state,
     check firstname dens.Public_data.diplome_firstname
     &&
     check lastname dens.Public_data.diplome_lastname
     &&
     check promo dens.Public_data.diplome_promotion
-    &&
-    check dpt dens.Public_data.diplome_dpt
+      (*&&
+        check dpt dens.Public_data.diplome_dpt*)
     &&
     check niveau dens.Public_data.diplome_niveau
     &&

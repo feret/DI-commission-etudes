@@ -1,10 +1,16 @@
 type direction_key = string
 type sous_commission_key = string
 
+let e_of_direction dir =
+  match dir.Public_data.direction_genre with
+  | Public_data.Masculin | Public_data.Unknown -> ""
+  | Public_data.Feminin -> "e"
+
 let mp =
   {
     Public_data.direction_initiales = "MP";
     Public_data.direction_nom_complet = "Marc Pouzet";
+    Public_data.direction_genre = Public_data.Masculin ;
     Public_data.direction_signature = None ;
     Public_data.direction_titre = "Directeur des études";
     Public_data.direction_departement = "d'informatique";
@@ -14,6 +20,7 @@ let jf =
   {
     Public_data.direction_initiales = "JF";
     Public_data.direction_nom_complet = "Jérôme Feret";
+    Public_data.direction_genre = Public_data.Masculin ;
     Public_data.direction_signature =
       Some Remanent_state.get_signature;
     Public_data.direction_titre = "Directeur des études";
@@ -21,10 +28,23 @@ let jf =
 
   }
 
+let am =
+  {
+    Public_data.direction_initiales = "AM";
+    Public_data.direction_nom_complet = "Ariane Mézard";
+    Public_data.direction_genre = Public_data.Feminin ;
+    Public_data.direction_signature =
+      Some Remanent_state.get_signature;
+    Public_data.direction_titre = "Directeur de la formation";
+    Public_data.direction_departement = "de mathématiques";
+
+  }
+
 let lb =
   {
     Public_data.direction_initiales = "LB";
     Public_data.direction_nom_complet = "Linda Boulevart";
+    Public_data.direction_genre = Public_data.Feminin ;
     Public_data.direction_signature =
       None;
     Public_data.direction_titre = "Secrétaire pédagogique";
@@ -63,6 +83,28 @@ let m =
       Public_data.dn_departement="informatique";
     }
 
+let l_dma =
+  Public_data.Diplome_National
+    {
+      Public_data.dn_key="l";
+      Public_data.dn_short="L3";
+      Public_data.dn_long="Licence L3 de mathématiques";
+      Public_data.dn_universite="Licence L3 de mathématiques";
+      Public_data.dn_niveau="l";
+      Public_data.dn_departement="mathématiques";
+    }
+
+let m_dma =
+  Public_data.Diplome_National
+    {
+      Public_data.dn_key="m";
+      Public_data.dn_short="M1";
+      Public_data.dn_long="Master M1 de mathématiques";
+      Public_data.dn_universite="Master M1 de mathématiques";
+      Public_data.dn_niveau="m";
+      Public_data.dn_departement="mathématiques";
+    }
+
 type todo =
   | TODO_Nat of Diploma_report.dump * string
   | TODO_DENS of Dens_report.dump * string
@@ -86,6 +128,15 @@ let direction_etude =
     Public_data.StringMap.empty
     [mp;jf;lb]
 
+let direction_etude_dma =
+  List.fold_left
+    (fun map elt ->
+       Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+    Public_data.StringMap.empty
+    [am]
+
+let dpt_di = "informatique"
+let dpt_dma = "mathématiques"
 let diplomes =
   List.fold_left
     (fun map elt ->
@@ -99,6 +150,23 @@ let diplomes =
     Public_data.StringMap.empty
     [l;m;dens_two]
 
+let diplomes_dma =
+  List.fold_left
+    (fun map elt ->
+       Public_data.StringMap.add
+         (match elt with
+          | Public_data.Diplome_ENS elt ->
+            elt.Public_data.dens_key
+          | Public_data.Diplome_National elt ->
+            elt.Public_data.dn_key)
+         elt map)
+    Public_data.StringMap.empty
+    [l_dma;m_dma;dens_two]
+
+let footpage_string = "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32 20 45 --  Fax : + 33 (0) 1 44 32 20 75 -- direction.etudes@di.ens.fr}"
+let footpage_string_dma =
+  "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 31 72 45 --  Fax : + 33 (0) 1 44 32 20 69 -- education@math.ens.fr}"
+
 let print_sous_commission
     commission_year
     commission_date
@@ -107,6 +175,14 @@ let print_sous_commission
     todo
     state
   =
+  let state, dpt =
+    Remanent_state.get_main_dpt state
+  in
+  let dpt,direction_etude,diplomes,footpage_string,footcolor  =
+    match dpt with
+    | Public_data.DI -> dpt_di,direction_etude,diplomes,footpage_string,Color.digreen
+    | Public_data.DMA -> dpt_dma,direction_etude_dma,diplomes_dma,footpage_string_dma,Color.duckblue
+  in
   let state, full_year =
     try
       let year_int = int_of_string commission_year in
@@ -124,7 +200,28 @@ let print_sous_commission
     Public_data.StringMap.find_opt direction_key direction_etude,
     Public_data.StringMap.find_opt sous_commission_key diplomes
   with
-  | None,_ | _, None  -> state
+  | None, None ->
+  Remanent_state.warn
+    __POS__
+    (Format.sprintf
+       "Cannot find direction_key (%s), not diploma key (%s)"
+       direction_key sous_commission_key)
+    Exit
+    state
+  | None,_ ->
+    Remanent_state.warn
+      __POS__
+      (Format.sprintf
+         "Cannot find direction_key (%s)"
+         direction_key)
+      Exit state
+  | _, None  ->
+    Remanent_state.warn
+      __POS__
+      (Format.sprintf
+         "Cannot find diploma key (%s)"
+         sous_commission_key)
+      Exit state
   | Some direction, Some sous_commission ->
     begin
       let state, enspsl = Remanent_state.get_ENSPSL_logo state in
@@ -138,10 +235,8 @@ let print_sous_commission
            full_year s]
       in
       let footpage =
-        [Loggers.fprintf,
-         "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32 20 45 --  Fax : + 33 (0) 1 44 32 20 75 -- direction.etudes@di.ens.fr}"]
+        [Loggers.fprintf, footpage_string]
       in
-      let footcolor = Color.digreen in
       match todo, sous_commission with
       | TODO_DENS (f,lbl), Public_data.Diplome_ENS dip ->
         let state,_ =
@@ -159,7 +254,10 @@ let print_sous_commission
             let preamble i =
               [Loggers.fprintf,
                Format.sprintf
-                "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du %s,} je soussigné \\textbf{%s}, %s du département %s de l'École Normale Supérieure, certifie que les \\underline{\\textbf{%i étudiants inscrits en %s}}, %s du diplôme de l'École Normale Supérieure, ont obtenu les résultats suivants" commission_date
+                 "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en %s à l'ENS et aux décisions de la commission des études du %s,} je soussigné%s \\textbf{%s}, %s du département %s de l'École Normale Supérieure, certifie que les \\underline{\\textbf{%i étudiants inscrits en %s}}, %s du diplôme de l'École Normale Supérieure, ont obtenu les résultats suivants"
+                 dpt
+                 commission_date
+                 (e_of_direction direction)
                 direction.Public_data.direction_nom_complet
                 direction.Public_data.direction_titre
                 direction.Public_data.direction_departement
@@ -211,8 +309,10 @@ let print_sous_commission
         let preamble i =
           [Loggers.fprintf,
            Format.sprintf
-            "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en informatique à l'ENS et aux décisions de la commission des études du %s,} je soussigné \\textbf{%s}, %s du département %s de l'École Normale Supérieure, certifie que les \\underline{\\textbf{%i étudiants inscrits en %s}}, à l'université %s, \\textbf{en %s - parcours : Formation interuniversitaire en informatique de l'ENS Paris, ont obtenu les résultats suivants}"
-            commission_date
+             "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en %s à l'ENS et aux décisions de la commission des études du %s,} je soussigné%s \\textbf{%s}, %s du département %s de l'École Normale Supérieure, certifie que les \\underline{\\textbf{%i étudiants inscrits en %s}}, à l'université %s, \\textbf{en %s - parcours : Formation interuniversitaire en informatique de l'ENS Paris, ont obtenu les résultats suivants}"
+             dpt
+             commission_date
+             (e_of_direction direction)
             direction.Public_data.direction_nom_complet
             direction.Public_data.direction_titre
             direction.Public_data.direction_departement
@@ -280,12 +380,26 @@ let prepare_commission
     ?signataires:(persons=["MP";"JF";"LB"])
     ?diplomes:(sous_commissions=["dens_two";"l";"m"])
     state =
+    let state =
+      Remanent_state.warn
+        __POS__
+        "PREPARE COMMISSION"
+        Exit
+        state
+    in
   List.fold_left
     (fun state direction ->
        List.fold_left
          (fun state sous_commission ->
             List.fold_left
               (fun state todo ->
+                 let state =
+                   Remanent_state.warn
+                     __POS__
+                     "SOUS COMMISSION: TODO"
+                     Exit
+                     state
+                 in
                  print_sous_commission
                    annee
                    date_complete
