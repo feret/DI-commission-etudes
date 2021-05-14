@@ -10,9 +10,6 @@ let get_cursus ~strong ~level ?dpt ~year cursus =
   let level =
     Special_char.lowercase level
   in
-  let dpt =
-    Tools.map_opt Special_char.lowercase dpt
-  in
   match
     Public_data.LevelMap.find_opt
       level
@@ -101,5 +98,5 @@ let add_cursus
 let add_cursus unify pos state
     cursus_elt cursus_map =
   add_cursus unify pos state cursus_elt cursus_map
-  
+
 let get_cursus = get_cursus ~strong:false ~strong_dpt:false

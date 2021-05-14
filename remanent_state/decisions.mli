@@ -6,7 +6,7 @@ val get_decision:
   lastname:string ->
   ?year:string ->
   ?program: string ->
-  ?dpt:string ->
+  ?dpt:Public_data.main_dpt ->
   t -> Public_data.decision list
 
 val add_decision:

@@ -292,7 +292,7 @@ val add_cursus:
 val get_cursus:
   year:string ->
   level:string ->
-  ?dpt:string  ->
+  ?dpt:Public_data.main_dpt  ->
   (string * int * int * int) ->
   t -> t * Public_data.cursus option
 
@@ -325,12 +325,12 @@ val add_decision:
 
 val get_decision:
   firstname:string -> lastname:string -> year:string ->
-  program:string -> dpt:string ->
+  program:string -> dpt:Public_data.main_dpt ->
   t -> t * Public_data.decision option
 
 val get_decision_list:
   firstname:string -> lastname:string ->
-  ?year:string -> ?program:string -> ?dpt:string ->
+  ?year:string -> ?program:string -> ?dpt:Public_data.main_dpt ->
     t -> t * Public_data.decision list
 
 val add_admission:

@@ -6,7 +6,8 @@ type dump =
   Remanent_state.t * (string * string) option
 
 type 'elt filter =
-  ?dpt:string ->
+  ?dpt:Public_data.main_dpt ->
+  ?dpt_gps_code:string ->
   ?firstname:string ->
   ?lastname:string ->
   ?codegps:string ->
@@ -24,6 +25,7 @@ type 'elt filter =
 
 let dump_elts
     ?dpt
+    ?dpt_gps_code
     ?firstname
     ?lastname
     ?codegps
@@ -61,6 +63,7 @@ let dump_elts
          let state, b =
            filter
              ?dpt
+             ?dpt_gps_code
              ?firstname
              ?lastname
              ?codegps
@@ -227,15 +230,16 @@ let op_cmp cmp a b = cmp b a
 let check elt_opt elt =
   match elt_opt with
   | None -> true
-  | Some elt' -> elt = elt'
+  | Some elt' ->
+    elt = elt'
 
 let filter_grade
-    ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
+    ?dpt ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
     ?niveau ?recu state grade =
   let _  =
-    niveau, recu, mentorname, mentorfirstname, mentorlastname, ninscription, attributionyear
+    dpt, niveau, recu, mentorname, mentorfirstname, mentorlastname, ninscription, attributionyear
   in
-  state, check dpt grade.Public_data.missing_grade_dpt
+  state, check dpt_gps_code grade.Public_data.missing_grade_dpt
   &&
   check firstname grade.Public_data.missing_grade_firstname
   &&
@@ -250,10 +254,10 @@ let filter_grade
   check promo grade.Public_data.missing_grade_promotion
 
 let filter_internship_description
-    ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname  ?teachername ?academicyear ?attributionyear ?promo ?ninscription
+    ?dpt ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname  ?teachername ?academicyear ?attributionyear ?promo ?ninscription
     ?niveau ?recu state internship =
   let _ =
-    dpt, mentorname, teachername, mentorfirstname, mentorlastname, ninscription, niveau, recu, attributionyear
+    dpt, dpt_gps_code, mentorname, teachername, mentorfirstname, mentorlastname, ninscription, niveau, recu, attributionyear
   in
   state,
   check
@@ -269,11 +273,11 @@ let filter_internship_description
   check promo internship.Public_data.missing_internship_promotion
 
 let filter_mentoring
-    ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
+    ?dpt ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
     ?niveau
     ?recu state mentoring =
   let _ =
-    dpt, mentorname, mentorfirstname, mentorlastname, teachername, codegps, ninscription, niveau, recu, attributionyear
+    dpt, dpt_gps_code, mentorname, mentorfirstname, mentorlastname, teachername, codegps, ninscription, niveau, recu, attributionyear
   in
   state,
   check firstname mentoring.Public_data.missing_mentor_firstname
@@ -285,11 +289,11 @@ let filter_mentoring
   check promo mentoring.Public_data.missing_mentor_promotion
 
 let filter_mentoring_list
-    ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
+    ?dpt ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
     ?niveau
     ?recu state mentoring =
   let _ =
-    teachername, mentorname, codegps, ninscription, niveau, recu
+    dpt_gps_code, teachername, mentorname, codegps, ninscription, niveau, recu
   in
   state,
   (check dpt
@@ -313,12 +317,12 @@ let filter_mentoring_list
 
 let filter_dens
     ?nb_inscription_list
-    ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear
+    ?dpt ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear
     ?promo ?ninscription ?niveau
     ?recu
     state dens =
   let _ =
-    dpt, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, niveau, recu, attributionyear
+    dpt, dpt_gps_code, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, niveau, recu, attributionyear
   in
   state,
   begin
@@ -340,19 +344,11 @@ let filter_dens
   check ninscription dens.Public_data.dens_nb_inscriptions
 
   let filter_national_diploma
-        ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
+        ?dpt ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
         ?niveau
         ?recu state dens =
     let _ =
-      codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription, attributionyear
-    in
-    let state =
-      Remanent_state.warn
-        __POS__
-        (Format.sprintf "DEP %s %s" (match dpt with None -> "None" | Some x -> x) dens.Public_data.diplome_dpt)
-        Exit
-        state
-        (* to remove *)
+      dpt, dpt_gps_code, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription, attributionyear
     in
     state,
     check firstname dens.Public_data.diplome_firstname
@@ -360,8 +356,8 @@ let filter_dens
     check lastname dens.Public_data.diplome_lastname
     &&
     check promo dens.Public_data.diplome_promotion
-      (*&&
-        check dpt dens.Public_data.diplome_dpt*)
+    &&
+    check dpt dens.Public_data.diplome_dpt
     &&
     check niveau dens.Public_data.diplome_niveau
     &&
@@ -370,11 +366,11 @@ let filter_dens
     check academicyear dens.Public_data.diplome_year
 
 let filter_student_list
-    ?dpt ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
+    ?dpt ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
     ?niveau
     ?recu state student =
   let _ =
-    dpt, niveau, recu, academicyear, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription, attributionyear
+    dpt, dpt_gps_code, niveau, recu, academicyear, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription, attributionyear
   in
   state,
   check firstname student.Public_data.student_firstname_report
@@ -383,7 +379,8 @@ let filter_student_list
   &&
   check promo student.Public_data.student_promo_report
 
-let filter ?dpt
+let filter
+    ?dpt ?dpt_gps_code
 ?firstname
 ?lastname
 ?codegps
@@ -402,6 +399,7 @@ let filter ?dpt
        let state,b =
          p
            ?dpt
+           ?dpt_gps_code
            ?firstname
            ?lastname
            ?codegps

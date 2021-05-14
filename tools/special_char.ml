@@ -248,6 +248,9 @@ let special_char =
 let special_char_txt =
   ('\194',"")::('\195',"")::(List.rev_map (fun (a,b) -> a,String.make 1 b) (List.rev special_char))
 
+let special_char_utf8 =
+  ['\233',"e"]
+
 let special_char_file_name =
   (' ', "")::special_char_txt
 
@@ -264,6 +267,13 @@ let special_char_url_map =
        CharMap.add x y map)
     CharMap.empty
     special_char_url
+
+let special_char_utf8_map =
+  List.fold_left
+    (fun map (x,y) ->
+       CharMap.add x y map)
+    CharMap.empty
+    special_char_utf8
 
 let special_char_email_latex =
   List.fold_left
@@ -402,6 +412,9 @@ let correct_string_gen map s =
       (List.rev list)
   in
   String.concat "" list
+
+let correct_string_utf8 s =
+  correct_string_gen special_char_utf8_map s
 
 let correct_string_url s =
   correct_string_gen special_char_url_map s

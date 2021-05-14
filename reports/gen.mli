@@ -8,7 +8,8 @@ type dump =
 type 'elt filter
 
 val dump_elts:
-  ?dpt:string ->
+  ?dpt:Public_data.main_dpt ->
+  ?dpt_gps_code: string ->
   ?firstname:string ->
   ?lastname:string ->
   ?codegps:string ->
@@ -27,33 +28,33 @@ val dump_elts:
   ?file_name:string ->
   ?event_opt:Sco_remanent_state.Profiling.step_kind ->
   ?headpage:(int ->
-                      ((Loggers.t ->
-                        (string -> unit, Format.formatter, unit) format ->
-                        string -> unit) *
-                       string)
-                      list) ->
-           ?footpage:((Loggers.t ->
-                       (string -> unit, Format.formatter, unit) format ->
-                       string -> unit) *
-                      string)
-                     list ->
-           ?title:((Loggers.t ->
-                    (string -> unit, Format.formatter, unit) format ->
-                    string -> unit) *
-                   string)
-                  list ->
-           ?preamble:(int ->
-                      ((Loggers.t ->
-                        (string -> unit, Format.formatter, unit) format ->
-                        string -> unit) *
-                       string)
-                      list) ->
-           ?signature:(int ->
-                       ((Loggers.t ->
-                         (string -> unit, Format.formatter, unit) format ->
-                         string -> unit) *
-                        string)
-                       list) ->
+             ((Loggers.t ->
+               (string -> unit, Format.formatter, unit) format ->
+               string -> unit) *
+              string)
+               list) ->
+  ?footpage:((Loggers.t ->
+              (string -> unit, Format.formatter, unit) format ->
+              string -> unit) *
+             string)
+      list ->
+  ?title:((Loggers.t ->
+           (string -> unit, Format.formatter, unit) format ->
+           string -> unit) *
+          string)
+      list ->
+  ?preamble:(int ->
+             ((Loggers.t ->
+               (string -> unit, Format.formatter, unit) format ->
+               string -> unit) *
+              string)
+               list) ->
+  ?signature:(int ->
+              ((Loggers.t ->
+                (string -> unit, Format.formatter, unit) format ->
+                string -> unit) *
+               string)
+                list) ->
   ?headerextralength:int ->
   ?headcolor:Color.color ->
   ?footcolor:Color.color ->
@@ -68,7 +69,8 @@ val dump_elts:
   Remanent_state.t * (string * string) option
 
 val filter:
-  ?dpt:string ->
+  ?dpt:Public_data.main_dpt ->
+  ?dpt_gps_code:string -> 
   ?firstname:string ->
   ?lastname:string ->
   ?codegps:string ->

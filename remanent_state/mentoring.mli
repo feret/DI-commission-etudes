@@ -1,7 +1,7 @@
 type t
 val empty: t
 val get_mentoring:
-  ?secondary:string ->
+  ?secondary:Public_data.main_dpt ->
   year:string ->
   firstname:string ->
   lastname:string -> t -> Public_data.tutorat option

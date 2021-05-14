@@ -1,6 +1,6 @@
 type t =
   Public_data.decision
-    Public_data.AcronymMap.t
+    Public_data.DptMap.t
     Public_data.ProgramMap.t
     Public_data.YearMap.t
     Public_data.FirstNameMap.t
@@ -41,7 +41,7 @@ let get_decision ~firstname ~lastname ?year ?program ?dpt
             []
         in
         fold_left_rev
-          (Public_data.AcronymExtendedMap.collect  dpt)
+          (Public_data.DptExtendedMap.collect  dpt)
             acc2  []
 
 
@@ -93,7 +93,7 @@ let add_decision
     match
       Public_data.ProgramMap.find_opt program map3
     with
-    | None -> Public_data.AcronymMap.empty
+    | None -> Public_data.DptMap.empty
     | Some map4 -> map4
   in
   state,
@@ -105,7 +105,7 @@ let add_decision
           year
           (Public_data.ProgramMap.add
              program
-             (Public_data.AcronymMap.add
+             (Public_data.DptMap.add
                 dpt
                 decision
                 map4)

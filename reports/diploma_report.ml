@@ -3,12 +3,12 @@ type dump =
   ?lastname:string ->
   ?promo:string ->
   ?niveau:string ->
-  ?dpt:string ->
+  ?dpt:Public_data.main_dpt ->
   ?recu:bool ->
   ?academicyear:string ->
   ?headpage:(int -> ((Loggers.t -> (string -> unit, Format.formatter, unit) format -> string -> unit) *
                      string)
-               list) 
+               list)
   ->
   ?footpage:((Loggers.t ->
                        (string -> unit, Format.formatter, unit) format ->
@@ -197,12 +197,44 @@ let next_year year =
   with
   | _ -> year
 
+let direction_etude =
+  List.fold_left
+    (fun map elt ->
+       Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+    Public_data.StringMap.empty
+    People.di_list
+
+let direction_etude_dma =
+  List.fold_left
+    (fun map elt ->
+       Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+    Public_data.StringMap.empty
+    People.dma_list
+
+let direction_etude_ibens =
+  List.fold_left
+    (fun map elt ->
+       Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+    Public_data.StringMap.empty
+    People.ibens_list
+
+let direction_etude_phys =
+  List.fold_left
+    (fun map elt ->
+       Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+    Public_data.StringMap.empty
+    People.phys_list
+
 let dump_attestation
   ?output_repository
   ?prefix
   ?output_file_name
+  ~signataire
   diplome
   state =
+  let state, main_dpt =
+    Remanent_state.get_main_dpt state
+  in
   let firstname = diplome.Public_data.diplome_firstname in
   let lastname = diplome.Public_data.diplome_lastname in
   let get_repository =
@@ -252,7 +284,7 @@ let dump_attestation
       ~firstname
       ~lastname
       ~promotion
-      ~extension:(Format.sprintf ".attestation.%s.%stex"
+      ~extension:(Format.sprintf ".attestation.%s.%s%s.tex"
                     begin
                       match
                         level
@@ -260,7 +292,7 @@ let dump_attestation
                       | "l" -> "L3"
                       | "m" -> "M1"
                       | x -> x
-                    end y)
+                    end y signataire)
       ?prefix
       ?output_repository
       ?output_file_name
@@ -332,74 +364,121 @@ let dump_attestation
            "\\IfFileExists{%s}{\\includegraphics{%s}}{}"
            enspsl enspsl)]
     in
-    let () =
-      let color = Color.digreen in
-      Loggers.setfootpage logger ~color
+    let (),dir_list,dir_dpt =
+      match main_dpt with
+      | Public_data.DI | Public_data.ENS ->
+        let color = Color.digreen in
+        Loggers.setfootpage logger ~color
         [
           Loggers.fprintf,
-          "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32  20 45 --  Fax : + 33 (0) 1 44 32 20 75 - direction.etudes@di.ens.fr}"
-        ]
+          People.footpage_string
+        ],direction_etude, "informatique"
+      | Public_data.DMA ->
+        let color = Color.duckblue in
+        Loggers.setfootpage logger ~color
+          [
+            Loggers.fprintf,
+            People.footpage_string_dma
+          ], direction_etude_dma, "mathématiques"
+      | Public_data.IBENS ->
+        let color = Color.green in
+        Loggers.setfootpage logger ~color
+          [Loggers.fprintf,
+           People.footpage_string_ibens], direction_etude_ibens, "biologie"
+      | Public_data.PHYS ->
+        let color = Color.blue in
+        Loggers.setfootpage logger ~color
+          [Loggers.fprintf,
+           People.footpage_string_phys], direction_etude_phys, "physique"
+
     in
-    let state, s = Remanent_state.get_signature state in
-    let year = diplome.Public_data.diplome_year in
-    let level = diplome.Public_data.diplome_niveau in
-    let state, cursus_opt =
-      Remanent_state.get_cursus
+    let dir =  Public_data.StringMap.find_opt signataire dir_list in
+    match dir with
+    | None ->
+      Remanent_state.warn
         __POS__
-        ~level
-        ?dpt:(match level, dpt with
-            | "dens",_
-            | _,"" -> None
-            | _ ->
-              Some dpt)
-        ~year
-        state
-    in
-    let state, libelle =
-      match cursus_opt with
-      | None ->
-        Remanent_state.warn
-          __POS__
-          (Format.sprintf
-             "unknown cursus %s %s"
-             level dpt)
-          Exit
-          state, ""
-      | Some cursus ->
-        match
-          cursus.Public_data.inscription
+        (Format.sprintf "Unknown director")
+        Exit
+        state, None
+    | Some dir ->
+      let dir_e = People.e_of_direction dir in
+      let dir_name = dir.Public_data.direction_nom_complet in
+      let dir_fonction = dir.Public_data.direction_titre in
+      let dir_du_dpt = dir.Public_data.direction_departement in
+      let s  = dir.Public_data.direction_signature in
+      let state, sign =
+        match s
         with
-        | None ->
-        Remanent_state.warn
+        | Some s  ->
+          let state, s = s state in
+          state, Format.sprintf
+          "\\IfFileExists{%s}%%\n\ {\ {\\includegraphics{%s}}}%%\n\ {}\\end{center}\\vfill"
+          s s
+        | None -> state, ""
+      in
+      let year = diplome.Public_data.diplome_year in
+      let level = diplome.Public_data.diplome_niveau in
+      let state, cursus_opt =
+        Remanent_state.get_cursus
           __POS__
-          (Format.sprintf
-             "The field inscritpion of cursus %s %s is missing"
-             level dpt)
-          Exit
-          state, ""
-        | Some a -> state, a
-    in
-    let body =
-      Format.sprintf
-        "\\vfill\n\n\\begin{center}\\underline{ATTESTATION}\\end{center}\n\ \\vfill\n\n\  Je soussigné, \\textbf{%s}, directeur des études du département d'Informatique de l'École Normale Supérieure,\\bigskip\\\\CERTIFIE que,\\bigskip\\\\conformément aux dispositions générales de la scolarité au sein de la formation universitaire en informatique de l'ENS et aux décisions de la commission des études du département d'informatique de l'ENS, \\bigskip\\\\\\textbf{%s %s}, a obtenu en %s-%s\\\\\\textbf{%s}\\\\Parcours : \\textbf{Formation interuniversitaire en informatique -- ENS Paris}.\\\\ %s \n\n\\vfill\n\\begin{center}Fait à Paris le %s\\smallskip\n\nPour valoir et servir ce que de droit \n\n\n\n"
-        "Jérôme FERET"
-        lastname
-        firstname
-        year
-        (next_year year)
-        libelle
-        "VALIDÉE"
-        "\\today",
-      Format.sprintf
-        "\\IfFileExists{%s}%%\n\ {\ {\\includegraphics{%s}}}%%\n\ {}\\end{center}\\vfill"
-        s s
-    in
-    let _ = Loggers.fprintf logger  "%s" (fst body) in
-    let _ = Loggers.fprintf_verbatim logger  "%s" (snd body) in
-    let () = Loggers.close_logger logger in
-    state, Some (output_repository,output_file_name)
+          ~level
+          ?dpt:(match level, dpt with
+              | "dens",_
+              | _,Public_data.ENS -> None
+              | _,(Public_data.DI | Public_data.DMA | Public_data.IBENS | Public_data.PHYS) ->
+                Some dpt)
+          ~year
+          state
+      in
+      let state, libelle =
+        match cursus_opt with
+        | None ->
+          Remanent_state.warn
+            __POS__
+            (Format.sprintf
+               "unknown cursus %s %s"
+               level (Public_data.string_of_dpt dpt))
+            Exit
+            state, ""
+        | Some cursus ->
+          match
+            cursus.Public_data.inscription
+          with
+          | None ->
+            Remanent_state.warn
+              __POS__
+              (Format.sprintf
+                 "The field inscritpion of cursus %s %s is missing"
+                 level (Public_data.string_of_dpt dpt))
+              Exit
+              state, ""
+          | Some a -> state, a
+      in
+      let body =
+        Format.sprintf
+          "\\vfill\n\n\\begin{center}\\underline{ATTESTATION}\\end{center}\n\ \\vfill\n\n\  Je soussigné%s, \\textbf{%s}, %s du département %s de l'École Normale Supérieure,\\bigskip\\\\CERTIFIE que,\\bigskip\\\\conformément aux dispositions générales de la scolarité au sein de la formation universitaire en %s de l'ENS et aux décisions de la commission des études du département %s de l'ENS, \\bigskip\\\\\\textbf{%s %s}, a obtenu en %s-%s\\\\\\textbf{%s}\\\\Parcours : \\textbf{Formation interuniversitaire en %s -- ENS Paris}.\\\\ %s \n\n\\vfill\n\\begin{center}Fait à Paris le %s\\smallskip\n\nPour valoir et servir ce que de droit \n\n\n\n"
+          dir_e
+          dir_name
+          dir_fonction
+          dir_du_dpt
+          dir_dpt
+          dir_du_dpt
+          lastname
+          firstname
+          year
+          (next_year year)
+          libelle
+          dir_dpt
+          "VALIDÉE"
+          "\\today", sign
+      in
+      let _ = Loggers.fprintf logger  "%s" (fst body) in
+      let _ = Loggers.fprintf_verbatim logger  "%s" (snd body) in
+      let () = Loggers.close_logger logger in
+      state, Some (output_repository,output_file_name)
 
 let dump_attestations
+    ~signataires
     ?recu ?academicyear ?niveau ?dpt
     ?output_repository
     ?prefix
@@ -416,14 +495,19 @@ let dump_attestations
   in
   List.fold_left
     (fun state diplome ->
-       let
-         state, input =
-         dump_attestation
-           ?output_repository
-           ?prefix
-           diplome
-           state
-       in
-       Latex_engine.latex_opt_to_pdf state ~input)
+       List.fold_left
+         (fun state signataire ->
+            let
+              state, input =
+              dump_attestation
+                ~signataire
+                ?output_repository
+                ?prefix
+                diplome
+                state
+            in
+            Latex_engine.latex_opt_to_pdf state ~input)
+         state
+         signataires)
     state
     diplome_list

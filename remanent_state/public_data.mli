@@ -20,6 +20,11 @@ type student_id =
     promotion: string option;
   }
 
+type main_dpt = DI | DMA | ENS | PHYS | IBENS
+
+val string_of_dpt: main_dpt -> string
+val dpt_of_string: string -> main_dpt
+
 val empty_student_id: student_id
 
 type scholarship =
@@ -33,7 +38,9 @@ type scholarship =
 val empty_scholarship: scholarship
 
 module StringMap: Map.S with type key = string
-module DptOptMap : Map.S with type key = string option
+module StringOptMap: Map.S with type key = string option
+module DptMap: Map.S with type key = main_dpt
+module DptOptMap : Map.S with type key = main_dpt option
 module CodeMap : Map.S with type key = string
 module PromoMap : Map.S with type key = string
 module FinanceurMap : Map.S with type key = string
@@ -81,7 +88,9 @@ module ProgramExtendedMap: Map_tools.Collect
 module DptOptExtendedMap: Map_tools.Collect
   with type key = DptOptMap.key
    and type 'a t = 'a DptOptMap.t
-
+module DptExtendedMap: Map_tools.Collect
+  with type key = DptMap.key
+   and type 'a t = 'a DptMap.t
 
 type course =
   {
@@ -130,13 +139,14 @@ type tutorat =
     courriel_du_tuteur: string option;
     nom_de_l_etudiant: string ;
     prenom_de_l_etudiant: string;
-    secondaire: string option;
+    secondaire: main_dpt option;
   }
 
 val empty_tutorat: tutorat
 
 type dpt =
   {
+    dpt_key: main_dpt option;
     dpt_nom: string ;
     dpt_acronyme: string ;
     dpt_genitif: string ;
@@ -150,7 +160,7 @@ type cursus =
   {
     cursus_annee_academique: annee ;
     cursus_niveau: string;
-    cursus_dpt: string option;
+    cursus_dpt: main_dpt option;
     inscription: string option;
     entete: string option;
     pied: string option
@@ -196,7 +206,7 @@ type decision =
     decision_lastname: string;
     decision_annee: string;
     decision_program: string;
-    decision_dpt: string;
+    decision_dpt: main_dpt;
     decision_decision: string option;
     decision_mean: float option;
     decision_mention: string option;
@@ -276,7 +286,7 @@ type diplome_national =
     diplome_gender : genre ;
     diplome_promotion : string ;
     diplome_niveau : string ;
-    diplome_dpt : string ;
+    diplome_dpt : main_dpt ;
     diplome_moyenne : float option;
     diplome_nb_ects : float ;
     diplome_mention : string option;
@@ -308,8 +318,8 @@ type mentor =
     mentor_lastname : string ;
     mentor_gender : genre ;
     mentor_email : string ;
-    mentor_student_dpt: string ;
-    mentor_secondary : string option ;
+    mentor_student_dpt: main_dpt ;
+    mentor_secondary : main_dpt option ;
   }
 
 type keywords =
@@ -456,7 +466,7 @@ type diplome_nat =
     dn_long: string;
     dn_universite: string;
     dn_niveau: string;
-    dn_departement:string;
+    dn_departement:main_dpt;
   }
 
 type diplome_ens =
@@ -478,5 +488,3 @@ type 'a commission =
     commission_long_date: string;
     commission_year: annee;
   }
-
-type main_dpt = DI | DMA

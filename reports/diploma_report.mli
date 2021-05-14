@@ -3,7 +3,7 @@ type dump =
   ?lastname:string ->
   ?promo:string ->
   ?niveau:string ->
-  ?dpt:string ->
+  ?dpt:Public_data.main_dpt ->
   ?recu:bool ->
   ?academicyear:string ->
   ?headpage:(int -> ((Loggers.t ->
@@ -47,14 +47,16 @@ val dump_attestation:
   ?output_repository:string ->
   ?prefix:string ->
   ?output_file_name:string ->
+  signataire:string  ->
   Public_data.diplome_national ->
   Remanent_state.t ->
   Remanent_state.t * (string * string) option
 
 val dump_attestations:
+  signataires:string list ->
   ?recu:bool ->
   ?academicyear:string ->
   ?niveau:string ->
-  ?dpt:string ->
+  ?dpt:Public_data.main_dpt ->
   ?output_repository:string ->
   ?prefix:string -> Remanent_state.t -> Remanent_state.t

@@ -42,6 +42,26 @@ module StringOptMap =
     )
 
 
+type main_dpt = DI | DMA | ENS | PHYS | IBENS
+
+let string_of_dpt x =
+  match x with
+  | DI -> "informatique"
+  | DMA -> "mathématiques"
+  | IBENS -> "biologie"
+  | PHYS -> "physique"
+  | ENS -> ""
+
+let dpt_of_string x =
+  let x = Special_char.lowercase (Special_char.correct_string_txt (Special_char.correct_string_utf8 x)) in
+  match x with
+  | "informatique" | "di" -> DI
+  | "mathematiques" | "dma" -> DMA
+  | "physique" -> PHYS
+  | "biologie" -> IBENS
+  | "" | "ens" -> ENS
+  | _ -> DI
+
 type cloud_client = NextCloudCmd
 type pdf_generator = PdfLatex
 type file_retriever = WGET
@@ -159,7 +179,7 @@ type tutorat =
     courriel_du_tuteur: string option;
     nom_de_l_etudiant: string;
     prenom_de_l_etudiant: string;
-    secondaire: string option;
+    secondaire: main_dpt option;
   }
 
 let empty_tutorat =
@@ -178,7 +198,7 @@ type cursus =
   {
     cursus_annee_academique: annee ;
     cursus_niveau: string;
-    cursus_dpt: string option;
+    cursus_dpt: main_dpt option;
     inscription: string option;
     entete: string option;
     pied: string option
@@ -196,6 +216,7 @@ let empty_cursus =
 
 type dpt =
   {
+    dpt_key: main_dpt option ;
     dpt_nom: string ;
     dpt_acronyme: string ;
     dpt_genitif: string ;
@@ -205,6 +226,7 @@ type dpt =
 
 let empty_dpt =
   {
+    dpt_key = None ;
     dpt_nom = "" ;
     dpt_acronyme = "" ;
     dpt_genitif = "" ;
@@ -270,7 +292,7 @@ type decision =
     decision_lastname: string;
     decision_annee: string;
     decision_program: string;
-    decision_dpt: string;
+    decision_dpt: main_dpt;
     decision_decision: string option;
     decision_mean: float option;
     decision_mention: string option;
@@ -287,7 +309,7 @@ let empty_decision =
     decision_lastname = "";
     decision_annee = "";
     decision_program = "";
-    decision_dpt = "";
+    decision_dpt = DI ;
     decision_decision = None;
     decision_mean = None;
     decision_mention = None;
@@ -379,7 +401,7 @@ type diplome_national =
     diplome_gender : genre ;
     diplome_promotion : string ;
     diplome_niveau : string ;
-    diplome_dpt : string ;
+    diplome_dpt : main_dpt ;
     diplome_moyenne : float option;
     diplome_nb_ects : float ;
     diplome_mention : string option;
@@ -411,8 +433,8 @@ type mentor =
     mentor_lastname : string ;
     mentor_gender : genre ;
     mentor_email : string ;
-    mentor_student_dpt: string;
-    mentor_secondary: string option ;
+    mentor_student_dpt: main_dpt;
+    mentor_secondary: main_dpt option ;
   }
 
 type keywords =
@@ -541,7 +563,18 @@ type remove_non_valided_classes =
   | All_but_in_progress_in_current_academic_year
   | All_but_in_progress_in_years of annee list
 
-module DptOptMap = StringOptMap
+module DptMap =
+  Map.Make
+    (struct
+      type t = main_dpt
+      let compare = compare
+    end)
+module DptOptMap =
+Map.Make
+  (struct
+    type t = main_dpt option
+    let compare = compare
+  end)
 module CodeMap = StringMap
 module PromoMap = StringMap
 module FinanceurMap = StringMap
@@ -567,6 +600,7 @@ module AcronymExtendedMap = Map_tools.Collect(AcronymMap)
 module ProgramExtendedMap = Map_tools.Collect(ProgramMap)
 module YearExtendedMap = Map_tools.Collect(YearMap)
 module DptOptExtendedMap = Map_tools.Collect(DptOptMap)
+module DptExtendedMap = Map_tools.Collect(DptMap)
 
 type 'a direction_des_etudes =
   {
@@ -586,7 +620,7 @@ type diplome_nat =
     dn_long: string;
     dn_universite: string;
     dn_niveau: string;
-    dn_departement:string;
+    dn_departement:main_dpt;
   }
 
 type diplome_ens =
@@ -608,5 +642,3 @@ type 'a commission =
     commission_long_date: string;
     commission_year: annee;
   }
-
-type main_dpt = DI | DMA

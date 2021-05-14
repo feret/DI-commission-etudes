@@ -40,6 +40,8 @@ let s string =
   Special_char.lowercase
     (Special_char.correct_string_txt
        (String.trim string))
+let state, main_dpt =
+  Remanent_state.get_main_dpt state
 let state =
   List.fold_left
     (fun state elt ->
@@ -80,7 +82,7 @@ let state =
              Public_data.Unknown ;
            Public_data.mentor_student_lastname = elt.Public_data.nom_de_l_etudiant ;
            Public_data.mentor_student_firstname = elt.Public_data.prenom_de_l_etudiant ;
-          Public_data.mentor_student_dpt = "informatique" ;
+          Public_data.mentor_student_dpt = main_dpt ;
           Public_data.mentor_secondary = None ;
          })
     state
@@ -274,7 +276,7 @@ let title =
      current_year]
 let state =
   Mentor_report.ReportListMentors.dump
-    ~academicyear:current_year ~dpt:"informatique"
+    ~academicyear:current_year ~dpt:main_dpt
     ~title
     ~file_name:(fun s ext -> Format.sprintf "tuteurs_%s%s.%s" current_year s ext)
     state
@@ -284,7 +286,7 @@ let title =
 let correct_email = fun x -> x
 let state =
     Mentor_report.ReportListMentors.dump
-      ~dpt:"informatique"
+      ~dpt:main_dpt
       ~file_name:(fun s ext ->
           Format.sprintf "tutorat_all%s.%s" s ext)
       ~title
@@ -301,11 +303,15 @@ let state =
         match
           Remanent_state.get_main_dpt state
         with
-        | state, Public_data.DI -> state, "informatique", ["JF";"MP";"LB"]
-        | state, Public_data.DMA -> state, "mathématiques", ["AM"]
+        | state, Public_data.DI -> state, Public_data.DI, ["JF";"MP";"LB"]
+        | state, Public_data.DMA -> state, Public_data.DMA, ["AM"]
+        | state, Public_data.ENS -> state, Public_data.ENS, []
+        | state, Public_data.PHYS -> state, Public_data.PHYS, []
+        | state, Public_data.IBENS -> state, Public_data.IBENS, []
       in
       let state =
         Diploma_report.dump_attestations
+          ~signataires
           ~recu:true
           ~academicyear:commission_year
           ~niveau:"m"
@@ -314,6 +320,7 @@ let state =
       in
       let state =
         Diploma_report.dump_attestations
+          ~signataires
           ~recu:true
           ~academicyear:commission_year
           ~niveau:"l"

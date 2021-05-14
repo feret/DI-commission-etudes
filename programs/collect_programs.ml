@@ -39,7 +39,7 @@ let event_opt = Some (Profiling.Collect_departement)
 let compute_repository = Remanent_state.get_departments_list_repository
 
 let lift_pred = Lift.pred_safe
-let lift_pred_opt = Lift.pred_opt_safe 
+let lift_pred_opt = Lift.pred_opt_safe
 let lift_string =
   (Lift.string empty_dpt Public_data.empty_dpt).Lift.safe
 let lift_color_opt =
@@ -342,7 +342,7 @@ let get_programs
 
 type cursus_id  =
   {
-    cursus_dpt_acronym: string option;
+    cursus_dpt_acronym: Public_data.main_dpt option;
     cursus_annee: string option;
     cursus_niveau: string option;
     headpage: string option;
@@ -364,6 +364,8 @@ let lift_string =
   (Lift.string empty_cursus Public_data.empty_cursus).Lift.safe
 let lift_string_opt =
   (Lift.string empty_cursus Public_data.empty_cursus).Lift.opt_safe
+let lift_dpt_opt =
+  (Lift.main_dpt empty_cursus Public_data.empty_cursus).Lift.opt_safe
 
 let keywords_list =
   [
@@ -416,14 +418,11 @@ let all_fields =
       ~field_name:"level"
       ~record_name
       ~pos:__POS__;
-    lift_string_opt
+    lift_dpt_opt
       ~keyword:Public_data.Departement
       ~set_tmp:(fun state dpt x ->
           state,
-          let cursus_dpt_acronym =
-            match dpt with
-            | Some x when String.trim x = "" -> None
-            | _ -> dpt
+          let cursus_dpt_acronym = Tools.map_opt Public_data.dpt_of_string dpt
           in
           {x with cursus_dpt_acronym})
       ~get_tmp:(fun a -> a.cursus_dpt_acronym)

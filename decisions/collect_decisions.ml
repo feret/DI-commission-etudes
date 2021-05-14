@@ -5,7 +5,7 @@ type decision_id  =
     decision: string option;
     annee: string option;
     program: string option;
-    dpt: string option;
+    dpt: Public_data.main_dpt option;
     mean: float option;
     mention: string option;
     rank: int option;
@@ -109,6 +109,8 @@ let lift_float_opt =
   (Lift.float empty_decision Public_data.empty_decision).Lift.opt_safe
 let lift_int_opt =
   (Lift.int empty_decision Public_data.empty_decision).Lift.opt_safe
+let lift_dpt =
+  (Lift.main_dpt empty_decision Public_data.empty_decision).Lift.safe
 
 let mandatory_fields =
   [
@@ -174,9 +176,13 @@ let all_fields =
       ~record_name
       ~field_name:"name of the program"
       ~pos:__POS__;
-    lift_string
+    lift_dpt
       ~keyword:Public_data.Departement
-      ~set_tmp:(Tools.collect_string (fun dpt x -> {x with dpt}))
+      ~set_tmp:(Tools.collect_string (fun dpt x ->
+          let dpt =
+            Tools.map_opt
+              Public_data.dpt_of_string dpt
+          in {x with dpt}))
       ~get_tmp:(fun a -> a.dpt)
       ~get:(fun a -> a.Public_data.decision_dpt)
       ~set:(fun decision_dpt a ->

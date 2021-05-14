@@ -1,5 +1,5 @@
 type dump =
-  ?dpt:string ->
+  ?dpt_gps_code:string ->
   ?firstname:string ->
   ?lastname:string ->
   ?codegps:string ->
@@ -10,7 +10,7 @@ type dump =
 
 module type ReportGrades =
 sig
-  val dump_per_year_dpt_student: dump 
+  val dump_per_year_dpt_student: dump
   val dump_per_dpt_student_year: dump
   val dump_per_dpt_year_student: dump
   val dump_per_dpt_class_year: dump

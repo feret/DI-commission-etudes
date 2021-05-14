@@ -11,7 +11,7 @@ type dump =
                     string -> unit) *
                    string)
                   list ->
-?dpt:string ->
+?dpt:Public_data.main_dpt ->
   Gen.dump
 
 module type ReportMentors =
@@ -35,7 +35,7 @@ sig
                         string -> unit) *
                        string)
                       list ->
-    ?dpt:string ->
+    ?dpt:Public_data.main_dpt ->
     ?output_repository:string ->
     ?prefix:string ->
     ?file_name:(string -> string -> string) ->

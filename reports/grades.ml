@@ -1,5 +1,5 @@
 type dump =
-  ?dpt:string ->
+  ?dpt_gps_code:string ->
   ?firstname:string ->
   ?lastname:string ->
   ?codegps:string ->
@@ -24,7 +24,7 @@ module Build
   struct
 
     let dump_missing_grades
-        ?dpt ?firstname ?lastname ?codegps ?teachername
+        ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername
         ?academicyear ?promo
         ?output_repository ?prefix ?file_name
         cmp headers columns state  =
@@ -36,7 +36,7 @@ module Build
       let get_repository = I.get_repository in
       let get = I.get in
       Gen.dump_elts
-        ?dpt ?firstname ?lastname ?codegps ?teachername
+        ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername
         ?academicyear ?promo
         ?output_repository ?prefix ?file_name ?event_opt
         ~filter ~cmp ~headers ~columns ~get
@@ -44,7 +44,7 @@ module Build
         state
 
     let dump_per_dpt_student_year
-        ?dpt ?firstname ?lastname ?codegps ?teachername
+        ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername
         ?academicyear ?promo
         ?output_repository ?prefix ?file_name
         state =
@@ -64,7 +64,7 @@ module Build
         [
           ["Département"],(fun x -> x),
           (fun a ->
-             a.Public_data.missing_grade_dpt);
+              a.Public_data.missing_grade_dpt);
           ["Etudiant"],(fun x -> x),
           (fun a ->
              Printf.sprintf "%s %s (PROMO %s)"
@@ -90,12 +90,12 @@ module Build
           ["ENSEIGNANT(E)"],(fun a -> a.Public_data.missing_grade_teacher)
         ] in
       dump_missing_grades
-        ?dpt ?firstname ?lastname ?codegps ?teachername
+        ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername
         ?academicyear ?promo
         ?output_repository ?prefix ?file_name cmp headers columns state
 
     let dump_per_year_dpt_student
-        ?dpt ?firstname ?lastname ?codegps ?teachername
+        ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername
         ?academicyear ?promo
         ?output_repository ?prefix ?file_name
         state =
@@ -142,12 +142,12 @@ module Build
           ["ENSEIGNANT(E)"],(fun a -> a.Public_data.missing_grade_teacher)
         ] in
       dump_missing_grades
-        ?dpt ?firstname ?lastname ?codegps ?teachername
+        ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername
         ?academicyear ?promo
         ?output_repository ?prefix ?file_name cmp headers columns state
 
     let dump_per_dpt_year_student
-        ?dpt ?firstname ?lastname ?codegps ?teachername
+        ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername
         ?academicyear ?promo
         ?output_repository
         ?prefix
@@ -194,13 +194,13 @@ module Build
           ["ENSEIGNANT(E)"],(fun a -> a.Public_data.missing_grade_teacher)
         ] in
       dump_missing_grades
-        ?dpt ?firstname ?lastname ?codegps ?teachername
+        ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername
         ?academicyear ?promo
         ?output_repository ?prefix ?file_name cmp headers columns state
 
 
     let dump_per_dpt_class_year
-        ?dpt ?firstname ?lastname ?codegps ?teachername
+        ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername
         ?academicyear ?promo
         ?output_repository ?prefix ?file_name
         state =
@@ -256,7 +256,7 @@ module Build
         ]
       in
       dump_missing_grades
-        ?dpt ?firstname ?lastname ?codegps ?teachername
+        ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername
         ?academicyear ?promo
         ?output_repository
         ?prefix
@@ -264,7 +264,7 @@ module Build
         cmp headers columns state
 
     let dump_per_dpt_year_class
-        ?dpt ?firstname ?lastname ?codegps ?teachername
+        ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername
         ?academicyear ?promo
         ?output_repository ?prefix ?file_name
         state =
@@ -321,13 +321,13 @@ module Build
         ]
       in
       dump_missing_grades
-        ?dpt ?firstname ?lastname ?codegps ?teachername
+        ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername
         ?academicyear ?promo
         ?output_repository ?prefix ?file_name
         cmp headers columns state
 
     let dump_per_student
-        ?dpt ?firstname ?lastname ?codegps ?teachername
+        ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername
         ?academicyear ?promo
         ?output_repository ?prefix ?file_name
         state =
@@ -374,13 +374,13 @@ module Build
         ]
       in
       dump_missing_grades
-        ?dpt ?firstname ?lastname ?codegps ?teachername
+        ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername
         ?academicyear ?promo
         ?output_repository ?prefix?file_name
     cmp headers columns state
 
 let dump_per_promotion
-    ?dpt ?firstname ?lastname ?codegps ?teachername
+    ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername
     ?academicyear ?promo
     ?output_repository ?prefix ?file_name
     state =
@@ -426,7 +426,7 @@ let dump_per_promotion
     ]
   in
   dump_missing_grades
-    ?dpt ?firstname ?lastname ?codegps ?teachername ?academicyear ?promo
+    ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername ?academicyear ?promo
     ?output_repository
     ?prefix
     ?file_name

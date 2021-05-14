@@ -1311,10 +1311,10 @@ let get_cursus ~year ~level ?dpt pos t =
   | None ->
     let msg =
       Format.sprintf
-        "Pas de cursus pour %s%s en %s dans les fichiers du dÃ©partement"
+        "Pas de cursus pour %s%s en %s dans les fichiers du département"
         level
         (match dpt with
-         | None -> "" | Some i -> Format.sprintf " %s" i)
+         | None -> "" | Some i -> Format.sprintf " %s" (Public_data.string_of_dpt i))
         year
     in
     warn
@@ -1538,13 +1538,12 @@ let list_all_cursus state =
                      level
                      (match dpt_opt with
                       | None -> "None"
-                      | Some a -> a
-                     )
+                      | Some x -> Public_data.string_of_dpt x)
                      year
                      cursus.Public_data.cursus_niveau
                      (match cursus.Public_data.cursus_dpt with
                       | None -> "None"
-                      | Some a -> a
+                      | Some a -> (Public_data.string_of_dpt a)
                      )
                      cursus.Public_data.cursus_annee_academique
               )))

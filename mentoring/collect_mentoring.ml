@@ -8,7 +8,7 @@ type mentoring_id =
     mentor_firstname: string option;
     mentor_gender: Public_data.genre option;
     mentor_email: string option;
-    mentor_secondary: string option
+    mentor_secondary: Public_data.main_dpt option
   }
 
 
@@ -58,6 +58,8 @@ let lift_string_opt =
   (Lift.string empty_mentoring Public_data.empty_tutorat).Lift.opt_safe
 let lift_gender_opt =
   (Lift.gender empty_mentoring Public_data.empty_tutorat).Lift.opt_safe
+let lift_dpt_opt =
+  (Lift.main_dpt empty_mentoring Public_data.empty_tutorat).Lift.opt_safe
 
 let mandatory_fields =
   [
@@ -211,22 +213,22 @@ let all_fields =
      ~field_name:"mentor's email"
      ~record_name
      ~pos:__POS__;
-   lift_string_opt
+   lift_dpt_opt
        ~keyword:Public_data.Secondaire
        ~set_tmp:(fun state mentor_dpt_bis x ->
            state,
            let mentor_secondary =
              match mentor_dpt_bis with
+             | None -> None
              | Some x when String.trim x = "" -> None
-             | _ -> mentor_dpt_bis
+             | Some _ -> Tools.map_opt Public_data.dpt_of_string mentor_dpt_bis
            in
            {x with mentor_secondary})
        ~get_tmp:(fun a -> a.mentor_secondary)
        ~get:(fun a -> a.Public_data.secondaire)
        ~set:(fun mentor_secondary a ->
           {a with Public_data.secondaire =
-            Tools.map_opt
-              Special_char.lowercase mentor_secondary})
+             mentor_secondary})
        ~field_name:"mentor's secondary department"
        ~record_name
        ~pos:__POS__

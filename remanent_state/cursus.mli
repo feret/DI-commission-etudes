@@ -6,7 +6,7 @@ type t =
 
 val empty: t
 val get_cursus:
-  level:string -> ?dpt:string -> year:string ->
+  level:string -> ?dpt:Public_data.main_dpt -> year:string ->
   t -> Public_data.cursus option
 val add_cursus:
   ((string * int * int * int) ->

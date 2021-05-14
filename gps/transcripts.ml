@@ -35,17 +35,19 @@ let dpt_maths = "mathematiques"
 let dpt_info = "informatique"
 let dpt_phys = "physique"
 let dpt_bio = "biologie"
+let dpt_ibens = dpt_bio
+
 let dpt_dec = "etudes cognitives"
 let dpt_info_gps_name = dpt_info
 let dpt_phys_gps_name = dpt_phys
 let dpt_maths_gps_name = "mathematiques et applications"
-let dpt_dec_gps_name = dpt_dec
-let dpt_bio_gps_name = dpt_bio
+(*let dpt_dec_gps_name = dpt_dec*)
+(*let dpt_bio_gps_name = dpt_bio*)
 let acro_dpt_phys = "PHYS"
 let acro_dpt_info = "DI"
 let acro_dpt_maths = "DMA"
-let acro_dpt_bio = "IBENS"
-let acro_dpt_dec = "DEC"
+(*let acro_dpt_bio = "IBENS"*)
+(*let acro_dpt_dec = "DEC"*)
 let dpt_info_full = "Département d'Informatique"
 let dpt_maths_full = "Département de Mathématiques et Applications"
 let dpt_phys_full = "Département de Physique"
@@ -55,7 +57,7 @@ let dpt_dec_full = "Département d'Études Cognitives"
 let simplify_string s =
   Special_char.lowercase
     (Special_char.correct_string_txt
-       (String.trim s))
+       (Special_char.correct_string_utf8 (String.trim s)))
 
 let addmap x data map =
   let old =
@@ -2420,6 +2422,7 @@ let translate_diplome
           | "DI" -> "informatique"
           | "DMA" -> "mathématiques"
           | "PHYS" -> "physique"
+          | "IBENS" -> "biologie"
           | _ -> ""
         in
         state,
@@ -2468,10 +2471,12 @@ let translate_diplome
           && not (is_dma_course code_cours year)
           then
             if is_di_course code_cours year
-            then state, ("informatique", "L")
+            then
+              state, ("informatique", "L")
             else
             if is_phys_course code_cours year
-            then state, ("physique","L")
+            then
+              state, ("physique","L")
             else
               let msg =
                 Format.sprintf
@@ -2496,7 +2501,7 @@ let translate_diplome
           else
             label^" de "^dpt
         in
-        state, (Some diplome,label,dpt,false)
+                state, (Some diplome,label,dpt,false)
       else
         state, (Some diplome,label,dpt,false)
   in
@@ -2598,8 +2603,17 @@ let color_of_dpt who pos state dpt origine =
   then state, Some Color.red
   else
     let msg =
-      Format.sprintf "Unknown departement (%s) for %s"
-        dpt who
+      Format.sprintf "Unknown departement (%s) %i %i %i %i %i %i %i %i for %s"
+        dpt
+        (Char.code (String.get dpt 0))
+        (Char.code (String.get dpt 1))
+        (Char.code (String.get dpt 2))
+        (Char.code (String.get dpt 3))
+        (Char.code (String.get dpt 4))
+        (Char.code (String.get dpt 5))
+        (Char.code (String.get dpt 6))
+        (Char.code (String.get dpt 7))
+        who
     in
     Remanent_state.warn_dft
       pos
@@ -2608,42 +2622,41 @@ let color_of_dpt who pos state dpt origine =
       None
       state
 
-let acro_of_dpt who pos state dpt origine =
-  let dpt = simplify_string dpt in
+(*let acro_of_main_dpt who pos state dpt origine =
   if lerasmus origine || lpe origine
   then
     state, None
   else
-  if List.mem dpt [dpt_info;dpt_info_gps_name]
-  then state, Some acro_dpt_info
-  else if List.mem dpt [dpt_maths;dpt_maths_gps_name]
-  then state, Some acro_dpt_maths
-  else if List.mem dpt [dpt_phys;dpt_phys_gps_name]
-  then state, Some acro_dpt_phys
-  else if List.mem dpt [dpt_bio;dpt_bio_gps_name]
-  then state, Some acro_dpt_bio
-  else if List.mem dpt [dpt_dec;dpt_dec_gps_name]
-  then state, Some acro_dpt_dec
-  else
-    let msg =
-      Format.sprintf "Unknown departement (%s) for %s"
-        dpt who
-    in
-    Remanent_state.warn_dft
-      pos
-      msg
-      Exit
-      None
-      state
+    match dpt with
+    | Public_data.DI -> state, Some acro_dpt_info
+    | Public_data.DMA -> state, Some acro_dpt_maths
+    | Public_data.ENS ->
+      let msg =
+        Format.sprintf "ENS is not a valid dpt for %s"
+          who
+      in
+      Remanent_state.warn_dft
+        pos
+        msg
+        Exit
+        None
+        state
+*)
 
 let dpt_of_acro who pos state dpt origine =
   if lerasmus origine || lpe origine
   then
     state, None
   else
-  if dpt = acro_dpt_info
+    match dpt with
+    | Public_data.DI -> state, Some dpt_info
+    | Public_data.DMA -> state, Some dpt_maths
+    | Public_data.IBENS -> state, Some dpt_ibens
+    | Public_data.PHYS -> state, Some dpt_phys
+    | Public_data.ENS ->
+      (*  if dpt = Public_data.DI (*acro_dpt_info*)
   then state, Some dpt_info
-  else if dpt = acro_dpt_maths
+  else if dpt = Public_dara.DMA (*acro_dpt_maths*)
   then state, Some dpt_maths
   else if dpt = acro_dpt_phys
   then state, Some dpt_phys
@@ -2651,10 +2664,10 @@ let dpt_of_acro who pos state dpt origine =
   then state, Some dpt_bio
   else if dpt = acro_dpt_dec
   then state, Some dpt_dec
-  else
+          else*)
     let msg =
       Format.sprintf "Unknown departement (%s) for %s"
-        dpt who
+        (Public_data.string_of_dpt dpt) who
     in
     Remanent_state.warn_dft
       pos
@@ -2775,7 +2788,7 @@ let is_mandatory state cours =
       (fun x -> Format.sprintf "\\mandatory{%s}" x)
     else
       (fun x -> x)
-  | state, Public_data.DMA -> state, (fun x -> x)
+  | state, (Public_data.DMA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> state, (fun x -> x)
 
 let count_for_maths state cours =
   match Remanent_state.get_main_dpt state with
@@ -2802,7 +2815,7 @@ let count_for_maths state cours =
       (fun x -> Format.sprintf "\\countformaths{%s}" x)
     else
       (fun x -> x)
-  | state, Public_data.DMA -> state, (fun x -> x)
+  | state, (Public_data.DMA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, (fun x -> x)
 
 let special_course state cours =
   let state, f = is_mandatory state cours in
@@ -2917,7 +2930,7 @@ let add_mean_ok state key course year map =
           snd map)
 
 let add_mean state key compensation course year map =
-  match compensation, course.note with
+    match compensation, course.note with
   | Some _, _ -> add_mean_ok state key course year map
   | None,None -> state, map
   | None,Some note ->
@@ -3006,6 +3019,14 @@ let heading
           "D\\'epartement de Math\\'ematiques et Applications. \\'Ecole  Normale  Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Tel : +33 (0)1 44 32 20 49."
       in
       state
+    | state, (Public_data.ENS | Public_data.PHYS | Public_data.IBENS) ->
+      let state =
+        Remanent_state.warn
+          __POS__
+          "ENS/PHYS/IBENS are not a valid dpt to edit transcripts"
+          Exit
+          state
+      in state
   in
   let () =
     Remanent_state.print_newline state in
@@ -3323,7 +3344,7 @@ let heading
               Remanent_state.get_cursus
                 ~year
                 ~level:"dens"
-                ~dpt:"informatique"
+                ~dpt:Public_data.DI
                 __POS__
                 state
           in
@@ -3427,7 +3448,7 @@ let heading
                       Remanent_state.get_cursus
                         __POS__
                         ~year
-                        ~dpt
+                        ~dpt:(Public_data.dpt_of_string dpt)
                         ~level:string
                         state
                     in
@@ -3635,8 +3656,8 @@ let program
             ~level:string
             ?dpt:(match string, dpt with
                 | "dens",_
-                | _,"" -> None
-                | _ ->
+                | _,Public_data.ENS -> None
+                | _,(Public_data.DI | Public_data.DMA | Public_data.IBENS | Public_data.PHYS) ->
                   Some dpt)
             ~year
             state
@@ -3647,7 +3668,7 @@ let program
             Format.sprintf
               "Undocumented cursus %s %s %s for %s"
               string
-              dpt
+              (Public_data.string_of_dpt dpt)
               year
               who
           in
@@ -3668,14 +3689,14 @@ let program
     match dpt, string with
     | _, (None |  Some "dens") -> state, None, false
     | _, Some program ->
-      let state, dpt =
-        acro_of_dpt who __POS__ state dpt origine
-      in
-      let dpt =
+      (*  let state, dpt =
+        acro_of_main_dpt who __POS__ state dpt origine
+          in*)
+      (*    let dpt =
         match dpt with
-        | None -> ""
+        | None -> Public_data.ENS
         | Some a -> a
-      in
+            in*)
       match
         Remanent_state.get_decision
           ~firstname
@@ -3759,7 +3780,7 @@ let program
         ~natt
         ~exception_cursus
         ~decision
-        (string,dpt)
+        (string,Public_data.string_of_dpt dpt)
         moyenne_opt
         mention_opt
         validated_opt
@@ -3838,7 +3859,10 @@ let program
     | Some ("imalis") ->
       state, Some Color.green
     | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" | "lmfi") ->
-      color_of_dpt who __POS__ state dpt origine
+      color_of_dpt
+        who __POS__ state
+        (Public_data.string_of_dpt dpt)
+        origine
     | Some _  -> state, None
   in
   let state =
@@ -3891,7 +3915,7 @@ let program
         x
         (match
            StringOptMap.find_opt
-             (string,dpt)
+             (string,(Public_data.string_of_dpt dpt))
              cursus_map, footpage
          with
          | None, _
@@ -4150,7 +4174,7 @@ let program
             | Some _ ->
               let state, mean =
                 add_mean state
-                (string,dpt) compensation cours
+                  (string,(Public_data.string_of_dpt dpt)) compensation cours
                 (try int_of_string year with _ -> 0)
                 mean
               in state, mean, dens, natt
@@ -4480,6 +4504,9 @@ let export_transcript
     in
     alloc
   in
+  let alloc_suffix a b =
+    alloc_suffix (fst a,Public_data.string_of_dpt (snd a)) b
+  in
   let state, rep =
     Safe_sys.rec_mk_when_necessary __POS__
       state (fst output)
@@ -4751,8 +4778,7 @@ let export_transcript
                             (String.trim decision.Public_data.decision_program))
                   in
                   let diplome_dpt =
-                    (String.trim
-                         (decision.Public_data.decision_dpt))
+                    decision.Public_data.decision_dpt
                   in
                   let state, diplome_dpt =
                     dpt_of_acro who __POS__ state diplome_dpt origine
@@ -4883,8 +4909,8 @@ let export_transcript
              | None ->
                begin
                  match Remanent_state.get_main_dpt state with
-                 | state, Public_data.DI -> state, None
-                 | state, Public_data.DMA ->
+                 | state, (Public_data.DI | Public_data.ENS) -> state, None
+                 | state, (Public_data.DMA | Public_data.PHYS | Public_data.IBENS)->
                    begin
                      match
                        gps_file.tuteur
@@ -4984,9 +5010,8 @@ let export_transcript
                  match
                    situation.departement_principal
                  with
-                 | Some a ->
-                   Special_char.lowercase a
-                 | None -> ""
+                 | Some a -> Public_data.dpt_of_string a
+                 | None -> Public_data.ENS
                in
                let state =
                  if do_report report &&
@@ -5020,7 +5045,7 @@ let export_transcript
                           Tools.unsome_string
                             tuteur.Public_data.courriel_du_tuteur ;
                         Public_data.mentor_secondary =
-                          tuteur.Public_data.secondaire
+                           tuteur.Public_data.secondaire
                        }
                    in
                    List.fold_left
@@ -5099,7 +5124,7 @@ let export_transcript
                              Tools.unsome_string
                                tuteur.Public_data.courriel_du_tuteur ;
                            Public_data.mentor_secondary =
-                             tuteur.Public_data.secondaire
+                               tuteur.Public_data.secondaire
                           })
                      state tuteurs_secondaires
                  else state
@@ -5257,7 +5282,7 @@ let export_transcript
                            (state,mean,dens,natt)
                            =
                            program
-                             ~origine ~string ~dpt ~year ~who
+                             ~origine ~string ~dpt:(Public_data.dpt_of_string dpt) ~year ~who
                              ~alloc_suffix ~mean ~firstname
                              ~lastname ~promo ~cursus_map ~size
                              ~stages ~current_year ~report ~dens
@@ -5482,7 +5507,7 @@ let export_transcript
                    else
                      Remanent_state.add_national_diploma
                        state
-                       {Public_data.diplome_dpt = (snd key);
+                       {Public_data.diplome_dpt = Public_data.dpt_of_string (snd key);
                         Public_data.diplome_niveau =
                           (match fst key with
                            | None -> ""
@@ -5516,6 +5541,9 @@ let export_transcript
           in
           state
         end
+    in
+    let state, main_dpt =
+      Remanent_state.get_main_dpt state
     in
     let state =
       if do_report report &&
@@ -5580,12 +5608,12 @@ let export_transcript
                   Public_data.mentor_student_firstname =
                     firstname ;
                   Public_data.mentor_student_dpt =
-                    dpt_info ;
+                    main_dpt ;
                   Public_data.mentor_email =
                     Tools.unsome_string
                       tuteur.Public_data.courriel_du_tuteur ;
                   Public_data.mentor_secondary =
-                    tuteur.Public_data.secondaire ;
+                      tuteur.Public_data.secondaire ;
                  } else state)
           state tuteurs
       else state
