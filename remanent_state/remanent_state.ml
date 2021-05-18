@@ -22,6 +22,7 @@ type parameters =
     study_repository:string;
     parameters_repository:string;
     gps_backup_repository:string;
+    enspsl_logo:string;
     repository_to_dump_gps_files: string;
     repository_to_dump_gps_server_faillures: string;
     repository_to_dump_attestations: string;
@@ -101,6 +102,7 @@ let parameters =
     pdfgenerator = Public_data.PdfLatex ;
     pdfgenerator_options = "-interaction=nonstopmode";
     local_repository = "di/suivi_pedagogique" ;
+    enspsl_logo = "LOGOs/ENSPSL.png" ;
     scholarships_repository = "di/scolarite/ELEVES" ;
     repository_to_dump_transcripts = "fiches_de_notes" ;
     distant_repository = "https://cloud.di.ens.fr/" ;
@@ -183,6 +185,7 @@ let set_dma parameters =
     main_dpt = Public_data.DMA ;
     commission = Some ("?? juin 2021", "2020");
     local_repository = "dma/suivi_pedagogique" ;
+    enspsl_logo = "LOGOs/ENSPSL.pdf" ;
     scholarships_repository = "dma/scolarite/ELEVES" ;
     repartition = Public_data.Annee_obtention_du_diplome ;
   }
@@ -1590,11 +1593,12 @@ let add_ambiguous_internship_description, get_ambiguous_internship_descriptions 
 
 let get_ENSPSL_logo state =
   let state, local = get_local_repository state in
+  let logo = state.parameters.enspsl_logo in
   if local = ""
   then
-    state, "LOGOs/ENSPSL.png"
+    state, logo
   else
-    state, Format.sprintf "%s/LOGOs/ENSPSL.png" local
+    state, Format.sprintf "%s/%s" local logo
 
 let simplify s =
   Special_char.lowercase
