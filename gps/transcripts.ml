@@ -41,13 +41,9 @@ let dpt_dec = "etudes cognitives"
 let dpt_info_gps_name = dpt_info
 let dpt_phys_gps_name = dpt_phys
 let dpt_maths_gps_name = "mathematiques et applications"
-(*let dpt_dec_gps_name = dpt_dec*)
-(*let dpt_bio_gps_name = dpt_bio*)
 let acro_dpt_phys = "PHYS"
 let acro_dpt_info = "DI"
 let acro_dpt_maths = "DMA"
-(*let acro_dpt_bio = "IBENS"*)
-(*let acro_dpt_dec = "DEC"*)
 let dpt_info_full = "Département d'Informatique"
 let dpt_maths_full = "Département de Mathématiques et Applications"
 let dpt_phys_full = "Département de Physique"
@@ -2622,27 +2618,6 @@ let color_of_dpt who pos state dpt origine =
       None
       state
 
-(*let acro_of_main_dpt who pos state dpt origine =
-  if lerasmus origine || lpe origine
-  then
-    state, None
-  else
-    match dpt with
-    | Public_data.DI -> state, Some acro_dpt_info
-    | Public_data.DMA -> state, Some acro_dpt_maths
-    | Public_data.ENS ->
-      let msg =
-        Format.sprintf "ENS is not a valid dpt for %s"
-          who
-      in
-      Remanent_state.warn_dft
-        pos
-        msg
-        Exit
-        None
-        state
-*)
-
 let dpt_of_acro who pos state dpt origine =
   if lerasmus origine || lpe origine
   then
@@ -2654,27 +2629,16 @@ let dpt_of_acro who pos state dpt origine =
     | Public_data.IBENS -> state, Some dpt_ibens
     | Public_data.PHYS -> state, Some dpt_phys
     | Public_data.ENS ->
-      (*  if dpt = Public_data.DI (*acro_dpt_info*)
-  then state, Some dpt_info
-  else if dpt = Public_dara.DMA (*acro_dpt_maths*)
-  then state, Some dpt_maths
-  else if dpt = acro_dpt_phys
-  then state, Some dpt_phys
-  else if dpt = acro_dpt_bio
-  then state, Some dpt_bio
-  else if dpt = acro_dpt_dec
-  then state, Some dpt_dec
-          else*)
-    let msg =
-      Format.sprintf "Unknown departement (%s) for %s"
-        (Public_data.string_of_dpt dpt) who
-    in
-    Remanent_state.warn_dft
-      pos
-      msg
-      Exit
-      None
-      state
+      let msg =
+        Format.sprintf "Unknown departement (%s) for %s"
+          (Public_data.string_of_dpt dpt) who
+      in
+      Remanent_state.warn_dft
+        pos
+        msg
+        Exit
+        None
+        state
 
 
 let stage = 250
@@ -3689,14 +3653,6 @@ let program
     match dpt, string with
     | _, (None |  Some "dens") -> state, None, false
     | _, Some program ->
-      (*  let state, dpt =
-        acro_of_main_dpt who __POS__ state dpt origine
-          in*)
-      (*    let dpt =
-        match dpt with
-        | None -> Public_data.ENS
-        | Some a -> a
-            in*)
       match
         Remanent_state.get_decision
           ~firstname
@@ -4874,6 +4830,7 @@ let export_transcript
               l
               []
           in
+          let l = List.rev l in
           state, l
         end
     in
