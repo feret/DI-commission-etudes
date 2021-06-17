@@ -4646,7 +4646,8 @@ let export_transcript
         | h::t ->
           let state, b = Safe_sys.file_exists __POS__ state h
           in
-          if b then state, true
+          if b then
+            state, true
           else aux state t
       in aux state picture_list
     in
@@ -4663,6 +4664,22 @@ let export_transcript
             Public_data.student_promo_report = promo ;
           }
     in
+    let state, picture_list =
+      List.fold_left
+        (fun (state, list) file ->
+           let state, b = Safe_sys.file_exists __POS__ state file
+           in
+           if b then
+             let state, b = Safe_sys.is_empty __POS__ state file in
+             if b then state, list
+             else
+               state, file::list
+           else
+             state, file::list
+        )
+        (state,[])
+        (List.rev picture_list)
+    in 
     let stages =
         gps_file.stages
     in

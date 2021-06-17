@@ -136,3 +136,23 @@ let get_extension c =
       aux (k-1)
   in
   aux (n-1)
+
+let is_empty pos state file =
+  let state, b = file_exists pos state file in
+  if b then
+    let file = safe file in
+    let end_of_file f =
+      try ignore (input_line f); false with Not_found | End_of_file -> true
+    in
+    let nb_lignes filename =
+      let f = open_in filename in
+      let rec aux n =
+        if end_of_file f
+        then n
+        else aux (n + 1)
+      in
+      aux 0
+    in
+    state, nb_lignes file = 0
+  else
+    state, true

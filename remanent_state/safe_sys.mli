@@ -27,3 +27,7 @@ val cp:
 
 val get_extension:
   string -> string option
+
+val is_empty:
+  (string * int * int * int) ->
+  Remanent_state.t -> string -> Remanent_state.t * bool 
