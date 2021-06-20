@@ -183,7 +183,7 @@ let set_dma parameters =
   {
     parameters with
     main_dpt = Public_data.DMA ;
-    commission = Some ("?? juin 2021", "2020");
+    commission = Some ("23 juin 2021", "2020");
     local_repository = "dma/suivi_pedagogique" ;
     enspsl_logo = "LOGOs/ENSPSL.pdf" ;
     scholarships_repository = "dma/scolarite/ELEVES" ;
