@@ -4679,7 +4679,7 @@ let export_transcript
         )
         (state,[])
         (List.rev picture_list)
-    in 
+    in
     let stages =
         gps_file.stages
     in

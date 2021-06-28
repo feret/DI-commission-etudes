@@ -148,11 +148,14 @@ let is_empty pos state file =
       let f = open_in filename in
       let rec aux n =
         if end_of_file f
-        then n
+        then
+          n
         else aux (n + 1)
       in
-      aux 0
-    in
+      let i = aux 0 in
+      let _ = close_in f in
+      i
+    in    
     state, nb_lignes file = 0
   else
     state, true
