@@ -4391,14 +4391,14 @@ let program
   let () = Remanent_state.print_newline state in
   let () =
     List.iter
-      (fun s ->
+      (fun (s,lineproportion) ->
          if s = "" then () else
            Remanent_state.log
              ~lineproportion
              state
              "%s"
              s)
-      [decision;rank;mention]
+      [decision,0.60;rank,0.30;mention,0.30]
   in
   let () = Remanent_state.print_newline state in
   let () = Remanent_state.fprintf state "\\vfill\n\ " in
