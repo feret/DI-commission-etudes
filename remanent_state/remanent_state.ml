@@ -46,6 +46,7 @@ type parameters =
     file_retriever_log_file: string;
     file_retriever_annuaire_html_file: string ;
     tmp_annuaire_repository: string ;
+    include_pictures: bool;
     file_retriever_time_out_in_seconds: int option;
     file_retriever_checking_period_in_seconds : int;
     tmp_profiling_repository: string;
@@ -160,6 +161,7 @@ let parameters =
     file_retriever_log_repository = "/users/absint3/feret/tmp" ;
     file_retriever_log_file = "gps_access.log";
     tmp_annuaire_repository = "/users/absint3/feret/tmp";
+    include_pictures = true;
     file_retriever_annuaire_html_file = "annuaire.html";
     file_retriever_time_out_in_seconds = Some 300;
     file_retriever_checking_period_in_seconds = 5;
@@ -188,6 +190,7 @@ let set_dma parameters =
     enspsl_logo = "LOGOs/ENSPSL.pdf" ;
     scholarships_repository = "dma/scolarite/ELEVES" ;
     repartition = Public_data.Annee_obtention_du_diplome ;
+    include_pictures = false;
   }
 
 type data =
@@ -317,6 +320,9 @@ let get_cloud_client_options t =
 
 let get_url_prefix_for_photos t =
   t, t.parameters.url_prefix_for_photos
+
+let get_include_pictures t =
+  t, t.parameters.include_pictures
 
 let get_file_retriever t =
   t, t.parameters.file_retriever

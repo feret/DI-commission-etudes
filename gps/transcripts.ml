@@ -4410,6 +4410,7 @@ let program
 let export_transcript
     ~output
     ?language
+    ?include_picture
     ?repartition
     ?signature
     ?report
@@ -4426,6 +4427,12 @@ let export_transcript
       state
       Remanent_state.get_repartition
       repartition
+  in
+  let state, include_picture =
+    Tools.get_option
+      state
+      Remanent_state.get_include_pictures
+      include_picture
   in
   let alloc_suffix =
     let l0 =
@@ -4636,8 +4643,12 @@ let export_transcript
         ([],0) l
     in
     let state, picture_list =
-      Photos.get
-        ~firstname ~lastname ~promo state
+      if include_picture
+      then
+        Photos.get
+          ~firstname ~lastname ~promo state
+      else
+        state, []
     in
     let state, b =
       let rec aux state l =
@@ -4652,7 +4663,7 @@ let export_transcript
       in aux state picture_list
     in
     let state =
-      if b
+      if b || not include_picture
       then
         state
       else

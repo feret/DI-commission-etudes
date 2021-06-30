@@ -6,7 +6,8 @@ val get_gps_file:
 val export_transcript:
   output: string * string ->
   ?language:Public_data.language ->
-  ?repartition:Public_data.repartition -> 
+  ?include_picture:bool -> 
+  ?repartition:Public_data.repartition ->
   ?signature:string ->
   ?report:bool ->
   ?filter: Public_data.remove_non_valided_classes ->
