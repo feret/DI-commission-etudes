@@ -4339,7 +4339,7 @@ let program
       "%s"
       update_moyenne
   in
-  let lineproportion = 0.30 in
+  let lineproportion = 0.45 in
   let () =
     if (not (string = Some "DENS"
              || string = Some "dens"
@@ -4368,6 +4368,7 @@ let program
       in
       ()
   in
+  let lineproportion = 0.45 in
   let () =
     (fun s ->
        if s = "" then () else
@@ -4398,7 +4399,7 @@ let program
              state
              "%s"
              s)
-      [decision,0.60;rank,0.30;mention,0.30]
+      [decision,0.45;rank,0.25;mention,0.25]
   in
   let () = Remanent_state.print_newline state in
   let () = Remanent_state.fprintf state "\\vfill\n\ " in
