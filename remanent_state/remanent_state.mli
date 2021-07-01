@@ -122,7 +122,7 @@ val get_repository_to_dump_attestations: t -> t * string
 val get_indicate_promotions_in_attestation_file_names: t -> t * bool
 
 val get_url_prefix_for_photos: t -> t * string
-val get_include_pictures: t -> t * bool 
+val get_include_pictures: t -> t * bool
 
 (** CSV *)
 val get_csv_separator: t -> t * char option
@@ -535,3 +535,6 @@ val get_students_personnal_files:
 val get_main_dpt: t -> t * Public_data.main_dpt
 val is_main_dpt_di: t -> t * bool
 val is_main_dpt_dma: t -> t * bool
+
+val get_file_retriever_skip: t -> t * bool
+val file_retriever_fail: t -> t

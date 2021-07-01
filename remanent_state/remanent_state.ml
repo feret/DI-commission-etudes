@@ -45,6 +45,9 @@ type parameters =
     file_retriever_log_repository: string ;
     file_retriever_log_file: string;
     file_retriever_annuaire_html_file: string ;
+    file_retriever_n_fail: int;
+    file_retriever_max_n_fail: int;
+    file_retriever_skip: bool;
     tmp_annuaire_repository: string ;
     include_pictures: bool;
     file_retriever_time_out_in_seconds: int option;
@@ -165,6 +168,9 @@ let parameters =
     file_retriever_annuaire_html_file = "annuaire.html";
     file_retriever_time_out_in_seconds = Some 300;
     file_retriever_checking_period_in_seconds = 5;
+    file_retriever_skip = false;
+    file_retriever_n_fail = 0;
+    file_retriever_max_n_fail = 5;
     tmp_profiling_repository = "/users/absint3/feret/tmp";
     profiling_log_file_repository = "profiling_info";
     profiling_log_file = "profiling_info.html";
@@ -1730,3 +1736,28 @@ let get_language t =
 
 let get_repartition t =
   t, t.parameters.repartition
+
+let get_file_retriever_skip t =
+  t, t.parameters.file_retriever_skip
+
+let kill_file_retriever t =
+  let file_retriever_skip = false in
+  let parameters = {t.parameters with file_retriever_skip} in
+  {t with parameters}
+
+let get_file_retriever_n_fail t =
+  t, t.parameters.file_retriever_n_fail
+
+let get_file_retriever_max_fail t =
+  t, t.parameters.file_retriever_max_n_fail
+
+let file_retriever_fail t =
+  let t,n = get_file_retriever_n_fail t in
+  let t,max = get_file_retriever_max_fail t in
+  let file_retriever_n_fail = n + 1 in
+  let parameters = {t.parameters with file_retriever_n_fail} in
+  let t = {t with parameters} in
+  if file_retriever_n_fail > max then
+    kill_file_retriever t
+  else
+    t

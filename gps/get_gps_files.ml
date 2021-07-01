@@ -107,104 +107,117 @@ let get_student_file_gen
   let lastname =
     f_lastname  student_id.Public_data.lastname
   in
-  let event_opt =
-    Some
-      (Profiling.Extract_gps_file_from_database
-         (firstname,lastname,
-          profiling_label_of_dpt_opt dpt))
-  in
-  let state = Remanent_state.open_event_opt event_opt state in
   let promotion = student_id.Public_data.promotion in
   let promotion = Tools.unsome_string promotion in
-  let state, log_file =
-    match log_file with
-    | None ->
-      let state, x =
-        Remanent_state.get_file_retriever_log_file state
-      in
-      state, Some x
-    | Some x -> state,Some x
-  in
-  let state, log_repository =
-    match log_repository with
-    | None ->
-      let state, x = Remanent_state.get_file_retriever_log_repository state in
-      state, Some x
-    | Some x -> state, Some x
-  in
-  let state, file_retriever =
-    match file_retriever with
-    | None ->
-      Remanent_state.get_file_retriever state
-    | Some wget -> state, wget
-  in
-  let state, options =
-    match command_line_options with
-    | None ->
-      Remanent_state.get_file_retriever_options
-        ~more_options:Remanent_state.get_gps_access_options
+  let state, b = Remanent_state.get_file_retriever_skip state in
+  if b then
+    let () =
+      Remanent_state.log
         state
-    | Some options -> state, options
-  in
-  let state, machine =
-    match machine with
-    | None ->
-      Remanent_state.get_machine_to_access_gps state
-    | Some machine -> state, machine
-  in
-  let state, port =
-    match port with
-    | None ->
-      Remanent_state.get_port_to_access_gps state
-    | Some port -> state, port
-  in
-  let state, input_repository =
-    match input_repository with
-    | None ->
-      Remanent_state.get_repository_to_access_gps
-        state
-    | Some rep -> state, rep
-  in
-  let state,timeout =
-    match timeout with
-    | None ->
-      Remanent_state.get_file_retriever_time_out_in_second state
-    | Some t -> state, t
-  in
-  let state, period =
-    match checkoutperiod
-    with
-    | None ->
-      Remanent_state.get_file_retriever_checking_period  state
-    | Some t -> state,t
-  in
-  let url =
-    Printf.sprintf
-      "http://%s:%s/%s/gps.pl?last=\'%s\'&first=\'%s\'%s"
-      machine
-      port
-      input_repository
-      lastname
-      firstname
-      (string_of_dpt_opt dpt)
-  in
-  let state, output_repository, output_file_name =
-    build_output
-      __POS__
-      ~has_promo:false
-      ~f_firstname:(fun x -> x)
-      ~f_lastname:(fun x -> x)
-      ~extension:".gps.csv"
-      student_id ?prefix ?output_repository ?output_file_name state
-  in
-  let state, output =
-    match
-      File_retriever.launch
-        file_retriever ?user_name ?password ~options
-        ?log_file ?log_repository
-        ~url ~output_repository ~output_file_name ?timeout state
-    with
-    | state, 0 ->
+        "The extraction of the GPS file for %s %s (%s) failed (too many access errors)" firstname lastname promotion
+    in
+    Remanent_state.warn __POS__
+      (Printf.sprintf
+         "The extraction of the GPS file for %s %s (%s) failed (too many access errors)" firstname lastname promotion)
+      Exit
+      state, None
+  else
+      let event_opt =
+      Some
+        (Profiling.Extract_gps_file_from_database
+           (firstname,lastname,
+            profiling_label_of_dpt_opt dpt))
+    in
+    let state = Remanent_state.open_event_opt event_opt state in
+    let state, log_file =
+      match log_file with
+      | None ->
+        let state, x =
+          Remanent_state.get_file_retriever_log_file state
+        in
+        state, Some x
+      | Some x -> state,Some x
+    in
+    let state, log_repository =
+      match log_repository with
+      | None ->
+        let state, x = Remanent_state.get_file_retriever_log_repository state in
+        state, Some x
+      | Some x -> state, Some x
+    in
+    let state, file_retriever =
+      match file_retriever with
+      | None ->
+        Remanent_state.get_file_retriever state
+      | Some wget -> state, wget
+    in
+    let state, options =
+      match command_line_options with
+      | None ->
+        Remanent_state.get_file_retriever_options
+          ~more_options:Remanent_state.get_gps_access_options
+          state
+      | Some options -> state, options
+    in
+    let state, machine =
+      match machine with
+      | None ->
+        Remanent_state.get_machine_to_access_gps state
+      | Some machine -> state, machine
+    in
+    let state, port =
+      match port with
+      | None ->
+        Remanent_state.get_port_to_access_gps state
+      | Some port -> state, port
+    in
+    let state, input_repository =
+      match input_repository with
+      | None ->
+        Remanent_state.get_repository_to_access_gps
+          state
+      | Some rep -> state, rep
+    in
+    let state,timeout =
+      match timeout with
+      | None ->
+        Remanent_state.get_file_retriever_time_out_in_second state
+      | Some t -> state, t
+    in
+    let state, period =
+      match checkoutperiod
+      with
+      | None ->
+        Remanent_state.get_file_retriever_checking_period  state
+      | Some t -> state,t
+    in
+    let url =
+      Printf.sprintf
+        "http://%s:%s/%s/gps.pl?last=\'%s\'&first=\'%s\'%s"
+        machine
+        port
+        input_repository
+        lastname
+        firstname
+        (string_of_dpt_opt dpt)
+    in
+    let state, output_repository, output_file_name =
+      build_output
+        __POS__
+        ~has_promo:false
+        ~f_firstname:(fun x -> x)
+        ~f_lastname:(fun x -> x)
+        ~extension:".gps.csv"
+        student_id ?prefix ?output_repository ?output_file_name state
+    in
+    let state, output =
+      match
+        File_retriever.launch
+          file_retriever ?user_name ?password ~options
+          ?log_file ?log_repository
+          ~url ~output_repository ~output_file_name ?timeout state
+      with
+      | state, 0 ->
         File_retriever.check
           ?log_file ?log_repository
           ~period ~output_repository
@@ -212,20 +225,20 @@ let get_student_file_gen
           ?timeout
           file_retriever state,
         Some (output_repository,output_file_name)
-    | state, i ->
-      let () =
-        Remanent_state.log
-          state
-          "The extraction of the GPS file for %s %s (%s) failed with  error %i" firstname lastname promotion i
-      in
-      Remanent_state.warn __POS__
-        (Printf.sprintf
-           "The extraction of the GPS file for %s %s (%s) failed" firstname lastname promotion)
-        Exit
-        state, None
-  in
-  let state = Remanent_state.close_event_opt event_opt state in
-  state, output
+      | state, i ->
+        let () =
+          Remanent_state.log
+            state
+            "The extraction of the GPS file for %s %s (%s) failed with error  %i" firstname lastname promotion i
+        in
+        Remanent_state.warn __POS__
+          (Printf.sprintf
+             "The extraction of the GPS file for %s %s (%s) failed" firstname lastname promotion)
+          Exit
+          state, None
+    in
+    let state = Remanent_state.close_event_opt event_opt state in
+    state, output
 
 let copy
     ~f_firstname ~f_lastname g student_id ?prefix ?output_repository ?output_file_name backup_rep state =
@@ -356,6 +369,7 @@ let try_get_student_file
            Profiling.Extract_gps_file_from_handmade_files (a,b))
         student_id ?prefix ?output_repository ?output_file_name backup_rep state
     | Warn ->
+      let state = Remanent_state.file_retriever_fail state in
       let state =
         Remanent_state.add_gps_server_faillure
           state
