@@ -173,39 +173,40 @@ let state =
              Latex_engine.latex_opt_to_pdf
                ?save_rep ~rev:true state ~input
          in
-         let output =
-           (fst output0,
-            (Tools.basename (snd
-                               output0))^".signe_JF.tex")
-         in
-         let state, signature =
-           Remanent_state.get_signature state
-         in
          let state =
-           match gps with
-           | None -> state
-           | Some gps ->
-             let state, input =
-               Transcripts.export_transcript
-                 ~signature ~output state gps
+           match Remanent_state.is_main_dpt_di state
+           with
+           | state, true ->
+             let output =
+               (fst output0,
+                (Tools.basename (snd
+                                   output0))^".signe_JF.tex")
              in
-             let state, save_rep =
-               match Remanent_state.is_main_dpt_di state
-               with
-               | state, true ->
-                 let state,rep  =
-                   Remanent_state.get_student_personnal_repository
-                     ~firstname ~lastname ?promo state
+             let state, signature =
+               Remanent_state.get_signature state
+             in
+             let state =
+               match gps with
+               | None -> state
+               | Some gps ->
+                 let state, input =
+                   Transcripts.export_transcript
+                     ~signature ~output state gps
                  in
-                 let rep = Printf.sprintf "%s/" rep in
-                 state, Some rep
-               | state, false ->
-                 state, None
+                 let state, save_rep =
+                   let state,rep  =
+                     Remanent_state.get_student_personnal_repository
+                       ~firstname ~lastname ?promo state
+                   in
+                   let rep = Printf.sprintf "%s/" rep in
+                   state, Some rep
+                 in
+                 Latex_engine.latex_opt_to_pdf
+                   ?save_rep ~rev:true state ~input
              in
-             Latex_engine.latex_opt_to_pdf
-               ?save_rep ~rev:true state ~input
-         in
-
+             state
+           | state, false -> state
+         in 
          let output =
            (fst output0, (Tools.basename (snd output0))^".all.tex")
          in
