@@ -459,7 +459,7 @@ let add_to_list simplified_firstname simplified_lastname access_type l =
     l
     lastname_list
 
-let modelist_gen b1 b2 =
+let modelist_di_gen b1 b2 =
   add_to_list b1 b2 Preempt
     (add_to_list b1 b2 (GPS None)
        (add_to_list b1 b2 (GPS (Some Maths))
@@ -468,14 +468,32 @@ let modelist_gen b1 b2 =
                 (add_to_list true true Warn
                    (add_to_list b1 b2 Backup []))))))
 
-let modelist_true_true =
-  modelist_gen true true
-let modelist_true_false =
-  modelist_gen true false
-let modelist_false_true =
-  modelist_gen false true
-let modelist_false_false =
-  modelist_gen false false
+let modelist_di_true_true =
+  modelist_di_gen true true
+let modelist_di_true_false =
+  modelist_di_gen true false
+let modelist_di_false_true =
+  modelist_di_gen false true
+let modelist_di_false_false =
+  modelist_di_gen false false
+
+let modelist_dma_gen b1 b2 =
+  add_to_list b1 b2 Preempt
+    (add_to_list b1 b2 (GPS (Some Maths))
+       (add_to_list b1 b2 (GPS None)
+          (add_to_list b1 b2 (GPS (Some DRI))
+             (add_to_list b1 b2 (GPS (Some PE))
+                (add_to_list true true Warn
+                   (add_to_list b1 b2 Backup []))))))
+
+  let modelist_dma_true_true =
+    modelist_dma_gen true true
+  let modelist_dma_true_false =
+    modelist_dma_gen true false
+  let modelist_dma_false_true =
+    modelist_dma_gen false true
+  let modelist_dma_false_false =
+    modelist_dma_gen false false
 
 let get_student_file
       student_id
@@ -498,18 +516,24 @@ let get_student_file
     in
     let firstname = student_id.Public_data.firstname in
     let lastname = student_id.Public_data.lastname in
+    let state, main_dpt = Remanent_state.get_main_dpt state in
     let modelist =
       match modelist with
       | Some modelist -> modelist
       | None ->
         begin
           match Special_char.remove_acute firstname = firstname,
-                Special_char.remove_acute lastname = lastname
+                Special_char.remove_acute lastname = lastname,
+                main_dpt
           with
-          | true, true -> modelist_true_true
-          | true, false -> modelist_true_false
-          | false, true -> modelist_false_true
-          | false, false -> modelist_false_false
+          | true, true, (Public_data.DI | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> modelist_di_true_true
+          | true, false, (Public_data.DI | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> modelist_di_true_false
+          | false, true, (Public_data.DI | Public_data.ENS | Public_data.IBENS | Public_data.PHYS)  -> modelist_di_false_true
+          | false, false, (Public_data.DI | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> modelist_di_false_false
+          | true, true, Public_data.DMA -> modelist_dma_true_true
+          | true, false, Public_data.DMA -> modelist_dma_true_false
+          | false, true, Public_data.DMA  -> modelist_dma_false_true
+          | false, false, Public_data.DMA -> modelist_dma_false_false
         end
     in
     let state, output =
