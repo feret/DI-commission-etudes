@@ -1,4 +1,4 @@
-type dpt = Maths | PE
+type dpt = Maths | PE | DRI
 type access_type =
        GPS of dpt option | Backup | Preempt | Warn
 
@@ -14,12 +14,14 @@ let string_of_dpt_opt =
   | None -> ""
   | Some Maths -> "&dept=maths"
   | Some PE -> "&dept=pe"
+  | Some DRI -> "&dept=dri"
 
 let profiling_label_of_dpt_opt =
   function
   | None -> None
   | Some Maths -> Some "DMA"
   | Some PE -> Some "PE"
+  | Some DRI -> Some "DRI"
 
 let build_output
     pos ~has_promo
@@ -461,9 +463,10 @@ let modelist_gen b1 b2 =
   add_to_list b1 b2 Preempt
     (add_to_list b1 b2 (GPS None)
        (add_to_list b1 b2 (GPS (Some Maths))
-          (add_to_list b1 b2 (GPS (Some PE))
-             (add_to_list true true Warn
-                (add_to_list b1 b2 Backup [])))))
+          (add_to_list b1 b2 (GPS (Some DRI))
+             (add_to_list b1 b2 (GPS (Some PE))
+                (add_to_list true true Warn
+                   (add_to_list b1 b2 Backup []))))))
 
 let modelist_true_true =
   modelist_gen true true
