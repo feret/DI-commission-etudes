@@ -7,7 +7,7 @@ let dens_two =
       Public_data.dens_key = "dens_two";
       Public_data.nb_inscription_list=[1;2];
       Public_data.dens_short= "DENS";
-      Public_data.which_year_string="première et deuxième année";
+      Public_data.which_year_string="premiÃ¨re et deuxiÃ¨me année";
   }
 
 let l =
@@ -153,6 +153,7 @@ let diplomes_phys =
     [dens_two]
 
 let print_sous_commission
+    commission_rep
     commission_year
     commission_date
     direction_key
@@ -160,13 +161,43 @@ let print_sous_commission
     todo
     state
   =
+  let state, main_rep =
+    Remanent_state.get_cloud_repository state
+  in
+  let state, main_com_rep =
+    Remanent_state.get_main_commission_rep state
+  in
+  let main_com_rep =
+    match main_rep, main_com_rep with
+    | "",a | a,"" -> a
+    | a,b -> Printf.sprintf "%s/%s" a b
+  in
+  let commission_rep =
+    match main_com_rep,commission_rep with
+    | "",a | a,"" -> a
+    | a,b -> Printf.sprintf "%s/%s" a b
+  in
+  let sous_commission_rep =
+    match commission_rep,sous_commission_key with
+    | "",a | a,"" -> a
+    | a,b -> Printf.sprintf "%s/%s" a b
+  in
+  let _attestation_rep, pv_rep, _transcripts_rep =
+    match sous_commission_rep with
+    | "" -> "attestations","comptes-rendus","transcripts"
+    | a -> Printf.sprintf "%s/attestations" a,
+           Printf.sprintf "%s/comptes-rendus" a,
+           Printf.sprintf "%s/transcripts" a
+  in
   let state, dpt =
     Remanent_state.get_main_dpt state
   in
   let dpt,direction_etude,diplomes,footpage_string,footcolor  =
     match dpt with
-    | Public_data.DI -> People.dpt_di,direction_etude,diplomes,People.footpage_string,Color.digreen
-    | Public_data.DMA -> People.dpt_dma,direction_etude_dma,diplomes_dma,People.footpage_string_dma,Color.duckblue
+    | Public_data.DI ->
+      People.dpt_di,direction_etude,diplomes,People.footpage_string,Color.digreen
+    | Public_data.DMA ->
+      People.dpt_dma,direction_etude_dma,diplomes_dma,People.footpage_string_dma,Color.duckblue
     | Public_data.ENS ->
       People.dpt_di,Public_data.StringMap.empty,Public_data.StringMap.empty,"",Color.digreen
     | Public_data.IBENS ->
@@ -288,7 +319,8 @@ let print_sous_commission
               ~nb_inscription_list:dip.Public_data.nb_inscription_list
           in
           let state =
-            Latex_engine.latex_opt_to_pdf state ~times:2 ~input
+            Latex_engine.latex_opt_to_pdf
+              state  ~save_rep:[pv_rep] ~times:2 ~input
           in
           state
         in
@@ -331,7 +363,8 @@ let print_sous_commission
             state
         in
         let state =
-          Latex_engine.latex_opt_to_pdf ~times:2 state ~input
+          Latex_engine.latex_opt_to_pdf
+            ~times:2 state ~input
         in
         let state =
           match direction.Public_data.direction_signature with
@@ -364,7 +397,9 @@ let print_sous_commission
               state
           in
           let state =
-            Latex_engine.latex_opt_to_pdf ~times:2 state ~input
+            Latex_engine.latex_opt_to_pdf
+            ~save_rep:[pv_rep]
+            ~times:2 state ~input
           in
           state
         in state
@@ -374,6 +409,7 @@ let print_sous_commission
     end
 
 let prepare_commission
+    ~commission_rep
     ~annee
     ~date_complete
     ?signataires:(persons=["MP";"JF";"LB"])
@@ -386,6 +422,7 @@ let prepare_commission
             List.fold_left
               (fun state todo ->
                  print_sous_commission
+                   commission_rep
                    annee
                    date_complete
                    direction

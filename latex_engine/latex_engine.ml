@@ -78,12 +78,15 @@ let latex_to_pdf ?save_rep ?rev ?times:(times=1) ~input state =
     let state =
       match save_rep with
       | None -> state
-      | Some save_rep ->
-        let state,save_rep  =
-          Safe_sys.rec_mk_when_necessary __POS__ state save_rep
-        in
-        Safe_sys.cp __POS__ state
-          (Format.sprintf "%s.pdf" basename) save_rep
+      | Some save_rep_list ->
+        List.fold_left
+          (fun state save_rep ->
+             let state,save_rep  =
+               Safe_sys.rec_mk_when_necessary __POS__ state save_rep
+             in
+             Safe_sys.cp __POS__ state
+               (Format.sprintf "%s.pdf" basename) save_rep)
+          state save_rep_list 
     in
     Safe_sys.chdir __POS__ state current
 

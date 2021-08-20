@@ -60,7 +60,8 @@ type parameters =
     error_log_file: string;
     comma_symbol: char;
     current_academic_year: Public_data.annee;
-    commission: (string * Public_data.annee) option;
+    commissions_repository: string;
+    commission: (string * string * Public_data.annee) option;
     target: string option;
     repository_for_bourses: string;
     repository_for_tuteurs: string;
@@ -179,7 +180,8 @@ let parameters =
     error_log_file = "error.txt";
     comma_symbol = ',';
     current_academic_year = "2020";
-    commission = Some ("18 septembre 2020", "2019");
+    commissions_repository = "di/scolarite/commissions_etudes";
+    commission = Some ("16 septembre 2021", "20210916", "2020");
     target = None ;
     signature = "feret+tampon.pdf";
     language  = Public_data.French;
@@ -191,7 +193,8 @@ let set_dma parameters =
   {
     parameters with
     main_dpt = Public_data.DMA ;
-    commission = Some ("23 juin 2021", "2020");
+    commissions_repository = "dma/commissions_etudes";
+    commission = Some ("23 juin 2021", "20210623", "2020");
     local_repository = "dma/suivi_pedagogique" ;
     enspsl_logo = "LOGOs/ENSPSL.pdf" ;
     scholarships_repository = "dma/scolarite/ELEVES" ;
@@ -1484,6 +1487,9 @@ let get_current_academic_year t =
 
 let get_commission t =
   t, t.parameters.commission
+
+let get_main_commission_rep t =
+  t, t.parameters.commissions_repository
 
 let get_pictures_prefix t =
   t, t.parameters.repository_to_access_pictures

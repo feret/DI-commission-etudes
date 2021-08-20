@@ -5347,7 +5347,7 @@ let export_transcript
     let state, p, com_year  =
       match Remanent_state.get_commission state
       with
-      | state, Some (_,a) ->
+      | state, Some (_,_, a) ->
         state, (fun y -> y<=a), Some a
       | state, None ->
         state, (fun _ -> false), None

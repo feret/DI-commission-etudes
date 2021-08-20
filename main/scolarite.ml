@@ -166,7 +166,7 @@ let state =
                      ~firstname ~lastname ?promo state
                  in
                  let rep = Printf.sprintf "%s/" rep in
-                 state, Some rep
+                 state, Some [rep]
                | state, false ->
                  state, None
              in
@@ -199,14 +199,14 @@ let state =
                        ~firstname ~lastname ?promo state
                    in
                    let rep = Printf.sprintf "%s/" rep in
-                   state, Some rep
+                   state, Some [rep]
                  in
                  Latex_engine.latex_opt_to_pdf
                    ?save_rep ~rev:true state ~input
              in
              state
            | state, false -> state
-         in 
+         in
          let output =
            (fst output0, (Tools.basename (snd output0))^".all.tex")
          in
@@ -298,7 +298,7 @@ let state =
     Remanent_state.get_commission state
   with
   | state, None -> state
-  | state, Some (commission_date,commission_year) ->
+  | state, Some (commission_date,commission_rep,commission_year) ->
     begin
       let state, dpt, signataires =
         match
@@ -330,6 +330,7 @@ let state =
       in
       let state =
         Commissions.prepare_commission
+          ~commission_rep
           ~signataires
           ~annee:commission_year
           ~date_complete:commission_date
