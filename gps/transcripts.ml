@@ -5524,7 +5524,8 @@ let export_transcript
                         Public_data.diplome_mention =
                           mention
                        ;
-                        Public_data.diplome_recu = validated
+                        Public_data.diplome_recu = validated ;
+                        Public_data.diplome_output = (rep, snd output); 
                        }
               )
               state

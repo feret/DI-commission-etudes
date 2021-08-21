@@ -12,7 +12,9 @@ type dump =
                    string)
                   list ->
 ?dpt:Public_data.main_dpt ->
-  Gen.dump
+Gen.dump
+
+let save _ b = b
 
 module type ReportMentors =
 sig
@@ -65,6 +67,7 @@ struct
     in
     let filter = Gen.filter_mentoring_list in
     let get = I.get in
+    let save = I.save in 
     let default_file_name = I.default_file_name in
     let get_repository = I.get_repository in
     let firstname = studentfirstname in
@@ -74,7 +77,7 @@ struct
       ?promo ?dpt
       ?output_repository ?prefix ?file_name ?event_opt ?title
       ~cmp ~filter ~headers ~columns ~get ~default_file_name
-      ~get_repository
+      ~get_repository ~save
       state
 
   let string_of_gender m =
@@ -494,4 +497,5 @@ module ReportListMentors =
       let get = Remanent_state.get_mentors
       let get_repository =
         Remanent_state.get_repository_to_dump_mentors
+      let save = save
     end)

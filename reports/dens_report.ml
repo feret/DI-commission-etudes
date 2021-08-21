@@ -60,6 +60,7 @@ struct
     in
     let filter = Gen.filter_dens ?nb_inscription_list in
     let get = I.get in
+    let save = I.save in
     let default_file_name = I.default_file_name in
     let get_repository = I.get_repository in
     Gen.dump_elts
@@ -70,6 +71,7 @@ struct
       ~cmp ~filter ~headers ~columns ~get ~default_file_name
       ~get_repository
       ~headerextralength:5
+      ~save
       state
 
 
@@ -169,4 +171,6 @@ module DensReport =
       let get = Remanent_state.get_dens
       let get_repository =
         Remanent_state.get_repository_to_dump_dens
+      let save _ a = a
+
     end)

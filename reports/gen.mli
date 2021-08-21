@@ -65,12 +65,13 @@ val dump_elts:
   cmp:('a -> 'a -> int) list ->
   headers:(string list * ('b -> string) * ('a -> 'b)) list ->
   columns:(string list * ('a -> string)) list ->
+  save:('a -> Remanent_state.t -> Remanent_state.t) ->
   Remanent_state.t ->
   Remanent_state.t * (string * string) option
 
 val filter:
   ?dpt:Public_data.main_dpt ->
-  ?dpt_gps_code:string -> 
+  ?dpt_gps_code:string ->
   ?firstname:string ->
   ?lastname:string ->
   ?codegps:string ->
@@ -114,4 +115,5 @@ sig
   val default_file_name: string
   val get:(Remanent_state.t -> Remanent_state.t * elt list)
   val get_repository:(Remanent_state.t -> Remanent_state.t * string)
+  val save: elt -> Remanent_state.t -> Remanent_state.t
 end

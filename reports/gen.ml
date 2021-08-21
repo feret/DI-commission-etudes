@@ -50,7 +50,7 @@ let dump_elts
     ?headcolor
     ?footcolor
     ~get ~filter ~get_repository ~default_file_name
-    ~cmp ~headers ~columns state  =
+    ~cmp ~headers ~columns ~save state  =
   let state =
     Remanent_state.open_event_opt event_opt state
   in
@@ -85,6 +85,13 @@ let dump_elts
            state, l
       )
       (state,[]) (List.rev elts)
+  in
+  let state =
+    List.fold_left
+      (fun state elt ->
+         save elt state
+      )
+      state filtered_elts
   in
   match filtered_elts with
   | [] -> state, None
@@ -426,4 +433,5 @@ sig
   val default_file_name: string
   val get:(Remanent_state.t -> Remanent_state.t * elt list)
   val get_repository:(Remanent_state.t -> Remanent_state.t * string)
+  val save: elt -> Remanent_state.t -> Remanent_state.t
 end
