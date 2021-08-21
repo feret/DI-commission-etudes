@@ -2233,25 +2233,28 @@ let gen_master
     diplome' gps stage d =
   List.exists
     (fun diplome ->
-       (
-         (Tools.map_opt String.trim diplome.diplome_diplome)=Some diplome'
-         &&
-         (Tools.map_opt String.trim diplome.niveau) = Some "2")
-       || diplome.diplome_diplome=Some gps)
+       ((Tools.map_opt String.trim diplome.niveau) = Some "2")
+       &&
+       ((Tools.map_opt String.trim diplome.diplome_diplome)=Some diplome'
+       ||
+       List.exists
+         (fun gps -> diplome.diplome_diplome=Some gps)
+         gps)
+    )
     d.diplomes
   ||
   List.exists
     (fun cours -> cours.code_cours = Some stage)
     d.cours
 
-let mpri = gen_master "M-MPRI" "gps62263" "INFO-M2-MPRI200-S2"
-let mva = gen_master "M-MVA" "gps2228" "INFO-M2-MVASTAGE-S2"
-let iasd = gen_master "M-IASD" "gps76822" "INFO-M2-IASD-STG-S2"
-let mash = gen_master "M-MASH" "gps59622" "INFO-M2-MASH-STG-S2"
-let mint = gen_master "M-Interaction" "gps78864" "XT 00000000000647168"
-let mlmfi = gen_master "M-LMFI" "gps2005" "NOWAY"
-let mimalis = gen_master "M-ScVivant" "" "BIO-M2-E14-S2"
-
+let mpri = gen_master "M-MPRI" ["gps62263";"gps78782"] "INFO-M2-MPRI200-S2"
+let mva = gen_master "M-MVA" ["gps2228"] "INFO-M2-MVASTAGE-S2"
+let iasd = gen_master "M-IASD" ["gps76822";"gps78762"] "INFO-M2-IASD-STG-S2"
+let mash = gen_master "M-MASH" ["gps59622"] "INFO-M2-MASH-STG-S2"
+let mint = gen_master "M-Interaction" ["gps78864"] "XT 00000000000647168"
+let mlmfi = gen_master "M-LMFI" ["gps2005";"gps3579"] "NOWAY"
+let mimalis = gen_master "M-ScVivant" [] "BIO-M2-E14-S2"
+let mphylo = gen_master "M-Philo" ["gps07302"] "NOWAY"
 let string_of_stringopt s_opt =
   match s_opt with
   | None -> ""
@@ -2567,6 +2570,8 @@ let translate_diplome
       state, (Some "LMFI", "M2 LMFI", dpt_info, false)
     else if mimalis situation then
       state, (Some "IMALIS","M2 IMALIS", dpt_bio,false)
+    else if mphylo situation then
+      state, (Some "PHILOSorbonne","M2 Phylo (SU)", dpt_info, false)
     else
       check_dpt __POS__ state origine
         "M" "M1" code_cours year
@@ -3814,7 +3819,7 @@ let program
       state, Some Color.orange
     | Some ("imalis") ->
       state, Some Color.green
-    | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" | "lmfi") ->
+    | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" | "lmfi" | "PHILOSorbonne") ->
       color_of_dpt
         who __POS__ state
         (Public_data.string_of_dpt dpt)
