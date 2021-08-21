@@ -597,4 +597,4 @@ let find_starting_with
 let get_option state get opt =
   match opt with
   | None -> get state
-  | Some x -> state, x 
+  | Some x -> state, x

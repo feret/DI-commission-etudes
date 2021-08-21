@@ -1767,3 +1767,54 @@ let file_retriever_fail t =
     kill_file_retriever t
   else
     t
+
+let get_commission_rep_from_key ?commission_rep sous_commission_short state =
+  let state, commission_rep =
+    match commission_rep
+    with
+    | Some a -> state, Some a
+    | None ->
+      match get_commission state with
+      | state, None -> state, None
+      | state, Some (_,x,_) -> state, Some x
+  in
+  match commission_rep with
+  | None -> state, None
+  | Some commission_rep ->
+    let state, main_rep =
+      get_cloud_repository state
+    in
+    let state, main_com_rep =
+      get_main_commission_rep state
+    in
+    let main_com_rep =
+      match main_rep, main_com_rep with
+      | "",a | a,"" -> a
+      | a,b -> Printf.sprintf "%s/%s" a b
+    in
+    let commission_rep =
+      match main_com_rep,commission_rep with
+      | "",a | a,"" -> a
+      | a,b -> Printf.sprintf "%s/%s" a b
+    in
+    let sous_commission_rep =
+      match commission_rep,sous_commission_short with
+      | "",a | a,"" -> a
+      | a,b -> Printf.sprintf "%s/%s" a b
+    in
+    state,
+    Some (match sous_commission_rep with
+        | "" -> "attestations","comptes-rendus","transcripts"
+        | a -> Printf.sprintf "%s/attestations" a,
+               Printf.sprintf "%s/comptes-rendus" a,
+               Printf.sprintf "%s/transcripts" a)
+
+let get_commission_rep ?commission_rep ~sous_commission state =
+  let sous_commission_short =
+    match
+      sous_commission
+    with
+    | Public_data.Diplome_ENS dip -> dip.Public_data.dens_short
+    | Public_data.Diplome_National dip -> dip.Public_data.dn_short
+  in
+  get_commission_rep_from_key ?commission_rep sous_commission_short state

@@ -47,6 +47,7 @@ val dump_attestation:
   ?output_repository:string ->
   ?prefix:string ->
   ?output_file_name:string ->
+  ?date:string -> 
   signataire:string  ->
   Public_data.diplome_national ->
   Remanent_state.t ->

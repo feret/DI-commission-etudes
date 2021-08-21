@@ -2907,7 +2907,7 @@ let add_mean state key compensation course year map =
 
 let add_mean_diplome state ~dens ~natt ~decision ~exception_cursus d mean_opt mention_opt validated_opt year mean =
   add_mean_empty state ~dens ~natt ~decision ~exception_cursus
-    d year (fst mean, (d,mean_opt,mention_opt,validated_opt)::(snd mean))
+    d year (fst mean, (d,mean_opt,mention_opt,validated_opt,year)::(snd mean))
 
 let get_origine who promo gps_file state =
   match
@@ -5415,12 +5415,12 @@ let export_transcript
           let list_national_diploma = snd mean in
           let state =
             List.fold_left
-              (fun state (key, moyenne_opt, mention_opt, validated_opt)  ->
+              (fun state (key, moyenne_opt, mention_opt, validated_opt, val_year)  ->
                  match
                    StringOptMap.find_opt key (fst mean)
                  with
                  | None -> state
-                 | Some (_,l,year) ->
+                 | Some (_,l,_) ->
                    let state, total, ects_qui_comptent, ects =
                      List.fold_left
                        (fun (state, total, ects_qui_comptent,
@@ -5515,7 +5515,7 @@ let export_transcript
                         Public_data.diplome_moyenne =
                           mean ;
                         Public_data.diplome_year =
-                          string_of_int year ;
+                          string_of_int val_year ;
                         Public_data.diplome_mention =
                           mention
                        ;

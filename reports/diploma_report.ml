@@ -229,9 +229,15 @@ let dump_attestation
   ?output_repository
   ?prefix
   ?output_file_name
+  ?date
   ~signataire
   diplome
   state =
+  let date =
+    match date with
+    | None -> "\\today"
+    | Some x -> x
+  in
   let state, main_dpt =
     Remanent_state.get_main_dpt state
   in
@@ -470,7 +476,7 @@ let dump_attestation
           libelle
           dir_dpt
           "VALIDÉE"
-          "\\today", sign
+          date, sign
       in
       let _ = Loggers.fprintf logger  "%s" (fst body) in
       let _ = Loggers.fprintf_verbatim logger  "%s" (snd body) in
@@ -495,18 +501,31 @@ let dump_attestations
   in
   List.fold_left
     (fun state diplome ->
+       let state, save_rep, date =
+         match
+           Remanent_state.get_commission_rep_from_key
+             diplome.Public_data.diplome_niveau state
+
+         with
+         | state, None -> state, [], None
+         | state, Some (attestation_rep,_ , _) ->
+           match Remanent_state.get_commission state with
+           | state, None -> state, [attestation_rep], None
+           | state, Some (com,_,_) -> state, [attestation_rep], Some com
+       in
        List.fold_left
          (fun state signataire ->
             let
               state, input =
               dump_attestation
                 ~signataire
+                ?date
                 ?output_repository
                 ?prefix
                 diplome
                 state
             in
-            Latex_engine.latex_opt_to_pdf state ~input)
+            Latex_engine.latex_opt_to_pdf ~save_rep state ~input)
          state
          signataires)
     state

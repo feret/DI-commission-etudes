@@ -134,4 +134,4 @@ val find_starting_with:
   prefix:string ->
   between:char -> 'a -> string -> 'b * string option
 
-val get_option: 'state -> ('state -> 'state * 'a) -> 'a option -> 'state * 'a 
+val get_option: 'state -> ('state -> 'state * 'a) -> 'a option -> 'state * 'a
