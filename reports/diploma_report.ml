@@ -197,7 +197,7 @@ module DiplomaReport =
         let y = d.Public_data.diplome_year in
         match Remanent_state.get_commission state with
         | state, None -> state
-        | state, Some (_,_,i) ->
+        | state, Some (_,i) ->
           if i=y then
             match
               Remanent_state.get_commission_rep_from_key
@@ -560,11 +560,11 @@ let dump_attestations
              diplome.Public_data.diplome_niveau state
 
          with
-         | state, None -> state, [], None
+         | state, None -> state, None, None
          | state, Some (attestation_rep,_ , _) ->
            match Remanent_state.get_commission state with
-           | state, None -> state, [attestation_rep], None
-           | state, Some (com,_,_) -> state, [attestation_rep], Some com
+           | state, None -> state, Some attestation_rep, None
+           | state, Some (com,_) -> state, Some attestation_rep, Some com
        in
        List.fold_left
          (fun state signataire ->
@@ -578,7 +578,18 @@ let dump_attestations
                 diplome
                 state
             in
-            Latex_engine.latex_opt_to_pdf ~save_rep state ~input)
+            let state =
+              match input, save_rep with
+              | None, _ | _, None -> state
+              | Some (input_rep, file_name), Some output_rep  ->
+                let file_name = Copy.pdf_file file_name in
+                let state =
+                  Remanent_state.push_copy
+                    ~input_rep ~output_rep ~file_name state
+                in
+                state
+            in
+            Latex_engine.latex_opt_to_pdf state ~input)
          state
          signataires)
     state

@@ -158,20 +158,24 @@ let state =
                Transcripts.export_transcript
                  ~output state gps
              in
-             let state, save_rep =
-               match Remanent_state.is_main_dpt_dma state with
-               | state, true ->
+             let state =
+               match input, Remanent_state.is_main_dpt_dma state with
+               | Some (input_rep,file_name), (state, true) ->
                  let state,rep  =
                    Remanent_state.get_student_personnal_repository
                      ~firstname ~lastname ?promo state
                  in
-                 let rep = Printf.sprintf "%s/" rep in
-                 state, Some [rep]
-               | state, false ->
-                 state, None
+                 let output_rep = Printf.sprintf "%s/" rep in
+                 let file_name = Copy.pdf_file file_name in
+                 let state =
+                   Remanent_state.push_copy
+                     ~input_rep ~output_rep ~file_name state
+                 in
+                 state
+               | _, (state, false) | None, (state, _) ->
+                 state
              in
-             Latex_engine.latex_opt_to_pdf
-               ?save_rep ~rev:true state ~input
+             Latex_engine.latex_opt_to_pdf ~rev:true state ~input
          in
          let state =
            match Remanent_state.is_main_dpt_di state
@@ -193,16 +197,21 @@ let state =
                    Transcripts.export_transcript
                      ~signature ~output state gps
                  in
-                 let state, save_rep =
-                   let state,rep  =
-                     Remanent_state.get_student_personnal_repository
-                       ~firstname ~lastname ?promo state
-                   in
-                   let rep = Printf.sprintf "%s/" rep in
-                   state, Some [rep]
+                 let state =
+                   match input with
+                   | None -> state
+                   | Some (input_rep,file_name) ->
+                     let file_name = Copy.pdf_file file_name in
+                     let state,rep  =
+                       Remanent_state.get_student_personnal_repository
+                         ~firstname ~lastname ?promo state
+                     in
+                     let output_rep = Printf.sprintf "%s/" rep in
+                     Remanent_state.push_copy
+                       ~input_rep ~output_rep ~file_name state
                  in
                  Latex_engine.latex_opt_to_pdf
-                   ?save_rep ~rev:true state ~input
+                   ~rev:true state ~input
              in
              state
            | state, false -> state
@@ -298,8 +307,11 @@ let state =
     Remanent_state.get_commission state
   with
   | state, None -> state
-  | state, Some (commission_date,commission_rep,commission_year) ->
+  | state, Some (commission_date,commission_year) ->
     begin
+      let state, commission_rep =
+        Remanent_state.get_main_commission_rep state
+      in
       let state, dpt, signataires =
         match
           Remanent_state.get_main_dpt state
@@ -338,7 +350,7 @@ let state =
       in
       state
     end
-
+let state = Remanent_state.empty_copy ~copy:(Copy.copy) state 
 let state = Report.dump_issues state
 let state = Report.warn state
 let state =

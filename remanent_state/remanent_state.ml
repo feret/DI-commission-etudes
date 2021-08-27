@@ -61,7 +61,7 @@ type parameters =
     comma_symbol: char;
     current_academic_year: Public_data.annee;
     commissions_repository: string;
-    commission: (string * string * Public_data.annee) option;
+    commission: (string * Public_data.annee) option;
     target: string option;
     repository_for_bourses: string;
     repository_for_tuteurs: string;
@@ -180,8 +180,8 @@ let parameters =
     error_log_file = "error.txt";
     comma_symbol = ',';
     current_academic_year = "2020";
-    commissions_repository = "di/scolarite/commissions_etudes";
-    commission = Some ("16 septembre 2021", "20210916", "2020");
+    commissions_repository = "commissions_des_etudes";
+    commission = Some ("16 septembre 2021", "2020");
     target = None ;
     signature = "feret+tampon.pdf";
     language  = Public_data.French;
@@ -193,8 +193,8 @@ let set_dma parameters =
   {
     parameters with
     main_dpt = Public_data.DMA ;
-    commissions_repository = "dma/commissions_etudes";
-    commission = Some ("23 juin 2021", "20210623", "2020");
+    commissions_repository = "commissions_des_etudes";
+    commission = Some ("23 juin 2021",  "2020");
     local_repository = "dma/suivi_pedagogique" ;
     enspsl_logo = "LOGOs/ENSPSL.pdf" ;
     scholarships_repository = "dma/scolarite/ELEVES" ;
@@ -274,6 +274,7 @@ type t =
     error_logger: Loggers.t option ;
     data: data;
     date: string;
+    copy_stack:(string*string*string) list;
   }
 
 let log_mkdir t = t,t.parameters.log_mkdir
@@ -841,6 +842,7 @@ let init () =
          fic)
   in
   let data = empty_data in
+  let copy_stack = [] in
   let prefix = "" in
   let state =
     {
@@ -853,6 +855,7 @@ let init () =
       error_logger ;
       data ;
       date ;
+      copy_stack ;
     }
   in
   let state = get_option state in
@@ -1769,20 +1772,11 @@ let file_retriever_fail t =
     t
 
 let get_commission_rep_from_key ?commission_rep sous_commission_short state =
-  let state, commission_rep =
-    match commission_rep
-    with
-    | Some a -> state, Some a
-    | None ->
-      match get_commission state with
-      | state, None -> state, None
-      | state, Some (_,x,_) -> state, Some x
-  in
   match commission_rep with
   | None -> state, None
   | Some commission_rep ->
     let state, main_rep =
-      get_cloud_repository state
+      get_dated_output_repository state
     in
     let state, main_com_rep =
       get_main_commission_rep state
@@ -1818,3 +1812,20 @@ let get_commission_rep ?commission_rep ~sous_commission state =
     | Public_data.Diplome_National dip -> dip.Public_data.dn_short
   in
   get_commission_rep_from_key ?commission_rep sous_commission_short state
+
+let push_copy ~input_rep ~output_rep ~file_name t =
+  {t with copy_stack = (input_rep,file_name,output_rep)::t.copy_stack}
+
+let is_empty_copy_stack t = t.copy_stack = []
+
+let pop_copy ~copy t =
+  match t.copy_stack with
+  | [] ->
+    warn __POS__ "Copy stack is empty" Exit t
+  | (input_rep,file_name,output_rep)::tail ->
+    let t = {t with copy_stack = tail} in
+      copy ~input_rep ~file_name ~output_rep t
+
+let rec empty_copy ~copy t =
+  if is_empty_copy_stack t then t
+  else empty_copy ~copy (pop_copy ~copy t)

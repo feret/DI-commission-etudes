@@ -5352,7 +5352,7 @@ let export_transcript
     let state, p, com_year  =
       match Remanent_state.get_commission state
       with
-      | state, Some (_,_, a) ->
+      | state, Some (_, a) ->
         state, (fun y -> y<=a), Some a
       | state, None ->
         state, (fun _ -> false), None
@@ -5525,7 +5525,7 @@ let export_transcript
                           mention
                        ;
                         Public_data.diplome_recu = validated ;
-                        Public_data.diplome_output = (rep, snd output); 
+                        Public_data.diplome_output = (rep, snd output);
                        }
               )
               state

@@ -223,8 +223,8 @@ let print_sous_commission
           Remanent_state.get_commission_rep
             ~commission_rep ~sous_commission state
         with
-        | state, None -> state, []
-        | state, Some (_, pv_rep, _) -> state, [pv_rep]
+        | state, None -> state, None
+        | state, Some (_, pv_rep, _) -> state, Some pv_rep
       in
       let state, enspsl = Remanent_state.get_ENSPSL_logo state in
       let headpage s _ =
@@ -299,8 +299,16 @@ let print_sous_commission
               ~nb_inscription_list:dip.Public_data.nb_inscription_list
           in
           let state =
+            match input, save_rep with
+            | None,_ | _, None -> state
+            | Some (input_rep,file_name), Some output_rep ->
+              let file_name = Copy.pdf_file file_name in
+              Remanent_state.push_copy
+                ~input_rep ~output_rep ~file_name state
+          in
+          let state =
             Latex_engine.latex_opt_to_pdf
-              state  ~save_rep ~times:2 ~input
+              state  ~times:2 ~input
           in
           state
         in
@@ -377,8 +385,15 @@ let print_sous_commission
               state
           in
           let state =
+            match input, save_rep with
+            | None,_ | _, None -> state
+            | Some (input_rep,file_name), Some output_rep ->
+              let file_name = Copy.pdf_file file_name in
+              Remanent_state.push_copy
+                ~input_rep ~output_rep ~file_name state
+          in
+          let state =
             Latex_engine.latex_opt_to_pdf
-            ~save_rep
             ~times:2 state ~input
           in
           state
