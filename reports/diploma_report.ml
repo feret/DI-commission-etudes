@@ -473,7 +473,7 @@ let dump_attestation
           state, Format.sprintf
           "\\IfFileExists{%s}%%\n\ {\ {\\includegraphics{%s}}}%%\n\ {}\\end{center}\\vfill"
           s s
-        | None -> state, "\\vfill"
+        | None -> state, "\\end{center}\\vfill"
       in
       let year = diplome.Public_data.diplome_year in
       let level = diplome.Public_data.diplome_niveau in
