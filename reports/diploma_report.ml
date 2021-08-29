@@ -193,7 +193,7 @@ module DiplomaReport =
       let get_repository =
         Remanent_state.get_repository_to_dump_national_diplomas
       let save d state =
-        let rep,file = d.Public_data.diplome_output in
+        let input_rep,file_name = d.Public_data.diplome_output in
         let y = d.Public_data.diplome_year in
         match Remanent_state.get_commission state with
         | state, None -> state
@@ -211,33 +211,17 @@ module DiplomaReport =
                 else
                   "a_discuter"
               in
-              let rep' =
+              let output_rep =
                 match rep',suf with
                 | a,"" | "",a -> a
                 | a,b -> Printf.sprintf "%s/%s"  a b
               in
-              let input =
-                match rep,file with
-                | "",a -> a
-                | a,b -> Printf.sprintf "%s/%s" a b
-              in
-              let state,rep' =
-                Safe_sys.rec_mk_when_necessary
-                  __POS__
-                  state
-                  rep'
-              in
-              let output =
-                match rep',file with
-                | "",a -> a
-                | a,b -> Printf.sprintf "%s/%s" a b
-              in
               let state =
-                Safe_sys.cp
-                  __POS__
+                Remanent_state.push_copy
+                  ~input_rep
+                  ~file_name
+                  ~output_rep
                   state
-                  input
-                  output
               in
               state
           else
@@ -580,7 +564,12 @@ let dump_attestations
             in
             let state =
               match input, save_rep with
-              | None, _ | _, None -> state
+              | None, _ | _, None ->
+                Remanent_state.warn
+                  __POS__
+                  "MISSING INFO"
+                  Exit
+                  state
               | Some (input_rep, file_name), Some output_rep  ->
                 let file_name = Copy.pdf_file file_name in
                 let state =

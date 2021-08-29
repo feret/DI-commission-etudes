@@ -5,7 +5,7 @@ let copy ~input_rep ~file_name ~output_rep state =
   let state =
     Remanent_state.warn
       __POS__
-      (Printf.sprintf "COPY %s.%s -> %s.%s" input_rep file_name output_rep file_name)
+      (Printf.sprintf "COPY %s %s -> %s %s" input_rep file_name output_rep file_name)
       Exit
       state
   in
