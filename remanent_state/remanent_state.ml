@@ -1332,7 +1332,7 @@ let get_cursus ~year ~level ?dpt pos t =
   | None ->
     let msg =
       Format.sprintf
-        "Pas de cursus pour %s%s en %s dans les fichiers du département"
+        "Pas de cursus pour %s%s en %s dans les fichiers du dÃ©partement"
         level
         (match dpt with
          | None -> "" | Some i -> Format.sprintf " %s" (Public_data.string_of_dpt i))
@@ -1772,36 +1772,38 @@ let file_retriever_fail t =
     t
 
 let get_commission_rep_from_key ?commission_rep sous_commission_short state =
-  match commission_rep with
-  | None -> state, None
-  | Some commission_rep ->
-    let state, main_rep =
-      get_dated_output_repository state
-    in
-    let state, main_com_rep =
-      get_main_commission_rep state
-    in
-    let main_com_rep =
-      match main_rep, main_com_rep with
-      | "",a | a,"" -> a
-      | a,b -> Printf.sprintf "%s/%s" a b
-    in
-    let commission_rep =
-      match main_com_rep,commission_rep with
-      | "",a | a,"" -> a
-      | a,b -> Printf.sprintf "%s/%s" a b
-    in
-    let sous_commission_rep =
-      match commission_rep,sous_commission_short with
-      | "",a | a,"" -> a
-      | a,b -> Printf.sprintf "%s/%s" a b
-    in
-    state,
-    Some (match sous_commission_rep with
-        | "" -> "attestations","comptes-rendus","transcripts"
-        | a -> Printf.sprintf "%s/attestations" a,
-               Printf.sprintf "%s/comptes-rendus" a,
-               Printf.sprintf "%s/transcripts" a)
+  let state, commission_rep =
+    match commission_rep with
+    | None -> get_main_commission_rep state
+    | Some commission_rep -> state, commission_rep
+  in
+  let state, main_rep =
+    get_dated_output_repository state
+  in
+  let state, main_com_rep =
+    get_main_commission_rep state
+  in
+  let main_com_rep =
+    match main_rep, main_com_rep with
+    | "",a | a,"" -> a
+    | a,b -> Printf.sprintf "%s/%s" a b
+  in
+  let commission_rep =
+    match main_com_rep,commission_rep with
+    | "",a | a,"" -> a
+    | a,b -> Printf.sprintf "%s/%s" a b
+  in
+  let sous_commission_rep =
+    match commission_rep,sous_commission_short with
+    | "",a | a,"" -> a
+    | a,b -> Printf.sprintf "%s/%s" a b
+  in
+  state,
+  match sous_commission_rep with
+      | "" -> "attestations","comptes-rendus","transcripts"
+      | a -> Printf.sprintf "%s/attestations" a,
+             Printf.sprintf "%s/comptes-rendus" a,
+             Printf.sprintf "%s/transcripts" a
 
 let get_commission_rep ?commission_rep ~sous_commission state =
   let sous_commission_short =

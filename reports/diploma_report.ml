@@ -203,8 +203,7 @@ module DiplomaReport =
               Remanent_state.get_commission_rep_from_key
                 d.Public_data.diplome_niveau state
             with
-            | state, None -> state
-            | state, Some (_,_,rep') ->
+            | state, (_,_,rep') ->
               let suf =
                 if d.Public_data.diplome_recu then
                   "ras"
@@ -538,17 +537,16 @@ let dump_attestations
   in
   List.fold_left
     (fun state diplome ->
-       let state, save_rep, date =
+       let state, output_rep, date =
          match
            Remanent_state.get_commission_rep_from_key
              diplome.Public_data.diplome_niveau state
 
          with
-         | state, None -> state, None, None
-         | state, Some (attestation_rep,_ , _) ->
+         | state, (attestation_rep,_ , _) ->
            match Remanent_state.get_commission state with
-           | state, None -> state, Some attestation_rep, None
-           | state, Some (com,_) -> state, Some attestation_rep, Some com
+           | state, None -> state, attestation_rep, None
+           | state, Some (com,_) -> state, attestation_rep, Some com
        in
        List.fold_left
          (fun state signataire ->
@@ -563,14 +561,14 @@ let dump_attestations
                 state
             in
             let state =
-              match input, save_rep with
-              | None, _ | _, None ->
+              match input with
+              | None->
                 Remanent_state.warn
                   __POS__
-                  "MISSING INFO"
+                  "MISSING Info input"
                   Exit
                   state
-              | Some (input_rep, file_name), Some output_rep  ->
+              | Some (input_rep, file_name) ->
                 let file_name = Copy.pdf_file file_name in
                 let state =
                   Remanent_state.push_copy

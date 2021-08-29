@@ -540,9 +540,9 @@ val is_main_dpt_dma: t -> t * bool
 val get_file_retriever_skip: t -> t * bool
 val file_retriever_fail: t -> t
 
-val get_commission_rep_from_key: ?commission_rep:string -> string -> t -> t * (string * string * string) option
+val get_commission_rep_from_key: ?commission_rep:string -> string -> t -> t * (string * string * string)
 
-val get_commission_rep: ?commission_rep:string -> sous_commission:Public_data.sous_commission -> t -> t * (string * string * string) option
+val get_commission_rep: ?commission_rep:string -> sous_commission:Public_data.sous_commission -> t -> t * (string * string * string) 
 
 val push_copy: input_rep:string -> output_rep:string -> file_name:string -> t -> t
 val pop_copy:
