@@ -93,7 +93,12 @@ let rec_mk_when_necessary pos state output_repository =
       let state, new_repository = aux2 state new_repository in
       aux state t new_repository
   in
-  let state, repository = aux state list_of_reps "" in
+  let state, repository =
+    match list_of_reps with
+    | [] -> state, ""
+    | head::queue ->
+      aux state queue head
+  in
   state, repository
 
 let readdir _pos state x =
@@ -155,7 +160,7 @@ let is_empty pos state file =
       let i = aux 0 in
       let _ = close_in f in
       i
-    in    
+    in
     state, nb_lignes file = 0
   else
     state, true

@@ -502,53 +502,59 @@ let get_student_file
       ?output_file_name ?log_file ?log_repository
       ?user_name ?password
       state
-    =
-    let event_opt =
-      Some
-        (Profiling.Extract_gps_file
-           (student_id.Public_data.firstname,
-            student_id.Public_data.lastname))
-    in
-    let state =
-      Remanent_state.open_event_opt
-        event_opt
-        state
-    in
-    let firstname = student_id.Public_data.firstname in
-    let lastname = student_id.Public_data.lastname in
-    let state, main_dpt = Remanent_state.get_main_dpt state in
-    let modelist =
-      match modelist with
-      | Some modelist -> modelist
-      | None ->
-        begin
-          match Special_char.remove_acute firstname = firstname,
-                Special_char.remove_acute lastname = lastname,
-                main_dpt
-          with
-          | true, true, (Public_data.DI | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> modelist_di_true_true
-          | true, false, (Public_data.DI | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> modelist_di_true_false
-          | false, true, (Public_data.DI | Public_data.ENS | Public_data.IBENS | Public_data.PHYS)  -> modelist_di_false_true
-          | false, false, (Public_data.DI | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> modelist_di_false_false
-          | true, true, Public_data.DMA -> modelist_dma_true_true
-          | true, false, Public_data.DMA -> modelist_dma_true_false
-          | false, true, Public_data.DMA  -> modelist_dma_false_true
-          | false, false, Public_data.DMA -> modelist_dma_false_false
-        end
-    in
-    let state, output =
-      get_student_file
-        student_id
-        ~modelist
-        ?file_retriever ?command_line_options ?machine ?port ?input_repository
-        ?output_repository ?prefix ?timeout ?checkoutperiod
-        ?output_file_name ?log_file ?log_repository
-        ?user_name ?password
-        state
-    in
-    Remanent_state.close_event_opt
-      event_opt
-      state, output
+  =
+  let event_opt =
+    Some
+      (Profiling.Extract_gps_file
+         (student_id.Public_data.firstname,
+          student_id.Public_data.lastname))
+  in
+  let state =
+    Remanent_state.open_event_opt
+      event_opt state
+  in
+  let firstname = student_id.Public_data.firstname in
+  let lastname = student_id.Public_data.lastname in
+  let state, main_dpt = Remanent_state.get_main_dpt state in
+  let modelist =
+    match modelist with
+    | Some modelist -> modelist
+    | None ->
+      begin
+        match Special_char.remove_acute firstname = firstname,
+              Special_char.remove_acute lastname = lastname,
+              main_dpt
+        with
+        | true, true,
+          (Public_data.DI | Public_data.ENS
+          | Public_data.IBENS | Public_data.PHYS) -> modelist_di_true_true
+        | true, false,
+          (Public_data.DI | Public_data.ENS
+          | Public_data.IBENS | Public_data.PHYS) -> modelist_di_true_false
+        | false, true,
+          (Public_data.DI | Public_data.ENS
+          | Public_data.IBENS | Public_data.PHYS)  -> modelist_di_false_true
+        | false, false,
+          (Public_data.DI | Public_data.ENS
+          | Public_data.IBENS | Public_data.PHYS) -> modelist_di_false_false
+        | true, true, Public_data.DMA -> modelist_dma_true_true
+        | true, false, Public_data.DMA -> modelist_dma_true_false
+        | false, true, Public_data.DMA  -> modelist_dma_false_true
+        | false, false, Public_data.DMA -> modelist_dma_false_false
+      end
+  in
+  let state, output =
+    get_student_file
+      student_id
+      ~modelist
+      ?file_retriever ?command_line_options ?machine ?port ?input_repository
+      ?output_repository ?prefix ?timeout ?checkoutperiod      ?output_file_name ?log_file ?log_repository
+      ?user_name ?password
+      state
+  in
+  Remanent_state.close_event_opt
+    event_opt state,
+  output
 
 type student_id =
   {

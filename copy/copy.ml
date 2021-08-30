@@ -2,13 +2,6 @@ let pdf_file x =
   Printf.sprintf "%s.%s" (Tools.basename x) "pdf"
 
 let copy ~input_rep ~file_name ~output_rep state =
-  let state =
-    Remanent_state.warn
-      __POS__
-      (Printf.sprintf "COPY %s %s -> %s %s" input_rep file_name output_rep file_name)
-      Exit
-      state
-  in
   let input_file =
     match input_rep with
     | "" -> file_name
