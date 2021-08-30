@@ -3604,7 +3604,8 @@ let foot signature state  =
 
 let program
     ~origine ~string ~dpt ~year ~who ~alloc_suffix ~mean ~firstname ~lastname ~promo ~cursus_map
-    ~size ~stages ~current_year ~report ~dens ~natt
+    ~size ~stages ~current_year ~report ~keep_faillure ~keep_success
+    ~dens ~natt
     list state =
   let state,
       entete,
@@ -3702,7 +3703,7 @@ let program
       d.Public_data.decision_validated
   in
   let state, mean =
-    if do_report report
+    if do_report report || keep_faillure || keep_success
     then
       let state, exception_cursus =
         let rec aux state l =
@@ -4119,7 +4120,7 @@ let program
         in
         let state, mean, dens, natt =
           if year > current_year
-          || not (do_report report)
+          || not (do_report report || keep_success || keep_faillure)
           then state, mean, dens, natt
           else
             match Tools.map_opt String.trim string
@@ -4413,6 +4414,12 @@ let program
   let () = Remanent_state.print_newline state in
   state,mean,dens,natt
 
+let good (a,_) =
+  match a with
+  | None -> false
+  | Some a ->
+    List.mem a ["l";"m"]
+
 let export_transcript
     ~output
     ?language
@@ -4421,7 +4428,19 @@ let export_transcript
     ?signature
     ?report
     ?filter:(remove_non_valided_classes=Public_data.All_but_in_progress_in_current_academic_year)
+    ?keep_success
+    ?keep_faillure
     state gps_file =
+  let keep_success =
+    match keep_success with
+    | None -> false
+    | Some b -> b
+  in
+  let keep_faillure =
+    match keep_faillure with
+    | None -> false
+    | Some b -> b
+  in
   let state, _language =
     Tools.get_option
       state
@@ -5276,7 +5295,9 @@ let export_transcript
                              ~origine ~string ~dpt:(Public_data.dpt_of_string dpt) ~year ~who
                              ~alloc_suffix ~mean ~firstname
                              ~lastname ~promo ~cursus_map ~size
-                             ~stages ~current_year ~report ~dens
+                             ~stages ~current_year ~report
+                             ~keep_success ~keep_faillure
+                             ~dens
                              ~natt list state
                          in
                          let () =
@@ -5396,7 +5417,7 @@ let export_transcript
               0
           in
           let state =
-            if do_report report &&
+            if (do_report report || keep_success || keep_faillure) &&
                (n_inscription > 0 || dens_total_potential > 0.
                 || dens_total > 0.)
             then
@@ -5493,9 +5514,58 @@ let export_transcript
                        | None -> false
                        | Some mean -> mean >= 10.
                    in
+                   let state =
+                     let input_rep,file_name = rep, snd output in
+                     let file_name = Copy.pdf_file file_name in
+                     let y = string_of_int val_year in
+                     match Remanent_state.get_commission state with
+                     | state, None -> state
+                     | state, Some (_,i) ->
+                       let state, dpt = Remanent_state.get_main_dpt state in
+                          if i=y &&
+                          (dpt = Public_data.dpt_of_string (snd key))
+                             && not (lpoly situation) &&
+                          ((validated && keep_success)
+                           || ((not validated) && keep_faillure))
+                       then
+                         match
+                           Remanent_state.get_commission_rep_from_key
+                             (match fst key with
+                              | None -> ""
+                              | Some a -> a)
+                             state
+                         with
+                         | state, (_,_,rep') ->
+                           let suf =
+                             if validated then
+                               "ras"
+                             else
+                               "a_discuter"
+                           in
+                           let output_rep =
+                             match rep',suf with
+                             | a,"" | "",a -> a
+                             | a,b -> Printf.sprintf "%s/%s"  a b
+                           in
+                           let state =
+                             if good key
+                             then
+                               Remanent_state.push_copy
+                                 ~input_rep
+                                 ~file_name
+                                 ~output_rep
+                                 state
+                             else
+                               state
+                           in
+                           state
+                       else
+                         state
+                   in
                    if lpoly situation then
                      state
                    else
+                   if do_report report then
                      Remanent_state.add_national_diploma
                        state
                        {Public_data.diplome_dpt = Public_data.dpt_of_string (snd key);
@@ -5525,8 +5595,8 @@ let export_transcript
                           mention
                        ;
                         Public_data.diplome_recu = validated ;
-                        Public_data.diplome_output = (rep, snd output);
                        }
+                   else state
               )
               state
               list_national_diploma

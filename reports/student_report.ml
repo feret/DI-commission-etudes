@@ -4,8 +4,6 @@ type dump =
 ?promo:string ->
   Gen.dump
 
-let save _ a =  a
-
 module type ReportStudents =
 sig
   val dump_per_student: dump
@@ -28,7 +26,6 @@ struct
     in
     let filter = Gen.filter_student_list in
     let get = I.get in
-    let save = I.save in
     let default_file_name = I.default_file_name in
     let get_repository = I.get_repository in
     let firstname = studentfirstname in
@@ -37,7 +34,7 @@ struct
       ?firstname ?lastname ?promo
       ?output_repository ?prefix ?file_name ?event_opt
       ~cmp ~filter ~headers ~columns ~get ~default_file_name
-      ~get_repository ~save
+      ~get_repository
       state
 
   let nom =
@@ -107,7 +104,6 @@ module ReportGpsServerFaillures =
       let get = Remanent_state.get_gps_server_faillures
       let get_repository =
         Remanent_state.get_repository_to_dump_gps_server_faillures
-      let save = save
 
     end)
 
@@ -119,5 +115,4 @@ module ReportMissingPictures =
       let get = Remanent_state.get_missing_pictures
       let get_repository =
         Remanent_state.get_repository_to_dump_missing_pictures
-      let save = save
     end)

@@ -1780,16 +1780,8 @@ let get_commission_rep_from_key ?commission_rep sous_commission_short state =
   let state, main_rep =
     get_dated_output_repository state
   in
-  let state, main_com_rep =
-    get_main_commission_rep state
-  in
-  let main_com_rep =
-    match main_rep, main_com_rep with
-    | "",a | a,"" -> a
-    | a,b -> Printf.sprintf "%s/%s" a b
-  in
   let commission_rep =
-    match main_com_rep,commission_rep with
+    match main_rep,commission_rep with
     | "",a | a,"" -> a
     | a,b -> Printf.sprintf "%s/%s" a b
   in

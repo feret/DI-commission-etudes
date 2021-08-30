@@ -6,8 +6,6 @@ type dump =
   ?promo:string ->
   Gen.dump
 
-let save _ a = a
-
 module type ReportMentors =
 sig
   val dump_per_year: dump
@@ -29,14 +27,13 @@ struct
     in
     let filter = Gen.filter_mentoring in
     let get = I.get in
-    let save = I.save in 
     let default_file_name = I.default_file_name in
     let get_repository = I.get_repository in
     Gen.dump_elts
       ?firstname ?lastname ?mentorname ?academicyear ?promo
       ?output_repository ?prefix ?file_name ?event_opt
       ~cmp ~filter ~headers ~columns ~get ~default_file_name
-      ~get_repository ~save
+      ~get_repository
       state
 
   let columns =
@@ -124,5 +121,4 @@ module ReportMissingMentors =
       let get = Remanent_state.get_missing_mentors
       let get_repository =
         Remanent_state.get_repository_to_dump_missing_mentors
-      let save = save
     end)

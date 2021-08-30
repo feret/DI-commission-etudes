@@ -6,11 +6,13 @@ val get_gps_file:
 val export_transcript:
   output: string * string ->
   ?language:Public_data.language ->
-  ?include_picture:bool -> 
+  ?include_picture:bool ->
   ?repartition:Public_data.repartition ->
   ?signature:string ->
   ?report:bool ->
   ?filter: Public_data.remove_non_valided_classes ->
+  ?keep_success:bool ->
+  ?keep_faillure:bool -> 
   Remanent_state.t ->
   gps_file
   -> Remanent_state.t * (string * string) option

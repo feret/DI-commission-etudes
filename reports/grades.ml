@@ -8,8 +8,6 @@ type dump =
   ?promo:string ->
   Gen.dump
 
-let save _ a = a
-
 module type ReportGrades =
 sig
   val dump_per_year_dpt_student: dump
@@ -37,14 +35,12 @@ module Build
       let default_file_name = I.default_file_name in
       let get_repository = I.get_repository in
       let get = I.get in
-      let save = I.save in 
       Gen.dump_elts
         ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername
         ?academicyear ?promo
         ?output_repository ?prefix ?file_name ?event_opt
         ~filter ~cmp ~headers ~columns ~get
         ~default_file_name ~get_repository
-        ~save
         state
 
     let dump_per_dpt_student_year
@@ -446,7 +442,6 @@ module MissingGrades =
       let get = Remanent_state.get_missing_grades
       let get_repository =
         Remanent_state.get_repository_to_dump_missing_grades
-      let save = save
     end)
 
 
@@ -460,7 +455,6 @@ module NonAcceptedGrades =
       let get = Remanent_state.get_non_accepted_grades
       let get_repository =
         Remanent_state.get_repository_to_dump_non_accepted_grades
-      let save = save
     end)
 
 module MissingECTSAttributions =
@@ -472,5 +466,4 @@ module MissingECTSAttributions =
       let get = Remanent_state.get_missing_ects_attributions
       let get_repository =
         Remanent_state.get_repository_to_dump_missing_ects_attributions
-      let save = save
     end)

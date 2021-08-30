@@ -407,7 +407,6 @@ type diplome_national =
     diplome_mention : string option;
     diplome_recu : bool ;
     diplome_year : string ;
-    diplome_output : string * string ; 
   }
 
 type dens =

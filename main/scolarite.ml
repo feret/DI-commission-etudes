@@ -150,17 +150,19 @@ let state =
             (Tools.basename (snd
                                output0))^".validated_and_in_progress_only.tex")
          in
+         let state, is_dma = Remanent_state.is_main_dpt_dma state  in
+         let state, is_di = Remanent_state.is_main_dpt_di state in
          let state =
            match gps with
            | None -> state
            | Some gps ->
              let state, input =
                Transcripts.export_transcript
-                 ~output state gps
+                 ~output ~keep_success:is_dma state gps
              in
              let state =
-               match input, Remanent_state.is_main_dpt_dma state with
-               | Some (input_rep,file_name), (state, true) ->
+               match input, is_dma with
+               | Some (input_rep,file_name), true ->
                  let state,rep  =
                    Remanent_state.get_student_personnal_repository
                      ~firstname ~lastname ?promo state
@@ -172,15 +174,15 @@ let state =
                      ~input_rep ~output_rep ~file_name state
                  in
                  state
-               | _, (state, false) | None, (state, _) ->
+               | _, false | None, _ ->
                  state
              in
              Latex_engine.latex_opt_to_pdf ~rev:true state ~input
          in
          let state =
-           match Remanent_state.is_main_dpt_di state
+           match is_di
            with
-           | state, true ->
+           | true ->
              let output =
                (fst output0,
                 (Tools.basename (snd
@@ -195,7 +197,7 @@ let state =
                | Some gps ->
                  let state, input =
                    Transcripts.export_transcript
-                     ~signature ~output state gps
+                     ~signature ~output ~keep_success:true state gps
                  in
                  let state =
                    match input with
@@ -214,7 +216,7 @@ let state =
                    ~rev:true state ~input
              in
              state
-           | state, false -> state
+           | false -> state
          in
          let output =
            (fst output0, (Tools.basename (snd output0))^".all.tex")
@@ -227,7 +229,7 @@ let state =
              let report = true in
              let state, output_opt =
                Transcripts.export_transcript
-                 ~filter ~output ~report state gps
+                 ~filter ~keep_faillure:true ~output ~report state gps
              in
              match output_opt with
              | None -> state
@@ -350,7 +352,7 @@ let state =
       in
       state
     end
-let state = Remanent_state.empty_copy ~copy:(Copy.copy) state 
+let state = Remanent_state.empty_copy ~copy:(Copy.copy) state
 let state = Report.dump_issues state
 let state = Report.warn state
 let state =

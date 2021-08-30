@@ -57,7 +57,6 @@ struct
     in
     let filter = Gen.filter_national_diploma in
     let get = I.get in
-    let save = I.save in
     let default_file_name = I.default_file_name in
     let get_repository = I.get_repository in
     Gen.dump_elts
@@ -67,7 +66,7 @@ struct
       ?output_repository ?prefix ?file_name ?event_opt
       ~headerextralength:5
       ~cmp ~filter ~headers ~columns ~get ~default_file_name
-      ~get_repository ~save
+      ~get_repository 
       state
 
 
@@ -192,39 +191,6 @@ module DiplomaReport =
       let get = Remanent_state.get_national_diplomas
       let get_repository =
         Remanent_state.get_repository_to_dump_national_diplomas
-      let save d state =
-        let input_rep,file_name = d.Public_data.diplome_output in
-        let y = d.Public_data.diplome_year in
-        match Remanent_state.get_commission state with
-        | state, None -> state
-        | state, Some (_,i) ->
-          if i=y then
-            match
-              Remanent_state.get_commission_rep_from_key
-                d.Public_data.diplome_niveau state
-            with
-            | state, (_,_,rep') ->
-              let suf =
-                if d.Public_data.diplome_recu then
-                  "ras"
-                else
-                  "a_discuter"
-              in
-              let output_rep =
-                match rep',suf with
-                | a,"" | "",a -> a
-                | a,b -> Printf.sprintf "%s/%s"  a b
-              in
-              let state =
-                Remanent_state.push_copy
-                  ~input_rep
-                  ~file_name
-                  ~output_rep
-                  state
-              in
-              state
-          else
-            state
     end)
 
 let next_year year =

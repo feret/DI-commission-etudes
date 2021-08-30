@@ -6,8 +6,6 @@ type dump =
   ?promo:string ->
   Gen.dump
 
-let save _ a = a
-
 module type ReportInternshipDescriptions =
 sig
   val dump_per_year: dump
@@ -27,14 +25,13 @@ module Build
       in
       let filter = Gen.filter_internship_description in
       let get = I.get in
-      let save = I.save in 
       let default_file_name = I.default_file_name in
       let get_repository = I.get_repository in
       Gen.dump_elts
         ?firstname ?lastname ?codegps ?academicyear ?promo
         ?output_repository ?prefix ?file_name ?event_opt
         ~cmp ~filter ~headers ~columns ~get ~default_file_name
-        ~get_repository ~save
+        ~get_repository
         state
 
     let columns =
@@ -145,7 +142,6 @@ module MissingInternshipDescriptions =
       let get = Remanent_state.get_missing_internship_descriptions
       let get_repository =
         Remanent_state.get_repository_to_dump_missing_internship_descriptions
-      let save = save
     end)
 
 module AmbiguousInternshipDescriptions =
@@ -157,7 +153,6 @@ module AmbiguousInternshipDescriptions =
       let get = Remanent_state.get_ambiguous_internship_descriptions
       let get_repository =
         Remanent_state.get_repository_to_dump_ambiguous_internship_descriptions
-      let save = save
     end)
 
 module NonValidatedInternships =
@@ -169,5 +164,4 @@ module NonValidatedInternships =
       let get = Remanent_state.get_non_validated_internships
       let get_repository =
         Remanent_state.get_repository_to_dump_non_validated_internships
-      let save = save
     end)
