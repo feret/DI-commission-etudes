@@ -4418,7 +4418,7 @@ let good (a,_) =
   match a with
   | None -> false
   | Some a ->
-    List.mem a ["l";"m"]
+    List.mem a ["l";"m";""]
 
 let export_transcript
     ~output
@@ -5522,35 +5522,46 @@ let export_transcript
                      | state, None -> state
                      | state, Some (_,i) ->
                        let state, dpt = Remanent_state.get_main_dpt state in
-                          if i=y &&
+                       if i=y &&
                           (dpt = Public_data.dpt_of_string (snd key))
-                             && not (lpoly situation) &&
-                          ((validated && keep_success)
-                           || ((not validated) && keep_faillure))
+                           &&
+                           ((validated && keep_success)
+                            || ((not validated) && keep_faillure))
                        then
-                         match
-                           Remanent_state.get_commission_rep_from_key
-                             (match fst key with
-                              | None -> ""
-                              | Some a -> a)
-                             state
-                         with
-                         | state, (_,_,rep') ->
-                           let suf =
-                             if validated then
-                               "ras"
-                             else
-                               "a_discuter"
-                           in
-                           let output_rep =
-                             match rep',suf with
-                             | a,"" | "",a -> a
-                             | a,b -> Printf.sprintf "%s/%s"  a b
-                           in
-                           let state =
-                             if good key
-                             then
-                               Remanent_state.push_copy
+                         let state, output_rep =
+                           if lpoly situation then
+                             state, "Bachelor_de_l_X"
+                           else if lerasmus origine then
+                             state, "Erasmus"
+                           else if lpe origine then
+                             state, "Pensionnaires_etrangers"
+                           else
+                             match
+                               Remanent_state.get_commission_rep_from_key
+                                 (match fst key with
+                                  | None -> ""
+                                  | Some a -> a)
+                                 state
+                             with
+                             | state, (_,_,rep') ->
+                               let suf =
+                                 if validated then
+                                   "ras"
+                                 else
+                                   "a_discuter"
+                               in
+                               let output_rep =
+                                 match rep',suf with
+                                 | a,"" | "",a -> a
+                                 | a,b -> Printf.sprintf "%s/%s"  a b
+                               in
+                               state, output_rep
+                         in
+                         let state =
+                           if good key || lpoly situation
+                              || lerasmus origine || lpe origine
+                           then
+                             Remanent_state.push_copy
                                  ~input_rep
                                  ~file_name
                                  ~output_rep
