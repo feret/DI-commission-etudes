@@ -66,7 +66,7 @@ struct
       ?output_repository ?prefix ?file_name ?event_opt
       ~headerextralength:5
       ~cmp ~filter ~headers ~columns ~get ~default_file_name
-      ~get_repository 
+      ~get_repository
       state
 
 
@@ -381,6 +381,14 @@ let dump_attestation
           Loggers.fprintf,
           People.footpage_string
         ],direction_etude, "informatique"
+      | Public_data.ECO ->
+          let color = Color.pink in
+          Loggers.setfootpage logger ~color
+            [
+              Loggers.fprintf,
+              People.footpage_string_dma
+            ], direction_etude_dma, "économie"
+
       | Public_data.DMA ->
         let color = Color.duckblue in
         Loggers.setfootpage logger ~color
@@ -433,7 +441,8 @@ let dump_attestation
           ?dpt:(match level, dpt with
               | "dens",_
               | _,Public_data.ENS -> None
-              | _,(Public_data.DI | Public_data.DMA | Public_data.IBENS | Public_data.PHYS) ->
+              | _,(Public_data.DI | Public_data.ECO |
+                   Public_data.DMA | Public_data.IBENS | Public_data.PHYS) ->
                 Some dpt)
           ~year
           state

@@ -38,6 +38,7 @@ module type DensReport =
 sig
   val dump_per_promo: dump
   val dump_per_n_inscription: dump
+  val dump_per_alphabetic_order: dump
 end
 
 module Build
@@ -45,7 +46,7 @@ module Build
      with type elt = Public_data.dens) =
 struct
 
-  let dump_dens
+let dump_dens
     ?firstname
     ?lastname
     ?promo
@@ -99,6 +100,31 @@ struct
        string_of_int (a.Public_data.dens_nb_inscriptions))
 
   let lift_id (a,b) = (a,(fun x -> x),b)
+
+  let dump_per_alphabetic_order
+      ?firstname ?lastname ?ninscription ?promo
+      ?headpage ?footpage ?footcolor
+      ?title ?preamble ?signature ?nb_inscription_list
+      ?output_repository ?prefix ?file_name
+      state =
+    let cmp =
+      [
+        Gen.lift_cmp (fun a -> a.Public_data.dens_lastname);
+        Gen.lift_cmp (fun a -> a.Public_data.dens_firstname) ;
+        Gen.lift_cmp (fun a -> a.Public_data.dens_promotion );
+      ]
+    in
+    let columns = [prenom_etudiant;nom_etudiant;promotion;inscriptions; total_year; total ] in
+    let headers =
+      [
+      ]
+    in
+    dump_dens
+      ?firstname ?lastname ?ninscription ?promo
+      ?nb_inscription_list
+      ?headpage ?footpage ?footcolor
+      ?title ?preamble ?signature
+      ?output_repository ?prefix ?file_name cmp headers columns state
 
   let dump_per_promo
       ?firstname ?lastname ?ninscription ?promo

@@ -4,12 +4,23 @@ type sous_commission_key = string
 let dens_two =
   Public_data.Diplome_ENS
     {
-      Public_data.dens_key = "dens_two";
+      Public_data.dens_key = "dens";
       Public_data.nb_inscription_list=[1;2];
       Public_data.dens_short= "DENS";
-      Public_data.which_year_string="première et deuxième année";
-  }
+      Public_data.which_year_string="première et deuxième années";
+    }
 
+
+let _ = dens_two
+
+let dens =
+  Public_data.Diplome_ENS
+    {
+      Public_data.dens_key = "dens";
+      Public_data.nb_inscription_list=[1;2;3;4;5;6;7;8;9;10];
+      Public_data.dens_short= "DENS";
+      Public_data.which_year_string="toutes les années";
+    }
 let l =
   Public_data.Diplome_National
     {
@@ -67,7 +78,9 @@ let todo =
     TODO_DENS
       (Dens_report.DensReport.dump_per_promo,"_par_promotion");
     TODO_DENS
-      (Dens_report.DensReport.dump_per_n_inscription,"_par_nb_inscriptions")
+      (Dens_report.DensReport.dump_per_n_inscription,"_par_nb_inscriptions");
+    TODO_DENS
+      (Dens_report.DensReport.dump_per_alphabetic_order,"_par_ordre_alphabetic");
   ]
 
 let direction_etude =
@@ -98,6 +111,12 @@ let direction_etude_phys =
     Public_data.StringMap.empty
     People.phys_list
 
+let direction_etude_eco =
+  List.fold_left
+    (fun map elt ->
+       Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+    Public_data.StringMap.empty
+    People.eco_list
 
 let diplomes =
   List.fold_left
@@ -110,7 +129,7 @@ let diplomes =
               elt.Public_data.dn_key)
           elt map)
     Public_data.StringMap.empty
-    [l;m;dens_two]
+    [l;m;dens]
 
 let diplomes_dma =
   List.fold_left
@@ -123,7 +142,7 @@ let diplomes_dma =
             elt.Public_data.dn_key)
          elt map)
     Public_data.StringMap.empty
-    [l_dma;m_dma;dens_two]
+    [l_dma;m_dma;dens]
 
 
 let diplomes_ibens =
@@ -137,7 +156,7 @@ let diplomes_ibens =
             elt.Public_data.dn_key)
          elt map)
     Public_data.StringMap.empty
-    [dens_two]
+    [dens]
 
 let diplomes_phys =
   List.fold_left
@@ -150,7 +169,20 @@ let diplomes_phys =
             elt.Public_data.dn_key)
          elt map)
     Public_data.StringMap.empty
-    [dens_two]
+    [dens]
+
+let diplomes_eco =
+  List.fold_left
+    (fun map elt ->
+       Public_data.StringMap.add
+         (match elt with
+          | Public_data.Diplome_ENS elt ->
+            elt.Public_data.dens_key
+          | Public_data.Diplome_National elt ->
+            elt.Public_data.dn_key)
+         elt map)
+    Public_data.StringMap.empty
+    [dens]
 
 let print_sous_commission
     commission_rep
@@ -176,6 +208,9 @@ let print_sous_commission
       People.dpt_ibens, direction_etude_ibens,diplomes_ibens,People.footpage_string_ibens,Color.green
     | Public_data.PHYS ->
       People.dpt_phys, direction_etude_phys,diplomes_phys,People.footpage_string_phys,Color.blue
+    | Public_data.ECO ->
+      People.dpt_eco,
+      direction_etude_eco,diplomes_eco,People.footpage_string_eco,Color.pink
   in
   let state, full_year =
     try
@@ -404,7 +439,7 @@ let prepare_commission
     ~annee
     ~date_complete
     ?signataires:(persons=["MP";"JF";"LB"])
-    ?diplomes:(sous_commissions=["dens_two";"l";"m"])
+    ?diplomes:(sous_commissions=["dens";"l";"m"])
     state =
   List.fold_left
     (fun state direction ->

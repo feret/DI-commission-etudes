@@ -1785,17 +1785,17 @@ let get_commission_rep_from_key ?commission_rep sous_commission_short state =
     | "",a | a,"" -> a
     | a,b -> Printf.sprintf "%s/%s" a b
   in
-  let sous_commission_rep =
-    match commission_rep,sous_commission_short with
-    | "",a | a,"" -> a
-    | a,b -> Printf.sprintf "%s/%s" a b
-  in
   state,
-  match sous_commission_rep with
-      | "" -> "attestations","comptes-rendus","transcripts"
-      | a -> Printf.sprintf "%s/attestations" a,
-             Printf.sprintf "%s/comptes-rendus" a,
-             Printf.sprintf "%s/transcripts" a
+  match commission_rep,sous_commission_short with
+    | "",a -> Printf.sprintf "attestations/%s" a,
+              Printf.sprintf "comptes-rendus/%s" a,
+              Printf.sprintf "transcripts/%s" a
+    | a,"" -> Printf.sprintf "%s/attestations" a,
+              Printf.sprintf "%s/comptes-rendus" a,
+              Printf.sprintf "%s/transcripts" a
+    | a,b -> Printf.sprintf "%s/attestations/%s" a b,
+              Printf.sprintf "%s/comptes-rendus/%s" a b,
+              Printf.sprintf "%s/transcripts/%s" a b
 
 let get_commission_rep ?commission_rep ~sous_commission state =
   let sous_commission_short =

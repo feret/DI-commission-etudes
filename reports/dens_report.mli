@@ -36,6 +36,7 @@ module type DensReport =
 sig
   val dump_per_promo: dump
   val dump_per_n_inscription: dump
+  val dump_per_alphabetic_order: dump 
 end
 
 module DensReport: DensReport

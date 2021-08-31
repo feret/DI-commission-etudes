@@ -158,7 +158,7 @@ let state =
            | Some gps ->
              let state, input =
                Transcripts.export_transcript
-                 ~output ~keep_success:is_dma state gps
+                 ~output ~keep_success:true state gps
              in
              let state =
                match input, is_dma with
@@ -197,7 +197,7 @@ let state =
                | Some gps ->
                  let state, input =
                    Transcripts.export_transcript
-                     ~signature ~output ~keep_success:true state gps
+                     ~signature ~output state gps
                  in
                  let state =
                    match input with
@@ -323,6 +323,7 @@ let state =
         | state, Public_data.ENS -> state, Public_data.ENS, []
         | state, Public_data.PHYS -> state, Public_data.PHYS, []
         | state, Public_data.IBENS -> state, Public_data.IBENS, []
+        | state, Public_data.ECO -> state, Public_data.ECO, []
       in
       let state =
         Diploma_report.dump_attestations

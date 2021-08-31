@@ -38,17 +38,22 @@ let dpt_bio = "biologie"
 let dpt_ibens = dpt_bio
 
 let dpt_dec = "etudes cognitives"
+let dpt_eco = "économie"
+
+let dpt_eco_gps_name = dpt_eco
 let dpt_info_gps_name = dpt_info
 let dpt_phys_gps_name = dpt_phys
 let dpt_maths_gps_name = "mathematiques et applications"
 let acro_dpt_phys = "PHYS"
 let acro_dpt_info = "DI"
 let acro_dpt_maths = "DMA"
+
 let dpt_info_full = "Département d'Informatique"
 let dpt_maths_full = "Département de Mathématiques et Applications"
 let dpt_phys_full = "Département de Physique"
 let dpt_bio_full = "Institut de Biologie"
 let dpt_dec_full = "Département d'Études Cognitives"
+let dpt_eco_full = "Département d'Économie"
 
 let simplify_string s =
   Special_char.lowercase
@@ -2151,6 +2156,8 @@ let lmath d =
 let linfo d =
   lgen "licence" "gps2291" dpt_info_gps_name d
 
+let leco d =
+  lgen "licence" "XT01362" dpt_eco_gps_name d
 let lpoly d =
   lgen "licence" "gps74842" "" d
 
@@ -2277,6 +2284,7 @@ let translate_dpt state d =
       | x when x=dpt_phys -> state, dpt_phys_full
       | x when x=dpt_bio -> state, dpt_bio_full
       | x when x=dpt_dec -> state, dpt_dec_full
+      | x when x=dpt_eco -> state, dpt_eco_full
       | x -> state,
              Printf.sprintf
                "Département de %s"
@@ -2548,6 +2556,10 @@ let translate_diplome
           state,
           (Some "L","L3 d'informatique",dpt_info,false)
       else
+      if leco situation then
+        state,
+        (Some "L","L3 d'économie",dpt_eco,false)
+      else
       check_dpt __POS__ state origine
           "L" "L3" code_cours year
           situation
@@ -2633,6 +2645,7 @@ let dpt_of_acro who pos state dpt origine =
     | Public_data.DMA -> state, Some dpt_maths
     | Public_data.IBENS -> state, Some dpt_ibens
     | Public_data.PHYS -> state, Some dpt_phys
+    | Public_data.ECO -> state, Some dpt_eco
     | Public_data.ENS ->
       let msg =
         Format.sprintf "Unknown departement (%s) for %s"
@@ -2757,7 +2770,7 @@ let is_mandatory state cours =
       (fun x -> Format.sprintf "\\mandatory{%s}" x)
     else
       (fun x -> x)
-  | state, (Public_data.DMA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> state, (fun x -> x)
+  | state, (Public_data.ECO | Public_data.DMA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> state, (fun x -> x)
 
 let count_for_maths state cours =
   match Remanent_state.get_main_dpt state with
@@ -2784,7 +2797,7 @@ let count_for_maths state cours =
       (fun x -> Format.sprintf "\\countformaths{%s}" x)
     else
       (fun x -> x)
-  | state, (Public_data.DMA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, (fun x -> x)
+  | state, (Public_data.ECO | Public_data.DMA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, (fun x -> x)
 
 let special_course state cours =
   let state, f = is_mandatory state cours in
@@ -2988,11 +3001,11 @@ let heading
           "D\\'epartement de Math\\'ematiques et Applications. \\'Ecole  Normale  Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Tel : +33 (0)1 44 32 20 49."
       in
       state
-    | state, (Public_data.ENS | Public_data.PHYS | Public_data.IBENS) ->
+    | state, (Public_data.ENS | Public_data.ECO | Public_data.PHYS | Public_data.IBENS) ->
       let state =
         Remanent_state.warn
           __POS__
-          "ENS/PHYS/IBENS are not a valid dpt to edit transcripts"
+          "ENS/PHYS/IBENS/ECO are not a valid dpt to edit transcripts"
           Exit
           state
       in state
@@ -3627,7 +3640,7 @@ let program
             ?dpt:(match string, dpt with
                 | "dens",_
                 | _,Public_data.ENS -> None
-                | _,(Public_data.DI | Public_data.DMA | Public_data.IBENS | Public_data.PHYS) ->
+                | _,(Public_data.ECO | Public_data.DI | Public_data.DMA | Public_data.IBENS | Public_data.PHYS) ->
                   Some dpt)
             ~year
             state
@@ -3820,6 +3833,8 @@ let program
       state, Some Color.orange
     | Some ("imalis") ->
       state, Some Color.green
+    | Some ("leco" | "LEco") ->
+      state, Some Color.pink
     | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" | "lmfi" | "PHILOSorbonne") ->
       color_of_dpt
         who __POS__ state
@@ -4418,7 +4433,7 @@ let good (a,_) =
   match a with
   | None -> false
   | Some a ->
-    List.mem a ["l";"m";""]
+    List.mem a ["l";"m"]
 
 let export_transcript
     ~output
@@ -4920,7 +4935,7 @@ let export_transcript
                begin
                  match Remanent_state.get_main_dpt state with
                  | state, (Public_data.DI | Public_data.ENS) -> state, None
-                 | state, (Public_data.DMA | Public_data.PHYS | Public_data.IBENS)->
+                 | state, (Public_data.ECO | Public_data.DMA | Public_data.PHYS | Public_data.IBENS)->
                    begin
                      match
                        gps_file.tuteur
@@ -5416,8 +5431,58 @@ let export_transcript
               gps_file.situation
               0
           in
+          let state, list =
+            Remanent_state.get_dispenses
+              ~firstname
+              ~lastname
+              ~year:current_year
+              state
+          in
+          let key =
+            if lpoly situation then Some "Bachelor_de_l_X"
+            else if lpe origine then Some "Pensionnaires_etrangers"
+            else if lerasmus origine then Some "Erasmus"
+            else if list <> [] then Some "Dispenses"
+            else
+              None
+          in
           let state =
-            if (do_report report || keep_success || keep_faillure) &&
+            match key with
+            | None -> state
+            | Some key ->
+              let input_rep,file_name = rep, snd output in
+              let file_name = Copy.pdf_file file_name in
+              (*  let y = string_of_float dens_year in*)
+              match Remanent_state.get_commission state with
+              | state, None -> state
+              | state, Some _ ->
+                if 
+                   keep_success
+                then
+                  match
+                      Remanent_state.get_commission_rep_from_key
+                        key
+                        state
+                  with
+                  | state, (_,_,output_rep) ->
+                    let state =
+                      if lpoly situation
+                      || lerasmus origine || lpe origine
+                      || list <> []
+                      then
+                        Remanent_state.push_copy
+                          ~input_rep
+                          ~file_name
+                          ~output_rep
+                          state
+                      else
+                        state
+                    in
+                    state
+                else state
+          in
+          let state =
+            if do_report report &&
                (n_inscription > 0 || dens_total_potential > 0.
                 || dens_total > 0.)
             then
