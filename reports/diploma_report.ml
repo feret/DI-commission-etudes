@@ -515,7 +515,11 @@ let dump_attestations
        let state, output_rep, date =
          match
            Remanent_state.get_commission_rep_from_key
-             diplome.Public_data.diplome_niveau state
+             (match diplome.Public_data.diplome_niveau with
+              | "l" -> "L3"
+              | "m" -> "M1"
+              | x -> x)
+             state
 
          with
          | state, (attestation_rep,_ , _) ->

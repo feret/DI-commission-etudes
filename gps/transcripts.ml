@@ -3277,7 +3277,7 @@ let heading
                 | _ ->
                   let msg =
                     Printf.sprintf
-                      "mauvais dpt principal pour une  double licence pour %s"
+                      "mauvais dpt principal pour une double licence pour %s"
                       who
                   in
                   Remanent_state.warn_dft
@@ -5456,7 +5456,7 @@ let export_transcript
               match Remanent_state.get_commission state with
               | state, None -> state
               | state, Some _ ->
-                if 
+                if
                    keep_success
                 then
                   match
@@ -5605,6 +5605,13 @@ let export_transcript
                                Remanent_state.get_commission_rep_from_key
                                  (match fst key with
                                   | None -> ""
+                                  | Some "l" -> if
+                                    lmath situation && linfo situation
+                                    then "L3_mathinfo"
+                                    else if lmathphys situation
+                                    then "L3_mathphys"
+                                    else "L3"
+                                  | Some "m" -> "M1"
                                   | Some a -> a)
                                  state
                              with
