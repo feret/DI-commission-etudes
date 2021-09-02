@@ -61,7 +61,7 @@ let dpt_of_string x =
   | "physique" -> PHYS
   | "biologie" -> IBENS
   | "" | "ens" -> ENS
-  | "eco" | "economie" | "économie" -> ECO 
+  | "eco" | "economie" | "économie" -> ECO
   | _ -> DI
 
 type cloud_client = NextCloudCmd
@@ -421,6 +421,9 @@ type dens =
     dens_total_potential_ects : float ;
     dens_current_year_potential_ects : float ;
     dens_nb_inscriptions : int ;
+    dens_nb_mandatory_course : int ;
+    dens_nb_math_course : int ;
+    dens_nb_math_and_math_info_course : int ;
   }
 
 type mentor =

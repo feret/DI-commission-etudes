@@ -247,26 +247,6 @@ let years =
        | Some promo ->
          StringSet.add promo set)
     StringSet.empty students_list
-let state =
-  StringSet.fold
-    (fun promo state ->
-       let state,pattern  =
-         Remanent_state.get_students_personnal_files
-            ~promo state
-       in
-       let state, output_rep =
-         Remanent_state.get_promos_personnal_repository
-            state
-       in
-       let output = (output_rep,Format.sprintf "promo%s.pdf" promo)
-       in
-       let state =
-         Latex_engine.concat_pdf ~pattern ~output
-           state
-       in
-       state)
-    years
-    state
 let state, academicyear =
   Remanent_state.get_current_academic_year state
 let title =
@@ -354,6 +334,26 @@ let state =
       state
     end
 let state = Remanent_state.empty_copy ~copy:(Copy.copy) state
+let state =
+  StringSet.fold
+    (fun promo state ->
+       let state,pattern  =
+         Remanent_state.get_students_personnal_files
+            ~promo state
+       in
+       let state, output_rep =
+         Remanent_state.get_promos_personnal_repository
+            state
+       in
+       let output = (output_rep,Format.sprintf "promo%s.pdf" promo)
+       in
+       let state =
+         Latex_engine.concat_pdf ~pattern ~output
+           state
+       in
+       state)
+    years
+    state
 let state = Report.dump_issues state
 let state = Report.warn state
 let state =

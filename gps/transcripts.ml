@@ -2369,8 +2369,11 @@ let filter_class state filter ~firstname ~lastname ~year class_list =
   in
   aux state class_list []
 
-let is_dma_course code_cours year =
+let dma_code_cours code_cours =
   Tools.substring "DMA" code_cours
+
+let is_dma_course code_cours year =
+  dma_code_cours code_cours
   ||
   begin
     try
@@ -2750,7 +2753,7 @@ let p (t,(_,cours)) (t',(_,cours')) =
   then compare cours.cours_libelle cours'.cours_libelle
   else cmp
 
-let is_mandatory state cours =
+let check_mandatory state cours =
   match Remanent_state.get_main_dpt state with
   | state,Public_data.DI ->
     state, if
@@ -2767,37 +2770,59 @@ let is_mandatory state cours =
             "INFO-L3-SYSRES-S2";
           ]
     then
-      (fun x -> Format.sprintf "\\mandatory{%s}" x)
+      true
     else
-      (fun x -> x)
-  | state, (Public_data.ECO | Public_data.DMA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> state, (fun x -> x)
+      false
+  | state, (Public_data.ECO | Public_data.DMA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> state, false
 
-let count_for_maths state cours =
+let is_mandatory state cours =
+  let state, b = check_mandatory state cours in
+  if b then
+    state,
+      (fun x -> Format.sprintf "\\mandatory{%s}" x)
+  else
+      state,
+      (fun x -> x)
+
+let course_by_dma cours =
+  match cours.code_cours with
+  | None -> false
+  | Some a ->
+    dma_code_cours a
+
+let check_count_for_maths state cours =
   match Remanent_state.get_main_dpt state with
   | state,Public_data.DI ->
     state,
-    if match cours.code_cours with
+    begin
+      match cours.code_cours with
       | None -> false
       | Some a ->
         List.mem
           (String.trim a)
           [
-          "DMA-L3-A01-S1";
-          "DMA-L3-A05-S2";
-          "DMA-L3-A02-S1";
-          "DMA-L3-A04-S1";
-          "INFO-L3-APPREN-S2";
-          "INFO-M2-MODGEO-S2";
-          "INFO-L3-SAA-S1";
-          "INFO-L3-THEOIC-S2";
-        ]
+            "DMA-L3-A01-S1";
+            "DMA-L3-A05-S2";
+            "DMA-L3-A02-S1";
+            "DMA-L3-A04-S1";
+            "INFO-L3-APPREN-S2";
+            "INFO-M2-MODGEO-S2";
+            "INFO-L3-SAA-S1";
+            "INFO-L3-THEOIC-S2";
+          ]
         ||
-        Tools.substring "DMA" a
-    then
+        course_by_dma cours
+    end
+  | state, (Public_data.ECO | Public_data.DMA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, false
+
+let count_for_maths state cours =
+  let state, b = check_count_for_maths state cours in
+  if b then
+    state,
       (fun x -> Format.sprintf "\\countformaths{%s}" x)
-    else
+  else
+    state,
       (fun x -> x)
-  | state, (Public_data.ECO | Public_data.DMA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, (fun x -> x)
 
 let special_course state cours =
   let state, f = is_mandatory state cours in
@@ -2832,42 +2857,89 @@ let mean_init = (StringOptMap.empty,[])
 let dens_init = Public_data.YearMap.empty
 let n_att_init = Public_data.YearMap.empty
 
-let add_dens_ok year course map =
+let add_dens_requirements state year course map =
   match course.ects with
-  | None -> map
-  | Some f ->
-    let total,potential =
+  | None -> state, map
+  | Some _ ->
+    let total,potential,mandatory,math,math_math_info =
       match
         Public_data.YearMap.find_opt year map
       with
-      | None -> (0.,0.)
+      | None -> (0.,0.,0,0,0)
       | Some a -> a
     in
-    Public_data.YearMap.add year (f+.total, potential) map
+    let state, is_mandatory = check_mandatory state course in
+    let mandatory =
+      if is_mandatory
+      then
+        mandatory+1
+      else
+        mandatory
+    in
+    let state, count_for_maths = check_count_for_maths state course in
+    let math_math_info =
+      if count_for_maths
+      then
+        math_math_info + 1
+      else
+        math_math_info
+    in
+    let course_by_dma = course_by_dma course in
+    let math =
+      if course_by_dma
+      then
+        math+1
+      else
+        math
+    in
+    state, Public_data.YearMap.add year
+      (total, potential,mandatory,math,math_math_info) map
+
+
+let add_dens_ok state year course map =
+  match course.ects with
+  | None -> state, map
+  | Some f ->
+    let total,potential,mandatory,math,math_math_info =
+      match
+        Public_data.YearMap.find_opt year map
+      with
+      | None -> (0.,0.,0,0,0)
+      | Some a -> a
+    in
+    let total = total+.f in
+    let map =
+      Public_data.YearMap.add year
+        (total, potential,mandatory,math,math_math_info) map
+    in
+    add_dens_requirements state year course map
+
 let add_dens_potential year course map =
   match course.ects with
   | None -> map
   | Some f ->
-    let total,potential =
+    let total,potential,mandatory,math,math_math_info =
       match
         Public_data.YearMap.find_opt year map
       with
-      | None -> (0.,0.)
+      | None -> (0.,0.,0,0,0)
       | Some a -> a
     in
-    Public_data.YearMap.add year (total, potential+.f) map
+    Public_data.YearMap.add year
+      (total, potential+.f,mandatory,math,math_math_info)
+      map
 
-let add_dens year compensation course map =
+let add_dens state year compensation course map =
   match compensation, course.note with
-  | Some _, _ -> add_dens_ok year course map
-  | None,None -> add_dens_potential year course map
+  | Some _, _ -> add_dens_ok state year course map
+  | None,None -> state, add_dens_potential year course map
   | None,Some note ->
       match
         Notes.valide note
       with
-      | Some true -> add_dens_ok year course map
-      | Some false -> map
-      | None -> add_dens_potential year course map
+      | Some true -> add_dens_ok state year course map
+      | Some false -> state, map
+      | None -> state, add_dens_potential year course map
 
 let add_mean_empty state ~dens ~natt ~decision ~exception_cursus key year  map =
   let ects,old,y =
@@ -2884,14 +2956,18 @@ let add_mean_empty state ~dens ~natt ~decision ~exception_cursus key year  map =
   else
     state, map
 
-let add_mean_ok state key course year map =
+let add_mean_ok state key course year map dens =
   let ects,old,y =
     match StringOptMap.find_opt key (fst map)
     with
     | None -> 0.,[],0
     | Some a -> a
   in
-  state, (StringOptMap.add key
+  let year_int =
+    try int_of_string year with _ -> 0
+  in
+  let map =
+    StringOptMap.add key
             (ects+.(match course.note
                     with
                     | None -> 0.
@@ -2908,20 +2984,25 @@ let add_mean_ok state key course year map =
                           end
                       end
                    )
-            ,(course.note, course.ects)::old, max y year) (fst map),
-          snd map)
+            ,(course.note, course.ects)::old, max y year_int) (fst map),
+    snd map
+  in
+  let state, dens =
+    add_dens_requirements state year course dens
+  in
+  state, map, dens
 
-let add_mean state key compensation course year map =
+let add_mean state key compensation course year map dens =
     match compensation, course.note with
-  | Some _, _ -> add_mean_ok state key course year map
-  | None,None -> state, map
+  | Some _, _ -> add_mean_ok state key course year map dens
+  | None,None -> state, map, dens
   | None,Some note ->
       match
         Notes.valide note
       with
-      | Some true -> add_mean_ok state key course year map
+      | Some true -> add_mean_ok state key course year map dens
       | Some false | None ->
-        state, map
+        state, map, dens
 
 let add_mean_diplome state ~dens ~natt ~decision ~exception_cursus d mean_opt mention_opt validated_opt year mean =
   add_mean_empty state ~dens ~natt ~decision ~exception_cursus
@@ -4142,18 +4223,22 @@ let program
             with
             | None
             | Some ""->
-              state, mean, dens,
-              add_dens year compensation cours natt
+              let state, natt =
+                add_dens state year compensation cours natt
+              in
+                state, mean, dens, natt
 
             | Some ("dens" | "DENS") ->
-              state, mean,
-              add_dens year compensation cours dens, natt
+              let state, dens =
+                add_dens state year compensation cours dens
+              in
+              state, mean, dens, natt
             | Some _ ->
-              let state, mean =
+              let state, mean, dens =
                 add_mean state
                   (string,(Public_data.string_of_dpt dpt)) compensation cours
-                (try int_of_string year with _ -> 0)
-                mean
+                year
+                mean dens
               in state, mean, dens, natt
         in
         state,mean, dens, natt)
@@ -5379,11 +5464,11 @@ let export_transcript
         l
     in
     let _ = natt in
-    let dens_total, dens_total_potential =
+    let dens_total, dens_total_potential, mandatory, math, math_math_info =
       Public_data.YearMap.fold
-        (fun _ (t,pt) (t',pt') -> t+.t',pt+.pt')
+        (fun _ (t,pt,m,ma,mi) (t',pt',m',ma',mi') -> t+.t',pt+.pt',m+m',ma+ma',mi+mi')
         dens
-        (0.,0.)
+        (0.,0.,0,0,0)
     in
     let state, p, com_year  =
       match Remanent_state.get_commission state
@@ -5393,9 +5478,9 @@ let export_transcript
       | state, None ->
         state, (fun _ -> false), None
     in
-    let dens_year, dens_year_potential =
+    let dens_year, dens_year_potential,_,_,_ =
       match com_year with
-      | None -> (0.,0.)
+      | None -> (0.,0.,0,0,0)
       | Some com_year ->
         match
           Public_data.YearMap.find_opt
@@ -5403,7 +5488,7 @@ let export_transcript
             dens
         with
         | Some a -> a
-        | None -> (0.,0.)
+        | None -> (0.,0.,0,0,0)
     in
     let situation =
       match com_year with
@@ -5499,6 +5584,9 @@ let export_transcript
                     dens_total_potential ;
                   Public_data.dens_current_year_potential_ects = dens_year_potential ;
                   Public_data.dens_nb_inscriptions = n_inscription ;
+                  Public_data.dens_nb_mandatory_course = mandatory ;
+                  Public_data.dens_nb_math_course = math ;
+                  Public_data.dens_nb_math_and_math_info_course = math_math_info ;
                 }
             else
               state

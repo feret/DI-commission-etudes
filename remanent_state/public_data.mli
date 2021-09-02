@@ -20,7 +20,7 @@ type student_id =
     promotion: string option;
   }
 
-type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO 
+type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO
 
 val string_of_dpt: main_dpt -> string
 val dpt_of_string: string -> main_dpt
@@ -304,6 +304,9 @@ type dens =
     dens_total_potential_ects : float ;
     dens_current_year_potential_ects : float ;
     dens_nb_inscriptions : int ;
+    dens_nb_mandatory_course : int ;
+    dens_nb_math_course : int ;
+    dens_nb_math_and_math_info_course : int ; 
   }
 
 type mentor =

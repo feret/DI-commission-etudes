@@ -83,21 +83,58 @@ let dump_dens
   let promotion =
     ["PROMOTION"],
     (fun a -> a.Public_data.dens_promotion)
+  let full =
+    ["ÉTUDIANT"],
+    (fun a ->
+       Printf.sprintf "%s %s (%s)"
+         a.Public_data.dens_lastname
+         a.Public_data.dens_firstname
+         a.Public_data.dens_promotion
+    )
   let total_year =
     ["ECTS";"(année courante)"],
     (fun a ->
        Notes.string_of_ects
         (Some (a.Public_data.dens_current_year_ects)))
   let total =
-    ["ECTC";"(cumul)"],
+    ["ECTS";"(cumul)"],
     (fun a ->
        Notes.string_of_ects
-        (Some (a.Public_data.dens_total_ects)))
+         (Some (a.Public_data.dens_total_ects)))
+  let total_bis =
+    ["ECTS"],
+    (fun a ->
+       Notes.string_of_ects
+         (Some (a.Public_data.dens_total_ects)))
 
   let inscriptions =
-    ["Inscriptions au DENS"],
+    ["Inscriptions";"au DENS"],
     (fun a ->
        string_of_int (a.Public_data.dens_nb_inscriptions))
+
+  let mandatory_course =
+    ["Cours";"obligatoires"],
+    (fun a ->
+       string_of_int (a.Public_data.dens_nb_mandatory_course))
+
+  let math_math_info_course =
+    ["Cours de maths";"ou maths-info"],
+    (fun a ->
+       string_of_int (a.Public_data.dens_nb_math_and_math_info_course))
+
+  let math_course =
+    ["Cours";"de maths"],
+    (fun a ->
+       string_of_int (a.Public_data.dens_nb_math_course))
+
+  let maths_course =
+    ["Cours";"maths/maths-info"],
+    (fun a ->
+       Printf.sprintf
+         "%i/%i"
+         a.Public_data.dens_nb_math_course
+         (a.Public_data.dens_nb_math_and_math_info_course-a.Public_data.dens_nb_math_course))
+
 
   let lift_id (a,b) = (a,(fun x -> x),b)
 
@@ -114,7 +151,21 @@ let dump_dens
         Gen.lift_cmp (fun a -> a.Public_data.dens_promotion );
       ]
     in
-    let columns = [prenom_etudiant;nom_etudiant;promotion;inscriptions; total_year; total ] in
+    let state, main_dpt =
+      Remanent_state.get_main_dpt state
+    in
+    let columns =
+      match
+        main_dpt
+      with
+      | Public_data.ENS | Public_data.PHYS
+      | Public_data. IBENS | Public_data.DMA
+      | Public_data.ECO
+        ->
+        [prenom_etudiant;nom_etudiant;promotion;inscriptions; total_year; total ]
+      | Public_data.DI ->
+        [full;inscriptions;  mandatory_course ; maths_course ; total_bis]
+    in
     let headers =
       [
       ]
@@ -139,7 +190,21 @@ let dump_dens
         Gen.lift_cmp (fun a -> a.Public_data.dens_firstname) ;
       ]
     in
-    let columns = [prenom_etudiant;nom_etudiant;inscriptions; total_year; total ] in
+    let state, main_dpt =
+      Remanent_state.get_main_dpt state
+    in
+    let columns =
+      match
+        main_dpt
+      with
+      | Public_data.ENS | Public_data.PHYS
+      | Public_data. IBENS | Public_data.DMA
+      | Public_data.ECO
+        ->
+        [prenom_etudiant;nom_etudiant;inscriptions; total_year; total ]
+      | Public_data.DI ->
+        [prenom_etudiant;nom_etudiant;inscriptions; mandatory_course ; maths_course ; total_bis ]
+    in
     let headers =
       [
         lift_id promotion ;
@@ -165,7 +230,21 @@ let dump_dens
         Gen.lift_cmp (fun a -> a.Public_data.dens_firstname) ;
       ]
     in
-    let columns = [prenom_etudiant;nom_etudiant; promotion; total_year; total ] in
+    let state, main_dpt =
+      Remanent_state.get_main_dpt state
+    in
+    let columns =
+      match
+        main_dpt
+      with
+      | Public_data.ENS | Public_data.PHYS
+      | Public_data. IBENS | Public_data.DMA
+      | Public_data.ECO
+        ->
+        [prenom_etudiant;nom_etudiant;promotion; total_year; total ]
+      | Public_data.DI ->
+        [full; mandatory_course ; maths_course ;  total_bis ]
+    in
     let headers =
       [
         lift_id inscriptions ;
