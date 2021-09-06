@@ -5504,6 +5504,13 @@ let export_transcript
         state
       | Some situation ->
         begin
+          let current_dpt =
+            match
+              situation.departement_principal
+            with
+            | Some a -> Public_data.dpt_of_string a
+            | None -> Public_data.ENS
+          in
           let n_inscription =
             Public_data.YearMap.fold
               (fun year bilan n_inscription ->
@@ -5566,8 +5573,14 @@ let export_transcript
                     state
                 else state
           in
+          let state, main_dpt =
+            Remanent_state.get_main_dpt state
+          in
           let state =
-            if do_report report &&
+            if
+              main_dpt = current_dpt
+              &&
+              do_report report &&
                (n_inscription > 0 || dens_total_potential > 0.
                 || dens_total > 0.)
             then
