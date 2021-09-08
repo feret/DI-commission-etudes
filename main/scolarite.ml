@@ -25,6 +25,8 @@ let state, students_list =
 let state =
   Collect_cours_a_ajouter.get_additional_courses state
 let state =
+  Collect_notes_a_modifier.get_updated_grades state 
+let state =
   Collect_course_exceptions.get_course_exceptions state
 let state =
   Collect_scholarships.get_scholarships state

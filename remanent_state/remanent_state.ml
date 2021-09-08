@@ -75,6 +75,7 @@ type parameters =
     repository_for_compensation: string;
     repository_for_dispenses: string;
     repository_for_additional_courses: string;
+    repository_for_grades_to_modify: string;
     repository_to_dump_missing_pictures: string;
     repository_to_dump_non_accepted_grades: string;
     repository_to_dump_non_validated_internships: string;
@@ -145,6 +146,7 @@ let parameters =
     repository_for_compensation = "compensations";
     repository_for_dispenses = "dispenses";
     repository_for_additional_courses = "cours_a_ajouter";
+    repository_for_grades_to_modify = "notes_a_modifier" ;
     repository_to_dump_dens = "dens";
     repository_to_dump_national_diplomas = "diplomes_nationaux";
     repository_to_dump_mentors = "tuteurs";
@@ -217,6 +219,7 @@ type data =
     admissions: Admissions.t;
     compensations: Compensations.t;
     additional_courses: Cours_a_ajouter.t;
+    notes_a_modifier : Notes_a_modifier.t ;
     dispenses: Dispenses.t;
     missing_pictures: Public_data.student list;
     gps_server_faillures: Public_data.student list;
@@ -243,6 +246,7 @@ let empty_data =
     cursus = Cursus.empty;
     programs = Programs.empty;
     additional_courses = Cours_a_ajouter.empty;
+    notes_a_modifier = Notes_a_modifier.empty;
     output_alias = None;
     cursus_exceptions = Cursus_exception.empty;
     decisions = Decisions.empty;
@@ -704,6 +708,11 @@ let get_additional_courses_list_prefix t =
   t, t.parameters.repository_for_additional_courses
 let get_additional_courses_list_repository t =
   get_rep_gen get_bdd get_additional_courses_list_prefix t
+
+let get_modified_grades_list_prefix t =
+  t, t.parameters.repository_for_grades_to_modify
+let get_modified_grades_list_repository t =
+  get_rep_gen get_bdd get_modified_grades_list_prefix t
 
 let get_csv_separator t = t, Some ','
 
@@ -1246,7 +1255,15 @@ let get_additional_course t =
 let set_additional_course additional_courses data =
     {data with additional_courses}
 let set_additional_course additional_courses t =
-    lift_set set_additional_course additional_courses t
+  lift_set set_additional_course additional_courses t
+
+let get_notes_a_modifier data = data.notes_a_modifier
+let get_notes_a_modifier t =
+  lift_get get_notes_a_modifier t
+let set_notes_a_modifier notes_a_modifier data =
+  {data with notes_a_modifier}
+let set_notes_a_modifier notes_a_modifier t =
+      lift_set set_notes_a_modifier notes_a_modifier t
 
 let add_gen get set add pos data t =
   let t, acc =
@@ -1404,6 +1421,29 @@ let get_additional_course
   Cours_a_ajouter.get_additional_courses
     ~firstname ~lastname
     t.data.additional_courses
+
+
+
+let add_note_a_modifier _ =
+  add_gen
+    get_notes_a_modifier
+    set_notes_a_modifier
+    (Notes_a_modifier.add_note_a_modifier)
+
+let get_note_a_modifier
+    ~firstname ~lastname ~code ~year
+    t =
+  let l =
+    Notes_a_modifier.get_note_a_modifier
+      ~firstname ~lastname ~code ~year
+      t.data.notes_a_modifier
+  in
+  let l = List.rev_map (fun a -> a.Public_data.notetm_note) l in 
+  match l with
+  | [] -> t, None
+  | head::tail ->
+    t,
+    Some (List.fold_left max head tail)
 
 let add_decision unify =
   add_gen

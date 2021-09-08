@@ -169,6 +169,9 @@ val get_dispenses_list_repository: t -> t * string
 val get_additional_courses_list_prefix: t -> t * string
 val get_additional_courses_list_repository: t -> t * string
 
+val get_modified_grades_list_prefix: t -> t * string
+val get_modified_grades_list_repository: t -> t * string
+
 val get_launching_date: t -> t * string
 val get_comma_symbol: t -> t * char
 
@@ -386,6 +389,18 @@ val get_additional_course:
   firstname:string -> lastname:string ->
   t -> t * Public_data.cours_a_ajouter list
 
+val add_note_a_modifier:
+  (string * int * int * int ->
+   t ->
+   Public_data.note_a_modifier ->
+     Public_data.note_a_modifier -> t * Public_data.note_a_modifier) ->
+    (string * int * int * int) ->
+    Public_data.note_a_modifier ->
+  t -> t
+
+val get_note_a_modifier:
+  firstname:string -> lastname:string -> code:string -> year:string ->
+  t -> t * float option 
 
 val get_current_academic_year:
   t -> t * Public_data.annee
@@ -542,7 +557,7 @@ val file_retriever_fail: t -> t
 
 val get_commission_rep_from_key: ?commission_rep:string -> string -> t -> t * (string * string * string)
 
-val get_commission_rep: ?commission_rep:string -> sous_commission:Public_data.sous_commission -> t -> t * (string * string * string) 
+val get_commission_rep: ?commission_rep:string -> sous_commission:Public_data.sous_commission -> t -> t * (string * string * string)
 
 val push_copy: input_rep:string -> output_rep:string -> file_name:string -> t -> t
 val pop_copy:

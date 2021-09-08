@@ -9,7 +9,7 @@ type step_kind =
   | Extract_gps_file_from_database of string * string * string option
   | Collect_picture of string * string * string
   | Collect_picture_from_url of string * string * string * string
-  | Collect_record_from_url of string * string * string * string 
+  | Collect_record_from_url of string * string * string * string
   | Patch_gps_file of string option
   | Build_keywords_automaton
   | Export_transcript of string option
@@ -25,6 +25,7 @@ type step_kind =
   | Collect_compensations
   | Collect_cursus
   | Collect_course_exceptions
+  | Collect_modified_grade 
   | Dump_missing_grades
   | Dump_missing_ects_attributions
   | Dump_missing_mentors

@@ -130,6 +130,18 @@ type cours_a_ajouter =
 
 val empty_cours_a_ajouter:cours_a_ajouter
 
+type note_a_modifier =
+  {
+    notetm_nom: string;
+    notetm_prenom: string;
+    notetm_code:string;
+    notetm_note:float;
+    notetm_annee:annee;
+  }
+
+
+val empty_note_a_modifier:note_a_modifier
+
 type tutorat =
   {
     annee_academique: annee ;
@@ -306,7 +318,7 @@ type dens =
     dens_nb_inscriptions : int ;
     dens_nb_mandatory_course : int ;
     dens_nb_math_course : int ;
-    dens_nb_math_and_math_info_course : int ; 
+    dens_nb_math_and_math_info_course : int ;
   }
 
 type mentor =

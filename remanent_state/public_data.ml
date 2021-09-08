@@ -172,6 +172,24 @@ let empty_cours_a_ajouter =
     coursaj_annee=""
   }
 
+type note_a_modifier =
+  {
+    notetm_nom: string;
+    notetm_prenom: string;
+    notetm_code:string;
+    notetm_note:float;
+    notetm_annee:annee;
+  }
+
+let empty_note_a_modifier =
+  {
+    notetm_nom= "";
+    notetm_prenom="";
+    notetm_code="";
+    notetm_note=0.;
+    notetm_annee=""
+  }
+
 type tutorat =
   {
     annee_academique: annee ;

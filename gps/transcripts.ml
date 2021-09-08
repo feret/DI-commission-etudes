@@ -3914,7 +3914,7 @@ let program
       state, Some Color.orange
     | Some ("imalis") ->
       state, Some Color.green
-    | Some ("leco" | "LEco") ->
+    | Some ("leco" | "LEco" | "economie") ->
       state, Some Color.pink
     | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" | "lmfi" | "PHILOSorbonne") ->
       color_of_dpt
@@ -4700,9 +4700,9 @@ let export_transcript
     let state, current_year =
       Remanent_state.get_current_academic_year state
     in
-    let l_rev,_ =
+    let state,l_rev,_ =
       List.fold_left
-        (fun (l,counter) (y,annee) ->
+        (fun (state,l,counter) (y,annee) ->
            if
              begin
                match annee.situation_administrative
@@ -4762,10 +4762,34 @@ let export_transcript
              let counter = counter + 1 in
              let nannee = Some counter in
              let annee = {annee with nannee} in
-             ((y,annee)::l,counter)
+             let state, cours =
+               List.fold_left
+                 (fun (state, l) cours ->
+                    let state, cours =
+                      match cours.code_cours with
+                      | None -> state, cours
+                      | Some code ->
+                        match
+                          Remanent_state.get_note_a_modifier
+                            ~firstname ~lastname
+                            ~year:y
+                            ~code
+                            state
+                        with
+                        | state, None -> (state,cours)
+                        | state, Some note ->
+                          let note = Some (Public_data.Float note) in
+                          state, {cours with note}
+                    in
+                    state, cours::l)
+                 (state,[])
+                 (List.rev annee.cours)
+             in
+             let annee = {annee with cours} in
+             state,(y,annee)::l,counter
            else
-             (y,annee)::l,counter)
-        ([],0) l
+             state, (y,annee)::l,counter)
+        (state,[],0) l
     in
     let state, picture_list =
       if include_picture

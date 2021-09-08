@@ -25,6 +25,7 @@ type step_kind =
   | Collect_compensations
   | Collect_cursus
   | Collect_course_exceptions
+  | Collect_modified_grade
   | Dump_missing_grades
   | Dump_missing_ects_attributions
   | Dump_missing_mentors
@@ -106,6 +107,7 @@ let string_of_step_kind x =
   | Collect_admissions -> "Collect data about admission to external M2"
   | Collect_cursus -> "Collect notices about cursus"
   | Collect_course_exceptions -> "Collect course exceptions"
+  | Collect_modified_grade -> "Collect modified grades"
   | Dump_missing_grades -> "Dump missing notes"
   | Dump_missing_ects_attributions-> "Dump missing ects attributions"
   | Dump_missing_mentors -> "Dump missing mentors"
@@ -203,6 +205,7 @@ let is_dummy step_kind =
   | Collect_admissions
   | Collect_cursus
   | Collect_course_exceptions
+  | Collect_modified_grade
   | Dump_missing_grades
   | Dump_missing_ects_attributions
   | Dump_missing_mentors
