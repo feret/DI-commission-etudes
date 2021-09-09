@@ -665,7 +665,7 @@ let need_a_mentor gps_file =
   | Some (
       Public_data.Ex_boursier_si
     | Public_data.Ex_eleve
-    | Public_data.Ex_eleve_bis 
+    | Public_data.Ex_eleve_bis
     | Public_data.Ex_etudiant
     | Public_data.Ex_hors_GPS
     | Public_data.Hors_GPS) | None  -> false
@@ -4707,6 +4707,38 @@ let export_transcript
     let state, current_year =
       Remanent_state.get_current_academic_year state
     in
+    let state, l_rev =
+    List.fold_left
+      (fun (state, l) (y,annee) ->
+      let state, cours =
+        List.fold_left
+          (fun (state, l) cours ->
+             let state, cours =
+               match cours.code_cours with
+               | None -> state, cours
+               | Some code ->
+                 match
+                   Remanent_state.get_note_a_modifier
+                     ~firstname ~lastname
+                     ~year:y 
+                     ~code
+                     state
+                 with
+                 | state, None -> (state,cours)
+                 | state, Some note ->
+                   let note = Some (Public_data.Float note) in
+                   state, {cours with note}
+             in
+             state, cours::l)
+          (state,[])
+          (List.rev annee.cours)
+      in
+      let annee = {annee with cours} in
+      state, (y,annee)::l)
+      (state, [])
+      (List.rev l)
+    in
+    let l = List.rev l_rev in
     let state,l_rev,_ =
       List.fold_left
         (fun (state,l,counter) (y,annee) ->
@@ -4769,30 +4801,6 @@ let export_transcript
              let counter = counter + 1 in
              let nannee = Some counter in
              let annee = {annee with nannee} in
-             let state, cours =
-               List.fold_left
-                 (fun (state, l) cours ->
-                    let state, cours =
-                      match cours.code_cours with
-                      | None -> state, cours
-                      | Some code ->
-                        match
-                          Remanent_state.get_note_a_modifier
-                            ~firstname ~lastname
-                            ~year:y
-                            ~code
-                            state
-                        with
-                        | state, None -> (state,cours)
-                        | state, Some note ->
-                          let note = Some (Public_data.Float note) in
-                          state, {cours with note}
-                    in
-                    state, cours::l)
-                 (state,[])
-                 (List.rev annee.cours)
-             in
-             let annee = {annee with cours} in
              state,(y,annee)::l,counter
            else
              state, (y,annee)::l,counter)
