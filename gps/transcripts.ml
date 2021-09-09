@@ -285,6 +285,7 @@ let log_statut
              | Public_data.Etudiant -> "Etudiant"
              | Public_data.Ex_boursier_si -> "Ancien boursier - selection internationale"
              | Public_data.Ex_eleve -> "Ancien eleve"
+             | Public_data.Ex_eleve_bis -> "Ancien eleve bis"
              | Public_data.Ex_etudiant -> "Ancien etudiant"
              | Public_data.Boursier_si ->
                "Boursier - selection internationale"
@@ -664,6 +665,7 @@ let need_a_mentor gps_file =
   | Some (
       Public_data.Ex_boursier_si
     | Public_data.Ex_eleve
+    | Public_data.Ex_eleve_bis 
     | Public_data.Ex_etudiant
     | Public_data.Ex_hors_GPS
     | Public_data.Hors_GPS) | None  -> false
@@ -1505,6 +1507,7 @@ let statuts =
     Public_data.Eleve_bis,["eleve bis"];
     Public_data.Ex_eleve,["ex - eleve"];
     Public_data.Ex_eleve,["ex - etudiant"];
+    Public_data.Ex_eleve_bis,["ex - eleve bis"];
     Public_data.Ex_boursier_si,["ex - boursier si"];
     Public_data.Boursier_si,["boursier si"];
     Public_data.Hors_GPS,["hors gps"];
@@ -3098,21 +3101,24 @@ let heading
   let state,statut,bourse,concours =
     match gps_file.statut with
     | None -> state,"","",""
-    | Some Public_data.Ex_boursier_si
-    | Some Public_data.Boursier_si ->
+    | Some
+        (Public_data.Ex_boursier_si
+        | Public_data.Boursier_si) ->
       state,
       Format.sprintf "\\'Etudiant%s SI" genre,
       "",""
-    | Some Public_data.Ex_eleve
-    | Some Public_data.Eleve_bis
-    | Some Public_data.Eleve ->
+    | Some
+        (Public_data.Ex_eleve
+        | Public_data.Ex_eleve_bis
+        | Public_data.Eleve_bis
+        | Public_data.Eleve) ->
       let state, concours =
         get_concours origine state
       in
       state,"\\'El\\`eve","",
       concours
-    | Some Public_data.Ex_etudiant
-    | Some Public_data.Etudiant ->
+    | Some (Public_data.Ex_etudiant
+           | Public_data.Etudiant )->
       begin
         let state, bourse =
           get_bourse
@@ -3122,8 +3128,9 @@ let heading
         Format.sprintf "\\'Etudiant%s"
           genre,bourse,""
       end
-    | Some Public_data.Hors_GPS
-    | Some Public_data.Ex_hors_GPS  ->
+    | Some
+        ( Public_data.Hors_GPS
+        | Public_data.Ex_hors_GPS)  ->
       begin
         match origine with
         | Some

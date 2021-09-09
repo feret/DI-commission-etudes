@@ -439,6 +439,7 @@ type statut =
   | Eleve_bis
   | Ex_boursier_si
   | Ex_eleve
+  | Ex_eleve_bis
   | Ex_etudiant
   | Hors_GPS
   | Ex_hors_GPS
