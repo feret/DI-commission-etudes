@@ -38,7 +38,7 @@ let dpt_bio = "biologie"
 let dpt_ibens = dpt_bio
 
 let dpt_dec = "etudes cognitives"
-let dpt_eco = "économie"
+let dpt_eco = "economie"
 
 let dpt_eco_gps_name = dpt_eco
 let dpt_info_gps_name = dpt_info
