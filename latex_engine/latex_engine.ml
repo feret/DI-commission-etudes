@@ -61,10 +61,10 @@ let latex_to_pdf ?rev ?times:(times=1) ~input state =
         let state =
           Remanent_state.warn
             __POS__
-            (Printf.sprintf "%s" command)
+            (Printf.sprintf "%s" basename)
             Exit
             state
-        in
+        in 
         let state =
           Safe_sys.command __POS__ state command
         in
@@ -74,13 +74,6 @@ let latex_to_pdf ?rev ?times:(times=1) ~input state =
         in
         let state =
           Safe_sys.command __POS__ state command
-        in
-        let state =
-          Remanent_state.warn
-            __POS__
-            (Printf.sprintf "%s" command)
-            Exit
-            state
         in
         let state =
           Safe_sys.rm __POS__ state (Printf.sprintf "%s.tmp" basename)
