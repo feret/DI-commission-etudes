@@ -4730,6 +4730,7 @@ let export_transcript
       let annee = {annee with cours} in
       state, (y,annee)::l)
       (state, [])
+      l 
     in
     let l = List.rev l_rev in
     let state,l_rev,_ =
