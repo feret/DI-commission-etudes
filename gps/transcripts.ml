@@ -4730,9 +4730,8 @@ let export_transcript
       let annee = {annee with cours} in
       state, (y,annee)::l)
       (state, [])
-      (List.rev l)
+      l
     in
-    let l = List.rev l_rev in
     let state,l_rev,_ =
       List.fold_left
         (fun (state,l,counter) (y,annee) ->
