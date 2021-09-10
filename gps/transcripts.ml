@@ -2620,18 +2620,12 @@ let color_of_dpt who pos state dpt origine =
   then state, Some Color.green
   else if dpt = dpt_dec
   then state, Some Color.red
+  else if dpt = dpt_eco
+  then state, Some Color.pink
   else
     let msg =
-      Format.sprintf "Unknown departement (%s) %i %i %i %i %i %i %i %i for %s"
+      Format.sprintf "Unknown departement (%s) for %s"
         dpt
-        (Char.code (String.get dpt 0))
-        (Char.code (String.get dpt 1))
-        (Char.code (String.get dpt 2))
-        (Char.code (String.get dpt 3))
-        (Char.code (String.get dpt 4))
-        (Char.code (String.get dpt 5))
-        (Char.code (String.get dpt 6))
-        (Char.code (String.get dpt 7))
         who
     in
     Remanent_state.warn_dft
@@ -3921,7 +3915,7 @@ let program
       state, Some Color.orange
     | Some ("imalis") ->
       state, Some Color.green
-    | Some ("leco" | "LEco" | "economie") ->
+    | Some ("leco" | "LEco") ->
       state, Some Color.pink
     | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" | "lmfi" | "PHILOSorbonne") ->
       color_of_dpt
@@ -4720,7 +4714,7 @@ let export_transcript
                  match
                    Remanent_state.get_note_a_modifier
                      ~firstname ~lastname
-                     ~year:y 
+                     ~year:y
                      ~code
                      state
                  with
