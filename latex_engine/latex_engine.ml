@@ -59,13 +59,6 @@ let latex_to_pdf ?rev ?times:(times=1) ~input state =
             basename basename
         in
         let state =
-          Remanent_state.warn
-            __POS__
-            (Printf.sprintf "%s" basename)
-            Exit
-            state
-        in 
-        let state =
           Safe_sys.command __POS__ state command
         in
         let command =
