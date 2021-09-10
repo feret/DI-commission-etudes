@@ -2270,12 +2270,12 @@ let string_of_stringopt s_opt =
   | None -> ""
   | Some s -> s
 
-let translate_dpt state d =
+let translate_dpt ~firstname ~lastname ~year state d =
   match d with
   | None ->
     Remanent_state.warn_dft
       __POS__
-      "Departement non rempli"
+      (Format.sprintf "Departement non rempli pour %s %s in %i" firstname lastname year)
       Exit
       ""
       state
@@ -3375,7 +3375,7 @@ let heading
               Some "maths-phys"
             else
               let state, string =
-                translate_dpt state
+                translate_dpt ~firstname ~lastname ~year:annee_int state
                   situation.departement_principal
               in
               state, string, None
