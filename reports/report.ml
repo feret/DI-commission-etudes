@@ -250,7 +250,7 @@ let warn state =
     | state, _::_ ->
       Remanent_state.warn
         __POS__
-        "The statis of several internships is not consistent"
+        "The status of several internships is not consistent"
         Exit
         state
   in
