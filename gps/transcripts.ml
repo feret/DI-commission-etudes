@@ -44,9 +44,13 @@ let dpt_eco_gps_name = dpt_eco
 let dpt_info_gps_name = dpt_info
 let dpt_phys_gps_name = dpt_phys
 let dpt_maths_gps_name = "mathematiques et applications"
+let dpt_bio_gps_name = dpt_bio
+
 let acro_dpt_phys = "PHYS"
 let acro_dpt_info = "DI"
 let acro_dpt_maths = "DMA"
+let acro_dpt_eco = "ECO"
+let acro_dpt_bio = "BIO"
 
 let dpt_info_full = "Département d'Informatique"
 let dpt_maths_full = "Département de Mathématiques et Applications"
@@ -59,6 +63,20 @@ let simplify_string s =
   Special_char.lowercase
     (Special_char.correct_string_txt
        (Special_char.correct_string_utf8 (String.trim s)))
+
+let acro_of_gps_name x =
+  let x = simplify_string  x in
+  if x = dpt_info_gps_name
+  then acro_dpt_info
+  else if x = dpt_maths_gps_name
+  then acro_dpt_maths
+  else if x = dpt_bio_gps_name
+  then acro_dpt_bio
+  else if x = dpt_eco_gps_name
+  then acro_dpt_eco
+  else if x = dpt_phys_gps_name
+  then acro_dpt_phys
+  else acro_dpt_info
 
 let addmap x data map =
   let old =
@@ -3320,6 +3338,15 @@ let heading
                     "DI"
                     state
               in
+              let state =
+                Remanent_state.warn
+                  __POS__
+                  (Printf.sprintf "%s %s"
+                     dpt
+                     (Public_data.string_of_dpt (Public_data.dpt_of_string dpt)))
+                  Exit
+                  state
+              in
               state,
               Printf.sprintf
                 "Cursus maths-info et rattaché%s au %s"
@@ -4730,7 +4757,7 @@ let export_transcript
       let annee = {annee with cours} in
       state, (y,annee)::l)
       (state, [])
-      l 
+      l
     in
     let l = List.rev l_rev in
     let state,l_rev,_ =
@@ -5153,7 +5180,8 @@ let export_transcript
                  match
                    situation.departement_principal
                  with
-                 | Some a -> Public_data.dpt_of_string a
+                 | Some a -> Public_data.dpt_of_string
+                               (acro_of_gps_name a)
                  | None -> Public_data.ENS
                in
                let state =
@@ -5541,7 +5569,7 @@ let export_transcript
             match
               situation.departement_principal
             with
-            | Some a -> Public_data.dpt_of_string a
+            | Some a -> Public_data.dpt_of_string (acro_of_gps_name a)
             | None -> Public_data.ENS
           in
           let n_inscription =
