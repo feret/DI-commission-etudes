@@ -4725,7 +4725,7 @@ let export_transcript
         (state, gps_file)
         additional_courses
     in
-    let gps_file' = gps_file in
+    (*let gps_file' = gps_file in*)
     let l = Public_data.YearMap.bindings gps_file.situation in
     let state, current_year =
       Remanent_state.get_current_academic_year state
@@ -4828,6 +4828,21 @@ let export_transcript
            else
              state, (y,annee)::l,counter)
         (state,[],0) l
+    in
+    let gps_file =
+      List.fold_left
+        (fun gps_file (y,annee) ->
+           let situation = gps_file.situation in
+           match
+             Public_data.YearMap.find_opt y situation
+           with
+           | None -> gps_file
+           | Some bilan ->
+             let bilan = {bilan with nannee = annee.nannee} in
+             let situation = Public_data.YearMap.add y bilan situation in
+             {gps_file with situation})
+        gps_file
+        l_rev
     in
     let state, picture_list =
       if include_picture
@@ -5402,7 +5417,7 @@ let export_transcript
                  (fun a -> Some (a/.(sum*.1.12)))
                  (List.rev l)
              in
-             let situation' = situation in
+             (*   let situation' = situation in*)
              if StringOptMap.is_empty split_cours
              then
                let suite = false in
@@ -5578,7 +5593,7 @@ let export_transcript
         state,
         Public_data.YearMap.find_opt
           com_year
-          gps_file'.situation
+          gps_file.situation
     in
     let state =
       match situation with
@@ -5587,8 +5602,7 @@ let export_transcript
           __POS__
           (Format.sprintf "None")
           Exit
-          state,
-        state
+          state
       | Some situation ->
         begin
           let current_dpt =
@@ -5800,10 +5814,15 @@ let export_transcript
                                       Remanent_state.warn
                                         __POS__
                                         (Printf.sprintf
-                                           "%s %s %s"
+                                           "%s %s %s %i PRINC:%s SEC:%s "
                                            lastname
                                            (if b1 then "MATH" else "")
                                            (if b2 then "INFO" else "")
+                                           (match situation.nannee with None ->  0 | Some i -> i)
+                                           (match situation.departement_principal with Some a -> a | None -> "")
+                                           (match
+                                              situation.departement_secondaire with
+                                             Some a -> a | None -> "")
                                         )
                                         Exit
                                         state
