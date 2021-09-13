@@ -3293,6 +3293,16 @@ let heading
                 ((string_of_int i)^"ème année :")
                 state
           in
+          let b1 = lmath situation in
+          let b2 = linfo situation in
+          let state =
+            Remanent_state.warn
+              __POS__
+              (Printf.sprintf "%s %s %s" lastname (if b1 then "MATH" else "")
+                 (if b2 then "INFO" else ""))
+              Exit
+              state
+          in
           let state, suffix, nationaux_opt
             =
             if
@@ -3337,15 +3347,6 @@ let heading
                     Exit
                     "DI"
                     state
-              in
-              let state =
-                Remanent_state.warn
-                  __POS__
-                  (Printf.sprintf "%s %s"
-                     dpt
-                     (Public_data.string_of_dpt (Public_data.dpt_of_string dpt)))
-                  Exit
-                  state
               in
               state,
               Printf.sprintf
@@ -4724,6 +4725,7 @@ let export_transcript
         (state, gps_file)
         additional_courses
     in
+    let gps_file' = gps_file in
     let l = Public_data.YearMap.bindings gps_file.situation in
     let state, current_year =
       Remanent_state.get_current_academic_year state
@@ -5052,6 +5054,13 @@ let export_transcript
         (fun (state,mean,dens,natt) (year,situation,split_cours) ->
            let who =
              Format.sprintf "%s in %s" who year
+           in
+           let state =
+             Remanent_state.warn
+               __POS__
+               (Format.sprintf "%s" who)
+               Exit
+               state
            in
            let state, tuteur =
              Remanent_state.get_mentoring
@@ -5393,6 +5402,7 @@ let export_transcript
                  (fun a -> Some (a/.(sum*.1.12)))
                  (List.rev l)
              in
+             let situation' = situation in
              if StringOptMap.is_empty split_cours
              then
                let suite = false in
@@ -5551,17 +5561,33 @@ let export_transcript
         | Some a -> a
         | None -> (0.,0.,0,0,0)
     in
-    let situation =
+    let state, situation =
       match com_year with
-      | None -> None
+      | None ->
+        Remanent_state.warn
+          __POS__
+          (Format.sprintf "None")
+          Exit
+          state,
+        None
       | Some com_year ->
+      Remanent_state.warn
+        __POS__
+        (Format.sprintf "%s" com_year)
+        Exit
+        state,
         Public_data.YearMap.find_opt
           com_year
-          gps_file.situation
+          gps_file'.situation
     in
     let state =
       match situation with
       | None ->
+        Remanent_state.warn
+          __POS__
+          (Format.sprintf "None")
+          Exit
+          state,
         state
       | Some situation ->
         begin
@@ -5764,17 +5790,41 @@ let export_transcript
                              state, "Pensionnaires_etrangers"
                            else
                              match
-                               Remanent_state.get_commission_rep_from_key
-                                 (match fst key with
-                                  | None -> ""
-                                  | Some "l" -> if
+                               let state, key =
+                                 match fst key with
+                                  | None -> state, ""
+                                  | Some "l" ->
+                                    let b1 = lmath situation in
+                                    let b2 = linfo situation in
+                                    let state =
+                                      Remanent_state.warn
+                                        __POS__
+                                        (Printf.sprintf
+                                           "%s %s %s"
+                                           lastname
+                                           (if b1 then "MATH" else "")
+                                           (if b2 then "INFO" else "")
+                                        )
+                                        Exit
+                                        state
+                                    in
+                                    if
                                     lmath situation && linfo situation
-                                    then "L3_mathinfo"
+                                    then state, "L3_mathinfo"
                                     else if lmathphys situation
-                                    then "L3_mathphys"
-                                    else "L3"
-                                  | Some "m" -> "M1"
-                                  | Some a -> a)
+                                    then state, "L3_mathphys"
+                                    else state, "L3"
+                                  | Some "m" -> state, "M1"
+                                  | Some a ->
+                                    Remanent_state.warn
+                                      __POS__
+                                      (Printf.sprintf "Unknown key %s" a)
+                                      Exit
+                                      state,
+                                    a
+                               in
+                               Remanent_state.get_commission_rep_from_key
+                                 key
                                  state
                              with
                              | state, (_,_,rep') ->
