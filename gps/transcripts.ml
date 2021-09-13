@@ -3293,16 +3293,6 @@ let heading
                 ((string_of_int i)^"ème année :")
                 state
           in
-          let b1 = lmath situation in
-          let b2 = linfo situation in
-          let state =
-            Remanent_state.warn
-              __POS__
-              (Printf.sprintf "%s %s %s" lastname (if b1 then "MATH" else "")
-                 (if b2 then "INFO" else ""))
-              Exit
-              state
-          in
           let state, suffix, nationaux_opt
             =
             if
@@ -4725,7 +4715,6 @@ let export_transcript
         (state, gps_file)
         additional_courses
     in
-    (*let gps_file' = gps_file in*)
     let l = Public_data.YearMap.bindings gps_file.situation in
     let state, current_year =
       Remanent_state.get_current_academic_year state
@@ -5070,13 +5059,6 @@ let export_transcript
            let who =
              Format.sprintf "%s in %s" who year
            in
-           let state =
-             Remanent_state.warn
-               __POS__
-               (Format.sprintf "%s" who)
-               Exit
-               state
-           in
            let state, tuteur =
              Remanent_state.get_mentoring
                ~year
@@ -5084,7 +5066,6 @@ let export_transcript
                ~firstname
                state
            in
-
            let state, tuteurs_secondaires =
              Remanent_state.get_mentoring_list
                ~year
@@ -5579,17 +5560,9 @@ let export_transcript
     let state, situation =
       match com_year with
       | None ->
-        Remanent_state.warn
-          __POS__
-          (Format.sprintf "None")
-          Exit
           state,
-        None
+          None
       | Some com_year ->
-      Remanent_state.warn
-        __POS__
-        (Format.sprintf "%s" com_year)
-        Exit
         state,
         Public_data.YearMap.find_opt
           com_year
@@ -5597,12 +5570,7 @@ let export_transcript
     in
     let state =
       match situation with
-      | None ->
-        Remanent_state.warn
-          __POS__
-          (Format.sprintf "None")
-          Exit
-          state
+      | None -> state
       | Some situation ->
         begin
           let current_dpt =
@@ -5808,39 +5776,16 @@ let export_transcript
                                  match fst key with
                                   | None -> state, ""
                                   | Some "l" ->
-                                    let b1 = lmath situation in
-                                    let b2 = linfo situation in
-                                    let state =
-                                      Remanent_state.warn
-                                        __POS__
-                                        (Printf.sprintf
-                                           "%s %s %s %i PRINC:%s SEC:%s "
-                                           lastname
-                                           (if b1 then "MATH" else "")
-                                           (if b2 then "INFO" else "")
-                                           (match situation.nannee with None ->  0 | Some i -> i)
-                                           (match situation.departement_principal with Some a -> a | None -> "")
-                                           (match
-                                              situation.departement_secondaire with
-                                             Some a -> a | None -> "")
-                                        )
-                                        Exit
-                                        state
-                                    in
                                     if
-                                    lmath situation && linfo situation
+                                      lmath situation && linfo situation
                                     then state, "L3_mathinfo"
                                     else if lmathphys situation
                                     then state, "L3_mathphys"
                                     else state, "L3"
                                   | Some "m" -> state, "M1"
                                   | Some a ->
-                                    Remanent_state.warn
-                                      __POS__
-                                      (Printf.sprintf "Unknown key %s" a)
-                                      Exit
                                       state,
-                                    a
+                                      a
                                in
                                Remanent_state.get_commission_rep_from_key
                                  key
