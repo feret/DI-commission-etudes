@@ -326,7 +326,7 @@ let print_sous_commission
                             dip.Public_data.dens_short lbl
                          direction.Public_data.direction_initiales)
               state
-              ~signature ~preamble ~headpage:headpage
+              ~preamble ~headpage:headpage
               ~footpage ~footcolor
               ~nb_inscription_list:dip.Public_data.nb_inscription_list
           in
@@ -347,10 +347,10 @@ let print_sous_commission
               ~file_name:(Format.sprintf "PV_%s%s_signe_%s.tex"
                             dip.Public_data.dens_short lbl
                          direction.Public_data.direction_initiales)
-              state
               ~signature ~preamble ~headpage:headpage
-              ~footpage ~footcolor ~signature 
+              ~footpage ~footcolor
               ~nb_inscription_list:dip.Public_data.nb_inscription_list
+              state
           in
           let state =
             match input with
@@ -363,7 +363,7 @@ let print_sous_commission
           let state =
             Latex_engine.latex_opt_to_pdf
               state  ~times:2 ~input
-          in
+            in
           state
         in
         state
