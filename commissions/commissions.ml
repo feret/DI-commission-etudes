@@ -275,7 +275,7 @@ let print_sous_commission
         let state,_ =
           f
             ~file_name:(Format.sprintf
-                        "PV_%s%s.html" dip.Public_data.dens_short lbl)
+                        "PV_%s%s.html" dip.Public_data.dens_short lbl )
             ~nb_inscription_list:dip.Public_data.nb_inscription_list
             state
         in
@@ -322,11 +322,34 @@ let print_sous_commission
           in
           let state,input =
             f
-              ~file_name:(Format.sprintf "PV_%s%s.tex"
-                            dip.Public_data.dens_short lbl)
+              ~file_name:(Format.sprintf "PV_%s%s_sans_signature_%s.tex"
+                            dip.Public_data.dens_short lbl
+                         direction.Public_data.direction_initiales)
               state
               ~signature ~preamble ~headpage:headpage
               ~footpage ~footcolor
+              ~nb_inscription_list:dip.Public_data.nb_inscription_list
+          in
+          let state =
+            match input with
+            | None -> state
+            | Some (input_rep,file_name) ->
+              let file_name = Copy.pdf_file file_name in
+              Remanent_state.push_copy
+                ~input_rep ~output_rep ~file_name state
+          in
+          let state =
+            Latex_engine.latex_opt_to_pdf
+              state  ~times:2 ~input
+          in
+          let state,input =
+            f
+              ~file_name:(Format.sprintf "PV_%s%s_signe_%s.tex"
+                            dip.Public_data.dens_short lbl
+                         direction.Public_data.direction_initiales)
+              state
+              ~signature ~preamble ~headpage:headpage
+              ~footpage ~footcolor ~signature 
               ~nb_inscription_list:dip.Public_data.nb_inscription_list
           in
           let state =
