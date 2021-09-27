@@ -181,9 +181,9 @@ let parameters =
     error_log_repository = "erreurs_internes";
     error_log_file = "error.txt";
     comma_symbol = ',';
-    current_academic_year = "2020";
+    current_academic_year = "2021";
     commissions_repository = "commissions_des_etudes";
-    commission = Some ("16 septembre 2021", "2020");
+    commission = None (*Some ("16 septembre 2021", "2020")*);
     target = None ;
     signature = "feret+tampon.pdf";
     language  = Public_data.French;
@@ -196,7 +196,7 @@ let set_dma parameters =
     parameters with
     main_dpt = Public_data.DMA ;
     commissions_repository = "commissions_des_etudes";
-    commission = Some ("23 juin 2021",  "2020");
+    commission = None (*Some ("23 juin 2021",  "2020")*);
     local_repository = "dma/suivi_pedagogique" ;
     enspsl_logo = "LOGOs/ENSPSL.pdf" ;
     scholarships_repository = "dma/scolarite/ELEVES" ;
@@ -1438,7 +1438,7 @@ let get_note_a_modifier
       ~firstname ~lastname ~code ~year
       t.data.notes_a_modifier
   in
-  let l = List.rev_map (fun a -> a.Public_data.notetm_note) l in 
+  let l = List.rev_map (fun a -> a.Public_data.notetm_note) l in
   match l with
   | [] -> t, None
   | head::tail ->
