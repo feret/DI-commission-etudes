@@ -69,7 +69,7 @@ let check_url
       Some (output_repository,output_file_name)
   | state, i ->
     Remanent_state.warn_and_log __POS__
-      (Format.sprintf "access to %s  failed with error %i" url i)
+      (Format.sprintf "access to %s failed with error %i" url i)
       Exit
       state,
     None
@@ -103,7 +103,7 @@ let check_url
           in
           let url = file in
           let state, output_list =
-            Remanent_state.get_picture_potential_locations
+          Remanent_state.get_picture_potential_locations
               ~firstname ~lastname ~year:promo state
           in
           let state, b =
@@ -180,7 +180,7 @@ let check_url
                          Safe_sys.file_exists
                            __POS__ state filename
                        in
-                       if b 
+                       if b
                        then
                        Safe_sys.rm
                          __POS__ state filename
@@ -264,7 +264,7 @@ let fetch
         ~more_options:Remanent_state.get_annuaire_access_options state
     | Some options -> state, options
   in
-  let options = Format.sprintf "%s --no-hsts" options in
+  let options = Format.sprintf "%s" options in
   let state,timeout =
     match timeout with
     | None ->

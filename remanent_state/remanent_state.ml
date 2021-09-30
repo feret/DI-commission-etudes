@@ -49,6 +49,7 @@ type parameters =
     file_retriever_max_n_fail: int;
     file_retriever_skip: bool;
     tmp_annuaire_repository: string ;
+    annuaire_check_certificate: bool ;
     include_pictures: bool;
     file_retriever_time_out_in_seconds: int option;
     file_retriever_checking_period_in_seconds : int;
@@ -169,6 +170,7 @@ let parameters =
     tmp_annuaire_repository = "/users/absint3/feret/tmp";
     include_pictures = true;
     file_retriever_annuaire_html_file = "annuaire.html";
+    annuaire_check_certificate = false ;
     file_retriever_time_out_in_seconds = Some 300;
     file_retriever_checking_period_in_seconds = 5;
     file_retriever_skip = false;
@@ -346,7 +348,16 @@ let get_file_retriever_options t =
   t.parameters.file_retriever_options
 
 let get_annuaire_access_options t =
-  t, t.parameters.annuaire_access_options
+  let certificate =
+    if t.parameters.annuaire_check_certificate then
+      ""
+    else
+      " --no-check-certificate"
+  in
+  t,
+  Printf.sprintf "%s%s"
+    t.parameters.annuaire_access_options
+    certificate
 
 let get_gps_access_options t =
   t, t.parameters.gps_access_options

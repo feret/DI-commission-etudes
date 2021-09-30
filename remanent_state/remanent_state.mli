@@ -97,6 +97,7 @@ val set_output_alias: t -> (string * string) -> t
 val get_file_retriever:
   t -> t * Public_data.file_retriever
 val get_file_retriever_options: ?more_options:(t -> t * string) -> t -> t * string
+
 val get_annuaire_access_options: t -> t * string
 val get_gps_access_options: t -> t * string
 val get_file_retriever_log_repository: t -> t * string
@@ -400,7 +401,7 @@ val add_note_a_modifier:
 
 val get_note_a_modifier:
   firstname:string -> lastname:string -> code:string -> year:string ->
-  t -> t * float option 
+  t -> t * float option
 
 val get_current_academic_year:
   t -> t * Public_data.annee
