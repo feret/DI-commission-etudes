@@ -25,7 +25,7 @@ let state, students_list =
 let state =
   Collect_cours_a_ajouter.get_additional_courses state
 let state =
-  Collect_notes_a_modifier.get_updated_grades state 
+  Collect_notes_a_modifier.get_updated_grades state
 let state =
   Collect_course_exceptions.get_course_exceptions state
 let state =
@@ -285,28 +285,33 @@ let state =
           Format.sprintf "tutorat_all%s.%s" s ext)
       ~title
       state
-
+let state, commission_rep =
+  Remanent_state.get_main_commission_rep state
+let state, dpt, signataires =
+  match
+    Remanent_state.get_main_dpt state
+  with
+  | state, Public_data.DI -> state, Public_data.DI, ["JF";"MP";"LB"]
+  | state, Public_data.DMA -> state, Public_data.DMA, ["AM"]
+  | state, Public_data.ENS -> state, Public_data.ENS, []
+  | state, Public_data.PHYS -> state, Public_data.PHYS, []
+  | state, Public_data.IBENS -> state, Public_data.IBENS, []
+  | state, Public_data.ECO -> state, Public_data.ECO, []
 let state =
   match
     Remanent_state.get_commission state
   with
-  | state, None -> state
+  | state, None ->
+    let state =
+      Commissions.prepare_commission
+        ~commission_rep
+        ~signataires
+        state
+    in
+    state
+
   | state, Some (commission_date,commission_year) ->
     begin
-      let state, commission_rep =
-        Remanent_state.get_main_commission_rep state
-      in
-      let state, dpt, signataires =
-        match
-          Remanent_state.get_main_dpt state
-        with
-        | state, Public_data.DI -> state, Public_data.DI, ["JF";"MP";"LB"]
-        | state, Public_data.DMA -> state, Public_data.DMA, ["AM"]
-        | state, Public_data.ENS -> state, Public_data.ENS, []
-        | state, Public_data.PHYS -> state, Public_data.PHYS, []
-        | state, Public_data.IBENS -> state, Public_data.IBENS, []
-        | state, Public_data.ECO -> state, Public_data.ECO, []
-      in
       let state =
         Diploma_report.dump_attestations
           ~signataires

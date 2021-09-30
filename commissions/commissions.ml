@@ -186,8 +186,8 @@ let diplomes_eco =
 
 let print_sous_commission
     commission_rep
-    commission_year
-    commission_date
+    ?commission_year
+    ?commission_date
     direction_key
     sous_commission_key
     todo
@@ -213,17 +213,22 @@ let print_sous_commission
       direction_etude_eco,diplomes_eco,People.footpage_string_eco,Color.pink
   in
   let state, full_year =
-    try
-      let year_int = int_of_string commission_year in
-      state, Format.sprintf "%i-%i" year_int (year_int+1)
-    with
-    | _ ->
-      Remanent_state.warn
-        __POS__
-        (Format.sprintf "Bad string for a year (%s)" commission_year)
-        Exit
-        state,
+    match
       commission_year
+    with
+    | None -> state, ""
+    | Some commission_year ->
+      try
+        let year_int = int_of_string commission_year in
+        state, Format.sprintf "%i-%i" year_int (year_int+1)
+      with
+      | _ ->
+        Remanent_state.warn
+          __POS__
+          (Format.sprintf "Bad string for a year (%s)" commission_year)
+          Exit
+          state,
+        commission_year
   in
   match
     Public_data.StringMap.find_opt direction_key direction_etude,
@@ -282,43 +287,50 @@ let print_sous_commission
         let headpage = headpage dip.Public_data.dens_short in
         let state =
           let state, signature =
-            match direction.Public_data.direction_signature with
-            | None -> state,
-                      (fun _ -> [
-                           Loggers.fprintf,
-                           Format.sprintf
-                             "Certifié exact à Paris \\\\ le %s \\\\"
-                             commission_date])
-            | Some s ->
-              let state, s =
-                s state
-              in
-              let signature _ =
-                [
-                  Loggers.fprintf,
-                  Format.sprintf
-                    "Certifié exact à Paris \\\\ le %s \\\\"
-                    commission_date;
-                  Loggers.fprintf_verbatim,
-                  Format.sprintf  "\\IfFileExists{%s}{\\includegraphics{%s}}{}"
+            match commission_date with
+            | None -> state,(fun _ -> [])
+            | Some commission_date
+              ->
+              match direction.Public_data.direction_signature with
+              | None -> state,
+                        (fun _ -> [
+                             Loggers.fprintf,
+                             Format.sprintf
+                               "Certifié exact à Paris \\\\ le %s \\\\"
+                               commission_date])
+              | Some s ->
+                let state, s =
+                  s state
+                in
+                let signature _ =
+                  [
+                    Loggers.fprintf,
+                    Format.sprintf
+                      "Certifié exact à Paris \\\\ le %s \\\\"
+                      commission_date;
+                    Loggers.fprintf_verbatim,
+                    Format.sprintf  "\\IfFileExists{%s}{\\includegraphics{%s}}{}"
                     s s
-                ]
-              in
-              state, signature
+                  ]
+                in
+                state, signature
           in
           let preamble i =
-            [Loggers.fprintf,
-             Format.sprintf
-               "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en %s à l'ENS et aux décisions de la commission des études du %s,} je soussigné%s \\textbf{%s}, %s du département %s de l'École Normale Supérieure, certifie que les \\underline{\\textbf{%i étudiants inscrits en %s}}, %s du diplôme de l'École Normale Supérieure, ont obtenu les résultats suivants"
-               dpt
-               commission_date
-               (People.e_of_direction direction)
-               direction.Public_data.direction_nom_complet
-               direction.Public_data.direction_titre
-               direction.Public_data.direction_departement
-               i
-               full_year
-               dip.Public_data.which_year_string]
+            match commission_date with
+            | None -> []
+            | Some commission_date ->
+              [Loggers.fprintf,
+               Format.sprintf
+                 "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en %s à l'ENS et aux décisions de la commission des études du %s,} je soussigné%s \\textbf{%s}, %s du département %s de l'École Normale Supérieure, certifie que les \\underline{\\textbf{%i étudiants inscrits en %s}}, %s du diplôme de l'École Normale Supérieure, ont obtenu les résultats suivants"
+                 dpt
+                 commission_date
+                 (People.e_of_direction direction)
+                 direction.Public_data.direction_nom_complet
+                 direction.Public_data.direction_titre
+                 direction.Public_data.direction_departement
+                 i
+                 full_year
+                 dip.Public_data.which_year_string]
           in
           let state,input =
             f
@@ -369,35 +381,39 @@ let print_sous_commission
         state
       | TODO_Nat (f,lbl), Public_data.Diplome_National dip ->
         let headpage = headpage dip.Public_data.dn_long in
+        let academicyear=commission_year in
         let state,_ =
           f
             ~file_name:(Format.sprintf
                           "PV_%s%s.html" dip.Public_data.dn_short lbl)
-            ~academicyear:commission_year
+            ?academicyear
             ~niveau:dip.Public_data.dn_niveau
             ~dpt:dip.Public_data.dn_departement
             state
         in
         let preamble i =
-          [Loggers.fprintf,
-           Format.sprintf
-             "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en %s à l'ENS et aux décisions de la commission des études du %s,} je soussigné%s \\textbf{%s}, %s du département %s de l'École Normale Supérieure, certifie que les \\underline{\\textbf{%i étudiants inscrits en %s}}, %s, \\textbf{en %s - parcours : Formation interuniversitaire en %s de l'ENS Paris, ont obtenu les résultats suivants}"
-             dpt
-             commission_date
-             (People.e_of_direction direction)
-            direction.Public_data.direction_nom_complet
-            direction.Public_data.direction_titre
-            direction.Public_data.direction_departement
-            i full_year
-            dip.Public_data.dn_universite
-            dip.Public_data.dn_long
-            dpt]
+          match commission_date with
+          | None -> []
+          | Some commission_date ->
+            [Loggers.fprintf,
+             Format.sprintf
+               "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en %s à l'ENS et aux décisions de la commission des études du %s,} je soussigné%s \\textbf{%s}, %s du département %s de l'École Normale Supérieure, certifie que les \\underline{\\textbf{%i étudiants inscrits en %s}}, %s, \\textbf{en %s - parcours : Formation interuniversitaire en %s de l'ENS Paris, ont obtenu les résultats suivants}"
+               dpt
+               commission_date
+               (People.e_of_direction direction)
+               direction.Public_data.direction_nom_complet
+               direction.Public_data.direction_titre
+               direction.Public_data.direction_departement
+               i full_year
+               dip.Public_data.dn_universite
+               dip.Public_data.dn_long
+               dpt]
         in
         let state,input =
           f
             ~file_name:(Format.sprintf "PV_%s%s_sans_signature_%s.tex"
                           dip.Public_data.dn_short lbl direction.Public_data.direction_initiales)
-            ~academicyear:commission_year
+            ?academicyear
             ~niveau:dip.Public_data.dn_niveau ~dpt:dip.Public_data.dn_departement
             ~headpage:headpage
             ~preamble:preamble
@@ -416,22 +432,25 @@ let print_sous_commission
             s state
           in
           let signature _ =
-            [
-              Loggers.fprintf,
-              Format.sprintf
-                "Certifié exact à Paris \\\\ le %s \\\\"
-                commission_date ;
-              Loggers.fprintf_verbatim,
-              Format.sprintf
-                "\\IfFileExists{%s}{\\includegraphics{%s}}{}"
-                s s
-            ]
+            match commission_date with
+            | None -> []
+            | Some commission_date ->
+              [
+                Loggers.fprintf,
+                Format.sprintf
+                  "Certifié exact à Paris \\\\ le %s \\\\"
+                  commission_date ;
+                Loggers.fprintf_verbatim,
+                Format.sprintf
+                  "\\IfFileExists{%s}{\\includegraphics{%s}}{}"
+                  s s
+              ]
           in
           let state,input =
             f
               ~file_name:(Format.sprintf "PV_%s%s_signe_%s.tex"
                             dip.Public_data.dn_short lbl direction.Public_data.direction_initiales)
-              ~academicyear:commission_year
+              ?academicyear
               ~niveau:dip.Public_data.dn_niveau ~dpt:dip.Public_data.dn_departement
               ~headpage
               ~preamble
@@ -459,11 +478,13 @@ let print_sous_commission
 
 let prepare_commission
     ~commission_rep
-    ~annee
-    ~date_complete
+    ?annee
+    ?date_complete
     ?signataires:(persons=["MP";"JF";"LB"])
     ?diplomes:(sous_commissions=["dens";"l";"m"])
     state =
+  let commission_year = annee in
+  let commission_date = date_complete in
   List.fold_left
     (fun state direction ->
        List.fold_left
@@ -472,8 +493,8 @@ let prepare_commission
               (fun state todo ->
                  print_sous_commission
                    commission_rep
-                   annee
-                   date_complete
+                   ?commission_year
+                   ?commission_date
                    direction
                    sous_commission
                    todo
