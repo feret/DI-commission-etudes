@@ -5544,7 +5544,7 @@ let export_transcript
         state, (fun y -> y<=a), Some a
       | state, None ->
         let state, y = Remanent_state.get_current_academic_year state in
-          state, (fun _ -> true), Some y
+        state, (fun _ -> true), Some y
     in
     let dens_year, dens_year_potential,_,_,_ =
       match com_year with
@@ -5749,12 +5749,12 @@ let export_transcript
                        | None -> false
                        | Some mean -> mean >= 10.
                    in
-                   let state =
+                   let state, d_nat =
                      let input_rep,file_name = rep, snd output in
                      let file_name = Copy.pdf_file file_name in
                      let y = string_of_int val_year in
                      match Remanent_state.get_commission state with
-                     | state, None -> state
+                     | state, None -> state, false
                      | state, Some (_,i) ->
                        let state, dpt = Remanent_state.get_main_dpt state in
                        if i=y &&
@@ -5817,14 +5817,14 @@ let export_transcript
                              else
                                state
                            in
-                           state
+                           state, true
                        else
-                         state
+                         state, false
                    in
                    if lpoly situation then
                      state
                    else
-                   if do_report report then
+                   if d_nat && do_report report then
                      Remanent_state.add_national_diploma
                        state
                        {Public_data.diplome_dpt = Public_data.dpt_of_string (snd key);
