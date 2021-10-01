@@ -580,13 +580,13 @@ let find_starting_with
     | [] ->
       warn
         __POS__
-        "no url found"
+        (Format.sprintf "no url starting with %s found" prefix)
         Exit
         state, None
     | a::_::_ ->
       warn
         __POS__
-        "several urls found"
+        (Format.sprintf "several urls starting with %s found" prefix) 
         Exit
         state, Some a
     | [a] -> state, Some a
