@@ -123,6 +123,8 @@ val get_repository_to_dump_attestations: t -> t * string
 val get_indicate_promotions_in_attestation_file_names: t -> t * bool
 
 val get_url_prefix_for_photos: t -> t * string
+val get_rel_url_prefix_for_photos: t -> t * string
+val get_correct_rel_url_prefix_for_photos: t -> t * string 
 val get_include_pictures: t -> t * bool
 
 (** CSV *)

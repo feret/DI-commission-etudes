@@ -28,9 +28,28 @@ let grep_photo_address state file_name =
   let state, prefix =
     Remanent_state.get_url_prefix_for_photos state
   in
-  Tools.find_starting_with
-    ~warn ~file_exists ~prefix ~between:'"'
-    state file_name
+  let state, a =
+    Tools.find_starting_with
+      ~warn ~file_exists ~prefix ~between:'"'
+      state file_name
+  in
+  match a with
+  | Some a -> state, Some a
+  | None ->
+    let state, prefix =
+      Remanent_state.get_rel_url_prefix_for_photos state
+    in
+    let state, correct =
+      Remanent_state.get_correct_rel_url_prefix_for_photos state
+    in
+    let state, a =
+      Tools.find_starting_with
+        ~warn ~file_exists ~prefix ~between:'"'
+        state file_name
+    in
+    match a with
+    | None -> state, None
+    | Some a -> state, Some (correct^a)
 
 let check_url
     file_retriever ?user_name ?password ~options

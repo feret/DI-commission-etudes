@@ -38,6 +38,8 @@ type parameters =
     pictures_stored_according_to_promotions: bool;
     picture_file_names_mention_promotion: bool;
     url_prefix_for_photos: string;
+    rel_url_prefix_for_photos: string;
+    correct_rel_url_prefix_for_photos: string;
     file_retriever: Public_data.file_retriever ;
     file_retriever_options: string ;
     gps_access_options: string ;
@@ -158,6 +160,8 @@ let parameters =
     indicate_promotions_in_gps_file_names = true;
     indicate_promotions_in_attestation_file_names = true;
     url_prefix_for_photos = "http://annuaireweb.ens.fr/photos/";
+    rel_url_prefix_for_photos = "photos/";
+    correct_rel_url_prefix_for_photos = "http://annuaireweb.ens.fr/";
     repository_to_access_pictures = "photos";
     pictures_stored_according_to_promotions = true ;
     picture_file_names_mention_promotion = false;
@@ -336,6 +340,12 @@ let get_cloud_client_options t =
 
 let get_url_prefix_for_photos t =
   t, t.parameters.url_prefix_for_photos
+
+let get_rel_url_prefix_for_photos t =
+  t, t.parameters.rel_url_prefix_for_photos
+
+let get_correct_rel_url_prefix_for_photos t =
+  t, t.parameters.correct_rel_url_prefix_for_photos
 
 let get_include_pictures t =
   t, t.parameters.include_pictures

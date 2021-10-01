@@ -5543,7 +5543,8 @@ let export_transcript
       | state, Some (_, a) ->
         state, (fun y -> y<=a), Some a
       | state, None ->
-        state, (fun _ -> false), None
+        let state, y = Remanent_state.get_current_academic_year state in
+          state, (fun _ -> true), Some y
     in
     let dens_year, dens_year_potential,_,_,_ =
       match com_year with
@@ -5613,7 +5614,6 @@ let export_transcript
             | Some key ->
               let input_rep,file_name = rep, snd output in
               let file_name = Copy.pdf_file file_name in
-              (*  let y = string_of_float dens_year in*)
               match Remanent_state.get_commission state with
               | state, None -> state
               | state, Some _ ->
