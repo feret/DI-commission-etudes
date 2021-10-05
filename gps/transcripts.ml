@@ -39,18 +39,21 @@ let dpt_ibens = dpt_bio
 
 let dpt_dec = "etudes cognitives"
 let dpt_eco = "economie"
+let dpt_dri = "relations internationales"
 
 let dpt_eco_gps_name = dpt_eco
 let dpt_info_gps_name = dpt_info
 let dpt_phys_gps_name = dpt_phys
 let dpt_maths_gps_name = "mathematiques et applications"
 let dpt_bio_gps_name = dpt_bio
+let dpt_dri_gps_name = dpt_dri
 
 let acro_dpt_phys = "PHYS"
 let acro_dpt_info = "DI"
 let acro_dpt_maths = "DMA"
 let acro_dpt_eco = "ECO"
 let acro_dpt_bio = "BIO"
+let acro_dpt_dri = "DRI"
 
 let dpt_info_full = "Département d'Informatique"
 let dpt_maths_full = "Département de Mathématiques et Applications"
@@ -58,6 +61,7 @@ let dpt_phys_full = "Département de Physique"
 let dpt_bio_full = "Institut de Biologie"
 let dpt_dec_full = "Département d'Études Cognitives"
 let dpt_eco_full = "Département d'Économie"
+let dpt_dri_full = "Direction des relations internationales"
 
 let simplify_string s =
   Special_char.lowercase
@@ -76,6 +80,8 @@ let acro_of_gps_name x =
   then acro_dpt_eco
   else if x = dpt_phys_gps_name
   then acro_dpt_phys
+  else if x = dpt_dri_gps_name
+  then acro_dpt_dri
   else acro_dpt_info
 
 let addmap x data map =
@@ -2197,6 +2203,11 @@ let lerasmus origine =
       | Public_data.M_MPRI)
   | None -> false
 
+let lechange_dri situation =
+  match situation.departement_principal with
+  | Some x -> Public_data.dpt_of_string x = Public_data.DRI
+  | _ -> false
+
 let lpe origine =
   match origine with
   | Some Public_data.PensionnaireEtranger -> true
@@ -2300,6 +2311,7 @@ let translate_dpt ~firstname ~lastname ~year state d =
   | Some s ->
     begin
       match simplify_string s with
+      | x when x=dpt_dri -> state, dpt_dri_full
       | x when x=dpt_info -> state, dpt_info_full
       | x when x=dpt_maths -> state, dpt_maths_full
       | x when x=dpt_phys -> state, dpt_phys_full
@@ -2475,7 +2487,7 @@ let translate_diplome
   let check_dpt pos state origine diplome label code_cours year situation =
     match
       situation.departement_principal,
-      lerasmus origine || lpe origine
+      lerasmus origine || lpe origine || lechange_dri situation
     with
     | None, false ->
       Remanent_state.warn_dft
@@ -2546,19 +2558,12 @@ let translate_diplome
           code_cours year
           situation
       else
-      if lerasmus origine
+      if lerasmus origine || lpe origine || lechange_dri situation
       then
         check_dpt __POS__ state origine "L"
           "Année d'échange"
           code_cours year
           situation
-      else
-      if lpe origine
-      then
-      check_dpt __POS__ state origine "L"
-        "Année d'échange"
-        code_cours year
-        situation
       else
       if lmathphys situation
       then
@@ -2659,6 +2664,7 @@ let dpt_of_acro who pos state dpt origine =
     state, None
   else
     match dpt with
+    | Public_data.DRI -> state, Some dpt_dri
     | Public_data.DI -> state, Some dpt_info
     | Public_data.DMA -> state, Some dpt_maths
     | Public_data.IBENS -> state, Some dpt_ibens
@@ -2788,7 +2794,7 @@ let check_mandatory state cours =
       true
     else
       false
-  | state, (Public_data.ECO | Public_data.DMA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> state, false
+  | state, (Public_data.DRI | Public_data.ECO | Public_data.DMA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> state, false
 
 let is_mandatory state cours =
   let state, b = check_mandatory state cours in
@@ -2828,7 +2834,7 @@ let check_count_for_maths state cours =
         ||
         course_by_dma cours
     end
-  | state, (Public_data.ECO | Public_data.DMA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, false
+  | state, (Public_data.DRI | Public_data.ECO | Public_data.DMA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, false
 
 let count_for_maths state cours =
   let state, b = check_count_for_maths state cours in
@@ -3097,11 +3103,11 @@ let heading
           "D\\'epartement de Math\\'ematiques et Applications. \\'Ecole  Normale  Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Tel : +33 (0)1 44 32 20 49."
       in
       state
-    | state, (Public_data.ENS | Public_data.ECO | Public_data.PHYS | Public_data.IBENS) ->
+    | state, (Public_data.DRI | Public_data.ENS | Public_data.ECO | Public_data.PHYS | Public_data.IBENS) ->
       let state =
         Remanent_state.warn
           __POS__
-          "ENS/PHYS/IBENS/ECO are not a valid dpt to edit transcripts"
+          "DRI/ENS/PHYS/IBENS/ECO are not a valid dpt to edit transcripts"
           Exit
           state
       in state
@@ -3251,7 +3257,12 @@ let heading
       state,
       "Année d'étude au département d'informatique",
       None
+    else if lechange_dri situation then
+      state,
+      "Année d'échanges avec la direction des relations internationales",
+      None
     else
+
       match
         situation.nannee
       with
@@ -3739,6 +3750,7 @@ let program
             ~level:string
             ?dpt:(match string, dpt with
                 | "dens",_
+                | _,Public_data.DRI
                 | _,Public_data.ENS -> None
                 | _,(Public_data.ECO | Public_data.DI | Public_data.DMA | Public_data.IBENS | Public_data.PHYS) ->
                   Some dpt)
@@ -4774,40 +4786,44 @@ let export_transcript
                  ||
                  counter = 0
                | Some sit ->
-                 (simplify_string sit = "scolarite a l'ens"
+                 (not (lechange_dri annee))
                  &&
-                 not
-                   (List.exists
-                      (fun dip ->
-                         let code = dip.diplome_diplome in
-                         match code with
-                         | None -> false
-                         | Some dip ->
-                           if String.length dip < 3 then false
-                           else String.sub dip 0 3 = "CES")
-                      annee.diplomes))
-                 ||
-                 (simplify_string sit = "autre cas"
-                  &&
-                  (not
-                    (List.exists
-                       (fun dip ->
-                          let code = dip.diplome_diplome in
-                          match code with
-                          | None -> false
-                          | Some dip ->
-                            if String.length dip < 3 then false
-                            else String.sub dip 0 3 = "CES")
-                       annee.diplomes))
-                  &&
-                  (annee.derniere_annee = Some true
-                   || begin
-                     match
-                       annee.code_option
-                     with
-                     | Some "OPT1" -> true
-                     | Some _ | None -> false
-                   end))
+                 (
+                   (simplify_string sit = "scolarite a l'ens"
+                    &&
+                    not
+                      (List.exists
+                         (fun dip ->
+                            let code = dip.diplome_diplome in
+                            match code with
+                            | None -> false
+                            | Some dip ->
+                              if String.length dip < 3 then false
+                              else String.sub dip 0 3 = "CES")
+                         annee.diplomes))
+                   ||
+                   (simplify_string sit = "autre cas"
+                    &&
+                    (not
+                       (List.exists
+                          (fun dip ->
+                             let code = dip.diplome_diplome in
+                             match code with
+                             | None -> false
+                             | Some dip ->
+                               if String.length dip < 3 then false
+                               else String.sub dip 0 3 = "CES")
+                          annee.diplomes))
+                    &&
+                    (annee.derniere_annee = Some true
+                     || begin
+                       match
+                         annee.code_option
+                       with
+                       | Some "OPT1" -> true
+                       | Some _ | None -> false
+                     end))
+                 )
              end
            then
              let counter = counter + 1 in
@@ -5084,7 +5100,7 @@ let export_transcript
              | None ->
                begin
                  match Remanent_state.get_main_dpt state with
-                 | state, (Public_data.DI | Public_data.ENS) -> state, None
+                 | state, (Public_data.DRI | Public_data.DI | Public_data.ENS) -> state, None
                  | state, (Public_data.ECO | Public_data.DMA | Public_data.PHYS | Public_data.IBENS)->
                    begin
                      match
@@ -5604,6 +5620,7 @@ let export_transcript
             if lpoly situation then Some "Bachelor_de_l_X"
             else if lpe origine then Some "Pensionnaires_etrangers"
             else if lerasmus origine then Some "Erasmus"
+            else if lechange_dri situation then Some "Échange DRI"
             else if list <> [] then Some "Dispenses"
             else
               None
@@ -5629,6 +5646,7 @@ let export_transcript
                     let state =
                       if lpoly situation
                       || lerasmus origine || lpe origine
+                      || lechange_dri situation
                       || list <> []
                       then
                         Remanent_state.push_copy
@@ -5770,6 +5788,8 @@ let export_transcript
                              state, "Erasmus"
                            else if lpe origine then
                              state, "Pensionnaires_etrangers"
+                           else if lechange_dri situation then
+                             state, "Échange DRI"
                            else
                              match
                                let state, key =
@@ -5808,6 +5828,7 @@ let export_transcript
                          let state =
                            if good key || lpoly situation
                               || lerasmus origine || lpe origine
+                              || lechange_dri situation
                            then
                              Remanent_state.push_copy
                                  ~input_rep

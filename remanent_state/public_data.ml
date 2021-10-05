@@ -42,7 +42,7 @@ module StringOptMap =
     )
 
 
-type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO
+type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO | DRI
 
 let string_of_dpt x =
   match x with
@@ -51,6 +51,7 @@ let string_of_dpt x =
   | IBENS -> "biologie"
   | PHYS -> "physique"
   | ECO -> "économie"
+  | DRI -> "échanges DRI"
   | ENS -> ""
 
 let dpt_of_string x =
@@ -62,6 +63,7 @@ let dpt_of_string x =
   | "biologie" -> IBENS
   | "" | "ens" -> ENS
   | "eco" | "economie" | "économie" -> ECO
+  | "echanges DRI" -> DRI 
   | _ -> DI
 
 type cloud_client = NextCloudCmd

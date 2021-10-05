@@ -160,7 +160,7 @@ let dump_dens
       with
       | Public_data.ENS | Public_data.PHYS
       | Public_data. IBENS | Public_data.DMA
-      | Public_data.ECO
+      | Public_data.ECO | Public_data.DRI
         ->
         [prenom_etudiant;nom_etudiant;promotion;inscriptions; total_year; total ]
       | Public_data.DI ->
@@ -199,7 +199,7 @@ let dump_dens
       with
       | Public_data.ENS | Public_data.PHYS
       | Public_data. IBENS | Public_data.DMA
-      | Public_data.ECO
+      | Public_data.ECO | Public_data.DRI
         ->
         [prenom_etudiant;nom_etudiant;inscriptions; total_year; total ]
       | Public_data.DI ->
@@ -239,7 +239,7 @@ let dump_dens
       with
       | Public_data.ENS | Public_data.PHYS
       | Public_data. IBENS | Public_data.DMA
-      | Public_data.ECO
+      | Public_data.ECO | Public_data.DRI 
         ->
         [prenom_etudiant;nom_etudiant;promotion; total_year; total ]
       | Public_data.DI ->

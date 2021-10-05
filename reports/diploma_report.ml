@@ -227,6 +227,13 @@ let direction_etude_phys =
     Public_data.StringMap.empty
     People.phys_list
 
+let direction_etude_dri =
+  List.fold_left
+    (fun map elt ->
+       Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+    Public_data.StringMap.empty
+    People.dri_list
+
 let dump_attestation
   ?output_repository
   ?prefix
@@ -374,6 +381,13 @@ let dump_attestation
     in
     let (),dir_list,dir_dpt =
       match main_dpt with
+      | Public_data.DRI ->
+      let color = Color.orange in
+      Loggers.setfootpage logger ~color
+      [
+        Loggers.fprintf,
+        People.footpage_string
+      ],direction_etude_dri,"relations internationales"
       | Public_data.DI | Public_data.ENS ->
         let color = Color.digreen in
         Loggers.setfootpage logger ~color
@@ -440,6 +454,7 @@ let dump_attestation
           ~level
           ?dpt:(match level, dpt with
               | "dens",_
+              | _,Public_data.DRI
               | _,Public_data.ENS -> None
               | _,(Public_data.DI | Public_data.ECO |
                    Public_data.DMA | Public_data.IBENS | Public_data.PHYS) ->

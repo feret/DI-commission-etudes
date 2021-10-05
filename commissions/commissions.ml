@@ -97,6 +97,13 @@ let direction_etude_dma =
     Public_data.StringMap.empty
     People.dma_list
 
+let direction_etude_dri =
+  List.fold_left
+    (fun map elt ->
+       Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+    Public_data.StringMap.empty
+    People.dri_list
+
 let direction_etude_ibens =
   List.fold_left
     (fun map elt ->
@@ -202,6 +209,8 @@ let print_sous_commission
       People.dpt_di,direction_etude,diplomes,People.footpage_string,Color.digreen
     | Public_data.DMA ->
       People.dpt_dma,direction_etude_dma,diplomes_dma,People.footpage_string_dma,Color.duckblue
+    | Public_data.DRI ->
+      People.dpt_dri,direction_etude_dri,Public_data.StringMap.empty ,People.footpage_string_dri,Color.orange
     | Public_data.ENS ->
       People.dpt_di,Public_data.StringMap.empty,Public_data.StringMap.empty,"",Color.digreen
     | Public_data.IBENS ->

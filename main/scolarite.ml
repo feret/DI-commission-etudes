@@ -297,6 +297,7 @@ let state, dpt, signataires =
   | state, Public_data.PHYS -> state, Public_data.PHYS, []
   | state, Public_data.IBENS -> state, Public_data.IBENS, []
   | state, Public_data.ECO -> state, Public_data.ECO, []
+  | state, Public_data.DRI -> state, Public_data.DRI, []
 let state =
   match
     Remanent_state.get_commission state
