@@ -3262,7 +3262,6 @@ let heading
       "Année d'échanges avec la direction des relations internationales",
       None
     else
-
       match
         situation.nannee
       with
