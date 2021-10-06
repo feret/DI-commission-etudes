@@ -4789,6 +4789,8 @@ let export_transcript
              warn_dri __POS__ state annee
            in
            if
+             (not (lechange_dri annee))
+             &&
              begin
                match annee.situation_administrative
                with
@@ -4808,8 +4810,6 @@ let export_transcript
                  ||
                  counter = 0
                | Some sit ->
-                 (not (lechange_dri annee))
-                 &&
                  (
                    (simplify_string sit = "scolarite a l'ens"
                     &&

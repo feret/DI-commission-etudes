@@ -62,9 +62,9 @@ let dpt_of_string x =
   | "physique" -> PHYS
   | "biologie" -> IBENS
   | "" | "ens" -> ENS
-  | "eco" | "economie" | "économie" -> ECO
-  | "echanges DRI"
-  | "relations internationales" -> DRI 
+  | "eco" | "economie" -> ECO
+  | "echanges dri"
+  | "relations internationales" -> DRI
   | _ -> DI
 
 type cloud_client = NextCloudCmd
