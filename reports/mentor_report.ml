@@ -22,6 +22,8 @@ sig
   val dump_per_promo_student_mentor: correct_email:(string -> string) -> dump
   val dump_per_mentor_year_promo_student: correct_email:(string -> string) -> dump
   val dump_per_student: correct_email:(string -> string) -> dump
+  val dump_per_student_without_promo: correct_email:(string -> string) -> dump
+
   val dump:
     ?studentfirstname:string ->
     ?studentlastname:string ->
@@ -364,6 +366,45 @@ struct
       ?output_repository ?prefix ?file_name
       cmp headers columns state
 
+  let dump_per_student_without_promo
+      ~correct_email
+      ?studentfirstname ?studentlastname ?mentorfirstname
+      ?mentorlastname
+      ?academicyear ?attributionyear ?promo ?title ?dpt
+      ?output_repository ?prefix ?file_name
+      state =
+    let cmp =
+      [
+        Gen.lift_cmp (fun a -> a.Public_data.mentor_student_lastname);
+        Gen.lift_cmp (fun a -> a.Public_data.mentor_student_firstname);
+        Gen.lift_cmp (fun a -> a.Public_data.mentor_lastname);
+        Gen.lift_cmp (fun a -> a.Public_data.mentor_firstname);
+      ]
+    in
+    let columns =
+      [
+        nom_etudiant;
+        nom_tuteur correct_email
+      ]
+    in
+
+    let headers =
+      match academicyear, promo with
+      | Some _, _ -> []
+      | _, None ->
+        [
+          lift_id nom_etudiant_long
+        ]
+      | _,Some _ -> [lift_id nom_etudiant_long]
+    in
+    dump_mentor_list
+      ?studentfirstname ?studentlastname ?mentorfirstname
+      ?mentorlastname ?academicyear ?attributionyear
+      ?promo ?title ?dpt
+      ?output_repository ?prefix ?file_name
+      cmp headers columns state
+
+
   let dump_per_mentor_year_promo_student
       ~correct_email
       ?studentfirstname ?studentlastname ?mentorfirstname
@@ -476,6 +517,19 @@ struct
         ?academicyear ?attributionyear ?promo ?title ?dpt
         ?output_repository ?prefix
         ~file_name:(file_name "_par_étudiant" "tex")
+        ~correct_email
+        state
+    in
+    let state =
+      Latex_engine.latex_opt_to_pdf state ~input
+    in
+    let state, input =
+      dump_per_student_without_promo
+        ?studentfirstname ?studentlastname
+        ?mentorfirstname ?mentorlastname
+        ?academicyear ?attributionyear ?promo ?title ?dpt
+        ?output_repository ?prefix
+        ~file_name:(file_name "_par_étudiant_sans_promo" "tex")
         ~correct_email
         state
     in

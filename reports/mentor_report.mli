@@ -22,6 +22,8 @@ sig
   val dump_per_promo_student_mentor: correct_email:(string -> string) ->dump
   val dump_per_mentor_year_promo_student: correct_email:(string -> string) ->dump
   val dump_per_student: correct_email:(string -> string) ->dump
+  val dump_per_student_without_promo: correct_email:(string -> string) ->dump
+
   val dump:
     ?studentfirstname:string ->
     ?studentlastname:string ->
