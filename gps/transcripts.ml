@@ -2208,6 +2208,22 @@ let lechange_dri situation =
   | Some x -> Public_data.dpt_of_string x = Public_data.DRI
   | _ -> false
 
+let warn_dri pos state situation =
+  let b = lechange_dri situation in
+  match situation.departement_principal with
+    | Some x ->
+      Remanent_state.warn
+        pos
+        (Format.sprintf "CHECK DRI : %s %s" x (if b then "true" else "false"))
+        Exit
+        state
+    | None ->
+    Remanent_state.warn
+      pos
+      "CHECK DRI : None false"
+      Exit
+      state
+
 let lpe origine =
   match origine with
   | Some Public_data.PensionnaireEtranger -> true
@@ -2485,6 +2501,7 @@ let translate_diplome
     end
   | state, None  ->
   let check_dpt pos state origine diplome label code_cours year situation =
+    let state = warn_dri pos state situation in
     match
       situation.departement_principal,
       lerasmus origine || lpe origine || lechange_dri situation
@@ -2551,6 +2568,7 @@ let translate_diplome
   match diplome with
   | Some "L" ->
     begin
+      let state = warn_dri __POS__ state situation in
       if lpoly situation
       then
         check_dpt __POS__ state origine "L"
@@ -3250,6 +3268,8 @@ let heading
     Printf.sprintf
       "%i -- %i" annee_int (annee_int+1)
   in
+  let state = warn_dri __POS__ state situation in
+
   let state, statut, nationaux_opt =
     if lerasmus origine
     || lpe origine
@@ -4765,6 +4785,9 @@ let export_transcript
     let state,l_rev,_ =
       List.fold_left
         (fun (state,l,counter) (y,annee) ->
+           let state =
+             warn_dri __POS__ state annee
+           in
            if
              begin
                match annee.situation_administrative
@@ -5623,6 +5646,8 @@ let export_transcript
               ~year:current_year
               state
           in
+          let state = warn_dri __POS__ state situation in
+
           let key =
             if lpoly situation then Some "Bachelor_de_l_X"
             else if lpe origine then Some "Pensionnaires_etrangers"
@@ -5650,6 +5675,8 @@ let export_transcript
                         state
                   with
                   | state, (_,_,output_rep) ->
+                  let state = warn_dri __POS__ state situation in
+
                     let state =
                       if lpoly situation
                       || lerasmus origine || lpe origine
@@ -5788,6 +5815,8 @@ let export_transcript
                            ((validated && keep_success)
                             || ((not validated) && keep_faillure))
                        then
+                         let state = warn_dri __POS__ state situation in
+
                          let state, output_rep =
                            if lpoly situation then
                              state, "Bachelor_de_l_X"
@@ -5832,6 +5861,8 @@ let export_transcript
                                in
                                state, output_rep
                          in
+                         let state = warn_dri __POS__ state situation in
+
                          let state =
                            if good key || lpoly situation
                               || lerasmus origine || lpe origine
