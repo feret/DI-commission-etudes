@@ -3095,7 +3095,7 @@ let get_origine who promo gps_file state =
 
 let heading
     ~who ~firstname ~lastname ~promo ~origine
-    ~year ~situation ~tuteur
+    ~year ~situation ~tuteur ?tuteur_bis
     cursus_map split_cours picture_list is_suite gps_file state =
   let genre,er,_ne =
     match gps_file.genre with
@@ -3645,6 +3645,28 @@ let heading
   in
   let () =
     Remanent_state.print_newline state
+  in
+  let () =
+    match tuteur_bis with
+    | None -> ()
+    | Some (tuteur,lineproportion) ->
+      let () =
+        Remanent_state.log
+          ~lineproportion
+          ~textcolor
+          state
+          " "
+      in
+      let lineproportion = 1./.3. in
+      let () =
+        Remanent_state.log
+          ~lineproportion
+          ~textcolor
+          state
+          "%s (secondaire)"
+          tuteur
+      in
+      ()
   in
   let k =
     List.fold_left
@@ -5304,6 +5326,54 @@ let export_transcript
                    state, (x, 2./.3.)
                end
            in
+           let state, tuteur_bis =
+             begin
+               match
+                 tuteurs_secondaires
+               with
+               | [] -> state, None
+               | tuteur::_ ->
+                 begin
+                   match
+                     tuteur.Public_data.nom_du_tuteur,
+                     tuteur.Public_data.prenom_du_tuteur,
+                     tuteur.Public_data.genre_du_tuteur,
+                     tuteur.Public_data.courriel_du_tuteur
+                   with
+                   | None, (None | Some _),
+                     (None | Some _), None ->
+                     let msg =
+                       Printf.sprintf
+                         "Tuteur secondaire inconnu pour %s"
+                         who
+                     in
+                     Remanent_state.warn_dft
+                       __POS__
+                       msg
+                       Exit
+                       (Some ("",1.))
+                       state
+                   | Some x, Some y, Some z, _ ->
+                     state,
+                     Some (Printf.sprintf
+                        "%s %s %s"
+                        (match z with
+                         | Public_data.Masculin ->
+                           "Tuteur (secondaire: "
+                         | Public_data.Feminin ->
+                           "Tutrice (secondaire): "
+                         | Public_data.Unknown -> "")
+                        (Special_char.capitalize y)
+                        (Special_char.uppercase x),
+                      2./.3.
+                     )
+                   | None, _, _, Some x ->
+                     state, Some (x, 2./.3.)
+                   | Some x, _, _, _ ->
+                     state, Some (x, 2./.3.)
+                 end
+             end
+           in
            let state =
              if do_report report &&
                 year <= current_year
@@ -5453,7 +5523,7 @@ let export_transcript
                    ~who ~firstname ~lastname
                    ~promo ~origine
                    ~year ~situation
-                   ~tuteur
+                   ~tuteur ?tuteur_bis
                    cursus_map split_cours
                    picture_list suite gps_file state
                in
@@ -5490,7 +5560,7 @@ let export_transcript
                                  ~who ~firstname ~lastname
                                  ~promo ~origine
                                  ~year ~situation
-                                 ~tuteur
+                                 ~tuteur ?tuteur_bis
                                  cursus_map split_cours
                                  picture_list suite gps_file state
                              in
