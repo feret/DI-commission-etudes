@@ -571,6 +571,7 @@ type statut =
   | Ex_hors_GPS
 
 type origin =
+  | AL
   | DensDEC
   | DensInfo
   | EchErasm
@@ -581,6 +582,7 @@ type origin =
   | Psi
   | Sis
   | M_MPRI
+  | ED386
 
 type remove_non_valided_classes =
   | All

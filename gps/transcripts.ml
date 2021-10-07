@@ -322,9 +322,11 @@ let log_statut
 let string_of_origin_opt a =
   match a with
   | None -> ""
+  | Some Public_data.AL -> "CPGE khâgne"
   | Some Public_data.DensDEC -> "concours universitaire sciences cognitives"
    | Some Public_data.DensInfo -> "concours universitaire informatique"
    | Some Public_data.EchErasm -> "Erasmus"
+   | Some Public_data.ED386 -> "ED386"
    | Some Public_data.Info -> "CPGE Informatique"
    | Some Public_data.Mpi -> "CPGE Math-Physique-Info"
    | Some Public_data.Pc  -> "CPGE Physique-Chimie"
@@ -341,10 +343,12 @@ let string_of_origin_short_opt a =
   | Some Public_data.Info -> "Info"
   | Some Public_data.Mpi -> "MPI"
   | Some Public_data.Pc  -> "PC"
+  | Some Public_data.ED386 -> "ED386"
   | Some Public_data.PensionnaireEtranger -> "Pensionnaire Étranger"
   | Some Public_data.Psi -> "PSI"
   | Some Public_data.Sis -> "SI"
   | Some Public_data.M_MPRI -> "MPRI"
+  | Some Public_data.AL -> "Khâgne"
 
 let log_origine
     state (label, string_opt) =
@@ -1595,7 +1599,8 @@ let statut_opt_of_string_opt ?who ?gps_file  =
 
 let origines =
   [
-    Public_data.DensInfo,["dens-info"];
+    Public_data.AL,["a/l"];
+    Public_data.DensInfo,["dens-info";"nes"];
     Public_data.DensDEC,["dens-dec"];
     Public_data.EchErasm,["e-echerasm"];
     Public_data.Info,["info"];
@@ -1604,7 +1609,8 @@ let origines =
     Public_data.Pc,["pc"];
     Public_data.Psi,["psi"];
     Public_data.Sis,["sis"];
-    Public_data.M_MPRI,["m-mpri"]
+    Public_data.M_MPRI,["m-mpri"];
+    Public_data.ED386,["ed-386"]
   ]
 
 let concours =
@@ -1616,7 +1622,7 @@ let concours =
     Public_data.PensionnaireEtranger,[];
     Public_data.Pc,[];
     Public_data.Psi,[];
-    Public_data.Sis,[];
+    Public_data.Sis,["SI-S"];
     Public_data.M_MPRI,[]
   ]
 
@@ -2193,6 +2199,7 @@ let lerasmus origine =
   | Some Public_data.EchErasm -> true
   | Some
       (Public_data.DensInfo
+      | Public_data.AL
       | Public_data.DensDEC
       | Public_data.Info
       | Public_data.Mpi
@@ -2200,6 +2207,7 @@ let lerasmus origine =
       | Public_data.PensionnaireEtranger
       | Public_data.Psi
       | Public_data.Sis
+      | Public_data.ED386
       | Public_data.M_MPRI)
   | None -> false
 
@@ -2213,6 +2221,7 @@ let lpe origine =
   | Some Public_data.PensionnaireEtranger -> true
   | Some
       (Public_data.DensInfo
+      | Public_data.AL
       | Public_data.DensDEC
       | Public_data.EchErasm
       | Public_data.Info
@@ -2220,6 +2229,7 @@ let lpe origine =
       | Public_data.Pc
       | Public_data.Psi
       | Public_data.Sis
+      | Public_data.ED386
       | Public_data.M_MPRI)
   | None -> false
 
@@ -3042,10 +3052,11 @@ let get_origine who promo gps_file state =
       |Public_data.Pc
       |Public_data.PensionnaireEtranger
       |Public_data.Psi
-      |Public_data.Sis)
+      |Public_data.Sis
+       | Public_data.AL)
    | None) as x -> state, x
-  |
-    Some Public_data.M_MPRI ->
+  | Some Public_data.ED386
+  | Some Public_data.M_MPRI ->
     begin
       match
         Public_data.YearMap.find_opt
@@ -3065,7 +3076,9 @@ let get_origine who promo gps_file state =
           match l with
           | [] -> state, None
           | h::t ->
-            if h.grade = Some "Concours d'entrée ENS"
+            if List.mem h.grade
+                [Some "Concours d'entrée ENS";
+                 Some "Sélection internationnale"]
             then
               origin_opt_of_concours
                 ~who __POS__ state
@@ -3164,7 +3177,9 @@ let heading
             Exit
             state,
           "M-MPRI","",""
-        | None -> state, "","", ""
+        | None
+        | Some Public_data.ED386
+          -> state, "","", ""
         | Some ( Public_data.DensInfo | Public_data.DensDEC)
           ->
           let state, bourse =
@@ -3178,7 +3193,9 @@ let heading
         | Some Public_data.Info
         | Some Public_data.Mpi
         | Some Public_data.Pc
-        | Some Public_data.Psi ->
+        | Some Public_data.Psi
+        | Some Public_data.AL
+          ->
           let state, concours =
             get_concours origine state
           in
@@ -5417,7 +5434,9 @@ let export_transcript
                      | None ->
                        Remanent_state.warn
                          __POS__
-                         "missing mentor first name"
+                         (Format.sprintf
+                            "missing mentor first name for %s"
+                            who)
                          Exit
                          state, ""
                      | Some a -> state, a
