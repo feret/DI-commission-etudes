@@ -3093,6 +3093,9 @@ let heading
     ~who ~firstname ~lastname ~promo ~origine
     ~year ~situation ~tuteur ?tuteur_bis
     cursus_map split_cours picture_list is_suite gps_file state =
+  let state, main_dpt =
+    Remanent_state.get_main_dpt state
+  in
   let genre,er,_ne =
     match gps_file.genre with
     | None | Some Public_data.Unknown -> "(e)","er(\\`ere)","(ne)"
@@ -3273,7 +3276,16 @@ let heading
     || lpe origine
     then
       state,
-      "Année d'étude au département d'informatique",
+      (Format.sprintf "Année d'étude au département %s"
+         (match main_dpt with
+            Public_data.DI -> "d'informatique"
+          | Public_data.DMA -> "de mathématiques"
+          | Public_data.ENS -> ""
+          | Public_data.PHYS -> "de physique"
+          | Public_data.IBENS -> "de biologie"
+          | Public_data.ECO -> "d'économie"
+          | Public_data.DRI -> "")
+         ),
       None
     else if lechange_dri situation then
       state,
@@ -3454,7 +3466,7 @@ let heading
               Remanent_state.get_cursus
                 ~year
                 ~level:"dens"
-                ~dpt:Public_data.DI
+                ~dpt:main_dpt
                 __POS__
                 state
           in
