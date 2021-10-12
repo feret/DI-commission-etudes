@@ -2743,8 +2743,9 @@ let is_stage cours =
     match cours.cours_libelle with
     | None -> false
     | Some a ->
-      (Tools.substring "Internship" a
-       || Tools.substring "Stage" a) &&
+      let a = String.lowercase_ascii a in
+      (Tools.substring "internship" a
+       || Tools.substring "stage" a) &&
       (not
          (Tools.substring "intensif" a))
   end
