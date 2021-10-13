@@ -35,12 +35,14 @@ let dpt_maths = "mathematiques"
 let dpt_info = "informatique"
 let dpt_phys = "physique"
 let dpt_bio = "biologie"
+let dpt_arts = "arts"
 let dpt_ibens = dpt_bio
 
 let dpt_dec = "etudes cognitives"
 let dpt_eco = "economie"
 let dpt_dri = "relations internationales"
 
+let dpt_arts_gps_name = dpt_arts
 let dpt_eco_gps_name = dpt_eco
 let dpt_info_gps_name = dpt_info
 let dpt_phys_gps_name = dpt_phys
@@ -48,6 +50,7 @@ let dpt_maths_gps_name = "mathematiques et applications"
 let dpt_bio_gps_name = dpt_bio
 let dpt_dri_gps_name = dpt_dri
 
+let acro_dpt_arts = "ARTS"
 let acro_dpt_phys = "PHYS"
 let acro_dpt_info = "DI"
 let acro_dpt_maths = "DMA"
@@ -55,6 +58,7 @@ let acro_dpt_eco = "ECO"
 let acro_dpt_bio = "BIO"
 let acro_dpt_dri = "DRI"
 
+let dpt_arts_full = "Département d'Arts"
 let dpt_info_full = "Département d'Informatique"
 let dpt_maths_full = "Département de Mathématiques et Applications"
 let dpt_phys_full = "Département de Physique"
@@ -82,6 +86,8 @@ let acro_of_gps_name x =
   then acro_dpt_phys
   else if x = dpt_dri_gps_name
   then acro_dpt_dri
+  else if x = dpt_arts_gps_name
+  then acro_dpt_arts
   else acro_dpt_info
 
 let addmap x data map =
@@ -334,11 +340,19 @@ let string_of_origin_opt a =
    | Some Public_data.Psi -> "CPGE Physique-Sciences de l'Ingénieur"
    | Some Public_data.Sis -> "sélection Internationale"
    | Some Public_data.M_MPRI -> "Master Parisien de recherche en informatique"
+   | Some Public_data.DensMath -> "concours universitaire mathématiques"
+   | Some Public_data.DensPhys -> "concours universitaire de physique"
+   | Some Public_data.Nes -> "concours normalien étudiant Sciences"
 
 let string_of_origin_short_opt a =
   match a with
   | None -> ""
-  | Some (Public_data.DensInfo | Public_data.DensDEC) -> "universitaire"
+  | Some
+      ( Public_data.DensInfo
+      | Public_data.DensDEC
+      | Public_data.DensPhys
+      | Public_data.DensMath) -> "universitaire"
+  | Some Public_data.Nes -> "Normalien étudiant Sciences"
   | Some Public_data.EchErasm -> "Erasmus"
   | Some Public_data.Info -> "Info"
   | Some Public_data.Mpi -> "MPI"
@@ -1600,7 +1614,10 @@ let statut_opt_of_string_opt ?who ?gps_file  =
 let origines =
   [
     Public_data.AL,["a/l"];
-    Public_data.DensInfo,["dens-info";"nes"];
+    Public_data.DensInfo,["dens-info"];
+    Public_data.DensMath,["dens-dma"];
+    Public_data.DensPhys,["dens-phys"];
+    Public_data.Nes,["nes"];
     Public_data.DensDEC,["dens-dec"];
     Public_data.EchErasm,["e-echerasm"];
     Public_data.Info,["info"];
@@ -2191,6 +2208,8 @@ let linfo d =
 
 let leco d =
   lgen "licence" "XT01362" dpt_eco_gps_name d
+let larts d =
+  lgen "licence" "gps69522" dpt_arts_gps_name d
 let lpoly d =
   lgen "licence" "gps74842" "" d
 
@@ -2199,6 +2218,9 @@ let lerasmus origine =
   | Some Public_data.EchErasm -> true
   | Some
       (Public_data.DensInfo
+      | Public_data.DensMath
+      | Public_data.DensPhys
+      | Public_data.Nes
       | Public_data.AL
       | Public_data.DensDEC
       | Public_data.Info
@@ -2221,6 +2243,9 @@ let lpe origine =
   | Some Public_data.PensionnaireEtranger -> true
   | Some
       (Public_data.DensInfo
+      | Public_data.DensMath
+      | Public_data.DensPhys
+      | Public_data.Nes
       | Public_data.AL
       | Public_data.DensDEC
       | Public_data.EchErasm
@@ -2328,6 +2353,7 @@ let translate_dpt ~firstname ~lastname ~year state d =
       | x when x=dpt_bio -> state, dpt_bio_full
       | x when x=dpt_dec -> state, dpt_dec_full
       | x when x=dpt_eco -> state, dpt_eco_full
+      | x when x=dpt_arts -> state, dpt_arts_full
       | x -> state,
              Printf.sprintf
                "Département de %s"
@@ -2539,7 +2565,7 @@ let translate_diplome
                 pos
                 msg
                 Exit
-                (dpt,label)
+                (dpt,(if label = "L3" then "L" else label))
                 state
           else
             state, (dpt, diplome)
@@ -2599,7 +2625,11 @@ let translate_diplome
         state,
         (Some "L","L3 d'économie",dpt_eco,false)
       else
-      check_dpt __POS__ state origine
+      if larts situation then
+        state,
+        (Some "L","L3 d'arts",dpt_arts,false)
+      else
+        check_dpt __POS__ state origine
           "L" "L3" code_cours year
           situation
     end
@@ -2655,6 +2685,8 @@ let color_of_dpt who pos state dpt origine =
   then state, Some Color.red
   else if dpt = dpt_eco
   then state, Some Color.pink
+  else if dpt = dpt_arts
+  then state, Some Color.brown
   else
     let msg =
       Format.sprintf "Unknown departement (%s) for %s"
@@ -2674,12 +2706,13 @@ let dpt_of_acro who pos state dpt origine =
     state, None
   else
     match dpt with
-    | Public_data.DRI -> state, Some dpt_dri
-    | Public_data.DI -> state, Some dpt_info
+  | Public_data.DI -> state, Some dpt_info
     | Public_data.DMA -> state, Some dpt_maths
     | Public_data.IBENS -> state, Some dpt_ibens
     | Public_data.PHYS -> state, Some dpt_phys
     | Public_data.ECO -> state, Some dpt_eco
+    | Public_data.ARTS -> state, Some dpt_arts
+    | Public_data.DRI -> state, Some dpt_dri
     | Public_data.ENS ->
       let msg =
         Format.sprintf "Unknown departement (%s) for %s"
@@ -2805,7 +2838,7 @@ let check_mandatory state cours =
       true
     else
       false
-  | state, (Public_data.DRI | Public_data.ECO | Public_data.DMA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> state, false
+  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.DMA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> state, false
 
 let is_mandatory state cours =
   let state, b = check_mandatory state cours in
@@ -2845,7 +2878,7 @@ let check_count_for_maths state cours =
         ||
         course_by_dma cours
     end
-  | state, (Public_data.DRI | Public_data.ECO | Public_data.DMA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, false
+  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.DMA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, false
 
 let count_for_maths state cours =
   let state, b = check_count_for_maths state cours in
@@ -3047,6 +3080,9 @@ let get_origine who promo gps_file state =
   |(Some
       ( Public_data.DensInfo
       | Public_data.DensDEC
+      | Public_data.DensMath
+      | Public_data.DensPhys
+      | Public_data.Nes
       |Public_data.EchErasm
       |Public_data.Info
       |Public_data.Mpi
@@ -3120,11 +3156,11 @@ let heading
           "D\\'epartement de Math\\'ematiques et Applications. \\'Ecole  Normale  Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Tel : +33 (0)1 44 32 20 49."
       in
       state
-    | state, (Public_data.DRI | Public_data.ENS | Public_data.ECO | Public_data.PHYS | Public_data.IBENS) ->
+    | state, (Public_data.ARTS | Public_data.DRI | Public_data.ENS | Public_data.ECO | Public_data.PHYS | Public_data.IBENS) ->
       let state =
         Remanent_state.warn
           __POS__
-          "DRI/ENS/PHYS/IBENS/ECO are not a valid dpt to edit transcripts"
+          "ARTS/DRI/ENS/PHYS/IBENS/ECO are not a valid dpt to edit transcripts"
           Exit
           state
       in state
@@ -3184,7 +3220,11 @@ let heading
         | None
         | Some Public_data.ED386
           -> state, "","", ""
-        | Some ( Public_data.DensInfo | Public_data.DensDEC)
+        | Some ( Public_data.Nes
+               | Public_data.DensMath
+               | Public_data.DensPhys
+               | Public_data.DensInfo
+               | Public_data.DensDEC)
           ->
           let state, bourse =
             get_bourse
@@ -3284,6 +3324,7 @@ let heading
           | Public_data.PHYS -> "de physique"
           | Public_data.IBENS -> "de biologie"
           | Public_data.ECO -> "d'économie"
+          | Public_data.ARTS -> "d'arts"
           | Public_data.DRI -> "")
          ),
       None
@@ -3511,7 +3552,7 @@ let heading
           (fun (string_opt,dpt) _
             (state,inscriptions) ->
             match string_opt with
-            | None | Some "dens" ->
+            | None | Some "dens" | Some "autre" ->
               state, inscriptions
             | Some string ->
               match
@@ -3817,10 +3858,11 @@ let program
             __POS__
             ~level:string
             ?dpt:(match string, dpt with
-                | "dens",_
+                | "dens",_ | "autre",_
                 | _,Public_data.DRI
                 | _,Public_data.ENS -> None
-                | _,(Public_data.ECO | Public_data.DI | Public_data.DMA | Public_data.IBENS | Public_data.PHYS) ->
+                | _,(Public_data.ARTS
+                    | Public_data.ECO | Public_data.DI | Public_data.DMA | Public_data.IBENS | Public_data.PHYS) ->
                   Some dpt)
             ~year
             state
@@ -5169,7 +5211,7 @@ let export_transcript
                begin
                  match Remanent_state.get_main_dpt state with
                  | state, (Public_data.DRI | Public_data.DI | Public_data.ENS) -> state, None
-                 | state, (Public_data.ECO | Public_data.DMA | Public_data.PHYS | Public_data.IBENS)->
+                 | state, (Public_data.ARTS | Public_data.ECO | Public_data.DMA | Public_data.PHYS | Public_data.IBENS)->
                    begin
                      match
                        gps_file.tuteur

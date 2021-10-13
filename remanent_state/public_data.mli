@@ -20,7 +20,7 @@ type student_id =
     promotion: string option;
   }
 
-type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO | DRI
+type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO | DRI | ARTS
 
 val string_of_dpt: main_dpt -> string
 val dpt_of_string: string -> main_dpt
@@ -445,9 +445,12 @@ type statut =
   | Ex_hors_GPS
 
 type origin =
-  | AL 
+  | AL
   | DensDEC
   | DensInfo
+  | DensMath
+  | DensPhys
+  | Nes
   | EchErasm
   | Info
   | Mpi

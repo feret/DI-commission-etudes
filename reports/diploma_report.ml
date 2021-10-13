@@ -388,6 +388,13 @@ let dump_attestation
         Loggers.fprintf,
         People.footpage_string
       ],direction_etude_dri,"relations internationales"
+      | Public_data.ARTS ->
+        let color = Color.brown in
+        Loggers.setfootpage logger ~color
+        [
+          Loggers.fprintf,
+          People.footpage_string
+        ],direction_etude_dri,"arts"
       | Public_data.DI | Public_data.ENS ->
         let color = Color.digreen in
         Loggers.setfootpage logger ~color
@@ -456,7 +463,8 @@ let dump_attestation
               | "dens",_
               | _,Public_data.DRI
               | _,Public_data.ENS -> None
-              | _,(Public_data.DI | Public_data.ECO |
+              | _,(Public_data.ARTS |
+                   Public_data.DI | Public_data.ECO |
                    Public_data.DMA | Public_data.IBENS | Public_data.PHYS) ->
                 Some dpt)
           ~year

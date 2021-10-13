@@ -58,6 +58,8 @@ let dark_duck_blue =
   {name="darkduckblue";red=31;green=77;blue=86}
 let di_green =
   {name="digreen";red=58;green=113;blue=104}
+let brown =
+  {name="brown";red=181;green=101;blue=29}
 let label c = c.name
 let rgb_code c = c.red, c.green, c.blue
 
@@ -69,7 +71,8 @@ let rgb_list =
     light_orange;dark_orange;
     light_red;dark_red;
     light_duck_blue; dark_duck_blue;
-    black;white;di_green
+    black;white;di_green;
+    brown
   ]
 
 let duckblue = build_color ~background:light_duck_blue dark_duck_blue "duck blue"
@@ -82,7 +85,8 @@ let white= build_color white "white"
 let orange = build_color ~background:light_orange dark_orange "orange"
 let pink = build_color ~background:light_pink dark_pink "pink"
 let digreen = build_color ~background:di_green di_green
-    "digreen" 
+    "digreen"
+let brown = build_color ~background:brown brown "brown"
 let color_list =
   [
     pink;
@@ -94,7 +98,8 @@ let color_list =
     white;
     orange;
     duckblue;
-    digreen
+    digreen;
+    brown
   ]
 
 let color_of_string s =
@@ -109,6 +114,7 @@ let color_of_string s =
   | "black" | "noir" -> Some black
   | "white" | "blanc" -> Some white
   | "orange" -> Some orange
+  | "brown" -> Some brown 
   | _ -> None
 
 let to_string color = color.label

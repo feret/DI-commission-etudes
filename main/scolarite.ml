@@ -293,6 +293,7 @@ let state, dpt, signataires =
   with
   | state, Public_data.DI -> state, Public_data.DI, ["JF";"MP";"LB"]
   | state, Public_data.DMA -> state, Public_data.DMA, ["AM"]
+  | state, Public_data.ARTS -> state, Public_data.ARTS, []
   | state, Public_data.ENS -> state, Public_data.ENS, []
   | state, Public_data.PHYS -> state, Public_data.PHYS, []
   | state, Public_data.IBENS -> state, Public_data.IBENS, []

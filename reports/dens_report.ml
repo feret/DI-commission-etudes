@@ -160,9 +160,9 @@ let dump_dens
       with
       | Public_data.ENS | Public_data.PHYS
       | Public_data. IBENS | Public_data.DMA
-      | Public_data.ECO | Public_data.DRI
+      | Public_data.ECO | Public_data.DRI | Public_data.ARTS
         ->
-        [prenom_etudiant;nom_etudiant;promotion;inscriptions; total_year; total ]
+        [prenom_etudiant;nom_etudiant;promotion;inscriptions; total ]
       | Public_data.DI ->
         [full;inscriptions;  mandatory_course ; maths_course ; total_bis]
     in
@@ -199,9 +199,9 @@ let dump_dens
       with
       | Public_data.ENS | Public_data.PHYS
       | Public_data. IBENS | Public_data.DMA
-      | Public_data.ECO | Public_data.DRI
+      | Public_data.ECO | Public_data.DRI | Public_data.ARTS
         ->
-        [prenom_etudiant;nom_etudiant;inscriptions; total_year; total ]
+        [prenom_etudiant;nom_etudiant;inscriptions;  total ]
       | Public_data.DI ->
         [prenom_etudiant;nom_etudiant;inscriptions; mandatory_course ; maths_course ; total_bis ]
     in
@@ -239,9 +239,9 @@ let dump_dens
       with
       | Public_data.ENS | Public_data.PHYS
       | Public_data. IBENS | Public_data.DMA
-      | Public_data.ECO | Public_data.DRI 
+      | Public_data.ECO | Public_data.DRI | Public_data.ARTS
         ->
-        [prenom_etudiant;nom_etudiant;promotion; total_year; total ]
+        [prenom_etudiant;nom_etudiant;promotion; total ]
       | Public_data.DI ->
         [full; mandatory_course ; maths_course ;  total_bis ]
     in

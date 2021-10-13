@@ -42,7 +42,7 @@ module StringOptMap =
     )
 
 
-type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO | DRI
+type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO | DRI | ARTS
 
 let string_of_dpt x =
   match x with
@@ -52,6 +52,7 @@ let string_of_dpt x =
   | PHYS -> "physique"
   | ECO -> "économie"
   | DRI -> "échanges DRI"
+  | ARTS -> "arts"
   | ENS -> ""
 
 let dpt_of_string x =
@@ -574,6 +575,9 @@ type origin =
   | AL
   | DensDEC
   | DensInfo
+  | DensMath
+  | DensPhys
+  | Nes
   | EchErasm
   | Info
   | Mpi
