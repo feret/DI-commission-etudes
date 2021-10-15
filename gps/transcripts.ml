@@ -329,6 +329,7 @@ let string_of_origin_opt a =
   match a with
   | None -> ""
   | Some Public_data.AL -> "CPGE khâgne"
+  | Some Public_data.BCPST -> "CPGE Biologie-Chimie-Physique-Sciences de la terre"
   | Some Public_data.DensDEC -> "concours universitaire sciences cognitives"
    | Some Public_data.DensInfo -> "concours universitaire informatique"
    | Some Public_data.EchErasm -> "Erasmus"
@@ -363,6 +364,7 @@ let string_of_origin_short_opt a =
   | Some Public_data.Sis -> "SI"
   | Some Public_data.M_MPRI -> "MPRI"
   | Some Public_data.AL -> "Khâgne"
+  | Some Public_data.BCPST -> "BCPST"
 
 let log_origine
     state (label, string_opt) =
@@ -1622,6 +1624,7 @@ let origines =
     Public_data.EchErasm,["e-echerasm"];
     Public_data.Info,["info"];
     Public_data.Mpi,["mpi"];
+    Public_data.BCPST,["bcpst"];
     Public_data.PensionnaireEtranger,["e-pe"];
     Public_data.Pc,["pc"];
     Public_data.Psi,["psi"];
@@ -1636,6 +1639,7 @@ let concours =
     Public_data.EchErasm,[];
     Public_data.Info,["c-info"];
     Public_data.Mpi,["c-mpi"];
+    Public_data.BCPST,["c-bcpst"];
     Public_data.PensionnaireEtranger,[];
     Public_data.Pc,[];
     Public_data.Psi,[];
@@ -2225,6 +2229,7 @@ let lerasmus origine =
       | Public_data.DensDEC
       | Public_data.Info
       | Public_data.Mpi
+      | Public_data.BCPST
       | Public_data.Pc
       | Public_data.PensionnaireEtranger
       | Public_data.Psi
@@ -2251,6 +2256,7 @@ let lpe origine =
       | Public_data.EchErasm
       | Public_data.Info
       | Public_data.Mpi
+      | Public_data.BCPST
       | Public_data.Pc
       | Public_data.Psi
       | Public_data.Sis
@@ -3086,6 +3092,7 @@ let get_origine who promo gps_file state =
       |Public_data.EchErasm
       |Public_data.Info
       |Public_data.Mpi
+      |Public_data.BCPST
       |Public_data.Pc
       |Public_data.PensionnaireEtranger
       |Public_data.Psi
@@ -3236,6 +3243,7 @@ let heading
             genre,bourse,""
         | Some Public_data.Info
         | Some Public_data.Mpi
+        | Some Public_data.BCPST
         | Some Public_data.Pc
         | Some Public_data.Psi
         | Some Public_data.AL

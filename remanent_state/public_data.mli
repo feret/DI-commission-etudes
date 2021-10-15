@@ -446,6 +446,7 @@ type statut =
 
 type origin =
   | AL
+  | BCPST
   | DensDEC
   | DensInfo
   | DensMath
