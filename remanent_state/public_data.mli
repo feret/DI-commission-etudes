@@ -135,8 +135,9 @@ type note_a_modifier =
     notetm_nom: string;
     notetm_prenom: string;
     notetm_code:string;
-    notetm_note:float;
+    notetm_note:float option;
     notetm_annee:annee;
+    notetm_ects:float option;
   }
 
 

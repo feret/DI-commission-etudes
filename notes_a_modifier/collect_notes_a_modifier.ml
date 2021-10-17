@@ -6,6 +6,7 @@ type notes_id  =
     code:string option;
     note:float option;
     annee:Public_data.annee option;
+    ects:float option;
   }
 
 let empty_cours =
@@ -15,6 +16,7 @@ let empty_cours =
     code = None;
     note = None;
     annee = None;
+    ects = None;
   }
 
 let keywords_list =
@@ -25,6 +27,7 @@ let keywords_list =
     Public_data.Annee_Academique;
     Public_data.Code_gps;
     Public_data.Note;
+    Public_data.ECTS;
     ]
 
 let keywords_of_interest =
@@ -32,7 +35,7 @@ let keywords_of_interest =
     Public_data.FirstName;
     Public_data.LastName;
     Public_data.Annee_Academique;
-    Public_data.Note;
+    Public_data.Code_gps;
   ]
 
 let event_opt =
@@ -43,8 +46,8 @@ let compute_repository =
 let lift_pred = Lift.pred_safe
 let lift_string =
   (Lift.string empty_cours Public_data.empty_note_a_modifier).Lift.safe
-let lift_float =
-  (Lift.float empty_cours Public_data.empty_note_a_modifier).Lift.safe
+let lift_float_option =
+  (Lift.float empty_cours Public_data.empty_note_a_modifier).Lift.opt_safe
 
 let collect_float suffix pos state =
   Tools.collect_float
@@ -111,7 +114,7 @@ let all_fields =
       ~field_name:"GPS code"
       ~pos:__POS__
       ~record_name;
-    lift_float
+    lift_float_option
       ~keyword:Public_data.Note
       ~set_tmp:(collect_float "Note" __POS__
                     (fun note x -> { x with note}))
@@ -122,6 +125,17 @@ let all_fields =
         ~field_name:"NOTE"
         ~pos:__POS__
         ~record_name;
+    lift_float_option
+      ~keyword:Public_data.ECTS
+      ~set_tmp:(collect_float "ECTS" __POS__
+                  (fun ects x -> { x with ects}))
+      ~get_tmp:(fun a -> a.ects)
+            ~get:(fun a -> a.Public_data.notetm_ects)
+            ~set:(fun notetm_ects a ->
+                {a with Public_data.notetm_ects})
+            ~field_name:"NOTE"
+            ~pos:__POS__
+            ~record_name;
   ]
 
 let get_updated_grades

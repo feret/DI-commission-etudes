@@ -1445,26 +1445,43 @@ let get_additional_course
 
 
 
-let add_note_a_modifier _ =
+let add_note_a_modifier unify =
   add_gen
     get_notes_a_modifier
     set_notes_a_modifier
-    (Notes_a_modifier.add_note_a_modifier)
+    (Notes_a_modifier.add_note_a_modifier warn unify)
 
-let get_note_a_modifier
+let get_truc_a_modifier
+    get
     ~firstname ~lastname ~code ~year
     t =
-  let l =
+  let note_elt_opt =
     Notes_a_modifier.get_note_a_modifier
       ~firstname ~lastname ~code ~year
       t.data.notes_a_modifier
   in
-  let l = List.rev_map (fun a -> a.Public_data.notetm_note) l in
-  match l with
-  | [] -> t, None
-  | head::tail ->
-    t,
-    Some (List.fold_left max head tail)
+  match note_elt_opt with
+  | None -> t, None
+  | Some note_elt ->
+    let truc = get note_elt in
+    t, truc
+
+let get_note_a_modifier
+    ~firstname ~lastname ~code ~year
+    t
+  =
+  get_truc_a_modifier
+    (fun a -> a.Public_data.notetm_note)
+    ~firstname ~lastname ~code ~year
+    t
+
+let get_ects_a_modifier
+    ~firstname ~lastname ~code ~year
+    t =
+    get_truc_a_modifier
+      (fun a -> a.Public_data.notetm_ects)
+      ~firstname ~lastname ~code ~year
+      t
 
 let add_decision unify =
   add_gen

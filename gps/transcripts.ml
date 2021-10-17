@@ -4859,18 +4859,31 @@ let export_transcript
                match cours.code_cours with
                | None -> state, cours
                | Some code ->
+                 let state,cours =
+                   match
+                     Remanent_state.get_note_a_modifier
+                       ~firstname ~lastname
+                       ~year:y
+                       ~code
+                       state
+                   with
+                   | state, None -> (state,cours)
+                   | state, Some note ->
+                     let note = Some (Public_data.Float note) in
+                     state, {cours with note}
+                 in
                  match
-                   Remanent_state.get_note_a_modifier
+                   Remanent_state.get_ects_a_modifier
                      ~firstname ~lastname
                      ~year:y
                      ~code
                      state
                  with
                  | state, None -> (state,cours)
-                 | state, Some note ->
-                   let note = Some (Public_data.Float note) in
-                   state, {cours with note}
-             in
+                 | state, Some ects ->
+                   let ects = Some ects in 
+                   state, {cours with ects}
+                 in
              state, cours::l)
           (state,[])
           (List.rev annee.cours)

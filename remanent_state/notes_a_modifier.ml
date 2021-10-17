@@ -1,5 +1,5 @@
 type t =
-  Public_data.note_a_modifier list
+  Public_data.note_a_modifier
     Public_data.YearMap.t
     Public_data.CodeMap.t
     Public_data.FirstNameMap.t
@@ -8,13 +8,13 @@ type t =
 let empty = Public_data.LastNameMap.empty
 
 let get_note_a_modifier ~firstname ~lastname ~code ~year
-    cours_a_ajouter =
+    (cours_a_ajouter:t) =
   match
     Public_data.LastNameMap.find_opt
       lastname
       cours_a_ajouter
   with
-  | None -> []
+  | None -> None
   | Some a ->
     begin
       match
@@ -22,7 +22,7 @@ let get_note_a_modifier ~firstname ~lastname ~code ~year
           firstname
           a
       with
-      | None -> []
+      | None -> None
       | Some a ->
         begin
           match
@@ -30,25 +30,30 @@ let get_note_a_modifier ~firstname ~lastname ~code ~year
               code
               a
           with
-          | None -> []
+          | None -> None
           | Some a ->
-            match
               Public_data.YearMap.find_opt
                 year
                 a
-            with
-            | None -> []
-            | Some a -> a
         end
     end
 
 let add_note_a_modifier
-  _pos state
-    note_elt note_map =
+    _warn unify
+    pos state  note_elt note_map =
   let lastname = note_elt.Public_data.notetm_nom in
   let firstname = note_elt.Public_data.notetm_prenom in
   let code = note_elt.Public_data.notetm_code in
   let year = note_elt.Public_data.notetm_annee in
+  let note_elt_opt' =
+    get_note_a_modifier ~code ~year ~firstname ~lastname note_map
+  in
+  let state, note_elt =
+    match note_elt_opt' with
+    | None -> state, note_elt
+    | Some note_elt'  ->
+      unify pos state note_elt note_elt'
+  in
   let mapa =
     match
       Public_data.LastNameMap.find_opt
@@ -76,27 +81,17 @@ let add_note_a_modifier
     | None -> Public_data.YearMap.empty
     | Some a -> a
   in
-
-  let old =
-    match
-      Public_data.YearMap.find_opt
-        year
-        mapc
-    with
-    | None -> []
-    | Some a -> a
-in
-state,
-Public_data.LastNameMap.add
-  lastname
-  (Public_data.FirstNameMap.add
-     firstname
-     (Public_data.CodeMap.add
-        code
-        (Public_data.YearMap.add
-           year
-           (note_elt::old)
-           mapc)
-        mapb)
-     mapa)
-  note_map
+  state,
+  Public_data.LastNameMap.add
+    lastname
+    (Public_data.FirstNameMap.add
+       firstname
+       (Public_data.CodeMap.add
+          code
+          (Public_data.YearMap.add
+             year
+             note_elt
+             mapc)
+          mapb)
+       mapa)
+    note_map
