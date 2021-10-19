@@ -986,7 +986,6 @@ let store_diplome =
        state, remanent.rem_diplome)
     (fun state bilan diplomes -> state, {bilan with diplomes})
 
-
 let get_compensation
     ~firstname ~lastname ~year ~codecours note
     state
@@ -2067,7 +2066,16 @@ let get_gps_file
       List.mem
         (Some Public_data.Diplome) header
     then
-      store_diplome
+      if
+        match
+          current_file'.rem_diplome.grade
+        with
+        | None -> false
+        | Some x -> simplify_string x = "doctorat"
+      then
+        state, current_file, output
+      else
+        store_diplome
         __POS__ ~who
         state
         current_file
