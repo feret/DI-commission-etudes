@@ -353,7 +353,7 @@ let string_of_origin_short_opt a =
       | Public_data.DensDEC
       | Public_data.DensPhys
       | Public_data.DensMath) -> "universitaire"
-  | Some Public_data.Nes -> "Normalien étudiant Sciences"
+  | Some Public_data.Nes -> "Normalien Étudiant Sciences"
   | Some Public_data.EchErasm -> "Erasmus"
   | Some Public_data.Info -> "Info"
   | Some Public_data.Mpi -> "MPI"
@@ -4881,7 +4881,7 @@ let export_transcript
                  with
                  | state, None -> (state,cours)
                  | state, Some ects ->
-                   let ects = Some ects in 
+                   let ects = Some ects in
                    state, {cours with ects}
                  in
              state, cours::l)
