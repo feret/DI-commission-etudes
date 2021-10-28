@@ -5,7 +5,7 @@ type parameters =
     cloud_synchronization_mode: Public_data.cloud_synchronization_mode ;
     cloud_client: Public_data.cloud_client ;
     cloud_client_options: string ;
-    cloud_repository: string ;
+    potential_cloud_repositories: string list ;
     cloud_support_dynamic_link : bool ;
     pdfgenerator : Public_data.pdf_generator ;
     pdfgenerator_options : string ;
@@ -106,7 +106,7 @@ let parameters =
     cloud_synchronization_mode = Public_data.CommandLine ;
     cloud_client = Public_data.NextCloudCmd ;
     cloud_client_options = "-n --silent" ;
-    cloud_repository = "/users/absint3/feret/Nextcloud" ;
+    potential_cloud_repositories = ["/users/absint3/feret/Nextcloud";"/Users/feret/Nextcloud"] ;
     cloud_support_dynamic_link = false ;
     pdfgenerator = Public_data.PdfLatex ;
     pdfgenerator_options = "-interaction=nonstopmode";
@@ -276,6 +276,7 @@ let empty_data =
 type t =
   {
     parameters : parameters ;
+    cloud_repository: string option ;
     prefix : string ;
     error_log : Exception.method_handler ;
     profiling_info : Profiling.log_info option ;
@@ -313,8 +314,32 @@ let get_cloud_synchronization_mode t =
 let get_cloud_client t =
   t, t.parameters.cloud_client
 
+let check_potential_cloud_repository h =
+  try
+    Sys.is_directory h
+  with
+    Sys_error _ -> false
+
+
+let set_cloud_repository t =
+  let rec aux l =
+    match l with
+    | [] -> failwith "Cannot find the cloud repository"
+    | head::tail ->
+      if check_potential_cloud_repository head
+      then
+        {t with cloud_repository = Some head}, head
+      else
+        aux tail
+  in
+  aux (t.parameters.potential_cloud_repositories)
+
 let get_cloud_repository t =
-  t,t.parameters.cloud_repository
+  match
+    t.cloud_repository
+  with
+  | Some c -> t,c
+  | None -> set_cloud_repository t
 
 let get_cloud_support_dynamic_link t =
   t,t.parameters.cloud_support_dynamic_link
@@ -331,6 +356,17 @@ let get_local_repository t =
   in
   let local = t.parameters.local_repository in
   t,Printf.sprintf "%s/%s" cloud local
+
+let get_all_potential_cloud_repositories t =
+  t, t.parameters.potential_cloud_repositories
+
+let get_all_potential_local_repositories t =
+  let t,l = get_all_potential_cloud_repositories t in
+  let local = t.parameters.local_repository in
+  t,
+  List.rev_map
+    (fun s -> Printf.sprintf "%s/%s" s local)
+    (List.rev l)
 
 let get_distant_repository t =
   t,t.parameters.distant_repository
@@ -415,12 +451,17 @@ let get_url_to_access_annuaire t =
   t, t.parameters.url_to_access_annuaire
 
 let get_signature t =
-  let t, rep = get_cloud_repository t in
-  if rep = ""
-  then
-    t, t.parameters.signature
-  else
-    t, Format.sprintf "%s/%s" rep t.parameters.signature
+  let t, l = get_all_potential_cloud_repositories t in
+  t,
+  List.rev_map
+    (fun rep ->
+       if rep = ""
+       then
+         t.parameters.signature
+       else
+         Format.sprintf "%s/%s" rep t.parameters.signature
+    )
+    (List.rev l)
 
 let get_repository_to_access_gps t =
   t, t.parameters.repository_to_access_gps
@@ -874,6 +915,7 @@ let init () =
   let data = empty_data in
   let copy_stack = [] in
   let prefix = "" in
+  let cloud_repository = None in
   let state =
     {
       parameters ;
@@ -886,6 +928,7 @@ let init () =
       data ;
       date ;
       copy_stack ;
+      cloud_repository ;
     }
   in
   let state = get_option state in
@@ -1581,49 +1624,56 @@ let get_picture_file_names_mention_promotion t =
 let get_pictures_stored_according_to_promotions t =
   t, t.parameters.pictures_stored_according_to_promotions
 
-let get_pictures_repository t =
-  let t, local = get_local_repository t in
+let get_all_potential_pictures_repository t =
+  let t, l = get_all_potential_local_repositories t in
   let t, rep = get_pictures_prefix t in
-  match local, rep with
-    | "", "" -> t, ""
-    | a,"" | "",a -> t, a
-    | a,b -> t, Format.sprintf "%s/%s" a b
+  t,
+  List.rev_map
+    (fun local ->
+       match local, rep with
+        | "", "" -> ""
+        | a,"" | "",a -> a
+        | a,b -> Format.sprintf "%s/%s" a b)
+    (List.rev l)
 
 let get_picture_potential_locations
     ~firstname ~lastname ~year t =
-  let t, rep = get_pictures_repository t in
+  let t, l = get_all_potential_pictures_repository t in
   let t, b =
     get_pictures_stored_according_to_promotions t
   in
-  let rep =
-    if b then
-      if rep = "" then year
-      else
-        Format.sprintf "%s/%s" rep year
-    else
-      rep
-  in
-  let t,b =
+  let t,b2 =
     get_picture_file_names_mention_promotion t
   in
-  let yearprefix =
-    if b then year else ""
-  in
-  let filename =
-    Printf.sprintf "%s%s%s"
-      yearprefix
-      (Special_char.uppercase
-         (Special_char.correct_string_filename lastname))
-      (Special_char.lowercase
-         (Special_char.correct_string_filename firstname))
-  in
-  let base =
-    if rep = ""
-    then filename
-    else
-      Printf.sprintf "%s/%s" rep filename
-  in
-  t, [base^".jpg";base^".pdf"]
+    List.fold_left
+      (fun (t,l) rep ->
+         let rep =
+           if b then
+             if rep = "" then year
+             else
+               Format.sprintf "%s/%s" rep year
+           else
+             rep
+         in
+         let yearprefix =
+           if b2 then year else ""
+         in
+         let filename =
+           Printf.sprintf "%s%s%s"
+             yearprefix
+             (Special_char.uppercase
+                (Special_char.correct_string_filename lastname))
+             (Special_char.lowercase
+                (Special_char.correct_string_filename firstname))
+         in
+         let base =
+           if rep = ""
+           then filename
+           else
+             Printf.sprintf "%s/%s" rep filename
+         in
+         t, ((base^".jpg")::(base^".pdf")::l))
+      (t,[]) (List.rev l)
 
 let get_target t = t, t.parameters.target
 

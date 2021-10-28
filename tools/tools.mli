@@ -135,3 +135,6 @@ val find_starting_with:
   between:char -> 'a -> string -> 'b * string option
 
 val get_option: 'state -> ('state -> 'state * 'a) -> 'a option -> 'state * 'a
+
+val include_latex_list:
+    (string -> string) -> 'state -> string list -> 'state * string 

@@ -47,11 +47,11 @@ type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO | DRI | ARTS
 let string_of_dpt x =
   match x with
   | DI -> "informatique"
-  | DMA -> "mathématiques"
+  | DMA -> "mathÃ©matiques"
   | IBENS -> "biologie"
   | PHYS -> "physique"
-  | ECO -> "économie"
-  | DRI -> "échanges DRI"
+  | ECO -> "Ã©conomie"
+  | DRI -> "Ã©changes DRI"
   | ARTS -> "arts"
   | ENS -> ""
 
@@ -644,7 +644,7 @@ type 'a direction_des_etudes =
     direction_nom_complet: string;
     direction_genre : genre;
     direction_signature:
-      ('a -> 'a * string) option;
+      ('a -> 'a * string list) option;
     direction_titre: string;
     direction_departement: string;
   }

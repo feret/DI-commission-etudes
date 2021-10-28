@@ -443,15 +443,10 @@ let dump_attestation
       let dir_fonction = dir.Public_data.direction_titre in
       let dir_du_dpt = dir.Public_data.direction_departement in
       let s  = dir.Public_data.direction_signature in
-      let state, sign =
-        match s
-        with
-        | Some s  ->
-          let state, s = s state in
-          state, Format.sprintf
-          "\\IfFileExists{%s}%%\n\ {\ {\\includegraphics{%s}}}%%\n\ {}\\end{center}\\vfill"
-          s s
-        | None -> state, "\\end{center}\\vfill"
+      let state, l =
+        match s with
+        | None -> state, []
+        | Some l -> l state
       in
       let year = diplome.Public_data.diplome_year in
       let level = diplome.Public_data.diplome_niveau in
@@ -494,6 +489,17 @@ let dump_attestation
               state, ""
           | Some a -> state, a
       in
+      let f x =
+        Format.sprintf
+          "\\includegraphics{%s}"
+          x
+      in
+      let state, sign =
+        Tools.include_latex_list
+          f
+          state
+          l
+      in
       let body =
         Format.sprintf
           "\\vfill\n\n\\begin{center}\\underline{ATTESTATION}\\end{center}\n\ \\vfill\n\n\  Je soussigné%s, \\textbf{%s}, %s du département %s de l'École Normale Supérieure,\\bigskip\\\\CERTIFIE que,\\bigskip\\\\conformément aux dispositions générales de la scolarité au sein de la formation universitaire en %s de l'ENS et aux décisions de la commission des études du département %s de l'ENS, \\bigskip\\\\\\textbf{%s %s}, a obtenu en %s-%s\\\\\\textbf{%s}\\\\Parcours : \\textbf{Formation interuniversitaire en %s -- ENS Paris}.\\\\ %s \n\n\\vfill\n\\begin{center}Fait à Paris le %s\\smallskip\n\nPour valoir et servir ce que de droit \n\n\n\n"
@@ -510,10 +516,11 @@ let dump_attestation
           libelle
           dir_dpt
           "VALIDÉE"
-          date, sign
+          date
       in
-      let _ = Loggers.fprintf logger  "%s" (fst body) in
-      let _ = Loggers.fprintf_verbatim logger  "%s" (snd body) in
+      let () = Loggers.fprintf logger  "%s" body in
+      let () = Loggers.fprintf_verbatim logger "%s" sign  in
+      let () = Loggers.fprintf_verbatim logger "\\end{center}\\vfill" in
       let () = Loggers.close_logger logger in
       state, Some (output_repository,output_file_name)
 

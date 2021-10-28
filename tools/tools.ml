@@ -586,7 +586,7 @@ let find_starting_with
     | a::_::_ ->
       warn
         __POS__
-        (Format.sprintf "several urls starting with %s found in %s" prefix file_name) 
+        (Format.sprintf "several urls starting with %s found in %s" prefix file_name)
         Exit
         state, Some a
     | [a] -> state, Some a
@@ -598,3 +598,29 @@ let get_option state get opt =
   match opt with
   | None -> get state
   | Some x -> state, x
+
+let include_latex_list f state list
+  =
+  let b = Buffer.create 16 in
+  let fmt = Format.formatter_of_buffer b in
+  let k =
+    List.fold_left
+      (fun n x ->
+         let () =
+           Format.fprintf fmt
+             "\\IfFileExists{%s}%%\n\ {%s}%%\n\ {"
+             x (f x)
+         in
+         n+1)
+      0
+      list
+  in
+  let () =
+    Format.fprintf
+      fmt
+      "%s%%\n\ "
+      (String.init k (fun _ -> '}'))
+  in
+  let s = Buffer.contents b in
+  let () = Buffer.reset b in
+  state, s

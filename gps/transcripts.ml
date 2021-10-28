@@ -3713,24 +3713,22 @@ let heading
   let () =
     Remanent_state.print_newline state
   in
-  let k =
-    List.fold_left
-      (fun n x ->
-         let () =
-           Remanent_state.fprintf_verbatim
-             state
-             "\\IfFileExists{%s}%%\n\ {\\vspace*{-2cm}{\\hfill\\includegraphics[height=2cm]{%s}}\\hspace*{5mm}\\mbox{}}%%\n\ {"
-             x x
-         in
-         n+1)
-      0
+  let f x =
+    Printf.sprintf
+      "\\vspace*{-2cm}{\\hfill\\includegraphics[height=2cm]{%s}}\\hfill\\mbox{}"
+      x
+  in
+  let state, s  =
+    Tools.include_latex_list
+      f
+      state
       picture_list
   in
   let () =
-    Remanent_state.fprintf
+    Remanent_state.fprintf_verbatim
       state
-      "%s%%\n\ "
-      (String.init k (fun _ -> '}'))
+      "%s"
+      s
   in
   let () =
     Remanent_state.print_newline state
@@ -3837,17 +3835,42 @@ let heading
 let foot signature state  =
   let () =
     match signature with
-    | None -> ()
-    | Some f ->
-    let () =
-      Remanent_state.fprintf
-        state
-        "\\vfill\n\n\\vspace*{-1.cm}\n\n\\begin{center}%%\n\ Paris, le \\today\\\\%%\n\ \\IfFileExists{%s}%%\n\ {\ {\\includegraphics{%s}}}%%\n\ {}\\end{center}"
-        f f
-    in ()
-  in
-  let () =
-    Remanent_state.breakpage state
+    | [] -> ()
+    | sign_list ->
+      let () =
+        Remanent_state.fprintf
+          state
+          "\\vfill\n\n\\vspace*{-1.cm}\n\n\\begin{center}%%\n\ Paris, le \\today\\\\%%\n\ "
+      in
+      let f x =
+        Printf.sprintf
+          "\\hfill\\includegraphics[height=2cm]{%s}\\hspace*{5mm}\\mbox{}"
+          x
+      in
+      let state, s =
+        Tools.include_latex_list
+          f
+          state
+          sign_list
+      in
+      let () =
+        Remanent_state.fprintf_verbatim
+          state
+          "%s"
+          s
+      in
+      let () =
+        Remanent_state.fprintf
+          state
+          "\\end{center}\\vfill%%\n\ "
+      in
+      let () =
+        Remanent_state.print_newline state
+      in
+      let () =
+        Remanent_state.breakpage state
+      in
+      ()
   in
   state
 
@@ -4688,6 +4711,11 @@ let export_transcript
     ?keep_success
     ?keep_faillure
     state gps_file =
+  let signature =
+    match signature with
+    | None -> []
+    | Some l -> l
+  in
   let keep_success =
     match keep_success with
     | None -> false

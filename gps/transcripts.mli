@@ -8,11 +8,11 @@ val export_transcript:
   ?language:Public_data.language ->
   ?include_picture:bool ->
   ?repartition:Public_data.repartition ->
-  ?signature:string ->
+  ?signature:(string list)->
   ?report:bool ->
   ?filter: Public_data.remove_non_valided_classes ->
   ?keep_success:bool ->
-  ?keep_faillure:bool -> 
+  ?keep_faillure:bool ->
   Remanent_state.t ->
   gps_file
   -> Remanent_state.t * (string * string) option

@@ -9,18 +9,18 @@ let mp =
     Public_data.direction_nom_complet = "Marc Pouzet";
     Public_data.direction_genre = Public_data.Masculin ;
     Public_data.direction_signature = None ;
-    Public_data.direction_titre = "Directeur des études";
+    Public_data.direction_titre = "Directeur des Ã©tudes";
     Public_data.direction_departement = "d'informatique";
   }
 
 let jf =
   {
     Public_data.direction_initiales = "JF";
-    Public_data.direction_nom_complet = "Jérôme Feret";
+    Public_data.direction_nom_complet = "JÃ©rÃ´me Feret";
     Public_data.direction_genre = Public_data.Masculin ;
     Public_data.direction_signature =
       Some Remanent_state.get_signature;
-    Public_data.direction_titre = "Directeur des études";
+    Public_data.direction_titre = "Directeur des Ã©tudes";
     Public_data.direction_departement = "d'informatique";
 
   }
@@ -28,11 +28,11 @@ let jf =
 let am =
   {
     Public_data.direction_initiales = "AM";
-    Public_data.direction_nom_complet = "Ariane Mézard";
+    Public_data.direction_nom_complet = "Ariane MÃ©zard";
     Public_data.direction_genre = Public_data.Feminin ;
     Public_data.direction_signature = None ;
     Public_data.direction_titre = "Directeur de la formation";
-    Public_data.direction_departement = "de mathématiques";
+    Public_data.direction_departement = "de mathÃ©matiques";
 
   }
 
@@ -43,7 +43,7 @@ let lb =
     Public_data.direction_genre = Public_data.Feminin ;
     Public_data.direction_signature =
       None;
-    Public_data.direction_titre = "Secrétaire pédagogique";
+    Public_data.direction_titre = "SecrÃ©taire pÃ©dagogique";
     Public_data.direction_departement = "d'informatique";
   }
 
@@ -54,8 +54,8 @@ let lb =
     Public_data.direction_genre = Public_data.Feminin ;
     Public_data.direction_signature =
       None;
-    Public_data.direction_titre = "Secrétaire pédagogique";
-    Public_data.direction_departement = "de mathématiques";
+    Public_data.direction_titre = "SecrÃ©taire pÃ©dagogique";
+    Public_data.direction_departement = "de mathÃ©matiques";
   }
 
 let di_list = [jf;mp;lb]
@@ -67,18 +67,18 @@ let dri_list = []
 let arts_list = []
 
 let dpt_di = "informatique"
-let dpt_dma = "mathématiques"
+let dpt_dma = "mathÃ©matiques"
 let dpt_phys = "physique"
 let dpt_ibens = "biologie"
-let dpt_eco = "économie"
+let dpt_eco = "Ã©conomie"
 let dpt_dri = "relations internationales"
 let dpt_arts = "arts"
 
-let footpage_string = "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32 20 45 --  Fax : + 33 (0) 1 44 32 20 75 -- direction.etudes@di.ens.fr}"
+let footpage_string = "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  TÃ©l. : + 33 (0)1 44 32 20 45 --  Fax : + 33 (0) 1 44 32 20 75 -- direction.etudes@di.ens.fr}"
 let footpage_string_dma =
-  "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 31 72 45 --  Fax : + 33 (0) 1 44 32 20 69 -- education@math.ens.fr}"
+  "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  TÃ©l. : + 33 (0)1 44 31 72 45 --  Fax : + 33 (0) 1 44 32 20 69 -- education@math.ens.fr}"
 let footpage_string_phys = ""
 let footpage_string_ibens = ""
 let footpage_string_eco = ""
 let footpage_string_dri = ""
-let footpage_string_arts = "" 
+let footpage_string_arts = ""

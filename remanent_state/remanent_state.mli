@@ -116,7 +116,7 @@ val get_repository_to_dump_gps_files:
   ?output_repository:string -> t -> t * string
 val get_repository_for_handmade_gps_files: t -> t * string
 val get_repository_for_backup_gps_files: t -> t * string
-val get_signature: t -> t * string
+val get_signature: t -> t * string list 
 val get_store_output_according_to_their_promotions: t -> t * bool
 val get_indicate_promotions_in_gps_file_names: t -> t * bool
 val get_repository_to_dump_attestations: t -> t * string

@@ -27,7 +27,7 @@ let l =
       Public_data.dn_key="l";
       Public_data.dn_short="L3";
       Public_data.dn_long="Licence L3 d'informatique";
-      Public_data.dn_universite="à l'université Paris 7 - Denis Diderot";
+      Public_data.dn_universite="À l'université Paris 7 - Denis Diderot";
       Public_data.dn_niveau="l";
       Public_data.dn_departement=Public_data.DI;
     }
@@ -306,19 +306,62 @@ let print_sous_commission
         let state =
           let state, signature =
             match commission_date with
-            | None -> state,(fun _ -> [])
+            | None ->
+                      begin
+                      match direction.Public_data.direction_signature with
+                        | None -> state, (fun _ -> [])
+                        | Some s ->
+                        let state, s =
+                          s state
+                        in
+                        let f x =
+                          Format.sprintf
+                            "\\includegraphics{%s}"
+                            x
+                        in
+                        let state, s =
+                          Tools.include_latex_list
+                            f
+                            state
+                            s
+                        in
+                        let signature _ =
+                          [
+                            Loggers.fprintf,
+                            Format.sprintf "Rapport intérmédiare du \\today.\\\\";
+                            Loggers.fprintf_verbatim, s
+                          ]
+                        in
+                        state, signature
+                    end
+
             | Some commission_date
               ->
               match direction.Public_data.direction_signature with
-              | None -> state,
-                        (fun _ -> [
-                             Loggers.fprintf,
-                             Format.sprintf
-                               "Certifié exact à Paris \\\\ le %s \\\\"
-                               commission_date])
+              | None ->
+                let signature _ =
+                  [
+                    Loggers.fprintf,
+                    Format.sprintf
+                      "Certifié exact à Paris \\\\ le %s \\\\"
+                      commission_date
+                  ]
+                in
+                state, signature
               | Some s ->
                 let state, s =
                   s state
+                in
+                let f x =
+                  Format.sprintf
+                    "\\includegraphics{%s}"
+                    x
+                in
+                let state, s =
+                  Tools.include_latex_list
+                    f
+                    state
+                    s
                 in
                 let signature _ =
                   [
@@ -327,8 +370,7 @@ let print_sous_commission
                       "Certifié exact à Paris \\\\ le %s \\\\"
                       commission_date;
                     Loggers.fprintf_verbatim,
-                    Format.sprintf  "\\IfFileExists{%s}{\\includegraphics{%s}}{}"
-                    s s
+                    s
                   ]
                 in
                 state, signature
@@ -449,6 +491,17 @@ let print_sous_commission
           let state, s =
             s state
           in
+          let fa x =
+            Format.sprintf
+              "\\includegraphics{%s}"
+              x
+          in
+          let state, s =
+            Tools.include_latex_list
+              fa
+              state
+              s
+          in
           let signature _ =
             match commission_date with
             | None -> []
@@ -459,9 +512,7 @@ let print_sous_commission
                   "Certifié exact à Paris \\\\ le %s \\\\"
                   commission_date ;
                 Loggers.fprintf_verbatim,
-                Format.sprintf
-                  "\\IfFileExists{%s}{\\includegraphics{%s}}{}"
-                  s s
+                s
               ]
           in
           let state,input =
