@@ -3718,7 +3718,7 @@ let heading
   in
   let f x =
     Printf.sprintf
-      "\\vspace*{-2cm}{\\hfill\\includegraphics[height=2cm]{%s}}\\hfill\\mbox{}"
+      "\\vspace*{-2cm}{\\hfill\\includegraphics[height=2cm]{%s}}\\mbox{}"
       x
   in
   let state, s  =
@@ -3847,7 +3847,7 @@ let foot signature state  =
       in
       let f x =
         Printf.sprintf
-          "\\hfill\\includegraphics[height=2cm]{%s}\\hspace*{5mm}\\mbox{}"
+          "\\includegraphics[height=2cm]{%s}\\hspace*{5mm}\\mbox{}"
           x
       in
       let state, s =
