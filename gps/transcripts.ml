@@ -2340,6 +2340,7 @@ let mva = gen_master "M-MVA" ["gps2228"] "INFO-M2-MVASTAGE-S2"
 let iasd = gen_master "M-IASD" ["gps76822";"gps78762"] "INFO-M2-IASD-STG-S2"
 let mash = gen_master "M-MASH" ["gps59622"] "INFO-M2-MASH-STG-S2"
 let mint = gen_master "M-Interaction" ["gps78864"] "XT 00000000000647168"
+let mmf = gen_master "M-MathFond" ["gps3102"] "XT 00000000000664965"
 let mlmfi = gen_master "M-LMFI" ["gps2005";"gps3579"] "NOWAY"
 let mimalis = gen_master "M-ScVivant" [] "BIO-M2-E14-S2"
 let mphylo = gen_master "M-Philo" ["gps07302"] "NOWAY"
@@ -2661,6 +2662,8 @@ let translate_diplome
       state, (Some "MASH","M2 MASH", dpt_info,false)
     else if mint situation then
       state, (Some "Interaction", "M2 Interaction", dpt_info,false)
+    else if mmf situation then
+      state, (Some "MathFond", "M2 Mathématiques Fondamentales", dpt_maths, false)
     else if mlmfi situation then
       state, (Some "LMFI", "M2 LMFI", dpt_info, false)
     else if mimalis situation then
