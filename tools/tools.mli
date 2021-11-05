@@ -137,4 +137,10 @@ val find_starting_with:
 val get_option: 'state -> ('state -> 'state * 'a) -> 'a option -> 'state * 'a
 
 val include_latex_list:
-    (string -> string) -> 'state -> string list -> 'state * string 
+    (string -> string) -> 'state -> string list -> 'state * string
+
+val date_to_string_fr:
+  string -> string
+
+val date_to_string_en:
+  string -> string 

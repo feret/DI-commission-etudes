@@ -4,6 +4,7 @@ type dispense_id  =
     lastname: string option;
     annee: string option;
     motif: string option;
+    motif_en: string option;
     program: string option;
     dpt: string option;
   }
@@ -15,6 +16,7 @@ let empty_dispense =
     annee=None;
     dpt=None;
     motif=None;
+    motif_en=None;
     program=None;
   }
 
@@ -26,6 +28,7 @@ let keywords_list =
     Public_data.Annee_Academique;
     Public_data.Departement;
     Public_data.Motif;
+    Public_data.Motif_en;
     Public_data.Programme;
   ]
 
@@ -36,6 +39,7 @@ let keywords_of_interest =
     Public_data.Annee_Academique;
     Public_data.Departement;
     Public_data.Motif;
+    Public_data.Motif_en;
     Public_data.Programme;
   ]
 
@@ -127,7 +131,18 @@ let all_fields =
                 {a with Public_data.dispense_motif})
             ~field_name:"raison"
             ~record_name
-            ~pos:__POS__
+            ~pos:__POS__;
+    lift_string_opt
+      ~keyword:Public_data.Motif_en
+      ~set_tmp:(Tools.collect_string
+                  (fun motif_en x -> {x with motif_en}))
+      ~get_tmp:(fun a -> a.motif_en)
+      ~get:(fun a -> a.Public_data.dispense_motif_en)
+      ~set:(fun dispense_motif_en a ->
+          {a with Public_data.dispense_motif_en})
+      ~field_name:"raison (anglais)"
+      ~record_name
+      ~pos:__POS__
   ]
 
 let get_dispenses

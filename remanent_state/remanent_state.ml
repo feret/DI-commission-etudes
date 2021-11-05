@@ -92,6 +92,7 @@ type parameters =
     repository_to_dump_mentors: string;
     signature: string;
     log_mkdir: bool;
+    bilinguage: bool;
     language: Public_data.language;
     repartition: Public_data.repartition;
   }
@@ -192,6 +193,7 @@ let parameters =
     commission = None (*Some ("16 septembre 2021", "2020")*);
     target = None ;
     signature = "feret+tampon.pdf";
+    bilinguage = true ;
     language  = Public_data.French;
     repartition = Public_data.Annee_de_validation_du_cours;
 
@@ -865,19 +867,19 @@ let get_option parameters =
 let get_option_quick parameters =
   get_option parameters
 
-let get_option state =
-  let state =
+let get_option t =
+  let t =
     open_event_opt
       (Some Profiling.Initialisation)
-      state
+      t
   in
-  let parameters = get_option state.parameters in
-  let state =
+  let parameters = get_option t.parameters in
+  let t =
     close_event_opt
       (Some Profiling.Initialisation)
-      state
+      t
   in
-  {state with parameters}
+  {t with parameters}
 
 let init () =
   let profiling_info =
@@ -916,7 +918,7 @@ let init () =
   let copy_stack = [] in
   let prefix = "" in
   let cloud_repository = None in
-  let state =
+  let t =
     {
       parameters ;
       prefix ;
@@ -931,8 +933,8 @@ let init () =
       cloud_repository ;
     }
   in
-  let state = get_option state in
-  state
+  let t = get_option t in
+  t
 
 
 let copy pos mk cp t tmp_rep main_rep rep file =
@@ -1025,7 +1027,7 @@ let warn_and_log
 
 
 
-let log_string ?logger ?backgroundcolor ?textcolor ?lineproportion t x =
+let log_to_string ?logger ?backgroundcolor ?textcolor ?lineproportion t x =
   let mode =
     Loggers.encapsulate
       (Loggers.get_encoding_format (which_logger ?logger t))
@@ -1677,7 +1679,7 @@ let get_picture_potential_locations
 
 let get_target t = t, t.parameters.target
 
-let list_all_cursus state =
+let list_all_cursus t =
   let () =
     Public_data.LevelMap.iter
       (fun level ->
@@ -1699,14 +1701,14 @@ let list_all_cursus state =
                      )
                      cursus.Public_data.cursus_annee_academique
               )))
-      state.data.cursus
+      t.data.cursus
   in
   Format.print_flush ()
 
 let gen get set =
-  let add state elt =
-    let elts = get state in
-    set (elt::elts) state
+  let add t elt =
+    let elts = get t in
+    set (elt::elts) t
   in
   let get t = t, get t in
   add, get
@@ -1726,8 +1728,8 @@ let add_national_diploma, get_national_diplomas =
   gen get_national_diplomas set_national_diplomas
 let add_mentor, get_mentors =
   gen get_mentors set_mentors
-let add_mentor state elt =
-  add_mentor state elt
+let add_mentor t elt =
+  add_mentor t elt
 
 let add_missing_mentor, get_missing_mentors =
   gen get_missing_mentors set_missing_mentors
@@ -1740,14 +1742,14 @@ let add_non_validated_internship, get_non_validated_internships =
 let add_ambiguous_internship_description, get_ambiguous_internship_descriptions =
     gen get_ambiguous_internship_descriptions set_ambiguous_internship_descriptions
 
-let get_ENSPSL_logo state =
-  let state, local = get_local_repository state in
-  let logo = state.parameters.enspsl_logo in
+let get_ENSPSL_logo t =
+  let t, local = get_local_repository t in
+  let logo = t.parameters.enspsl_logo in
   if local = ""
   then
-    state, logo
+    t, logo
   else
-    state, Format.sprintf "%s/%s" local logo
+    t, Format.sprintf "%s/%s" local logo
 
 let simplify s =
   Special_char.lowercase
@@ -1899,21 +1901,21 @@ let file_retriever_fail t =
   else
     t
 
-let get_commission_rep_from_key ?commission_rep sous_commission_short state =
-  let state, commission_rep =
+let get_commission_rep_from_key ?commission_rep sous_commission_short t =
+  let t, commission_rep =
     match commission_rep with
-    | None -> get_main_commission_rep state
-    | Some commission_rep -> state, commission_rep
+    | None -> get_main_commission_rep t
+    | Some commission_rep -> t, commission_rep
   in
-  let state, main_rep =
-    get_dated_output_repository state
+  let t, main_rep =
+    get_dated_output_repository t
   in
   let commission_rep =
     match main_rep,commission_rep with
     | "",a | a,"" -> a
     | a,b -> Printf.sprintf "%s/%s" a b
   in
-  state,
+  t,
   match commission_rep,sous_commission_short with
     | "",a -> Printf.sprintf "attestations/%s" a,
               Printf.sprintf "comptes-rendus/%s" a,
@@ -1925,7 +1927,7 @@ let get_commission_rep_from_key ?commission_rep sous_commission_short state =
               Printf.sprintf "%s/comptes-rendus/%s" a b,
               Printf.sprintf "%s/transcripts/%s" a b
 
-let get_commission_rep ?commission_rep ~sous_commission state =
+let get_commission_rep ?commission_rep ~sous_commission t =
   let sous_commission_short =
     match
       sous_commission
@@ -1933,7 +1935,7 @@ let get_commission_rep ?commission_rep ~sous_commission state =
     | Public_data.Diplome_ENS dip -> dip.Public_data.dens_short
     | Public_data.Diplome_National dip -> dip.Public_data.dn_short
   in
-  get_commission_rep_from_key ?commission_rep sous_commission_short state
+  get_commission_rep_from_key ?commission_rep sous_commission_short t
 
 let push_copy ~input_rep ~output_rep ~file_name t =
   {t with copy_stack = (input_rep,file_name,output_rep)::t.copy_stack}
@@ -1951,3 +1953,81 @@ let pop_copy ~copy t =
 let rec empty_copy ~copy t =
   if is_empty_copy_stack t then t
   else empty_copy ~copy (pop_copy ~copy t)
+
+let get_is_bilingual t =
+  t, t.parameters.bilinguage
+
+let bilingual_string ?english ~french t =
+  let t, b = get_is_bilingual t in
+  let t, lang = get_language t in
+  match b, english, lang with
+  | _, None, _  | false,_,Public_data.French -> t, french
+  | false, Some english, Public_data.English  -> t, english
+  | true, Some english,_ ->
+    t, Format.sprintf "\\BiLingual{%s}{%s}" french english
+
+let bi_gen f t ?logger ?english ~french =
+  let t, bi = bilingual_string ?english ~french t in
+  f ?logger bi t
+
+let log_to_string
+    ?logger
+    ?backgroundcolor
+    ?textcolor
+    ?lineproportion ?english t french  =
+  let t, bi = bilingual_string ?english ~french t in
+  log_to_string ?logger ?backgroundcolor ?textcolor ?lineproportion t bi
+
+let fold_right2 f l l' a = List.fold_left2
+    (fun c a b  -> f a b c)
+    a
+    (List.rev l) (List.rev l')
+
+let open_array pos ?logger ~with_lines ?size ?color ?bgcolor ?align ~title ?title_english t  =
+  let t, title  =
+    match title_english with
+    | None -> t, title
+    | Some a ->
+      try
+        fold_right2
+          (fun fr en (t, list) ->
+             let t, h =
+               fold_right2
+                 (fun french english (t,list) ->
+                    let t, bi = bilingual_string ~english ~french t in
+                    t, bi::list)
+                 fr en (t,[])
+             in
+             t, h::list)
+          title a
+          (t,[])
+      with
+        Not_found ->
+        warn
+          pos
+          "Incompatible arguments (english / french must have the same length)"
+          Exit
+          t, []
+  in
+  open_array pos ?logger ~with_lines ?size ?color ?bgcolor ?align ~title t
+
+
+let print_cell ?logger ?english french t =
+  bi_gen print_cell t ?logger ?english ~french
+
+let print_optional_cell ?logger ?english french t =
+  bi_gen print_optional_cell t ?logger ?english ~french
+
+let log_string
+    ?logger
+    ?backgroundcolor
+    ?textcolor
+    ?lineproportion ?english t french =
+  let s =
+    log_to_string
+      ?logger
+      ?backgroundcolor
+      ?textcolor
+      ?lineproportion ?english t french
+  in
+  fprintf ?logger t "%s" s

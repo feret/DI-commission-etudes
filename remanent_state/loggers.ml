@@ -1,7 +1,20 @@
 type orientation = Landscape | Normal
+type language = French | English
+
+type latex_parameters =
+  {
+    orientation:orientation;
+    language:language;
+    bilinguage:bool;
+  }
+
+let latex_normal =
+  {orientation=Normal;language=French;bilinguage=false}
+
 type encoding =
   | HTML | HTML_Tabular | HTML_encapsulated
-  | TXT | CSV | XLS | Json | Latex of orientation
+  | TXT | CSV | XLS | Json
+  | Latex of latex_parameters
   | Latex_encapsulated
 
 module type FormatMap =
@@ -395,7 +408,7 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
     in
     let () =
       match logger.encoding with
-      | Latex Landscape | Latex_encapsulated ->
+      | Latex {orientation = Landscape; _} | Latex_encapsulated ->
         let () =
           fprintf logger "\\setcounter{total}{0}%%\n\ "
         in
@@ -405,7 +418,7 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
             "\\setcounter{potentialects}{0}%%\n\ " in
         let () = fprintf logger "\\setcounter{nrow}{0}%%\n\ " in
         ()
-      | Latex Normal
+      | Latex {orientation = Normal;_}
       | HTML
       | HTML_Tabular
       | HTML_encapsulated
@@ -429,8 +442,8 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
         (match
            logger.encoding
          with
-         | Latex Normal -> "longtable"
-         | Latex Landscape | Latex_encapsulated
+         | Latex {orientation = Normal;_} -> "longtable"
+         | Latex {orientation = Landscape;_} | Latex_encapsulated
          | HTML
          | HTML_Tabular
          | HTML_encapsulated
@@ -531,8 +544,8 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
           (match
              logger.encoding
            with
-           | Latex Normal -> "longtable"
-           | Latex Landscape | Latex_encapsulated
+           | Latex {orientation = Normal;_} -> "longtable"
+           | Latex {orientation = Landscape;_} | Latex_encapsulated
            | HTML
            | HTML_Tabular
            | HTML_encapsulated
@@ -595,7 +608,7 @@ let print_preamble
     fprintf logger "<body>\n<div>\n<TABLE>\n"
   | Latex orientation ->
     let package, size =
-      match orientation with
+      match orientation.orientation with
       | Landscape -> "\\usepackage{lscape}",
                     "\\landscape\n\n\\setlength{\\textwidth}{28.3cm}\n\\setlength{\\hoffset}{-1.84cm}\n\\setlength{\\headsep}{0pt}\n\\setlength{\\topmargin}{0mm}\n\\setlength{\\footskip}{0mm}\n\\setlength{\\oddsidemargin}{0pt}\n\\setlength{\\evensidemargin}{0pt}\n\\setlength{\\voffset}{-2.15cm}\n\\setlength{\\textheight}{19.6cm}\n\\setlength{\\paperwidth}{21cm}\n\\setlength{\\paperheight}{29.7cm}\n\\setlength\\parindent{0pt}\n"
       | Normal ->
@@ -604,6 +617,13 @@ let print_preamble
                        Format.sprintf "\\addtolength{\\headheight}{%icm}\\addtolength{\\textheight}{-%icm}"
                          headerextralength
                          headerextralength),""
+    in
+    let lang =
+      match orientation.bilinguage, orientation.language with
+      | false, French -> "\\usepackage[french]{babel}%%\n\ "
+      | false, English -> "\\usepackage[english]{babel}%%\n\ "
+      | true, French -> "\\newcommand{\\BiLingual}[2]{#1}%%\n\ \\BiLingual{\\usepackage[french]{babel}%%\n\ }{\\usepackage[english]{babel}%%\n\ }"
+      | true, English -> "\\newcommand{\\BiLingual}[2]{#2}%%\n\ \\BiLingual{\\usepackage[french]{babel}%%\n\ }{\\usepackage[english]{babel}%%\n\ }"
     in
     let decimal =
       match
@@ -617,8 +637,8 @@ let print_preamble
       fprintf logger
       "\\documentclass[10pt]{extarticle}%%\n%%\n\
 \\usepackage[latin1]{inputenc}%%\n\
-%s\n\
-\\usepackage[french]{babel}%%\n\
+%s%%\n\
+%s%%\n\
 \\usepackage{xfp}%%\n\
 \\usepackage{xstring}%%\n\
 \\usepackage{ifthen}%%\n\
@@ -670,8 +690,8 @@ let print_preamble
 {\\StrSubstitute{#1}{,}{.}[\\res]\\myifdecimal{#1}{\res}{0}}%%\n\
 %%\n\
        %%\n\ "
-      package size
-      (match orientation with
+      package lang size
+      (match orientation.orientation with
          Landscape -> "empty" | Normal -> "fancy")   decimal
     in
     let () =

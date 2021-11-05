@@ -175,8 +175,11 @@ type cursus =
     cursus_niveau: string;
     cursus_dpt: main_dpt option;
     inscription: string option;
+    inscription_en: string option;
     entete: string option;
-    pied: string option
+    entete_en: string option;
+    pied: string option;
+    pied_en: string option
   }
 
 val empty_cursus: cursus
@@ -248,6 +251,7 @@ type dispense =
     dispense_lastname: string;
     dispense_annee: string;
     dispense_motif: string option;
+    dispense_motif_en: string option;
     dispense_program: string;
     dispense_dpt: string;
   }
@@ -372,6 +376,7 @@ type keywords =
   | ECTS
   | Effectif
   | Entete
+  | Entete_en
   | Enseignements
   | Etablissement
   | Etablissement_ou_Entreprise
@@ -382,6 +387,7 @@ type keywords =
   | Genre_du_tuteur
   | Grade
   | Inscription
+  | Inscription_en
   | Inscrit_au_DENS_en
   | Intitule
   | LastName
@@ -389,6 +395,7 @@ type keywords =
   | Libelle
   | Mention
   | Motif
+  | Motif_en
   | Moyenne
   | Niveau
   | Nom_du_tuteur
@@ -402,6 +409,7 @@ type keywords =
   | Periode_de_Financement
   | Pers_id
   | Pied_de_page
+  | Pied_de_page_en 
   | Pour_Diplome
   | Prenom_du_tuteur
   | Promo

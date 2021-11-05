@@ -1,7 +1,17 @@
 type orientation = Landscape | Normal
+type language = French | English
+
+type latex_parameters =
+  {
+    orientation:orientation;
+    language:language;
+    bilinguage:bool;
+  }
+
+val latex_normal:latex_parameters 
 type encoding =
   | HTML | HTML_Tabular | HTML_encapsulated
-  | TXT | CSV | XLS | Json | Latex of orientation
+  | TXT | CSV | XLS | Json | Latex of latex_parameters
   | Latex_encapsulated
 
 module type FormatMap =

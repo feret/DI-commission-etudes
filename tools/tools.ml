@@ -222,41 +222,11 @@ let float_of_string warn state t =
         in state, None
 
 
-let int_of_string warn state t =
-  try
-    state, Some (int_of_string t)
-  with
-  | _ ->
-    begin
-      let t = remove_comma t in
-      let state, a = float_of_string warn state t in
-      match a with
-      | None -> state, None
-      | Some a ->
-        if float_of_int (int_of_float a) = a
-        then
-          state, Some (int_of_float a)
-        else
-          let msg =
-            Format.sprintf "Undefined String (%s)-> int conversion" t
-          in
-          let state =
-            warn
-              msg
-              state
-          in
-          state, None
-    end
 
 let float_to_string ?force_dec_sep_to_dot get_comma_symbol state f =
   let s = string_of_float f in
   correct_comma ?force_dec_sep_to_dot get_comma_symbol state s
 
-
-let collect_int warn =
-  collect_conv
-    "string %s cannot be converted into an int"
-    int_of_string warn
 
 let collect_float warn =
   collect_conv "string %s cannot be converted into a float" float_of_string warn
@@ -624,3 +594,101 @@ let include_latex_list f state list
   let s = Buffer.contents b in
   let () = Buffer.reset b in
   state, s
+
+let correct_year year =
+    if String.length year = 4 then year
+    else
+    if String.length year = 2 then
+      if int_of_string year > 70 then Format.sprintf "19%s" year
+      else Format.sprintf "20%s" year
+    else
+      year
+
+let date_to_string_fr s =
+  match String.split_on_char '/' s with
+  | [day;month;year] ->
+    let correct_month =
+      match month with
+      | "1" | "01" -> "janvier"
+      | "2" | "02" -> "février"
+      | "3" | "03" -> "mars"
+      | "4" | "04" -> "avril"
+      | "5" | "05" -> "mai"
+      | "6" | "06" -> "juin"
+      | "7" | "07" -> "juillet"
+      | "8" | "08" -> "août"
+      | "9" | "09" -> "septembre"
+      | "10" -> "octobre"
+      | "11" -> "novembre"
+      | "12" -> "décembre"
+      | _ -> month
+    in
+    let correct_year = correct_year year in
+    Format.sprintf
+      "le %s %s %s" day correct_month correct_year
+  | _ -> s
+
+let date_to_string_en s =
+  match String.split_on_char '/' s with
+  | [day;month;year] ->
+    let correct_day =
+      let shorten_day =
+        if String.get day 0 = '0' then String.sub day 1 1  else day
+      in
+      match shorten_day with
+      | "1" | "21" | "31" -> Format.sprintf "%s1st" shorten_day
+      | "2" | "22" -> Format.sprintf "%snd" shorten_day
+      | "3" | "23" -> Format.sprintf "%srd" shorten_day
+      | _ -> Format.sprintf "%sth" shorten_day
+    in
+    let correct_month =
+      match month with
+      | "1" | "01" -> "January"
+      | "2" | "02" -> "February"
+      | "3" | "03" -> "March"
+      | "4" | "04" -> "April"
+      | "5" | "05" -> "May"
+      | "6" | "06" -> "June"
+      | "7" | "07" -> "July"
+      | "8" | "08" -> "August"
+      | "9" | "09" -> "September"
+      | "10" -> "October"
+      | "11" -> "November"
+      | "12" -> "December"
+      | _ -> month
+    in
+    let correct_year = correct_year year in
+    Format.sprintf
+      "the %s of %s %s" correct_day correct_month correct_year
+  | _ -> s
+
+let int_of_string warn state t =
+  try
+    state, Some (int_of_string t)
+  with
+  | _ ->
+    begin
+      let t = remove_comma t in
+      let state, a = float_of_string warn state t in
+      match a with
+      | None -> state, None
+      | Some a ->
+        if float_of_int (int_of_float a) = a
+        then
+          state, Some (int_of_float a)
+        else
+          let msg =
+            Format.sprintf "Undefined String (%s)-> int conversion" t
+          in
+          let state =
+            warn
+              msg
+              state
+          in
+          state, None
+    end
+
+let collect_int warn =
+  collect_conv
+    "string %s cannot be converted into an int"
+    int_of_string warn

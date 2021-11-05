@@ -67,6 +67,15 @@ let dpt_dec_full = "Département d'Études Cognitives"
 let dpt_eco_full = "Département d'Économie"
 let dpt_dri_full = "Direction des relations internationales"
 
+let dpt_arts_full_en = "Arts Department"
+let dpt_info_full_en = "Computer Science Department"
+let dpt_maths_full_en = "Department of Mathematics and their Applications"
+let dpt_phys_full_en = "Physics Department"
+let dpt_bio_full_en = "Biology Institute"
+let dpt_dec_full_en = "Cognitive Studies Department"
+let dpt_eco_full_en = "Economy Department"
+let dpt_dri_full_en = "International Relations Office"
+
 let simplify_string s =
   Special_char.lowercase
     (Special_char.correct_string_txt
@@ -365,6 +374,27 @@ let string_of_origin_short_opt a =
   | Some Public_data.M_MPRI -> "MPRI"
   | Some Public_data.AL -> "Khâgne"
   | Some Public_data.BCPST -> "BCPST"
+
+  let english_string_of_origin_short_opt a =
+    match a with
+    | None -> ""
+    | Some
+        ( Public_data.DensInfo
+        | Public_data.DensDEC
+        | Public_data.DensPhys
+        | Public_data.DensMath) -> "university"
+    | Some Public_data.Nes -> "Sciences Normalien Student"
+    | Some Public_data.EchErasm -> "Erasmus"
+    | Some Public_data.Info -> "CS"
+    | Some Public_data.Mpi -> "Math-Phys-CS"
+    | Some Public_data.Pc  -> "Phys-Chem"
+    | Some Public_data.ED386 -> "ED386"
+    | Some Public_data.PensionnaireEtranger -> "Int. Exchange"
+    | Some Public_data.Psi -> "Phys-Eng"
+    | Some Public_data.Sis -> "Int. Exchange"
+    | Some Public_data.M_MPRI -> "MPRI"
+    | Some Public_data.AL -> "Humanities"
+    | Some Public_data.BCPST -> "Bio-Chem-Phys-Geo"
 
 let log_origine
     state (label, string_opt) =
@@ -2344,6 +2374,8 @@ let mmf = gen_master "M-MathFond" ["gps3102"] "XT 00000000000664965"
 let mlmfi = gen_master "M-LMFI" ["gps2005";"gps3579"] "NOWAY"
 let mimalis = gen_master "M-ScVivant" [] "BIO-M2-E14-S2"
 let mphylo = gen_master "M-Philo" ["gps07302"] "NOWAY"
+let mrandom = gen_master "M-ALEA" ["gps85775"] "NOWAY"
+
 let string_of_stringopt s_opt =
   match s_opt with
   | None -> ""
@@ -2356,24 +2388,33 @@ let translate_dpt ~firstname ~lastname ~year state d =
       __POS__
       (Format.sprintf "Departement non rempli pour %s %s in %i" firstname lastname year)
       Exit
-      ""
+      ("","")
       state
   | Some s ->
     begin
       match simplify_string s with
-      | x when x=dpt_dri -> state, dpt_dri_full
-      | x when x=dpt_info -> state, dpt_info_full
-      | x when x=dpt_maths -> state, dpt_maths_full
-      | x when x=dpt_phys -> state, dpt_phys_full
-      | x when x=dpt_bio -> state, dpt_bio_full
-      | x when x=dpt_dec -> state, dpt_dec_full
-      | x when x=dpt_eco -> state, dpt_eco_full
-      | x when x=dpt_arts -> state, dpt_arts_full
-      | x -> state,
-             Printf.sprintf
-               "Département de %s"
-               (Special_char.capitalize
-                  (Special_char.lowercase x))
+      | x when x=dpt_dri -> state, (dpt_dri_full,dpt_dri_full_en)
+      | x when x=dpt_info -> state, (dpt_info_full,dpt_info_full_en)
+      | x when x=dpt_maths -> state, (dpt_maths_full,dpt_maths_full_en)
+      | x when x=dpt_phys -> state, (dpt_phys_full,dpt_phys_full_en)
+      | x when x=dpt_bio -> state, (dpt_bio_full,dpt_bio_full_en)
+      | x when x=dpt_dec -> state, (dpt_dec_full,dpt_dec_full_en)
+      | x when x=dpt_eco -> state, (dpt_eco_full,dpt_eco_full_en)
+      | x when x=dpt_arts -> state, (dpt_arts_full,dpt_arts_full_en)
+      | x ->
+        Remanent_state.warn
+          __POS__
+          (Format.sprintf "Unknown dpt %s for %s %s in %i" x firstname lastname year)
+          Exit
+          state,
+        (Printf.sprintf
+           "Département de %s"
+           (Special_char.capitalize
+              (Special_char.lowercase x)),
+         Printf.sprintf
+           "%s Department"
+           (Special_char.capitalize
+              (Special_char.lowercase x)))
     end
 
 let keep_class state filter year note =
@@ -2666,6 +2707,8 @@ let translate_diplome
       state, (Some "MathFond", "M2 Mathématiques Fondamentales", dpt_maths, false)
     else if mlmfi situation then
       state, (Some "LMFI", "M2 LMFI", dpt_info, false)
+    else if mrandom situation then
+      state, (Some "ALEA", "M2 Mathématiques de l'Aléatoire", dpt_maths, false)
     else if mimalis situation then
       state, (Some "IMALIS","M2 IMALIS", dpt_bio,false)
     else if mphylo situation then
@@ -2923,11 +2966,29 @@ let get_bourse ~firstname ~lastname ~er state =
     Format.sprintf " Boursi%s %s" er
       scholarship.Public_data.organism
 
+let get_bourse_en ~firstname ~lastname state =
+  match Remanent_state.get_scholarship
+          ~firstname ~lastname
+          state
+  with
+  | state, None ->
+    state, ""
+  | state, Some scholarship ->
+    state,
+    Format.sprintf " Scholarship %s"
+      scholarship.Public_data.organism
+
 let get_concours origin state =
   state,
   Format.sprintf
     " Concours %s"
     (string_of_origin_short_opt origin)
+
+let get_concours_en origin state =
+  state,
+  Format.sprintf
+    " %s track"
+    (english_string_of_origin_short_opt origin)
 
 let next_year i =
   try
@@ -3161,16 +3222,18 @@ let heading
     match Remanent_state.get_main_dpt state with
     | state, Public_data.DI ->
       let () =
-        Remanent_state.log
+        Remanent_state.log_string
           ?backgroundcolor
           state
+          ~english:"Department of Computer Science. \\'Ecole Normale Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Phone: +33 (0)1 44 32 20 45."
           "D\\'epartement d'Informatique.  \\'Ecole  Normale  Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Tel : +33 (0)1 44 32 20 45."
       in state
     | state, Public_data.DMA ->
       let () =
-        Remanent_state.log
+        Remanent_state.log_string
           ?backgroundcolor
           state
+          ~english:"Department of Mathematics and their Applications. \\'Ecole Normale Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Phone: +33 (0)1 44 32 20 49."
           "D\\'epartement de Math\\'ematiques et Applications. \\'Ecole  Normale  Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Tel : +33 (0)1 44 32 20 49."
       in
       state
@@ -3187,15 +3250,16 @@ let heading
     Remanent_state.print_newline state in
   let backgroundcolor = Some Color.blue in
   let lineproportion = Some (2./.3.) in
-  let state,statut,bourse,concours =
+  let state,statut,statut_en,bourse,bourse_en,concours,concours_en =
     match gps_file.statut with
-    | None -> state,"","",""
+    | None -> state,"","","","","",""
     | Some
         (Public_data.Ex_boursier_si
         | Public_data.Boursier_si) ->
       state,
       Format.sprintf "\\'Etudiant%s SI" genre,
-      "",""
+      "Student (Int. Sel.)",
+      "","","",""
     | Some
         (Public_data.Ex_eleve
         | Public_data.Ex_eleve_bis
@@ -3204,8 +3268,11 @@ let heading
       let state, concours =
         get_concours origine state
       in
-      state,"\\'El\\`eve","",
-      concours
+      let state, concours_en =
+        get_concours_en origine state
+      in
+      state,"\\'El\\`eve","Student","","",
+      concours,concours_en
     | Some (Public_data.Ex_etudiant
            | Public_data.Etudiant )->
       begin
@@ -3213,9 +3280,13 @@ let heading
           get_bourse
             ~firstname ~lastname ~er state
         in
-        state,
-        Format.sprintf "\\'Etudiant%s"
-          genre,bourse,""
+        let state, bourse_en =
+          get_bourse_en
+            ~firstname ~lastname state
+        in
+        state,Format.sprintf "\\'Etudiant%s" genre,
+        "Student"
+          ,bourse,bourse_en,"",""
       end
     | Some
         ( Public_data.Hors_GPS
@@ -3224,9 +3295,9 @@ let heading
         match origine with
         | Some
             Public_data.PensionnaireEtranger ->
-          state,"Pensionnaire \\'Etranger","",""
+          state,"Pensionnaire \\'Etranger","Int. Exchange","","","",""
         | Some Public_data.EchErasm ->
-          state,"\\'Echange Erasmus","",""
+          state,"\\'Echange Erasmus","Erasmus student","","","",""
         | Some Public_data.M_MPRI ->
           Remanent_state.warn
             __POS__
@@ -3234,10 +3305,10 @@ let heading
                "Illegal origin (M-MPRI) for %s" who)
             Exit
             state,
-          "M-MPRI","",""
+          "M-MPRI","M-MPRI","","","",""
         | None
         | Some Public_data.ED386
-          -> state, "","", ""
+          -> state, "","", "","","",""
         | Some ( Public_data.Nes
                | Public_data.DensMath
                | Public_data.DensPhys
@@ -3248,10 +3319,14 @@ let heading
             get_bourse
               ~firstname ~lastname ~er state
           in
+          let state, bourse_en =
+            get_bourse_en
+              ~firstname ~lastname state
+          in
           state,
           Format.sprintf
             "\\'Etudiant%s"
-            genre,bourse,""
+            genre,"Student",bourse,bourse_en,"",""
         | Some Public_data.Info
         | Some Public_data.Mpi
         | Some Public_data.BCPST
@@ -3262,19 +3337,35 @@ let heading
           let state, concours =
             get_concours origine state
           in
+          let state, concours_en =
+            get_concours_en origine state
+          in
           state,
-          "\\'El\\`eve","",
-          concours
+          "\\'El\\`eve","Student","","",
+          concours,concours_en
         | Some Public_data.Sis ->
           state,
-          Format.sprintf "\\'Etudiant%s SI" genre,"",""
+          Format.sprintf "\\'Etudiant%s SI" genre,"Student (Int. Sel)","","","",""
       end
   in
   let () =
-    Remanent_state.log
+    Remanent_state.log_string
       ?backgroundcolor
       ?lineproportion
       state
+      ~english:(Format.sprintf
+         "\\large %s %s \\hspace{5mm} born on %s \\hspace{5mm} %s%s%s"
+         (Special_char.uppercase
+            (Tools.unsome_string
+               gps_file.nom))
+         (Special_char.capitalize
+            (Tools.unsome_string
+               gps_file.prenom))
+         (Tools.date_to_string_en (Tools.unsome_string gps_file.date_de_naissance))
+         statut_en
+         bourse_en
+         concours_en)
+      (Format.sprintf
       "\\large %s %s \\hspace{5mm} n\\'e%s le %s \\hspace{5mm} %s%s%s"
       (Special_char.uppercase
          (Tools.unsome_string
@@ -3286,16 +3377,17 @@ let heading
       (Tools.unsome_string gps_file.date_de_naissance)
       statut
       bourse
-      concours
+      concours)
   in
   let lineproportion = Some (1./.3.) in
   let () =
-    Remanent_state.log
+    Remanent_state.log_string
       ?backgroundcolor
       ?lineproportion
       state
-      "\\large Promotion : %s"
-      promo
+      ~english:(Format.sprintf "\\large Promotion: %s" promo)
+      (Format.sprintf "\\large Promotion : %s"
+         promo)
   in
   let () =
     Remanent_state.print_newline state
@@ -3330,7 +3422,7 @@ let heading
     Printf.sprintf
       "%i -- %i" annee_int (annee_int+1)
   in
-  let state, statut, nationaux_opt =
+  let state, statut, statut_en, nationaux_opt, nationaux_en_opt =
     if lerasmus origine
     || lpe origine
     then
@@ -3345,55 +3437,72 @@ let heading
           | Public_data.ECO -> "d'économie"
           | Public_data.ARTS -> "d'arts"
           | Public_data.DRI -> "")
+      ),
+      (Format.sprintf "Year: %s Department"
+         (match main_dpt with
+            Public_data.DI -> "Computer Science"
+          | Public_data.DMA -> "Mathematics"
+          | Public_data.ENS -> ""
+          | Public_data.PHYS -> "Physics"
+          | Public_data.IBENS -> "Biology"
+          | Public_data.ECO -> "Economy"
+          | Public_data.ARTS -> "Arts"
+          | Public_data.DRI -> "")
          ),
-      None
+      None, None
     else if lechange_dri situation then
       state,
       "Année d'échanges avec la direction des relations internationales",
-      None
+      "Exchange Year with the International Relations Office",
+      None, None
     else
       match
         situation.nannee
       with
       | None ->
-        state, "Césure", None
+        state, "Césure", "Study Break",None, None
       | Some i ->
         begin
-          let is_suite =
+          let is_suite_fr, is_suite_en =
             if is_suite
-            then "(suite) "
-            else ""
+            then "(suite) "," (continued)"
+            else "",""
           in
-          let state, prefix =
+          let state, (prefix_fr, prefix_en) =
             match i with
             | 1 -> state,
-                   Format.sprintf "Première année %s:"
-                     is_suite
+                   (Format.sprintf "Première année %s:" is_suite_fr,
+                    Format.sprintf "First Year%s:" is_suite_en)
             | 2 -> state,
-                   Format.sprintf "Seconde année %s :"
-                    is_suite
+                   (Format.sprintf "Seconde année %s :" is_suite_fr,
+                    Format.sprintf "Second Year%s:" is_suite_en)
             | 3 -> state,
-                   Format.sprintf "Troisième année %s :" is_suite
+                   (Format.sprintf "Troisième année %s :" is_suite_fr,
+                    Format.sprintf "Third Year%s:" is_suite_en)
             | 4 -> state,
-                   Format.sprintf "Quatrième année %s:"
-                     is_suite
+                   (Format.sprintf "Quatrième année %s:" is_suite_fr,
+                    Format.sprintf "Fourth Year%s:" is_suite_en)
             | 5 -> state,
-                   Format.sprintf "Cinquième année %s:"
-                     is_suite
+                   (Format.sprintf "Cinquième année %s:" is_suite_fr,
+                    Format.sprintf "Fifth Year%s:" is_suite_en)
+            | 6 -> state,
+                   (Format.sprintf "Sixième année %s:" is_suite_fr,
+                    Format.sprintf "Sixth Year%s:" is_suite_en)
             | _ ->
               let msg =
                 Printf.sprintf
-                  "max 5 ans de scolarité pour %s"
+                  "max 6 ans de scolarité pour %s"
                   who
               in
               Remanent_state.warn_dft
                 __POS__
                 msg
                 Exit
-                ((string_of_int i)^"ème année :")
+                ((string_of_int i)^"ème année "^is_suite_fr^":",
+                 (string_of_int i)^"th Year"^is_suite_en^":")
                 state
           in
-          let state, suffix, nationaux_opt
+          let state, suffix_fr, suffix_en, nationaux_opt, nationaux_en_opt
             =
             if
               lmath situation
@@ -3442,8 +3551,12 @@ let heading
               Printf.sprintf
                 "Cursus maths-info et rattaché%s au %s"
                 genre dpt,
+              Printf.sprintf
+                "Maths-CS program, registed at %s" dpt,
               Some
-                "Licence L3 Info et L3 Maths Université Paris Diderot"
+                "Licence L3 Info et L3 Maths Université Paris Diderot",
+              Some
+                "Bachelor L3 Computer Science and L3 Maths at Paris-Diderot University"
             else if
               lmathphys situation
             then
@@ -3490,28 +3603,34 @@ let heading
               state,
               Printf.sprintf
                 "Cursus maths-physique et rattaché au %s" dpt,
+              Printf.sprintf
+                "Maths-Phys program, registed at %s " dpt,
+              Some "maths-phys",
               Some "maths-phys"
             else
-              let state, string =
+              let state, (string,string_en) =
                 translate_dpt ~firstname ~lastname ~year:annee_int state
                   situation.departement_principal
               in
-              state, string, None
+              state, string, string_en, None, None
           in
           state,
           Printf.sprintf
-            "%s %s" prefix suffix,
-          nationaux_opt
+            "%s %s" prefix_fr suffix_fr,
+          Printf.sprintf
+            "%s %s" prefix_en suffix_en,
+          nationaux_opt,
+          nationaux_en_opt
         end
   in
-  let state, dens_opt =
+  let state, dens_opt, dens_en_opt  =
     match
       situation.inscription_au_DENS
     with
     | Some true ->
       begin
         match nationaux_opt with
-        | Some _ -> state, ["Diplôme de l'ENS"]
+        | Some _ -> state, ["Diplôme de l'ENS"], ["ENS diploma"]
         | _ ->
           let state, cursus_opt =
             if lmath situation
@@ -3533,10 +3652,18 @@ let heading
           match cursus_opt with
           | Some cursus ->
             begin
-              match cursus.Public_data.inscription
+              match cursus.Public_data.inscription, cursus.Public_data.inscription_en
               with
-              | None -> state, ["DENS"]
-              | Some x -> state, [x]
+              | None, None -> state, ["DENS"],["DENS"]
+              | Some x, Some y -> state, [x], [y]
+              | Some x, None | None, Some x ->
+                let state =
+                  Remanent_state.warn
+                    __POS__
+                    (Format.sprintf "The translation of %s is missing (cursus registration for %s)" x cursus.Public_data.cursus_niveau)
+                    Exit state
+                in
+                state, [x], [x]
             end
           | None ->
             let msg =
@@ -3549,30 +3676,39 @@ let heading
               msg
               Exit
               state,
-            []
+            [],[]
       end
     | Some false
-    | None -> state, []
+    | None -> state, [], []
   in
-  let state, inscriptions =
-    match nationaux_opt with
-    | Some x -> state, x::dens_opt
-    | None ->
+  let state, inscriptions, inscriptions_en =
+    match nationaux_opt,nationaux_en_opt with
+    | Some x,Some y -> state, x::dens_opt, y::dens_en_opt
+    | Some x,None | None, Some x ->
+      let state =
+        Remanent_state.warn
+          __POS__
+          (Format.sprintf "The translation of %s is missing" x)
+          Exit
+          state
+      in
+      state, x::dens_opt, x::dens_en_opt
+    | None, None ->
       if lpoly situation
       then
-        state, "Bachelor de l'X"::dens_opt
+        state, "Bachelor de l'X"::dens_opt, "X Bachelor"::dens_en_opt
       else if
         lpe origine
         || lerasmus origine
       then
-        state, dens_opt
+        state, dens_opt, dens_en_opt
       else
         StringOptMap.fold
           (fun (string_opt,dpt) _
-            (state,inscriptions) ->
+            (state,inscriptions,inscriptions_en) ->
             match string_opt with
             | None | Some "dens" | Some "autre" ->
-              state, inscriptions
+              state, inscriptions, inscriptions_en
             | Some string ->
               match
                 StringOptMap.find_opt
@@ -3606,7 +3742,8 @@ let heading
                     state
                 in
                 state,
-                inscriptions
+                inscriptions,
+                inscriptions_en
               | Some (debut,fin) ->
                 try
                   if
@@ -3648,15 +3785,25 @@ let heading
                         msg
                         Exit
                         state,
-                      inscriptions
+                      inscriptions, inscriptions_en
                     | Some cursus ->
                       match
-                        cursus.Public_data.inscription
+                        cursus.Public_data.inscription, cursus.Public_data.inscription_en
                       with
-                      | Some inscription ->
+                      | Some inscription, Some inscription_en ->
                         state,
-                        inscription::inscriptions
-                      | None ->
+                        inscription::inscriptions,
+                        inscription_en::inscriptions_en
+                      | Some x, None | None, Some x ->
+                      let state =
+                        Remanent_state.warn
+                          __POS__
+                          (Format.sprintf "The translation of %s is missing (cursus registration for %s)" x cursus.Public_data.cursus_niveau)
+                          Exit
+                          state
+                      in
+                      state, x::inscriptions, x::inscriptions_en
+                      | None, None ->
                         let msg =
                           Format.sprintf
                             "Inscription field is not documented for cursus %s %s %s"
@@ -3669,18 +3816,18 @@ let heading
                           msg
                           Exit
                           state,
-                        inscriptions
-                  else state, inscriptions
+                        inscriptions, inscriptions_en
+                  else state, inscriptions, inscriptions_en
                 with _ ->
                   Remanent_state.warn
                     __POS__
                     "internal error, years should be  convertible into int"
                     Exit
                     state,
-                  inscriptions
+                  inscriptions, inscriptions_en
           )
           split_cours
-          (state, dens_opt)
+          (state, dens_opt, dens_en_opt)
   in
   let inscription_string =
     Format.asprintf
@@ -3692,15 +3839,29 @@ let heading
       )
       inscriptions
   in
+  let inscription_en_string =
+    Format.asprintf
+      "%a"
+      (Format.pp_print_list
+         ~pp_sep:(fun log _ ->
+             Format.fprintf log " + ")
+         (fun log -> Format.fprintf log "%s")
+      )
+      inscriptions_en
+  in
   let () =
-    Remanent_state.log
+    Remanent_state.log_string
       ~lineproportion
       ~backgroundcolor
       ~textcolor
       state
-      "%s %s "
-      annee
-      statut
+      ~english:(Format.sprintf "%s %s "
+                  annee
+                  statut_en)
+      (Format.sprintf "%s %s "
+         annee
+         statut)
+
   in
   let () =
     if not (tuteur = "") then
@@ -3747,8 +3908,10 @@ let heading
   let state =
     List.fold_left
       (fun state dispense ->
-         match dispense.Public_data.dispense_motif with
-         | None ->
+         match dispense.Public_data.dispense_motif,
+               dispense.Public_data.dispense_motif_en
+         with
+         | None, None ->
            let msg =
              Printf.sprintf
                "dispense without explaination for %s %s in %s"
@@ -3759,14 +3922,40 @@ let heading
              msg
              Exit
              state
-         | Some motif ->
+         | Some motif, None | None, Some motif ->
+         let msg =
+           Printf.sprintf
+             "The translation of an explaination for a dispense is missing for %s %s in %s (%s)"
+             firstname lastname year motif
+         in
+         let state =
+           Remanent_state.warn
+             __POS__
+             msg
+             Exit
+             state
+         in
+         let () =
+           Remanent_state.log
+             ~lineproportion
+             ~backgroundcolor
+             ~textcolor
+             state
+             "%s"
+             motif
+         in
+         let () =
+           Remanent_state.print_newline state
+         in
+         state
+         | Some motif, Some motif_en ->
            let () =
-             Remanent_state.log
+             Remanent_state.log_string
                ~lineproportion
                ~backgroundcolor
                ~textcolor
+               ~english:motif_en
                state
-               "%s"
                motif
            in
            let () =
@@ -3803,11 +3992,12 @@ let heading
     | _, None ->
       let lineproportion = 1. in
       let () =
-        Remanent_state.log
+        Remanent_state.log_string
           ~lineproportion
           state
-          "Inscriptions : %s"
-          inscription_string
+          ~english:(Format.sprintf "Registrations: %s" inscription_en_string)
+          (Format.sprintf "Inscriptions : %s"
+             inscription_string)
       in
       let () =
         Remanent_state.print_newline state
@@ -3883,17 +4073,17 @@ let program
     ~dens ~natt
     list state =
   let state,
-      entete,
-      footpage =
+      entete,entete_en,
+      footpage,footpage_en =
     if lpe origine
     || lerasmus origine
     then
-      state, None, None
+      state, None, None, None, None
     else
       match string with
-      | None -> state, None, None
+      | None -> state, None, None, None, None
       | Some s when String.trim s = "" ->
-        state, None, None
+        state, None, None, None, None
       | Some string ->
         let state, cursus_opt =
           Remanent_state.get_cursus
@@ -3924,10 +4114,10 @@ let program
             msg
             Exit
             state,
-          None, None
+          None, None, None, None
         | Some cursus ->
-          state, cursus.Public_data.entete,
-          cursus.Public_data.pied
+          state, cursus.Public_data.entete, cursus.Public_data.entete_en,
+          cursus.Public_data.pied, cursus.Public_data.pied_en
   in
   let state, key, b =
     alloc_suffix (string,dpt) state
@@ -4099,7 +4289,7 @@ let program
       state, Some Color.green
     | Some ("leco" | "LEco") ->
       state, Some Color.pink
-    | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" | "lmfi" | "PHILOSorbonne") ->
+    | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" | "lmfi" | "PHILOSorbonne" | "alea") ->
       color_of_dpt
         who __POS__ state
         (Public_data.string_of_dpt dpt)
@@ -4147,12 +4337,76 @@ let program
       (List.length list)
   in
   let () =
-    match entete with
-    | None -> ()
-    | Some x ->
-      Remanent_state.fprintf
+    match entete,entete_en with
+    | None, None -> ()
+    | Some x, None | None, Some x ->
+      let state =
+        Remanent_state.warn
+          __POS__
+          (Format.sprintf "Missing translation for %s" x)
+          Exit
+          state
+      in
+      Remanent_state.log_string
         state
-        "%s%s"
+        ~english:(Format.sprintf "%s%s"
+                    x
+                    (match
+                       StringOptMap.find_opt
+                         (string,(Public_data.string_of_dpt dpt))
+                         cursus_map, footpage_en
+                     with
+                     | None, _
+                     | Some (_,None),_
+                     | _,None -> ""
+                     | Some (_,Some x),Some y ->
+                       if x = year then
+                         Format.sprintf
+                           "\\footnote{%s}"
+                           y
+                       else
+                         ""
+                    ))
+        (Format.sprintf "%s%s"
+           x
+           (match
+              StringOptMap.find_opt
+                (string,(Public_data.string_of_dpt dpt))
+                cursus_map, footpage
+            with
+            | None, _
+            | Some (_,None),_
+            | _,None -> ""
+            | Some (_,Some x),Some y ->
+              if x = year then
+                Format.sprintf
+                  "\\footnote{%s}"
+                  y
+              else
+                ""
+           ))
+    | Some x, Some y ->
+      Remanent_state.log_string
+        state
+        ~english:(Format.sprintf "%s%s"
+                       y
+                       (match
+                          StringOptMap.find_opt
+                            (string,(Public_data.string_of_dpt dpt))
+                            cursus_map, footpage_en
+                        with
+                        | None, _
+                        | Some (_,None),_
+                        | _,None -> ""
+                        | Some (_,Some x),Some y ->
+                          if x = year then
+                            Format.sprintf
+                              "\\footnote{%s}"
+                              y
+                          else
+                            ""
+                       ))
+          (Format.sprintf "%s%s"
         x
         (match
            StringOptMap.find_opt
@@ -4169,7 +4423,7 @@ let program
                y
            else
              ""
-        )
+        ))
   in
   let _ =
     Remanent_state.print_newline state
@@ -4182,6 +4436,8 @@ let program
       ~with_lines:true
       ~title:[["Code"];["Dipl\\^ome"];["Intitul\\'e"];
               ["Enseignant"];["Semestre"];["Note"];["ECTS"]]
+      ~title_english:[["Code"];["Diploma"];["Course"];
+              ["Teacher"];["Semester"];["Grade"];["ECTS"]]
       state
   in
   let macro = "cours" in
@@ -4636,7 +4892,7 @@ let program
              || string = Some "")) && can_put_mean_mention
     then
       let s =
-        Remanent_state.log_string
+        Remanent_state.log_to_string
           ~lineproportion
           state
           moyenne
@@ -4661,10 +4917,9 @@ let program
   let () =
     (fun s ->
        if s = "" then () else
-         Remanent_state.log
+         Remanent_state.log_string
            ~lineproportion
            state
-           "%s"
            s)
       (
         if ects = "" then pects
@@ -4683,10 +4938,9 @@ let program
     List.iter
       (fun (s,lineproportion) ->
          if s = "" then () else
-           Remanent_state.log
+           Remanent_state.log_string
              ~lineproportion
              state
-             "%s"
              s)
       [decision,0.45;rank,0.25;mention,0.25]
   in
@@ -4706,6 +4960,7 @@ let good (a,_) =
 let export_transcript
     ~output
     ?language
+    ?bilinguage
     ?include_picture
     ?repartition
     ?signature
@@ -4729,11 +4984,17 @@ let export_transcript
     | None -> false
     | Some b -> b
   in
-  let state, _language =
+  let state, language =
     Tools.get_option
       state
       Remanent_state.get_language
       language
+  in
+  let state, bilinguage =
+    Tools.get_option
+      state
+      Remanent_state.get_is_bilingual
+      bilinguage
   in
   let state, repartition =
     Tools.get_option
@@ -4814,7 +5075,16 @@ let export_transcript
   match output_channel_opt with
   | None -> state, None
   | Some out ->
-    let mode = Loggers.Latex Loggers.Landscape in
+    let mode = Loggers.Latex
+        {Loggers.orientation = Loggers.Landscape ;
+         Loggers.language =
+           (match language with
+           | Public_data.French -> Loggers.French
+           | Public_data.English -> Loggers.English );
+         Loggers.bilinguage =
+           bilinguage
+        }
+    in
     let logger = Loggers.open_logger_from_channel ~mode out in
     let old_logger = Remanent_state.save_std_logger state in
     let state = Remanent_state.set_std_logger state logger in
@@ -5731,11 +6001,11 @@ let export_transcript
                              | Some admission ->
                                let lineproportion = 1. in
                                let () =
-                                 Remanent_state.log
+                                 Remanent_state.log_string
                                    ~lineproportion
                                    state
-                                   "\\textbf{%s}"
-                                   admission.Public_data.admission_decision
+                                   (Format.sprintf "\\textbf{%s}"
+                                      admission.Public_data.admission_decision)
                                in
                                let () =
                                  Remanent_state.fprintf

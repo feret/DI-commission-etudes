@@ -48,21 +48,29 @@ val log:
   ?textcolor:Color.color ->
   ?lineproportion:float -> t -> ('a, Format.formatter, unit) format -> 'a
 
+val log_to_string:
+  ?logger:Loggers.t ->
+  ?backgroundcolor:Color.color ->
+  ?textcolor:Color.color ->
+  ?lineproportion:float ->
+  ?english:string -> t -> string -> string
+
 val log_string:
   ?logger:Loggers.t ->
   ?backgroundcolor:Color.color ->
   ?textcolor:Color.color ->
-  ?lineproportion:float -> t -> string -> string
+  ?lineproportion:float ->
+  ?english:string -> t -> string -> unit
 
 val open_array:
   (string * int * int * int) ->
   ?logger:Loggers.t ->
-  with_lines:bool -> ?size:float option list -> ?color: Color.color option list -> ?bgcolor:Color.color option list -> ?align:char option list -> title:string list list -> t -> t
+  with_lines:bool -> ?size:float option list -> ?color: Color.color option list -> ?bgcolor:Color.color option list -> ?align:char option list -> title:string list list -> ?title_english: string list list -> t -> t
 val close_array: ?logger:Loggers.t -> t -> unit
 val open_row: ?logger:Loggers.t -> ?macro:string -> t -> unit
 val close_row: ?logger:Loggers.t -> t -> unit
-val print_cell: ?logger:Loggers.t -> string -> t  -> unit
-val print_optional_cell: ?logger:Loggers.t -> string -> t  -> unit
+val print_cell: ?logger:Loggers.t -> ?english:string -> string -> t  -> unit
+val print_optional_cell: ?logger:Loggers.t -> ?english:string -> string -> t  -> unit
 
 val breakpage: ?logger:Loggers.t -> t -> unit
 val flush:
@@ -116,7 +124,7 @@ val get_repository_to_dump_gps_files:
   ?output_repository:string -> t -> t * string
 val get_repository_for_handmade_gps_files: t -> t * string
 val get_repository_for_backup_gps_files: t -> t * string
-val get_signature: t -> t * string list 
+val get_signature: t -> t * string list
 val get_store_output_according_to_their_promotions: t -> t * bool
 val get_indicate_promotions_in_gps_file_names: t -> t * bool
 val get_repository_to_dump_attestations: t -> t * string
@@ -575,3 +583,5 @@ val empty_copy:
   copy:(input_rep:string ->
         file_name:string -> output_rep:string -> t -> t)
   -> t -> t
+
+val get_is_bilingual: t -> t * bool

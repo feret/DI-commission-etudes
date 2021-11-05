@@ -346,7 +346,7 @@ let dump_attestation
       match extension_opt with
       | Some "html" -> state, Loggers.HTML
       | Some "tex" ->
-        state, Loggers.Latex Loggers.Normal
+        state, Loggers.Latex Loggers.latex_normal
       | Some _ ->
         Remanent_state.warn
           __POS__

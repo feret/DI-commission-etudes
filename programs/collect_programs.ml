@@ -346,8 +346,11 @@ type cursus_id  =
     cursus_annee: string option;
     cursus_niveau: string option;
     headpage: string option;
+    headpage_en: string option;
     footpage: string option;
+    footpage_en: string option;
     inscription: string option;
+    inscription_en: string option;
   }
 
 let empty_cursus =
@@ -356,8 +359,11 @@ let empty_cursus =
     cursus_annee = None;
     cursus_niveau = None;
     headpage = None;
+    headpage_en = None;
     footpage = None;
+    footpage_en = None;
     inscription = None;
+    inscription_en = None;
   }
 
 let lift_string =
@@ -375,7 +381,9 @@ let keywords_list =
     Public_data.Niveau;
     Public_data.Inscription;
     Public_data.Entete;
+    Public_data.Entete_en;
     Public_data.Pied_de_page;
+    Public_data.Pied_de_page_en;
   ]
 
 let keywords_of_interest =
@@ -467,6 +475,23 @@ let all_fields =
         ~record_name
         ~pos:__POS__;
     lift_string_opt
+      ~keyword:Public_data.Inscription_en
+      ~set_tmp:(fun state inscription_en x ->
+          state,
+          let inscription_en =
+            match inscription_en with
+            | Some x when String.trim x = "" -> None
+            | _ -> inscription_en
+          in
+          {x with inscription_en})
+      ~get_tmp:(fun a -> a.inscription_en)
+      ~get:(fun a -> a.Public_data.inscription_en)
+      ~set:(fun inscription_en a ->
+          {a with Public_data.inscription_en})
+      ~field_name:"incription notice (anglais)"
+      ~record_name
+      ~pos:__POS__;
+    lift_string_opt
       ~keyword:Public_data.Entete
           ~set_tmp:(fun state headpage x ->
               state,
@@ -483,22 +508,55 @@ let all_fields =
           ~record_name
           ~pos:__POS__;
     lift_string_opt
-            ~keyword:Public_data.Pied_de_page
-            ~set_tmp:(fun state footpage x ->
-                state,
-                let footpage =
-                  match footpage with
-                  | Some x when String.trim x = "" -> None
-                  | _ -> footpage
-                in
-                {x with footpage})
-            ~get_tmp:(fun a -> a.footpage)
-            ~get:(fun a -> a.Public_data.pied)
-            ~set:(fun pied a ->
-                {a with Public_data.pied})
-            ~field_name:"footpage"
-            ~record_name
-            ~pos:__POS__;
+      ~keyword:Public_data.Entete_en
+      ~set_tmp:(fun state headpage_en x ->
+                    state,
+                    let headpage_en =
+                      match headpage_en with
+                      | Some x when String.trim x = "" -> None
+                      | _ -> headpage_en
+                    in
+                    {x with headpage_en})
+      ~get_tmp:(fun a -> a.headpage_en)
+      ~get:(fun a -> a.Public_data.entete_en)
+      ~set:(fun entete_en a -> {a with Public_data.entete_en})
+      ~field_name:"headpage (anglais)"
+      ~record_name
+      ~pos:__POS__;
+    lift_string_opt
+      ~keyword:Public_data.Pied_de_page
+      ~set_tmp:(fun state footpage x ->
+          state,
+          let footpage =
+            match footpage with
+            | Some x when String.trim x = "" -> None
+            | _ -> footpage
+          in
+          {x with footpage})
+      ~get_tmp:(fun a -> a.footpage)
+      ~get:(fun a -> a.Public_data.pied)
+      ~set:(fun pied a ->
+          {a with Public_data.pied})
+      ~field_name:"footpage"
+      ~record_name
+      ~pos:__POS__;
+    lift_string_opt
+      ~keyword:Public_data.Pied_de_page_en
+      ~set_tmp:(fun state footpage_en x ->
+          state,
+          let footpage_en =
+              match footpage_en with
+              | Some x when String.trim x = "" -> None
+              | _ -> footpage_en
+            in
+            {x with footpage_en})
+        ~get_tmp:(fun a -> a.footpage_en)
+        ~get:(fun a -> a.Public_data.pied_en)
+        ~set:(fun pied_en a ->
+            {a with Public_data.pied_en})
+        ~field_name:"footpage (anglais)"
+        ~record_name
+        ~pos:__POS__;
 
   ]
 
