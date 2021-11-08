@@ -109,6 +109,7 @@ let asso_list =
     Public_data.Date, ["date"];
     Public_data.Date_de_Naissance, ["date de naissance";"naissance"];
     Public_data.Decision, ["décision"];
+    Public_data.Decision_en, ["décision_en";"decision(english)";"decision(anglais)"];
     Public_data.Departement, ["département"];
     Public_data.Departements,["département(s)"];
     Public_data.Departement_principal, ["principal";"département principal"];
@@ -173,7 +174,7 @@ let asso_list =
     Public_data.Programme, ["programme"];
     Public_data.Programme_d_etude,
     ["programme";"programme d'études"; "Pgm études"];
-    Public_data.Recu, ["reÃ§u"];
+    Public_data.Recu, ["reçu"];
     Public_data.Responsable, ["responsable"];
     Public_data.Responsable_local,
     ["responsable local"];

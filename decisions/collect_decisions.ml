@@ -3,15 +3,19 @@ type decision_id  =
     firstname: string option;
     lastname: string option;
     decision: string option;
+    decision_en: string option;
     annee: string option;
     program: string option;
     dpt: Public_data.main_dpt option;
     mean: float option;
     mention: string option;
+    mention_en: string option;
     rank: int option;
     effectif: int option;
     date: string option;
+    date_en: string option;
     commission: string option;
+    commission_en: string option;
     validated: bool option;
   }
 
@@ -21,14 +25,18 @@ let empty_decision =
     lastname=None;
     program=None;
     decision=None;
+    decision_en=None;
     dpt=None;
     annee=None;
     mean=None;
     mention=None;
+    mention_en=None;
     rank=None;
     effectif=None;
     date=None;
+    date_en=None;
     commission=None;
+    commission_en=None;
     validated=None;
   }
 
@@ -38,13 +46,17 @@ let keywords_list =
     Public_data.FirstName;
     Public_data.LastName;
     Public_data.Commission;
+    Public_data.Commission_en;
     Public_data.Date;
+    Public_data.Date_en;
     Public_data.Decision;
+    Public_data.Decision_en;
     Public_data.Annee_Academique;
     Public_data.Classement;
     Public_data.Effectif;
     Public_data.Moyenne;
     Public_data.Mention;
+    Public_data.Mention_en;
     Public_data.Recu;
     Public_data.Departement;
     Public_data.Diplome;
@@ -165,6 +177,17 @@ let all_fields =
       ~record_name
       ~field_name:"decision of the jury"
       ~pos:__POS__;
+    lift_string_opt
+        ~keyword:Public_data.Decision_en
+        ~set_tmp:(Tools.collect_string
+                    (fun decision_en x -> {x with decision_en}))
+        ~get_tmp:(fun a -> a.decision_en)
+        ~get:(fun a -> a.Public_data.decision_decision_en)
+        ~set:(fun decision_decision_en a ->
+            {a with Public_data.decision_decision_en})
+        ~record_name
+        ~field_name:"decision of the jury (english)"
+        ~pos:__POS__;
     lift_string
       ~keyword:Public_data.Diplome
       ~set_tmp:(Tools.collect_string
@@ -200,6 +223,16 @@ let all_fields =
       ~field_name:"mention"
       ~record_name
       ~pos:__POS__ ;
+      lift_string_opt
+        ~keyword:Public_data.Mention_en
+        ~set_tmp:(Tools.collect_string (fun mention_en x -> {x with mention_en}))
+        ~get_tmp:(fun a -> a.mention_en)
+        ~get:(fun a -> a.Public_data.decision_mention_en)
+        ~set:(fun decision_mention_en a ->
+            {a with Public_data.decision_mention_en})
+        ~field_name:"mention (english)"
+        ~record_name
+        ~pos:__POS__ ;
     lift_string_opt
       ~keyword:Public_data.Date
       ~set_tmp:(Tools.collect_string (fun date x -> {x with date}))
@@ -210,6 +243,16 @@ let all_fields =
       ~field_name:"date"
       ~record_name
       ~pos:__POS__ ;
+      lift_string_opt
+        ~keyword:Public_data.Date_en
+        ~set_tmp:(Tools.collect_string (fun date_en x -> {x with date_en}))
+        ~get_tmp:(fun a -> a.date_en)
+        ~get:(fun a -> a.Public_data.decision_date_en)
+        ~set:(fun decision_date_en a ->
+                {a with Public_data.decision_date_en})
+        ~field_name:"date(english)"
+        ~record_name
+        ~pos:__POS__ ;
   lift_string_opt
       ~keyword:Public_data.Commission
       ~set_tmp:(Tools.collect_string (fun commission x -> {x with commission}))
@@ -220,6 +263,16 @@ let all_fields =
       ~field_name:"commission name"
       ~record_name
       ~pos:__POS__ ;
+      lift_string_opt
+          ~keyword:Public_data.Commission_en
+          ~set_tmp:(Tools.collect_string (fun commission_en x -> {x with commission_en}))
+          ~get_tmp:(fun a -> a.commission_en)
+          ~get:(fun a -> a.Public_data.decision_commission_name_en)
+          ~set:(fun decision_commission_name_en a ->
+              {a with Public_data.decision_commission_name_en})
+          ~field_name:"commission name (english)"
+          ~record_name
+          ~pos:__POS__ ;
     lift_bool_opt
       ~keyword:Public_data.Recu
       ~set_tmp:(collect_bool "in validation" __POS__

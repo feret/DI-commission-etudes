@@ -111,16 +111,28 @@ let float_to_string ?force_dec_sep_to_dot state f =
 
 
 let valide_sans_note = Tools.valide_sans_note
+let valide_sans_note_en = Tools.valide_sans_note_en
 
 let to_string _pos ?force_dec_sep_to_dot state t =
   match t with
   | Public_data.Float f ->
     float_to_string ?force_dec_sep_to_dot state f
   | Public_data.Absent -> state, "abs"
-  | Public_data.En_cours -> state, "en cours"
-  | Public_data.Abandon -> state, "abandon"
+  | Public_data.En_cours ->
+    Remanent_state.bilingual_string
+      ~french:"en cours"
+      ~english:"in progress"
+      state
+  | Public_data.Abandon ->
+  Remanent_state.bilingual_string
+    ~french:"abandon"
+    ~english:"quitted"
+    state
   | Public_data.Valide_sans_note ->
-    state, valide_sans_note
+    Remanent_state.bilingual_string
+      ~french:valide_sans_note
+      ~english:valide_sans_note_en
+      state
 
 let of_string pos state s =
   if Tools.space_only s then

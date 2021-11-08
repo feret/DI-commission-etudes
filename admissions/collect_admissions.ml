@@ -3,6 +3,7 @@ type admission_id  =
     firstname: string option;
     lastname: string option;
     admission: string option;
+    admission_en: string option;
     annee: string option;
   }
 
@@ -12,6 +13,7 @@ let empty_admission =
     lastname=None;
     annee=None;
     admission=None;
+    admission_en=None;
   }
 
 let keywords_list =
@@ -20,6 +22,7 @@ let keywords_list =
     Public_data.FirstName;
     Public_data.LastName;
     Public_data.Decision;
+    Public_data.Decision_en;
     Public_data.Annee_Academique;
   ]
 
@@ -37,7 +40,8 @@ let compute_repository =
 let lift_pred = Lift.pred_safe
 let lift_string =
   (Lift.string empty_admission Public_data.empty_admission).Lift.safe
-
+let lift_string_opt =
+  (Lift.string empty_admission Public_data.empty_admission).Lift.opt_safe
 let mandatory_fields =
   [
     lift_pred (fun a -> a.annee) "academic year";
@@ -82,15 +86,26 @@ let all_fields =
     lift_string
       ~keyword:Public_data.Decision
       ~set_tmp:(Tools.collect_string
-                  (fun admission x -> {x with admission}))
-      ~get_tmp:(fun a -> a.admission)
+                  (fun admission_en x -> {x with admission_en}))
+      ~get_tmp:(fun a -> a.admission_en)
       ~get:(fun a -> a.Public_data.admission_decision)
       ~set:(fun admission_decision a ->
           {a with Public_data.admission_decision})
       ~record_name
       ~field_name:"M2 admission"
       ~pos:__POS__;
-        ]
+    lift_string_opt
+      ~keyword:Public_data.Decision_en
+      ~set_tmp:(Tools.collect_string
+                  (fun admission_en x -> {x with admission_en}))
+      ~get_tmp:(fun a -> a.admission_en)
+      ~get:(fun a -> a.Public_data.admission_decision_en)
+      ~set:(fun admission_decision_en a ->
+          {a with Public_data.admission_decision_en})
+      ~record_name
+      ~field_name:"M2 admission (english)"
+      ~pos:__POS__;
+  ]
 
 let get_admissions
     ?repository

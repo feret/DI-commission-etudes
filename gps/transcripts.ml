@@ -3392,7 +3392,7 @@ let heading
   let () =
     Remanent_state.print_newline state
   in
-  let tuteur, lineproportion = tuteur in
+  let tuteur, tuteur_en, lineproportion = tuteur in
   let backgroundcolor =
     match
       situation.nannee
@@ -3866,12 +3866,12 @@ let heading
   let () =
     if not (tuteur = "") then
       let lineproportion = 1./.3. in
-      Remanent_state.log
+      Remanent_state.log_string
         ~lineproportion
         ~backgroundcolor
         ~textcolor
+        ~english:tuteur_en
         state
-        "%s"
         tuteur
   in
   let () =
@@ -3970,7 +3970,7 @@ let heading
   let () =
     match inscription_string, tuteur_bis with
     | "", None  -> ()
-    | "", Some (tuteur,lineproportion) ->
+    | "", Some (tuteur,tuteur_en,lineproportion) ->
       let () =
         Remanent_state.log
           ~lineproportion
@@ -3979,10 +3979,10 @@ let heading
       in
       let lineproportion = 1./.3. in
       let () =
-        Remanent_state.log
+        Remanent_state.log_string
           ~lineproportion
+          ~english:tuteur_en
           state
-          "%s"
           tuteur
       in
       let () =
@@ -4003,7 +4003,7 @@ let heading
         Remanent_state.print_newline state
       in
       ()
-    | _, Some (tuteur,lineproportion) ->
+    | _, Some (tuteur,tuteur_en,lineproportion) ->
       let () =
         Remanent_state.log
           ~lineproportion
@@ -4013,10 +4013,10 @@ let heading
       in
       let lineproportion = 1./.3. in
       let () =
-        Remanent_state.log
+        Remanent_state.log_string
           ~lineproportion
+          ~english:tuteur_en
           state
-          "%s"
           tuteur
       in
       let () =
@@ -4030,10 +4030,13 @@ let foot signature state  =
     match signature with
     | [] -> ()
     | sign_list ->
+      let state, article =
+        Remanent_state.bilingual_string ~english:"the" ~french:"le" state
+      in
       let () =
         Remanent_state.fprintf
           state
-          "\\vfill\n\n\\vspace*{-1.cm}\n\n\\begin{center}%%\n\ Paris, le \\today\\\\%%\n\ "
+          "\\vfill\n\n\\vspace*{-1.cm}\n\n\\begin{center}%%\n\ Paris, %s \\today\\\\%%\n\ " article
       in
       let f x =
         Printf.sprintf
@@ -4151,22 +4154,26 @@ let program
         end
   in
   let
-    moyenne_opt, mention_opt,
+    moyenne_opt, mention_opt, mention_en_opt,
     rank_opt, effectif_opt,
-    date_opt, commission_name_opt,
-    decision_opt, validated_opt
+    date_opt, date_en_opt, commission_name_opt, commission_name_en_opt,
+    decision_opt, decision_en_opt, validated_opt
     =
     match decision_opt with
     | None ->
-      None, None, None, None, None, None, None, None
+      None, None, None, None, None, None, None, None, None, None, None, None
     | Some d ->
       d.Public_data.decision_mean,
       d.Public_data.decision_mention,
+      d.Public_data.decision_mention_en,
       d.Public_data.decision_rank,
       d.Public_data.decision_effectif,
       d.Public_data.decision_date,
+      d.Public_data.decision_date_en,
       d.Public_data.decision_commission_name,
+      d.Public_data.decision_commission_name_en,
       d.Public_data.decision_decision,
+      d.Public_data.decision_decision_en,
       d.Public_data.decision_validated
   in
   let state, mean =
@@ -4441,6 +4448,18 @@ let program
       state
   in
   let macro = "cours" in
+  let state, monsieur =
+    Remanent_state.bilingual_string
+      ~french:"M."
+      ~english:"Mr"
+      state
+  in
+  let state, madame =
+    Remanent_state.bilingual_string
+      ~french:"Mme"
+      ~english:"Mrs"
+      state
+  in
   let list = Tools.sort fetch p list in
   let state, mean, dens, natt  =
     List.fold_left
@@ -4613,8 +4632,8 @@ let program
               (match
                  a.Public_data.course_exception_genre
                with
-               | Public_data.Masculin -> "M."
-               | Public_data.Feminin -> "Mme"
+               | Public_data.Masculin -> monsieur
+               | Public_data.Feminin -> madame
                | Public_data.Unknown -> "")
               (Special_char.capitalize
                  a.Public_data.course_exception_firstname)
@@ -4703,6 +4722,30 @@ let program
       key
       key
   in
+  let state, moyenne =
+    Remanent_state.bilingual_string ~french:"Moyenne :" ~english:"Mean:" state
+  in
+  let state, moyenne_provisoire =
+    Remanent_state.bilingual_string ~french:"Moyenne provisoire :" ~english:"Temporary mean:" state
+  in
+  let state, bien =
+    Remanent_state.bilingual_string
+      ~english:"Distinction: \textbf{Upper Second-Class Honours}"
+      ~french:"Mention : \\textbf{Bien}"
+      state
+  in
+  let state, assez_bien =
+    Remanent_state.bilingual_string
+      ~french:"Mention : \\textbf{Assez Bien}"
+      ~english:"Distinction: \\textbf{Lower Second-Class Honours}"
+      state
+  in
+  let state, tres_bien =
+    Remanent_state.bilingual_string
+      ~english:"Distinction: \\textbf{First Class Honour}"
+      ~french:"Mention : \\textbf{Très Bien}"
+      state
+  in
   let no_definitive_ects,
       not_enough_ects,
       moyenne, update_moyenne, mention =
@@ -4739,8 +4782,8 @@ let program
           [ no_definitive_ects,"";
             not_enough_ects,"";
             definitive,
-            Format.sprintf "Moyenne : \\textbf{\\numprint{\\fpeval{\\mean}}}/20 \\hspace*{1cm}%%\n\ "]
-          ~otherwise:(Format.sprintf "Moyenne provisoire : \\numprint{\\fpeval{\\mean}}/20 \\hspace*{1cm}%%\n\ ")
+            Format.sprintf "%s \\textbf{\\numprint{\\fpeval{\\mean}}}/20 \\hspace*{1cm}%%\n\ " moyenne]
+          ~otherwise:(Format.sprintf "%s \\numprint{\\fpeval{\\mean}}/20 \\hspace*{1cm}%%\n\ " moyenne_provisoire)
       in
       let update_mean =
         match moyenne_opt with
@@ -4779,23 +4822,49 @@ let program
                      "\\fpeval{\\mean<12}  = 1","";
                    Format.sprintf
                      "\\fpeval{\\mean<14} = 1",
-                   "Mention : \\textbf{Assez Bien}";
+                   assez_bien;
                    Format.sprintf
                      "\\fpeval{\\mean<16} = 1 ",
-                   "Mention : \\textbf{Bien}";
+                   bien;
                  ]
-                 ~otherwise:"Mention : \\textbf{Très Bien}"]
+                 ~otherwise:tres_bien]
               ~otherwise:""
           in
-          match mention_opt with
-          | None -> mention
-          | Some a ->
-            Format.sprintf
-              "Mention : \\textbf{%s} \\hspace*{1cm}"
-              a
+          match mention_opt, mention_en_opt with
+          | None,None -> mention
+          | Some a, Some b ->
+            snd
+              (Remanent_state.bilingual_string
+                ~french:(Format.sprintf "Mention : \\textbf{%s} \\hspace*{1cm}" a)
+              ~english:(Format.sprintf "Distinction: \\textbf{%s} \\hspace*{1cm}" b)
+              state)
+          | Some a, None ->
+            let a' = simplify_string a in
+            if a' = "" then ""
+            else
+            if a' = "tres bien" || a' = "tb" then tres_bien
+            else if a' = "bien" || a' = "b" then bien
+            else if a' = "assez bien" || a' = "ab" then assez_bien
+            else
+              Format.sprintf "Mention : \\textbf{%s} \\hspace*{1cm}" a
+          | None, Some a ->
+            let a' = simplify_string a in
+            if a' = "" then ""
+            else
+            if a' = "first class honour" then tres_bien
+            else if a' = "upper second-class honours" then bien
+            else if a' = "lower second-class honours"  then assez_bien
+            else
+              Format.sprintf "Disctinction: \\textbf{%s} \\hspace*{1cm}" a
       in
       no_definitive_ects, not_enough_ects,
       mean_string, update_mean, mention
+  in
+  let state, potentiellement =
+    Remanent_state.bilingual_string
+      ~english:"potentially"
+      ~french:"potentiellement"
+      state
   in
   let ects,pects =
     let
@@ -4830,7 +4899,7 @@ let program
       Latex_helper.ifnum
         ~cond:(Format.sprintf "\\thepotentialects%s=0" key)
         ~btrue:""
-        ~bfalse:(Format.sprintf "\\hspace*{0.2cm} (potentiellement  {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factorsquare}}} ects)" key key key)
+        ~bfalse:(Format.sprintf "\\hspace*{0.2cm} (%s  {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factorsquare}}} ects)" potentiellement key key key)
     in
     ects_string, potential_ects_string
   in
@@ -4856,11 +4925,33 @@ let program
         "Décision de %s du %s \n\n"
         a b
   in
-  let decision =
-    match decision_opt with
-    | None -> ""
-    | Some x ->
-      Format.sprintf "%s \\hspace*{1cm}" x
+  let commission_en =
+    match
+      commission_name_en_opt, date_en_opt
+    with
+    | None, _ -> None
+    | Some a, None ->
+      Some (Format.sprintf
+        "Decision of the %s \n\n"
+        a)
+    | Some a, Some b ->
+      Some (Format.sprintf
+        "Decision of the %s of %s \n\n"
+        a b)
+  in
+  let state, commission =
+    match commission_en with
+    | None -> state, commission
+    | Some english ->
+      Remanent_state.bilingual_string ~english ~french:commission state
+  in
+  let state, decision =
+    match decision_opt, decision_en_opt with
+    | None, None -> state, ""
+    | Some x, None | None, Some x  ->
+      state, Format.sprintf "%s \\hspace*{1cm}" x
+    | Some x, Some y ->
+      Remanent_state.bilingual_string ~english:y ~french:x state
   in
   let lineproportion = 0.9 in
   let () =
@@ -5593,7 +5684,7 @@ let export_transcript
                    }
                in
                state,
-               ("",1.)
+               ("","",1.)
              end
 
              | Some tuteur ->
@@ -5700,7 +5791,7 @@ let export_transcript
                      __POS__
                      msg
                      Exit
-                     ("",1.)
+                     ("","",1.)
                      state
                  | Some x, Some y, Some z, _ ->
                    state,
@@ -5714,12 +5805,16 @@ let export_transcript
                        | Public_data.Unknown -> "")
                       (Special_char.capitalize y)
                       (Special_char.uppercase x),
+                      Printf.sprintf
+                         "Mentor: %s %s"
+                         (Special_char.capitalize y)
+                         (Special_char.uppercase x),
                     2./.3.
                    )
                  | None, _, _, Some x ->
-                   state, (x, 2./.3.)
+                   state, (x, x, 2./.3.)
                  | Some x, _, _, _ ->
-                   state, (x, 2./.3.)
+                   state, (x, x, 2./.3.)
                end
            in
            let state, tuteur_bis =
@@ -5747,7 +5842,7 @@ let export_transcript
                        __POS__
                        msg
                        Exit
-                       (Some ("",1.))
+                       (Some ("","",1.))
                        state
                    | Some x, Some y, Some z, _ ->
                      state,
@@ -5761,12 +5856,16 @@ let export_transcript
                          | Public_data.Unknown -> "")
                         (Special_char.capitalize y)
                         (Special_char.uppercase x),
+                        Printf.sprintf
+                           "Secondary mentor: %s %s"
+                           (Special_char.capitalize y)
+                           (Special_char.uppercase x),
                       2./.3.
                      )
                    | None, _, _, Some x ->
-                     state, Some (x, 2./.3.)
+                     state, Some (x, x, 2./.3.)
                    | Some x, _, _, _ ->
-                     state, Some (x, 2./.3.)
+                     state, Some (x, x, 2./.3.)
                  end
              end
            in
@@ -6000,9 +6099,16 @@ let export_transcript
                              | None -> ()
                              | Some admission ->
                                let lineproportion = 1. in
+                               let english =
+                                 match admission.Public_data.admission_decision_en with
+                                 | None -> None
+                                 | Some x ->
+                                   Some (Format.sprintf "\\textbf{%s}" x)
+                               in
                                let () =
                                  Remanent_state.log_string
                                    ~lineproportion
+                                   ?english
                                    state
                                    (Format.sprintf "\\textbf{%s}"
                                       admission.Public_data.admission_decision)

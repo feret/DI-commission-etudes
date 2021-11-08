@@ -74,6 +74,7 @@ val collect_bool:
 
 val sort: ('a -> 'b) -> (('b * 'a) -> ('b * 'a) -> int) -> 'a list -> 'a list
 val valide_sans_note: string
+val valide_sans_note_en: string
 
 val prepare_report:
   cmp:('a -> 'a -> int) list ->
@@ -143,4 +144,4 @@ val date_to_string_fr:
   string -> string
 
 val date_to_string_en:
-  string -> string 
+  string -> string

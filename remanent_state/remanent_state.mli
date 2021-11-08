@@ -585,3 +585,4 @@ val empty_copy:
   -> t -> t
 
 val get_is_bilingual: t -> t * bool
+val bilingual_string: ?english:string -> french:string -> t -> t * string 

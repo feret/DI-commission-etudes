@@ -263,6 +263,7 @@ let sort f p l =
   l
 
 let valide_sans_note = "validé \\newline (sans note)"
+let valide_sans_note_en = "valided \\newline (without grade)"
 
 let prepare_report
     ~cmp ~headers list =

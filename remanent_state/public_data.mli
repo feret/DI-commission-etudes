@@ -224,12 +224,16 @@ type decision =
     decision_program: string;
     decision_dpt: main_dpt;
     decision_decision: string option;
+    decision_decision_en: string option;
     decision_mean: float option;
     decision_mention: string option;
+    decision_mention_en: string option;
     decision_rank: int option;
     decision_effectif: int option;
     decision_date: string option;
+    decision_date_en: string option;
     decision_commission_name: string option;
+    decision_commission_name_en: string option;
     decision_validated: bool option;
   }
 
@@ -241,6 +245,7 @@ type admission =
     admission_firstname: string;
     admission_annee: string;
     admission_decision: string;
+    admission_decision_en: string option;
   }
 
 val empty_admission: admission
@@ -352,6 +357,7 @@ type keywords =
   | Code_gps
   | Commentaire
   | Commission
+  | Commission_en
   | Contact_ENS
   | Contrat
   | Couleur_du_fond
@@ -360,8 +366,10 @@ type keywords =
   | Courriel_du_tuteur
   | Credits
   | Date
+  | Date_en
   | Date_de_Naissance
   | Decision
+  | Decision_en
   | Departement
   | Departements
   | Departement_principal
@@ -394,6 +402,7 @@ type keywords =
   | Lettre
   | Libelle
   | Mention
+  | Mention_en 
   | Motif
   | Motif_en
   | Moyenne
@@ -409,7 +418,7 @@ type keywords =
   | Periode_de_Financement
   | Pers_id
   | Pied_de_page
-  | Pied_de_page_en 
+  | Pied_de_page_en
   | Pour_Diplome
   | Prenom_du_tuteur
   | Promo

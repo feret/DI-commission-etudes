@@ -56,7 +56,7 @@ let string_of_dpt x =
   | ENS -> ""
 
 let dpt_of_string x =
-  let x = Special_char.lowercase (Special_char.correct_string_txt (Special_char.correct_string_utf8 x)) in
+  let x = Special_char.lowercase (Special_char.correct_string_txt (Special_char.correct_string_utf8 (String.trim x))) in
   match x with
   | "informatique" | "di" -> DI
   | "mathematiques" | "dma" -> DMA
@@ -326,12 +326,16 @@ type decision =
     decision_program: string;
     decision_dpt: main_dpt;
     decision_decision: string option;
+    decision_decision_en: string option;
     decision_mean: float option;
     decision_mention: string option;
+    decision_mention_en: string option;
     decision_rank: int option;
     decision_effectif: int option;
     decision_date: string option;
+    decision_date_en: string option;
     decision_commission_name: string option;
+    decision_commission_name_en: string option;
     decision_validated: bool option;
   }
 
@@ -343,12 +347,16 @@ let empty_decision =
     decision_program = "";
     decision_dpt = DI ;
     decision_decision = None;
+    decision_decision_en = None;
     decision_mean = None;
     decision_mention = None;
+    decision_mention_en = None;
     decision_rank = None;
     decision_effectif = None;
     decision_date = None ;
+    decision_date_en = None ;
     decision_commission_name = None;
+    decision_commission_name_en = None;
     decision_validated = None;
   }
 
@@ -358,6 +366,7 @@ type admission =
     admission_firstname: string;
     admission_annee: string;
     admission_decision: string;
+    admission_decision_en: string option;
   }
 
 let empty_admission =
@@ -366,6 +375,7 @@ let empty_admission =
     admission_firstname = "";
     admission_annee = "";
     admission_decision = "";
+    admission_decision_en = None;
   }
 
 type dispense =
@@ -484,6 +494,7 @@ type keywords =
   | Code_gps
   | Commentaire
   | Commission
+  | Commission_en
   | Contact_ENS
   | Contrat
   | Couleur_du_fond
@@ -492,8 +503,10 @@ type keywords =
   | Courriel_du_tuteur
   | Credits
   | Date
+  | Date_en
   | Date_de_Naissance
   | Decision
+  | Decision_en
   | Departement
   | Departements
   | Departement_principal
@@ -526,6 +539,7 @@ type keywords =
   | Lettre
   | Libelle
   | Mention
+  | Mention_en 
   | Motif
   | Motif_en
   | Moyenne

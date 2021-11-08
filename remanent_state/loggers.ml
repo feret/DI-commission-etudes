@@ -629,7 +629,14 @@ let print_preamble
       match
         decimalsepsymbol
       with
-      | None -> ""
+      | None ->
+        begin
+        match orientation.bilinguage, orientation.language with
+          | false, French -> "\\npdecimalsign{,}\n"
+          | false, English -> "\\npdecimalsign{.}\n"
+          | true, _ ->
+            "\\npdecimalsign{\\BiLingual{,}{.}}\n"
+        end
       | Some a ->
         Format.sprintf "\\npdecimalsign{%s}\n" a
     in
