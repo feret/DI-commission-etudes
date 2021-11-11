@@ -26,6 +26,7 @@ type step_kind =
   | Collect_cursus
   | Collect_course_exceptions
   | Collect_modified_grade
+  | Collect_course_name_translations
   | Dump_missing_grades
   | Dump_missing_ects_attributions
   | Dump_missing_mentors
@@ -83,6 +84,8 @@ let string_of_step_kind x =
     Printf.sprintf
       "Try url %s to extract the picture of (%s %s %s) from ens member directory"
       url lastname firstname promo
+  | Collect_course_name_translations ->
+      "Collect course name translations"
   | Patch_gps_file None ->
     "Patch GPS output"
   | Patch_gps_file (Some file) ->
@@ -206,6 +209,7 @@ let is_dummy step_kind =
   | Collect_cursus
   | Collect_course_exceptions
   | Collect_modified_grade
+  | Collect_course_name_translations 
   | Dump_missing_grades
   | Dump_missing_ects_attributions
   | Dump_missing_mentors

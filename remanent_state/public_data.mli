@@ -92,17 +92,15 @@ module DptExtendedMap: Map_tools.Collect
   with type key = DptMap.key
    and type 'a t = 'a DptMap.t
 
-type course =
+type course_name_translation =
   {
-    year: annee option ;
-    code: string option ;
+    year: annee ;
+    code: string ;
     name: string option ;
-    ects: int option ;
-    teacher_name: string option ;
-    teacher_email: string option ;
+    name_en: string option ;
   }
 
-val empty_course: course
+val empty_course_name_translation: course_name_translation
 
 type course_exception =
   {
@@ -402,10 +400,12 @@ type keywords =
   | Lettre
   | Libelle
   | Mention
-  | Mention_en 
+  | Mention_en
   | Motif
   | Motif_en
   | Moyenne
+  | Name
+  | Name_en 
   | Niveau
   | Nom_du_tuteur
   | Note

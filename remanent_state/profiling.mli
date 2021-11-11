@@ -25,7 +25,8 @@ type step_kind =
   | Collect_compensations
   | Collect_cursus
   | Collect_course_exceptions
-  | Collect_modified_grade 
+  | Collect_modified_grade
+  | Collect_course_name_translations 
   | Dump_missing_grades
   | Dump_missing_ects_attributions
   | Dump_missing_mentors

@@ -106,7 +106,8 @@ val filter_national_diploma:
   Public_data.diplome_national filter
 val filter_student_list:
   Public_data.student filter
-
+val filter_course_name_translation:
+  Public_data.course_name_translation filter 
 
 module type Interface =
 sig

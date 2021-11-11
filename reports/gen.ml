@@ -140,7 +140,7 @@ let dump_elts
           __POS__
           (Format.sprintf "Cannot open file %s"  file)
           Exit
-          state ,
+          state,
         None
     in
     let state =
@@ -151,6 +151,7 @@ let dump_elts
           match extension_opt with
           | Some "html" -> state, Loggers.HTML
           | Some "tex" -> state, Loggers.Latex Loggers.latex_normal
+          | Somc "csv" -> state, Loggers.CSV 
           | Some _ ->
             Remanent_state.warn
               __POS__
@@ -378,6 +379,18 @@ let filter_student_list
   check lastname student.Public_data.student_lastname_report
   &&
   check promo student.Public_data.student_promo_report
+
+let filter_course_name_translation
+    ?dpt ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
+    ?niveau
+    ?recu state course =
+  let _ =
+    dpt, dpt_gps_code, niveau, recu, mentorname, mentorfirstname, mentorlastname, teachername, ninscription, attributionyear, promo, lastname, firstname
+  in
+  state,
+  check codegps course.Public_data.code
+  &&
+  check academicyear course.Public_data.year
 
 let filter
     ?dpt ?dpt_gps_code

@@ -112,24 +112,20 @@ let empty_scholarship =
     holder_lastname="";
     holder_promotion=None;
   }
-type course =
+type course_name_translation =
   {
-    year: annee option ;
-    code: string option ;
+    year: annee ;
+    code: string ;
     name: string option ;
-    ects: int option ;
-    teacher_name: string option ;
-    teacher_email: string option ;
+    name_en: string option ;
   }
 
-let empty_course =
+let empty_course_name_translation =
   {
-    year = None ;
-    code = None ;
+    year = "" ;
+    code = "" ;
     name = None ;
-    ects = None ;
-    teacher_name = None ;
-    teacher_email = None ;
+    name_en = None ;
   }
 
 type course_exception =
@@ -539,10 +535,12 @@ type keywords =
   | Lettre
   | Libelle
   | Mention
-  | Mention_en 
+  | Mention_en
   | Motif
   | Motif_en
   | Moyenne
+  | Name
+  | Name_en 
   | Niveau
   | Nom_du_tuteur
   | Note

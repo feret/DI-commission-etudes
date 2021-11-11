@@ -99,6 +99,7 @@ let asso_list =
     Public_data.Code_gps, ["code gps"];
     Public_data.Commentaire, ["commentaire"];
     Public_data.Commission, ["commission"];
+    Public_data.Commission_en, ["commission_en";"commission(anglais)";"commission(english)"];
     Public_data.Contact_ENS, ["contact";"contact ENS"];
     Public_data.Contrat, ["contrat"];
     Public_data.Couleur_du_fond, ["couleur du fond"];
@@ -150,6 +151,8 @@ let asso_list =
     Public_data.Motif, ["motif";"raison"];
     Public_data.Motif_en, ["reason";"raison_en";"motif_en";"motif(english)";"motif(anglais)"];
     Public_data.Moyenne, ["moyenne"];
+    Public_data.Name, ["cours"];
+    Public_data.Name_en, ["course";"cours_en";"cours(anglais)";"cours(english)"];
     Public_data.Niveau, ["niveau";"level"];
     Public_data.Nom_du_tuteur, ["nom du tuteur"];
     Public_data.Note, ["note"];

@@ -174,6 +174,11 @@ let dump_issues state =
       ~file_name:"descriptions_de_stage_ambigues_par_etudiant.html"
       state
   in
+  let state, _ =
+    Course_translations.MissingCourseTranslations.dump_per_code
+      ~file_name:"traductions_de_noms_de_cours_manquantes.csv"
+      state
+  in
   state
 
 let warn state =

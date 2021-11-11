@@ -4609,9 +4609,52 @@ let program
                   (Format.sprintf "%s%s%s" l sujet directeur)
             else state, Some l
         in
+        let state, libelle, libelle_en =
+          match
+            Remanent_state.get_course_name_translation
+              ~codegps:codecours
+              ~year
+              state
+          with
+          | state, None ->
+            let course_name_translation =
+              {Public_data.empty_course_name_translation
+               with
+                Public_data.code=codecours;
+                Public_data.name=libelle}
+            in
+            let state =
+              Remanent_state.add_missing_course_name_translation
+                state
+                course_name_translation
+            in
+            state, libelle, None
+          | state, Some course_name_translation ->
+            let lib =
+              match course_name_translation.Public_data.name with
+              | None -> libelle
+              | a -> a
+            in
+            let lib_en = course_name_translation.Public_data.name_en in
+            let state =
+              match lib, lib_en with
+              | None, None | Some _, Some _ -> state
+              | None, Some _ | Some _, None ->
+                Remanent_state.add_missing_course_name_translation
+                  state
+                  course_name_translation
+            in
+            state, lib, lib_en
+        in
+        let state, libelle =
+          Remanent_state.bilingual_string
+            ?english:libelle_en
+            ~french:(string_of_stringopt libelle)
+            state
+        in
         let () =
           Remanent_state.print_cell
-            (f (string_of_stringopt libelle))
+            (f libelle)
            state
         in
         let state, responsable_opt =
