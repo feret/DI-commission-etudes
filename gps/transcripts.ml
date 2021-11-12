@@ -4610,41 +4610,43 @@ let program
             else state, Some l
         in
         let state, libelle, libelle_en =
-          match
-            Remanent_state.get_course_name_translation
-              ~codegps:codecours
-              ~year
-              state
-          with
-          | state, None ->
-            let course_name_translation =
-              {Public_data.empty_course_name_translation
-               with
-                Public_data.code=codecours;
-                Public_data.name=libelle}
-            in
-            let state =
-              Remanent_state.add_missing_course_name_translation
+          if is_stage cours then state, libelle, None  (* TO DO *)
+          else
+            match
+              Remanent_state.get_course_name_translation
+                ~codegps:codecours
+                ~year
                 state
-                course_name_translation
-            in
-            state, libelle, None
-          | state, Some course_name_translation ->
-            let lib =
-              match course_name_translation.Public_data.name with
-              | None -> libelle
-              | a -> a
-            in
-            let lib_en = course_name_translation.Public_data.name_en in
-            let state =
-              match lib, lib_en with
-              | None, None | Some _, Some _ -> state
-              | None, Some _ | Some _, None ->
+            with
+            | state, None ->
+              let course_name_translation =
+                {Public_data.empty_course_name_translation
+                 with
+                  Public_data.code=codecours;
+                  Public_data.name=libelle}
+              in
+              let state =
                 Remanent_state.add_missing_course_name_translation
                   state
                   course_name_translation
-            in
-            state, lib, lib_en
+              in
+              state, libelle, None
+            | state, Some course_name_translation ->
+              let lib =
+                match course_name_translation.Public_data.name with
+                | None -> libelle
+                | a -> a
+              in
+              let lib_en = course_name_translation.Public_data.name_en in
+              let state =
+                match lib, lib_en with
+                | None, None | Some _, Some _ -> state
+                | None, Some _ | Some _, None ->
+                  Remanent_state.add_missing_course_name_translation
+                    state
+                    course_name_translation
+              in
+              state, lib, lib_en
         in
         let state, libelle =
           Remanent_state.bilingual_string

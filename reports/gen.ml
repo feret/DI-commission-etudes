@@ -151,7 +151,7 @@ let dump_elts
           match extension_opt with
           | Some "html" -> state, Loggers.HTML
           | Some "tex" -> state, Loggers.Latex Loggers.latex_normal
-          | Somc "csv" -> state, Loggers.CSV 
+          | Some "csv" -> state, Loggers.CSV 
           | Some _ ->
             Remanent_state.warn
               __POS__

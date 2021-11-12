@@ -251,8 +251,8 @@ let end_of_line_symbol logger =
     logger.encoding
   with
   | HTML  -> "<Br>"
-  | Latex _ | Latex_encapsulated -> "\n"
-  | Json | HTML_Tabular | HTML_encapsulated | TXT | CSV | XLS  -> ""
+  | Latex _ | Latex_encapsulated  -> "\n"
+  | CSV | Json | HTML_Tabular | HTML_encapsulated | TXT | XLS  -> ""
 
 let dump_token f x =
   match
@@ -353,7 +353,8 @@ let close_row logger =
   | Latex _ | Latex_encapsulated ->
     let () = fprintf logger "\\innerline@. " in
     print_newline logger
-  | Json | XLS | TXT | CSV -> fprintf logger "@."
+  | Json | XLS | TXT -> fprintf logger "@."
+  | CSV -> print_newline logger
 
 let print_cell logger s =
   let open_cell_symbol,s,close_cell_symbol =
@@ -363,7 +364,7 @@ let print_cell logger s =
     | HTML | HTML_encapsulated | HTML_Tabular ->
       "<TD>",s,"</TD>"
     | Latex _ | Latex_encapsulated -> "{",s,"}"
-    | CSV  -> "",s,"\t"
+    | CSV  -> "\"",s,"\","
     | Json  | TXT | XLS -> "",s,""
   in
   let () = fprintf logger "%s" open_cell_symbol in
@@ -533,7 +534,17 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
       in
       let () = close_row logger in
       false
-  | Json | CSV | TXT | XLS -> false
+    | CSV ->
+      let () = open_row logger in
+      let () =
+        List.iter
+          (fun a -> print_cell logger (String.concat " " a))
+          title
+      in
+      let () = close_row logger in
+      false
+
+    | Json  | TXT | XLS -> false
 
   let close_array logger =
     match logger.encoding with
