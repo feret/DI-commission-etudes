@@ -106,7 +106,7 @@ let state =
 let state =
   Collect_dispenses.get_dispenses state
 let state =
-  Collect_course_name_translation.get_course_name_translations state 
+  Collect_course_name_translation.get_course_name_translations state
 let state, output =
   Cloud_interaction.get_dated_repository state
 let state, output_repository =
