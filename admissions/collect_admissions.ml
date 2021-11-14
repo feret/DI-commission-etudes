@@ -86,8 +86,8 @@ let all_fields =
     lift_string
       ~keyword:Public_data.Decision
       ~set_tmp:(Tools.collect_string
-                  (fun admission_en x -> {x with admission_en}))
-      ~get_tmp:(fun a -> a.admission_en)
+                  (fun admission x -> {x with admission}))
+      ~get_tmp:(fun a -> a.admission)
       ~get:(fun a -> a.Public_data.admission_decision)
       ~set:(fun admission_decision a ->
           {a with Public_data.admission_decision})

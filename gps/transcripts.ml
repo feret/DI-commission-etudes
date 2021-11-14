@@ -4612,6 +4612,22 @@ let program
         let state, libelle, libelle_en =
           if is_stage cours then state, libelle, None  (* TO DO *)
           else
+          if String.trim codecours = ""
+          then
+            if libelle = Some "N/A" then state, libelle, libelle
+            else if libelle = Some "Points de jury" then state, libelle, Some "Jury credits"
+            else
+              let state =
+                Remanent_state.warn
+                  __POS__
+                  (Format.sprintf
+                     "Incoherent empty CODE GPD with course name %s "
+                     (Tools.unsome_string libelle))
+                  Exit
+                  state
+              in
+              state, libelle, None
+          else
             match
               Remanent_state.get_course_name_translation
                 ~codegps:codecours
