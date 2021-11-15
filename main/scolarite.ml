@@ -184,6 +184,41 @@ let state =
              Latex_engine.latex_opt_to_pdf ~rev:true state ~input
          in
          let state =
+           if is_dma then
+             let output =
+               (fst output0,
+                (Tools.basename (snd
+                                   output0))^".validated_and_in_progress_only.en.tex")
+             in
+             match gps with
+             | None -> state
+             | Some gps ->
+               let state, input =
+                 Transcripts.export_transcript
+                   ~language:Public_data.English 
+                   ~output ~keep_success:true state gps
+               in
+               let state =
+                 match input, is_dma with
+                 | Some (input_rep,file_name), true ->
+                   let state,rep  =
+                     Remanent_state.get_student_personnal_repository
+                       ~firstname ~lastname ?promo state
+                   in
+                   let output_rep = Printf.sprintf "%s/" rep in
+                   let file_name = Copy.pdf_file file_name in
+                   let state =
+                     Remanent_state.push_copy
+                       ~input_rep ~output_rep ~file_name state
+                   in
+                   state
+                 | _, false | None, _ ->
+                   state
+             in
+             Latex_engine.latex_opt_to_pdf ~rev:true state ~input
+           else state
+         in
+         let state =
            match is_di
            with
            | true ->
@@ -202,6 +237,38 @@ let state =
                  let state, input =
                    Transcripts.export_transcript
                      ~signature ~output state gps
+                 in
+                 let state =
+                   match input with
+                   | None -> state
+                   | Some (input_rep,file_name) ->
+                     let file_name = Copy.pdf_file file_name in
+                     let state,rep  =
+                       Remanent_state.get_student_personnal_repository
+                         ~firstname ~lastname ?promo state
+                     in
+                     let output_rep = Printf.sprintf "%s/" rep in
+                     Remanent_state.push_copy
+                       ~input_rep ~output_rep ~file_name state
+                 in
+                 Latex_engine.latex_opt_to_pdf
+                   ~rev:true state ~input
+             in
+             let output =
+               (fst output0,
+                (Tools.basename (snd
+                                   output0))^".signe_JF.en.tex")
+             in
+             let state, signature =
+               Remanent_state.get_signature state
+             in
+             let state =
+               match gps with
+               | None -> state
+               | Some gps ->
+                 let state, input =
+                   Transcripts.export_transcript
+                     ~language:Public_data.English ~signature ~output state gps
                  in
                  let state =
                    match input with
