@@ -42,13 +42,26 @@ let dpt_dec = "etudes cognitives"
 let dpt_eco = "economie"
 let dpt_dri = "relations internationales"
 
-let dpt_arts_gps_name = dpt_arts
+let dpt_maths_en = "mathematics"
+let dpt_info_en = "computer science"
+let dpt_phys_en = "physics"
+let dpt_bio_en = "biology"
+let dpt_arts_en = "arts"
+let _dpt_ibens_en = dpt_bio_en
+
+let _dpt_dec_en = "cognitive sciences"
+let dpt_eco_en = "economics"
+let _dpt_dri_en = "international relation"
+
+
 let dpt_eco_gps_name = dpt_eco
 let dpt_info_gps_name = dpt_info
 let dpt_phys_gps_name = dpt_phys
 let dpt_maths_gps_name = "mathematiques et applications"
 let dpt_bio_gps_name = dpt_bio
 let dpt_dri_gps_name = dpt_dri
+let dpt_dec_gps_name = dpt_dec
+let dpt_arts_gps_name  = dpt_arts
 
 let acro_dpt_arts = "ARTS"
 let acro_dpt_phys = "PHYS"
@@ -2393,14 +2406,14 @@ let translate_dpt ~firstname ~lastname ~year state d =
   | Some s ->
     begin
       match simplify_string s with
-      | x when x=dpt_dri -> state, (dpt_dri_full,dpt_dri_full_en)
-      | x when x=dpt_info -> state, (dpt_info_full,dpt_info_full_en)
-      | x when x=dpt_maths -> state, (dpt_maths_full,dpt_maths_full_en)
-      | x when x=dpt_phys -> state, (dpt_phys_full,dpt_phys_full_en)
-      | x when x=dpt_bio -> state, (dpt_bio_full,dpt_bio_full_en)
-      | x when x=dpt_dec -> state, (dpt_dec_full,dpt_dec_full_en)
-      | x when x=dpt_eco -> state, (dpt_eco_full,dpt_eco_full_en)
-      | x when x=dpt_arts -> state, (dpt_arts_full,dpt_arts_full_en)
+      | x when x=dpt_dri_gps_name -> state, (dpt_dri_full,dpt_dri_full_en)
+      | x when x=dpt_info_gps_name -> state, (dpt_info_full,dpt_info_full_en)
+      | x when x=dpt_maths_gps_name -> state, (dpt_maths_full,dpt_maths_full_en)
+      | x when x=dpt_phys_gps_name -> state, (dpt_phys_full,dpt_phys_full_en)
+      | x when x=dpt_bio_gps_name -> state, (dpt_bio_full,dpt_bio_full_en)
+      | x when x=dpt_dec_gps_name        -> state, (dpt_dec_full,dpt_dec_full_en)
+      | x when x=dpt_eco_gps_name -> state, (dpt_eco_full,dpt_eco_full_en)
+      | x when x=dpt_arts_gps_name -> state, (dpt_arts_full,dpt_arts_full_en)
       | x ->
         Remanent_state.warn
           __POS__
@@ -2535,33 +2548,33 @@ let translate_diplome
       with
       | state, Some dpt ->
         let gerund = dpt.Public_data.dpt_genitif in
-        let state,label =
+        let gerund_en = dpt.Public_data.dpt_genitif_en in
+        let state,label,label_en =
           match level with
-          | "L" -> state, "L3 "^gerund
-          | "M" -> state, "M1 "^gerund
+          | "L" -> state, "L3 "^gerund, "Bachelor 3 "^gerund_en
+          | "M" -> state, "M1 "^gerund, "M1 "^gerund_en
           | _ ->
             let msg =
               Format.sprintf
                 "Unknown class level (%s)"
                 level
             in
-            Remanent_state.warn_dft
+            Remanent_state.warn
               __POS__
               msg
               Exit
-              ""
-              state
+              state, "",""
         in
-        let dpt =
+        let dpt,dpt_en =
           match dpt.Public_data.dpt_acronyme with
-          | "DI" -> "informatique"
-          | "DMA" -> "mathématiques"
-          | "PHYS" -> "physique"
-          | "IBENS" -> "biologie"
-          | _ -> ""
+          | "DI" -> "informatique","Computer Science"
+          | "DMA" -> "mathématiques","Mathematics"
+          | "PHYS" -> "physique","Physics"
+          | "IBENS" -> "biologie","Biology"
+          | _ -> "",""
         in
         state,
-        (Some level,label,dpt,true)
+        (Some level,label,label_en,dpt,dpt_en,true)
       | state, None ->
       let msg =
         Format.sprintf
@@ -2572,11 +2585,11 @@ let translate_diplome
         __POS__
         msg
         Exit
-        (None, "","", true)
+        (None, "","", "", "", true)
         state
     end
   | state, None  ->
-  let check_dpt pos state origine diplome label code_cours year situation =
+  let check_dpt pos state origine diplome label label_en code_cours year situation =
     match
       situation.departement_principal,
       lerasmus origine || lpe origine || lechange_dri situation
@@ -2586,32 +2599,36 @@ let translate_diplome
         pos
         "Main teaching dpt is missing"
         Exit
-        (Some diplome,label,"",false)
+        (Some diplome,label,label_en,"","",false)
         state
     | None, true ->
-      state, (Some diplome,label,"",false)
+      state, (Some diplome,label,label_en,"","",false)
     | Some dpt, _  ->
       let dpt = Special_char.lowercase dpt in
-      let dpt =
+      let dpt,dpt_en =
         if dpt = "mathématiques et applications"
         then
-          "mathématiques"
+          "mathématiques","mathematics"
         else
-          dpt
+        if dpt = "informatique"
+        then
+          dpt,"Computer Science"
+        else
+          dpt,dpt
       in
       if label = "L3" || label ="M1"
       then
-        let state, (dpt, diplome)  =
+        let state, (dpt,dpt_en,diplome)  =
           if dpt = "mathématiques"
           && not (is_dma_course code_cours year)
           then
             if is_di_course code_cours year
             then
-              state, ("informatique", "L")
+              state, ("informatique","computer science","L")
             else
             if is_phys_course code_cours year
             then
-              state, ("physique","L")
+              state, ("physique","physics","L")
             else
               let msg =
                 Format.sprintf
@@ -2621,10 +2638,14 @@ let translate_diplome
                 pos
                 msg
                 Exit
-                (dpt,(if label = "L3" then "L" else label))
+                (dpt,dpt_en,(if label = "L3" then "L" else label)
+                 )
                 state
           else
-            state, (dpt, diplome)
+            state, (dpt, dpt_en, diplome)
+        in
+        let label_en =
+          label^" in "^dpt_en
         in
         let label =
           if List.mem
@@ -2636,9 +2657,9 @@ let translate_diplome
           else
             label^" de "^dpt
         in
-                state, (Some diplome,label,dpt,false)
+                state, (Some diplome,label,label_en,dpt,dpt_en,false)
       else
-        state, (Some diplome,label,dpt,false)
+        state, (Some diplome,label,label_en,dpt,dpt_en,false)
   in
   match diplome with
   | Some "L" ->
@@ -2647,6 +2668,7 @@ let translate_diplome
       then
         check_dpt __POS__ state origine "L"
           "Bachelor de l'École Polytechnique"
+          "École Polytechnique Bachelor"
           code_cours year
           situation
       else
@@ -2654,6 +2676,7 @@ let translate_diplome
       then
         check_dpt __POS__ state origine "L"
           "Année d'échange"
+          "Exchange year"
           code_cours year
           situation
       else
@@ -2662,72 +2685,72 @@ let translate_diplome
         if is_dma_course code_cours year
         then
           state,
-          (Some "L","L3 de mathématiques",dpt_maths,false)
+          (Some "L","L3 de mathématiques","Bachelor in Mathematics", dpt_maths,dpt_maths_en,false)
         else
           state,
-          (Some "L","L3 de physique",dpt_phys,false)
+          (Some "L","L3 de physique","Bachelor in Physics",dpt_phys,dpt_phys_en,false)
       else
       if linfo situation && lmath situation
       then
         if is_dma_course code_cours year
         then
           state,
-          (Some "L","L3 de mathématiques",dpt_maths,false)
+          (Some "L","L3 de mathématiques","Bachelor in Mathematics",dpt_maths,dpt_maths_en,false)
         else
           state,
-          (Some "L","L3 d'informatique",dpt_info,false)
+          (Some "L","L3 d'informatique","Bachelor in Computer Science",dpt_info,dpt_info_en,false)
       else
       if leco situation then
         state,
-        (Some "L","L3 d'économie",dpt_eco,false)
+        (Some "L","L3 d'économie","Bachelor in Economy",dpt_eco,dpt_eco_en,false)
       else
       if larts situation then
         state,
-        (Some "L","L3 d'arts",dpt_arts,false)
+        (Some "L","L3 d'arts","Bachelor in Arts",dpt_arts,dpt_arts_en,false)
       else
         check_dpt __POS__ state origine
-          "L" "L3" code_cours year
+          "L" "L3" "Bachelor" code_cours year
           situation
     end
   | Some "M" ->
     if mmaths situation then
-      state, (Some "M","M1 de mathématiques",dpt_maths,false)
+      state, (Some "M","M1 de mathématiques","M1 in Mathematics", dpt_maths,dpt_maths_en,false)
     else
     if mpri situation then
-      state, (Some "MPRI","M2 du MPRI",dpt_info,false)
+      state, (Some "MPRI","M2 du MPRI","M2 MPRI",dpt_info,dpt_info_en,false)
     else if mva situation then
-      state, (Some "MVA","M2 du MVA",dpt_info,false)
+      state, (Some "MVA","M2 du MVA","M2 MVA",dpt_info,dpt_info_en,false)
     else if iasd situation then
-      state, (Some "IASD","M2 IASD",dpt_info,false)
+      state, (Some "IASD","M2 IASD","M2 IASD",dpt_info,dpt_info_en,false)
     else if mash situation then
-      state, (Some "MASH","M2 MASH", dpt_info,false)
+      state, (Some "MASH","M2 MASH","M2 MASH", dpt_info,dpt_info_en,false)
     else if mint situation then
-      state, (Some "Interaction", "M2 Interaction", dpt_info,false)
+      state, (Some "Interaction", "M2 Interaction", "M2 Interaction",dpt_info,dpt_info_en,false)
     else if mmf situation then
-      state, (Some "MathFond", "M2 Mathématiques Fondamentales", dpt_maths, false)
+      state, (Some "MathFond", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false)
     else if mlmfi situation then
-      state, (Some "LMFI", "M2 LMFI", dpt_info, false)
+      state, (Some "LMFI", "M2 LMFI", "M2 LMFI", dpt_info, dpt_info_en,false)
     else if mrandom situation then
-      state, (Some "ALEA", "M2 Mathématiques de l'Aléatoire", dpt_maths, false)
+      state, (Some "ALEA", "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness", dpt_maths, dpt_maths_en,false)
     else if mimalis situation then
-      state, (Some "IMALIS","M2 IMALIS", dpt_bio,false)
+      state, (Some "IMALIS","M2 IMALIS","M2 IMALIS",dpt_bio,dpt_bio_en,false)
     else if mphylo situation then
-      state, (Some "PHILOSorbonne","M2 Phylo (SU)", dpt_info, false)
+      state, (Some "PHILOSorbonne","M2 Phylo (SU)", "M2 Phylo (SU)", dpt_info,dpt_info_en, false)
     else
       check_dpt __POS__ state origine
-        "M" "M1" code_cours year
+        "M" "M1" "M1" code_cours year
         situation
   | Some ("DENS" | "dens") ->
-    state, (Some ("DENS"), "DENS", "DENS",false)
+    state, (Some ("DENS"), "DENS", "DENS", "DENS", "DENS", false)
   | Some x ->
     check_dpt __POS__ state origine
-      x x code_cours year
+      x x x code_cours year
       situation
   | None ->
-    let state, (_,b,c,d) =
-      check_dpt __POS__ state origine "" "" code_cours year situation
+    let state, (_,b,b_en,c,c_en,d) =
+      check_dpt __POS__ state origine "" "" "" code_cours year situation
     in
-    state, (None,b,c,d)
+    state, (None,b,b_en,c,c_en,d)
 
 
 
@@ -2849,7 +2872,8 @@ let do_report report =
   | Some b -> b
 
 let fetch gen dft missing a =
-  match (snd a).code_cours with
+  let _,_,_,cours = a in
+  match cours.code_cours with
   | None -> missing
   | Some code ->
   let rec aux l =
@@ -2863,7 +2887,7 @@ let fetch gen dft missing a =
   aux code_list
 
 let fetch gen dft missing stage stage_string  a =
-  let cours = snd a in
+  let (_,_,_,cours) = a in
   if is_stage cours then
     gen (stage,stage_string)
   else
@@ -2872,7 +2896,7 @@ let fetch gen dft missing stage stage_string  a =
 let fetch_code  = fetch snd "Hors ENS" "Sans code GPS" stage stage_string
 let fetch = fetch fst autre manquant stage stage_string
 
-let p (t,(_,cours)) (t',(_,cours')) =
+let p (t,(_,_,_,cours)) (t',(_,_,_,cours')) =
   let cmp = compare t t' in
   if cmp = 0
   then compare cours.cours_libelle cours'.cours_libelle
@@ -3552,11 +3576,11 @@ let heading
                 "Cursus maths-info et rattaché%s au %s"
                 genre dpt,
               Printf.sprintf
-                "Maths-CS program, registed at %s" dpt,
+                "Maths-CS program, registered at %s" dpt,
               Some
                 "Licence L3 Info et L3 Maths Université Paris Diderot",
               Some
-                "Bachelor L3 Computer Science and L3 Maths at Paris-Diderot University"
+                "Bachelor in Computer Science and Bachelor in Maths at Paris-Diderot University"
             else if
               lmathphys situation
             then
@@ -4183,7 +4207,7 @@ let program
         let rec aux state l =
           match l with
           | [] -> state, false
-          | (_,h)::t ->
+          | (_,_,_,h)::t ->
             begin
               match
                 h.code_cours
@@ -4249,7 +4273,7 @@ let program
       let state =
         List.fold_left
           (fun state elt ->
-             let _,cours = elt in
+             let _,_,_,cours = elt in
              match cours.note with
              | Some Public_data.En_cours
              | Some Public_data.Absent
@@ -4306,7 +4330,7 @@ let program
   let state =
     List.fold_left
       (fun state elt ->
-         let _,cours = elt in
+         let _,_,_,cours = elt in
          match cours.note with
          | None -> state
          | Some note ->
@@ -4465,7 +4489,7 @@ let program
     List.fold_left
       (fun
         (state, mean, dens, natt)
-        ((diplome:string),cours) ->
+        (dpt_en,(diplome:string),diplome_en,cours) ->
         let () =
           Remanent_state.open_row ~macro state
         in
@@ -4494,9 +4518,9 @@ let program
             | Some a ->
               Notes.en_cours a
           then
-            let dpt = fetch_code (diplome,cours) in
+            let dpt = fetch_code (dpt_en,diplome,diplome_en,cours) in
             let dpt_indice =
-              string_of_int (fetch (diplome,cours))
+              string_of_int (fetch (dpt_en,diplome,diplome_en,cours))
             in
             Remanent_state.add_missing_grade
               state
@@ -4520,6 +4544,12 @@ let program
         let () =
           Remanent_state.print_cell
             codecours
+            state
+        in
+        let state, diplome =
+          Remanent_state.bilingual_string
+            ~english:diplome_en
+            ~french:diplome
             state
         in
         let () =
@@ -4556,7 +4586,65 @@ let program
                   cours.commentaire stages
               in
               match stage_opt with
-              | None -> state, Some l
+              | None ->
+                begin
+                  let state, l, l_en =
+                    match
+                      Remanent_state.get_course_name_translation
+                        ~codegps:codecours
+                        ~year
+                        state
+                    with
+                    | state, None ->
+                      let course_name_translation =
+                        {Public_data.empty_course_name_translation
+                         with
+                          Public_data.code=codecours;
+                          Public_data.name=Some l}
+                      in
+                      let state =
+                        Remanent_state.add_missing_course_name_translation
+                          state
+                          course_name_translation
+                      in
+                      state, Some l, None
+                    | state, Some course_name_translation ->
+                      let lib =
+                        match course_name_translation.Public_data.name with
+                        | None -> Some l
+                        | a -> a
+                      in
+                      let lib_en = course_name_translation.Public_data.name_en
+                      in
+                      let state, lib_en =
+                        match lib, lib_en with
+                        | None, None -> state, None
+                        | Some _, Some y ->
+                          if String.trim y = ""
+                          then
+                            Remanent_state.add_missing_course_name_translation
+                              state
+                              course_name_translation, lib
+                          else
+                            state, lib_en
+                        | None, Some x | Some x, None ->
+                          let state =
+                            Remanent_state.add_missing_course_name_translation
+                              state
+                              course_name_translation
+                          in
+                          state, Some x
+                      in
+                      state, lib, lib_en
+                  in
+                  let state, libelle =
+                    Remanent_state.bilingual_string
+                      ?english:l_en
+                      ~french:(string_of_stringopt l)
+                      state
+                  in
+                  state, Some libelle
+                end 
               | Some stage ->
                 let issue =
                   match
@@ -4597,20 +4685,82 @@ let program
                     then a
                     else "\\newline \""^a^"\""
                 in
-                let directeur =
+                let state, directeur =
                   match stage.directeur_de_stage with
-                  | None -> ""
+                  | None -> state, ""
                   | Some a ->
                     if l = "" && sujet=""
-                    then a else "\\newline dirigé par  "^a
+                    then state, a else
+                      let state, directed =
+                        Remanent_state.bilingual_string
+                          ~english:"under the supervision of"
+                          ~french:"dirigé par"
+                          state
+                      in
+                      state, Format.sprintf
+                        "\\newline %s %s" directed a
+                in
+                let state, l, l_en =
+                  match
+                    Remanent_state.get_course_name_translation
+                      ~codegps:codecours
+                      ~year
+                      state
+                  with
+                  | state, None ->
+                    let course_name_translation =
+                      {Public_data.empty_course_name_translation
+                       with
+                        Public_data.code=codecours;
+                        Public_data.name=Some l}
+                    in
+                    let state =
+                      Remanent_state.add_missing_course_name_translation
+                        state
+                        course_name_translation
+                    in
+                    state, Some l, None
+                  | state, Some course_name_translation ->
+                    let lib =
+                      match course_name_translation.Public_data.name with
+                      | None -> Some l
+                      | a -> a
+                    in
+                    let lib_en = course_name_translation.Public_data.name_en in
+                    let state, lib_en =
+                      match lib, lib_en with
+                      | None, None -> state, None
+                      | Some _, Some y ->
+                        if String.trim y = ""
+                        then
+                          Remanent_state.add_missing_course_name_translation
+                            state
+                            course_name_translation, lib
+                        else
+                          state, lib_en
+                      | None, Some x | Some x, None ->
+                        let state =
+                          Remanent_state.add_missing_course_name_translation
+                          state
+                          course_name_translation
+                        in
+                        state, Some x
+                    in
+                    state, lib, lib_en
+                in
+                let state, libelle =
+                  Remanent_state.bilingual_string
+                    ?english:l_en
+                    ~french:(string_of_stringopt l)
+                    state
                 in
                 state,
                 Some
-                  (Format.sprintf "%s%s%s" l sujet directeur)
+                  (Format.sprintf "%s%s%s" libelle sujet directeur)
             else state, Some l
         in
         let state, libelle, libelle_en =
-          if is_stage cours then state, libelle, None  (* TO DO *)
+          if is_stage cours then state, libelle, None
           else
           if String.trim codecours = ""
           then
@@ -4621,7 +4771,7 @@ let program
                 Remanent_state.warn
                   __POS__
                   (Format.sprintf
-                     "Incoherent empty CODE GPD with course name %s "
+                     "Incoherent empty CODE GPS with course name %s "
                      (Tools.unsome_string libelle))
                   Exit
                   state
@@ -4927,7 +5077,7 @@ let program
       ~french:"potentiellement"
       state
   in
-  let ects,pects =
+  let state,ects,pects =
     let
       this_year_ects_amp =
       Format.sprintf
@@ -4943,6 +5093,18 @@ let program
         "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)/\\factorsquare}"
         key key
     in
+    let state, ects =
+      Remanent_state.bilingual_string
+        ~french:"ECTS "
+        ~english:"ECTS"
+        state
+    in
+    let state, cumulated =
+      Remanent_state.bilingual_string
+        ~french:"(cumulés) "
+        ~english:"(cumulated)"
+        state
+    in
     let ects_string =
       Latex_helper.case
         Latex_helper.ifnum
@@ -4950,11 +5112,11 @@ let program
           Format.sprintf "%s=0" total_ects_amp,"";
           Format.sprintf "%s=%s" this_year_ects_amp
             total_ects_amp,
-          Format.sprintf "ECTS : %s " total_ects;
+          Format.sprintf "%s: %s" ects total_ects;
         ]
         ~otherwise:(Format.sprintf
-                      "ECTS (cumulés) : %s"
-                      total_ects)
+                      "%s %s: %s"
+                      ects cumulated total_ects)
     in
     let potential_ects_string  =
       Latex_helper.ifnum
@@ -4962,7 +5124,7 @@ let program
         ~btrue:""
         ~bfalse:(Format.sprintf "\\hspace*{0.2cm} (%s  {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factorsquare}}} ects)" potentiellement key key key)
     in
-    ects_string, potential_ects_string
+    state, ects_string, potential_ects_string
   in
   let rank =
     match rank_opt, effectif_opt with
@@ -5512,8 +5674,8 @@ let export_transcript
                  match elt.code_cours with
                  | Some code_cours  ->
                    let state,
-                       (diplome_key,diplome_label,
-                        diplome_dpt,dispense)
+                       (diplome_key,diplome_label,diplome_label_en,
+                        diplome_dpt,diplome_dpt_en,dispense)
                      =
                      translate_diplome
                        ~origine ~situation ~firstname
@@ -5534,7 +5696,7 @@ let export_transcript
                      cursus_map,
                      addmap
                        (diplome_key,diplome_dpt)
-                       (diplome_label,elt) course_map)
+                       (diplome_dpt_en,diplome_label,diplome_label_en,elt) course_map)
                  | None ->
                    Remanent_state.warn_dft
                    __POS__
@@ -5572,11 +5734,11 @@ let export_transcript
                     | None -> state, true
                     | Some diplome_dpt ->
                       StringOptMap.fold
-                      (fun (key,dpt) _ (state,b) ->
-                        state,
-                         (diplome_key,
-                         diplome_dpt)=(key,dpt) || b
-                      )
+                        (fun (key,dpt) _ (state,b) ->
+                           state,
+                           (diplome_key,
+                            diplome_dpt)=(key,dpt) || b
+                        )
                       split_cours (state,false)
                   in
                   if b
@@ -5586,22 +5748,22 @@ let export_transcript
                     match diplome_dpt with
                     | None -> state, cursus_map, split_cours
                     | Some diplome_dpt ->
-                    let state, cursus_map =
-                     addfirstlast
-                       state
-                       (diplome_key,
-                        diplome_dpt)
-                       false
-                       year
-                       cursus_map
-                   in
-                   let split_cours =
-                     StringOptMap.add
-                       (diplome_key,
-                        diplome_dpt)
-                       [] split_cours
-                   in
-                   state, cursus_map, split_cours
+                      let state, cursus_map =
+                        addfirstlast
+                          state
+                          (diplome_key,
+                           diplome_dpt)
+                          false
+                          year
+                          cursus_map
+                      in
+                      let split_cours =
+                        StringOptMap.add
+                          (diplome_key,
+                           diplome_dpt)
+                          [] split_cours
+                      in
+                      state, cursus_map, split_cours
                )
                (state,cursus_map,split_cours) decision_list
            in
@@ -5663,7 +5825,8 @@ let export_transcript
     in
     let state,mean,dens,natt =
       List.fold_left
-        (fun (state,mean,dens,natt) (year,situation,split_cours) ->
+        (fun (state,mean,dens,natt) (year,situation,
+                                     split_cours) ->
            let who =
              Format.sprintf "%s in %s" who year
            in
@@ -6106,7 +6269,7 @@ let export_transcript
                  let _, state, mean, dens, natt =
                    StringOptMap.fold
                      (fun
-                       (string,dpt) list
+                       (string,dpt)  list
                        (i,state,mean,dens,natt)
                        ->
                          let state =

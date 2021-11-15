@@ -248,6 +248,7 @@ type dpt =
     dpt_nom: string ;
     dpt_acronyme: string ;
     dpt_genitif: string ;
+    dpt_genitif_en: string;
     dpt_bg_color: Color.color option;
     dpt_font_color: Color.color option;
   }
@@ -258,6 +259,7 @@ let empty_dpt =
     dpt_nom = "" ;
     dpt_acronyme = "" ;
     dpt_genitif = "" ;
+    dpt_genitif_en = ""; 
     dpt_bg_color = None ;
     dpt_font_color = None ;
   }
@@ -540,7 +542,7 @@ type keywords =
   | Motif_en
   | Moyenne
   | Name
-  | Name_en 
+  | Name_en
   | Niveau
   | Nom_du_tuteur
   | Note

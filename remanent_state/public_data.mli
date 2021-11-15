@@ -161,6 +161,7 @@ type dpt =
     dpt_nom: string ;
     dpt_acronyme: string ;
     dpt_genitif: string ;
+    dpt_genitif_en: string; 
     dpt_bg_color: Color.color option;
     dpt_font_color: Color.color option;
   }
@@ -405,7 +406,7 @@ type keywords =
   | Motif_en
   | Moyenne
   | Name
-  | Name_en 
+  | Name_en
   | Niveau
   | Nom_du_tuteur
   | Note
