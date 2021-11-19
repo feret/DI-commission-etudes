@@ -156,6 +156,7 @@ let state =
          in
          let state, is_dma = Remanent_state.is_main_dpt_dma state  in
          let state, is_di = Remanent_state.is_main_dpt_di state in
+         let state, is_phys = Remanent_state.is_main_dpt_phys state in
          let state =
            match gps with
            | None -> state
@@ -165,7 +166,7 @@ let state =
                  ~output ~keep_success:true state gps
              in
              let state =
-               match input, is_dma with
+               match input, is_dma || is_phys with
                | Some (input_rep,file_name), true ->
                  let state,rep  =
                    Remanent_state.get_student_personnal_repository
@@ -184,7 +185,7 @@ let state =
              Latex_engine.latex_opt_to_pdf ~rev:true state ~input
          in
          let state =
-           if is_dma then
+           if is_dma || is_phys then
              let output =
                (fst output0,
                 (Tools.basename (snd
@@ -195,11 +196,11 @@ let state =
              | Some gps ->
                let state, input =
                  Transcripts.export_transcript
-                   ~language:Public_data.English 
+                   ~language:Public_data.English
                    ~output ~keep_success:true state gps
                in
                let state =
-                 match input, is_dma with
+                 match input, is_dma || is_phys with
                  | Some (input_rep,file_name), true ->
                    let state,rep  =
                      Remanent_state.get_student_personnal_repository

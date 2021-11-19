@@ -3261,11 +3261,20 @@ let heading
           "D\\'epartement de Math\\'ematiques et Applications. \\'Ecole  Normale  Sup\\'erieure. 45, rue d'Ulm 75005 Paris. Tel : +33 (0)1 44 32 20 49."
       in
       state
-    | state, (Public_data.ARTS | Public_data.DRI | Public_data.ENS | Public_data.ECO | Public_data.PHYS | Public_data.IBENS) ->
+      | state, Public_data.PHYS ->
+        let () =
+          Remanent_state.log_string
+            ?backgroundcolor
+            state
+            ~english:"Department of Physics. \\'Ecole Normale Sup\\'erieure. XXXXXXXXXXX 75005 Paris. Phone: +33 (0)1 44 32 ?? ??."
+            "D\\'epartement de Physique. \\'Ecole  Normale  Sup\\'erieure. 4XXXXXXX 75005 Paris. Tel : +33 (0)1 44 32 ?? ??."
+        in
+        state
+    | state, (Public_data.ARTS | Public_data.DRI | Public_data.ENS | Public_data.ECO | Public_data.IBENS) ->
       let state =
         Remanent_state.warn
           __POS__
-          "ARTS/DRI/ENS/PHYS/IBENS/ECO are not a valid dpt to edit transcripts"
+          "ARTS/DRI/ENS/IBENS/ECO are not a valid dpt to edit transcripts"
           Exit
           state
       in state
@@ -4644,7 +4653,7 @@ let program
                       state
                   in
                   state, Some libelle
-                end 
+                end
               | Some stage ->
                 let issue =
                   match

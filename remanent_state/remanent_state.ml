@@ -207,11 +207,20 @@ let set_dma parameters =
   {
     parameters with
     main_dpt = Public_data.DMA ;
-    commissions_repository = "commissions_des_etudes";
     commission = None (*Some ("23 juin 2021",  "2020")*);
     local_repository = "dma/suivi_pedagogique" ;
-    enspsl_logo = "LOGOs/ENSPSL.pdf" ;
     scholarships_repository = "dma/scolarite/ELEVES" ;
+    repartition = Public_data.Annee_obtention_du_diplome ;
+    include_pictures = false;
+  }
+
+let set_phys parameters =
+  {
+    parameters with
+    main_dpt = Public_data.PHYS ;
+    commission = None (*Some ("23 juin 2021",  "2020")*);
+    local_repository = "phys/suivi_pedagogique" ;
+    scholarships_repository = "phys/scolarite/ELEVES" ;
     repartition = Public_data.Annee_obtention_du_diplome ;
     include_pictures = false;
   }
@@ -844,7 +853,7 @@ let close_event_opt step_kind_opt t =
   gen_profiler Profiling.close_event_opt step_kind_opt t
 
 let list_dpt =
-  ["DI";"di";"DMA";"dma"]
+  ["DI";"di";"DMA";"dma";"PHYS";"Phys";"phys"]
 
 let get_cmd_options () =
   let a = Sys.argv in
@@ -876,8 +885,14 @@ let get_option parameters =
   let dpt, others = split_dpt l in
   let parameters =
     match dpt with
-    | ("dma"|"DMA")::_ -> set_dma parameters
-    | _ -> parameters
+    | h::_ ->
+      begin
+        match String.lowercase_ascii h with
+        | "dma" -> set_dma parameters
+        | "phys" -> set_phys parameters
+        | _ -> parameters
+      end
+    | [] -> parameters
   in
   let target =
     match others with
@@ -1922,6 +1937,10 @@ let is_main_dpt_di t =
 let is_main_dpt_dma t =
   let t,dpt = get_main_dpt t in
   t, dpt = Public_data.DMA
+
+let is_main_dpt_phys t =
+  let t,dpt = get_main_dpt t in
+  t, dpt = Public_data.PHYS 
 
 let get_language t =
   t, t.parameters.language
