@@ -1,4 +1,5 @@
 type dump =
+  ?commission:bool ->
   ?firstname:string ->
   ?lastname:string ->
   ?promo:string ->
@@ -33,6 +34,7 @@ module type DiplomaReport =
 sig
   val dump_per_result_per_student: dump
   val dump_per_student: dump
+  val dump_stats: dump
 end
 
 module Build
@@ -41,6 +43,7 @@ module Build
 struct
 
   let dump_national_diploma_list
+      ?commission
       ?firstname
       ?lastname
       ?promo
@@ -60,6 +63,7 @@ struct
     let default_file_name = I.default_file_name in
     let get_repository = I.get_repository in
     Gen.dump_elts
+      ?commission
       ?firstname ?lastname ?promo ?niveau ?dpt ?recu ?academicyear
       ?headpage ?footpage ?footcolor
       ?title ?preamble ?signature
@@ -110,17 +114,49 @@ struct
   let level =
     ["Niveau"],
     (fun a -> a.Public_data.diplome_niveau)
+
+  let simplify_niveau a =
+    match a with
+    | "l" -> "L3"
+    | "m" -> "M1"
+    | x -> Printf.sprintf "M2 %s" x
+
+  let diplome =
+    ["Diplôme"],
+    (fun a -> simplify_niveau a.Public_data.diplome_niveau)
   let ects =
     ["Nbects"],(fun a -> string_of_float (a.Public_data.diplome_nb_ects))
   let year =
     ["Année"],(fun a -> a.Public_data.diplome_year)
+  let ranking =
+    ["rang"],(fun a -> match a.Public_data.diplome_ranking, a.Public_data.diplome_effectif with
+        | None, _ -> ""
+        | Some a, None -> string_of_int a
+        | Some a, Some b -> Format.sprintf "%i/%i" a b)
+  let origine =
+    ["origine"],(fun a ->
+        match
+          Public_data.string_of_origin_opt a.Public_data.diplome_origine
+        with
+        | "concours universitaire informatique" -> "CNE Info"
+        | "CPGE Informatique" -> "CPGE Info"
+        | "sélection Internationale" -> "SI"
+        | "CPGE Physique-Sciences de l'Ingénieur" -> "CPGE PSI"
+        | "CPGE Math-Physique-Info" -> "CPGE MPI"
+        | x -> x )
+  let statut =
+    ["statut"],(fun a -> Public_data.string_of_statut_opt  a.Public_data.diplome_statut)
 
   let lresultat =
     [],(fun x -> x),
     (fun a ->
        if a.Public_data.diplome_recu then "Reçu(e)s" else "Ajourné(e)s"
     )
+
+  let lift_id (a,b) = (a,(fun x -> x),b)
+
   let dump_per_result_per_student
+      ?commission
       ?firstname
       ?lastname
       ?promo
@@ -142,16 +178,17 @@ struct
     let columns = [prenom_etudiant;nom_etudiant;moyenne; mention] in
     let headers =
       [
-        lresultat;
-      ]
+         lresultat;  ]
     in
     dump_national_diploma_list
+      ?commission
       ?firstname ?lastname ?promo ?niveau ?dpt ?recu ?academicyear
       ?headpage ?footpage ?footcolor
       ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name cmp headers columns state
 
   let dump_per_student
+      ?commission
       ?firstname
       ?lastname
       ?promo
@@ -174,6 +211,47 @@ struct
       []
     in
     dump_national_diploma_list
+      ?commission ?firstname ?lastname ?promo ?niveau ?dpt ?recu ?academicyear
+      ?headpage ?footpage ?footcolor
+      ?title ?preamble ?signature
+      ?output_repository ?prefix ?file_name cmp headers columns state
+
+  let dump_stats
+      ?commission
+      ?firstname
+      ?lastname
+      ?promo
+      ?niveau
+      ?dpt
+      ?recu
+      ?academicyear
+      ?headpage ?footpage ?footcolor
+      ?title ?preamble ?signature
+      ?output_repository ?prefix ?file_name
+      state =
+    let cmp =
+      [
+        Gen.lift_cmp (fun a ->
+            simplify_niveau a.Public_data.diplome_niveau);
+        Gen.lift_cmp (fun a -> a.Public_data.diplome_year);
+        Gen.lift_cmp (fun a -> a.Public_data.diplome_origine);
+        Gen.lift_cmp (fun a -> a.Public_data.diplome_promotion);
+        Gen.lift_cmp (fun a -> a.Public_data.diplome_lastname);
+        Gen.lift_cmp (fun a -> a.Public_data.diplome_firstname) ;
+      ]
+    in
+    let columns = [prenom_etudiant;nom_etudiant;promotion;moyenne; mention; ranking] in
+    let headers =
+      [
+        lift_id diplome;
+        lift_id year;
+        (*lift_id promotion;*)
+        lift_id origine;
+        (*lift_id statut;*)
+      ]
+    in
+    dump_national_diploma_list
+      ?commission
       ?firstname ?lastname ?promo ?niveau ?dpt ?recu ?academicyear
       ?headpage ?footpage ?footcolor
       ?title ?preamble ?signature

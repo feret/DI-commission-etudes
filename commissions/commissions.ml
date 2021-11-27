@@ -448,6 +448,7 @@ let print_sous_commission
                           "PV_%s%s.html" dip.Public_data.dn_short lbl)
             ?academicyear
             ~niveau:dip.Public_data.dn_niveau
+            ~commission:true
             ~dpt:dip.Public_data.dn_departement
             state
         in

@@ -327,45 +327,12 @@ let log_statut
         state (label, string_opt) =
       match string_opt with
       | None -> state
-      | Some a ->
+      | Some _ ->
         let () =
           Remanent_state.log
             state "%s: %s" label
-            (match a with
-             | Public_data.Eleve_bis -> "Eleve BIS"
-             | Public_data.Eleve -> "Eleve"
-             | Public_data.Etudiant -> "Etudiant"
-             | Public_data.Ex_boursier_si -> "Ancien boursier - selection internationale"
-             | Public_data.Ex_eleve -> "Ancien eleve"
-             | Public_data.Ex_eleve_bis -> "Ancien eleve bis"
-             | Public_data.Ex_etudiant -> "Ancien etudiant"
-             | Public_data.Boursier_si ->
-               "Boursier - selection internationale"
-             | Public_data.Ex_hors_GPS ->
-               "Ex hors GPS"
-             | Public_data.Hors_GPS ->
-               "Hors GPS")
+            (Public_data.string_of_statut_opt string_opt)
         in state
-
-let string_of_origin_opt a =
-  match a with
-  | None -> ""
-  | Some Public_data.AL -> "CPGE khâgne"
-  | Some Public_data.BCPST -> "CPGE Biologie-Chimie-Physique-Sciences de la terre"
-  | Some Public_data.DensDEC -> "concours universitaire sciences cognitives"
-   | Some Public_data.DensInfo -> "concours universitaire informatique"
-   | Some Public_data.EchErasm -> "Erasmus"
-   | Some Public_data.ED386 -> "ED386"
-   | Some Public_data.Info -> "CPGE Informatique"
-   | Some Public_data.Mpi -> "CPGE Math-Physique-Info"
-   | Some Public_data.Pc  -> "CPGE Physique-Chimie"
-   | Some Public_data.PensionnaireEtranger -> "Pensionnaire Étranger"
-   | Some Public_data.Psi -> "CPGE Physique-Sciences de l'Ingénieur"
-   | Some Public_data.Sis -> "sélection Internationale"
-   | Some Public_data.M_MPRI -> "Master Parisien de recherche en informatique"
-   | Some Public_data.DensMath -> "concours universitaire mathématiques"
-   | Some Public_data.DensPhys -> "concours universitaire de physique"
-   | Some Public_data.Nes -> "concours normalien étudiant Sciences"
 
 let string_of_origin_short_opt a =
   match a with
@@ -417,7 +384,7 @@ let log_origine
     let () =
       Remanent_state.log
         state "%s: %s" label
-        (string_of_origin_opt string_opt)
+        (Public_data.string_of_origin_opt string_opt)
     in state
 
 let log_diplome state diplome =
@@ -6679,10 +6646,22 @@ let export_transcript
                        else
                          state, false
                    in
+                   let state, d_nat_stat =
+                     let state, dpt = Remanent_state.get_main_dpt state in
+                     state, (dpt = Public_data.dpt_of_string (snd key))
+                            &&
+                            not
+                              (match fst key with
+                               | None -> true
+                               | Some a ->
+                                 let x = String.trim (String.lowercase_ascii a) in
+                                 x = "" || x = "dens")
+                   in
                    if lpoly situation then
                      state
                    else
-                   if d_nat && do_report report then
+                   if (d_nat || d_nat_stat) && do_report report
+                   then
                      Remanent_state.add_national_diploma
                        state
                        {Public_data.diplome_dpt = Public_data.dpt_of_string (snd key);
@@ -6690,6 +6669,12 @@ let export_transcript
                           (match fst key with
                            | None -> ""
                            | Some a -> a);
+                        Public_data.diplome_ranking = None ;
+                        Public_data.diplome_effectif = None ;
+                        Public_data.diplome_origine =
+                          origine;
+                        Public_data.diplome_statut = gps_file.statut ;
+
                         Public_data.diplome_firstname =
                           firstname ;
                         Public_data.diplome_lastname =
@@ -6712,6 +6697,7 @@ let export_transcript
                           mention
                        ;
                         Public_data.diplome_recu = validated ;
+                        Public_data.diplome_commission = d_nat ;
                        }
                    else state
               )

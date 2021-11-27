@@ -119,6 +119,7 @@ let state, output_repository_gps =
   Remanent_state.get_repository_to_dump_gps_files
     ~output_repository
     state
+let state, is_di = Remanent_state.is_main_dpt_di state
 let state =
   List.fold_left
     (fun state id ->
@@ -432,6 +433,41 @@ let state =
        in
        state)
     years
+    state
+let state =
+  if is_di then
+    let state =
+      Remanent_state.warn
+        __POS__
+        "STATS"
+        Exit
+        state
+    in
+    let state,input =
+      Diploma_report.DiplomaReport.dump_stats
+        ~file_name:"stats.tex"
+        state
+    in
+    let fst_opt x =
+      match x with | None -> "" | Some (a,_) -> a
+    in
+    let snd_opt x =
+      match x with | None -> "" | Some (_,a) -> a
+    in
+
+    let state =
+      Remanent_state.warn
+        __POS__
+        (Format.sprintf "STATS %s,%s" (fst_opt input) (snd_opt input))
+        Exit
+        state
+    in
+    let state =
+      Latex_engine.latex_opt_to_pdf
+        ~times:2 state ~input
+    in
+    state
+  else
     state
 let state = Report.dump_issues state
 let state = Report.warn state

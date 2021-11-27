@@ -259,7 +259,7 @@ let empty_dpt =
     dpt_nom = "" ;
     dpt_acronyme = "" ;
     dpt_genitif = "" ;
-    dpt_genitif_en = ""; 
+    dpt_genitif_en = "";
     dpt_bg_color = None ;
     dpt_font_color = None ;
   }
@@ -436,20 +436,7 @@ type missing_internship_description =
     missing_internship_intitule: string ;
   }
 
-type diplome_national =
-  {
-    diplome_firstname : string ;
-    diplome_lastname : string ;
-    diplome_gender : genre ;
-    diplome_promotion : string ;
-    diplome_niveau : string ;
-    diplome_dpt : main_dpt ;
-    diplome_moyenne : float option;
-    diplome_nb_ects : float ;
-    diplome_mention : string option;
-    diplome_recu : bool ;
-    diplome_year : string ;
-  }
+
 
 type dens =
   {
@@ -617,6 +604,27 @@ type origin =
   | M_MPRI
   | ED386
 
+
+type diplome_national =
+  {
+    diplome_firstname : string ;
+    diplome_lastname : string ;
+    diplome_origine : origin option ;
+    diplome_statut : statut option ;
+    diplome_ranking : int option ;
+    diplome_effectif : int option ;
+    diplome_gender : genre ;
+    diplome_promotion : string ;
+    diplome_niveau : string ;
+    diplome_dpt : main_dpt ;
+    diplome_moyenne : float option;
+    diplome_nb_ects : float ;
+    diplome_mention : string option;
+    diplome_recu : bool ;
+    diplome_year : string ;
+    diplome_commission : bool ; 
+  }
+
 type remove_non_valided_classes =
   | All
   | All_but_current_academic_year
@@ -704,3 +712,42 @@ type 'a commission =
     commission_long_date: string;
     commission_year: annee;
   }
+
+
+
+let string_of_origin_opt a =
+  match a with
+  | None -> ""
+  | Some AL -> "CPGE khâgne"
+  | Some BCPST -> "CPGE Biologie-Chimie-Physique-Sciences de la terre"
+  | Some DensDEC -> "concours universitaire sciences cognitives"
+  | Some DensInfo -> "concours universitaire informatique"
+  | Some EchErasm -> "Erasmus"
+  | Some ED386 -> "ED386"
+  | Some Info -> "CPGE Informatique"
+  | Some Mpi -> "CPGE Math-Physique-Info"
+  | Some Pc  -> "CPGE Physique-Chimie"
+  | Some PensionnaireEtranger -> "Pensionnaire Étranger"
+  | Some Psi -> "CPGE Physique-Sciences de l'Ingénieur"
+  | Some Sis -> "sélection Internationale"
+  | Some M_MPRI -> "Master Parisien de recherche en informatique"
+  | Some DensMath -> "concours universitaire mathématiques"
+  | Some DensPhys -> "concours universitaire de physique"
+  | Some Nes -> "concours normalien étudiant Sciences"
+
+let string_of_statut_opt a =
+  match a with
+  | None -> ""
+  | Some Eleve_bis -> "Eleve BIS"
+  | Some Eleve -> "Eleve"
+  | Some Etudiant -> "Etudiant"
+  | Some Ex_boursier_si -> "Ancien boursier - selection internationale"
+  | Some Ex_eleve -> "Ancien eleve"
+  | Some Ex_eleve_bis -> "Ancien eleve bis"
+  | Some Ex_etudiant -> "Ancien etudiant"
+  | Some Boursier_si ->
+    "Boursier - selection internationale"
+  | Some Ex_hors_GPS ->
+    "Ex hors GPS"
+  | Some Hors_GPS ->
+    "Hors GPS"

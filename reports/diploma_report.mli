@@ -1,4 +1,5 @@
 type dump =
+  ?commission:bool ->
   ?firstname:string ->
   ?lastname:string ->
   ?promo:string ->
@@ -39,6 +40,7 @@ module type DiplomaReport =
 sig
   val dump_per_result_per_student: dump
   val dump_per_student: dump
+  val dump_stats: dump
 end
 
 module DiplomaReport: DiplomaReport
@@ -47,7 +49,7 @@ val dump_attestation:
   ?output_repository:string ->
   ?prefix:string ->
   ?output_file_name:string ->
-  ?date:string -> 
+  ?date:string ->
   signataire:string  ->
   Public_data.diplome_national ->
   Remanent_state.t ->

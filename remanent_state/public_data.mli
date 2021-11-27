@@ -161,7 +161,7 @@ type dpt =
     dpt_nom: string ;
     dpt_acronyme: string ;
     dpt_genitif: string ;
-    dpt_genitif_en: string; 
+    dpt_genitif_en: string;
     dpt_bg_color: Color.color option;
     dpt_font_color: Color.color option;
   }
@@ -298,21 +298,6 @@ type missing_internship_description =
     missing_internship_year : string ;
     missing_internship_code_gps: string ;
     missing_internship_intitule: string ;
-  }
-
-type diplome_national =
-  {
-    diplome_firstname : string ;
-    diplome_lastname : string ;
-    diplome_gender : genre ;
-    diplome_promotion : string ;
-    diplome_niveau : string ;
-    diplome_dpt : main_dpt ;
-    diplome_moyenne : float option;
-    diplome_nb_ects : float ;
-    diplome_mention : string option;
-    diplome_recu : bool ;
-    diplome_year : string ;
   }
 
 type dens =
@@ -481,6 +466,26 @@ type origin =
   | M_MPRI
   | ED386
 
+type diplome_national =
+  {
+    diplome_firstname : string ;
+    diplome_lastname : string ;
+    diplome_origine : origin option ;
+    diplome_statut : statut option ;
+    diplome_ranking : int option ;
+    diplome_effectif : int option ;
+    diplome_gender : genre ;
+    diplome_promotion : string ;
+    diplome_niveau : string ;
+    diplome_dpt : main_dpt ;
+    diplome_moyenne : float option;
+    diplome_nb_ects : float ;
+    diplome_mention : string option;
+    diplome_recu : bool ;
+    diplome_year : string ;
+    diplome_commission: bool ; 
+  }
+
 type remove_non_valided_classes =
   | All
   | All_but_current_academic_year
@@ -529,3 +534,6 @@ type 'a commission =
     commission_long_date: string;
     commission_year: annee;
   }
+
+val string_of_origin_opt: origin option -> string
+val string_of_statut_opt: statut option -> string
