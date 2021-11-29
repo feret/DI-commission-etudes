@@ -49,8 +49,6 @@ struct
     ["PROMOTION"],
     (fun a -> a.Public_data.student_promo_report)
 
-  let lift_id (a,b) = (a,(fun x -> x),b)
-
   let dump_per_student
       ?studentfirstname ?studentlastname  ?promo
       ?output_repository ?prefix ?file_name

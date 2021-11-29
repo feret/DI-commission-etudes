@@ -96,6 +96,7 @@ let dump_dens
     (fun a ->
        Notes.string_of_ects
         (Some (a.Public_data.dens_current_year_ects)))
+  let _ = total_year
   let total =
     ["ECTS";"(cumul)"],
     (fun a ->
@@ -117,7 +118,7 @@ let dump_dens
     (fun a ->
        string_of_int (a.Public_data.dens_nb_mandatory_course))
 
-  let math_math_info_course =
+  let math_info_course =
     ["Cours de maths";"ou maths-info"],
     (fun a ->
        string_of_int (a.Public_data.dens_nb_math_and_math_info_course))
@@ -127,7 +128,9 @@ let dump_dens
     (fun a ->
        string_of_int (a.Public_data.dens_nb_math_course))
 
-  let maths_course =
+  let _ = math_course, math_info_course
+
+  let math_math_info_course =
     ["Cours";"maths/maths-info"],
     (fun a ->
        Printf.sprintf
@@ -164,7 +167,7 @@ let dump_dens
         ->
         [prenom_etudiant;nom_etudiant;promotion;inscriptions; total ]
       | Public_data.DI ->
-        [full;inscriptions;  mandatory_course ; maths_course ; total_bis]
+        [full;inscriptions;  mandatory_course ; math_math_info_course ; total_bis]
     in
     let headers =
       [
@@ -203,7 +206,7 @@ let dump_dens
         ->
         [prenom_etudiant;nom_etudiant;inscriptions;  total ]
       | Public_data.DI ->
-        [prenom_etudiant;nom_etudiant;inscriptions; mandatory_course ; maths_course ; total_bis ]
+        [prenom_etudiant;nom_etudiant;inscriptions; mandatory_course ; math_math_info_course ; total_bis ]
     in
     let headers =
       [
@@ -243,7 +246,7 @@ let dump_dens
         ->
         [prenom_etudiant;nom_etudiant;promotion; total ]
       | Public_data.DI ->
-        [full; mandatory_course ; maths_course ;  total_bis ]
+        [full; mandatory_course ; math_math_info_course ;  total_bis ]
     in
     let headers =
       [

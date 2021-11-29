@@ -75,15 +75,11 @@ struct
 
 
   let nom_etudiant =
-    ["NOM"],
+    ["Nom"],
     (fun a -> a.Public_data.diplome_lastname)
   let prenom_etudiant =
-    ["PRENOM"],
+    ["Prénom"],
     (fun a -> a.Public_data.diplome_firstname)
-  let promotion =
-    ["PROMOTION"],
-    (fun a -> a.Public_data.diplome_promotion
-    )
   let moyenne =
     ["Moyenne"],
     (fun a ->
@@ -91,6 +87,9 @@ struct
        | None -> ""
        | Some f ->
          Notes.float_to_string_easy f)
+  let promotion =
+    ["Promotion"],
+    (fun a -> a.Public_data.diplome_promotion)
   let mention =
     ["Mention"],
     (fun a ->
@@ -108,12 +107,6 @@ struct
           | Public_data.Feminin -> "e"
           | Public_data.Unknown -> "(e)")
     )
-  let departement =
-    ["Département"],
-    (fun a -> a.Public_data.diplome_dpt)
-  let level =
-    ["Niveau"],
-    (fun a -> a.Public_data.diplome_niveau)
 
   let simplify_niveau a =
     match a with
@@ -124,8 +117,6 @@ struct
   let diplome =
     ["Diplôme"],
     (fun a -> simplify_niveau a.Public_data.diplome_niveau)
-  let ects =
-    ["Nbects"],(fun a -> string_of_float (a.Public_data.diplome_nb_ects))
   let year =
     ["Année"],(fun a -> a.Public_data.diplome_year)
   let ranking =
@@ -144,8 +135,6 @@ struct
         | "CPGE Physique-Sciences de l'Ingénieur" -> "CPGE PSI"
         | "CPGE Math-Physique-Info" -> "CPGE MPI"
         | x -> x )
-  let statut =
-    ["statut"],(fun a -> Public_data.string_of_statut_opt  a.Public_data.diplome_statut)
 
   let lresultat =
     [],(fun x -> x),
