@@ -119,7 +119,7 @@ struct
     match a with
     | "l" -> "L3"
     | "m" -> "M1"
-    | x -> Printf.sprintf "M2 %s" x
+    | x -> Printf.sprintf "M2 %s" (String.capitalize_ascii x)
 
   let diplome =
     ["Diplôme"],
@@ -127,14 +127,14 @@ struct
   let ects =
     ["Nbects"],(fun a -> string_of_float (a.Public_data.diplome_nb_ects))
   let year =
-    ["Année"],(fun a -> a.Public_data.diplome_year)
+    ["Année d'obtention"],(fun a -> a.Public_data.diplome_year)
   let ranking =
     ["rang"],(fun a -> match a.Public_data.diplome_ranking, a.Public_data.diplome_effectif with
         | None, _ -> ""
         | Some a, None -> string_of_int a
         | Some a, Some b -> Format.sprintf "%i/%i" a b)
   let origine =
-    ["origine"],(fun a ->
+    ["Concours d'origine"],(fun a ->
         match
           Public_data.string_of_origin_opt a.Public_data.diplome_origine
         with

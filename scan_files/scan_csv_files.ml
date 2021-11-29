@@ -50,6 +50,7 @@ let get_list_from_a_file
     let csv =
       Csv.input_all in_channel
     in
+    let _ = close_in in_channel in 
     let rec scan
         state
         current_line remaining_lines current_keyword filled current_file
@@ -132,7 +133,7 @@ let get_list_from_a_file
             with
             | Some action ->
               action state None current_file
-            | None -> state, current_file 
+            | None -> state, current_file
           in
           scan
             state t remaining_lines (Some (action,of_interest)) false current_file
