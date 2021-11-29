@@ -43,14 +43,14 @@ let get_list_from_a_file
   in
   match in_channel_opt with
   | None -> state, output
-  | Some in_channel ->
+  | Some in_channel_ ->
     let in_channel =
-      Csv.of_channel ?separator in_channel
+      Csv.of_channel ?separator in_channel_
     in
     let csv =
       Csv.input_all in_channel
     in
-    let _ = close_in in_channel in 
+    let _ = close_in in_channel_ in 
     let rec scan
         state
         current_line remaining_lines current_keyword filled current_file

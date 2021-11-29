@@ -5099,6 +5099,7 @@ let program
         ~cond:(Format.sprintf "\\thepotentialects%s=0" key)
         ~btrue:""
         ~bfalse:(Format.sprintf "\\hspace*{0.2cm} (%s  {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factorsquare}}} ects)" potentiellement key key key)
+        ()
     in
     state, ects_string, potential_ects_string
   in
