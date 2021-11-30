@@ -82,7 +82,7 @@ let latex_opt_to_pdf ?rev ?times:(times=1) ~input state =
   | None -> state
   | Some input -> latex_to_pdf ?rev ~times ~input state
 
-let concat_pdf ~pattern ~output state =
+let concat_pdf ~pattern ?exclude ~output state =
   let state, output_rep =
     Safe_sys.rec_mk_when_necessary __POS__ state (fst output)
   in
@@ -92,8 +92,14 @@ let concat_pdf ~pattern ~output state =
     | _ -> Format.sprintf "%s/%s" output_rep (snd output)
   in
   let command =
-    Format.sprintf
-      "pdftk %s cat output %s" pattern output
+    match exclude with
+    | None ->
+      Format.sprintf
+        "pdftk %s cat output %s" pattern output
+    | Some exclude ->
+      Format.sprintf
+        "pdftk $(ls %s | grep -v \"%s\"|tr '\n' ' ') cat output %s"
+        pattern exclude output 
   in
   let state = Safe_sys.command __POS__ state command in
   state

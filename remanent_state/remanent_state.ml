@@ -1919,13 +1919,32 @@ let get_student_personnal_repository ?promo ~firstname ~lastname t =
   in
   t, rep
 
-let get_students_personnal_files ~promo t =
+let get_students_personnal_files_fr  ~promo t =
   let promo_string = promo in
   let promo = Some promo in
   let t, rep =
     get_student_personnal_repository ?promo ~firstname:"*" ~lastname:"*" t
   in
   t, Format.sprintf "%s/%s*.pdf" rep promo_string
+
+let get_students_personnal_files_en ~promo t =
+  let promo_string = promo in
+  let promo = Some promo in
+  let t, rep =
+    get_student_personnal_repository ?promo ~firstname:"*" ~lastname:"*" t
+  in
+  t, Format.sprintf "%s/%s*.en.pdf" rep promo_string
+
+
+let get_students_personnal_files ?language ~promo t =
+  let language =
+    match language with
+    | None -> Public_data.French
+    | Some l -> l
+  in
+  match language with
+  | Public_data.French -> get_students_personnal_files_fr ~promo t
+  | Public_data.English -> get_students_personnal_files_en ~promo t
 
 let get_main_dpt t =
   t, t.parameters.main_dpt
@@ -1940,7 +1959,7 @@ let is_main_dpt_dma t =
 
 let is_main_dpt_phys t =
   let t,dpt = get_main_dpt t in
-  t, dpt = Public_data.PHYS 
+  t, dpt = Public_data.PHYS
 
 let get_language t =
   t, t.parameters.language

@@ -428,9 +428,21 @@ let state =
        let output = (output_rep,Format.sprintf "promo%s.pdf" promo)
        in
        let state =
+         Latex_engine.concat_pdf ~pattern ~exclude:".en.pdf" ~output
+           state
+       in
+       let output = (output_rep,Format.sprintf "promo%s_en.pdf" promo)
+       in
+       let state, pattern =
+         Remanent_state.get_students_personnal_files
+           ~language:Public_data.English
+           ~promo state
+       in
+       let state =
          Latex_engine.concat_pdf ~pattern ~output
            state
        in
+
        state)
     years
     state

@@ -7,4 +7,4 @@ val latex_opt_to_pdf:
     Remanent_state.t -> Remanent_state.t
 
 val concat_pdf:
-  pattern:string -> output:(string*string) -> Remanent_state.t -> Remanent_state.t
+  pattern:string -> ?exclude:string -> output:(string*string) -> Remanent_state.t -> Remanent_state.t
