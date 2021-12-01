@@ -4596,7 +4596,11 @@ let program
                         match lib, lib_en with
                         | None, None -> state, None
                         | Some _, Some y ->
-                          if String.trim y = ""
+                          let y = String.trim y in
+                          if y = ""
+                             ||
+                             (String.sub y 0 1 = "\"" &&
+                              String.trim (String.sub y 1 ((String.length y)-1)) = "")
                           then
                             Remanent_state.add_missing_course_name_translation
                               state
