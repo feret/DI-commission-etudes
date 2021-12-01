@@ -112,7 +112,7 @@ struct
     match a with
     | "l" -> "L3"
     | "m" -> "M1"
-    | x -> Printf.sprintf "M2 %s" (String.capitalize_ascii x)
+    | x -> Printf.sprintf "M2 %s" (String.uppercase_ascii x)
 
   let diplome =
     ["Diplôme"],
