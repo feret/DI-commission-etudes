@@ -162,8 +162,9 @@ let dump_dens
         main_dpt
       with
       | Public_data.ENS | Public_data.PHYS
-      | Public_data. IBENS | Public_data.DMA
+      | Public_data.IBENS | Public_data.DMA
       | Public_data.ECO | Public_data.DRI | Public_data.ARTS
+      | Public_data.LILA
         ->
         [prenom_etudiant;nom_etudiant;promotion;inscriptions; total ]
       | Public_data.DI ->
@@ -201,7 +202,8 @@ let dump_dens
         main_dpt
       with
       | Public_data.ENS | Public_data.PHYS
-      | Public_data. IBENS | Public_data.DMA
+      | Public_data.IBENS | Public_data.DMA
+      | Public_data.LILA
       | Public_data.ECO | Public_data.DRI | Public_data.ARTS
         ->
         [prenom_etudiant;nom_etudiant;inscriptions;  total ]
@@ -241,7 +243,8 @@ let dump_dens
         main_dpt
       with
       | Public_data.ENS | Public_data.PHYS
-      | Public_data. IBENS | Public_data.DMA
+      | Public_data.IBENS | Public_data.DMA
+      | Public_data.LILA
       | Public_data.ECO | Public_data.DRI | Public_data.ARTS
         ->
         [prenom_etudiant;nom_etudiant;promotion; total ]

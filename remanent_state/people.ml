@@ -65,6 +65,7 @@ let ibens_list = []
 let eco_list = []
 let dri_list = []
 let arts_list = []
+let lila_list = []
 
 let dpt_di = "informatique"
 let dpt_dma = "mathématiques"
@@ -73,6 +74,7 @@ let dpt_ibens = "biologie"
 let dpt_eco = "économie"
 let dpt_dri = "relations internationales"
 let dpt_arts = "arts"
+let dpt_lila = "littératures et langage"
 
 let footpage_string = "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32 20 45 --  Fax : + 33 (0) 1 44 32 20 75 -- direction.etudes@di.ens.fr}"
 let footpage_string_dma =
@@ -82,3 +84,4 @@ let footpage_string_ibens = ""
 let footpage_string_eco = ""
 let footpage_string_dri = ""
 let footpage_string_arts = ""
+let footpage_string_lila = ""

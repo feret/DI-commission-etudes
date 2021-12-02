@@ -132,6 +132,13 @@ let direction_etude_eco =
     Public_data.StringMap.empty
     People.eco_list
 
+let direction_etude_lila =
+  List.fold_left
+    (fun map elt ->
+       Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+    Public_data.StringMap.empty
+    People.lila_list
+
 let diplomes =
   List.fold_left
     (fun map elt ->
@@ -198,6 +205,20 @@ let diplomes_eco =
     Public_data.StringMap.empty
     [dens]
 
+
+let diplomes_lila =
+  List.fold_left
+    (fun map elt ->
+       Public_data.StringMap.add
+         (match elt with
+          | Public_data.Diplome_ENS elt ->
+            elt.Public_data.dens_key
+          | Public_data.Diplome_National elt ->
+            elt.Public_data.dn_key)
+         elt map)
+    Public_data.StringMap.empty
+    [dens]
+
 let print_sous_commission
     commission_rep
     ?commission_year
@@ -229,6 +250,9 @@ let print_sous_commission
     | Public_data.ECO ->
       People.dpt_eco,
       direction_etude_eco,diplomes_eco,People.footpage_string_eco,Color.pink
+    | Public_data.LILA ->
+      People.dpt_lila,
+      direction_etude_lila,diplomes_lila,People.footpage_string_lila,Color.white
   in
   let state, full_year =
     match

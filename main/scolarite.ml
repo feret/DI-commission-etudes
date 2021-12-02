@@ -370,6 +370,7 @@ let state, dpt, signataires =
   | state, Public_data.IBENS -> state, Public_data.IBENS, []
   | state, Public_data.ECO -> state, Public_data.ECO, []
   | state, Public_data.DRI -> state, Public_data.DRI, []
+  | state, Public_data.LILA -> state, Public_data.LILA, []
 let state =
   match
     Remanent_state.get_commission state
@@ -448,30 +449,9 @@ let state =
     state
 let state =
   if is_di then
-    let state =
-      Remanent_state.warn
-        __POS__
-        "STATS"
-        Exit
-        state
-    in
     let state,input =
       Diploma_report.DiplomaReport.dump_stats
         ~file_name:"stats.tex"
-        state
-    in
-    let fst_opt x =
-      match x with | None -> "" | Some (a,_) -> a
-    in
-    let snd_opt x =
-      match x with | None -> "" | Some (_,a) -> a
-    in
-
-    let state =
-      Remanent_state.warn
-        __POS__
-        (Format.sprintf "STATS %s,%s" (fst_opt input) (snd_opt input))
-        Exit
         state
     in
     let state =

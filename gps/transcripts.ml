@@ -36,6 +36,7 @@ let dpt_info = "informatique"
 let dpt_phys = "physique"
 let dpt_bio = "biologie"
 let dpt_arts = "arts"
+let dpt_lila = "littératures et langage"
 let dpt_ibens = dpt_bio
 
 let dpt_dec = "etudes cognitives"
@@ -47,11 +48,11 @@ let dpt_info_en = "computer science"
 let dpt_phys_en = "physics"
 let dpt_bio_en = "biology"
 let dpt_arts_en = "arts"
-let _dpt_ibens_en = dpt_bio_en
+let dpt_lila_en = "litteratures and language"
+let dpt_ibens_en = dpt_bio_en
 
-let _dpt_dec_en = "cognitive sciences"
+let dpt_dec_en = "cognitive sciences"
 let dpt_eco_en = "economics"
-let _dpt_dri_en = "international relation"
 
 
 let dpt_eco_gps_name = dpt_eco
@@ -62,6 +63,7 @@ let dpt_bio_gps_name = dpt_bio
 let dpt_dri_gps_name = dpt_dri
 let dpt_dec_gps_name = dpt_dec
 let dpt_arts_gps_name  = dpt_arts
+let dpt_lila_gps_name = dpt_lila
 
 let acro_dpt_arts = "ARTS"
 let acro_dpt_phys = "PHYS"
@@ -70,6 +72,7 @@ let acro_dpt_maths = "DMA"
 let acro_dpt_eco = "ECO"
 let acro_dpt_bio = "BIO"
 let acro_dpt_dri = "DRI"
+let acro_dpt_lila = "LILA"
 
 let dpt_arts_full = "Département d'Arts"
 let dpt_info_full = "Département d'Informatique"
@@ -78,7 +81,8 @@ let dpt_phys_full = "Département de Physique"
 let dpt_bio_full = "Institut de Biologie"
 let dpt_dec_full = "Département d'Études Cognitives"
 let dpt_eco_full = "Département d'Économie"
-let dpt_dri_full = "Direction des relations internationales"
+let dpt_dri_full = "Direction des Relations Internationales"
+let dpt_lila_full = "Département de Litteratures et Langage"
 
 let dpt_arts_full_en = "Arts Department"
 let dpt_info_full_en = "Computer Science Department"
@@ -88,6 +92,7 @@ let dpt_bio_full_en = "Biology Institute"
 let dpt_dec_full_en = "Cognitive Studies Department"
 let dpt_eco_full_en = "Economy Department"
 let dpt_dri_full_en = "International Relations Office"
+let dpt_lila_full_en = "Litteratures and Language Department"
 
 let simplify_string s =
   Special_char.lowercase
@@ -110,6 +115,8 @@ let acro_of_gps_name x =
   then acro_dpt_dri
   else if x = dpt_arts_gps_name
   then acro_dpt_arts
+  else if x = dpt_lila_gps_name
+  then acro_dpt_lila
   else acro_dpt_info
 
 let addmap x data map =
@@ -2224,16 +2231,18 @@ let lgen _grade gps dpt d =
 
 let lmath d =
   lgen "licence" "gps2274" dpt_maths_gps_name d
-
 let linfo d =
   lgen "licence" "gps2291" dpt_info_gps_name d
-
 let leco d =
   lgen "licence" "XT01362" dpt_eco_gps_name d
 let larts d =
   lgen "licence" "gps69522" dpt_arts_gps_name d
+let llila d =
+  lgen "licence" "gps83025" dpt_lila_gps_name d
 let lpoly d =
   lgen "licence" "gps74842" "" d
+let lbio _ = false
+let ldec _ = false
 
 let lerasmus origine =
   match origine with
@@ -2381,6 +2390,7 @@ let translate_dpt ~firstname ~lastname ~year state d =
       | x when x=dpt_dec_gps_name        -> state, (dpt_dec_full,dpt_dec_full_en)
       | x when x=dpt_eco_gps_name -> state, (dpt_eco_full,dpt_eco_full_en)
       | x when x=dpt_arts_gps_name -> state, (dpt_arts_full,dpt_arts_full_en)
+      | x when x=dpt_lila_gps_name -> state, (dpt_lila_full,dpt_lila_full_en)
       | x ->
         Remanent_state.warn
           __POS__
@@ -2538,6 +2548,9 @@ let translate_diplome
           | "DMA" -> "mathématiques","Mathematics"
           | "PHYS" -> "physique","Physics"
           | "IBENS" -> "biologie","Biology"
+          | "LILA" -> "littératures et langage","Litteratures and Language"
+          | "ECO" -> "économie","Economy"
+          | "ART" -> "arts","Arts"
           | _ -> "",""
         in
         state,
@@ -2675,9 +2688,23 @@ let translate_diplome
         state,
         (Some "L","L3 d'arts","Bachelor in Arts",dpt_arts,dpt_arts_en,false)
       else
-        check_dpt __POS__ state origine
-          "L" "L3" "Bachelor" code_cours year
-          situation
+      if llila situation then
+        state,
+        (Some "L","L3 en littératures et langage","Bachelor in Litteratures and Languages",dpt_lila,dpt_lila_en,false)
+      else if ldec situation
+      then
+        state,
+        (Some "L","L3 de sciences cognitives","Bachelor in Cognitive Sciences",dpt_dec,dpt_dec_en,false)
+      else if lbio situation then
+        state,
+        (Some "L","L3 de biologie","Bachelor in Biology",dpt_ibens,dpt_ibens_en,false)
+      else if ldec situation then
+        state,
+        (Some "L","L3 de sciences cognitives","Bachelor in Cognitive Sciences",dpt_ibens,dpt_ibens_en,false)
+      else check_dpt __POS__ state origine
+        "L" "L3" "Bachelor" code_cours year
+        situation
+
     end
   | Some "M" ->
     if mmaths situation then
@@ -2737,6 +2764,8 @@ let color_of_dpt who pos state dpt origine =
   then state, Some Color.pink
   else if dpt = dpt_arts
   then state, Some Color.brown
+  else if dpt = dpt_lila
+  then state, Some Color.white
   else
     let msg =
       Format.sprintf "Unknown departement (%s) for %s"
@@ -2762,6 +2791,7 @@ let dpt_of_acro who pos state dpt origine =
     | Public_data.PHYS -> state, Some dpt_phys
     | Public_data.ECO -> state, Some dpt_eco
     | Public_data.ARTS -> state, Some dpt_arts
+    | Public_data.LILA -> state, Some dpt_lila
     | Public_data.DRI -> state, Some dpt_dri
     | Public_data.ENS ->
       let msg =
@@ -2889,7 +2919,7 @@ let check_mandatory state cours =
       true
     else
       false
-  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.DMA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> state, false
+  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.DMA | Public_data.LILA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> state, false
 
 let is_mandatory state cours =
   let state, b = check_mandatory state cours in
@@ -2929,7 +2959,7 @@ let check_count_for_maths state cours =
         ||
         course_by_dma cours
     end
-  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.DMA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, false
+  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.DMA | Public_data.LILA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, false
 
 let count_for_maths state cours =
   let state, b = check_count_for_maths state cours in
@@ -3237,7 +3267,7 @@ let heading
             "D\\'epartement de Physique. \\'Ecole  Normale  Sup\\'erieure. 4XXXXXXX 75005 Paris. Tel : +33 (0)1 44 32 ?? ??."
         in
         state
-    | state, (Public_data.ARTS | Public_data.DRI | Public_data.ENS | Public_data.ECO | Public_data.IBENS) ->
+      | state, (Public_data.ARTS | Public_data.DRI | Public_data.ENS | Public_data.ECO | Public_data.IBENS | Public_data.LILA) ->
       let state =
         Remanent_state.warn
           __POS__
@@ -3436,6 +3466,7 @@ let heading
           | Public_data.IBENS -> "de biologie"
           | Public_data.ECO -> "d'économie"
           | Public_data.ARTS -> "d'arts"
+          | Public_data.LILA -> "de littératures et langage"
           | Public_data.DRI -> "")
       ),
       (Format.sprintf "Year: %s Department"
@@ -3447,6 +3478,7 @@ let heading
           | Public_data.IBENS -> "Biology"
           | Public_data.ECO -> "Economy"
           | Public_data.ARTS -> "Arts"
+          | Public_data.LILA -> "Litteratures and Language"
           | Public_data.DRI -> "")
          ),
       None, None
@@ -4097,7 +4129,7 @@ let program
                 | _,Public_data.DRI
                 | _,Public_data.ENS -> None
                 | _,(Public_data.ARTS
-                    | Public_data.ECO | Public_data.DI | Public_data.DMA | Public_data.IBENS | Public_data.PHYS) ->
+                    | Public_data.ECO | Public_data.DI | Public_data.DMA | Public_data.IBENS | Public_data.PHYS | Public_data.LILA) ->
                   Some dpt)
             ~year
             state
@@ -5837,7 +5869,12 @@ let export_transcript
                begin
                  match Remanent_state.get_main_dpt state with
                  | state, (Public_data.DRI | Public_data.DI | Public_data.ENS) -> state, None
-                 | state, (Public_data.ARTS | Public_data.ECO | Public_data.DMA | Public_data.PHYS | Public_data.IBENS)->
+                 | state, (Public_data.ARTS
+                          | Public_data.ECO
+                          | Public_data.DMA
+                          | Public_data.PHYS
+                          | Public_data.IBENS
+                          | Public_data.LILA)->
                    begin
                      match
                        gps_file.tuteur

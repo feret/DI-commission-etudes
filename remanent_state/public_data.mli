@@ -20,7 +20,7 @@ type student_id =
     promotion: string option;
   }
 
-type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO | DRI | ARTS
+type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO | DRI | ARTS | LILA
 
 val string_of_dpt: main_dpt -> string
 val dpt_of_string: string -> main_dpt
@@ -483,7 +483,7 @@ type diplome_national =
     diplome_mention : string option;
     diplome_recu : bool ;
     diplome_year : string ;
-    diplome_commission: bool ; 
+    diplome_commission: bool ;
   }
 
 type remove_non_valided_classes =

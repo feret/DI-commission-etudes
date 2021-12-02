@@ -301,6 +301,27 @@ let direction_etude_dri =
     Public_data.StringMap.empty
     People.dri_list
 
+let direction_etude_arts =
+List.fold_left
+  (fun map elt ->
+     Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+  Public_data.StringMap.empty
+  People.arts_list
+
+let direction_etude_lila =
+  List.fold_left
+    (fun map elt ->
+       Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+    Public_data.StringMap.empty
+    People.lila_list
+
+let direction_etude_eco =
+  List.fold_left
+    (fun map elt ->
+       Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+    Public_data.StringMap.empty
+    People.eco_list
+
 let dump_attestation
   ?output_repository
   ?prefix
@@ -461,7 +482,7 @@ let dump_attestation
         [
           Loggers.fprintf,
           People.footpage_string
-        ],direction_etude_dri,"arts"
+        ],direction_etude_arts,"arts"
       | Public_data.DI | Public_data.ENS ->
         let color = Color.digreen in
         Loggers.setfootpage logger ~color
@@ -474,8 +495,16 @@ let dump_attestation
           Loggers.setfootpage logger ~color
             [
               Loggers.fprintf,
-              People.footpage_string_dma
-            ], direction_etude_dma, "économie"
+              People.footpage_string_eco
+            ], direction_etude_eco, "économie"
+      | Public_data.LILA ->
+        let color = Color.pink in
+        Loggers.setfootpage logger ~color
+          [
+            Loggers.fprintf,
+            People.footpage_string
+          ], direction_etude_lila, "littératures et langage"
+
 
       | Public_data.DMA ->
         let color = Color.duckblue in
@@ -525,7 +554,8 @@ let dump_attestation
               | "dens",_
               | _,Public_data.DRI
               | _,Public_data.ENS -> None
-              | _,(Public_data.ARTS |
+              | _,( Public_data.LILA
+                  | Public_data.ARTS |
                    Public_data.DI | Public_data.ECO |
                    Public_data.DMA | Public_data.IBENS | Public_data.PHYS) ->
                 Some dpt)

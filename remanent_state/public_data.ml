@@ -42,7 +42,7 @@ module StringOptMap =
     )
 
 
-type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO | DRI | ARTS
+type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO | DRI | ARTS | LILA
 
 let string_of_dpt x =
   match x with
@@ -53,6 +53,7 @@ let string_of_dpt x =
   | ECO -> "économie"
   | DRI -> "échanges DRI"
   | ARTS -> "arts"
+  | LILA -> "littératures et language"
   | ENS -> ""
 
 let dpt_of_string x =
@@ -66,6 +67,7 @@ let dpt_of_string x =
   | "eco" | "economie" -> ECO
   | "echanges dri"
   | "relations internationales" -> DRI
+  | "litteratures et language" -> LILA
   | _ -> DI
 
 type cloud_client = NextCloudCmd
@@ -622,7 +624,7 @@ type diplome_national =
     diplome_mention : string option;
     diplome_recu : bool ;
     diplome_year : string ;
-    diplome_commission : bool ; 
+    diplome_commission : bool ;
   }
 
 type remove_non_valided_classes =
