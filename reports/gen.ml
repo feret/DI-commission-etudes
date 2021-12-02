@@ -351,7 +351,7 @@ let filter_dens
 
   let filter_national_diploma
         ?commission ?dpt ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
-        ?niveau
+        ?niveau 
         ?recu state dens =
     let _ =
       dpt, dpt_gps_code, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription, attributionyear

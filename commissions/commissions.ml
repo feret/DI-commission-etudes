@@ -502,6 +502,7 @@ let print_sous_commission
             ~niveau:dip.Public_data.dn_niveau ~dpt:dip.Public_data.dn_departement
             ~headpage:headpage
             ~preamble:preamble
+            ~commission:true
             ~footpage ~footcolor
             state
         in
@@ -546,6 +547,7 @@ let print_sous_commission
                             dip.Public_data.dn_short lbl direction.Public_data.direction_initiales)
               ?academicyear
               ~niveau:dip.Public_data.dn_niveau ~dpt:dip.Public_data.dn_departement
+              ~commission:true
               ~headpage
               ~preamble
               ~footpage ~footcolor ~signature
