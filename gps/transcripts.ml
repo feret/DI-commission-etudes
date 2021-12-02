@@ -36,7 +36,7 @@ let dpt_info = "informatique"
 let dpt_phys = "physique"
 let dpt_bio = "biologie"
 let dpt_arts = "arts"
-let dpt_lila = "littératures et langage"
+let dpt_lila = "litteratures et langage"
 let dpt_ibens = dpt_bio
 
 let dpt_dec = "etudes cognitives"
@@ -4632,7 +4632,7 @@ let program
                           if y = ""
                              ||
                              (String.sub y 0 1 = "\"" &&
-                              String.trim (String.sub y 1 ((String.length y)-1)) = "")
+                              String.trim (String.sub y 1 ((String.length y)-1)) = "\"")
                           then
                             Remanent_state.add_missing_course_name_translation
                               state
