@@ -245,7 +245,9 @@ let get_student_file_gen
     state, output
 
 let copy
-    ~f_firstname ~f_lastname g student_id ?prefix ?output_repository ?output_file_name backup_rep state =
+  ?save
+  ~f_firstname ~f_lastname g student_id
+  ?prefix ?output_repository ?output_file_name backup_rep state =
   let firstname =
     f_firstname  student_id.Public_data.firstname
   in
@@ -307,6 +309,11 @@ let copy
     | _ ->
       Printf.sprintf "%s/%s"
         output_repository output_file_name
+  in
+  let input, output =
+    match save with
+    | None | Some false -> input, output
+    | Some true -> output, input
   in
   let state, b =
     Safe_sys.file_exists __POS__ state input
@@ -395,6 +402,54 @@ let try_get_student_file
   | None -> state, None
   | Some (output_repository,output_file_name)->
     check ~output_repository ~output_file_name state
+
+let try_get_student_file
+      mode student_id
+      ?file_retriever ?command_line_options ?machine ?port
+      ?input_repository ?output_repository ?prefix ?timeout
+      ?checkoutperiod
+      ?output_file_name ?log_file ?log_repository
+      ?user_name ?password
+      state =
+  let state, output =
+      try_get_student_file
+        mode student_id
+        ?file_retriever ?command_line_options ?machine ?port
+        ?input_repository ?output_repository ?prefix ?timeout
+        ?checkoutperiod
+        ?output_file_name ?log_file ?log_repository
+        ?user_name ?password
+        state
+  in
+  match mode.access_type, output with
+        | GPS _, Some _ ->
+          let backup_rep =
+            Remanent_state.get_repository_for_backup_gps_files
+          in
+          let f_firstname =
+            if mode.avec_accent_sur_le_prenom then
+              Special_char.uppercase
+            else
+              (fun x -> Special_char.uppercase (Special_char.correct_string x))
+          in
+          let f_lastname =
+            if mode.avec_accent_sur_le_nom then
+              Special_char.uppercase
+            else
+              (fun x -> Special_char.uppercase (Special_char.correct_string x))
+          in
+          let state,_ =
+            copy
+              ~save:true
+              ~f_firstname ~f_lastname
+              (fun (a,b) -> Profiling.Extract_gps_file_from_backup_files (a,b))
+              student_id ?prefix ?output_repository ?output_file_name
+              backup_rep state
+          in
+          state, output
+        | _, None | Backup, _ | Preempt, _ | Warn, _-> state, output
+
+
 
 let get_student_file
     student_id
