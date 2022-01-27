@@ -13,3 +13,5 @@ val add_scholarship:
 Public_data.scholarship ->
 t ->
 'state * t
+
+val list: t -> (string * string) list 

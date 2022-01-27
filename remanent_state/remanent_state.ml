@@ -733,6 +733,8 @@ let get_scholarships_list_prefix t =
 let get_scholarships_list_repository t =
   get_rep_gen get_bdd get_scholarships_list_prefix t
 
+
+
 let get_monitoring_list_prefix t =
     t, t.parameters.repository_for_tuteurs
 
@@ -1060,9 +1062,6 @@ let warn_and_log
       ?logger ?backgroundcolor ?textcolor  ?lineproportion t "%s" msg
   in
   warn pos msg exn t
-
-
-
 
 let log_to_string ?logger ?backgroundcolor ?textcolor ?lineproportion t x =
   let mode =
