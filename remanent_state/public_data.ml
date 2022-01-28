@@ -104,7 +104,9 @@ type scholarship =
     organism: string;
     holder_firstname: string;
     holder_lastname: string;
-    holder_promotion: string option
+    holder_promotion: string option;
+    funding_begin: annee option;
+    funding_end: annee option;
   }
 
 let empty_scholarship =
@@ -113,6 +115,8 @@ let empty_scholarship =
     holder_firstname="";
     holder_lastname="";
     holder_promotion=None;
+    funding_begin=None;
+    funding_end=None;
   }
 type course_name_translation =
   {
@@ -475,7 +479,9 @@ type keywords =
   | Accord
   | Acronyme
   | Annee_Academique
+  | Annee_Debut
   | Annee_en_Cours
+  | Annee_Fin 
   | Classement
   | Code
   | Code_gps

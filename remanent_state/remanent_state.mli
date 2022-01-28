@@ -214,7 +214,9 @@ val add_student:
 (** scholarships *)
 val get_scholarship:
   firstname:string ->
-  lastname:string -> t ->
+  lastname:string ->
+  current_year:string ->
+  t ->
   t * Public_data.scholarship option
 
 val add_scholarship:

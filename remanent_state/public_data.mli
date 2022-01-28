@@ -32,7 +32,9 @@ type scholarship =
     organism: string;
     holder_firstname: string;
     holder_lastname: string;
-    holder_promotion: string option
+    holder_promotion: string option;
+    funding_begin: annee option;
+    funding_end: annee option;
   }
 
 val empty_scholarship: scholarship
@@ -335,7 +337,9 @@ type keywords =
   | Accord
   | Acronyme
   | Annee_Academique
+  | Annee_Debut
   | Annee_en_Cours
+  | Annee_Fin
   | Classement
   | Code
   | Code_gps

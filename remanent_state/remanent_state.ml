@@ -1403,11 +1403,35 @@ let add_scholarship unify =
     set_scholarships
     (Scholarships.add_scholarship unify)
 
-let get_scholarship ~firstname ~lastname t =
-  let scholarship_opt =
+let get_scholarship ~firstname ~lastname ~current_year t =
+  let scholarship_list =
     Scholarships.get_scholarship ~firstname ~lastname t.data.scholarships
   in
-  t, scholarship_opt
+  let scholarship_list =
+    List.filter
+      (fun a ->
+         (match a.Public_data.funding_begin with
+         | None -> true
+         | Some a -> int_of_string a <= int_of_string current_year)
+         &&
+         (match a.Public_data.funding_end with
+          | None -> true
+          | Some a -> int_of_string current_year <= int_of_string a))
+      scholarship_list
+  in
+  match scholarship_list with
+  | [] -> t, None
+  | [a] -> t, Some a
+  | a::_ ->
+    let t =
+      warn
+        __POS__
+        (Format.sprintf "Several funding for %s %s in %s" firstname lastname current_year)
+        Exit
+        t
+    in
+    t, Some a
+
 
 let add_mentoring unify =
   add_gen

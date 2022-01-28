@@ -2975,9 +2975,9 @@ let special_course state cours =
   let state, g = count_for_maths state cours in
   state, (fun x -> g (f x))
 
-let get_bourse ~firstname ~lastname ~er state =
+let get_bourse ~firstname ~lastname ~er ~current_year state =
   match Remanent_state.get_scholarship
-          ~firstname ~lastname
+          ~firstname ~lastname ~current_year
           state
   with
   | state, None ->
@@ -2987,9 +2987,9 @@ let get_bourse ~firstname ~lastname ~er state =
     Format.sprintf " Boursi%s %s" er
       scholarship.Public_data.organism
 
-let get_bourse_en ~firstname ~lastname state =
+let get_bourse_en ~firstname ~lastname ~current_year state =
   match Remanent_state.get_scholarship
-          ~firstname ~lastname
+          ~firstname ~lastname ~current_year
           state
   with
   | state, None ->
@@ -3225,6 +3225,46 @@ let get_origine who promo gps_file state =
         in aux situation.diplomes state
     end
 
+let is_elligble_for_funding origine gps_file state =
+  match gps_file.statut with
+  | None
+  | Some (
+      Public_data.Ex_boursier_si
+    | Public_data.Boursier_si
+    | Public_data.Ex_eleve
+    | Public_data.Ex_eleve_bis
+    | Public_data.Eleve_bis
+    | Public_data.Eleve ) -> state, false
+  | Some (Public_data.Ex_etudiant
+         | Public_data.Etudiant) -> state, true
+  | Some
+      ( Public_data.Hors_GPS
+      | Public_data.Ex_hors_GPS)  ->
+    begin
+      match origine with
+      | None
+      | Some
+          (
+            Public_data.PensionnaireEtranger
+          | Public_data.EchErasm
+          | Public_data.M_MPRI
+          | Public_data.ED386
+          | Public_data.Info
+          | Public_data.Mpi
+          | Public_data.BCPST
+          | Public_data.Pc
+          | Public_data.Psi
+          | Public_data.AL
+          | Public_data.Sis) ->
+        state, false
+      | Some ( Public_data.Nes
+             | Public_data.DensMath
+             | Public_data.DensPhys
+             | Public_data.DensInfo
+             | Public_data.DensDEC)
+        -> state, true
+    end
+
 let heading
     ~who ~firstname ~lastname ~promo ~origine
     ~year ~situation ~tuteur ?tuteur_bis
@@ -3280,16 +3320,32 @@ let heading
     Remanent_state.print_newline state in
   let backgroundcolor = Some Color.blue in
   let lineproportion = Some (2./.3.) in
-  let state,statut,statut_en,bourse,bourse_en,concours,concours_en =
+  let current_year = year in
+  let state, bourse, bourse_en =
+    let state, b = is_elligble_for_funding origine gps_file state in
+    if b
+    then
+      let state, bourse =
+        get_bourse
+          ~firstname ~lastname ~er ~current_year state
+      in
+      let state, bourse_en =
+        get_bourse_en
+          ~firstname ~lastname ~current_year state
+      in
+      state, bourse, bourse_en
+    else state, "", ""
+  in
+  let state,statut,statut_en,concours,concours_en =
     match gps_file.statut with
-    | None -> state,"","","","","",""
+    | None -> state,"","","",""
     | Some
         (Public_data.Ex_boursier_si
         | Public_data.Boursier_si) ->
       state,
       Format.sprintf "\\'Etudiant%s SI" genre,
       "Student (Int. Sel.)",
-      "","","",""
+      "",""
     | Some
         (Public_data.Ex_eleve
         | Public_data.Ex_eleve_bis
@@ -3301,62 +3357,43 @@ let heading
       let state, concours_en =
         get_concours_en origine state
       in
-      state,"\\'El\\`eve","Student","","",
-      concours,concours_en
+      state,"\\'El\\`eve","Student",concours,concours_en
     | Some (Public_data.Ex_etudiant
            | Public_data.Etudiant )->
       begin
-        let state, bourse =
-          get_bourse
-            ~firstname ~lastname ~er state
-        in
-        let state, bourse_en =
-          get_bourse_en
-            ~firstname ~lastname state
-        in
+
         state,Format.sprintf "\\'Etudiant%s" genre,
-        "Student"
-          ,bourse,bourse_en,"",""
+        "Student","",""
       end
     | Some
         ( Public_data.Hors_GPS
         | Public_data.Ex_hors_GPS)  ->
       begin
         match origine with
-        | Some
-            Public_data.PensionnaireEtranger ->
-          state,"Pensionnaire \\'Etranger","Int. Exchange","","","",""
+        | Some Public_data.PensionnaireEtranger ->
+          state,"Pensionnaire \\'Etranger","Int. Exchange","",""
         | Some Public_data.EchErasm ->
-          state,"\\'Echange Erasmus","Erasmus student","","","",""
+          state,"\\'Echange Erasmus","Erasmus student","",""
         | Some Public_data.M_MPRI ->
           Remanent_state.warn
             __POS__
-            (Format.sprintf
-               "Illegal origin (M-MPRI) for %s" who)
+            (Format.sprintf "Illegal origin (M-MPRI) for %s" who)
             Exit
             state,
-          "M-MPRI","M-MPRI","","","",""
+          "M-MPRI","M-MPRI","",""
         | None
         | Some Public_data.ED386
-          -> state, "","", "","","",""
+          -> state, "","", "",""
         | Some ( Public_data.Nes
                | Public_data.DensMath
                | Public_data.DensPhys
                | Public_data.DensInfo
                | Public_data.DensDEC)
           ->
-          let state, bourse =
-            get_bourse
-              ~firstname ~lastname ~er state
-          in
-          let state, bourse_en =
-            get_bourse_en
-              ~firstname ~lastname state
-          in
-          state,
+            state,
           Format.sprintf
             "\\'Etudiant%s"
-            genre,"Student",bourse,bourse_en,"",""
+            genre,"Student","",""
         | Some Public_data.Info
         | Some Public_data.Mpi
         | Some Public_data.BCPST
@@ -3371,11 +3408,11 @@ let heading
             get_concours_en origine state
           in
           state,
-          "\\'El\\`eve","Student","","",
+          "\\'El\\`eve","Student",
           concours,concours_en
         | Some Public_data.Sis ->
           state,
-          Format.sprintf "\\'Etudiant%s SI" genre,"Student (Int. Sel)","","","",""
+          Format.sprintf "\\'Etudiant%s SI" genre,"Student (Int. Sel)","",""
       end
   in
   let () =

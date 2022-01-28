@@ -2,7 +2,7 @@ type t
 val empty: t
 val get_scholarship:
   firstname:string ->
-  lastname:string -> t -> Public_data.scholarship option
+  lastname:string -> t -> Public_data.scholarship list
 
 val add_scholarship:
 ((string * int * int * int) ->
@@ -13,5 +13,3 @@ val add_scholarship:
 Public_data.scholarship ->
 t ->
 'state * t
-
-val list: t -> (string * string) list 

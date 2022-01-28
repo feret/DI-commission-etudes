@@ -93,6 +93,8 @@ let asso_list =
     Public_data.Accord, ["accord"];
     Public_data.Acronyme, ["acronyme"];
     Public_data.Annee_Academique, ["année"; "année académique"];
+    Public_data.Annee_Debut, ["année début"];
+    Public_data.Annee_Fin, ["année fin"];
     Public_data.Annee_en_Cours, ["année en cours"];
     Public_data.Classement, ["classement";"rang"];
     Public_data.Code, ["code";"code cours"];
@@ -108,7 +110,7 @@ let asso_list =
     Public_data.Courriel_du_tuteur, ["courriel du tuteur";"email du tuteur"];
     Public_data.Credits, ["crédits"];
     Public_data.Date, ["date"];
-    Public_data.Date_en, ["date(english)";"date(anglais)";"date_en"];    
+    Public_data.Date_en, ["date(english)";"date(anglais)";"date_en"];
     Public_data.Date_de_Naissance, ["date de naissance";"naissance"];
     Public_data.Decision, ["décision"];
     Public_data.Decision_en, ["décision_en";"decision(english)";"decision(anglais)"];

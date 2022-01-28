@@ -5,6 +5,8 @@ type scholarship_id =
     firstname: string option;
     promotion: string option;
     organism: string option;
+    debut: string option;
+    fin: string option
   }
 
 
@@ -14,6 +16,8 @@ let empty_scholarship =
     firstname = None ;
     promotion = None ;
     organism = None ;
+    debut = None ;
+    fin = None ;
   }
 
 let fun_ignore =
@@ -79,33 +83,46 @@ let all_fields =
          {x with firstname})
      ~get_tmp:(fun a -> a.firstname)
      ~get:(fun a -> a.Public_data.holder_firstname)
-     ~set:(fun holder_firstname a ->
-         {a with Public_data.holder_firstname = holder_firstname})
+     ~set:(fun holder_firstname a -> {a with Public_data.holder_firstname = holder_firstname})
      ~field_name:"the first name of the student"
      ~record_name
      ~pos:__POS__;
    lift_string_opt
      ~keyword:Public_data.Promo
-     ~set_tmp:(fun state promotion x ->
-         state, {x with promotion})
+     ~set_tmp:(fun state promotion x -> state, {x with promotion})
      ~get_tmp:(fun a -> a.promotion)
      ~get:(fun a -> a.Public_data.holder_promotion)
-     ~set:(fun holder_promotion a ->
-         {a with Public_data.holder_promotion})
+     ~set:(fun holder_promotion a -> {a with Public_data.holder_promotion})
      ~field_name:"the promotion year of the student"
      ~record_name
      ~pos:__POS__;
    lift_string
      ~keyword:Public_data.Organisme_de_Financement
-     ~set_tmp:(fun state organism x ->
-      state, {x with organism})
+     ~set_tmp:(fun state organism x -> state, {x with organism})
      ~get_tmp:(fun a -> a.organism)
      ~get:(fun a -> a.Public_data.organism)
-     ~set:(fun organism a ->
-         {a with Public_data.organism})
+     ~set:(fun organism a -> {a with Public_data.organism})
      ~field_name:"Funding organism"
      ~record_name
-     ~pos:__POS__
+     ~pos:__POS__;
+   lift_string_opt
+     ~keyword:Public_data.Annee_Debut
+     ~set_tmp:(fun state debut x -> state, {x with debut})
+     ~get_tmp:(fun a -> a.debut)
+     ~get:(fun a -> a.Public_data.funding_begin)
+     ~set:(fun funding_begin a -> {a with Public_data.funding_begin})
+     ~field_name:"the starting year of the funding"
+     ~record_name
+     ~pos:__POS__;
+   lift_string_opt
+     ~keyword:Public_data.Annee_Fin
+     ~set_tmp:(fun state fin x -> state, {x with fin})
+     ~get_tmp:(fun a -> a.fin)
+     ~get:(fun a -> a.Public_data.funding_end)
+     ~set:(fun funding_end a -> {a with Public_data.funding_end})
+     ~field_name:"the ending year of the funding"
+     ~record_name
+     ~pos:__POS__;
   ]
 
 let compute_repository =
