@@ -380,6 +380,7 @@ let keywords_list =
     Public_data.Annee_Academique;
     Public_data.Niveau;
     Public_data.Inscription;
+    Public_data.Inscription_en;
     Public_data.Entete;
     Public_data.Entete_en;
     Public_data.Pied_de_page;
