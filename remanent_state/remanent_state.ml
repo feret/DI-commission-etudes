@@ -70,6 +70,7 @@ type parameters =
     repository_for_tuteurs: string;
     repository_for_cours: string;
     repository_for_course_translations: string;
+    repository_for_course_entry: string;
     repository_for_departements: string;
     repository_for_cursus: string;
     repository_for_diplomes: string;
@@ -92,6 +93,9 @@ type parameters =
     repository_to_dump_dens: string;
     repository_to_dump_mentors: string;
     repository_to_dump_missing_course_name_translation: string;
+    repository_to_dump_missing_course_entries: string;
+    repository_to_dump_course_entries_report: string;
+
     signature: string;
     log_mkdir: bool;
     bilinguage: bool;
@@ -140,11 +144,14 @@ let parameters =
     repository_to_dump_missing_ects_attributions = "ects_non_attribuees";
     repository_to_dump_missing_internship_descriptions = "stages_manquants";
     repository_to_dump_ambiguous_internship_descriptions = "stages_ambigus";
-    repository_to_dump_missing_course_name_translation = "cours_non_traduits";
+    repository_to_dump_missing_course_name_translation = "cours_non_traduits_par_code_gps";
+    repository_to_dump_missing_course_entries = "cours_non_traduits_par_libelle";
+    repository_to_dump_course_entries_report = "cours";
     repository_for_bourses = "bourses";
     repository_for_tuteurs = "tuteurs";
     repository_for_cours = "cours";
     repository_for_course_translations = "cours_en";
+    repository_for_course_entry = "cours_traduction";
     repository_for_departements = "departements";
     repository_for_cursus = "cursus";
     repository_for_diplomes = "diplomes";
@@ -232,8 +239,8 @@ type data =
     scholarships: Scholarships.t;
     mentoring: Mentoring.t;
     course_exceptions: Course_exceptions.t;
-    course_name_translations: Course_name_translation.t
-  ;
+    course_name_translations: Course_name_translation.t;
+    course_entries: Course_name_translation.tentry;
     dpts: Departments.t;
     programs: Programs.t;
     cursus: Cursus.t;
@@ -255,6 +262,8 @@ type data =
     missing_internship_descriptions: Public_data.missing_internship_description list;
     ambiguous_internship_descriptions: Public_data.missing_internship_description list;
     missing_course_name_translations: Public_data.course_name_translation list;
+    missing_course_entries:Public_data.course_entry list;
+    course_entries_report:Course_name_translation.tentry;
     mentors: Public_data.mentor list;
     national_diplomas: Public_data.diplome_national list;
     dens: Public_data.dens list;
@@ -267,6 +276,7 @@ let empty_data =
     mentoring = Mentoring.empty;
     course_exceptions = Course_exceptions.empty;
     course_name_translations = Course_name_translation.empty;
+    course_entries = Course_name_translation.empty_course_entry;
     dpts =  Departments.empty;
     cursus = Cursus.empty;
     programs = Programs.empty;
@@ -287,6 +297,8 @@ let empty_data =
     missing_internship_descriptions = [];
     ambiguous_internship_descriptions = [];
     missing_course_name_translations = [];
+    missing_course_entries = [];
+    course_entries_report = Course_name_translation.empty_course_entry;
     non_validated_internships = [];
     mentors = [];
     national_diplomas = [];
@@ -560,6 +572,13 @@ let get_repository_to_dump_missing_course_name_translations t =
     )
     t
 
+let get_repository_to_dump_missing_course_entries t =
+  get_repository_to_dump_missing_gen
+    (fun t ->
+       t.parameters.repository_to_dump_missing_course_entries
+    )
+    t
+
 let get_repository_to_dump_missing_mentors t =
   get_repository_to_dump_missing_gen
     (fun t ->
@@ -607,6 +626,13 @@ let get_repository_to_dump_mentors t =
     (fun t ->
        t.parameters.repository_to_dump_mentors)
     t
+
+let get_repository_to_dump_course_entries_report t =
+  get_repository_to_dump_reports_gen
+    (fun t ->
+       t.parameters.repository_to_dump_course_entries_report)
+    t
+
 
 let get_repository_to_dump_national_diplomas t =
   get_repository_to_dump_reports_gen
@@ -751,7 +777,13 @@ let get_course_name_translation_list_prefix t =
         t, t.parameters.repository_for_course_translations
 
 let get_course_name_translation_list_repository t =
-    get_rep_gen get_bdd get_course_name_translation_list_prefix t
+  get_rep_gen get_bdd get_course_name_translation_list_prefix t
+
+let get_course_entry_list_prefix t =
+          t, t.parameters.repository_for_course_entry
+
+let get_course_entry_list_repository t =
+  get_rep_gen get_bdd get_course_entry_list_prefix t
 
 let get_departments_list_prefix t =
        t, t.parameters.repository_for_departements
@@ -1215,7 +1247,13 @@ let get_course_name_translation data = data.course_name_translations
 let get_course_name_translation t = lift_get get_course_name_translation t
 let set_course_name_translation course_name_translations data = {data with course_name_translations}
 let set_course_name_translation course_name_translations t =
-      lift_set set_course_name_translation course_name_translations t
+  lift_set set_course_name_translation course_name_translations t
+
+let get_course_entries data = data.course_entries
+let get_course_entries t = lift_get get_course_entries t
+let set_course_entries course_entries data = {data with course_entries}
+let set_course_entries course_entries t =
+        lift_set set_course_entries course_entries t
 
 let get_cursus data = data.cursus
 let get_cursus t = lift_get get_cursus t
@@ -1308,6 +1346,19 @@ let set_missing_course_name_translations missing_course_name_translations data =
 let set_missing_course_name_translations missing_course_name_translations t =
   lift_set set_missing_course_name_translations missing_course_name_translations t
 
+let get_missing_course_entries data = data.missing_course_entries
+let get_missing_course_entries t = lift_get get_missing_course_entries t
+let set_missing_course_entries missing_course_entries data =
+  {data with missing_course_entries}
+let set_missing_course_entries missing_course_entries t =
+  lift_set set_missing_course_entries missing_course_entries t
+
+let get_course_entries_report data = data.course_entries_report
+let get_course_entries_report t = lift_get get_course_entries_report t
+let set_course_entries_report course_entries_report data =
+    {data with course_entries_report}
+let set_course_entries_report course_entries_report t =
+    lift_set set_course_entries_report course_entries_report t
 
 let get_non_validated_internships data =
   data.non_validated_internships
@@ -1479,13 +1530,45 @@ let add_course_name_translation unify =
       set_course_name_translation
       (Course_name_translation.add_course_name_translation unify)
 
-let get_course_name_translation ~codegps ~year t =
+let get_course_name_translation ~label ~codegps ~year t =
   let course_name_translation_opt =
       Course_name_translation.get_course_name_translation
         ~codegps ~year
         (get_course_name_translation t)
+  in
+  match course_name_translation_opt with
+  | Some a ->
+    t, (a.Public_data.name,a.Public_data.name_en)
+  | None ->
+    let course_entry_opt =
+      Course_name_translation.get_course_entry label (get_course_entries t)
     in
-    t, course_name_translation_opt
+    match course_entry_opt with
+    | None -> t, (None,None)
+    | Some a -> t, (a.Public_data.french_entry,a.Public_data.english_entry)
+
+let add_course_entry unify =
+  add_gen
+    get_course_entries
+    set_course_entries
+    (Course_name_translation.add_course_entry unify)
+
+let get_course_entry string  t =
+  let course_entry_opt =
+    Course_name_translation.get_course_entry string
+      (get_course_entries t)
+  in
+  t, course_entry_opt
+
+let add_course_entry_in_report unify =
+  add_gen
+    get_course_entries_report
+    set_course_entries_report
+    (Course_name_translation.add_course_entry unify)
+
+let get_course_entries_report t =
+  let map = get_course_entries_report t in
+  t,Course_name_translation.to_list map
 
 let add_cursus unify =
   add_gen
@@ -1832,6 +1915,8 @@ let add_ambiguous_internship_description, get_ambiguous_internship_descriptions 
     gen get_ambiguous_internship_descriptions set_ambiguous_internship_descriptions
 let add_missing_course_name_translation,get_missing_course_name_translations =
   gen get_missing_course_name_translations set_missing_course_name_translations
+let add_missing_course_entry,get_missing_course_entries =
+  gen get_missing_course_entries set_missing_course_entries
 
 let get_ENSPSL_logo t =
   let t, local = get_local_repository t in

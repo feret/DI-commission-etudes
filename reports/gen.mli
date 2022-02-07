@@ -70,7 +70,7 @@ val dump_elts:
   Remanent_state.t * (string * string) option
 
 val filter:
-  ?commission:bool -> 
+  ?commission:bool ->
   ?dpt:Public_data.main_dpt ->
   ?dpt_gps_code:string ->
   ?firstname:string ->
@@ -110,6 +110,8 @@ val filter_student_list:
   Public_data.student filter
 val filter_course_name_translation:
   Public_data.course_name_translation filter
+val filter_course_entry:
+  Public_data.course_entry filter
 
 module type Interface =
 sig

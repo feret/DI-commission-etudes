@@ -10,3 +10,11 @@ sig
 end
 
 module MissingCourseTranslations: ReportCourseTranslations
+
+module type ReportCourseEntries =
+sig
+  val dump: Gen.dump
+end
+
+module MissingCourseEntries: ReportCourseEntries 
+module CourseEntriesReport: ReportCourseEntries

@@ -135,6 +135,7 @@ let asso_list =
                            "entete(anglais)";"en-tete(anglais)";"en_tete(anglais)";
                            "entete(english)";"en-tete(english)";"en_tete(english)";
                           ];
+    Public_data.Entree_GPS,["entrée GPS"];
     Public_data.Etablissement,["établissement"];
     Public_data.Etablissement_ou_Entreprise,["établissement ou entreprise"];
     Public_data.FirstName, ["prénom";];
@@ -147,6 +148,7 @@ let asso_list =
     Public_data.Inscription_en, ["inscription_en";"registration";"inscription(anglais)";"inscription(english)"];
     Public_data.Inscrit_au_DENS_en, ["inscrit au DENS en"];
     Public_data.Intitule, ["intitulé"];
+    Public_data.Label, ["label";"libellé(anglais)";"libellé_en"];
     Public_data.LastName, ["nom"];
     Public_data.Lettre, ["lettre"];
     Public_data.Libelle, ["libellé"];

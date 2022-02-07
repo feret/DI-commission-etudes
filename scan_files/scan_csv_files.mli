@@ -56,3 +56,7 @@ val collect_gen :
   all_fields:('a,'b) Keywords_handler.any_field list ->
   ?event_opt:Sco_remanent_state.Profiling.step_kind ->
   Remanent_state.t -> Remanent_state.t
+
+val unify_gen: string * int * int * int ->
+           all_fields:('a, 'b) Keywords_handler.any_field list ->
+           Remanent_state.t -> 'b -> 'b -> Remanent_state.t * 'b

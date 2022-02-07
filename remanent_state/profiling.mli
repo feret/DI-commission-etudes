@@ -26,7 +26,10 @@ type step_kind =
   | Collect_cursus
   | Collect_course_exceptions
   | Collect_modified_grade
-  | Collect_course_name_translations 
+  | Collect_course_name_translations
+  | Collect_course_entries
+  | Dump_course_entries
+  | Dump_missing_course_translation
   | Dump_missing_grades
   | Dump_missing_ects_attributions
   | Dump_missing_mentors

@@ -156,6 +156,9 @@ val get_course_exceptions_list_repository: t -> t * string
 val get_course_name_translation_list_prefix: t -> t * string
 val get_course_name_translation_list_repository: t -> t * string
 
+val get_course_entry_list_prefix: t -> t * string
+val get_course_entry_list_repository: t -> t * string
+
 val get_departments_list_prefix: t -> t * string
 val get_departments_list_repository: t -> t * string
 
@@ -272,19 +275,43 @@ val add_course_exception:
   t -> t
 
 
-  val get_course_name_translation:
-    codegps:string ->
-    year:Public_data.annee ->
-    t ->
-    t * Public_data.course_name_translation option
+val get_course_name_translation:
+  label:string ->
+  codegps:string ->
+  year:Public_data.annee ->
+  t ->
+  t * (string option * string option)
 
-  val add_course_name_translation:
+val add_course_name_translation:
     (string * int * int * int ->
      t ->
      Public_data.course_name_translation ->
      Public_data.course_name_translation-> t * Public_data.course_name_translation) ->
     (string * int * int * int) ->
     Public_data.course_name_translation ->
+    t -> t
+
+  val get_course_entry:
+      string ->
+      t ->
+      t * Public_data.course_entry option
+
+val add_course_entry:
+  (string * int * int * int ->
+   t ->
+   Public_data.course_entry ->
+   Public_data.course_entry-> t * Public_data.course_entry) ->
+  (string * int * int * int) ->
+  Public_data.course_entry ->
+  t -> t
+
+val add_course_entry_in_report:
+  (string * int * int * int ->
+   t ->
+   Public_data.course_entry ->
+   Public_data.course_entry-> t * Public_data.course_entry) ->
+  (string * int * int * int) ->
+  Public_data.course_entry ->
     t -> t
 
 val add_dpt:
@@ -533,11 +560,26 @@ val add_missing_course_name_translation:
 val get_missing_course_name_translations:
   t -> t * Public_data.course_name_translation list
 
+val add_missing_course_entry:
+  t -> Public_data.course_entry -> t
+
+val get_missing_course_entries:
+  t -> t * Public_data.course_entry list
+
+val get_course_entries_report:
+  t -> t * Public_data.course_entry list
+
 val get_repository_to_dump_missing_ects_attributions:
   t -> t * string
 
 val get_repository_to_dump_missing_course_name_translations:
   t -> t * string
+
+val get_repository_to_dump_missing_course_entries:
+  t -> t * string
+
+val get_repository_to_dump_course_entries_report:
+    t -> t * string
 
 val add_missing_internship_description:
   t -> Public_data.missing_internship_description -> t

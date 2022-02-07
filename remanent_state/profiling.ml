@@ -27,6 +27,9 @@ type step_kind =
   | Collect_course_exceptions
   | Collect_modified_grade
   | Collect_course_name_translations
+  | Collect_course_entries
+  | Dump_course_entries
+  | Dump_missing_course_translation
   | Dump_missing_grades
   | Dump_missing_ects_attributions
   | Dump_missing_mentors
@@ -111,6 +114,7 @@ let string_of_step_kind x =
   | Collect_cursus -> "Collect notices about cursus"
   | Collect_course_exceptions -> "Collect course exceptions"
   | Collect_modified_grade -> "Collect modified grades"
+  | Collect_course_entries -> "Collect course entries"
   | Dump_missing_grades -> "Dump missing notes"
   | Dump_missing_ects_attributions-> "Dump missing ects attributions"
   | Dump_missing_mentors -> "Dump missing mentors"
@@ -120,6 +124,8 @@ let string_of_step_kind x =
   | Dump_national_diploma_list -> "Dump national diploma result"
   | Dump_dens_result -> "Dump DENS result"
   | Dump_student_list -> "Dump student list"
+  | Dump_course_entries -> "Dump course entries"
+  | Dump_missing_course_translation -> "Dump missing course translation"
 
 let print_step_kind logger x =
   Loggers.print_cell logger
@@ -209,7 +215,8 @@ let is_dummy step_kind =
   | Collect_cursus
   | Collect_course_exceptions
   | Collect_modified_grade
-  | Collect_course_name_translations 
+  | Collect_course_name_translations
+  | Collect_course_entries
   | Dump_missing_grades
   | Dump_missing_ects_attributions
   | Dump_missing_mentors
@@ -219,6 +226,8 @@ let is_dummy step_kind =
   | Dump_national_diploma_list
   | Dump_dens_result
   | Dump_student_list
+  | Dump_course_entries
+  | Dump_missing_course_translation
     -> false
 
 let open_event

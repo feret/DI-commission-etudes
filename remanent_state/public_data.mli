@@ -102,6 +102,14 @@ type course_name_translation =
     name_en: string option ;
   }
 
+type course_entry =
+  {
+    gps_entry: string ;
+    french_entry: string option;
+    english_entry: string option;
+  }
+
+val empty_course_entry: course_entry
 val empty_course_name_translation: course_name_translation
 
 type course_exception =
@@ -373,6 +381,7 @@ type keywords =
   | Effectif
   | Entete
   | Entete_en
+  | Entree_GPS
   | Enseignements
   | Etablissement
   | Etablissement_ou_Entreprise
@@ -386,6 +395,7 @@ type keywords =
   | Inscription_en
   | Inscrit_au_DENS_en
   | Intitule
+  | Label 
   | LastName
   | Lettre
   | Libelle

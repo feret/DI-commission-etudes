@@ -179,9 +179,32 @@ let dump_issues state =
       ~file_name:"traductions_de_noms_de_cours_manquantes.csv"
       state
   in
+  let state,_ =
+    Course_translations.MissingCourseEntries.dump
+      ~file_name:"entrees_de_cours_incompletes.csv"
+      state
+  in
+  let state,_ =
+    Course_translations.CourseEntriesReport.dump
+      ~file_name:"course_entries.csv"
+      state
+  in
   state
 
 let warn state =
+  let state =
+    let state, a = Remanent_state.get_missing_course_entries state in
+    let state, b = Remanent_state.get_missing_course_name_translations state in
+    match a,b
+    with
+    | [],[] -> state
+    | _ ->
+      Remanent_state.warn
+        __POS__
+        "Some course name translations are missing"
+        Exit
+        state
+  in
   let state =
     match Remanent_state.get_missing_ects_attributions state
     with

@@ -101,7 +101,8 @@ let dump_elts
       match output_repository with
       | None ->
         get_repository state
-      | Some rep -> state, rep
+      | Some rep ->
+          state, rep
     in
     let state, output_file_name =
       match file_name with
@@ -351,7 +352,7 @@ let filter_dens
 
   let filter_national_diploma
         ?commission ?dpt ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
-        ?niveau 
+        ?niveau
         ?recu state dens =
     let _ =
       dpt, dpt_gps_code, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription, attributionyear
@@ -398,6 +399,15 @@ let filter_course_name_translation
   check codegps course.Public_data.code
   &&
   check academicyear course.Public_data.year
+
+  let filter_course_entry
+      ?commission ?dpt ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
+      ?niveau
+      ?recu state course =
+    let _ =
+      commission, dpt, dpt_gps_code, niveau, recu, mentorname, mentorfirstname, mentorlastname, teachername, ninscription, attributionyear, promo, lastname, firstname, course, academicyear, codegps
+    in
+    state, true
 
 let filter
     ?commission

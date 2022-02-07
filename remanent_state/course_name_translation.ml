@@ -101,3 +101,39 @@ let add_course_name_translation
   state, course_name_translations
 
 let get_course_name_translation = get_course_name_translation ~strong:false
+
+type tentry =
+  Public_data.course_entry Public_data.StringMap.t
+
+let empty_course_entry = Public_data.StringMap.empty
+
+let get_course_entry gps_entry course_entries=
+  let gps_entry =
+    Special_char.lowercase gps_entry
+  in
+  Public_data.StringMap.find_opt
+    gps_entry
+    course_entries
+
+let add_course_entry
+    unify pos state
+    course_entry course_entries
+  =
+  let label = course_entry.Public_data.gps_entry in
+  let course_entry_opt' =
+    get_course_entry label course_entries
+  in
+  let state, course_entry =
+    match course_entry_opt' with
+    | None -> state, course_entry
+    | Some course_entry' ->
+      unify pos state course_entry course_entry'
+  in
+  state,
+  Public_data.StringMap.add label course_entry course_entries
+
+let to_list a =
+  List.rev
+    (Public_data.StringMap.fold
+       (fun _ elt list -> elt::list)
+       a [])

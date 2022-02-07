@@ -126,6 +126,20 @@ type course_name_translation =
     name_en: string option ;
   }
 
+type course_entry =
+  {
+    gps_entry:string;
+    french_entry:string option;
+    english_entry:string option;
+  }
+
+let empty_course_entry =
+  {
+    gps_entry = "";
+    french_entry = None;
+    english_entry = None;
+  }
+
 let empty_course_name_translation =
   {
     year = "" ;
@@ -481,7 +495,7 @@ type keywords =
   | Annee_Academique
   | Annee_Debut
   | Annee_en_Cours
-  | Annee_Fin 
+  | Annee_Fin
   | Classement
   | Code
   | Code_gps
@@ -515,6 +529,7 @@ type keywords =
   | Effectif
   | Entete
   | Entete_en
+  | Entree_GPS
   | Enseignements
   | Etablissement
   | Etablissement_ou_Entreprise
@@ -528,6 +543,7 @@ type keywords =
   | Inscription_en
   | Inscrit_au_DENS_en
   | Intitule
+  | Label
   | LastName
   | Lettre
   | Libelle
