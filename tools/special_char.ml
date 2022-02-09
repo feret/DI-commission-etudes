@@ -162,6 +162,9 @@ let special_char_url =
 let special_char_email_latex =
   [] (*['_',"\\_"]*)
 
+let special_char_csv =
+  ['"',"\"\""]
+
 let lowercase_char =
   [
     '\128', '\160';
@@ -310,6 +313,13 @@ let special_char_file_name_map =
     CharMap.empty
     special_char_file_name
 
+let special_char_csv_map =
+  List.fold_left
+    (fun map (x,y) ->
+       CharMap.add x y map)
+    CharMap.empty
+    special_char_csv
+
 let lowercase_char_map =
   List.fold_left
     (fun map (x,y) ->
@@ -433,6 +443,9 @@ let correct_string_txt s =
 
 let correct_string_filename s =
   correct_string_gen special_char_file_name_map s
+
+let correct_string_csv s =
+  correct_string_gen special_char_csv_map s
 
 let uppercase_char c =
   match

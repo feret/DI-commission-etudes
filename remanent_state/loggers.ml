@@ -164,7 +164,20 @@ let fprintf ?fprintnewline:(fprintnewline=false) logger =
        fprintf ~fprintnewline logger
          "%s" str)
     fmt_buffer
-  | TXT | CSV | XLS | Json ->
+  | CSV ->
+  let b = Buffer.create 0 in
+  let fmt_buffer = Format.formatter_of_buffer b in
+  Format.kfprintf
+    (fun _ ->
+       let () = Format.pp_print_flush fmt_buffer () in
+       let str = Buffer.contents b in
+       let str =
+         Special_char.correct_string_csv str
+       in
+       fprintf ~fprintnewline logger
+         "%s" str)
+    fmt_buffer
+  | TXT  | XLS | Json ->
     fprintf ~fprintnewline logger
 
 

@@ -6,7 +6,9 @@ val correct_string_email_latex: string -> string
 val correct_string_html: string -> string
 val correct_string_url: string -> string
 val correct_string_filename: string -> string
-val correct_string_utf8: string -> string 
+val correct_string_utf8: string -> string
+val correct_string_csv: string -> string
+
 val expand_string: string -> string list
 
 val lowercase: string -> string
