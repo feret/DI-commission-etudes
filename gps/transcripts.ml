@@ -1207,7 +1207,7 @@ let add_extra_course state cours_a_ajouter gps_file =
           | a -> a
         end;
       responsable = None ;
-      cours_libelle = Some (cours_a_ajouter.Public_data.coursaj_libelle);
+      cours_libelle = Some (String.trim (cours_a_ajouter.Public_data.coursaj_libelle));
       cours_etablissement = None ;
       duree = None ;
       ects = Some cours_a_ajouter.Public_data.coursaj_ects;
@@ -1843,7 +1843,12 @@ let asso_list =
              state l remanent
         in
         (lift_cours
-          (fun cours_libelle cours ->
+           (fun cours_libelle cours ->
+              let cours_libelle =
+                match cours_libelle with
+                | None -> None
+                | Some a -> Some (String.trim a)
+              in 
             {cours with cours_libelle}))
           state l remanent)
       ;

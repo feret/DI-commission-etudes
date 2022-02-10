@@ -1195,6 +1195,11 @@ type save_logger = Loggers.t option
 let save_std_logger t = t.std_logger
 let restore_std_logger t std_logger = {t with std_logger}
 
+let simplify s =
+  Special_char.lowercase
+    (Special_char.correct_string_txt
+       (String.trim s))
+
 
 let get_comma_symbol t =
   t,t.parameters.comma_symbol
@@ -1531,6 +1536,7 @@ let add_course_name_translation unify =
       (Course_name_translation.add_course_name_translation unify)
 
 let get_course_name_translation ~label ~codegps ~year t =
+  let label = simplify label in
   let course_name_translation_opt =
       Course_name_translation.get_course_name_translation
         ~codegps ~year
@@ -1565,6 +1571,13 @@ let add_course_entry_in_report unify =
     get_course_entries_report
     set_course_entries_report
     (Course_name_translation.add_course_entry unify)
+
+let add_course_entry_in_report unify course t =
+  let t =
+    {t with Public_data.gps_entry =
+              simplify t.Public_data.gps_entry}
+  in
+  add_course_entry_in_report unify course t
 
 let get_course_entries_report t =
   let map = get_course_entries_report t in
@@ -1926,11 +1939,6 @@ let get_ENSPSL_logo t =
     t, logo
   else
     t, Format.sprintf "%s/%s" local logo
-
-let simplify s =
-  Special_char.lowercase
-    (Special_char.correct_string_txt
-       (String.trim s))
 
 let get_promo ~firstname ~lastname t =
   let list = get_students t in
