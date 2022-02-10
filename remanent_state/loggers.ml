@@ -376,8 +376,8 @@ let print_cell logger s =
     with
     | HTML | HTML_encapsulated | HTML_Tabular ->
       "<TD>",s,"</TD>"
+    | CSV -> "{",s,"},"
     | Latex _ | Latex_encapsulated -> "{",s,"}"
-    | CSV  -> "\"",s,"\","
     | Json  | TXT | XLS -> "",s,""
   in
   let () = fprintf logger "%s" open_cell_symbol in

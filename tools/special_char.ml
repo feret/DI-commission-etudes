@@ -163,7 +163,9 @@ let special_char_email_latex =
   [] (*['_',"\\_"]*)
 
 let special_char_csv =
-  ['"',"\"\""]
+  ['"',"\"\"";
+   '{',"\"";
+   '}',"\""]
 
 let lowercase_char =
   [
