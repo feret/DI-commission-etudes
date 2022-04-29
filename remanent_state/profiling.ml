@@ -47,7 +47,6 @@ type step =
     tag: step_kind;
     time_start: float;
     duration: float option;
-    depth: int
   }
 
 let string_of_step_kind x =
@@ -249,7 +248,6 @@ let open_event
         tag = step_kind ;
         time_start = Sys.time () ;
         duration = None ;
-        depth = next_depth ;
       }
     in
     let _ = Loggers.open_row logger in

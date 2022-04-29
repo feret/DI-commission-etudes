@@ -14,6 +14,7 @@ val prepare_commission:
   commission_rep:string ->
   ?annee:string ->
   ?date_complete:string ->
+  ?universites:(Public_data.universite list) -> 
   ?signataires:(direction_key list) ->
   ?diplomes:(sous_commission_key list)  ->
   Remanent_state.t ->

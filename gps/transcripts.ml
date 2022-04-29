@@ -840,6 +840,8 @@ type remanent =
    precode: string option;
   }
 
+let _get a b c =
+  a.date_fin, b.jour, c.inscription_DENS
 
   let fetch_date pos state date =
     let list = String.split_on_char '/' date in
@@ -1848,7 +1850,7 @@ let asso_list =
                 match cours_libelle with
                 | None -> None
                 | Some a -> Some (String.trim a)
-              in 
+              in
             {cours with cours_libelle}))
           state l remanent)
       ;
@@ -6844,6 +6846,7 @@ let export_transcript
                           (match fst key with
                            | None -> ""
                            | Some a -> a);
+                        Public_data.diplome_univ_key = Public_data.Upartenaire ; 
                         Public_data.diplome_ranking = None ;
                         Public_data.diplome_effectif = None ;
                         Public_data.diplome_origine =

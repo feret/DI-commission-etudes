@@ -21,7 +21,7 @@ type student_id =
   }
 
 type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO | DRI | ARTS | LILA
-
+type universite =  | PSL | UPC | UPS | Upartenaire | UENS 
 val string_of_dpt: main_dpt -> string
 val dpt_of_string: string -> main_dpt
 
@@ -395,7 +395,7 @@ type keywords =
   | Inscription_en
   | Inscrit_au_DENS_en
   | Intitule
-  | Label 
+  | Label
   | LastName
   | Lettre
   | Libelle
@@ -480,6 +480,8 @@ type origin =
   | M_MPRI
   | ED386
 
+val univ_to_string: universite -> string
+
 type diplome_national =
   {
     diplome_firstname : string ;
@@ -492,6 +494,7 @@ type diplome_national =
     diplome_promotion : string ;
     diplome_niveau : string ;
     diplome_dpt : main_dpt ;
+    diplome_univ_key : universite ;
     diplome_moyenne : float option;
     diplome_nb_ects : float ;
     diplome_mention : string option;
@@ -525,6 +528,7 @@ type diplome_nat =
     dn_short: string;
     dn_long: string;
     dn_universite: string;
+    dn_univ_key: universite;
     dn_niveau: string;
     dn_departement:main_dpt;
   }

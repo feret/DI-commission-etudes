@@ -5,6 +5,7 @@ type dump =
   ?promo:string ->
   ?niveau:string ->
   ?dpt:Public_data.main_dpt ->
+  ?universite:Public_data.universite ->
   ?recu:bool ->
   ?academicyear:string ->
   ?headpage:(int -> ((Loggers.t -> (string -> unit, Format.formatter, unit) format -> string -> unit) *
@@ -49,6 +50,7 @@ struct
       ?promo
       ?niveau
       ?dpt
+      ?universite
       ?recu
       ?academicyear
       ?headpage ?footpage ?footcolor
@@ -64,7 +66,7 @@ struct
     let get_repository = I.get_repository in
     Gen.dump_elts
       ?commission
-      ?firstname ?lastname ?promo ?niveau ?dpt ?recu ?academicyear
+      ?firstname ?lastname ?promo ?niveau ?dpt ?universite ?recu ?academicyear
       ?headpage ?footpage ?footcolor
       ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name ?event_opt
@@ -151,6 +153,7 @@ struct
       ?promo
       ?niveau
       ?dpt
+      ?universite
       ?recu
       ?academicyear
       ?headpage ?footpage ?footcolor
@@ -171,7 +174,7 @@ struct
     in
     dump_national_diploma_list
       ?commission
-      ?firstname ?lastname ?promo ?niveau ?dpt ?recu ?academicyear
+      ?firstname ?lastname ?promo ?niveau ?dpt ?universite ?recu ?academicyear
       ?headpage ?footpage ?footcolor
       ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name cmp headers columns state
@@ -183,6 +186,7 @@ struct
       ?promo
       ?niveau
       ?dpt
+      ?universite
       ?recu
       ?academicyear
       ?headpage ?footpage ?footcolor
@@ -200,7 +204,8 @@ struct
       []
     in
     dump_national_diploma_list
-      ?commission ?firstname ?lastname ?promo ?niveau ?dpt ?recu ?academicyear
+      ?commission ?firstname ?lastname ?promo ?niveau ?dpt ?universite
+      ?recu ?academicyear
       ?headpage ?footpage ?footcolor
       ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name cmp headers columns state
@@ -212,6 +217,7 @@ struct
       ?promo
       ?niveau
       ?dpt
+      ?universite
       ?recu
       ?academicyear
       ?headpage ?footpage ?footcolor
@@ -241,7 +247,8 @@ struct
     in
     dump_national_diploma_list
       ?commission
-      ?firstname ?lastname ?promo ?niveau ?dpt ?recu ?academicyear
+      ?firstname ?lastname ?promo ?niveau ?dpt ?universite 
+      ?recu ?academicyear
       ?headpage ?footpage ?footcolor
       ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name cmp headers columns state

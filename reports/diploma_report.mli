@@ -5,6 +5,7 @@ type dump =
   ?promo:string ->
   ?niveau:string ->
   ?dpt:Public_data.main_dpt ->
+  ?universite:Public_data.universite ->
   ?recu:bool ->
   ?academicyear:string ->
   ?headpage:(int -> ((Loggers.t ->

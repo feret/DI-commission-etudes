@@ -108,7 +108,7 @@ let state =
 let state =
   Collect_course_name_translation.get_course_name_translations state
 let state =
-  Collect_course_entries.get_course_entries state 
+  Collect_course_entries.get_course_entries state
 let state, output =
   Cloud_interaction.get_dated_repository state
 let state, output_repository =
@@ -322,8 +322,6 @@ let years =
        | Some promo ->
          StringSet.add promo set)
     StringSet.empty students_list
-let state, academicyear =
-  Remanent_state.get_current_academic_year state
 let title =
   [Loggers.fprintf,
    Format.sprintf
@@ -350,7 +348,6 @@ let state =
 let title =
   [Loggers.fprintf,
    "HISTORIQUE DES TUTEURS"]
-let correct_email = fun x -> x
 let state =
     Mentor_report.ReportListMentors.dump
       ~dpt:main_dpt

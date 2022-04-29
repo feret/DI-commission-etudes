@@ -628,7 +628,16 @@ type origin =
   | M_MPRI
   | ED386
 
+type universite =
+  | PSL | UPC | UPS | Upartenaire | UENS
 
+let univ_to_string x =
+  match x with
+  | UENS -> ""
+  | PSL -> "_PSL"
+  | UPC -> "_UPC"
+  | UPS -> "_UPS"
+  | Upartenaire -> ""
 type diplome_national =
   {
     diplome_firstname : string ;
@@ -641,6 +650,7 @@ type diplome_national =
     diplome_promotion : string ;
     diplome_niveau : string ;
     diplome_dpt : main_dpt ;
+    diplome_univ_key : universite ;
     diplome_moyenne : float option;
     diplome_nb_ects : float ;
     diplome_mention : string option;
@@ -713,6 +723,7 @@ type diplome_nat =
     dn_short: string;
     dn_long: string;
     dn_universite: string;
+    dn_univ_key: universite;
     dn_niveau: string;
     dn_departement:main_dpt;
   }

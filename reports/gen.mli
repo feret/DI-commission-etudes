@@ -10,6 +10,7 @@ type 'elt filter
 val dump_elts:
   ?commission:bool ->
   ?dpt:Public_data.main_dpt ->
+  ?universite:Public_data.universite ->
   ?dpt_gps_code: string ->
   ?firstname:string ->
   ?lastname:string ->
@@ -72,6 +73,7 @@ val dump_elts:
 val filter:
   ?commission:bool ->
   ?dpt:Public_data.main_dpt ->
+  ?universite:Public_data.universite -> 
   ?dpt_gps_code:string ->
   ?firstname:string ->
   ?lastname:string ->

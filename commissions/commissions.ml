@@ -28,6 +28,7 @@ let l =
       Public_data.dn_short="L3";
       Public_data.dn_long="Licence L3 d'informatique";
       Public_data.dn_universite="À l'université Paris 7 - Denis Diderot";
+      Public_data.dn_univ_key=Public_data.UPC;
       Public_data.dn_niveau="l";
       Public_data.dn_departement=Public_data.DI;
     }
@@ -40,10 +41,11 @@ let m =
       Public_data.dn_long="Master M1 d'informatique";
       Public_data.dn_universite="dans une université partenaire";
       Public_data.dn_niveau="m";
+      Public_data.dn_univ_key=Public_data.Upartenaire;
       Public_data.dn_departement=Public_data.DI;
     }
 
-let l_dma =
+let _l_dma =
   Public_data.Diplome_National
     {
       Public_data.dn_key="l";
@@ -51,19 +53,94 @@ let l_dma =
       Public_data.dn_long="Licence L3 de mathématiques";
       Public_data.dn_universite="dans une université partenaire";
       Public_data.dn_niveau="l";
+      Public_data.dn_univ_key=Public_data.Upartenaire;
       Public_data.dn_departement=Public_data.DMA;
     }
 
-let m_dma =
+let _m_dma =
   Public_data.Diplome_National
     {
       Public_data.dn_key="m";
       Public_data.dn_short="M1";
       Public_data.dn_long="Master M1 de mathématiques";
       Public_data.dn_universite="dans une université partenaires";
-      Public_data.dn_niveau="m";
+      Public_data.dn_niveau="m";        Public_data.dn_univ_key=Public_data.Upartenaire;
       Public_data.dn_departement=Public_data.DMA;
     }
+
+
+let l_upc_dma =
+  Public_data.Diplome_National
+    {
+      Public_data.dn_key="l";
+      Public_data.dn_short="L3";
+      Public_data.dn_univ_key = Public_data.UPC;
+      Public_data.dn_long="Licence L3 de mathématiques";
+      Public_data.dn_universite="à l'Université Paris Cité";
+      Public_data.dn_niveau="l";
+      Public_data.dn_departement=Public_data.DMA;
+    }
+
+let m_upc_dma =
+  Public_data.Diplome_National
+    {
+      Public_data.dn_key="m";
+      Public_data.dn_short="M1";
+      Public_data.dn_long="Master M1 de mathématiques";
+      Public_data.dn_universite="à l'Université Paris Cité";
+      Public_data.dn_niveau="m";
+      Public_data.dn_univ_key = Public_data.UPC;
+      Public_data.dn_departement=Public_data.DMA;
+    }
+
+let l_ups_dma =
+  Public_data.Diplome_National
+    {
+      Public_data.dn_key="l";
+      Public_data.dn_short="L3";
+      Public_data.dn_univ_key = Public_data.UPS;
+      Public_data.dn_long="Licence L3 de mathématiques";
+      Public_data.dn_universite="à l'Université Paris-Saclay";
+      Public_data.dn_niveau="l";
+      Public_data.dn_departement=Public_data.DMA;
+    }
+
+let m_ups_dma =
+  Public_data.Diplome_National
+    {
+      Public_data.dn_key="m";
+      Public_data.dn_short="M1";
+      Public_data.dn_long="Master M1 de mathématiques";
+      Public_data.dn_universite="à l'Université Paris-Saclay";
+      Public_data.dn_niveau="m";
+      Public_data.dn_univ_key = Public_data.UPC;
+      Public_data.dn_departement=Public_data.DMA;
+    }
+
+let l_psl_dma =
+  Public_data.Diplome_National
+    {
+      Public_data.dn_key="l";
+      Public_data.dn_short="L3";
+      Public_data.dn_univ_key = Public_data.PSL;
+      Public_data.dn_long="Licence L3 de mathématiques";
+      Public_data.dn_universite="à l'Université Paris Sciences et Lettres ";
+      Public_data.dn_niveau="l";
+      Public_data.dn_departement=Public_data.DMA;
+    }
+
+let m_psl_dma =
+  Public_data.Diplome_National
+    {
+      Public_data.dn_key="m";
+      Public_data.dn_short="M1";
+      Public_data.dn_long="Master M1 de mathématiques";
+      Public_data.dn_universite="à l'Université Paris Sciences et Lettres";
+      Public_data.dn_niveau="m";
+      Public_data.dn_univ_key = Public_data.PSL;
+      Public_data.dn_departement=Public_data.DMA;
+    }
+
 
 type todo =
   | TODO_Nat of Diploma_report.dump * string
@@ -163,7 +240,7 @@ let diplomes_dma =
             elt.Public_data.dn_key)
          elt map)
     Public_data.StringMap.empty
-    [l_dma;m_dma;dens]
+    [l_upc_dma;l_ups_dma;l_psl_dma;m_upc_dma;m_ups_dma;m_psl_dma;dens]
 
 
 let diplomes_ibens =
@@ -225,6 +302,7 @@ let print_sous_commission
     ?commission_date
     direction_key
     sous_commission_key
+    universite_key
     todo
     state
   =
@@ -317,8 +395,8 @@ let print_sous_commission
       let footpage =
         [Loggers.fprintf, footpage_string]
       in
-      match todo, sous_commission with
-      | TODO_DENS (f,lbl), Public_data.Diplome_ENS dip ->
+      match todo, sous_commission, universite_key with
+      | TODO_DENS (f,lbl), Public_data.Diplome_ENS dip, Public_data.UENS ->
         let state,_ =
           f
             ~file_name:(Format.sprintf
@@ -463,7 +541,8 @@ let print_sous_commission
           state
         in
         state
-      | TODO_Nat (f,lbl), Public_data.Diplome_National dip ->
+
+      | TODO_Nat (f,lbl), Public_data.Diplome_National dip, univ ->
         let headpage = headpage dip.Public_data.dn_long in
         let academicyear=commission_year in
         let state,_ =
@@ -473,6 +552,7 @@ let print_sous_commission
             ?academicyear
             ~niveau:dip.Public_data.dn_niveau
             ~commission:true
+            ~universite:univ
             ~dpt:dip.Public_data.dn_departement
             state
         in
@@ -496,13 +576,15 @@ let print_sous_commission
         in
         let state,input =
           f
-            ~file_name:(Format.sprintf "PV_%s%s_sans_signature_%s.tex"
-                          dip.Public_data.dn_short lbl direction.Public_data.direction_initiales)
+            ~file_name:(Format.sprintf "PV_%s%s_sans_signature_%s%s.tex"
+                          dip.Public_data.dn_short lbl direction.Public_data.direction_initiales
+                          (Public_data.univ_to_string dip.Public_data.dn_univ_key))
             ?academicyear
             ~niveau:dip.Public_data.dn_niveau ~dpt:dip.Public_data.dn_departement
             ~headpage:headpage
             ~preamble:preamble
             ~commission:true
+            ~universite:univ
             ~footpage ~footcolor
             state
         in
@@ -543,11 +625,13 @@ let print_sous_commission
           in
           let state,input =
             f
-              ~file_name:(Format.sprintf "PV_%s%s_signe_%s.tex"
-                            dip.Public_data.dn_short lbl direction.Public_data.direction_initiales)
+              ~file_name:(Format.sprintf "PV_%s%s_signe_%s%s.tex"
+                            dip.Public_data.dn_short lbl direction.Public_data.direction_initiales
+                            (Public_data.univ_to_string dip.Public_data.dn_univ_key))
               ?academicyear
               ~niveau:dip.Public_data.dn_niveau ~dpt:dip.Public_data.dn_departement
               ~commission:true
+              ~universite:univ
               ~headpage
               ~preamble
               ~footpage ~footcolor ~signature
@@ -567,8 +651,9 @@ let print_sous_commission
           in
           state
         in state
-        | TODO_Nat _, Public_data.Diplome_ENS _
-        | TODO_DENS _, Public_data.Diplome_National _
+      | TODO_DENS _, Public_data.Diplome_ENS _, (Public_data.UPC | Public_data.PSL | Public_data.UPS | Public_data.Upartenaire) -> state
+      | TODO_Nat _, Public_data.Diplome_ENS _, _
+      | TODO_DENS _, Public_data.Diplome_National _, _
           -> state
     end
 
@@ -576,6 +661,7 @@ let prepare_commission
     ~commission_rep
     ?annee
     ?date_complete
+    ?universites:(universites=[Public_data.UPC;Public_data.UPS;Public_data.PSL;Public_data.Upartenaire;Public_data.UENS])
     ?signataires:(persons=["MP";"JF";"LB"])
     ?diplomes:(sous_commissions=["dens";"l";"m"])
     state =
@@ -586,15 +672,19 @@ let prepare_commission
        List.fold_left
          (fun state sous_commission ->
             List.fold_left
-              (fun state todo ->
-                 print_sous_commission
-                   commission_rep
-                   ?commission_year
-                   ?commission_date
-                   direction
-                   sous_commission
-                   todo
-                   state
-              ) state todo)
+              (fun state universite ->
+                 List.fold_left
+                   (fun state todo ->
+                      print_sous_commission
+                        commission_rep
+                        ?commission_year
+                        ?commission_date
+                        direction
+                        sous_commission
+                        universite
+                        todo
+                        state
+                   ) state todo)
+              state universites)
          state sous_commissions)
     state persons
