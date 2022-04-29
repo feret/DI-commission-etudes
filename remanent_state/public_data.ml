@@ -593,6 +593,7 @@ type valide =
 
 type note =
   | Float of float
+  | Temporary of float 
   | Absent
   | En_cours
   | Abandon

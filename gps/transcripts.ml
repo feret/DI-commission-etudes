@@ -1094,9 +1094,24 @@ let store_cours  =
              state
          | Some Public_data.Bool true, None ->
            state, (Some Public_data.Valide_sans_note)
-         | Some v , Some n ->
+         | v , Some n ->
            begin
-             let state, note_opt = Notes.of_string __POS__ state n in
+             let state =
+               match v with
+               | Some _ -> state
+               | None ->
+                 let msg =
+                   Format.sprintf
+                     "Undefined validity status for note %s for %s"
+                     n who
+                 in
+                 Remanent_state.warn
+                   pos
+                   msg
+                   Exit
+                   state
+                   in
+             let state, note_opt = Notes.of_string __POS__ state n v in
              match note_opt with
              | None ->
                let msg =
@@ -1110,7 +1125,11 @@ let store_cours  =
                  note_opt
                  state
              | Some note ->
-               if Notes.valide note = Valide.valide v
+               if
+                 (match v with
+                 | Some v ->
+                   Notes.valide note = Valide.valide v
+                 | None -> true)
                then
                  state, note_opt
                else
@@ -1145,10 +1164,12 @@ let store_cours  =
                            note
                        in
                        let state, v_string =
-                         Valide.to_string
-                           __POS__
-                           state
-                           v
+                         match v with None -> state, "undefined"
+                                    | Some v ->
+                                      Valide.to_string
+                                        __POS__
+                                        state
+                                        v
                        in
                        let msg =
                          Format.sprintf
@@ -1163,21 +1184,6 @@ let store_cours  =
                          state
 
            end
-           end
-         | None , Some n ->
-           begin
-             let state, note_opt = Notes.of_string __POS__ state n in
-             let msg =
-               Format.sprintf
-                 "Undefined validity status for note %s for %s"
-                 n who
-             in
-             Remanent_state.warn_dft
-                 pos
-                 msg
-                 Exit
-                 note_opt
-                 state
            end
          | None, None ->
            state, Some Public_data.En_cours
@@ -4330,6 +4336,7 @@ let program
              | Some Public_data.En_cours
              | Some Public_data.Absent
              | Some Public_data.Abandon
+             | Some Public_data.Temporary _
              | None ->
                state
              | Some Public_data.Float _
@@ -4387,11 +4394,12 @@ let program
          | None -> state
          | Some note ->
            match
-             Notes.valide note, cours.contrat, cours.accord
+             Notes.valide note,
+             Notes.temporary note, cours.contrat, cours.accord
            with
-           | (Some false | None), _, _
-           | _, Some true, _ | _, _, Some true -> state
-           | _, (Some false | None), (Some false | None) ->
+           | (Some false | None), (Some false | None), _, _
+           | _, _, Some true, _ | _, _, _, Some true -> state
+           | _, _, (Some false | None), (Some false | None) ->
              Remanent_state.add_non_accepted_grade
                state
                {
@@ -4753,6 +4761,7 @@ let program
                     | Some Public_data.En_cours
                     | Some Public_data.Absent
                     | Some Public_data.Abandon
+                    | Some Public_data.Temporary _
                     | None ->
                       begin
                         match stage.stage_valide with
@@ -6699,7 +6708,7 @@ let export_transcript
                            state, total, ects_qui_comptent,
                            ects+.cours_ects
                          | (None, _)
-                         | (Some (Public_data.Abandon | Public_data.En_cours | Public_data.Absent),_) ->
+                         | (Some (Public_data.Temporary _ | Public_data.Abandon | Public_data.En_cours | Public_data.Absent),_) ->
                            (Remanent_state.warn
                               __POS__
                               "Incompatible grade"
@@ -6846,7 +6855,7 @@ let export_transcript
                           (match fst key with
                            | None -> ""
                            | Some a -> a);
-                        Public_data.diplome_univ_key = Public_data.Upartenaire ; 
+                        Public_data.diplome_univ_key = Public_data.Upartenaire ;
                         Public_data.diplome_ranking = None ;
                         Public_data.diplome_effectif = None ;
                         Public_data.diplome_origine =

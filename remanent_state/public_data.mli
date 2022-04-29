@@ -21,7 +21,7 @@ type student_id =
   }
 
 type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO | DRI | ARTS | LILA
-type universite =  | PSL | UPC | UPS | Upartenaire | UENS 
+type universite =  | PSL | UPC | UPS | Upartenaire | UENS
 val string_of_dpt: main_dpt -> string
 val dpt_of_string: string -> main_dpt
 
@@ -445,6 +445,7 @@ type valide =
 
 type note =
   | Float of float
+  | Temporary of float 
   | Absent
   | En_cours
   | Abandon

@@ -117,6 +117,12 @@ let to_string _pos ?force_dec_sep_to_dot state t =
   match t with
   | Public_data.Float f ->
     float_to_string ?force_dec_sep_to_dot state f
+  | Public_data.Temporary f ->
+    let state, f = float_to_string ?force_dec_sep_to_dot state f in
+    Remanent_state.bilingual_string
+      ~french:(Format.sprintf "%s (partiel)" f)
+      ~english:(Format.sprintf "%s (partial)" f)
+      state
   | Public_data.Absent -> state, "abs"
   | Public_data.En_cours ->
     Remanent_state.bilingual_string
@@ -134,7 +140,7 @@ let to_string _pos ?force_dec_sep_to_dot state t =
       ~english:valide_sans_note_en
       state
 
-let of_string pos state s =
+let of_string pos state s v =
   if Tools.space_only s then
     state, Some Public_data.En_cours
   else
@@ -162,7 +168,9 @@ let of_string pos state s =
             Exit
             None
             state
-        | state, Some f -> state, Some (Public_data.Float f)
+        | state, Some f -> state, Some (
+            match v with Some _ -> Public_data.Float f
+                       | None -> Public_data.Temporary f)
       end
 
 let valide f =
@@ -170,15 +178,26 @@ let valide f =
   | Public_data.Float f -> Some (f >= 10.)
   | Public_data.Valide_sans_note
     -> Some true
+  | Public_data.Temporary _
   | Public_data.Abandon
   | Public_data.Absent -> Some false
   | Public_data.En_cours -> None
+
+let temporary f =
+  match f with
+  | Public_data.Temporary _ -> Some true
+  | Public_data.Float _
+  | Public_data.Valide_sans_note
+  | Public_data.Abandon
+  | Public_data.Absent
+  | Public_data.En_cours -> Some false
 
 let a_compter f =
   match valide f,f with
   | None,_ -> None
   | Some true, Public_data.Float f -> Some (f>=10.)
   | Some true, (Public_data.Valide_sans_note
+               | Public_data.Temporary _
                | Public_data.Abandon
                | Public_data.En_cours
                | Public_data.Absent)
@@ -186,7 +205,7 @@ let a_compter f =
     -> Some false
 
 let en_cours f =
-  match f with Public_data.En_cours -> true
+  match f with (Public_data.En_cours | Public_data.Temporary _) -> true
              | Public_data.Float _
              | Public_data.Abandon
              | Public_data.Absent
@@ -198,6 +217,7 @@ let compensable f =
   | Some false , Public_data.Float f -> f < 10.
   | Some false, (Public_data.Valide_sans_note
                 | Public_data.Abandon
+                | Public_data.Temporary _
                 | Public_data.En_cours
                 | Public_data.Absent) -> false
 
@@ -212,6 +232,10 @@ let compare a b =
   | Public_data.Valide_sans_note, Public_data.Valide_sans_note -> 0
   | _, Public_data.Valide_sans_note -> 1
   | Public_data.Valide_sans_note,_ -> -1
+  | Public_data.Temporary a,
+    Public_data.Temporary b -> compare a b
+  | _, Public_data.Temporary _ -> 1
+  | Public_data.Temporary _, _ -> (-1)
   | Public_data.En_cours, Public_data.En_cours -> 0
   | _, Public_data.En_cours -> 1
   | Public_data.En_cours,_ -> (-1)
