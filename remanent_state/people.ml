@@ -36,6 +36,17 @@ let am =
 
   }
 
+let dc =
+  {
+    Public_data.direction_initiales = "DC";
+    Public_data.direction_nom_complet = "Djalil Chafaï";
+    Public_data.direction_genre = Public_data.Masculin ;
+    Public_data.direction_signature = None ;
+    Public_data.direction_titre = "Directeur de la formation";
+    Public_data.direction_departement = "de mathématiques";
+
+  }
+
 let lb =
   {
     Public_data.direction_initiales = "LB";
@@ -58,8 +69,9 @@ let lb =
     Public_data.direction_departement = "de mathématiques";
   }
 
+let _ = am 
 let di_list = [jf;mp;lb]
-let dma_list = [am;mpe]
+let dma_list = [dc;mpe]
 let phys_list = []
 let ibens_list = []
 let eco_list = []

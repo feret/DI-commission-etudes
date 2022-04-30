@@ -5,7 +5,7 @@ val direction_etude:
 
 val diplomes:
   Public_data.sous_commission
-    Public_data.StringMap.t
+    Public_data.StringUnivMap.t
 
 type direction_key = string
 type sous_commission_key = string
@@ -14,7 +14,7 @@ val prepare_commission:
   commission_rep:string ->
   ?annee:string ->
   ?date_complete:string ->
-  ?universites:(Public_data.universite list) -> 
+  ?universites:(Public_data.universite list) ->
   ?signataires:(direction_key list) ->
   ?diplomes:(sous_commission_key list)  ->
   Remanent_state.t ->

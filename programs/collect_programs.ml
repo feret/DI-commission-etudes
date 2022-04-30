@@ -345,6 +345,8 @@ type cursus_id  =
     cursus_dpt_acronym: Public_data.main_dpt option;
     cursus_annee: string option;
     cursus_niveau: string option;
+    cursus_universite: Public_data.universite option;
+    cursus_gps: string option;
     headpage: string option;
     headpage_en: string option;
     footpage: string option;
@@ -358,6 +360,8 @@ let empty_cursus =
     cursus_dpt_acronym = None;
     cursus_annee = None;
     cursus_niveau = None;
+    cursus_universite = None;
+    cursus_gps = None;
     headpage = None;
     headpage_en = None;
     footpage = None;
@@ -372,6 +376,8 @@ let lift_string_opt =
   (Lift.string empty_cursus Public_data.empty_cursus).Lift.opt_safe
 let lift_dpt_opt =
   (Lift.main_dpt empty_cursus Public_data.empty_cursus).Lift.opt_safe
+let lift_universite_opt =
+  (Lift.universite empty_cursus Public_data.empty_cursus).Lift.opt_safe
 
 let keywords_list =
   [
@@ -379,6 +385,8 @@ let keywords_list =
     Public_data.Departement ;
     Public_data.Annee_Academique;
     Public_data.Niveau;
+    Public_data.Universite;
+    Public_data.Code_gps;
     Public_data.Inscription;
     Public_data.Inscription_en;
     Public_data.Entete;
@@ -405,7 +413,9 @@ let mandatory_fields =
     lift_pred (fun a -> a.cursus_annee)
       "Year of academic cursus is missing";
     lift_pred_opt (fun a -> a.cursus_dpt_acronym)
-      "Dpt of academic cursus is missing"
+      "Dpt of academic cursus is missing";
+    lift_pred_opt (fun a -> a.cursus_universite)
+      "University of academic cursus is missing";
   ]
 
 let all_fields =
@@ -441,6 +451,20 @@ let all_fields =
       ~field_name:"acronym of the department"
       ~record_name
       ~pos:__POS__;
+    lift_universite_opt
+        ~keyword:Public_data.Universite
+        ~set_tmp:(fun state univ x ->
+            state,
+            let cursus_universite = Tools.map_opt Public_data.univ_of_string univ
+            in
+            {x with cursus_universite})
+        ~get_tmp:(fun a -> a.cursus_universite)
+        ~get:(fun a -> a.Public_data.cursus_univ)
+        ~set:(fun cursus_univ a ->
+                 {a with Public_data.cursus_univ})
+        ~field_name:"university"
+        ~record_name
+        ~pos:__POS__;
     lift_string
       ~keyword:Public_data.Annee_Academique
       ~set_tmp:(fun state cursus_annee x ->
@@ -458,6 +482,18 @@ let all_fields =
       ~field_name:"year of the cursus"
       ~record_name
       ~pos:__POS__;
+    lift_string_opt
+      ~keyword:Public_data.Code_gps
+      ~set_tmp:(fun state cursus_gps x ->
+            state,
+            {x with cursus_gps})
+      ~get_tmp:(fun a -> a.cursus_gps)
+      ~get:(fun a -> a.Public_data.cursus_gps)
+        ~set:(fun cursus_gps a ->
+            {a with Public_data.cursus_gps})
+        ~field_name:"gps code of the cursus"
+        ~record_name
+        ~pos:__POS__;
     lift_string_opt
         ~keyword:Public_data.Inscription
         ~set_tmp:(fun state inscription x ->

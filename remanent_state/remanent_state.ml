@@ -215,7 +215,7 @@ let set_dma parameters =
   {
     parameters with
     main_dpt = Public_data.DMA ;
-    commission = None (*Some ("23 juin 2021",  "2020")*);
+    commission = Some ("23 juin 2022",  "2021");
     local_repository = "dma/suivi_pedagogique" ;
     scholarships_repository = "dma/scolarite/ELEVES" ;
     repartition = Public_data.Annee_obtention_du_diplome ;
@@ -1590,28 +1590,39 @@ let add_cursus unify =
     set_cursus
     (Cursus.add_cursus unify)
 
-let get_cursus ~year ~level ?dpt pos t =
-  let cursus_opt =
-    Cursus.get_cursus
-       ~year ~level ?dpt (get_cursus t)
+let get_cursus ~year ~level ?dpt ~gpscodelist pos t =
+  let rec aux l =
+    match l with
+    | [] -> None
+    | gpscode::tail ->
+      match
+        Cursus.get_cursus ~year ~level ?dpt ~gpscode (get_cursus t)
+      with
+      | None -> aux tail
+      | x -> x
   in
+  let cursus_opt = aux gpscodelist in
   match cursus_opt with
-  | Some a ->
-    t, Some a
+  | Some a -> t, Some a
   | None ->
-    let msg =
-      Format.sprintf
-        "Pas de cursus pour %s%s en %s dans les fichiers du dÃ©partement"
-        level
-        (match dpt with
-         | None -> "" | Some i -> Format.sprintf " %s" (Public_data.string_of_dpt i))
-        year
-    in
-    warn
-      pos
-      msg
-      Exit
-      t, None
+    match Cursus.get_cursus ~year ~level ?dpt (get_cursus t)
+    with
+    | Some a -> t, Some a
+    | None ->
+      let msg =
+        Format.sprintf
+          "Pas de cursus pour %s%s en %s dans les fichiers du département"
+          level
+          (match dpt with
+           | None -> "" | Some i -> Format.sprintf " %s"
+                                      (Public_data.string_of_dpt i))
+          year
+      in
+      warn
+        pos
+        msg
+        Exit
+        t, None
 
 
 let add_dpt unify =
@@ -1872,21 +1883,29 @@ let list_all_cursus t =
          Public_data.DptOptMap.iter
            (fun dpt_opt ->
               Public_data.YearMap.iter
-                (fun year cursus ->
-                   Format.printf
-                     "%s %s %s -> %s %s %s @ "
-                     level
-                     (match dpt_opt with
-                      | None -> "None"
-                      | Some x -> Public_data.string_of_dpt x)
-                     year
-                     cursus.Public_data.cursus_niveau
-                     (match cursus.Public_data.cursus_dpt with
-                      | None -> "None"
-                      | Some a -> (Public_data.string_of_dpt a)
-                     )
-                     cursus.Public_data.cursus_annee_academique
-              )))
+                (fun year ->
+                    Public_data.CodeOptMap.iter
+                      (fun codeopt cursus ->
+                        Format.printf
+                          "%s %s %s %s -> %s %s %s %s @ "
+                          level
+                          (match dpt_opt with
+                          | None -> "None"
+                          | Some x -> Public_data.string_of_dpt x)
+                          year
+                          (match codeopt with
+                          | None -> ""
+                          | Some a -> Format.sprintf "(%s)" a)
+                          cursus.Public_data.cursus_niveau
+                          (match cursus.Public_data.cursus_dpt with
+                          | None -> "None"
+                          | Some a -> (Public_data.string_of_dpt a)
+                          )
+                          cursus.Public_data.cursus_annee_academique
+                          (match cursus.Public_data.cursus_gps with
+                          | None -> ""
+                          | Some a -> Format.sprintf "(%s)" a)
+              ))))
       t.data.cursus
   in
   Format.print_flush ()
@@ -2109,7 +2128,7 @@ let file_retriever_fail t =
   else
     t
 
-let get_commission_rep_from_key ?commission_rep sous_commission_short t =
+let get_commission_rep_from_key ?commission_rep ?univ sous_commission_short t =
   let t, commission_rep =
     match commission_rep with
     | None -> get_main_commission_rep t
@@ -2123,6 +2142,11 @@ let get_commission_rep_from_key ?commission_rep sous_commission_short t =
     | "",a | a,"" -> a
     | a,b -> Printf.sprintf "%s/%s" a b
   in
+  let sous_commission_short =
+    match univ with
+    | None -> sous_commission_short
+    | Some a -> sous_commission_short^(Public_data.file_suffix_of_univ a)
+  in 
   t,
   match commission_rep,sous_commission_short with
     | "",a -> Printf.sprintf "attestations/%s" a,
@@ -2135,7 +2159,7 @@ let get_commission_rep_from_key ?commission_rep sous_commission_short t =
               Printf.sprintf "%s/comptes-rendus/%s" a b,
               Printf.sprintf "%s/transcripts/%s" a b
 
-let get_commission_rep ?commission_rep ~sous_commission t =
+let get_commission_rep ?commission_rep ~sous_commission ?univ t =
   let sous_commission_short =
     match
       sous_commission
@@ -2143,7 +2167,7 @@ let get_commission_rep ?commission_rep ~sous_commission t =
     | Public_data.Diplome_ENS dip -> dip.Public_data.dens_short
     | Public_data.Diplome_National dip -> dip.Public_data.dn_short
   in
-  get_commission_rep_from_key ?commission_rep sous_commission_short t
+  get_commission_rep_from_key ?commission_rep ?univ sous_commission_short t
 
 let push_copy ~input_rep ~output_rep ~file_name t =
   {t with copy_stack = (input_rep,file_name,output_rep)::t.copy_stack}

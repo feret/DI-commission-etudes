@@ -362,7 +362,7 @@ let state, dpt, signataires =
     Remanent_state.get_main_dpt state
   with
   | state, Public_data.DI -> state, Public_data.DI, ["JF";"MP";"LB"]
-  | state, Public_data.DMA -> state, Public_data.DMA, ["AM"]
+  | state, Public_data.DMA -> state, Public_data.DMA, ["DC"]
   | state, Public_data.ARTS -> state, Public_data.ARTS, []
   | state, Public_data.ENS -> state, Public_data.ENS, []
   | state, Public_data.PHYS -> state, Public_data.PHYS, []
@@ -464,9 +464,6 @@ let state = Report.dump_issues state
 let state = Report.warn state
 let state =
   Cloud_interaction.make_current_repository state
-(*let state =
-  Cloud_interaction.synchronize_shared_repository
-    state*)
 let state =
     Remanent_state.print_errors "" state
 let state =

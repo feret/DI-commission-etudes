@@ -197,6 +197,7 @@ let asso_list =
     Public_data.Statut, ["statut"];
     Public_data.Tuteur, ["tuteur"];
     Public_data.Type_de_Financement,["type de financement"];
+    Public_data.Universite,["université";"university"];
     Public_data.Valide, ["validé"];
     Public_data.Ignore, ["ignore"];
 ]

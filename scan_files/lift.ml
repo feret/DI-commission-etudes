@@ -237,6 +237,7 @@ let lift_ffloat1, lift_ffloat2 = build_lift string_of_float
 let lift_fgender1, lift_fgender2 = build_lift string_of_gender
 let lift_fcolor1, lift_fcolor2 = build_lift Color.to_string
 let lift_fdpt1, lift_fdpt2 = build_lift Public_data.string_of_dpt
+let lift_funiv1, lift_funiv2 = build_lift Public_data.string_of_universite
 
 let gen_short
     lift_arg lift_arg_pair
@@ -336,3 +337,4 @@ let float a b = build lift_ffloat1 lift_ffloat2 a b
 let gender a b = build lift_fgender1 lift_fgender2 a b
 let color a b = build lift_fcolor1 lift_fcolor2 a b
 let main_dpt a b = build lift_fdpt1 lift_fdpt2 a b
+let universite a b = build lift_funiv1 lift_funiv2 a b

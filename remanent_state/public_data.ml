@@ -18,6 +18,7 @@ module StringMap =
     end
     )
 
+
 module StringOptMap =
   Map_tools.MakeSimplified
     (
@@ -43,6 +44,28 @@ module StringOptMap =
 
 
 type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO | DRI | ARTS | LILA
+type universite =
+  | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud
+
+module StringUnivMap =
+  Map_tools.MakeSimplified
+    (
+    struct
+      module Ord   =
+        (
+        struct
+          type t = string * universite
+          let compare = compare
+
+        end
+        )
+
+      let simplify (s,univ) =
+        Special_char.lowercase
+          (Special_char.correct_string_txt
+             (String.trim s)), univ
+    end
+    )
 
 let string_of_dpt x =
   match x with
@@ -69,6 +92,47 @@ let dpt_of_string x =
   | "relations internationales" -> DRI
   | "litteratures et language" -> LILA
   | _ -> DI
+
+let file_suffix_of_univ x =
+    match x with
+    | UENS -> ""
+    | PSL -> "_PSL"
+    | UPC -> "_UPC"
+    | UP -> "_UP"
+    | UPS -> "_UPS"
+    | SU -> "_SU"
+    | UPSud -> "_P11"
+    | UPantheonSorbonne -> "_P1"
+    | UDiderot -> "_P7"
+    | Upartenaire -> ""
+
+let string_of_universite x =
+    match x with
+      | UENS -> "ENS"
+      | PSL -> "PSL"
+      | UPC -> "UPC"
+      | UP -> "UP"
+      | UPS -> "UPS"
+      | SU -> "SU"
+      | UPSud -> "P11"
+      | UPantheonSorbonne -> "P1"
+      | UDiderot -> "P7"
+      | Upartenaire -> ""
+
+let univ_of_string x =
+  let x = Special_char.lowercase (Special_char.correct_string_txt (Special_char.correct_string_utf8 (String.trim x))) in
+  match x with
+  | "psl" -> PSL
+  | "ens" -> UENS
+  | "upc" -> UPC
+  | "ups" -> UPS
+  | "up" -> UP
+  | "su" -> SU
+  | "upsud" | "p11" -> UPSud
+  | "u-pantheon-sorbonne" | "p1"-> UPantheonSorbonne
+  | "p7" | "diderot" -> UDiderot
+  | _ -> Upartenaire
+
 
 type cloud_client = NextCloudCmd
 type pdf_generator = PdfLatex
@@ -241,6 +305,8 @@ type cursus =
     cursus_annee_academique: annee ;
     cursus_niveau: string;
     cursus_dpt: main_dpt option;
+    cursus_univ: universite option;
+    cursus_gps: string option;
     inscription: string option;
     inscription_en: string option;
     entete: string option;
@@ -254,6 +320,8 @@ let empty_cursus =
     cursus_annee_academique = "";
     cursus_niveau = "";
     cursus_dpt = None;
+    cursus_gps = None;
+    cursus_univ = None;
     inscription = None;
     inscription_en = None;
     entete = None;
@@ -584,6 +652,7 @@ type keywords =
   | Statut
   | Tuteur
   | Type_de_Financement
+  | Universite
   | Valide
   | Ignore
 
@@ -593,7 +662,7 @@ type valide =
 
 type note =
   | Float of float
-  | Temporary of float 
+  | Temporary of float
   | Absent
   | En_cours
   | Abandon
@@ -629,16 +698,6 @@ type origin =
   | M_MPRI
   | ED386
 
-type universite =
-  | PSL | UPC | UPS | Upartenaire | UENS
-
-let univ_to_string x =
-  match x with
-  | UENS -> ""
-  | PSL -> "_PSL"
-  | UPC -> "_UPC"
-  | UPS -> "_UPS"
-  | Upartenaire -> ""
 type diplome_national =
   {
     diplome_firstname : string ;
@@ -652,6 +711,7 @@ type diplome_national =
     diplome_niveau : string ;
     diplome_dpt : main_dpt ;
     diplome_univ_key : universite ;
+    diplome_cursus : cursus ;
     diplome_moyenne : float option;
     diplome_nb_ects : float ;
     diplome_mention : string option;
@@ -681,6 +741,12 @@ Map.Make
     let compare = compare
   end)
 module CodeMap = StringMap
+module CodeOptMap =
+Map.Make
+  (struct
+    type t = string option
+    let compare = compare
+  end)
 module PromoMap = StringMap
 module FinanceurMap = StringMap
 module FirstNameMap = StringMap

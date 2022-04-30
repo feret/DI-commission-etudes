@@ -437,7 +437,7 @@ let filter
          p
            ?commission
            ?dpt
-           ?universite 
+           ?universite
            ?dpt_gps_code
            ?firstname
            ?lastname

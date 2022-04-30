@@ -178,19 +178,19 @@ let valide f =
   | Public_data.Float f -> Some (f >= 10.)
   | Public_data.Valide_sans_note
     -> Some true
-  | Public_data.Temporary _
   | Public_data.Abandon
   | Public_data.Absent -> Some false
+  | Public_data.Temporary _
   | Public_data.En_cours -> None
 
 let temporary f =
   match f with
-  | Public_data.Temporary _ -> Some true
+  | Public_data.Temporary _
+  | Public_data.En_cours -> Some true
   | Public_data.Float _
   | Public_data.Valide_sans_note
   | Public_data.Abandon
-  | Public_data.Absent
-  | Public_data.En_cours -> Some false
+  | Public_data.Absent -> Some false
 
 let a_compter f =
   match valide f,f with
@@ -210,6 +210,7 @@ let en_cours f =
              | Public_data.Abandon
              | Public_data.Absent
              | Public_data.Valide_sans_note -> false
+
 
 let compensable f =
   match valide f,f with

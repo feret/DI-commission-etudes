@@ -247,7 +247,7 @@ struct
     in
     dump_national_diploma_list
       ?commission
-      ?firstname ?lastname ?promo ?niveau ?dpt ?universite 
+      ?firstname ?lastname ?promo ?niveau ?dpt ?universite
       ?recu ?academicyear
       ?headpage ?footpage ?footcolor
       ?title ?preamble ?signature
@@ -360,6 +360,7 @@ let dump_attestation
     Safe_sys.rec_mk_when_necessary
   in
   let dpt = diplome.Public_data.diplome_dpt in
+  let univ = diplome.Public_data.diplome_univ_key in
   let promotion =
     Some (diplome.Public_data.diplome_promotion)
   in
@@ -394,7 +395,7 @@ let dump_attestation
       ~firstname
       ~lastname
       ~promotion
-      ~extension:(Format.sprintf ".attestation.%s.%s%s.tex"
+      ~extension:(Format.sprintf ".attestation.%s.%s.%s%s.tex"
                     begin
                       match
                         level
@@ -402,7 +403,9 @@ let dump_attestation
                       | "l" -> "L3"
                       | "m" -> "M1"
                       | x -> x
-                    end y signataire)
+                    end
+                    (Public_data.file_suffix_of_univ univ)
+                    y signataire)
       ?prefix
       ?output_repository
       ?output_file_name
@@ -553,45 +556,19 @@ let dump_attestation
       in
       let year = diplome.Public_data.diplome_year in
       let level = diplome.Public_data.diplome_niveau in
-      let state, cursus_opt =
-        Remanent_state.get_cursus
-          __POS__
-          ~level
-          ?dpt:(match level, dpt with
-              | "dens",_
-              | _,Public_data.DRI
-              | _,Public_data.ENS -> None
-              | _,( Public_data.LILA
-                  | Public_data.ARTS |
-                   Public_data.DI | Public_data.ECO |
-                   Public_data.DMA | Public_data.IBENS | Public_data.PHYS) ->
-                Some dpt)
-          ~year
-          state
-      in
       let state, libelle =
-        match cursus_opt with
+        match
+          diplome.Public_data.diplome_cursus.Public_data.inscription
+        with
         | None ->
           Remanent_state.warn
             __POS__
             (Format.sprintf
-               "unknown cursus %s %s"
+               "The field inscritpion of cursus %s %s is missing"
                level (Public_data.string_of_dpt dpt))
             Exit
             state, ""
-        | Some cursus ->
-          match
-            cursus.Public_data.inscription
-          with
-          | None ->
-            Remanent_state.warn
-              __POS__
-              (Format.sprintf
-                 "The field inscritpion of cursus %s %s is missing"
-                 level (Public_data.string_of_dpt dpt))
-              Exit
-              state, ""
-          | Some a -> state, a
+        | Some a -> state, a
       in
       let f x =
         Format.sprintf
@@ -654,7 +631,6 @@ let dump_attestations
               | "m" -> "M1"
               | x -> x)
              state
-
          with
          | state, (attestation_rep,_ , _) ->
            match Remanent_state.get_commission state with

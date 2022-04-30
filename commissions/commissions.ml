@@ -45,7 +45,7 @@ let m =
       Public_data.dn_departement=Public_data.DI;
     }
 
-let _l_dma =
+let l_dma =
   Public_data.Diplome_National
     {
       Public_data.dn_key="l";
@@ -57,7 +57,7 @@ let _l_dma =
       Public_data.dn_departement=Public_data.DMA;
     }
 
-let _m_dma =
+let m_dma =
   Public_data.Diplome_National
     {
       Public_data.dn_key="m";
@@ -114,6 +114,30 @@ let m_ups_dma =
       Public_data.dn_universite="à l'Université Paris-Saclay";
       Public_data.dn_niveau="m";
       Public_data.dn_univ_key = Public_data.UPC;
+      Public_data.dn_departement=Public_data.DMA;
+    }
+
+let l_su_dma =
+  Public_data.Diplome_National
+    {
+      Public_data.dn_key="l";
+      Public_data.dn_short="L3";
+      Public_data.dn_univ_key = Public_data.SU;
+      Public_data.dn_long="Licence L3 de mathématiques";
+      Public_data.dn_universite="à Sorbonne université";
+      Public_data.dn_niveau="l";
+      Public_data.dn_departement=Public_data.DMA;
+    }
+
+let m_su_dma =
+  Public_data.Diplome_National
+    {
+      Public_data.dn_key="m";
+      Public_data.dn_short="M1";
+      Public_data.dn_long="Master M1 de mathématiques";
+      Public_data.dn_universite="à Sorbonne université";
+      Public_data.dn_niveau="m";
+      Public_data.dn_univ_key = Public_data.SU;
       Public_data.dn_departement=Public_data.DMA;
     }
 
@@ -219,81 +243,82 @@ let direction_etude_lila =
 let diplomes =
   List.fold_left
     (fun map elt ->
-       Public_data.StringMap.add
+       Public_data.StringUnivMap.add
          (match elt with
           | Public_data.Diplome_ENS elt ->
-            elt.Public_data.dens_key
+            elt.Public_data.dens_key,Public_data.UENS
           | Public_data.Diplome_National elt ->
-              elt.Public_data.dn_key)
-          elt map)
-    Public_data.StringMap.empty
+            elt.Public_data.dn_key,
+             elt.Public_data.dn_univ_key)
+         elt map)
+    Public_data.StringUnivMap.empty
     [l;m;dens]
 
 let diplomes_dma =
   List.fold_left
     (fun map elt ->
-       Public_data.StringMap.add
+       Public_data.StringUnivMap.add
          (match elt with
           | Public_data.Diplome_ENS elt ->
-            elt.Public_data.dens_key
+            elt.Public_data.dens_key, Public_data.UENS
           | Public_data.Diplome_National elt ->
-            elt.Public_data.dn_key)
+            elt.Public_data.dn_key,elt.Public_data.dn_univ_key)
          elt map)
-    Public_data.StringMap.empty
-    [l_upc_dma;l_ups_dma;l_psl_dma;m_upc_dma;m_ups_dma;m_psl_dma;dens]
+    Public_data.StringUnivMap.empty
+    [l_dma;l_su_dma;l_upc_dma;l_ups_dma;l_psl_dma;m_dma;m_su_dma;m_upc_dma;m_ups_dma;m_psl_dma;dens]
 
 
 let diplomes_ibens =
   List.fold_left
     (fun map elt ->
-       Public_data.StringMap.add
+       Public_data.StringUnivMap.add
          (match elt with
           | Public_data.Diplome_ENS elt ->
-            elt.Public_data.dens_key
+            elt.Public_data.dens_key, Public_data.UENS
           | Public_data.Diplome_National elt ->
-            elt.Public_data.dn_key)
+            elt.Public_data.dn_key,elt.Public_data.dn_univ_key)
          elt map)
-    Public_data.StringMap.empty
+    Public_data.StringUnivMap.empty
     [dens]
 
 let diplomes_phys =
   List.fold_left
     (fun map elt ->
-       Public_data.StringMap.add
+       Public_data.StringUnivMap.add
          (match elt with
           | Public_data.Diplome_ENS elt ->
-            elt.Public_data.dens_key
+            elt.Public_data.dens_key, Public_data.UENS
           | Public_data.Diplome_National elt ->
-            elt.Public_data.dn_key)
+            elt.Public_data.dn_key,elt.Public_data.dn_univ_key)
          elt map)
-    Public_data.StringMap.empty
+    Public_data.StringUnivMap.empty
     [dens]
 
 let diplomes_eco =
   List.fold_left
     (fun map elt ->
-       Public_data.StringMap.add
+       Public_data.StringUnivMap.add
          (match elt with
           | Public_data.Diplome_ENS elt ->
-            elt.Public_data.dens_key
+            elt.Public_data.dens_key,Public_data.UENS
           | Public_data.Diplome_National elt ->
-            elt.Public_data.dn_key)
+            elt.Public_data.dn_key,elt.Public_data.dn_univ_key)
          elt map)
-    Public_data.StringMap.empty
+    Public_data.StringUnivMap.empty
     [dens]
 
 
 let diplomes_lila =
   List.fold_left
     (fun map elt ->
-       Public_data.StringMap.add
+       Public_data.StringUnivMap.add
          (match elt with
           | Public_data.Diplome_ENS elt ->
-            elt.Public_data.dens_key
+            elt.Public_data.dens_key,Public_data.UENS
           | Public_data.Diplome_National elt ->
-            elt.Public_data.dn_key)
+            elt.Public_data.dn_key,elt.Public_data.dn_univ_key)
          elt map)
-    Public_data.StringMap.empty
+    Public_data.StringUnivMap.empty
     [dens]
 
 let print_sous_commission
@@ -316,11 +341,11 @@ let print_sous_commission
     | Public_data.DMA ->
       People.dpt_dma,direction_etude_dma,diplomes_dma,People.footpage_string_dma,Color.duckblue
     | Public_data.DRI ->
-      People.dpt_dri,direction_etude_dri,Public_data.StringMap.empty ,People.footpage_string_dri,Color.orange
+      People.dpt_dri,direction_etude_dri,Public_data.StringUnivMap.empty ,People.footpage_string_dri,Color.orange
     | Public_data.ARTS ->
-      People.dpt_arts,direction_etude_arts,Public_data.StringMap.empty,People.footpage_string_arts,Color.brown
+      People.dpt_arts,direction_etude_arts,Public_data.StringUnivMap.empty,People.footpage_string_arts,Color.brown
     | Public_data.ENS ->
-      People.dpt_di,Public_data.StringMap.empty,Public_data.StringMap.empty,"",Color.digreen
+      People.dpt_di,Public_data.StringMap.empty,Public_data.StringUnivMap.empty,"",Color.digreen
     | Public_data.IBENS ->
       People.dpt_ibens, direction_etude_ibens,diplomes_ibens,People.footpage_string_ibens,Color.green
     | Public_data.PHYS ->
@@ -352,14 +377,14 @@ let print_sous_commission
   in
   match
     Public_data.StringMap.find_opt direction_key direction_etude,
-    Public_data.StringMap.find_opt sous_commission_key diplomes
+    Public_data.StringUnivMap.find_opt (sous_commission_key,universite_key) diplomes
   with
   | None, None ->
   Remanent_state.warn
     __POS__
     (Format.sprintf
-       "Cannot find direction_key (%s), not diploma key (%s)"
-       direction_key sous_commission_key)
+       "Can find neither the direction_key (%s), nor the diploma key (%s,%s)"
+       direction_key sous_commission_key (Public_data.string_of_universite universite_key))
     Exit
     state
   | None,_ ->
@@ -373,8 +398,8 @@ let print_sous_commission
     Remanent_state.warn
       __POS__
       (Format.sprintf
-         "Cannot find diploma key (%s)"
-         sous_commission_key)
+         "Cannot find diploma key (%s,%s)"
+         sous_commission_key (Public_data.string_of_universite universite_key))
       Exit state
   | Some direction, Some sous_commission ->
     begin
@@ -548,7 +573,7 @@ let print_sous_commission
         let state,_ =
           f
             ~file_name:(Format.sprintf
-                          "PV_%s%s.html" dip.Public_data.dn_short lbl)
+                          "PV_%s%s%s.html" dip.Public_data.dn_short lbl (Public_data.file_suffix_of_univ univ))
             ?academicyear
             ~niveau:dip.Public_data.dn_niveau
             ~commission:true
@@ -578,7 +603,7 @@ let print_sous_commission
           f
             ~file_name:(Format.sprintf "PV_%s%s_sans_signature_%s%s.tex"
                           dip.Public_data.dn_short lbl direction.Public_data.direction_initiales
-                          (Public_data.univ_to_string dip.Public_data.dn_univ_key))
+                          (Public_data.file_suffix_of_univ dip.Public_data.dn_univ_key))
             ?academicyear
             ~niveau:dip.Public_data.dn_niveau ~dpt:dip.Public_data.dn_departement
             ~headpage:headpage
@@ -587,6 +612,19 @@ let print_sous_commission
             ~universite:univ
             ~footpage ~footcolor
             state
+        in
+        let state =
+          match direction.Public_data.direction_signature with
+          | None ->
+            begin
+              match input with
+              | None -> state
+              | Some (input_rep,file_name) ->
+                let file_name = Copy.pdf_file file_name in
+                Remanent_state.push_copy
+                  ~input_rep ~output_rep ~file_name state
+            end
+          | Some _ -> state
         in
         let state =
           Latex_engine.latex_opt_to_pdf
@@ -627,7 +665,7 @@ let print_sous_commission
             f
               ~file_name:(Format.sprintf "PV_%s%s_signe_%s%s.tex"
                             dip.Public_data.dn_short lbl direction.Public_data.direction_initiales
-                            (Public_data.univ_to_string dip.Public_data.dn_univ_key))
+                            (Public_data.file_suffix_of_univ dip.Public_data.dn_univ_key))
               ?academicyear
               ~niveau:dip.Public_data.dn_niveau ~dpt:dip.Public_data.dn_departement
               ~commission:true
@@ -651,7 +689,16 @@ let print_sous_commission
           in
           state
         in state
-      | TODO_DENS _, Public_data.Diplome_ENS _, (Public_data.UPC | Public_data.PSL | Public_data.UPS | Public_data.Upartenaire) -> state
+      | TODO_DENS _, Public_data.Diplome_ENS _, (Public_data.UPC | Public_data.PSL | Public_data.UP | Public_data.SU | Public_data.UPSud | Public_data.UPantheonSorbonne | Public_data.UPS | Public_data.Upartenaire | Public_data.UDiderot) ->
+        let state =
+          Remanent_state.warn
+            __POS__
+            (Format.sprintf "WRONG DENS: %s"
+               (Public_data.string_of_universite universite_key))
+            Exit
+            state
+        in
+        state
       | TODO_Nat _, Public_data.Diplome_ENS _, _
       | TODO_DENS _, Public_data.Diplome_National _, _
           -> state

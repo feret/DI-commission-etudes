@@ -1,12 +1,13 @@
 type t =
   Public_data.cursus
+    Public_data.CodeOptMap.t
     Public_data.YearMap.t
     Public_data.DptOptMap.t
     Public_data.LevelMap.t
 
 let empty = Public_data.LevelMap.empty
 
-let get_cursus ~strong ~level ?dpt ~year cursus =
+let get_cursus ~strong ~level ?dpt ?gpscode ~year cursus =
   let level =
     Special_char.lowercase level
   in
@@ -28,25 +29,38 @@ let get_cursus ~strong ~level ?dpt ~year cursus =
     in
     if strong
     then
-      Public_data.YearMap.find_opt
-        year yearmap
+      let codemap =
+        match
+          Public_data.YearMap.find_opt
+          year yearmap
+        with
+        | None -> Public_data.CodeOptMap.empty
+        | Some a -> a
+      in
+      Public_data.CodeOptMap.find_opt
+          gpscode
+          codemap
     else
       Public_data.YearMap.fold
         (fun year' cursus output ->
            if compare year' year <= 0
-           then Some cursus
+           then
+              match Public_data.CodeOptMap.find_opt gpscode cursus
+              with
+              | Some cursus -> Some cursus
+              | None -> output
            else output)
         yearmap None
 
-let get_cursus ~strong ~strong_dpt  ~level ?dpt ~year cursus =
+let get_cursus ~strong ~strong_dpt  ~level ?dpt ?gpscode ~year cursus =
   match
-    get_cursus ~strong ~level ?dpt ~year cursus, dpt
+    get_cursus ~strong ~level ?dpt ?gpscode ~year cursus, dpt
   with
   | None, Some _ ->
     if strong_dpt then
       None
     else
-      get_cursus ~strong ~level ~year cursus
+      get_cursus ~strong ~level ~year ?gpscode cursus
   | x, _ -> x
 
 let add_cursus
@@ -55,6 +69,7 @@ let add_cursus
   let level = cursus_elt.Public_data.cursus_niveau in
   let year = cursus_elt.Public_data.cursus_annee_academique in
   let dpt = cursus_elt.Public_data.cursus_dpt in
+  let code = cursus_elt.Public_data.cursus_gps in
   let cursus_opt' =
     get_cursus
       ~strong:true ~strong_dpt:true ~level ?dpt ~year cursus_map
@@ -83,6 +98,15 @@ let add_cursus
     | None -> Public_data.YearMap.empty
     | Some a -> a
   in
+  let mapc =
+    match
+      Public_data.YearMap.find_opt
+        year
+        mapb
+    with
+    | None -> Public_data.CodeOptMap.empty
+    | Some a -> a
+  in
   state,
   Public_data.LevelMap.add
     level
@@ -90,13 +114,12 @@ let add_cursus
        dpt
        (Public_data.YearMap.add
           year
-          cursus_elt
+          (Public_data.CodeOptMap.add
+            code
+            cursus_elt
+            mapc)
           mapb)
        mapa)
     cursus_map
-
-let add_cursus unify pos state
-    cursus_elt cursus_map =
-  add_cursus unify pos state cursus_elt cursus_map
 
 let get_cursus = get_cursus ~strong:false ~strong_dpt:false

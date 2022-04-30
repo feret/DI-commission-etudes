@@ -21,10 +21,10 @@ type student_id =
   }
 
 type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO | DRI | ARTS | LILA
-type universite =  | PSL | UPC | UPS | Upartenaire | UENS
+type universite =  | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud
 val string_of_dpt: main_dpt -> string
 val dpt_of_string: string -> main_dpt
-
+val string_of_universite: universite -> string
 val empty_student_id: student_id
 
 type scholarship =
@@ -41,9 +41,11 @@ val empty_scholarship: scholarship
 
 module StringMap: Map.S with type key = string
 module StringOptMap: Map.S with type key = string option
+module StringUnivMap: Map.S with type key = string * universite
 module DptMap: Map.S with type key = main_dpt
 module DptOptMap : Map.S with type key = main_dpt option
 module CodeMap : Map.S with type key = string
+module CodeOptMap : Map.S with type key = string option
 module PromoMap : Map.S with type key = string
 module FinanceurMap : Map.S with type key = string
 module FirstNameMap : Map.S with type key = string
@@ -183,6 +185,8 @@ type cursus =
     cursus_annee_academique: annee ;
     cursus_niveau: string;
     cursus_dpt: main_dpt option;
+    cursus_univ: universite option;
+    cursus_gps: string option;
     inscription: string option;
     inscription_en: string option;
     entete: string option;
@@ -436,6 +440,7 @@ type keywords =
   | Statut
   | Tuteur
   | Type_de_Financement
+  | Universite
   | Valide
   | Ignore
 
@@ -445,7 +450,7 @@ type valide =
 
 type note =
   | Float of float
-  | Temporary of float 
+  | Temporary of float
   | Absent
   | En_cours
   | Abandon
@@ -481,7 +486,8 @@ type origin =
   | M_MPRI
   | ED386
 
-val univ_to_string: universite -> string
+val file_suffix_of_univ: universite -> string
+val univ_of_string: string -> universite
 
 type diplome_national =
   {
@@ -496,6 +502,7 @@ type diplome_national =
     diplome_niveau : string ;
     diplome_dpt : main_dpt ;
     diplome_univ_key : universite ;
+    diplome_cursus : cursus ;
     diplome_moyenne : float option;
     diplome_nb_ects : float ;
     diplome_mention : string option;

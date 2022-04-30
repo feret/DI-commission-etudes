@@ -227,7 +227,7 @@ let add_course pos msg state year  key courses map =
         Exit
         state, map
     end
-  | Some (a,b,d_map) ->
+  | Some (a,b,c,d_map) ->
     let old =
       match
         StringOptMap.find_opt key d_map
@@ -238,7 +238,7 @@ let add_course pos msg state year  key courses map =
     let d_map =
       StringOptMap.add key (List.concat [courses;old]) d_map
     in
-    state, Public_data.YearMap.add year (a,b,d_map) map
+    state, Public_data.YearMap.add year (a,b,c,d_map) map
 
 type diplome =
   {
@@ -268,10 +268,7 @@ let log_note state  (label, note_opt) =
     match note_opt with
     | None -> state, None
     | Some a ->
-      let state, s =
-        Notes.to_string
-          __POS__ state a
-      in
+      let state, s = Notes.to_string __POS__ state a in
       state, Some s
   in
   let state  =
@@ -1024,9 +1021,7 @@ let get_compensation
         then
           state, true
         else
-          let state, note_string =
-            Notes.to_string __POS__ state note
-          in
+          let state, note_string = Notes.to_string __POS__ state note in
           let msg =
             Printf.sprintf
               "Note %s (%s %s ANNEE:%s CODE_GPS:%s) needs no compensation"
@@ -1127,8 +1122,7 @@ let store_cours  =
              | Some note ->
                if
                  (match v with
-                 | Some v ->
-                   Notes.valide note = Valide.valide v
+                 | Some v -> Notes.valide note = Valide.valide v
                  | None -> true)
                then
                  state, note_opt
@@ -1158,10 +1152,7 @@ let store_cours  =
                    else
                      begin
                        let state, note_string =
-                         Notes.to_string
-                           __POS__
-                           state
-                           note
+                         Notes.to_string __POS__ state note
                        in
                        let state, v_string =
                          match v with None -> state, "undefined"
@@ -2226,7 +2217,10 @@ let fetch_stage
 
 let lgen _grade gps dpt d =
     List.exists
-      (fun diplome -> diplome.diplome_diplome=Some gps)
+      (fun diplome ->
+        List.exists
+          (fun gps -> diplome.diplome_diplome=Some gps)
+          gps)
       d.diplomes
     ||
     begin
@@ -2243,17 +2237,17 @@ let lgen _grade gps dpt d =
     end
 
 let lmath d =
-  lgen "licence" "gps2274" dpt_maths_gps_name d
+  lgen "licence" ["gps2274";"gps3017";"gps2262"] dpt_maths_gps_name d
 let linfo d =
-  lgen "licence" "gps2291" dpt_info_gps_name d
+  lgen "licence" ["gps2291"] dpt_info_gps_name d
 let leco d =
-  lgen "licence" "XT01362" dpt_eco_gps_name d
+  lgen "licence" ["XT01362"] dpt_eco_gps_name d
 let larts d =
-  lgen "licence" "gps69522" dpt_arts_gps_name d
+  lgen "licence" ["gps69522"] dpt_arts_gps_name d
 let llila d =
-  lgen "licence" "gps83025" dpt_lila_gps_name d
+  lgen "licence" ["gps83025"] dpt_lila_gps_name d
 let lpoly d =
-  lgen "licence" "gps74842" "" d
+  lgen "licence" ["gps74842"] "" d
 let lbio _ = false
 let ldec _ = false
 
@@ -2306,36 +2300,43 @@ let lpe origine =
 
 
 let lmathphys d =
-  if List.exists
-      (fun diplome ->
-         match diplome.grade with
-         | None -> false
-         | Some s ->
-           simplify_string s = "licence")
-      d.diplomes
-  then
-    List.exists
-      (fun diplome ->
-         (diplome.diplome_diplome=Some "gps47622")
-         || (diplome.diplome_diplome=Some "gps50382"))
-      d.diplomes
-    &&
-    List.exists
-      (fun diplome -> diplome.diplome_diplome=Some "gps3017")
-      d.diplomes
-  else
-    d.nannee = Some 1
-    &&
-    (
-      match d.departement_principal,d.departement_secondaire with
-      | None, None -> false
-      | Some _, None | None, Some _ ->
-        false
-      | Some x, Some y ->
-        (simplify_string x = dpt_maths_gps_name && simplify_string y = dpt_phys_gps_name)
-        || (simplify_string x = dpt_phys_gps_name && simplify_string y = dpt_maths_gps_name)
-    )
-
+  (List.exists
+     (fun gps_code ->
+        List.exists
+          (fun cours -> cours.code_cours = Some gps_code)
+          d.cours)
+     ["DMA-L3-B15-S2";"PHYS-L3-B11-S2"])
+  ||
+    if List.exists
+        (fun diplome ->
+          match diplome.grade with
+          | None -> false
+          | Some s ->
+            simplify_string s = "licence")
+        d.diplomes
+    then
+      List.exists
+        (fun diplome ->
+          (List.mem diplome.diplome_diplome
+              [Some "gps47622";Some "gps50382";Some "gps63343";Some "gps85471";Some "gps54542"]))
+        d.diplomes
+      &&
+      List.exists
+        (fun diplome -> diplome.diplome_diplome=Some "gps3017")
+        d.diplomes
+    else
+      d.nannee = Some 1
+      &&
+      (
+        match d.departement_principal,d.departement_secondaire with
+        | None, None -> false
+        | Some _, None | None, Some _ -> false
+        | Some x, Some y ->
+          (simplify_string x = dpt_maths_gps_name
+           && simplify_string y = dpt_phys_gps_name)
+          || (simplify_string x = dpt_phys_gps_name
+              && simplify_string y = dpt_maths_gps_name)
+      )
 
 let mgen dpt d =
   begin
@@ -2366,6 +2367,15 @@ let gen_master
   List.exists
     (fun cours -> cours.code_cours = Some stage)
     d.cours
+
+let fill_gpscodelist list situation =
+  if lmathphys situation then
+    List.rev ("gps1672"::"gps3017"::(List.rev list))
+  else
+  if lmath situation && linfo situation then
+    List.rev ("gps2291"::"gps2274"::(List.rev list))
+  else
+    list
 
 let mpri = gen_master "M-MPRI" ["gps62263";"gps78782"] "INFO-M2-MPRI200-S2"
 let mva = gen_master "M-MVA" ["gps2228"] "INFO-M2-MVASTAGE-S2"
@@ -3280,7 +3290,7 @@ let is_elligble_for_funding origine gps_file state =
 
 let heading
     ~who ~firstname ~lastname ~promo ~origine
-    ~year ~situation ~tuteur ?tuteur_bis
+    ~year ~situation ~gpscodelist ~tuteur ?tuteur_bis
     cursus_map split_cours picture_list is_suite gps_file state =
   let state, main_dpt =
     Remanent_state.get_main_dpt state
@@ -3629,6 +3639,18 @@ let heading
                     "DI"
                     state
               in
+              if annee_int < 2020 then
+                state,
+                Printf.sprintf
+                  "Cursus maths-info et rattaché%s au %s"
+                  genre dpt,
+                Printf.sprintf
+                  "Maths-CS program, registered at %s" dpt,
+                Some
+                  "Licence L3 Info et L3 Maths Université Paris Diderot",
+                Some
+                  "Bachelor in Computer Science and Bachelor in Maths at Paris-Diderot University"
+              else if annee_int=2020 then
               state,
               Printf.sprintf
                 "Cursus maths-info et rattaché%s au %s"
@@ -3636,9 +3658,20 @@ let heading
               Printf.sprintf
                 "Maths-CS program, registered at %s" dpt,
               Some
-                "Licence L3 Info et L3 Maths Université Paris Diderot",
+                "Licence L3 Info et L3 Maths Université de Paris",
               Some
-                "Bachelor in Computer Science and Bachelor in Maths at Paris-Diderot University"
+                "Bachelor in Computer Science and Bachelor in Maths at University of Paris"
+              else
+              state,
+              Printf.sprintf
+                "Cursus maths-info et rattaché%s au %s"
+                genre dpt,
+              Printf.sprintf
+                "Maths-CS program, registered at %s" dpt,
+              Some
+                "Licence L3 Info et L3 Maths Université de Paris Cité",
+              Some
+                "Bachelor in Computer Science and Bachelor in Maths at University of Paris City"
             else if
               lmathphys situation
             then
@@ -3682,13 +3715,22 @@ let heading
                     "DI"
                     state
               in
+              if annee_int < 2020 then
+                state,
+                Printf.sprintf
+                  "Cursus maths-physique et rattaché au %s" dpt,
+                Printf.sprintf
+                  "Maths-Phys program, registed at %s " dpt,
+                Some "Licence L3 Maths et L3 Phys Université Paris-Sud",
+                Some "Bachelor in Maths and Bachelor in Physics at Paris-South  University"
+              else
               state,
               Printf.sprintf
                 "Cursus maths-physique et rattaché au %s" dpt,
               Printf.sprintf
                 "Maths-Phys program, registed at %s " dpt,
-              Some "maths-phys",
-              Some "maths-phys"
+              Some "Licence L3 Maths et L3 Phys Université Paris-Saclay",
+              Some "Bachelor in Maths and Bachelor in Physics at Paris-Saclay   University"
             else
               let state, (string,string_en) =
                 translate_dpt ~firstname ~lastname ~year:annee_int state
@@ -3721,12 +3763,14 @@ let heading
               Remanent_state.get_cursus
                 ~year
                 ~level:"dens"
+                ~gpscodelist:[]
                 __POS__
                 state
             else
               Remanent_state.get_cursus
                 ~year
                 ~level:"dens"
+                ~gpscodelist:[]
                 ~dpt:main_dpt
                 __POS__
                 state
@@ -3850,6 +3894,7 @@ let heading
                         __POS__
                         ~year
                         ~dpt:(Public_data.dpt_of_string dpt)
+                        ~gpscodelist
                         ~level:string
                         state
                     in
@@ -4153,7 +4198,7 @@ let foot signature state  =
   state
 
 let program
-    ~origine ~string ~dpt ~year ~who ~alloc_suffix ~mean ~firstname ~lastname ~promo ~cursus_map
+    ~origine ~gpscodelist ~string ~dpt ~year ~who ~alloc_suffix ~mean ~firstname ~lastname ~promo ~cursus_map
     ~size ~stages ~current_year ~report ~keep_faillure ~keep_success
     ~dens ~natt
     list state =
@@ -4181,6 +4226,7 @@ let program
                 | _,(Public_data.ARTS
                     | Public_data.ECO | Public_data.DI | Public_data.DMA | Public_data.IBENS | Public_data.PHYS | Public_data.LILA) ->
                   Some dpt)
+            ~gpscodelist
             ~year
             state
         in
@@ -5020,8 +5066,7 @@ let program
         let state, note_string =
           match cours.note with
           | None -> state, ""
-          | Some f ->
-            Notes.to_string __POS__ state f
+          | Some f -> Notes.to_string __POS__ state f
         in
         let () =
           Remanent_state.print_cell
@@ -5818,6 +5863,16 @@ let export_transcript
     let state, cursus_map, l =
       List.fold_left
         (fun (state, cursus_map, l) (year, situation) ->
+           let gpscodelist =
+             List.fold_left
+              (fun acc diplome ->
+                 match diplome.diplome_diplome
+                 with
+                 | None -> acc
+                 | Some a -> a::acc)
+              [] situation.diplomes
+           in
+           let gpscodelist = fill_gpscodelist gpscodelist situation in
            let state, filtered_classes =
              filter_class ~firstname ~lastname ~year
                state remove_non_valided_classes
@@ -5925,14 +5980,14 @@ let export_transcript
                (state,cursus_map,split_cours) decision_list
            in
 
-        state, cursus_map, (year,situation,split_cours)::l)
+        state, cursus_map, (year,situation,gpscodelist,split_cours)::l)
         (state, StringOptMap.empty, [])
         l_rev
     in
     let l =
       match l with
       | [] ->
-        [current_year, empty_bilan_annuel, StringOptMap.empty]
+        [current_year, empty_bilan_annuel, [], StringOptMap.empty]
       | _ -> l
     in
     let state, l =
@@ -5942,9 +5997,9 @@ let export_transcript
         begin
           let map =
             List.fold_left
-              (fun map (year,situation,_) ->
+              (fun map (year,situation,codegpslist,_) ->
                  Public_data.YearMap.add year
-                   (year,situation,StringOptMap.empty)
+                   (year,situation,codegpslist,StringOptMap.empty)
                    map)
               Public_data.YearMap.empty
               l
@@ -5953,7 +6008,7 @@ let export_transcript
             List.fold_left
               (fun
                 (state, map)
-                (year,_,split_cours) ->
+                (year,_,_,split_cours) ->
                  StringOptMap.fold
                    (fun key course (state, map) ->
                       let state, year =
@@ -5982,8 +6037,8 @@ let export_transcript
     in
     let state,mean,dens,natt =
       List.fold_left
-        (fun (state,mean,dens,natt) (year,situation,
-                                     split_cours) ->
+        (fun (state,mean,dens,natt)
+          (year,situation,gpscodelist,split_cours) ->
            let who =
              Format.sprintf "%s in %s" who year
            in
@@ -6405,7 +6460,7 @@ let export_transcript
                  heading
                    ~who ~firstname ~lastname
                    ~promo ~origine
-                   ~year ~situation
+                   ~year ~situation ~gpscodelist
                    ~tuteur ?tuteur_bis
                    cursus_map split_cours
                    picture_list suite gps_file state
@@ -6441,7 +6496,7 @@ let export_transcript
                              let state =
                                heading
                                  ~who ~firstname ~lastname
-                                 ~promo ~origine
+                                 ~promo ~origine ~gpscodelist
                                  ~year ~situation
                                  ~tuteur ?tuteur_bis
                                  cursus_map split_cours
@@ -6458,7 +6513,7 @@ let export_transcript
                            (state,mean,dens,natt)
                            =
                            program
-                             ~origine ~string ~dpt:(Public_data.dpt_of_string dpt) ~year ~who
+                             ~origine ~string ~dpt:(Public_data.dpt_of_string dpt) ~year ~who ~gpscodelist
                              ~alloc_suffix ~mean ~firstname
                              ~lastname ~promo ~cursus_map ~size
                              ~stages ~current_year ~report
@@ -6580,6 +6635,16 @@ let export_transcript
       | None -> state
       | Some situation ->
         begin
+          let gpscodelist =
+            List.fold_left
+              (fun acc diplome ->
+                 match diplome.diplome_diplome
+                 with
+                 | None -> acc
+                 | Some a -> a::acc)
+              [] situation.diplomes
+          in
+          let gpscodelist = fill_gpscodelist gpscodelist situation in
           let current_dpt =
             match
               situation.departement_principal
@@ -6848,24 +6913,40 @@ let export_transcript
                    else
                    if (d_nat || d_nat_stat) && do_report report
                    then
+                     let diplome_dpt = Public_data.dpt_of_string (snd key) in
+                     let diplome_niveau =
+                        (match fst key with
+                            | None -> ""
+                            | Some a -> a)
+                     in
+                     let diplome_year = string_of_int val_year in
+                     let state, univ, cursus =
+                        Univ.get_univ
+                          ~diplome_dpt ~diplome_niveau ~diplome_year
+                          gpscodelist state
+                     in
+                     let univ =
+                        match univ with
+                         | Some univ -> univ
+                         | _ -> Public_data.Upartenaire
+                     in
+                     let cursus =
+                       match cursus with
+                       | Some cursus -> cursus
+                       | _ -> Public_data.empty_cursus
+                     in
                      Remanent_state.add_national_diploma
                        state
-                       {Public_data.diplome_dpt = Public_data.dpt_of_string (snd key);
-                        Public_data.diplome_niveau =
-                          (match fst key with
-                           | None -> ""
-                           | Some a -> a);
-                        Public_data.diplome_univ_key = Public_data.Upartenaire ;
+                       {Public_data.diplome_dpt;
+                        Public_data.diplome_niveau ;
+                        Public_data.diplome_univ_key = univ ;
+                        Public_data.diplome_cursus = cursus ;
                         Public_data.diplome_ranking = None ;
                         Public_data.diplome_effectif = None ;
-                        Public_data.diplome_origine =
-                          origine;
+                        Public_data.diplome_origine = origine;
                         Public_data.diplome_statut = gps_file.statut ;
-
-                        Public_data.diplome_firstname =
-                          firstname ;
-                        Public_data.diplome_lastname =
-                          lastname ;
+                        Public_data.diplome_firstname = firstname ;
+                        Public_data.diplome_lastname = lastname ;
                         Public_data.diplome_gender =
                           begin
                             match gps_file.genre
@@ -6878,8 +6959,7 @@ let export_transcript
                         Public_data.diplome_nb_ects = ects ;
                         Public_data.diplome_moyenne =
                           mean ;
-                        Public_data.diplome_year =
-                          string_of_int val_year ;
+                        Public_data.diplome_year;
                         Public_data.diplome_mention =
                           mention
                        ;
