@@ -81,6 +81,7 @@ type parameters =
     repository_for_dispenses: string;
     repository_for_additional_courses: string;
     repository_for_grades_to_modify: string;
+    repository_for_inscriptions: string;
     repository_to_dump_missing_pictures: string;
     repository_to_dump_non_accepted_grades: string;
     repository_to_dump_non_validated_internships: string;
@@ -163,6 +164,7 @@ let parameters =
     repository_for_dispenses = "dispenses";
     repository_for_additional_courses = "cours_a_ajouter";
     repository_for_grades_to_modify = "notes_a_modifier" ;
+    repository_for_inscriptions = "inscriptions" ;
     repository_to_dump_dens = "dens";
     repository_to_dump_national_diplomas = "diplomes_nationaux";
     repository_to_dump_mentors = "tuteurs";
@@ -245,6 +247,7 @@ type data =
     dpts: Departments.t;
     programs: Programs.t;
     cursus: Cursus.t;
+    inscriptions: Inscriptions.t;
     cursus_exceptions: Cursus_exception.t;
     decisions: Decisions.t;
     admissions: Admissions.t;
@@ -280,6 +283,7 @@ let empty_data =
     course_entries = Course_name_translation.empty_course_entry;
     dpts =  Departments.empty;
     cursus = Cursus.empty;
+    inscriptions = Inscriptions.empty;
     programs = Programs.empty;
     additional_courses = Cours_a_ajouter.empty;
     notes_a_modifier = Notes_a_modifier.empty;
@@ -798,6 +802,12 @@ let get_cursus_list_prefix t =
 let get_cursus_list_repository t =
   get_rep_gen get_study get_cursus_list_prefix t
 
+let get_inscriptions_list_prefix t =
+    t, t.parameters.repository_for_inscriptions
+
+let get_inscriptions_list_repository t =
+    get_rep_gen get_study get_inscriptions_list_prefix t
+
 let get_programs_list_prefix t =
   t, t.parameters.repository_for_diplomes
 
@@ -1267,6 +1277,12 @@ let set_cursus cursus data = {data with cursus}
 let set_cursus cursus t =
   lift_set set_cursus cursus t
 
+  let get_inscriptions data = data.inscriptions
+  let get_inscriptions t = lift_get get_inscriptions t
+  let set_inscriptions inscriptions data = {data with inscriptions}
+  let set_inscriptions inscriptions t =
+    lift_set set_inscriptions inscriptions  t
+
 let get_dpts data = data.dpts
 let get_dpts t = lift_get get_dpts t
 let set_dpts dpts data = {data with dpts}
@@ -1591,38 +1607,48 @@ let add_cursus unify =
     (Cursus.add_cursus unify)
 
 let get_cursus ~year ~level ?dpt ~gpscodelist pos t =
-  let rec aux l =
-    match l with
-    | [] -> None
-    | gpscode::tail ->
-      match
-        Cursus.get_cursus ~year ~level ?dpt ~gpscode (get_cursus t)
-      with
-      | None -> aux tail
-      | x -> x
-  in
-  let cursus_opt = aux gpscodelist in
-  match cursus_opt with
-  | Some a -> t, Some a
-  | None ->
-    match Cursus.get_cursus ~year ~level ?dpt (get_cursus t)
-    with
-    | Some a -> t, Some a
-    | None ->
-      let msg =
-        Format.sprintf
-          "Pas de cursus pour %s%s en %s dans les fichiers du département"
-          level
-          (match dpt with
-           | None -> "" | Some i -> Format.sprintf " %s"
-                                      (Public_data.string_of_dpt i))
-          year
+    let rec aux l =
+        match l with
+        | [] -> None
+        | gpscode::tail ->
+          match
+            Cursus.get_cursus ~year ~level ?dpt ~gpscode (get_cursus t)
+          with
+          | None -> aux tail
+          | x -> x
       in
-      warn
-        pos
-        msg
-        Exit
-        t, None
+      let cursus_opt = aux gpscodelist in
+      match cursus_opt with
+      | Some a -> t, Some a
+      | None ->
+        match Cursus.get_cursus ~year ~level ?dpt (get_cursus t)
+        with
+        | Some a -> t, Some a
+        | None ->
+          let msg =
+            Format.sprintf
+              "Pas de cursus pour %s%s en %s dans les fichiers du département"
+              level
+              (match dpt with
+             | None -> ""
+             | Some i ->
+                  Format.sprintf " %s"
+                        (Public_data.string_of_dpt i))
+              year
+            in
+            warn pos msg Exit t,
+            None
+
+let add_inscription unify =
+      add_gen
+        get_inscriptions
+        set_inscriptions
+        (Inscriptions.add_inscription unify)
+
+let get_inscription ~year ~level ?dpt ~lastname ~firstname t =
+  t,
+  Inscriptions.get_inscription
+      ~year ~level ?dpt ~lastname ~firstname  (t.data.inscriptions)
 
 
 let add_dpt unify =
@@ -2146,7 +2172,7 @@ let get_commission_rep_from_key ?commission_rep ?univ sous_commission_short t =
     match univ with
     | None -> sous_commission_short
     | Some a -> sous_commission_short^(Public_data.file_suffix_of_univ a)
-  in 
+  in
   t,
   match commission_rep,sous_commission_short with
     | "",a -> Printf.sprintf "attestations/%s" a,

@@ -330,6 +330,26 @@ let empty_cursus =
     pied_en = None;
   }
 
+  type inscription =
+    {
+      inscription_annee_academique: annee ;
+      inscription_niveau: string;
+      inscription_dpt: main_dpt option;
+      inscription_univ: universite option;
+      inscription_nom: string;
+      inscription_prenom: string;
+    }
+
+let empty_inscription =
+{
+  inscription_annee_academique = "" ;
+  inscription_niveau = "" ;
+  inscription_dpt = None;
+  inscription_univ = None ;
+  inscription_nom = "";
+  inscription_prenom = "";
+}
+
 type dpt =
   {
     dpt_key: main_dpt option ;

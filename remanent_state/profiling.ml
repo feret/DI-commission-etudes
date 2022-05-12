@@ -23,6 +23,7 @@ type step_kind =
   | Collect_decisions
   | Collect_dispenses
   | Collect_compensations
+  | Collect_inscriptions
   | Collect_cursus
   | Collect_course_exceptions
   | Collect_modified_grade
@@ -105,6 +106,7 @@ let string_of_step_kind x =
   | Collect_mentoring -> "Collect data about mentoring"
   | Collect_departement -> "Collect data about teaching departments"
   | Collect_program -> "Collect data about teaching programs"
+  | Collect_inscriptions -> "Collect inscriptions"
   | Collect_cursus_exceptions -> "Collect data about cursus exceptions"
   | Collect_decisions -> "Collect data about programs jury"
   | Collect_dispenses -> "Collect data about diploma dispenses"
@@ -211,6 +213,7 @@ let is_dummy step_kind =
   | Collect_dispenses
   | Collect_compensations
   | Collect_admissions
+  | Collect_inscriptions 
   | Collect_cursus
   | Collect_course_exceptions
   | Collect_modified_grade

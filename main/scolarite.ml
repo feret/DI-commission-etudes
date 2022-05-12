@@ -96,6 +96,8 @@ let state =
 let state =
   Collect_programs.get_programs state
 let state =
+  Collect_inscriptions.get_inscriptions state 
+let state =
   Collect_programs.get_cursus_exceptions state
 let state =
   Collect_compensations.get_compensations state

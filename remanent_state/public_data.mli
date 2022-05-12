@@ -197,6 +197,18 @@ type cursus =
 
 val empty_cursus: cursus
 
+type inscription =
+  {
+    inscription_annee_academique: annee ;
+    inscription_niveau: string;
+    inscription_dpt: main_dpt option;
+    inscription_univ: universite option;
+    inscription_nom: string;
+    inscription_prenom: string;
+  }
+
+val empty_inscription: inscription 
+
 type program =
   {
     code_gps: string ;

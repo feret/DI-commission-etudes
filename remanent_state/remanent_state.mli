@@ -168,6 +168,9 @@ val get_programs_list_repository: t -> t * string
 val get_cursus_list_prefix: t -> t * string
 val get_cursus_list_repository: t -> t * string
 
+val get_inscriptions_list_prefix: t -> t * string
+val get_inscriptions_list_repository: t -> t * string
+
 val get_cursus_exceptions_list_prefix: t -> t * string
 val get_cursus_exceptions_list_repository: t -> t * string
 
@@ -359,6 +362,24 @@ val get_cursus:
   gpscodelist:string list ->
   (string * int * int * int) ->
   t -> t * Public_data.cursus option
+
+  val add_inscription:
+    (string * int * int * int ->
+     t ->
+     Public_data.inscription ->
+     Public_data.inscription -> t * Public_data.inscription) ->
+      (string * int * int * int) ->
+      Public_data.inscription ->
+      t -> t
+
+  val get_inscription:
+    year:string ->
+    level:string ->
+    ?dpt:Public_data.main_dpt  ->
+    lastname:string  ->
+    firstname: string ->
+    t -> t * Public_data.inscription option
+
 
 val list_all_cursus:
   t -> unit

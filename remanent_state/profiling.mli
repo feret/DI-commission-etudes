@@ -23,6 +23,7 @@ type step_kind =
   | Collect_decisions
   | Collect_dispenses
   | Collect_compensations
+  | Collect_inscriptions 
   | Collect_cursus
   | Collect_course_exceptions
   | Collect_modified_grade

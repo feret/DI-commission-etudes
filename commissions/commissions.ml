@@ -394,13 +394,7 @@ let print_sous_commission
          "Cannot find direction_key (%s)"
          direction_key)
       Exit state
-  | _, None  ->
-    Remanent_state.warn
-      __POS__
-      (Format.sprintf
-         "Cannot find diploma key (%s,%s)"
-         sous_commission_key (Public_data.string_of_universite universite_key))
-      Exit state
+  | _, None  -> state
   | Some direction, Some sous_commission ->
     begin
       let state, (_,output_rep,_) =
