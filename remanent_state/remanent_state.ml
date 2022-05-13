@@ -806,7 +806,7 @@ let get_inscriptions_list_prefix t =
     t, t.parameters.repository_for_inscriptions
 
 let get_inscriptions_list_repository t =
-    get_rep_gen get_study get_inscriptions_list_prefix t
+    get_rep_gen get_bdd get_inscriptions_list_prefix t
 
 let get_programs_list_prefix t =
   t, t.parameters.repository_for_diplomes
