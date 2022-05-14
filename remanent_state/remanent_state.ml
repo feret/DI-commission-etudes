@@ -1648,9 +1648,8 @@ let add_inscription unify =
 let get_inscription ~year ~level ?dpt ~lastname ~firstname t =
   t,
   Inscriptions.get_inscription
-      ~year ~level ?dpt ~lastname ~firstname  (t.data.inscriptions)
-
-
+    ~year ~level ?dpt ~lastname ~firstname  (t.data.inscriptions)
+  
 let add_dpt unify =
   add_gen
     get_dpts

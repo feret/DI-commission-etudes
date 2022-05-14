@@ -3889,16 +3889,36 @@ let heading
                       int_of_string year <= int_of_string
                         fin
                   then
-                    let state, cursus_opt =
-                      Remanent_state.get_cursus
-                        __POS__
-                        ~year
-                        ~dpt:(Public_data.dpt_of_string dpt)
-                        ~gpscodelist
-                        ~level:string
-                        state
+                    let state, univ_opt =
+                      match
+                        Remanent_state.get_inscription
+                          ~year ~dpt:(Public_data.dpt_of_string dpt) ~level:string
+                          ~firstname ~lastname state
+                      with
+                      | state, Some inscription ->
+                        state, inscription.Public_data.inscription_univ
+                      | state, None -> state, None
                     in
-                    match cursus_opt with
+                    match univ_opt  with
+                    | Some univ ->
+                        let univ =
+                          Public_data.string_of_universite
+                            univ
+                        in
+                        state,
+                        univ::inscriptions,
+                        univ::inscriptions_en
+                    | None ->
+                      let state, cursus_opt =
+                        Remanent_state.get_cursus
+                          __POS__
+                          ~year
+                          ~dpt:(Public_data.dpt_of_string dpt)
+                          ~gpscodelist
+                          ~level:string
+                          state
+                      in
+                      match cursus_opt with
                     | None ->
                       let msg =
                         Format.sprintf
@@ -6922,7 +6942,7 @@ let export_transcript
                      let diplome_year = string_of_int val_year in
                      let state, univ, cursus =
                         Univ.get_univ
-                          ~diplome_dpt ~diplome_niveau ~diplome_year
+                          ~diplome_dpt ~diplome_niveau ~diplome_year ~firstname ~lastname
                           gpscodelist state
                      in
                      let univ =
