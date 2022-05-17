@@ -1649,7 +1649,19 @@ let get_inscription ~year ~level ?dpt ~lastname ~firstname t =
   t,
   Inscriptions.get_inscription
     ~year ~level ?dpt ~lastname ~firstname  (t.data.inscriptions)
-  
+
+let get_inscription ~year ~level ?dpt ~lastname ~firstname t =
+   let t, output = get_inscription ~year ~level ?dpt ~lastname ~firstname t  in
+   let t =
+      warn
+        __POS__
+        (Format.sprintf "inscription: %s %s %s %s %s %s"
+              year level (match dpt with None -> "None" | Some a -> Public_data.string_of_dpt a)  lastname firstname
+(match output with None -> "None" | Some a -> match a.Public_data.inscription_univ  with None -> "None" | Some a -> Public_data.string_of_universite a))
+        Exit t
+in
+t, output
+
 let add_dpt unify =
   add_gen
     get_dpts
