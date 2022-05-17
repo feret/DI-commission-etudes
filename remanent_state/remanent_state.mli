@@ -360,6 +360,8 @@ val get_cursus:
   level:string ->
   ?dpt:Public_data.main_dpt  ->
   gpscodelist:string list ->
+  ?firstname:string -> 
+  ?lastname:string ->
   (string * int * int * int) ->
   t -> t * Public_data.cursus option
 

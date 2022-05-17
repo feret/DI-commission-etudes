@@ -1662,6 +1662,29 @@ let get_inscription ~year ~level ?dpt ~lastname ~firstname t =
 in
 t, output
 
+let get_cursus ~year ~level ?dpt ~gpscodelist ?firstname ?lastname pos t =
+  let t, univ_opt =
+    match firstname, lastname with
+  | _, None | None,_ -> t, None
+  | Some firstname, Some lastname ->
+      get_inscription ~year ~level ?dpt ~lastname ~firstname t
+  in
+  let t, cursus_opt = get_cursus ~year ~level ?dpt ~gpscodelist pos t in
+  match univ_opt with
+     | None -> t, cursus_opt
+     | Some a ->
+    match a.Public_data.inscription_univ with
+      | None -> t, cursus_opt
+      | Some _ ->
+      let cursus =
+       match cursus_opt with
+       | None -> Public_data.empty_cursus
+       | Some a -> a
+      in
+      let cursus_univ = a.Public_data.inscription_univ in
+      let cursus = {cursus with Public_data.cursus_univ} in
+      t, Some cursus
+
 let add_dpt unify =
   add_gen
     get_dpts
