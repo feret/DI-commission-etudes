@@ -8,7 +8,7 @@ type latex_parameters =
     bilinguage:bool;
   }
 
-val latex_normal:latex_parameters 
+val latex_normal:latex_parameters
 type encoding =
   | HTML | HTML_Tabular | HTML_encapsulated
   | TXT | CSV | XLS | Json | Latex of latex_parameters
@@ -66,9 +66,9 @@ val channel_of_logger: t -> out_channel option
 val flush_buffer: t -> Format.formatter -> unit
 val flush_and_clean: t -> Format.formatter -> unit
 
-val dump_json: t -> Yojson.Basic.t -> unit
+(*val dump_json: t -> Yojson.Basic.t -> unit
 val to_json: t -> Yojson.Basic.t
-val of_json: Yojson.Basic.t -> string list
+val of_json: Yojson.Basic.t -> string list*) 
 
 val with_lines: t -> t
 val without_lines: t -> t

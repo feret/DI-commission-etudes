@@ -1,5 +1,5 @@
 (library
   (name sco_tools)
-  (libraries yojson)
+  (libraries )
   (flags (:standard -w @a
 )))

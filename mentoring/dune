@@ -1,6 +1,6 @@
 (library
   (name sco_get_mentoring)
-  (libraries yojson csv sco_remanent_state sco_tools sco_keywords_handler sco_scan_files
+  (libraries csv sco_remanent_state sco_tools sco_keywords_handler sco_scan_files
   sco_datastructures)
   (flags (:standard -w @a
     -open Sco_remanent_state

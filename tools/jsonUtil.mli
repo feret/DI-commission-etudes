@@ -7,7 +7,7 @@
 (******************************************************************************)
 
 (** Jsonify simple types *)
-
+(*
 val build_msg: string -> string
 
 val of_string: string -> Yojson.Basic.t
@@ -96,3 +96,4 @@ val of_unix_error:
 
 val to_unix_error:
   Yojson.Basic.t -> Unix.error
+*)

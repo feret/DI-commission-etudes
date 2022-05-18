@@ -23,7 +23,7 @@ type step_kind =
   | Collect_decisions
   | Collect_dispenses
   | Collect_compensations
-  | Collect_inscriptions 
+  | Collect_inscriptions
   | Collect_cursus
   | Collect_course_exceptions
   | Collect_modified_grade
@@ -43,8 +43,9 @@ type step_kind =
 
 type log_info
 
-val log_info_to_json: log_info -> Yojson.Basic.t
-val log_info_of_json: Yojson.Basic.t -> log_info
+(*val log_info_to_json: log_info -> Yojson.Basic.t
+val log_info_of_json: Yojson.Basic.t -> log_info*)
+
 val reset_log: log_info -> log_info
 val dump_log:
   Loggers.t -> log_info -> unit

@@ -11,7 +11,7 @@ exception Uncaught_exception of uncaught_exception
 exception Caught_exception of caught_exception
 
 
-
+(*
 let rec exn_to_json =
   function
   | Exit -> `Assoc ["Exit", `Null]
@@ -145,7 +145,7 @@ and caught_exception_of_json json =
     uncaught_exception = a;
     calling_stack = b
   }
-
+*)
 
 
 
@@ -226,6 +226,7 @@ type method_handler = {
   mh_uncaught_error_list:uncaught_exception list;
 }
 
+(*
 let to_json method_handler =
   `Assoc
     [
@@ -261,6 +262,7 @@ let of_json =
     end
   | x ->
     raise (Yojson.Basic.Util.Type_error (JsonUtil.build_msg "error handler",x))
+*)
 
 let empty_error_handler =
   {

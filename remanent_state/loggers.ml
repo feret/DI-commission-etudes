@@ -887,7 +887,7 @@ let fprintf logger = fprintf ~fprintnewline:false logger
 
 let channel_of_logger logger = logger.channel_opt
 
-
+(*
 let dump_json logger json =
   let channel_opt = channel_of_logger logger in
   let () =
@@ -911,8 +911,9 @@ let line_of_json json =
   with
   | `Assoc ["line", `String s] -> s
   | _ -> raise (Yojson.Basic.Util.Type_error (JsonUtil.build_msg "line" ,json))
+*)
 
-let gen_iter iter list =
+(*let gen_iter iter list =
   let output = ref [] in
   let () = iter (fun line -> output:=line::!output) list in
   JsonUtil.of_list line_to_json (List.rev !output)
@@ -929,6 +930,7 @@ let to_json logger =
     gen_iter Circular_buffers.iter !a
   | Infinite_buffer b ->
     gen_iter Infinite_buffers.iter !b
+*)
 
 let encapsulate mode =
   match mode with

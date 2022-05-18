@@ -6,6 +6,7 @@
 (* |_|\_\ * GNU Lesser General Public License Version 3                       *)
 (******************************************************************************)
 
+(*
 let build_msg s = "Not a correct "^s
 let of_string (s:string) = `String s
 
@@ -468,3 +469,4 @@ let (to_unix_error : Yojson.Basic.t -> Unix.error) =
   | `Assoc ["EUNKNOWNERR",int] -> Unix.EUNKNOWNERR (to_int int)
   | x ->
     raise (Yojson.Basic.Util.Type_error (build_msg "unix error",x))
+*)

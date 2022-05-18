@@ -213,7 +213,7 @@ let is_dummy step_kind =
   | Collect_dispenses
   | Collect_compensations
   | Collect_admissions
-  | Collect_inscriptions 
+  | Collect_inscriptions
   | Collect_cursus
   | Collect_course_exceptions
   | Collect_modified_grade
@@ -370,6 +370,7 @@ let init_log_info () =
     current_task = [];
   }
 
+(*
   let log_info_to_json log_info =
     `Assoc
       [
@@ -398,6 +399,7 @@ let init_log_info () =
            end
          | x -> raise
                   (Yojson.Basic.Util.Type_error ("Not a correct log_info",x))
+*)
 
 let reset_log log =
   let time = Sys.time () in

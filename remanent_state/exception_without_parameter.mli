@@ -36,5 +36,7 @@ val is_empty_error_handler: method_handler -> bool
 val get_caught_exception_list: method_handler -> caught_exception list
 val get_uncaught_exception_list: method_handler -> uncaught_exception list
 
+(*
 val to_json: method_handler -> Yojson.Basic.t
 val of_json: Yojson.Basic.t -> method_handler
+*)
