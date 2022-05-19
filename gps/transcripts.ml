@@ -3915,13 +3915,26 @@ let heading
                       inscriptions, inscriptions_en
                     | Some cursus ->
                       match
-                        cursus.Public_data.inscription, cursus.Public_data.inscription_en
+                        cursus.Public_data.inscription, cursus.Public_data.inscription_en,
+                        cursus.Public_data.cursus_univ
                       with
-                      | Some inscription, Some inscription_en ->
-                        state,
+                      | Some inscription, Some inscription_en, Some univ ->
+                        let inscription =
+                            Format.sprintf
+                                "%s --- %s"
+                                inscription
+                                (Public_data.string_of_universite_long_fr univ)
+                        in
+                        let inscription_en =
+                            Format.sprintf
+                                "%s --- %s"
+                                inscription_en
+                                (Public_data.string_of_universite_long_en univ)
+                      in
+                      state,
                         inscription::inscriptions,
                         inscription_en::inscriptions_en
-                      | Some x, None | None, Some x ->
+                      | Some x, None,Some univ  | None, Some x, Some univ ->
                       let state =
                         Remanent_state.warn
                           __POS__
@@ -3929,8 +3942,23 @@ let heading
                           Exit
                           state
                       in
-                      state, x::inscriptions, x::inscriptions_en
-                      | None, None ->
+                      let inscription, inscription_en = x,x in
+                      let inscription =
+                          Format.sprintf
+                              "%s --- %s"
+                              inscription
+                              (Public_data.string_of_universite_long_fr univ)
+                      in
+                      let inscription_en =
+                          Format.sprintf
+                              "%s --- %s"
+                              inscription_en
+                              (Public_data.string_of_universite_long_en univ)
+                    in
+
+                      state, inscription::inscriptions,
+                      inscription_en::inscriptions_en
+                      | None, None, _   ->
                         let msg =
                           Format.sprintf
                             "Inscription field is not documented for cursus %s %s %s"
@@ -3944,6 +3972,20 @@ let heading
                           Exit
                           state,
                         inscriptions, inscriptions_en
+                        | _, _, None   ->
+                          let msg =
+                            Format.sprintf
+                              "University field is not documented for cursus %s %s %s"
+                              string
+                              dpt
+                              year
+                          in
+                          Remanent_state.warn
+                            __POS__
+                            msg
+                            Exit
+                            state,
+                          inscriptions, inscriptions_en
                   else state, inscriptions, inscriptions_en
                 with _ ->
                   Remanent_state.warn

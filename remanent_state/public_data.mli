@@ -25,6 +25,8 @@ type universite =  | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire
 val string_of_dpt: main_dpt -> string
 val dpt_of_string: string -> main_dpt
 val string_of_universite: universite -> string
+val string_of_universite_long_fr: universite -> string
+val string_of_universite_long_en: universite -> string
 val empty_student_id: student_id
 
 type scholarship =
@@ -207,7 +209,7 @@ type inscription =
     inscription_prenom: string;
   }
 
-val empty_inscription: inscription 
+val empty_inscription: inscription
 
 type program =
   {

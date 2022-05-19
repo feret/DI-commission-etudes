@@ -119,6 +119,32 @@ let string_of_universite x =
       | UDiderot -> "P7"
       | Upartenaire -> ""
 
+let string_of_universite_long_fr x =
+          match x with
+            | UENS -> "École normale supérieure"
+            | PSL -> "Université PSL"
+            | UPC -> "Université Paris Cité"
+            | UP -> "Université de Paris"
+            | UPS -> "Université Paris-Saclay"
+            | SU -> "Sorbonne Université"
+            | UPSud -> "Université Paris-Sud"
+            | UPantheonSorbonne -> "Université Panthéon-Sorbonne"
+            | UDiderot -> "Université Paris Diderot"
+            | Upartenaire -> "Université partenaire"
+
+            let string_of_universite_long_en x =
+                      match x with
+                        | UENS -> "École normale supérieure"
+                        | PSL -> "PSL University"
+                        | UPC -> "Paris City University"
+                        | UP -> "University of Paris"
+                        | UPS -> "Paris-Saclay University"
+                        | SU -> "Sorbonne University"
+                        | UPSud -> "Paris-Sud University"
+                        | UPantheonSorbonne -> "Panthéon-Sorbonne University"
+                        | UDiderot -> "Paris Diderot University"
+                        | Upartenaire -> "Partner University"
+
 let univ_of_string x =
   let x = Special_char.lowercase (Special_char.correct_string_txt (Special_char.correct_string_utf8 (String.trim x))) in
   match x with
