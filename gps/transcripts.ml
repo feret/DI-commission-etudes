@@ -2381,6 +2381,7 @@ let mpri = gen_master "M-MPRI" ["gps62263";"gps78782"] "INFO-M2-MPRI200-S2"
 let mva = gen_master "M-MVA" ["gps2228"] "INFO-M2-MVASTAGE-S2"
 let iasd = gen_master "M-IASD" ["gps76822";"gps78762"] "INFO-M2-IASD-STG-S2"
 let mash = gen_master "M-MASH" ["gps59622"] "INFO-M2-MASH-STG-S2"
+let msesi = gen_master "M-SESI" ["gps86653"] "NOWAY"
 let mint = gen_master "M-Interaction" ["gps78864"] "XT 00000000000647168"
 let mmf = gen_master "M-MathFond" ["gps3102"] "XT 00000000000664965"
 let mlmfi = gen_master "M-LMFI" ["gps2005";"gps3579"] "NOWAY"
@@ -2741,6 +2742,8 @@ let translate_diplome
       state, (Some "IASD","M2 IASD","M2 IASD",dpt_info,dpt_info_en,false)
     else if mash situation then
       state, (Some "MASH","M2 MASH","M2 MASH", dpt_info,dpt_info_en,false)
+    else if msesi situation then
+      state, (Some "SESI","M1 SESI","M1 SESI", dpt_info,dpt_info_en,false)
     else if mint situation then
       state, (Some "Interaction", "M2 Interaction", "M2 Interaction",dpt_info,dpt_info_en,false)
     else if mmf situation then
@@ -4468,7 +4471,7 @@ let program
       state, Some Color.green
     | Some ("leco" | "LEco") ->
       state, Some Color.pink
-    | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" | "lmfi" | "PHILOSorbonne" | "alea") ->
+    | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" | "lmfi" | "PHILOSorbonne" | "sesi" | "alea") ->
       color_of_dpt
         who __POS__ state
         (Public_data.string_of_dpt dpt)
