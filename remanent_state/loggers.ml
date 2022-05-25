@@ -693,14 +693,22 @@ let print_preamble
 \\setcounter{ects}{0}\n\
 \\newcounter{vsnects}\n\
 \\setcounter{vsnects}{0}\n\
-\\newcounter{pects}\n\
-\\setcounter{pects}{0}\n\
+\\newcounter{pectsa}\n\
+\\setcounter{pectsa}{0}\n\
+\\newcounter{pectsb}\n\
+\\setcounter{pectsb}{0}\n\
+\\newcounter{pectsc}\n\
+\\setcounter{pectsc}{0}\n\
+\\newcounter{pectsd}\n\
+\\setcounter{pectsd}{0}\n\
 \\newcounter{potentialects}\n\
 \\setcounter{potentialects}{0}\n\
 \\newcounter{cects}\n\
 \\setcounter{cects}{0}\n\
-\\newcounter{vects}\n\
-\\setcounter{vects}{0}\n\
+\\newcounter{vectsa}\n\
+\\setcounter{vectsa}{0}\n\
+\\newcounter{vectsb}\n\
+\\setcounter{vectsb}{0}\n\
 \\newcounter{cnote}\n\
 \\setcounter{cnote}{0}\n\
 \n\
@@ -769,21 +777,37 @@ let print_preamble
 %%\n\
 %%\n\
 \\IfStrEq{#7}{en cours}%%\n\
-{\\setcounter{pects}{\\fpeval{\\resects*\\factor}}}%%\n\
-{\\setcounter{pects}{0}}%%\n\
+{\\setcounter{pectsa}{\\fpeval{\\resects*\\factor}}}%%\n\
+{\\setcounter{pectsa}{0}}%%\n\
  %%\n\
- \\IfStrEq{#7}{%s}%%\n\
-{\\setcounter{vects}{\\fpeval{\\resects*\\factor}}}%%\n\
- {\\setcounter{vects}{0}}%%\n\
+ \\IfStrEq{#7}{in progress}%%\n\
+ {\\setcounter{pectsb}{\\fpeval{\\resects*\\factor}}}%%\n\
+ {\\setcounter{pectsb}{0}}%%\n\
   %%\n\
+ \\IfEndWith{#7}{(partiel)}%%\n\
+ {\\setcounter{pectsc}{\\fpeval{\\resects*\\factor}}}%%\n\
+ {\\setcounter{pectsc}{0}}%%\n\
+  %%\n\
+  \\IfEndWith{#7}{(partial)}%%\n\
+  {\\setcounter{pectsd}{\\fpeval{\\resects*\\factor}}}%%\n\
+  {\\setcounter{pectsd}{0}}%%\n\
+   %%\n\
+ \\IfStrEq{#7}{%s}%%\n\
+{\\setcounter{vectsa}{\\fpeval{\\resects*\\factor}}}%%\n\
+ {\\setcounter{vectsa}{0}}%%\n\
+  %%\n\
+  \\IfStrEq{#7}{%s}%%\n\
+ {\\setcounter{vectsb}{\\fpeval{\\resects*\\factor}}}%%\n\
+  {\\setcounter{vectsb}{0}}%%\n\
+   %%\n\
 \\addtocounter{total}{\\fpeval{\\thecects*\\thecnote}}%%\n\
 \\addtocounter{ects}{\\fpeval{\\thecects*\\factor}}%%\n\
-\\addtocounter{potentialects}{\\fpeval{\\thepects*\\factor}}%%\n\
+\\addtocounter{potentialects}{\\fpeval{\\thepectsa*\\factor+\\thepectsb*\\factor+\\thepectsc*\\factor+\\thepectsd*\\factor}}%%\n\
 %%\n\
-\\addtocounter{vsnects}{\\fpeval{\\thevects*\\factor}}%%\n\
+\\addtocounter{vsnects}{\\fpeval{\\thevectsa*\\factor+\\thevectsb*\\factor}}%%\n\
  %%\n\       #2 & \\ifnum \\thenrow=\\thetotalrows %%\n\ \\multirow{-\\thetotalrows}{\\hsize}{{\\centering #3}}\\fi & \\ifnum \\thetotalrows=1 %%\n\  \\mbox{}\\newline\\newline#4\\newline\\newline\\else#4\\fi  & #5 & #6 & \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#7}}}{\\mynumprint{#7}} & \\mynumprint{#8}\\cr%%\n\
 }%%\n\
-%%\n\ " Tools.valide_sans_note
+%%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
     in
     ()
   | Json | TXT | CSV | XLS | Latex_encapsulated | HTML_encapsulated -> ()
