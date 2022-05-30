@@ -217,7 +217,7 @@ let set_dma parameters =
   {
     parameters with
     main_dpt = Public_data.DMA ;
-    commission = Some ("23 juin 2022",  "2021");
+    commission = Some ("22 juin 2022",  "2021");
     local_repository = "dma/suivi_pedagogique" ;
     scholarships_repository = "dma/scolarite/ELEVES" ;
     repartition = Public_data.Annee_obtention_du_diplome ;

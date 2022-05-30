@@ -3810,9 +3810,9 @@ let heading
     | Some false
     | None -> state, [], []
   in
-  let state, inscriptions, inscriptions_en =
+  let state, inscriptions, inscriptions_en, inscriptions_short, inscriptions_en_short, is_l3 =
     match nationaux_opt,nationaux_en_opt with
-    | Some x,Some y -> state, x::dens_opt, y::dens_en_opt
+    | Some x,Some y -> state, x::dens_opt, y::dens_en_opt, x::dens_opt, y::dens_en_opt, true
     | Some x,None | None, Some x ->
       let state =
         Remanent_state.warn
@@ -3821,23 +3821,23 @@ let heading
           Exit
           state
       in
-      state, x::dens_opt, x::dens_en_opt
+      state, x::dens_opt, x::dens_en_opt, x::dens_opt, x::dens_en_opt, true
     | None, None ->
       if lpoly situation
       then
-        state, "Bachelor de l'X"::dens_opt, "X Bachelor"::dens_en_opt
+        state, "Bachelor de l'X"::dens_opt, "X Bachelor"::dens_en_opt, "Bachelor de l'X"::dens_opt, "X Bachelor"::dens_en_opt, true
       else if
         lpe origine
         || lerasmus origine
       then
-        state, dens_opt, dens_en_opt
+        state, dens_opt, dens_en_opt, dens_opt, dens_en_opt, false
       else
         StringOptMap.fold
           (fun (string_opt,dpt) _
-            (state,inscriptions,inscriptions_en) ->
+            (state,inscriptions,inscriptions_en, inscriptions_short, inscriptions_en_short, is_l3) ->
             match string_opt with
             | None | Some "dens" | Some "autre" ->
-              state, inscriptions, inscriptions_en
+              state, inscriptions, inscriptions_en, inscriptions_short, inscriptions_en_short, is_l3
             | Some string ->
               match
                 StringOptMap.find_opt
@@ -3872,7 +3872,10 @@ let heading
                 in
                 state,
                 inscriptions,
-                inscriptions_en
+                inscriptions_en,
+                inscriptions_short,
+                inscriptions_en_short,
+                is_l3
               | Some (debut,fin) ->
                 try
                   if
@@ -3916,15 +3919,28 @@ let heading
                         msg
                         Exit
                         state,
-                      inscriptions, inscriptions_en
+                      inscriptions,
+                      inscriptions_en,
+                      inscriptions_short,
+                      inscriptions_en_short,
+                      is_l3
                     | Some cursus ->
+                      let short =
+                        cursus.Public_data.cursus_gps = None &&
+                        cursus.Public_data.cursus_niveau = "m" &&
+                        situation.nannee = Some 1
+                      in
+                      let is_l3 =
+                        is_l3 || (cursus.Public_data.cursus_niveau = "l" &&
+                        situation.nannee = Some 1)
+                      in
                       match
-                        cursus.Public_data.inscription, cursus.Public_data.inscription_en,
-                        cursus.Public_data.cursus_univ
-                      with
-                      | Some inscription, Some inscription_en, Some univ ->
-                        let inscription =
-                            Format.sprintf
+                          cursus.Public_data.inscription, cursus.Public_data.inscription_en,
+                          cursus.Public_data.cursus_univ
+                        with
+                        | Some inscription, Some inscription_en, Some univ ->
+                          let inscription =
+                              Format.sprintf
                                 "%s --- %s"
                                 inscription
                                 (Public_data.string_of_universite_long_fr univ)
@@ -3937,7 +3953,10 @@ let heading
                       in
                       state,
                         inscription::inscriptions,
-                        inscription_en::inscriptions_en
+                        inscription_en::inscriptions_en,
+                        (if short then inscriptions_short else  inscription::inscriptions_short),
+                        (if short then inscriptions_en_short else inscription_en::inscriptions_en_short),
+                        is_l3
                       | Some x, None,Some univ  | None, Some x, Some univ ->
                       let state =
                         Remanent_state.warn
@@ -3961,7 +3980,10 @@ let heading
                     in
 
                       state, inscription::inscriptions,
-                      inscription_en::inscriptions_en
+                      inscription_en::inscriptions_en,
+                      (if short then inscriptions_short else inscription::inscriptions_short),
+                      (if short then inscriptions_en_short else   inscription_en::inscriptions_en_short),
+                        is_l3
                       | None, None, _   ->
                         let msg =
                           Format.sprintf
@@ -3975,7 +3997,7 @@ let heading
                           msg
                           Exit
                           state,
-                        inscriptions, inscriptions_en
+                        inscriptions, inscriptions_en, inscriptions_short, inscriptions_en_short, is_l3
                         | _, _, None   ->
                           let msg =
                             Format.sprintf
@@ -3989,18 +4011,29 @@ let heading
                             msg
                             Exit
                             state,
-                          inscriptions, inscriptions_en
-                  else state, inscriptions, inscriptions_en
+                          inscriptions, inscriptions_en, inscriptions_short,
+                          inscriptions_en_short, is_l3
+                  else state, inscriptions, inscriptions_en,   inscriptions_short,
+                  inscriptions_en_short,
+                  is_l3
                 with _ ->
                   Remanent_state.warn
                     __POS__
                     "internal error, years should be  convertible into int"
                     Exit
                     state,
-                  inscriptions, inscriptions_en
+                  inscriptions, inscriptions_en, inscriptions_short,
+                  inscriptions_en_short,
+                  is_l3
           )
           split_cours
-          (state, dens_opt, dens_en_opt)
+          (state, dens_opt, dens_en_opt, dens_opt, dens_en_opt, false)
+  in
+  let inscriptions, inscriptions_en =
+      if is_l3 then
+         inscriptions_short, inscriptions_en_short
+      else
+         inscriptions, inscriptions_en
   in
   let inscription_string =
     Format.asprintf
@@ -4021,6 +4054,13 @@ let heading
          (fun log -> Format.fprintf log "%s")
       )
       inscriptions_en
+  in
+  let state =
+    Remanent_state.warn
+        __POS__
+        (Format.sprintf "%s %s %s %s %s %s" year firstname lastname inscription_string inscription_en_string (if is_l3 then "L3" else "NO L3"))
+        Exit
+        state
   in
   let () =
     Remanent_state.log_string
@@ -4196,7 +4236,7 @@ let heading
         Remanent_state.print_newline state
       in
       ()
-  in state
+  in state, is_l3
 
 let foot signature state  =
   let () =
@@ -6081,9 +6121,9 @@ let export_transcript
           state, l
         end
     in
-    let state,mean,dens,natt =
+    let state,mean,dens,natt, is_l3 =
       List.fold_left
-        (fun (state,mean,dens,natt)
+        (fun (state,mean,dens,natt, is_l3)
           (year,situation,gpscodelist,split_cours) ->
            let who =
              Format.sprintf "%s in %s" who year
@@ -6444,7 +6484,7 @@ let export_transcript
              else state
            in
 
-           if year > current_year then state,mean,dens,natt
+           if year > current_year then state,mean,dens,natt, is_l3
            else
              let l =
                [21.0;11.67;48.33;26.67;7.3;10.00;5.17]
@@ -6502,7 +6542,7 @@ let export_transcript
              if StringOptMap.is_empty split_cours
              then
                let suite = false in
-               let state =
+               let state, is_l3' =
                  heading
                    ~who ~firstname ~lastname
                    ~promo ~origine
@@ -6526,20 +6566,20 @@ let export_transcript
                    Remanent_state.fprintf
                      state "\\pagebreak\n\ "
                in
-               state, mean, dens, natt
+               state, mean, dens, natt, is_l3 || is_l3'
              else
                begin
-                 let _, state, mean, dens, natt =
+                 let _, state, mean, dens, natt, is_l3 =
                    StringOptMap.fold
                      (fun
                        (string,dpt)  list
-                       (i,state,mean,dens,natt)
+                       (i,state,mean,dens,natt, is_l3)
                        ->
-                         let state =
+                         let state, is_l3' =
                            if i mod 2 = 1
                            then
                              let suite = i<>1 in
-                             let state =
+                             let state, is_l3 =
                                heading
                                  ~who ~firstname ~lastname
                                  ~promo ~origine ~gpscodelist
@@ -6552,8 +6592,8 @@ let export_transcript
                                Remanent_state.fprintf
                                  state "\n\ \\vfill\n\ \n\ "
                              in
-                             state
-                           else state
+                             state, is_l3
+                           else state, is_l3
                          in
                          let
                            (state,mean,dens,natt)
@@ -6626,15 +6666,15 @@ let export_transcript
                              Remanent_state.fprintf
                                state "\\pagebreak\n\ "
                          in
-                         (i+1,state,mean,dens,natt)
+                         (i+1,state,mean,dens,natt,is_l3 || is_l3')
                      )
                      split_cours
-                     (1,state,mean,dens,natt)
+                     (1,state,mean,dens,natt,false)
                  in
-                 state,mean,dens,natt
+                 state,mean,dens,natt, is_l3
                end
         )
-        (state,mean_init,dens_init,n_att_init)
+        (state,mean_init,dens_init,n_att_init, false)
         l
     in
     let _ = natt in
@@ -6981,6 +7021,9 @@ let export_transcript
                        | Some cursus -> cursus
                        | _ -> Public_data.empty_cursus
                      in
+                     if is_l3 && cursus.Public_data.cursus_gps = None && cursus.Public_data.cursus_niveau = "m"
+                     then state
+                     else
                      Remanent_state.add_national_diploma
                        state
                        {Public_data.diplome_dpt;
