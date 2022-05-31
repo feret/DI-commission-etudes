@@ -34,6 +34,7 @@ module StringOptMap =
 let dpt_maths = "mathematiques"
 let dpt_info = "informatique"
 let dpt_phys = "physique"
+let dpt_phyl = "phylosiphie"
 let dpt_bio = "biologie"
 let dpt_arts = "arts"
 let dpt_lila = "litteratures et langage"
@@ -46,6 +47,7 @@ let dpt_dri = "relations internationales"
 let dpt_maths_en = "mathematics"
 let dpt_info_en = "computer science"
 let dpt_phys_en = "physics"
+let dpt_phyl_en = "phylosophy"
 let dpt_bio_en = "biology"
 let dpt_arts_en = "arts"
 let dpt_lila_en = "litteratures and language"
@@ -2387,7 +2389,17 @@ let mmf = gen_master "M-MathFond" ["gps3102"] "XT 00000000000664965"
 let mlmfi = gen_master "M-LMFI" ["gps2005";"gps3579"] "NOWAY"
 let mimalis = gen_master "M-ScVivant" [] "BIO-M2-E14-S2"
 let mphylo = gen_master "M-Philo" ["gps07302"] "NOWAY"
-let mrandom = gen_master "M-ALEA" ["gps85775"] "NOWAY"
+let mrandom = gen_master "M-ALEA" ["gps85775";"gps87012"] "NOWAY"
+let mfondps = gen_master "M-FONDPS" ["gps85612"] "NOWAY"
+let mfondsu = gen_master "M-FONDSU" ["gps87094";"gps85911"] "NOWAY"
+let mfondupc = gen_master "M-FONDUPC" ["gps3102"] "NOWAY"
+let manamodsimorsay = gen_master "M-AnaModSimOrsay" ["gps86273"] "NOWAY"
+let manamodsimversailles = gen_master "M-AnaModSimVersaille" ["gps85915"] "NOWAY"
+let mprobaalea = gen_master "M-ProbaAlea" ["gps86372";"gps87274"] "NOWAY"
+let mfimfa = gen_master "M-FIMFA" ["gps3103"] "NOWAY"
+let mmod = gen_master "M-MOD" ["gps87632";"gps85959";"gps88472"] "XT 00000000000667923"
+let mphys = gen_master "M-Phys" ["MPSL-PHY"] "NOWAY"
+
 
 let string_of_stringopt s_opt =
   match s_opt with
@@ -2731,9 +2743,6 @@ let translate_diplome
 
     end
   | Some "M" ->
-    if mmaths situation then
-      state, (Some "M","M1 de mathématiques","M1 in Mathematics", dpt_maths,dpt_maths_en,false)
-    else
     if mpri situation then
       state, (Some "MPRI","M2 du MPRI","M2 MPRI",dpt_info,dpt_info_en,false)
     else if mva situation then
@@ -2748,15 +2757,37 @@ let translate_diplome
       state, (Some "Interaction", "M2 Interaction", "M2 Interaction",dpt_info,dpt_info_en,false)
     else if mmf situation then
       state, (Some "MathFond", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false)
+    else if mfondsu situation then
+      state, (Some "MathFondSu", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false)
+    else if mfondupc situation then
+      state, (Some "MathFondSUPC", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false)
+    else if mfondps situation then
+      state, (Some "MathFondPantheonSor", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false)
     else if mlmfi situation then
       state, (Some "LMFI", "M2 LMFI", "M2 LMFI", dpt_info, dpt_info_en,false)
     else if mrandom situation then
       state, (Some "ALEA", "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness", dpt_maths, dpt_maths_en,false)
+    else if manamodsimorsay situation then
+      state, (Some "MODSIMORSAY", "M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation",dpt_maths, dpt_maths_en,false)
+    else if manamodsimversailles situation then
+      state, (Some "MODSIMVERSAILLES", "M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation",dpt_maths, dpt_maths_en,false)
+    else if mprobaalea situation then
+      state, (Some "PROB", "M2 Probabilités et Modèles Aléatoires", "M2 Mathematics Probability and Random Models",dpt_maths, dpt_maths_en,false)
+    else if mfimfa situation then
+      state, (Some "MFIMFA", "M2 FIMFA", "M2 FIMFA",dpt_maths, dpt_maths_en,false)
+    else if mmod situation then
+      state, (Some "MMOD", "M2 Mathématiques de la modelisation", "M2 Mathematics of Modeling",dpt_maths, dpt_maths_en,false)
+    else if mphys situation then
+      state, (Some "MPHYS","M2 Physique","M2 Physics",dpt_phys, dpt_phys_en,false)
     else if mimalis situation then
       state, (Some "IMALIS","M2 IMALIS","M2 IMALIS",dpt_bio,dpt_bio_en,false)
     else if mphylo situation then
-      state, (Some "PHILOSorbonne","M2 Phylo (SU)", "M2 Phylo (SU)", dpt_info,dpt_info_en, false)
+      state, (Some "PHILOSorbonne","M2 Phylo (SU)", "M2 Phylo (SU)", dpt_phyl,dpt_phyl_en, false)
     else
+    if mmaths situation then
+      state, (Some "M","M1 de mathématiques","M1 in Mathematics", dpt_maths,dpt_maths_en,false)
+    else
+
       check_dpt __POS__ state origine
         "M" "M1" "M1" code_cours year
         situation
