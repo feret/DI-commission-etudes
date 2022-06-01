@@ -45,7 +45,7 @@ module StringOptMap =
 
 type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO | DRI | ARTS | LILA
 type universite =
-  | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud
+  | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud | UPNord | USPN | UDauphine
 
 module StringUnivMap =
   Map_tools.MakeSimplified
@@ -104,7 +104,11 @@ let file_suffix_of_univ x =
     | UPSud -> "_P11"
     | UPantheonSorbonne -> "_P1"
     | UDiderot -> "_P7"
+    | UPNord -> "_P13"
+    | USPN -> "_USPN"
+    | UDauphine -> "_P9"
     | Upartenaire -> ""
+
 
 let string_of_universite x =
     match x with
@@ -117,6 +121,9 @@ let string_of_universite x =
       | UPSud -> "P11"
       | UPantheonSorbonne -> "P1"
       | UDiderot -> "P7"
+      | UPNord -> "P13"
+      | USPN -> "USPN"
+      | UDauphine -> "P9"
       | Upartenaire -> ""
 
 let string_of_universite_long_fr x =
@@ -130,6 +137,9 @@ let string_of_universite_long_fr x =
             | UPSud -> "Université Paris-Sud"
             | UPantheonSorbonne -> "Université Panthéon-Sorbonne"
             | UDiderot -> "Université Paris Diderot"
+            | UPNord -> "Université Paris Nord"
+            | USPN -> "Université Sorbonne Paris Nord"
+            | UDauphine -> "Université Paris Dauphine"
             | Upartenaire -> "Université partenaire"
 
             let string_of_universite_long_en x =
@@ -143,7 +153,11 @@ let string_of_universite_long_fr x =
                         | UPSud -> "Paris-Sud University"
                         | UPantheonSorbonne -> "Panthéon-Sorbonne University"
                         | UDiderot -> "Paris Diderot University"
+                        | UPNord -> "Paris-Nord University"
+                        | USPN -> "Sorbonne Paris Nord University"
+                        | UDauphine -> "Paris Dauphine University"
                         | Upartenaire -> "Partner University"
+
 
 let univ_of_string x =
   let x = Special_char.lowercase (Special_char.correct_string_txt (Special_char.correct_string_utf8 (String.trim x))) in

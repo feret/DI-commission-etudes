@@ -165,6 +165,17 @@ let m_psl_dma =
       Public_data.dn_departement=Public_data.DMA;
     }
 
+let m_uspn_dma =
+Public_data.Diplome_National
+  {
+    Public_data.dn_key="m";
+    Public_data.dn_short="M1";
+    Public_data.dn_long="Master M1 de mathématiques";
+    Public_data.dn_universite="à l'Université Sorbonne Paris Nord";
+    Public_data.dn_niveau="m";
+    Public_data.dn_univ_key = Public_data.USPN;
+    Public_data.dn_departement=Public_data.DMA;
+  }
 
 type todo =
   | TODO_Nat of Diploma_report.dump * string
@@ -265,7 +276,7 @@ let diplomes_dma =
             elt.Public_data.dn_key,elt.Public_data.dn_univ_key)
          elt map)
     Public_data.StringUnivMap.empty
-    [l_dma;l_su_dma;l_upc_dma;l_ups_dma;l_psl_dma;m_dma;m_su_dma;m_upc_dma;m_ups_dma;m_psl_dma;dens]
+    [l_dma;l_su_dma;l_upc_dma;l_ups_dma;l_psl_dma;m_dma;m_uspn_dma;m_su_dma;m_upc_dma;m_ups_dma;m_psl_dma;dens]
 
 
 let diplomes_ibens =
@@ -683,7 +694,7 @@ let print_sous_commission
           in
           state
         in state
-      | TODO_DENS _, Public_data.Diplome_ENS _, (Public_data.UPC | Public_data.PSL | Public_data.UP | Public_data.SU | Public_data.UPSud | Public_data.UPantheonSorbonne | Public_data.UPS | Public_data.Upartenaire | Public_data.UDiderot) ->
+      | TODO_DENS _, Public_data.Diplome_ENS _, (Public_data.UPC | Public_data.PSL | Public_data.UP | Public_data.SU | Public_data.UPSud | Public_data.UPantheonSorbonne | Public_data.UPS | Public_data.Upartenaire | Public_data.UDiderot | Public_data.UDauphine | Public_data.USPN | Public_data.UPNord ) ->
         let state =
           Remanent_state.warn
             __POS__

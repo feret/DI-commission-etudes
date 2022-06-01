@@ -21,7 +21,7 @@ type student_id =
   }
 
 type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO | DRI | ARTS | LILA
-type universite =  | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud
+type universite =  | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud | UPNord | USPN | UDauphine 
 val string_of_dpt: main_dpt -> string
 val dpt_of_string: string -> main_dpt
 val string_of_universite: universite -> string
