@@ -113,7 +113,7 @@ let m_ups_dma =
       Public_data.dn_long="Master M1 de mathématiques";
       Public_data.dn_universite="à l'Université Paris-Saclay";
       Public_data.dn_niveau="m";
-      Public_data.dn_univ_key = Public_data.UPC;
+      Public_data.dn_univ_key = Public_data.UPS;
       Public_data.dn_departement=Public_data.DMA;
     }
 
@@ -276,7 +276,9 @@ let diplomes_dma =
             elt.Public_data.dn_key,elt.Public_data.dn_univ_key)
          elt map)
     Public_data.StringUnivMap.empty
-    [l_dma;l_su_dma;l_upc_dma;l_ups_dma;l_psl_dma;m_dma;m_uspn_dma;m_su_dma;m_upc_dma;m_ups_dma;m_psl_dma;dens]
+    [l_dma;l_su_dma;l_upc_dma;l_ups_dma;l_psl_dma;
+     m_dma;m_uspn_dma;m_su_dma;m_upc_dma;m_ups_dma;m_psl_dma;
+     dens]
 
 
 let diplomes_ibens =
@@ -713,7 +715,7 @@ let prepare_commission
     ~commission_rep
     ?annee
     ?date_complete
-    ?universites:(universites=[Public_data.UPC;Public_data.UPS;Public_data.PSL;Public_data.Upartenaire;Public_data.UENS])
+    ?universites:(universites=[Public_data.UPC;Public_data.UPS;Public_data.PSL;Public_data.Upartenaire;Public_data.UENS;Public_data.SU;Public_data.UPantheonSorbonne])
     ?signataires:(persons=["MP";"JF";"LB"])
     ?diplomes:(sous_commissions=["dens";"l";"m"])
     state =
