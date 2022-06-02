@@ -2391,7 +2391,7 @@ let mimalis = gen_master "M-ScVivant" [] "BIO-M2-E14-S2"
 let mphylo = gen_master "M-Philo" ["gps07302"] "NOWAY"
 let mrandom = gen_master "M-ALEA" ["gps85775";"gps87012"] "NOWAY"
 let mfondps = gen_master "M-FONDPS" ["gps85612"] "NOWAY"
-let mfondsu = gen_master "M-FONDSU" ["gps87094";"gps85911"] "NOWAY"
+let mfondsu = gen_master "M-FONDSU" ["gps87094";"gps85911";"gps86231"] "NOWAY"
 let mfondupc = gen_master "M-FONDUPC" ["gps3102"] "NOWAY"
 let manamodsimorsay = gen_master "M-AnaModSimOrsay" ["gps86273"] "NOWAY"
 let manamodsimversailles = gen_master "M-AnaModSimVersaille" ["gps85915"] "NOWAY"
@@ -7052,9 +7052,21 @@ let export_transcript
                        | Some cursus -> cursus
                        | _ -> Public_data.empty_cursus
                      in
+let state =
+Remanent_state.warn
+    __POS__
+    (Format.sprintf "ADD NAT DIPLOMA %s %s %s %s %s %s " firstname lastname diplome_year (if is_l3 then "L3" else "Not L3")
+            cursus.Public_data.cursus_niveau (Public_data.string_of_universite univ)) Exit state in
+
                      if is_l3 && cursus.Public_data.cursus_gps = None && cursus.Public_data.cursus_niveau = "m"
                      then state
                      else
+                     let state =
+                     Remanent_state.warn
+                         __POS__
+                         (Format.sprintf "ADD NAT DIPLOMA2 %s %s %s %s %s %s %s" firstname lastname diplome_year (if is_l3 then "L3" else "Not L3")
+                                 cursus.Public_data.cursus_niveau (Public_data.string_of_universite univ)
+                                 (Public_data.string_of_dpt diplome_dpt) ) Exit state in
                      Remanent_state.add_national_diploma
                        state
                        {Public_data.diplome_dpt;
