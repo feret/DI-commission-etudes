@@ -4086,13 +4086,6 @@ let heading
       )
       inscriptions_en
   in
-  let state =
-    Remanent_state.warn
-        __POS__
-        (Format.sprintf "%s %s %s %s %s %s" year firstname lastname inscription_string inscription_en_string (if is_l3 then "L3" else "NO L3"))
-        Exit
-        state
-  in
   let () =
     Remanent_state.log_string
       ~lineproportion
@@ -7052,52 +7045,40 @@ let export_transcript
                        | Some cursus -> cursus
                        | _ -> Public_data.empty_cursus
                      in
-let state =
-Remanent_state.warn
-    __POS__
-    (Format.sprintf "ADD NAT DIPLOMA %s %s %s %s %s %s " firstname lastname diplome_year (if is_l3 then "L3" else "Not L3")
-            cursus.Public_data.cursus_niveau (Public_data.string_of_universite univ)) Exit state in
-
-                     if is_l3 && cursus.Public_data.cursus_gps = None && cursus.Public_data.cursus_niveau = "m"
+                     if
+                         is_l3
+                       && cursus.Public_data.cursus_gps = None
+                       && cursus.Public_data.cursus_niveau = "m"
                      then state
                      else
-                     let state =
-                     Remanent_state.warn
-                         __POS__
-                         (Format.sprintf "ADD NAT DIPLOMA2 %s %s %s %s %s %s %s" firstname lastname diplome_year (if is_l3 then "L3" else "Not L3")
-                                 cursus.Public_data.cursus_niveau (Public_data.string_of_universite univ)
-                                 (Public_data.string_of_dpt diplome_dpt) ) Exit state in
-                     Remanent_state.add_national_diploma
-                       state
-                       {Public_data.diplome_dpt;
-                        Public_data.diplome_niveau ;
-                        Public_data.diplome_univ_key = univ ;
-                        Public_data.diplome_cursus = cursus ;
-                        Public_data.diplome_ranking = None ;
-                        Public_data.diplome_effectif = None ;
-                        Public_data.diplome_origine = origine;
-                        Public_data.diplome_statut = gps_file.statut ;
-                        Public_data.diplome_firstname = firstname ;
-                        Public_data.diplome_lastname = lastname ;
-                        Public_data.diplome_gender =
-                          begin
-                            match gps_file.genre
-                            with
-                            | Some a -> a
-                            | None -> Public_data.Unknown
-                          end ;
-                        Public_data.diplome_promotion = promo
-                       ;
-                        Public_data.diplome_nb_ects = ects ;
-                        Public_data.diplome_moyenne =
-                          mean ;
-                        Public_data.diplome_year;
-                        Public_data.diplome_mention =
-                          mention
-                       ;
-                        Public_data.diplome_recu = validated ;
-                        Public_data.diplome_commission = d_nat ;
-                       }
+                        Remanent_state.add_national_diploma
+                          state
+                          {
+                            Public_data.diplome_dpt;
+                            Public_data.diplome_niveau ;
+                            Public_data.diplome_univ_key = univ ;
+                            Public_data.diplome_cursus = cursus ;
+                            Public_data.diplome_ranking = None ;
+                            Public_data.diplome_effectif = None ;
+                            Public_data.diplome_origine = origine;
+                            Public_data.diplome_statut = gps_file.statut ;
+                            Public_data.diplome_firstname = firstname ;
+                            Public_data.diplome_lastname = lastname ;
+                            Public_data.diplome_gender =
+                              begin
+                                match gps_file.genre
+                                with
+                                | Some a -> a
+                                | None -> Public_data.Unknown
+                                end ;
+                            Public_data.diplome_promotion = promo;
+                            Public_data.diplome_nb_ects = ects ;
+                            Public_data.diplome_moyenne = mean ;
+                            Public_data.diplome_year;
+                            Public_data.diplome_mention = mention;
+                            Public_data.diplome_recu = validated ;
+                            Public_data.diplome_commission = d_nat ;
+                        }
                    else state
               )
               state

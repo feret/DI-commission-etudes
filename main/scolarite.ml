@@ -96,7 +96,7 @@ let state =
 let state =
   Collect_programs.get_programs state
 let state =
-  Collect_inscriptions.get_inscriptions state 
+  Collect_inscriptions.get_inscriptions state
 let state =
   Collect_programs.get_cursus_exceptions state
 let state =
@@ -166,9 +166,10 @@ let state =
            match gps with
            | None -> state
            | Some gps ->
+             let report = true in 
              let state, input =
                Transcripts.export_transcript
-                 ~output ~keep_success:true state gps
+                 ~output ~keep_success:true ~report state gps
              in
              let state =
                match input, is_dma || is_phys with
