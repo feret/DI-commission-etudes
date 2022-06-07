@@ -2399,7 +2399,11 @@ let mprobaalea = gen_master "M-ProbaAlea" ["gps86372";"gps87274"] "NOWAY"
 let mfimfa = gen_master "M-FIMFA" ["gps3103"] "NOWAY"
 let mmod = gen_master "M-MOD" ["gps87632";"gps85959";"gps88472"] "XT 00000000000667923"
 let mphys = gen_master "M-Phys" ["MPSL-PHY"] "NOWAY"
-
+let mprobfin = gen_master "M-PROBFIN" ["gps82128"] "NOWAY"
+let mformens = gen_master "M-FORMENS" ["gps87633"] "NOWAY"
+let agregmathsu = gen_master "M-AGREGMATH" [] "NOWAY"
+let mappsu = gen_master "M-APPSU" ["gps82525"] "NOWAY"
+let mape = gen_master "M-APE" ["MPSL-APE"] "NOWAY"
 
 let string_of_stringopt s_opt =
   match s_opt with
@@ -2753,6 +2757,8 @@ let translate_diplome
       state, (Some "MASH","M2 MASH","M2 MASH", dpt_info,dpt_info_en,false)
     else if msesi situation then
       state, (Some "SESI","M1 SESI","M1 SESI", dpt_info,dpt_info_en,false)
+    else if agregmathsu situation then
+      state, (Some "AGREGMATHSU","Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggreation", dpt_maths, dpt_maths_en,false )
     else if mint situation then
       state, (Some "Interaction", "M2 Interaction", "M2 Interaction",dpt_info,dpt_info_en,false)
     else if mmf situation then
@@ -2775,6 +2781,14 @@ let translate_diplome
       state, (Some "PROB", "M2 Probabilités et Modèles Aléatoires", "M2 Mathematics Probability and Random Models",dpt_maths, dpt_maths_en,false)
     else if mfimfa situation then
       state, (Some "MFIMFA", "M2 FIMFA", "M2 FIMFA",dpt_maths, dpt_maths_en,false)
+    else if mprobfin situation then
+      state, (Some "MPROBFIN", "M2 Probabilités et Finance", "M2 Probability and Finance",dpt_maths,dpt_maths_en,false)
+    else if mformens situation then
+      state, (Some "MFORMENS", "M2 Formation à l'Enseignement Supérieur en Mathématiques","M2 Formation to Higher Eduction in Mathematics",dpt_maths,dpt_maths_en,false)
+    else if mappsu situation then
+      state, (Some "M-APP", "M2 Mathematiques et applications ","M2 Mathematics and applications",dpt_maths,dpt_maths_en,false)
+    else if mape situation then
+      state, (Some "MAPE", "M1 Analyse politique et économique","M1 Political and economical analysis",dpt_maths,dpt_maths_en,false)
     else if mmod situation then
       state, (Some "MMOD", "M2 Mathématiques de la modelisation", "M2 Mathematics of Modeling",dpt_maths, dpt_maths_en,false)
     else if mphys situation then

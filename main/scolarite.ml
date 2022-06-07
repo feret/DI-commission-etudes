@@ -166,7 +166,7 @@ let state =
            match gps with
            | None -> state
            | Some gps ->
-             let report = true in 
+             let report = true in
              let state, input =
                Transcripts.export_transcript
                  ~output ~keep_success:true ~report state gps
@@ -203,7 +203,7 @@ let state =
                let state, input =
                  Transcripts.export_transcript
                    ~language:Public_data.English
-                   ~output ~keep_success:true state gps
+                   ~output state gps
                in
                let state =
                  match input, is_dma || is_phys with
