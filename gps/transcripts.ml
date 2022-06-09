@@ -2391,6 +2391,7 @@ let mlmfi = gen_master "M-LMFI" ["gps2005";"gps3579"] "NOWAY"
 let mimalis = gen_master "M-ScVivant" [] "BIO-M2-E14-S2"
 let mphylo = gen_master "M-Philo" ["gps07302"] "NOWAY"
 let mrandom = gen_master "M-ALEA" ["gps85775";"gps87012"] "NOWAY"
+let marianageo = gen_master "M-AAG" [] "NOWAY"
 let mfondps = gen_master "M-FONDPS" ["gps85612"] "NOWAY"
 let mfondsu = gen_master "M-FONDSU" ["gps87094";"gps85911";"gps86231"] "NOWAY"
 let mfondupc = gen_master "M-FONDUPC" ["gps3102"] "NOWAY"
@@ -2582,10 +2583,11 @@ let translate_diplome
           | "mathfond" | "mathfondsu" | "mathfondsupc" | "mathfondpantheonsor"
              -> state,"M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics"
           | "lmfi" -> state,"M2 LMFI", "M2 LMFI"
+          | "marianageo" -> state, "M2 Arithmétique Analyse et Géométrie","M2 Analysis, Number Theory and Geometry"
           | "malea" | "alea" -> state, "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness"
           | "modsimorsay" | "modsimversailles" -> state,"M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation"
           | "prob" -> state,"M2 Probabilités et Modèles Aléatoires", "M2 Mathematics Probability and Random Models"
-        (*  | "mfimfa" | "mfimfaorsay" -> state, "M2 FIMFA", "M2 FIMFA"*)
+         | "mfimfa" | "mfimfaorsay" -> state, "M2 FIMFA", "M2 FIMFA"
           | "mprobfin" -> state, "M2 Probabilités et Finance", "M2 Probability and Finance"
           | "mformens" ->   state, "M2 Formation à l'Enseignement Supérieur en Mathématiques","M2 Formation to Higher Eduction in Mathematics"
           | "mappsu" -> state,"M2 Mathematiques et applications ","M2 Mathematics and applications"
@@ -2797,6 +2799,8 @@ let translate_diplome
       state, (Some "LMFI", "M2 LMFI", "M2 LMFI", dpt_info, dpt_info_en,false)
     else if mrandom situation then
       state, (Some "ALEA", "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness", dpt_maths, dpt_maths_en,false)
+    else if marianageo situation then
+      state, (Some "MARIANAGEO", "M2 Arithmétique Analyse et Géométrie","M2 Analysis, Number Theory and Geometry",dpt_maths, dpt_maths_en,false)
     else if manamodsimorsay situation then
       state, (Some "MODSIMORSAY", "M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation",dpt_maths, dpt_maths_en,false)
     else if manamodsimversailles situation then
