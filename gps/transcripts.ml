@@ -2567,9 +2567,31 @@ let translate_diplome
         let gerund = dpt.Public_data.dpt_genitif in
         let gerund_en = dpt.Public_data.dpt_genitif_en in
         let state,label,label_en =
-          match level with
-          | "L" -> state, "L3 "^gerund, "Bachelor 3 "^gerund_en
-          | "M" -> state, "M1 "^gerund, "M1 "^gerund_en
+          match String.lowercase_ascii level with
+          | "l" -> state, "L3 "^gerund, "Bachelor 3 "^gerund_en
+          | "m" -> state, "M1 "^gerund, "M1 "^gerund_en
+          | "mpri" -> state,"M2 du MPRI","M2 MPRI"
+          | "mva" -> state,"M2 du MVA","M2 MVA"
+          | "iasd" -> state,"M2 IASD","M2 IASD"
+          | "mash" -> state,"M2 MASH","M2 MASH"
+          | "sesi" -> state,"M1 SESI","M1 SESI"
+          | "agregmathsu" -> state, "Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggreation"
+          | "interaction" -> state,"M2 Interaction", "M2 Interaction"
+          | "mathfond" | "mathfondsu" | "mathfondsupc" | "mathfondpantheonsor"
+             -> state,"M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics"
+          | "lmfi" -> state,"M2 LMFI", "M2 LMFI"
+          | "malea" | "alea" -> state, "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness"
+          | "modsimorsay" | "modsimversailles" -> state,"M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation"
+          | "prob" -> state,"M2 Probabilités et Modèles Aléatoires", "M2 Mathematics Probability and Random Models"
+          | "mfimfa" -> state, "M2 FIMFA", "M2 FIMFA"
+          | "mprobfin" -> state, "M2 Probabilités et Finance", "M2 Probability and Finance"
+          | "mformens" ->   state, "M2 Formation à l'Enseignement Supérieur en Mathématiques","M2 Formation to Higher Eduction in Mathematics"
+          | "mappsu" -> state,"M2 Mathematiques et applications ","M2 Mathematics and applications"
+          | "mape" -> state,"M1 Analyse politique et économique","M1 Political and economical analysis"
+          | "mmod" -> state, "M2 Mathématiques de la modelisation", "M2 Mathematics of Modeling"
+          | "mphys" -> state, "M2 Physique","M2 Physics"
+          | "imalis" -> state, "M2 IMALIS","M2 IMALIS"
+          | "philosorbonne" -> state, "M2 Phylo (SU)", "M2 Phylo (SU)"
           | _ ->
             let msg =
               Format.sprintf
