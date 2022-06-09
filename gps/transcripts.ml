@@ -2356,7 +2356,8 @@ let gen_master
     diplome' gps stage d =
   List.exists
     (fun diplome ->
-       ((Tools.map_opt String.trim diplome.niveau) = Some "2")
+       (match (Tools.map_opt String.trim diplome.niveau) with Some i ->
+int_of_string i >=2 | None -> false)
        &&
        ((Tools.map_opt String.trim diplome.diplome_diplome)=Some diplome'
        ||
@@ -2385,7 +2386,7 @@ let iasd = gen_master "M-IASD" ["gps76822";"gps78762"] "INFO-M2-IASD-STG-S2"
 let mash = gen_master "M-MASH" ["gps59622"] "INFO-M2-MASH-STG-S2"
 let msesi = gen_master "M-SESI" ["gps86653"] "NOWAY"
 let mint = gen_master "M-Interaction" ["gps78864"] "XT 00000000000647168"
-let mmf = gen_master "M-MathFond" ["gps3102"] "XT 00000000000664965"
+(*let mmf = gen_master "M-MathFond" ["gps3102"] "XT 00000000000664965"*)
 let mlmfi = gen_master "M-LMFI" ["gps2005";"gps3579"] "NOWAY"
 let mimalis = gen_master "M-ScVivant" [] "BIO-M2-E14-S2"
 let mphylo = gen_master "M-Philo" ["gps07302"] "NOWAY"
@@ -2396,7 +2397,8 @@ let mfondupc = gen_master "M-FONDUPC" ["gps3102"] "NOWAY"
 let manamodsimorsay = gen_master "M-AnaModSimOrsay" ["gps86273"] "NOWAY"
 let manamodsimversailles = gen_master "M-AnaModSimVersaille" ["gps85915"] "NOWAY"
 let mprobaalea = gen_master "M-ProbaAlea" ["gps86372";"gps87274"] "NOWAY"
-let mfimfa = gen_master "M-FIMFA" ["gps3103"] "NOWAY"
+(*let mfimfa = gen_master "M-FIMFA" ["gps3103"] "NOWAY"
+let mfimfaorsay = gen_master "M-FIMFAOrsay" ["gps2458"] "NOWAY"*)
 let mmod = gen_master "M-MOD" ["gps87632";"gps85959";"gps88472"] "XT 00000000000667923"
 let mphys = gen_master "M-Phys" ["MPSL-PHY"] "NOWAY"
 let mprobfin = gen_master "M-PROBFIN" ["gps82128"] "NOWAY"
@@ -2583,7 +2585,7 @@ let translate_diplome
           | "malea" | "alea" -> state, "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness"
           | "modsimorsay" | "modsimversailles" -> state,"M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation"
           | "prob" -> state,"M2 Probabilités et Modèles Aléatoires", "M2 Mathematics Probability and Random Models"
-          | "mfimfa" -> state, "M2 FIMFA", "M2 FIMFA"
+        (*  | "mfimfa" | "mfimfaorsay" -> state, "M2 FIMFA", "M2 FIMFA"*)
           | "mprobfin" -> state, "M2 Probabilités et Finance", "M2 Probability and Finance"
           | "mformens" ->   state, "M2 Formation à l'Enseignement Supérieur en Mathématiques","M2 Formation to Higher Eduction in Mathematics"
           | "mappsu" -> state,"M2 Mathematiques et applications ","M2 Mathematics and applications"
@@ -2783,8 +2785,8 @@ let translate_diplome
       state, (Some "AGREGMATHSU","Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggreation", dpt_maths, dpt_maths_en,false )
     else if mint situation then
       state, (Some "Interaction", "M2 Interaction", "M2 Interaction",dpt_info,dpt_info_en,false)
-    else if mmf situation then
-      state, (Some "MathFond", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false)
+  (*  else if mmf situation then
+      state, (Some "MathFond", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false)*)
     else if mfondsu situation then
       state, (Some "MathFondSu", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false)
     else if mfondupc situation then
@@ -2801,8 +2803,10 @@ let translate_diplome
       state, (Some "MODSIMVERSAILLES", "M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation",dpt_maths, dpt_maths_en,false)
     else if mprobaalea situation then
       state, (Some "PROB", "M2 Probabilités et Modèles Aléatoires", "M2 Mathematics Probability and Random Models",dpt_maths, dpt_maths_en,false)
-    else if mfimfa situation then
+  (*  else if mfimfa situation then
       state, (Some "MFIMFA", "M2 FIMFA", "M2 FIMFA",dpt_maths, dpt_maths_en,false)
+    else if mfimfaorsay situation then
+        state, (Some "MFIMFA", "M2 FIMFA", "M2 FIMFA",dpt_maths, dpt_maths_en,false)*)
     else if mprobfin situation then
       state, (Some "MPROBFIN", "M2 Probabilités et Finance", "M2 Probability and Finance",dpt_maths,dpt_maths_en,false)
     else if mformens situation then
@@ -7031,6 +7035,30 @@ let export_transcript
                               || lerasmus origine || lpe origine
                               || lechange_dri situation
                            then
+                           let diplome_dpt = Public_data.dpt_of_string (snd key) in
+                           let diplome_niveau =
+                              (match fst key with
+                                  | None -> ""
+                                  | Some a -> a)
+                           in
+                           let diplome_year = string_of_int val_year in
+
+                           let state, _, cursus =
+                              Univ.get_univ
+                                ~diplome_dpt ~diplome_niveau ~diplome_year ~firstname ~lastname
+                                gpscodelist state
+                           in
+
+                           let cursus =
+                             match cursus with
+                             | Some cursus -> cursus
+                             | _ -> Public_data.empty_cursus
+                           in
+                              if is_l3
+                               && cursus.Public_data.cursus_gps = None
+                               && cursus.Public_data.cursus_niveau = "m"
+                              then state
+                              else
                              Remanent_state.push_copy
                                  ~input_rep
                                  ~file_name
