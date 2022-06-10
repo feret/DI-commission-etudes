@@ -171,6 +171,7 @@ let univ_of_string x =
   | "upsud" | "p11" -> UPSud
   | "u-pantheon-sorbonne" | "p1"-> UPantheonSorbonne
   | "p7" | "diderot" -> UDiderot
+  | "uspn" -> USPN 
   | _ -> Upartenaire
 
 

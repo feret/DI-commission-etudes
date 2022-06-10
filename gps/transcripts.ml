@@ -2587,6 +2587,7 @@ let translate_diplome
           | "malea" | "alea" -> state, "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness"
           | "modsimorsay" | "modsimversailles" -> state,"M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation"
           | "prob" -> state,"M2 Probabilités et Modèles Aléatoires", "M2 Mathematics Probability and Random Models"
+          | "mmathgeneric" -> state,"M2 Mathématiques ?","M2 Mathematics ?"
          | "mfimfa" | "mfimfaorsay" -> state, "M2 FIMFA", "M2 FIMFA"
           | "mprobfin" -> state, "M2 Probabilités et Finance", "M2 Probability and Finance"
           | "mformens" ->   state, "M2 Formation à l'Enseignement Supérieur en Mathématiques","M2 Formation to Higher Eduction in Mathematics"
