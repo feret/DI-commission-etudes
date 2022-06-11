@@ -105,6 +105,17 @@ let l_ups_dma =
       Public_data.dn_departement=Public_data.DMA;
     }
 
+    let l_uspn_dma =
+      Public_data.Diplome_National
+        {
+          Public_data.dn_key="l";
+          Public_data.dn_short="L3";
+          Public_data.dn_univ_key = Public_data.USPN;
+          Public_data.dn_long="Licence L3 de mathématiques";
+          Public_data.dn_universite="à l'Université Sorbonne Paris Nord";
+          Public_data.dn_niveau="l";
+          Public_data.dn_departement=Public_data.DMA;
+        }
 let m_ups_dma =
   Public_data.Diplome_National
     {
@@ -276,7 +287,7 @@ let diplomes_dma =
             elt.Public_data.dn_key,elt.Public_data.dn_univ_key)
          elt map)
     Public_data.StringUnivMap.empty
-    [l_dma;l_su_dma;l_upc_dma;l_ups_dma;l_psl_dma;
+    [l_dma;l_su_dma;l_upc_dma;l_ups_dma;l_psl_dma;l_uspn_dma;
      m_dma;m_uspn_dma;m_su_dma;m_upc_dma;m_ups_dma;m_psl_dma;
      dens]
 

@@ -4574,12 +4574,13 @@ let program
     | Some ("DENS" | "dens") -> state, Some Color.blue
     | Some ("LInfo" | "linfo") ->
       state, Some Color.yellow
-    | Some ("lmath" | "mmath" | "LMath" | "MMath") ->
+    | Some ("lmath" | "mmath" | "LMath" | "MMath" | "mape" | "mathfond" | "mathfondpantheonsor" | "mathfondsu" | "modsimorsay" | "modsimversailles" | "prob" | "mfimfa" |   "mfimfaorsay" |  "mmod" | "mprobfinmformens" |  "malea" | "marianageo" | "mmathgeneric" | "agregmathsu") ->
       state, Some Color.orange
     | Some ("imalis") ->
       state, Some Color.green
     | Some ("leco" | "LEco") ->
       state, Some Color.pink
+    | Some ("mphys") -> state, Some Color.duckblue
     | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" | "lmfi" | "PHILOSorbonne" | "sesi" | "alea") ->
       color_of_dpt
         who __POS__ state
