@@ -726,7 +726,7 @@ let prepare_commission
     ~commission_rep
     ?annee
     ?date_complete
-    ?universites:(universites=[Public_data.UPC;Public_data.UPS;Public_data.PSL;Public_data.Upartenaire;Public_data.UENS;Public_data.SU;Public_data.UPantheonSorbonne])
+    ?universites:(universites=[Public_data.UPC;Public_data.UPS;Public_data.PSL;Public_data.Upartenaire;Public_data.UENS;Public_data.SU;Public_data.UPantheonSorbonne;Public_data.USPN])
     ?signataires:(persons=["MP";"JF";"LB"])
     ?diplomes:(sous_commissions=["dens";"l";"m"])
     state =
