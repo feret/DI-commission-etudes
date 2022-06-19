@@ -5731,15 +5731,17 @@ let export_transcript
   let state, output_channel_opt =
     try
       state, Some (open_out file)
-    with _ ->
+    with exn ->
+      let msg = Printexc.to_string exn in
       let () =
         Format.printf
-          "Cannot open file %s@."
+          "Cannot open file %s (%s)@."
           file
+          msg
       in
       Remanent_state.warn
         __POS__
-        (Format.sprintf "Cannot open file %s"  file)
+        (Format.sprintf "Cannot open file %s (%s)"  file msg)
         Exit
         state ,
       None
