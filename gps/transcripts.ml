@@ -4424,16 +4424,22 @@ let program
       | state, Some a -> state, Some a, true
       | state, None ->
         begin
-          match
+          let state, l =
             Remanent_state.get_decision_list
               ~firstname
               ~lastname
               ~dpt
               ~program
               state
-          with
-          | state, [] -> state, None, true
-          | state, _::_ -> state, None, false
+          in
+          let l =
+            List.filter
+                (fun x ->
+                    x.Public_data.decision_annee = year
+                 || x.Public_data.decision_validated = Some true)
+                l
+          in
+          state, None, (List.for_all (fun x -> x.Public_data.decision_mean = None && not (x.Public_data.decision_validated = Some false)) l)
         end
   in
   let
