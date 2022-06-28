@@ -39,9 +39,9 @@ let m =
       Public_data.dn_key="m";
       Public_data.dn_short="M1";
       Public_data.dn_long="Master M1 d'informatique";
-      Public_data.dn_universite="dans une université partenaire";
+      Public_data.dn_universite="à l'Université Paris Sciences et Lettres ";
       Public_data.dn_niveau="m";
-      Public_data.dn_univ_key=Public_data.Upartenaire;
+      Public_data.dn_univ_key=Public_data.PSL;
       Public_data.dn_departement=Public_data.DI;
     }
 
@@ -159,7 +159,7 @@ let l_psl_dma =
       Public_data.dn_short="L3";
       Public_data.dn_univ_key = Public_data.PSL;
       Public_data.dn_long="Licence L3 de mathématiques";
-      Public_data.dn_universite="à l'Université Paris Sciences et Lettres ";
+      Public_data.dn_universite="à l'Université Paris Sciences et Lettres";
       Public_data.dn_niveau="l";
       Public_data.dn_departement=Public_data.DMA;
     }
