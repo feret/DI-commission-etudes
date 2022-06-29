@@ -5198,22 +5198,35 @@ let program
               state
           | None -> state, None
         in
-        let responsable =
-          match responsable_opt with
+        let state, (genre, firstname, lastname) =
+            match responsable_opt with
           | None ->
-            (string_of_stringopt cours.responsable)
+            let a,b,c =
+              Special_char.split_name
+                (string_of_stringopt cours.responsable)
+            in
+            let state, a  =
+              match Special_char.lowercase a with
+              | "m" | "mr" | "monsieur" | "m." | "mr." -> state, Public_data.Masculin
+              |  "mlle" | "mme" | "mlle." | "mme." | "madame" | "mademoiselle" -> state, Public_data.Feminin
+             | x -> Remanent_state.warn __POS__ (Format.sprintf "Unknown gender %s" x) Exit state, Public_data.Unknown
+            in state, (a,b,c)
+
           | Some a ->
+                     state, (a.Public_data.course_exception_genre,
+                      a.Public_data.course_exception_firstname,
+                      a.Public_data.course_exception_lastname)
+        in
+        let responsable =
             Format.sprintf "%s %s %s"
               (match
-                 a.Public_data.course_exception_genre
+                 genre
                with
                | Public_data.Masculin -> monsieur
                | Public_data.Feminin -> madame
                | Public_data.Unknown -> "")
-              (Special_char.capitalize
-                 a.Public_data.course_exception_firstname)
-              (Special_char.uppercase
-                 a.Public_data.course_exception_lastname)
+              (Special_char.capitalize firstname)
+              (Special_char.uppercase lastname)
         in
         let () =
           Remanent_state.print_cell
