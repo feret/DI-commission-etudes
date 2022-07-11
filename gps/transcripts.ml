@@ -3367,6 +3367,11 @@ let is_elligble_for_funding origine gps_file state =
         -> state, true
     end
 
+let not_dispense ~firstname ~lastname ~year state =
+    match Remanent_state.get_dispenses ~firstname ~lastname ~year state with
+      | _, []-> true
+      | _, _::_ -> false
+
 let heading
     ~who ~firstname ~lastname ~promo ~origine
     ~year ~situation ~gpscodelist ~tuteur ?tuteur_bis
@@ -3679,6 +3684,8 @@ let heading
               lmath situation
               &&
               linfo situation
+              &&
+              not_dispense ~firstname ~lastname ~year state
             then
               let state, dpt =
                 match
@@ -3753,6 +3760,7 @@ let heading
                 "Bachelor in Computer Science and Bachelor in Maths at University of Paris City"
             else if
               lmathphys situation
+              && not_dispense ~firstname ~lastname ~year state 
             then
               let state, dpt =
                 match
