@@ -76,7 +76,7 @@ let string_of_dpt x =
   | ECO -> "économie"
   | DRI -> "échanges DRI"
   | ARTS -> "arts"
-  | LILA -> "littératures et language"
+  | LILA -> "littératures et langage"
   | ENS -> ""
 
 let dpt_of_string x =
@@ -90,7 +90,7 @@ let dpt_of_string x =
   | "eco" | "economie" -> ECO
   | "echanges dri"
   | "relations internationales" -> DRI
-  | "litteratures et language" -> LILA
+  | "litteratures et langage" -> LILA
   | _ -> DI
 
 let file_suffix_of_univ x =
@@ -171,7 +171,7 @@ let univ_of_string x =
   | "upsud" | "p11" -> UPSud
   | "u-pantheon-sorbonne" | "p1"-> UPantheonSorbonne
   | "p7" | "diderot" -> UDiderot
-  | "uspn" -> USPN 
+  | "uspn" -> USPN
   | _ -> Upartenaire
 
 

@@ -2867,7 +2867,7 @@ let color_of_dpt who pos state dpt origine =
   else if dpt = dpt_arts
   then state, Some Color.brown
   else if dpt = dpt_lila
-  then state, Some Color.white
+  then state, Some Color.blue
   else
     let msg =
       Format.sprintf "Unknown departement (%s) for %s"
@@ -3760,7 +3760,7 @@ let heading
                 "Bachelor in Computer Science and Bachelor in Maths at University of Paris City"
             else if
               lmathphys situation
-              && not_dispense ~firstname ~lastname ~year state 
+              && not_dispense ~firstname ~lastname ~year state
             then
               let state, dpt =
                 match
