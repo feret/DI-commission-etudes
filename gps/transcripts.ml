@@ -2217,7 +2217,7 @@ let fetch_stage
     [filter_stage_year year ;filter_stage_cvt commentaires ;filter_stage_id commentaires]
     stages
 
-let lgen _grade gps dpt d =
+let lgen _grade gps dpt acro d =
     List.exists
       (fun diplome ->
         List.exists
@@ -2235,21 +2235,28 @@ let lgen _grade gps dpt d =
        | Some x, None | None, Some x ->
          simplify_string x = dpt
        | Some x, Some y ->
-         simplify_string x = dpt || simplify_string y = dpt)
+         simplify_string x = dpt ||
+            begin
+simplify_string y = dpt
+            && match acro with None -> true
+| Some x ->let _ = x in
+  List.exists (fun cours ->
+Tools.substring "x" (match cours.code_cours with None -> "" | Some x -> x)&& cours.diplome = Some "L") d.cours
+            end )
     end
 
 let lmath d =
-  lgen "licence" ["gps2274";"gps3017";"gps2262"] dpt_maths_gps_name d
+  lgen "licence" ["gps2274";"gps3017";"gps2262"] dpt_maths_gps_name (Some "DMA") d
 let linfo d =
-  lgen "licence" ["gps2291"] dpt_info_gps_name d
+  lgen "licence" ["gps2291"] dpt_info_gps_name None d
 let leco d =
-  lgen "licence" ["XT01362"] dpt_eco_gps_name d
+  lgen "licence" ["XT01362"] dpt_eco_gps_name None d
 let larts d =
-  lgen "licence" ["gps69522"] dpt_arts_gps_name d
+  lgen "licence" ["gps69522"] dpt_arts_gps_name None d
 let llila d =
-  lgen "licence" ["gps83025"] dpt_lila_gps_name d
+  lgen "licence" ["gps83025"] dpt_lila_gps_name None d
 let lpoly d =
-  lgen "licence" ["gps74842"] "" d
+  lgen "licence" ["gps74842"] "" None d
 let lbio _ = false
 let ldec _ = false
 
