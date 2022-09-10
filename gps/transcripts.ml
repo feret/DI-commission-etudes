@@ -2239,9 +2239,9 @@ let lgen _grade gps dpt acro d =
             begin
 simplify_string y = dpt
             && match acro with None -> true
-| Some x ->let _ = x in
+| Some x ->
   List.exists (fun cours ->
-Tools.substring "x" (match cours.code_cours with None -> "" | Some x -> x)&& cours.diplome = Some "L") d.cours
+Tools.substring x (match cours.code_cours with None -> "" | Some x -> x)&& cours.diplome = Some "L") d.cours
             end )
     end
 
