@@ -2256,7 +2256,7 @@ let lmath ~year ~firstname ~lastname d state =
   List.exists
       (fun cours ->
 match cours.code_cours with | None -> false | Some code_gps ->
-    let _ = Format.printf "LMATHTEST %s %s %s %s @ " code_gps firstname lastname  in
+    let _ = Format.printf "LMATHTEST %s %s %s %s @ " code_gps firstname lastname year in
     code_mandatory_course_DI_maths year code_gps
       &&
       let _ = Format.printf "LMATH %s %s %s %s @ " code_gps firstname lastname year in
