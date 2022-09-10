@@ -2256,9 +2256,10 @@ let lmath ~year ~firstname ~lastname d state =
   List.exists
       (fun cours ->
 match cours.code_cours with | None -> false | Some code_gps ->
-        code_mandatory_course_DI_maths year code_gps
+    let _ = Format.printf "LMATHTEST %s %s %s %s @ " code_gps firstname lastname  in
+    code_mandatory_course_DI_maths year code_gps
       &&
-      let _ = Format.printf "LMATH %s %s %s %s" code_gps firstname lastname year in 
+      let _ = Format.printf "LMATH %s %s %s %s @ " code_gps firstname lastname year in
       match Remanent_state.get_cursus_exception
               ~firstname ~lastname ~year ~code_gps state
       with
@@ -2266,8 +2267,7 @@ match cours.code_cours with | None -> false | Some code_gps ->
       | _, Some x ->
         let level = x.Public_data.class_level in
         let acronym = x.Public_data.class_dpt in
-        let _ = Format.printf "LMATH %s %s" level acronym in
-
+        let _ = Format.printf "LMATH %s %s @ " level acronym in
         level = "l" && acronym = "dma"
         )    d.cours
 
