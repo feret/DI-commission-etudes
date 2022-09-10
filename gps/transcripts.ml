@@ -2245,8 +2245,29 @@ Tools.substring "x" (match cours.code_cours with None -> "" | Some x -> x)&& cou
             end )
     end
 
-let lmath d =
-  lgen "licence" ["gps2274";"gps3017";"gps2262"] dpt_maths_gps_name (Some "DMA") d
+let code_mandatory_course_DI_maths year code_cours =
+  let i = int_of_string year in
+  if i <= 2015 then code_cours = "INFO-L3-MIIMC-S2"
+    else if i <= 2018 then code_cours = "INFO-L3-THEOIC-S2"
+    else code_cours = "INFO-L3-APPREN-S2"
+
+let lmath ~year ~firstname ~lastname d state =
+  lgen "licence" ["gps2274";"gps3017";"gps2262"] dpt_maths_gps_name (Some "DMA") d ||
+  List.exists
+      (fun cours ->
+match cours.code_cours with | None -> false | Some code_gps ->
+        code_mandatory_course_DI_maths year code_gps
+      &&
+      match Remanent_state.get_cursus_exception
+              ~firstname ~lastname ~year ~code_gps state
+      with
+      | _, None -> false
+      | _, Some x ->
+        let level = x.Public_data.class_level in
+        let acronym = x.Public_data.class_dpt in
+        level = "l" && acronym = "dma"
+        )    d.cours
+
 let linfo d =
   lgen "licence" ["gps2291"] dpt_info_gps_name None d
 let leco d =
@@ -2378,11 +2399,11 @@ int_of_string i >=2 | None -> false)
     (fun cours -> cours.code_cours = Some stage)
     d.cours
 
-let fill_gpscodelist list situation =
+let fill_gpscodelist ~year ~firstname ~lastname list situation state =
   if lmathphys situation then
     List.rev ("gps1672"::"gps3017"::(List.rev list))
   else
-  if lmath situation && linfo situation then
+  if lmath ~year ~firstname ~lastname situation state && linfo situation then
     List.rev ("gps2291"::"gps2274"::(List.rev list))
   else
     list
@@ -2542,10 +2563,7 @@ let is_dma_course code_cours year =
   ||
   begin
     try
-      let i = int_of_string year in
-      if i <= 2015 then code_cours = "INFO-L3-MIIMC-S2"
-      else if i <= 2018 then code_cours = "INFO-L3-THEOIC-S2"
-      else code_cours = "INFO-L3-APPREN-S2"
+      code_mandatory_course_DI_maths year code_cours
     with
     | _ -> false
   end
@@ -2744,7 +2762,7 @@ let translate_diplome
           state,
           (Some "L","L3 de physique","Bachelor in Physics",dpt_phys,dpt_phys_en,false)
       else
-      if linfo situation && lmath situation
+      if linfo situation && lmath ~year ~firstname ~lastname situation state
       then
         if is_dma_course code_cours year
         then
@@ -3688,7 +3706,7 @@ let heading
           let state, suffix_fr, suffix_en, nationaux_opt, nationaux_en_opt
             =
             if
-              lmath situation
+              lmath ~year ~firstname ~lastname situation state
               &&
               linfo situation
               &&
@@ -3851,7 +3869,7 @@ let heading
         | Some _ -> state, ["Diplôme de l'ENS"], ["ENS diploma"]
         | _ ->
           let state, cursus_opt =
-            if lmath situation
+            if lmath ~year ~firstname ~lastname situation state
             || lmathphys situation
             then
               Remanent_state.get_cursus
@@ -6064,7 +6082,7 @@ let export_transcript
                  | Some a -> a::acc)
               [] situation.diplomes
            in
-           let gpscodelist = fill_gpscodelist gpscodelist situation in
+           let gpscodelist = fill_gpscodelist ~year ~firstname ~lastname gpscodelist situation state in
            let state, filtered_classes =
              filter_class ~firstname ~lastname ~year
                state remove_non_valided_classes
@@ -6836,7 +6854,7 @@ let export_transcript
                  | Some a -> a::acc)
               [] situation.diplomes
           in
-          let gpscodelist = fill_gpscodelist gpscodelist situation in
+          let gpscodelist = fill_gpscodelist ~year:current_year ~firstname ~lastname gpscodelist situation state in
           let current_dpt =
             match
               situation.departement_principal
@@ -7044,7 +7062,7 @@ let export_transcript
                                   | None -> state, ""
                                   | Some "l" ->
                                     if
-                                      lmath situation && linfo situation
+                                      lmath ~year:current_year ~firstname ~lastname situation state && linfo situation
                                     then state, "L3_mathinfo"
                                     else if lmathphys situation
                                     then state, "L3_mathphys"
