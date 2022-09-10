@@ -2268,7 +2268,7 @@ match cours.code_cours with | None -> false | Some code_gps ->
         let level = x.Public_data.class_level in
         let acronym = x.Public_data.class_dpt in
         let _ = Format.printf "LMATH %s %s @ " level acronym in
-        level = "l" && acronym = "dma"
+        level = "L" && acronym = "DMA"
         )    d.cours
 
 let linfo d =
