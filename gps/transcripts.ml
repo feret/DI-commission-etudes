@@ -7001,6 +7001,13 @@ let export_transcript
                      else
                        Some (total /. ects_qui_comptent)
                    in
+                   let mean =
+                     match
+                       moyenne_opt
+                     with
+                     | None -> mean
+                     | Some _ -> moyenne_opt
+                   in
                    let mention =
                      match mean with
                      | None -> None
@@ -7009,13 +7016,6 @@ let export_transcript
                        else if mean <14. then Some "Assez Bien"
                        else if mean <16. then Some "Bien"
                        else Some "Très bien";
-                   in
-                   let mean =
-                     match
-                       moyenne_opt
-                     with
-                     | None -> mean
-                     | Some _ -> moyenne_opt
                    in
                    let mention =
                      match
