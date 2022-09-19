@@ -537,11 +537,13 @@ let modelist_di_false_false =
 let modelist_dma_gen b1 b2 =
   add_to_list b1 b2 Preempt
     (add_to_list b1 b2 (GPS (Some Maths))
-       (add_to_list b1 b2 (GPS None)
-          (add_to_list b1 b2 (GPS (Some DRI))
-             (add_to_list b1 b2 (GPS (Some PE))
-                (add_to_list true true Warn
-                   (add_to_list b1 b2 Backup []))))))
+        (add_to_list b1 b2 (GPS None)
+          (add_to_list b1 b2 (GPS (Some PHYS))
+            (add_to_list b1 b2 (GPS (Some DRI))
+              (add_to_list b1 b2 (GPS (Some PE))
+                  (add_to_list true true Warn
+                    (add_to_list b1 b2 Backup []
+                    )))))))
 
   let modelist_dma_true_true =
     modelist_dma_gen true true
