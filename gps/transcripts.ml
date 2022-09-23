@@ -4498,13 +4498,6 @@ let program
       d.Public_data.decision_decision_en,
       d.Public_data.decision_validated
   in
-  let state =
-    Remanent_state.warn
-        __POS__
-        (Format.sprintf "%s %s" (match decision_opt with None -> "None" | Some a -> a) (match validated_opt with None -> "None" | Some true -> "true" | Some false -> "false"))
-
-        Exit state
-  in
   let state, mean =
     if do_report report || keep_faillure || keep_success
     then
@@ -5241,16 +5234,19 @@ let program
         let state, (genre, firstname, lastname) =
             match responsable_opt with
           | None ->
-            let a,b,c =
-              Special_char.split_name
-                (string_of_stringopt cours.responsable)
-            in
-            let state, a  =
-              match Special_char.lowercase a with
-              | "m" | "mr" | "monsieur" | "m." | "mr." -> state, Public_data.Masculin
-              |  "mlle" | "mme" | "mlle." | "mme." | "madame" | "mademoiselle" -> state, Public_data.Feminin
-             | x -> Remanent_state.warn __POS__ (Format.sprintf "Unknown gender (%s) %s %s" x (match cours.responsable with None -> "none" | Some s -> s) libelle_en)  Exit state, Public_data.Unknown
-            in state, (a,b,c)
+            if match cours.responsable with None -> true | Some x when String.trim x = "" -> true | Some _ -> false
+            then state, (Public_data.Unknown, "", "")
+            else
+                let a,b,c =
+                    Special_char.split_name
+                        (string_of_stringopt cours.responsable)
+                in
+                let state, a  =
+                  match Special_char.lowercase a with
+                  | "m" | "mr" | "monsieur" | "m." | "mr." -> state, Public_data.Masculin
+                  |  "mlle" | "mme" | "mlle." | "mme." | "madame" | "mademoiselle" -> state, Public_data.Feminin
+                  | x -> Remanent_state.warn __POS__ (Format.sprintf "Unknown gender (%s) %s %s" x (match cours.responsable with None -> "none" | Some s -> s) libelle)  Exit state, Public_data.Unknown
+                in state, (a,b,c)
 
           | Some a ->
                      state, (a.Public_data.course_exception_genre,
