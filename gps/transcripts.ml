@@ -5249,7 +5249,7 @@ let program
               match Special_char.lowercase a with
               | "m" | "mr" | "monsieur" | "m." | "mr." -> state, Public_data.Masculin
               |  "mlle" | "mme" | "mlle." | "mme." | "madame" | "mademoiselle" -> state, Public_data.Feminin
-             | x -> Remanent_state.warn __POS__ (Format.sprintf "Unknown gender (%s) %s " x (match cours.responsable with None -> "none" | Some s -> s))  Exit state, Public_data.Unknown
+             | x -> Remanent_state.warn __POS__ (Format.sprintf "Unknown gender (%s) %s %s" x (match cours.responsable with None -> "none" | Some s -> s) libelle_en)  Exit state, Public_data.Unknown
             in state, (a,b,c)
 
           | Some a ->
