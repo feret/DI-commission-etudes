@@ -4498,6 +4498,13 @@ let program
       d.Public_data.decision_decision_en,
       d.Public_data.decision_validated
   in
+  let state =
+    Remanent_state.warn
+        __POS__
+        (Format.sprintf "%s %s" (match decision_opt with None -> "None" | Some a -> a) (match validated_opt with None -> "None" | Some true -> "true" | Some false -> "false"))
+
+        Exit state
+  in
   let state, mean =
     if do_report report || keep_faillure || keep_success
     then
