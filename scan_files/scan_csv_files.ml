@@ -50,7 +50,7 @@ let get_list_from_a_file
     let csv =
       Csv.input_all in_channel
     in
-    let _ = close_in in_channel_ in 
+    let _ = close_in in_channel_ in
     let rec scan
         state
         current_line remaining_lines current_keyword filled current_file
@@ -154,7 +154,7 @@ let get_list_from_a_file
             let state =
               Remanent_state.warn
                 __POS__
-                "Action and of_interest fields are missing"
+                (Format.sprintf "Action and of_interest fields are missing in %s" file )
                 Exit
                 state
             in
@@ -163,7 +163,7 @@ let get_list_from_a_file
               let state =
                 Remanent_state.warn
                   __POS__
-                  "Action field is missing"
+                  (Format.sprintf "Action field is missing in %s" file)
                   Exit
                   state
               in
@@ -172,8 +172,7 @@ let get_list_from_a_file
               let state =
                 Remanent_state.warn
                   __POS__
-                  "Of interest field is missing"
-                  Exit
+                  (Format.sprintf "Of interest field is missing in %s" file) Exit
                   state
               in
               state, current_file, is_non_empty, filled
@@ -237,7 +236,7 @@ let get_list_from_a_file
               let state =
                 Remanent_state.warn
                   __POS__
-                  "Action field is missing"
+                  (Format.sprintf "Action field is missing in %s" file)
                   Exit
                   state
               in
@@ -430,7 +429,8 @@ let collect_gen
         let known = List_of_string.to_string list_known "" "" in
         let missing = List_of_string.to_string list_missing "is missing" "are missing" in
         let msg =
-          Format.sprintf "%s for %s" missing known
+          Format.sprintf "%s for %s in %s" missing known
+                (match file_name with None -> "unknown" | Some x -> x)
         in
         let state =
           Remanent_state.warn
