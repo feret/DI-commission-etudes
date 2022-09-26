@@ -109,7 +109,7 @@ let _d p = p.parameters_repository
 
 let parameters =
   {
-    safe_mode = false;
+    safe_mode = true;
     main_dpt = Public_data.DI;
     log_mkdir = false;
     cloud_synchronization_mode = Public_data.CommandLine ;
