@@ -303,6 +303,12 @@ let copy
       Printf.sprintf "%s/%s"
         input_repository input_file_name
   in
+  let state, output_repository =
+      Safe_sys.rec_mk_when_necessary
+          __POS__
+          state
+          output_repository
+  in
   let output =
     match output_repository with
     | "" -> output_file_name
