@@ -202,9 +202,9 @@ let parameters =
     error_log_repository = "erreurs_internes";
     error_log_file = "error.txt";
     comma_symbol = ',';
-    current_academic_year = "2021";
+    current_academic_year = "2022";
     commissions_repository = "commissions_des_etudes";
-    commission = Some ("16 septembre 2022", "2021");
+    commission = (*Some ("16 septembre 2022", "2021");*) None;
     target = None ;
     signature = "feret+tampon.pdf";
     bilinguage = true ;
@@ -217,7 +217,7 @@ let set_dma parameters =
   {
     parameters with
     main_dpt = Public_data.DMA ;
-    commission = Some ("22 juin 2022",  "2021");
+    commission = (*Some ("22 juin 2022",  "2021");*) None; 
     local_repository = "dma/suivi_pedagogique" ;
     scholarships_repository = "dma/scolarite/ELEVES" ;
     repartition = Public_data.Annee_obtention_du_diplome ;
