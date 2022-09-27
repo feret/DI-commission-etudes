@@ -585,22 +585,56 @@ type missing_internship_description =
     missing_internship_intitule: string ;
   }
 
-
-
-type dens =
+  type parcours_universitaire =
   {
-    dens_firstname : string ;
-    dens_lastname : string ;
-    dens_promotion : string ;
-    dens_total_ects : float ;
-    dens_current_year_ects : float ;
-    dens_total_potential_ects : float ;
-    dens_current_year_potential_ects : float ;
-    dens_nb_inscriptions : int ;
-    dens_nb_mandatory_course : int ;
-    dens_nb_math_course : int ;
-    dens_nb_math_and_math_info_course : int ;
+    etablissement_parcours: string;
+    domaine_oarcours: string;
+    annee_obtention_parcours: string;
   }
+
+  type cours_supplement =
+   {
+      supplement_code: string;
+      supplement_discipline: string;
+      supplement_intitule: string;
+      supplement_ects: float;
+      supplement_dens: bool;
+  }
+
+  type experience_supplement =
+   { activite_code: string ;
+     activite_activite: string;
+     activite_intitule: string;
+  }
+  type dens =
+    {
+      dens_firstname : string ;
+      dens_lastname : string ;
+      dens_promotion : string ;
+      dens_total_ects : float ;
+      dens_current_year_ects : float ;
+      dens_sortant: bool;
+      dens_derogation: bool;
+      dens_total_potential_ects : float ;
+      dens_current_year_potential_ects : float ;
+      dens_nb_inscriptions : int ;
+      dens_nb_mandatory_course : int ;
+      dens_nb_math_course : int ;
+      dens_nb_math_and_math_info_course : int ;
+      dens_master : parcours_universitaire option ;
+      dens_parcours: parcours_universitaire list ;
+      dens_cours_a_trier: cours_supplement list;
+      dens_cours_discipline_principale: cours_supplement list ;
+      dens_cours_hors_disciplines_principale: cours_supplement list;
+      dens_cours_langue: cours_supplement list;
+      dens_cours_mineure: cours_supplement list StringMap.t;
+      dens_cours_majeure: cours_supplement list StringMap.t;
+      dens_activite_a_trier: experience_supplement list;
+      dens_activite_recherche: experience_supplement list;
+      dens_activite_internationale: experience_supplement list;
+      dens_activite_autre: experience_supplement list;
+    }
+
 
 type mentor =
   {
