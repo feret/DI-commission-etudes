@@ -217,7 +217,7 @@ let set_dma parameters =
   {
     parameters with
     main_dpt = Public_data.DMA ;
-    commission = (*Some ("22 juin 2022",  "2021");*) None; 
+    commission = (*Some ("22 juin 2022",  "2021");*) None;
     local_repository = "dma/suivi_pedagogique" ;
     scholarships_repository = "dma/scolarite/ELEVES" ;
     repartition = Public_data.Annee_obtention_du_diplome ;
@@ -1060,10 +1060,6 @@ let warn_dft pos message exn default t =
 let warn pos message exn t =
   fst (warn_dft pos message exn () t)
 
-let stop pos message exn t =
-  let t = warn pos message exn t in
-  let () = exit 1 in
-  t
 
 let which_logger_gen ?logger f t =
   match logger with
@@ -1202,6 +1198,21 @@ let print_errors ?logger prefix t =
   in
   t
 
+  let std_logger =
+    Loggers.open_logger_from_formatter (Format.std_formatter)
+
+
+  let stop pos message exn t =
+    let t = warn pos message exn t in
+    let t =
+        print_errors "" t
+    in
+    let t =
+        print_errors ~logger:std_logger "" t
+    in
+    let () = exit 1 in
+    t
+
 type save_logger = Loggers.t option
 let save_std_logger t = t.std_logger
 let restore_std_logger t std_logger = {t with std_logger}
@@ -1215,8 +1226,6 @@ let simplify s =
 let get_comma_symbol t =
   t,t.parameters.comma_symbol
 
-let std_logger =
-  Loggers.open_logger_from_formatter (Format.std_formatter)
 
 let close_logger ?logger t =
   let log = which_logger ?logger t in
