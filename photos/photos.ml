@@ -122,7 +122,7 @@ let check_url
           in
           let url = file in
           let state, output_list =
-          Remanent_state.get_picture_potential_locations
+          Remanent_state.get_picture_write_potential_locations
               ~firstname ~lastname ~year:promo state
           in
           let state, b =

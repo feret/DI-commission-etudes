@@ -360,7 +360,7 @@ val get_cursus:
   level:string ->
   ?dpt:Public_data.main_dpt  ->
   gpscodelist:string list ->
-  ?firstname:string -> 
+  ?firstname:string ->
   ?lastname:string ->
   (string * int * int * int) ->
   t -> t * Public_data.cursus option
@@ -496,6 +496,11 @@ val get_picture_potential_locations:
   firstname:string ->
   lastname:string ->
   year:Public_data.annee -> t -> t * string list
+
+  val get_picture_write_potential_locations:
+    firstname:string ->
+    lastname:string ->
+    year:Public_data.annee -> t -> t * string list
 
 val get_target:
   t -> t * string option

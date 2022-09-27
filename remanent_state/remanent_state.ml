@@ -1892,6 +1892,18 @@ let get_all_potential_pictures_repository t =
         | a,b -> Format.sprintf "%s/%s" a b)
     (List.rev l)
 
+    let get_all_write_potential_pictures_repository t =
+      let t, l = get_local_repository t in
+      let t, rep = get_pictures_prefix t in
+      t,
+      List.rev_map
+        (fun local ->
+           match local, rep with
+            | "", "" -> ""
+            | a,"" | "",a -> a
+            | a,b -> Format.sprintf "%s/%s" a b)
+        [l]
+
 let get_picture_potential_locations
     ~firstname ~lastname ~year t =
   let t, l = get_all_potential_pictures_repository t in
@@ -1930,6 +1942,45 @@ let get_picture_potential_locations
          in
          t, ((base^".jpg")::(base^".pdf")::l))
       (t,[]) (List.rev l)
+
+let get_picture_write_potential_locations
+          ~firstname ~lastname ~year t =
+        let t, l = get_all_write_potential_pictures_repository t in
+        let t, b =
+          get_pictures_stored_according_to_promotions t
+        in
+        let t,b2 =
+          get_picture_file_names_mention_promotion t
+        in
+          List.fold_left
+            (fun (t,l) rep ->
+               let rep =
+                 if b then
+                   if rep = "" then year
+                   else
+                     Format.sprintf "%s/%s" rep year
+                 else
+                   rep
+               in
+               let yearprefix =
+                 if b2 then year else ""
+               in
+               let filename =
+                 Printf.sprintf "%s%s%s"
+                   yearprefix
+                   (Special_char.uppercase
+                      (Special_char.correct_string_filename lastname))
+                   (Special_char.lowercase
+                      (Special_char.correct_string_filename firstname))
+               in
+               let base =
+                 if rep = ""
+                 then filename
+                 else
+                   Printf.sprintf "%s/%s" rep filename
+               in
+               t, ((base^".jpg")::(base^".pdf")::l))
+            (t,[]) (List.rev l)
 
 let get_target t = t, t.parameters.target
 
