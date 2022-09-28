@@ -349,6 +349,11 @@ type experience_supplement =
    activite_activite: string;
    activite_intitule: string;
 }
+
+type 'a repartition_diplomes =
+  { dens: 'a  ; diplomes_nationaux: 'a}
+
+val empty_repartition_diplomes: cours_supplement list repartition_diplomes
 type dens =
   {
     dens_firstname : string ;
@@ -366,17 +371,17 @@ type dens =
     dens_nb_math_and_math_info_course : int ;
     dens_master : parcours_universitaire option ;
     dens_parcours: parcours_universitaire list ;
-    dens_cours_a_trier: cours_supplement list;
-    dens_cours_discipline_principale: cours_supplement list ;
-    dens_cours_hors_disciplines_principale: cours_supplement list;
+    dens_cours_a_trier: cours_supplement list repartition_diplomes ;
+    dens_cours_discipline_principale: cours_supplement list repartition_diplomes ;
+    dens_cours_hors_disciplines_principale: cours_supplement list repartition_diplomes;
+    dens_cours_par_dpt: cours_supplement list repartition_diplomes StringMap.t;
     dens_cours_langue: cours_supplement list;
-    dens_cours_mineure: cours_supplement list StringMap.t;
-    dens_cours_majeure: cours_supplement list StringMap.t;
+    dens_cours_mineure: cours_supplement list repartition_diplomes StringMap.t;
+    dens_cours_majeure: cours_supplement list repartition_diplomes StringMap.t;
     dens_activite_a_trier: experience_supplement list;
     dens_activite_recherche: experience_supplement list;
     dens_activite_internationale: experience_supplement list;
     dens_activite_autre: experience_supplement list;
-
   }
 
 type mentor =

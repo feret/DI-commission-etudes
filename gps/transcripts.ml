@@ -3145,7 +3145,7 @@ let next_year i =
   | _ -> None
 
 let mean_init = (StringOptMap.empty,[])
-let cours_list_init=[]
+let cours_list_init=Public_data.empty_repartition_diplomes
 let stage_list_init=[]
 let dens_init = Public_data.YearMap.empty
 let n_att_init = Public_data.YearMap.empty
@@ -3206,7 +3206,9 @@ let add_dens_requirements state year course map =
 
 let add_dens_ok state year course course_list map =
   match course.ects with
-  | None -> state, (translate_course_dens course)::course_list, map
+  | None -> state,
+            {course_list with Public_data.dens  = (translate_course_dens course)::course_list.Public_data.dens},
+            map
   | Some f ->
     let total,potential,mandatory,math,math_math_info =
       match
@@ -3221,7 +3223,8 @@ let add_dens_ok state year course course_list map =
         (total, potential,mandatory,math,math_math_info) map
     in
     let state, map = add_dens_requirements state year course map in
-    state, (translate_course_dens course)::course_list, map
+    state,
+    {course_list with Public_data.dens  = (translate_course_dens course)::course_list.Public_data.dens}, map
 
 let add_dens_potential year course map =
   match course.ects with
@@ -3299,7 +3302,9 @@ let add_mean_ok state key course course_list year map dens =
   let state, dens =
     add_dens_requirements state year course dens
   in
-  let course_list = (translate_course_nat course)::course_list in
+  let course_list =
+      {course_list with Public_data.diplomes_nationaux = (translate_course_nat course)::course_list.Public_data.diplomes_nationaux }
+  in
   state, map, course_list, dens
 
 let add_mean state key compensation course course_list year map dens =
@@ -6981,14 +6986,15 @@ let export_transcript
                   Public_data.dens_master=None;
                   Public_data.dens_parcours=[];
                   Public_data.dens_cours_a_trier= cours_a_trier;
-                  Public_data.dens_cours_discipline_principale=[];
-                  Public_data.dens_cours_hors_disciplines_principale=[]; Public_data.dens_cours_langue=[];
+                  Public_data.dens_cours_discipline_principale=Public_data.empty_repartition_diplomes;
+                  Public_data.dens_cours_hors_disciplines_principale=Public_data.empty_repartition_diplomes; Public_data.dens_cours_langue=[];
                   Public_data.dens_cours_mineure=Public_data.StringMap.empty;
                   Public_data.dens_cours_majeure=Public_data.StringMap.empty;
                   Public_data.dens_activite_a_trier=stages_a_trier;
                   Public_data.dens_activite_recherche=[];
                   Public_data.dens_activite_internationale=[];
                   Public_data.dens_activite_autre=[];
+                  Public_data.dens_cours_par_dpt = Public_data.StringMap.empty;
                 }
             else
               state
