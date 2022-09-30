@@ -387,7 +387,65 @@ let try_get_student_file
         student_id ?prefix ?output_repository ?output_file_name backup_rep state
     | Warn ->
       let state = Remanent_state.file_retriever_fail state in
+      let state, current_year =
+        Remanent_state.get_current_academic_year state
+      in
+      let state, l =
+        Remanent_state.get_mentoring_list
+          ~year:current_year
+          state
+      in
+      let s string =
+        Special_char.lowercase
+          (Special_char.correct_string_txt
+             (String.trim string))
+      in
+      let state, main_dpt =
+        Remanent_state.get_main_dpt state
+      in
       let state =
+        List.fold_left
+          (fun state elt ->
+             if
+                s student_id.Public_data.firstname
+                    = s elt.Public_data.prenom_de_l_etudiant &&
+                s student_id.Public_data.lastname
+                    =
+                    s elt.Public_data.nom_de_l_etudiant
+             then
+             Remanent_state.add_mentor
+               state
+               {Public_data.mentor_attribution_year =
+                  elt.Public_data.annee_academique ;
+                 Public_data.mentor_gender =
+                   (match
+                     elt.Public_data.genre_du_tuteur
+                   with
+                     None -> Public_data.Unknown
+                   | Some x -> x);
+                 Public_data.mentor_lastname =
+                   Tools.unsome_string
+                     elt.Public_data.nom_du_tuteur;
+                 Public_data.mentor_firstname =
+                   Tools.unsome_string
+                     elt.Public_data.prenom_du_tuteur;
+                Public_data.mentor_email =
+                  Tools.unsome_string
+                    elt.Public_data.courriel_du_tuteur;
+                Public_data.mentor_academic_year =
+                   elt.Public_data.annee_academique;
+                 Public_data.mentor_student_promo = current_year ;
+                 Public_data.mentor_student_gender =
+                   Public_data.Unknown ;
+                 Public_data.mentor_student_lastname = elt.Public_data.nom_de_l_etudiant ;
+                 Public_data.mentor_student_firstname = elt.Public_data.prenom_de_l_etudiant ;
+                Public_data.mentor_student_dpt = main_dpt ;
+                Public_data.mentor_secondary = elt.Public_data.secondaire;
+               } else state)
+          state
+          l
+    in
+    let state =
         Remanent_state.add_gps_server_faillure
           state
           {

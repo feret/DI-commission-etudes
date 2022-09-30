@@ -85,7 +85,7 @@ let state =
            Public_data.mentor_student_lastname = elt.Public_data.nom_de_l_etudiant ;
            Public_data.mentor_student_firstname = elt.Public_data.prenom_de_l_etudiant ;
           Public_data.mentor_student_dpt = main_dpt ;
-          Public_data.mentor_secondary = None ;
+          Public_data.mentor_secondary = elt.Public_data.secondaire;
          })
     state
     l
