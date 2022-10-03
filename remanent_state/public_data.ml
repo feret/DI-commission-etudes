@@ -628,7 +628,7 @@ type missing_internship_description =
       dens_nb_math_and_math_info_course : int ;
       dens_master : parcours_universitaire option ;
       dens_parcours: parcours_universitaire list ;
-      dens_cours_a_trier: cours_supplement list repartition_diplomes ; 
+      dens_cours_a_trier: cours_supplement list repartition_diplomes ;
       dens_cours_discipline_principale: cours_supplement list repartition_diplomes ;
       dens_cours_hors_disciplines_principale: cours_supplement list repartition_diplomes;
       dens_cours_par_dpt: cours_supplement list repartition_diplomes StringMap.t;
@@ -738,6 +738,7 @@ type keywords =
   | Pied_de_page_en
   | Pour_Diplome
   | Prenom_du_tuteur
+  | Profil 
   | Promo
   | Programme
   | Programme_d_etude

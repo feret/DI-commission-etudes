@@ -480,6 +480,7 @@ type keywords =
   | Pied_de_page_en
   | Pour_Diplome
   | Prenom_du_tuteur
+  | Profil
   | Promo
   | Programme
   | Programme_d_etude

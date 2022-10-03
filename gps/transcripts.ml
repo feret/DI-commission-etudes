@@ -1420,6 +1420,7 @@ let keywords_list =
     Public_data.Code;
     Public_data.Option;
     Public_data.Diplomes;
+    Public_data.Profil;
     Public_data.Grade;
     Public_data.Niveau;
     Public_data.Diplome;
@@ -2605,7 +2606,7 @@ let translate_diplome
           | "sesi" -> state,"M1 SESI","M1 SESI"
           | "agregmathsu" -> state, "Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggreation"
           | "interaction" -> state,"M2 Interaction", "M2 Interaction"
-          | "mathfond" | "mathfondsu" | "mathfondsupc" | "mathfondpantheonsor"
+          | "mathfond" | "mathfondsu" | "mathfondupc" | "mathfondpantheonsor"
              -> state,"M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics"
           | "lmfi" -> state,"M2 LMFI", "M2 LMFI"
           | "marianageo" -> state, "M2 Arithmétique Analyse et Géométrie","M2 Analysis, Number Theory and Geometry"
@@ -2818,7 +2819,7 @@ let translate_diplome
     else if mfondsu situation then
       state, (Some "MathFondSu", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false)
     else if mfondupc situation then
-      state, (Some "MathFondSUPC", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false)
+      state, (Some "MathFondUPC", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false)
     else if mfondps situation then
       state, (Some "MathFondPantheonSor", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false)
     else if mlmfi situation then

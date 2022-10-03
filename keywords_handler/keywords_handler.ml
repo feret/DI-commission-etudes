@@ -178,6 +178,7 @@ let asso_list =
 
     Public_data.Pour_Diplome, ["pour diplôme"];
     Public_data.Prenom_du_tuteur, ["prénom du tuteur"];
+    Public_data.Profil,["profil"];
     Public_data.Promo, ["promo";"promotion"];
     Public_data.Programme, ["programme"];
     Public_data.Programme_d_etude,
