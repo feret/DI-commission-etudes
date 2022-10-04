@@ -144,12 +144,12 @@ let to_string _pos ?force_dec_sep_to_dot state t =
 let valid_string f =
   List.mem
       (String.trim f)
-      ["A";"A+";"A-";"B";"B+";"B-";"C";"C+";"C-";"D";"D+";"D-";"E";"E+";"E-";"P"]
+      ["A";"A+";"A-";"B";"B+";"B-";"C";"C+";"C-";"D";"D+";"D-";"E";"E+";"E-";"P";"a";"a+";"a-";"b";"b+";"b-";"c";"c+";"c-";"d";"d+";"d-";"e";"e+";"e-";"p"]
 
 let valide_string f =
 List.mem
     (String.trim f)
-    ["A";"A+";"A-";"B";"B+";"B-";"C";"C+";"P"]
+    ["A";"A+";"A-";"B";"B+";"B-";"C";"C+";"P";"a";"a+";"a-";"b";"b+";"b-";"c";"c+";"p"]
 
 let of_string pos state s v =
   if Tools.space_only s then

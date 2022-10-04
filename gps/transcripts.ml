@@ -5068,7 +5068,10 @@ let program
                     match stage.directeur_de_stage with
                     | None -> state, ""
                     | Some a ->
-                      if l = "" && sujet=""
+                      if (Special_char.lowercase_ascii
+                            (String.trim a) = "non applicable") then state, ""
+                      else
+                      if (l = "" && sujet="")
                       then state, a else
                         let state, directed =
                           Remanent_state.bilingual_string
