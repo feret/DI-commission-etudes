@@ -5068,7 +5068,7 @@ let program
                     match stage.directeur_de_stage with
                     | None -> state, ""
                     | Some a ->
-                      if (Special_char.lowercase_ascii
+                      if (Special_char.lowercase
                             (String.trim a) = "non applicable") then state, ""
                       else
                       if (l = "" && sujet="")
