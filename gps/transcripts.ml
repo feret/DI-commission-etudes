@@ -5730,12 +5730,12 @@ let program
       "\\npnoround%%\n\ \n\n"
   in
   let state  =
-    if moyenne = "" && ects="" && pects = ""
+    if mean = "" && ects="" && pects = ""
     then state
     else
       let state = Remanent_state.warn
         __POS__
-        (Format.sprintf "MOY (%s) (%s) (%s)" moyenne ects pects)
+        (Format.sprintf "MOY (%s) (%s) (%s)" mean ects pects)
         Exit
         state
       in
