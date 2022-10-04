@@ -2986,7 +2986,7 @@ let is_stage cours =
     | Some a ->
       let a = String.lowercase_ascii a in
       (Tools.substring "internship" a
-       || Tools.substring "stage" a) &&
+       || Tools.substring "stage" a || Tools.substring "séjour linguistique" a) &&
       (not
          (Tools.substring "intensif" a))
   end
@@ -4604,7 +4604,7 @@ let program
              | Some Public_data.Temporary _
              | None ->
                state
-             | Some Public_data.String _ 
+             | Some Public_data.String _
              | Some Public_data.Float _
              | Some Public_data.Valide_sans_note ->
              Remanent_state.add_missing_ects_attribution
