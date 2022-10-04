@@ -5579,7 +5579,7 @@ let program
   in
   let undefine a =
       let a = String.trim a in
-      match String.lindex_opt a ' ' with
+      match String.index_opt a ' ' with
         | Some i ->
           let article = String.sub a 0 i in
           let suite = String.sub a (i+1) (String.length a - (i+1)) in
