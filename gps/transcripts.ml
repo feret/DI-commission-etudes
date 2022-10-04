@@ -5577,20 +5577,18 @@ let program
     | Some a, Some b ->
       Format.sprintf "Rang : %i/%i \\hspace*{1cm}" a b
   in
-  let undefine state a =
+  let undefine a =
       let a = String.trim a in
-      match String.rindex_opt a ' ' with
+      match String.lindex_opt a ' ' with
         | Some i ->
           let article = String.sub a 0 i in
           let suite = String.sub a (i+1) (String.length a - (i+1)) in
-          let state =
-              Remanent_state.warn __POS__ (Format.sprintf "(%s) (%s) (%s)" a article suite) Exit state in
           begin
-            state, match Special_char.lowercase article with
+            match Special_char.lowercase article with
             | "le" -> Format.sprintf "du %s" suite
             | _ -> Format.sprintf "de %s" a
           end
-      | None -> state, Format.sprintf "de %s" a
+      | None -> Format.sprintf "de %s" a
   in
   let set_date b =
   match String.rindex_opt b ' ' with
@@ -5614,20 +5612,20 @@ let program
       end
   | None -> Format.sprintf "of %s" b
   in
-  let state, commission =
+  let commission =
     match
       commission_name_opt, date_opt
     with
-    | None, _ -> state, ""
+    | None, _ -> ""
     | Some a, None ->
-      let state, a = undefine state a in
-      state, Format.sprintf
+      let a = undefine a in
+      Format.sprintf
         "Décision %s \n\n"
         a
     | Some a, Some b ->
-      let state, a = undefine state a in
+      let a = undefine a in
       let b = set_date b in
-      state, Format.sprintf
+      Format.sprintf
         "Décision %s %s \n\n"
         a b
   in
