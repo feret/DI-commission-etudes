@@ -5972,7 +5972,10 @@ let export_transcript
                    with
                    | state, None -> (state,cours)
                    | state, Some note ->
-                     let note = Some (Public_data.Float note) in
+                     let state, note =
+                          Notes.of_string __POS__ state note
+                            (Some (Public_data.Bool true))
+                    in
                      state, {cours with note}
                  in
                  match

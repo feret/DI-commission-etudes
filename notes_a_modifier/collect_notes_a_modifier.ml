@@ -4,7 +4,7 @@ type notes_id  =
     lastname: string option;
     firstname: string option;
     code:string option;
-    note:float option;
+    note:string option;
     annee:Public_data.annee option;
     ects:float option;
   }
@@ -46,6 +46,8 @@ let compute_repository =
 let lift_pred = Lift.pred_safe
 let lift_string =
   (Lift.string empty_cours Public_data.empty_note_a_modifier).Lift.safe
+  let lift_string_option =
+    (Lift.string empty_cours Public_data.empty_note_a_modifier).Lift.opt_safe
 let lift_float_option =
   (Lift.float empty_cours Public_data.empty_note_a_modifier).Lift.opt_safe
 
@@ -114,9 +116,9 @@ let all_fields =
       ~field_name:"GPS code"
       ~pos:__POS__
       ~record_name;
-    lift_float_option
+    lift_string_option
       ~keyword:Public_data.Note
-      ~set_tmp:(collect_float "Note" __POS__
+      ~set_tmp:(Tools.collect_string
                     (fun note x -> { x with note}))
         ~get_tmp:(fun a -> a.note)
         ~get:(fun a -> a.Public_data.notetm_note)

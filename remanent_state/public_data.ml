@@ -302,7 +302,7 @@ type note_a_modifier =
     notetm_nom: string;
     notetm_prenom: string;
     notetm_code:string;
-    notetm_note:float option;
+    notetm_note:string option;
     notetm_annee:annee;
     notetm_ects:float option;
   }
@@ -764,7 +764,7 @@ type valide =
 
 type note =
   | Float of float
-  | String of string 
+  | String of string
   | Temporary of float
   | Absent
   | En_cours

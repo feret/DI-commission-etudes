@@ -483,7 +483,7 @@ val add_note_a_modifier:
 
 val get_note_a_modifier:
   firstname:string -> lastname:string -> code:string -> year:string ->
-  t -> t * float option
+  t -> t * string option
 
 val get_ects_a_modifier:
   firstname:string -> lastname:string -> code:string -> year:string ->
