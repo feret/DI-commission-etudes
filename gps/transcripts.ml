@@ -5572,18 +5572,55 @@ let program
     | Some a, Some b ->
       Format.sprintf "Rang : %i/%i \\hspace*{1cm}" a b
   in
+  let undefine a =
+      match String.rindex_opt a ' ' with
+        | Some i ->
+          let article = String.sub a 0 i in
+          let suite = String.sub a (i+1) (String.length a - (i+1)) in
+          begin
+            match Special_char.lowercase article with
+            | "le" -> Format.sprintf "du %s" suite
+            | _ -> Format.sprintf "de %s" a
+          end
+      | None -> Format.sprintf "de %s" a
+  in
+  let set_date b =
+  match String.rindex_opt b ' ' with
+    | Some i ->
+      let article = String.sub b 0 i in
+      begin
+          match Special_char.lowercase article with
+          | "session" -> Format.sprintf " (%s)" b
+          | _ -> Format.sprintf "du %s" b
+      end
+  | None -> Format.sprintf "du %s" b
+  in
+  let set_date_en b =
+  match String.rindex_opt b ' ' with
+    | Some i ->
+      let article = String.sub b 0 i in
+      begin
+        match Special_char.lowercase article with
+        | "session" -> Format.sprintf " (%s)" b
+        | _ -> Format.sprintf "of %s" b
+      end
+  | None -> Format.sprintf "of %s" b
+  in
   let commission =
     match
       commission_name_opt, date_opt
     with
     | None, _ -> ""
     | Some a, None ->
+      let a = undefine a in
       Format.sprintf
-        "Décision de %s \n\n"
+        "Décision %s \n\n"
         a
     | Some a, Some b ->
+      let a = undefine a in
+      let b = set_date b in
       Format.sprintf
-        "Décision de %s du %s \n\n"
+        "Décision %s %s \n\n"
         a b
   in
   let commission_en =
@@ -5596,8 +5633,9 @@ let program
         "Decision of the %s \n\n"
         a)
     | Some a, Some b ->
+      let b = set_date_en b in
       Some (Format.sprintf
-        "Decision of the %s of %s \n\n"
+        "Decision of the %s %s \n\n"
         a b)
   in
   let state, commission =
@@ -5685,7 +5723,7 @@ let program
       state
       "\\npnoround%%\n\ \n\n"
   in
-  let () = Remanent_state.print_newline state in
+  let () = if moyenne = "" && ects="" && pects = ""  then () else Remanent_state.print_newline state in
   let () =
     List.iter
       (fun (s,lineproportion) ->
