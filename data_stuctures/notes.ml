@@ -169,23 +169,24 @@ let of_string pos state s v =
       Some Public_data.En_cours
     | f ->
       begin
-        match
-          float_of_string pos state f
-        with
-        | state, None ->
-          if valid_string f then
-          state, Some (Public_data.String f)
-          else
-          Remanent_state.warn_dft
-            pos
-            "Wrong format of note"
-            Exit
-            None
-            state
-        | state, Some f -> state, Some (
-            match v with Some _ -> Public_data.Float f
-                       | None -> Public_data.Temporary f)
-      end
+        if valid_string f
+        then
+            state, Some (Public_data.String f)
+        else
+          match
+            float_of_string pos state f
+          with
+          | state, None ->
+            Remanent_state.warn_dft
+              pos
+              "Wrong format of note"
+              Exit
+              None
+              state
+          | state, Some f -> state, Some (
+              match v with Some _ -> Public_data.Float f
+                        | None -> Public_data.Temporary f)
+        end
 
 let valide f =
   match f with
