@@ -5584,7 +5584,7 @@ let program
           let article = String.sub a 0 i in
           let suite = String.sub a (i+1) (String.length a - (i+1)) in
           let state =
-              Remanent_state.warn __POS__ (Format.sprintf "%s %s %s" a article suite) Exit state in
+              Remanent_state.warn __POS__ (Format.sprintf "(%s) (%s) (%s)" a article suite) Exit state in
           begin
             state, match Special_char.lowercase article with
             | "le" -> Format.sprintf "du %s" suite
