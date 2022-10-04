@@ -4604,6 +4604,7 @@ let program
              | Some Public_data.Temporary _
              | None ->
                state
+             | Some Public_data.String _ 
              | Some Public_data.Float _
              | Some Public_data.Valide_sans_note ->
              Remanent_state.add_missing_ects_attribution
@@ -5036,6 +5037,7 @@ let program
                         false
                         | Some (Public_data.Bool true) -> true
                       end
+                    | Some Public_data.String _
                     | Some Public_data.Float _
                     | Some Public_data.Valide_sans_note ->
                       begin
@@ -7060,7 +7062,7 @@ let export_transcript
                            total+.f*.cours_ects,
                            ects_qui_comptent+.cours_ects,
                            ects+.cours_ects
-                         | Some Public_data.Valide_sans_note,
+                        | Some (Public_data.Valide_sans_note | Public_data.String _) ,
                            Some cours_ects  ->
                            state, total, ects_qui_comptent,
                            ects+.cours_ects

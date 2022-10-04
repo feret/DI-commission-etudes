@@ -506,6 +506,7 @@ type valide =
 
 type note =
   | Float of float
+  | String of string 
   | Temporary of float
   | Absent
   | En_cours

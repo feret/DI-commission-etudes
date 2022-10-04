@@ -738,7 +738,7 @@ type keywords =
   | Pied_de_page_en
   | Pour_Diplome
   | Prenom_du_tuteur
-  | Profil 
+  | Profil
   | Promo
   | Programme
   | Programme_d_etude
@@ -764,6 +764,7 @@ type valide =
 
 type note =
   | Float of float
+  | String of string 
   | Temporary of float
   | Absent
   | En_cours

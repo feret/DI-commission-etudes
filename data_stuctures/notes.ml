@@ -115,6 +115,7 @@ let valide_sans_note_en = Tools.valide_sans_note_en
 
 let to_string _pos ?force_dec_sep_to_dot state t =
   match t with
+  | Public_data.String s -> state, s
   | Public_data.Float f ->
     float_to_string ?force_dec_sep_to_dot state f
   | Public_data.Temporary f ->
@@ -140,6 +141,16 @@ let to_string _pos ?force_dec_sep_to_dot state t =
       ~english:valide_sans_note_en
       state
 
+let valid_string f =
+  List.mem
+      (String.trim f)
+      ["A";"A+";"A-";"B";"B+";"B-";"C";"C+";"C-";"D";"D+";"D-";"E";"E+";"E-";"P"]
+
+let valide_string f =
+List.mem
+    (String.trim f)
+    ["A";"A+";"A-";"B";"B+";"B-";"C";"C+";"P"]
+
 let of_string pos state s v =
   if Tools.space_only s then
     state, Some Public_data.En_cours
@@ -162,6 +173,9 @@ let of_string pos state s v =
           float_of_string pos state f
         with
         | state, None ->
+          if valid_string f then
+          state, Some (Public_data.String f)
+          else
           Remanent_state.warn_dft
             pos
             "Wrong format of note"
@@ -175,6 +189,7 @@ let of_string pos state s v =
 
 let valide f =
   match f with
+  | Public_data.String s -> Some (valide_string s)
   | Public_data.Float f -> Some (f >= 10.)
   | Public_data.Valide_sans_note
     -> Some true
@@ -190,6 +205,7 @@ let temporary f =
   | Public_data.Float _
   | Public_data.Valide_sans_note
   | Public_data.Abandon
+  | Public_data.String _
   | Public_data.Absent -> Some false
 
 let a_compter f =
@@ -200,12 +216,14 @@ let a_compter f =
                | Public_data.Temporary _
                | Public_data.Abandon
                | Public_data.En_cours
-               | Public_data.Absent)
+               | Public_data.Absent
+               | Public_data.String _)
   | Some false,_
     -> Some false
 
 let en_cours f =
   match f with (Public_data.En_cours | Public_data.Temporary _) -> true
+             | Public_data.String _
              | Public_data.Float _
              | Public_data.Abandon
              | Public_data.Absent
@@ -217,6 +235,7 @@ let compensable f =
   |(Some true | None),_ -> false
   | Some false , Public_data.Float f -> f < 10.
   | Some false, (Public_data.Valide_sans_note
+                | Public_data.String _
                 | Public_data.Abandon
                 | Public_data.Temporary _
                 | Public_data.En_cours
@@ -230,6 +249,10 @@ let compare a b =
     Public_data.Float b -> compare a b
   | _, Public_data.Float _ -> 1
   | Public_data.Float _, _ -> (-1)
+  | Public_data.String a,
+    Public_data.String b -> compare a b
+  | _, Public_data.String _ -> 1
+  | Public_data.String _, _ -> (-1)
   | Public_data.Valide_sans_note, Public_data.Valide_sans_note -> 0
   | _, Public_data.Valide_sans_note -> 1
   | Public_data.Valide_sans_note,_ -> -1
