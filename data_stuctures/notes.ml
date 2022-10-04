@@ -171,7 +171,7 @@ let of_string pos state s v =
       begin
         if valid_string f
         then
-            state, Some (Public_data.String f)
+            state, Some (Public_data.String (String.uppercase_ascii f))
         else
           match
             float_of_string pos state f
