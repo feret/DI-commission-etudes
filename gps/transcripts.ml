@@ -5578,6 +5578,7 @@ let program
       Format.sprintf "Rang : %i/%i \\hspace*{1cm}" a b
   in
   let undefine a =
+      let a = String.trim a in
       match String.rindex_opt a ' ' with
         | Some i ->
           let article = String.sub a 0 i in
@@ -5728,7 +5729,19 @@ let program
       state
       "\\npnoround%%\n\ \n\n"
   in
-  let () = if moyenne = "" && ects="" && pects = ""  then () else Remanent_state.print_newline state in
+  let state  =
+    if moyenne = "" && ects="" && pects = ""
+    then state
+    else
+      let state = Remanent_state.warn
+        __POS__
+        (Format.sprintf "MOY (%s) (%s) (%s)" moyenne ects pects)
+        Exit
+        state
+      in
+      let () = Remanent_state.print_newline state in
+      state
+  in
   let () =
     List.iter
       (fun (s,lineproportion) ->
