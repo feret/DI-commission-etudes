@@ -3626,9 +3626,9 @@ let heading
     | (None | Some false), Some _ -> Color.yellow
   in
   let textcolor = Color.red in
-  let state, annee =
+  let state, annee, annee_int =
     match dens with
-    | Some true -> state, ""
+    | Some true -> state, "", 0
     | None | Some false ->
       let state, annee_int =
         try
@@ -3651,8 +3651,8 @@ let heading
       Printf.sprintf
           "%i -- %i" annee_int (annee_int+1)
       in
-      state, annee
-  in 
+      state, annee, annee_int
+  in
   let state, statut, statut_en, nationaux_opt, nationaux_en_opt =
     match dens with Some true -> state, "DENS","DENS",None,None
                 | None | Some false ->
