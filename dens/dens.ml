@@ -205,12 +205,21 @@ let dump_dens dens state =
     let state =
         Public_data.StringMap.fold
           (fun key repartition state ->
+              let () = Remanent_state.open_row state in
               let () = Remanent_state.print_cell key state in
               let i,ects =
                 List.fold_left
                     (fun (i,ects) course ->
                         (i+1,ects+.course.Public_data.supplement_ects))
                     (0,0.) repartition.Public_data.diplomes_nationaux
+              in
+              let () = Remanent_state.print_cell (string_of_int i) state in
+              let () = Remanent_state.print_cell (string_of_float ects) state in
+              let i,ects =
+                List.fold_left
+                    (fun (i,ects) course ->
+                        (i+1,ects+.course.Public_data.supplement_ects))
+                    (0,0.) repartition.Public_data.dens
               in
               let () = Remanent_state.print_cell (string_of_int i) state in
               let () = Remanent_state.print_cell (string_of_float ects) state in
