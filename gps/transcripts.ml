@@ -7011,6 +7011,7 @@ let export_transcript
                (n_inscription > 0 || dens_total_potential > 0.
                 || dens_total > 0.)
             then
+              let state = Remanent_state.warn __POS__ "DUMP DENS" Exit state in 
               let cours_a_trier = cours_list in
               let stages_a_trier = stage_list in
               let dens =
