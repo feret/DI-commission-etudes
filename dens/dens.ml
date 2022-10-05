@@ -121,8 +121,8 @@ let f_gen get store ~main_dpt (state,dens) course =
       match kind with
       | Ecla ->
       let dens_cours_langue = dens.Public_data.dens_cours_langue in
-      let list = get dens_cours_langue in
-      let dens_cours_a_trier = store (course::list) dens_cours_langue in
+      let list = dens_cours_langue in
+      let dens_cours_langue = course::list in
       let dens = {dens with Public_data.dens_cours_langue} in
       state, dens
       | Activite ->
@@ -131,7 +131,7 @@ let f_gen get store ~main_dpt (state,dens) course =
       let dens_cours_activite = store (course::list) dens_cours_activite in
       let dens = {dens with Public_data.dens_cours_activite} in
       state, dens
-    | Humanities | Sciences | Sans_mineure -> 
+    | Humanities | Sciences | Sans_mineure ->
       let dens_cours_hors_disciplines_principale = dens.dens_cours_hors_disciplines_principale in
       begin
         let old =
