@@ -7247,7 +7247,6 @@ let export_transcript
       | None -> Public_data.ENS
     in*)
     let current_dpt = main_dpt in
-    let state = Remanent_state.warn __POS__ "DUMP DENS" Exit state in
     let cours_a_trier = cours_list in
     let stages_a_trier = stage_list in
     let n_inscription =

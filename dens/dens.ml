@@ -190,7 +190,65 @@ let collect_mineure dens state = state, dens
 let size = [None;None;None;None;None]
 let bgcolor = [None;None;None;None;None]
 
+let dump_repartition ?key repartition state =
+  let () = Remanent_state.open_row state in
+  let () =
+      match key with None -> ()
+                  | Some key ->
+      Remanent_state.print_cell key state
+  in
+  let i,ects =
+    List.fold_left
+      (fun (i,ects) course ->
+          (i+1,ects+.course.Public_data.supplement_ects))
+      (0,0.) repartition.Public_data.diplomes_nationaux
+  in
+  let () = Remanent_state.print_cell (string_of_int i) state in
+  let () = Remanent_state.print_cell (string_of_float ects) state in
+  let i,ects =
+    List.fold_left
+      (fun (i,ects) course ->
+          (i+1,ects+.course.Public_data.supplement_ects))
+      (0,0.) repartition.Public_data.dens
+  in
+  let () = Remanent_state.print_cell (string_of_int i) state in
+  let () = Remanent_state.print_cell (string_of_float ects) state in
+  let () = Remanent_state.close_row state in
+  state
+
+  let dump_list ?key list state =
+    let () = Remanent_state.open_row state in
+    let () =
+        match key with None -> ()
+                    | Some key ->
+        Remanent_state.print_cell key state
+    in
+    let i,ects =
+      List.fold_left
+        (fun (i,ects) course ->
+            (i+1,ects+.course.Public_data.supplement_ects))
+        (0,0.) list
+    in
+    let () = Remanent_state.print_cell (string_of_int i) state in
+    let () = Remanent_state.print_cell (string_of_float ects) state in
+    state
+
+
 let dump_dens dens state =
+    let () = Remanent_state.log_string state "Discipline principale" in
+    let state =
+        Remanent_state.open_array
+            __POS__
+            ~bgcolor
+            ~size
+            ~with_lines:true
+            ~title:[["ECTS diplôme nationaux"];["Nb cours diplôme nationaux"]; ["ECTS DENS"];["Nb cours DENS"]]
+            ~title_english:[["ECTS diplôme nationaux"];["Nb cours diplôme nationaux"]; ["ECTS DENS"];["Nb cours DENS"]]
+            state
+    in
+    let state = dump_repartition dens.Public_data.dens_cours_discipline_principale state in
+    let () = Remanent_state.close_array state in
+    let () = Remanent_state.log_string state "Hors discipline principale" in
     let state =
       Remanent_state.open_array
         __POS__
@@ -204,28 +262,34 @@ let dump_dens dens state =
     let liste = dens.Public_data.dens_cours_par_dpt in
     let state =
         Public_data.StringMap.fold
-          (fun key repartition state ->
-              let () = Remanent_state.open_row state in
-              let () = Remanent_state.print_cell key state in
-              let i,ects =
-                List.fold_left
-                    (fun (i,ects) course ->
-                        (i+1,ects+.course.Public_data.supplement_ects))
-                    (0,0.) repartition.Public_data.diplomes_nationaux
-              in
-              let () = Remanent_state.print_cell (string_of_int i) state in
-              let () = Remanent_state.print_cell (string_of_float ects) state in
-              let i,ects =
-                List.fold_left
-                    (fun (i,ects) course ->
-                        (i+1,ects+.course.Public_data.supplement_ects))
-                    (0,0.) repartition.Public_data.dens
-              in
-              let () = Remanent_state.print_cell (string_of_int i) state in
-              let () = Remanent_state.print_cell (string_of_float ects) state in
-              let () = Remanent_state.close_row state in
-              state)
+          (fun key  -> dump_repartition ~key )
           liste state
     in
+   let () = Remanent_state.close_array state in
+   let () = Remanent_state.log_string state "Responsabilité" in
+   let state =
+       Remanent_state.open_array
+           __POS__
+           ~bgcolor
+           ~size
+           ~with_lines:true
+           ~title:[["ECTS"];["Nb cours"]]
+           ~title_english:[["ECTS"];["Nb cours"]]
+           state
+   in
+   let state = dump_list dens.Public_data.dens_cours_activite state in
+   let () = Remanent_state.close_array state in
+   let () = Remanent_state.log_string state "A trier" in
+   let state =
+       Remanent_state.open_array
+           __POS__
+           ~bgcolor
+           ~size
+           ~with_lines:true
+           ~title:[["ECTS"];["Nb cours"]]
+           ~title_english:[["ECTS"];["Nb cours"]]
+           state
+   in
+   let state = dump_repartition dens.Public_data.dens_cours_a_trier state in
    let () = Remanent_state.close_array state in
     state
