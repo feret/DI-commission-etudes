@@ -3153,7 +3153,7 @@ let n_att_init = Public_data.YearMap.empty
 
 let translate_course_dens course =
 {
- Public_data.supplement_code="";
+ Public_data.supplement_code=(match course.code_cours with None -> "" | Some c -> c);
  Public_data.supplement_discipline="";
  Public_data.supplement_intitule="";
  Public_data.supplement_ects=(match course.ects with None -> 0. | Some i -> i) ;
