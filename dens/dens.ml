@@ -64,7 +64,7 @@ let kind_of_course state code  =
                 begin
                   Remanent_state.warn
                             __POS__
-                            (Format.sprintf "Undefined GPS key : %s" t)
+                            (Format.sprintf "Undefined GPS key : (%s) (%s)" code t)
                             Exit
                             state, (t, Missing)
                 end
