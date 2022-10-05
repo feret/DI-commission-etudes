@@ -3423,7 +3423,7 @@ let not_dispense ~firstname ~lastname ~year state =
       | _, _::_ -> false
 
 let heading
-    ~who ~firstname ~lastname ~promo ~origine
+    ?dens ~who ~firstname ~lastname ~promo ~origine
     ~year ~situation ~gpscodelist ~tuteur ?tuteur_bis
     cursus_map split_cours picture_list is_suite gps_file state =
   let state, main_dpt =
@@ -3619,10 +3619,11 @@ let heading
   let tuteur, tuteur_en, lineproportion = tuteur in
   let backgroundcolor =
     match
-      situation.nannee
+      dens, situation.nannee
     with
-    | None -> Color.orange
-    | Some _ -> Color.yellow
+    | Some true, _ -> Color.blue
+    | (None | Some false), None -> Color.orange
+    | (None | Some false), Some _ -> Color.yellow
   in
   let textcolor = Color.red in
   let state, annee_int =
@@ -3647,6 +3648,8 @@ let heading
       "%i -- %i" annee_int (annee_int+1)
   in
   let state, statut, statut_en, nationaux_opt, nationaux_en_opt =
+    match dens with Some true -> state, "DENS","DENS",None,None
+                | None | Some false ->
     if lerasmus origine
     || lpe origine
     then
@@ -3884,7 +3887,12 @@ let heading
           nationaux_en_opt
         end
   in
-  let state, dens_opt, dens_en_opt  =
+  let statut, statut_en =
+        match dens with
+            | Some true -> "BILAN DENS","DENS SUMMARY"
+            | None | Some false -> statut, statut_en
+  in
+    let state, dens_opt, dens_en_opt  =
     match
       situation.inscription_au_DENS
     with
@@ -7457,7 +7465,7 @@ in
   let state,_ =
       heading
         ~who ~firstname ~lastname
-        ~promo ~origine
+        ~promo ~origine ~dens:true
         ~year:""   ~gpscodelist:[]
         ~tuteur ?tuteur_bis
         cursus_map StringOptMap.empty
