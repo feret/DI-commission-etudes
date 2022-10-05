@@ -253,7 +253,7 @@ let dump_dens dens state =
     let size = [None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None] in
     let () = Remanent_state.log_string state "Hors discipline principale" in
-    let () = Remanent_state.log_string state "\\begin{center}" in
+    let () = Remanent_state.fprintf state "\\begin{center}" in
     let state =
       Remanent_state.open_array
         __POS__
@@ -271,7 +271,7 @@ let dump_dens dens state =
           liste state
     in
    let () = Remanent_state.close_array state in
-   let () = Remanent_state.log_string state "\\end{center}" in
+   let () = Remanent_state.fprintf state "\\end{center}" in
 
    let size = [None;None] in
    let bgcolor = [None;None] in
