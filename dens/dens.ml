@@ -238,6 +238,7 @@ let dump_dens dens state =
     let size = [None;None;None;None] in
     let bgcolor = [None;None;None;None] in
     let () = Remanent_state.log_string state "Discipline principale" in
+    let () = Remanent_state.fprintf state "\\begin{center}" in
     let state =
         Remanent_state.open_array
             __POS__
@@ -250,6 +251,7 @@ let dump_dens dens state =
     in
     let state = dump_repartition dens.Public_data.dens_cours_discipline_principale state in
     let () = Remanent_state.close_array state in
+    let () = Remanent_state.fprintf state "\\end{center}" in
     let size = [None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None] in
     let () = Remanent_state.log_string state "Hors discipline principale" in
@@ -276,6 +278,7 @@ let dump_dens dens state =
    let size = [None;None] in
    let bgcolor = [None;None] in
    let () = Remanent_state.log_string state "Langues" in
+   let () = Remanent_state.fprintf state "\\begin{center}" in
    let state =
        Remanent_state.open_array
            __POS__
@@ -288,9 +291,11 @@ let dump_dens dens state =
    in
    let state = dump_list dens.Public_data.dens_cours_langue state in
    let () = Remanent_state.close_array state in
+   let () = Remanent_state.fprintf state "\\end{center}" in
    let size = [None;None] in
    let bgcolor = [None;None] in
    let () = Remanent_state.log_string state "Responsabilité" in
+   let () = Remanent_state.fprintf state "\\begin{center}" in
    let state =
        Remanent_state.open_array
            __POS__
@@ -303,9 +308,11 @@ let dump_dens dens state =
    in
    let state = dump_list dens.Public_data.dens_cours_activite state in
    let () = Remanent_state.close_array state in
+   let () = Remanent_state.fprintf state "\\end{center}" in
    let size = [None;None;None;None] in
    let bgcolor = [None;None;None;None] in
    let () = Remanent_state.log_string state "A trier" in
+   let () = Remanent_state.fprintf state "\\begin{center}" in
    let state =
        Remanent_state.open_array
            __POS__
@@ -318,4 +325,6 @@ let dump_dens dens state =
    in
    let state = dump_repartition dens.Public_data.dens_cours_a_trier state in
    let () = Remanent_state.close_array state in
+   let () = Remanent_state.fprintf state "\\end{center}" in
+
     state

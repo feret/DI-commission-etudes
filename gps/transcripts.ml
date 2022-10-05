@@ -3626,27 +3626,33 @@ let heading
     | (None | Some false), Some _ -> Color.yellow
   in
   let textcolor = Color.red in
-  let state, annee_int =
-    try
-      state, int_of_string year
-    with
-    | _ ->
-      let msg =
-        Format.sprintf
-          "Ill-formed year %s"
-          year
+  let state, annee =
+    match dens with
+    | Some true -> state, ""
+    | None | Some false ->
+      let state, annee_int =
+        try
+          state, int_of_string year
+        with
+          | _ ->
+            let msg =
+              Format.sprintf
+              "Ill-formed year %s"
+              year
+            in
+            Remanent_state.warn
+              __POS__
+              msg
+              Exit
+              state,
+              0
       in
-      Remanent_state.warn
-        __POS__
-        msg
-        Exit
-        state,
-      0
-  in
-  let annee =
-    Printf.sprintf
-      "%i -- %i" annee_int (annee_int+1)
-  in
+      let annee =
+      Printf.sprintf
+          "%i -- %i" annee_int (annee_int+1)
+      in
+      state, annee
+  in 
   let state, statut, statut_en, nationaux_opt, nationaux_en_opt =
     match dens with Some true -> state, "DENS","DENS",None,None
                 | None | Some false ->
