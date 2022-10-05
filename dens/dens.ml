@@ -268,8 +268,8 @@ let dump_dens dens state =
           liste state
     in
    let () = Remanent_state.close_array state in
-   let size = [None;None;None;None] in
-   let bgcolor = [None;None;None;None] in 
+   let size = [None;None] in
+   let bgcolor = [None;None] in
    let () = Remanent_state.log_string state "Responsabilité" in
    let state =
        Remanent_state.open_array
@@ -283,6 +283,8 @@ let dump_dens dens state =
    in
    let state = dump_list dens.Public_data.dens_cours_activite state in
    let () = Remanent_state.close_array state in
+   let size = [None;None;None;None] in
+   let bgcolor = [None;None;None;None] in
    let () = Remanent_state.log_string state "A trier" in
    let state =
        Remanent_state.open_array
@@ -290,8 +292,8 @@ let dump_dens dens state =
            ~bgcolor
            ~size
            ~with_lines:true
-           ~title:[["ECTS"];["Nb cours"]]
-           ~title_english:[["ECTS"];["Nb cours"]]
+           ~title:[["ECTS diplôme nationaux"];["Nb cours diplôme nationaux"]; ["ECTS DENS"];["Nb cours DENS"]]
+           ~title_english:[["ECTS diplôme nationaux"];["Nb cours diplôme nationaux"]; ["ECTS DENS"];["Nb cours DENS"]]
            state
    in
    let state = dump_repartition dens.Public_data.dens_cours_a_trier state in
