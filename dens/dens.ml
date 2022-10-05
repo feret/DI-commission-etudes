@@ -100,7 +100,7 @@ let f_gen get store ~main_dpt (state,dens) course =
         | t::_ ->
           begin
               match String.split_on_char ' ' t with
-              | t::_ -> t
+              | t::_ -> state, t
               | [] ->
                 Remanent_state.warn
                     __POS__
