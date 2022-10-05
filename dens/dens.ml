@@ -97,7 +97,16 @@ let f_gen get store ~main_dpt (state,dens) course =
     let code = String.split_on_char '-' course.Public_data.supplement_code in
     let state, code  =
       match code with
-        | t::_ -> state, t
+        | t::_ ->
+          begin
+              match String.split_on_char ' ' t with
+              | t::_ -> t
+              | [] ->
+                Remanent_state.warn
+                    __POS__
+                    (Format.sprintf "Ill-formed code: %s" course.Public_data.supplement_code)
+                    Exit state, ""
+          end
         | [] ->
           Remanent_state.warn
               __POS__
