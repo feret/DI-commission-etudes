@@ -187,8 +187,6 @@ let split_courses dens state =
 let split_stages dens state = state, dens
 let collect_mineure dens state = state, dens
 
-let size = [None;None;None;None;None]
-let bgcolor = [None;None;None;None;None]
 
 let dump_repartition ?key repartition state =
   let () = Remanent_state.open_row state in
@@ -235,6 +233,8 @@ let dump_repartition ?key repartition state =
 
 
 let dump_dens dens state =
+    let size = [None;None;None;None] in
+    let bgcolor = [None;None;None;None] in
     let () = Remanent_state.log_string state "Discipline principale" in
     let state =
         Remanent_state.open_array
@@ -248,6 +248,8 @@ let dump_dens dens state =
     in
     let state = dump_repartition dens.Public_data.dens_cours_discipline_principale state in
     let () = Remanent_state.close_array state in
+    let size = [None;None;None;None;None] in
+    let bgcolor = [None;None;None;None;None] in
     let () = Remanent_state.log_string state "Hors discipline principale" in
     let state =
       Remanent_state.open_array
@@ -266,6 +268,8 @@ let dump_dens dens state =
           liste state
     in
    let () = Remanent_state.close_array state in
+   let size = [None;None;None;None] in
+   let bgcolor = [None;None;None;None] in 
    let () = Remanent_state.log_string state "Responsabilité" in
    let state =
        Remanent_state.open_array
