@@ -5327,7 +5327,7 @@ let program
         in
         let state, mean, dens, natt, cours_list, stage_list =
           if year > current_year
-          || not (do_report report || keep_success || keep_faillure)
+          (*|| not ((do_report report || keep_success || keep_faillure)*) 
           then state, mean, dens, natt, cours_list, stage_list
           else
             match Tools.map_opt String.trim string

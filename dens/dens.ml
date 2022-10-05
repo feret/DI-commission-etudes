@@ -201,16 +201,16 @@ let dump_repartition ?key repartition state =
           (i+1,ects+.course.Public_data.supplement_ects))
       (0,0.) repartition.Public_data.diplomes_nationaux
   in
-  let () = Remanent_state.print_cell (string_of_int i) state in
   let () = Remanent_state.print_cell (string_of_float ects) state in
+  let () = Remanent_state.print_cell (string_of_int i) state in
   let i,ects =
     List.fold_left
       (fun (i,ects) course ->
           (i+1,ects+.course.Public_data.supplement_ects))
       (0,0.) repartition.Public_data.dens
   in
-  let () = Remanent_state.print_cell (string_of_int i) state in
   let () = Remanent_state.print_cell (string_of_float ects) state in
+  let () = Remanent_state.print_cell (string_of_int i) state in
   let () = Remanent_state.close_row state in
   state
 
@@ -227,9 +227,10 @@ let dump_repartition ?key repartition state =
             (i+1,ects+.course.Public_data.supplement_ects))
         (0,0.) list
     in
-    let () = Remanent_state.print_cell (string_of_int i) state in
     let () = Remanent_state.print_cell (string_of_float ects) state in
-    state
+    let () = Remanent_state.print_cell (string_of_int i) state in
+
+  state
 
 
 let dump_dens dens state =
@@ -267,6 +268,21 @@ let dump_dens dens state =
           (fun key  -> dump_repartition ~key )
           liste state
     in
+   let () = Remanent_state.close_array state in
+   let size = [None;None] in
+   let bgcolor = [None;None] in
+   let () = Remanent_state.log_string state "Langues" in
+   let state =
+       Remanent_state.open_array
+           __POS__
+           ~bgcolor
+           ~size
+           ~with_lines:true
+           ~title:[["ECTS"];["Nb cours"]]
+           ~title_english:[["ECTS"];["Nb cours"]]
+           state
+   in
+   let state = dump_list dens.Public_data.dens_cours_langue state in
    let () = Remanent_state.close_array state in
    let size = [None;None] in
    let bgcolor = [None;None] in
