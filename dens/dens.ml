@@ -1,5 +1,6 @@
 type kind = Humanities | Sciences | Ecla | Activite | Sans_mineure | Missing
 
+let actd = "ACTD"
 let info = "INFO"
 let dma = "DMA"
 let bio = "BIO"
@@ -16,12 +17,13 @@ let vetu = "VETU"
 let dg = "DG"
 let ens = "DENS"
 let dri = "DRI"
+let xt = "XT"
 
 let sciences = [info;dma;bio;phys;dec;ibens]
 let humanities = [arts;dsa;eco;lila]
 let sans_mineure = [ceres]
 let ecla = [ecla]
-let activite = [vetu;dg]
+let activite = [vetu;dg;actd]
 
 let all =
  [
@@ -108,13 +110,50 @@ let f_gen get store ~main_dpt (state,dens) course =
         let dens_cours_discipline_principale = store (course::list) dens_cours_discipline_principale in
         let dens = {dens with Public_data.dens_cours_discipline_principale} in
         state, dens
+    else if code = xt then
+        let dens_cours_a_trier = dens.Public_data.dens_cours_a_trier in
+        let list = get dens_cours_a_trier in
+        let dens_cours_a_trier = store (course::list) dens_cours_a_trier in
+        let dens = {dens with Public_data.dens_cours_a_trier} in
+        state, dens
     else
-      let state, (_,kind) = kind_of_course state code in
+      let state, (key,kind) = kind_of_course state code in
       match kind with
-      | Ecla -> state, dens
-      | Humanities | Sciences | Sans_mineure -> state, dens
-      | Activite -> state, dens
-      | Missing -> state, dens
+      | Ecla ->
+      let dens_cours_langue = dens.Public_data.dens_cours_langue in
+      let list = get dens_cours_langue in
+      let dens_cours_a_trier = store (course::list) dens_cours_langue in
+      let dens = {dens with Public_data.dens_cours_langue} in
+      state, dens
+      | Activite ->
+      let dens_cours_activite = dens.Public_data.dens_cours_activite in
+      let list = get dens_cours_activite in
+      let dens_cours_activite = store (course::list) dens_cours_activite in
+      let dens = {dens with Public_data.dens_cours_activite} in
+      state, dens
+    | Humanities | Sciences | Sans_mineure -> s
+      let dens_cours_hors_disciplines_principale = dens.dens_cours_hors_disciplines_principale in
+      begin
+        let old =
+            match
+              Public_data.StringMap.find_opt key dens_cours_hors_disciplines_principale
+            with
+              | None -> Public_data.empty_repartition_diplomes
+              | Some repartition -> repartition
+        in
+        let list = get repartition in
+        let repartition = store (course::list) repartition in
+        let dens_cours_hors_disciplines_principale =
+          Public_data.StringMap.add key repartition dens_cours_hors_disciplines_principale
+        in
+        state, {dens with Public_data.dens_cours_hors_disciplines_principale}
+      end
+      | Missing ->
+      let dens_cours_a_trier = dens.Public_data.dens_cours_a_trier in
+      let list = get dens_cours_a_trier in
+      let dens_cours_a_trier = store (course::list) dens_cours_a_trier in
+      let dens = {dens with Public_data.dens_cours_a_trier} in
+      state, dens
 
 let f_nat =
     f_gen
