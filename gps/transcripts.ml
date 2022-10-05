@@ -5327,7 +5327,7 @@ let program
         in
         let state, mean, dens, natt, cours_list, stage_list =
           if year > current_year
-          (*|| not ((do_report report || keep_success || keep_faillure)*) 
+          (*|| not ((do_report report || keep_success || keep_faillure)*)
           then state, mean, dens, natt, cours_list, stage_list
           else
             match Tools.map_opt String.trim string
@@ -7297,6 +7297,172 @@ let export_transcript
   let state, dens = Dens.split_courses dens state in
   let state, dens = Dens.split_stages dens state in
   let state, dens = Dens.collect_mineure dens state in
+  let state, tuteur =
+    Remanent_state.get_mentoring
+      ~year:current_year
+      ~lastname
+      ~firstname
+      state
+  in
+  let state, tuteurs_secondaires =
+    Remanent_state.get_mentoring_list
+      ~year:current_year
+      ~lastname
+      ~firstname
+      state
+  in
+  let tuteurs_secondaires =
+    List.filter
+      (fun p -> p.Public_data.secondaire <> None)
+      tuteurs_secondaires
+  in
+  let state, tuteur =
+    match tuteur with
+    | Some t -> state, Some t
+    | None ->
+      begin
+        match Remanent_state.get_main_dpt state with
+        | state, (Public_data.DRI | Public_data.DI | Public_data.ENS) -> state, None
+        | state, (Public_data.ARTS
+                 | Public_data.ECO
+                 | Public_data.DMA
+                 | Public_data.PHYS
+                 | Public_data.IBENS
+                 | Public_data.LILA)->
+          begin
+            match
+              gps_file.tuteur
+            with
+            | None -> state, None
+            | Some s ->
+              let t_genre, t_firstname, t_fullname =
+                Special_char.split_name s
+              in
+              let state, t_genre =
+                genre_opt_of_string_opt __POS__ state (Some t_genre);
+              in
+              state,
+              Some
+                {
+                  Public_data.genre_du_tuteur= t_genre;
+                  Public_data.nom_du_tuteur=Some t_fullname ;
+                  Public_data.prenom_du_tuteur=Some t_firstname ;
+                  Public_data.annee_academique=current_year;
+                  Public_data.courriel_du_tuteur=None;
+                  Public_data.nom_de_l_etudiant=lastname;
+                  Public_data.prenom_de_l_etudiant=firstname;
+                  Public_data.secondaire=None;
+          }
+        end
+
+      end
+  in
+  let tuteur = match tuteur with Some a -> a | None -> Public_data.empty_tutorat in
+  let state, tuteur =
+  begin
+    match
+      tuteur.Public_data.nom_du_tuteur,           tuteur.Public_data.prenom_du_tuteur,
+      tuteur.Public_data.genre_du_tuteur,
+      tuteur.Public_data.courriel_du_tuteur
+    with
+    | None, (None | Some _),
+      (None | Some _), None ->
+      let msg =
+        Printf.sprintf
+          "Tuteur inconnu pour %s"
+          who
+      in
+      Remanent_state.warn_dft
+        __POS__
+        msg
+        Exit
+        ("","",1.)
+        state
+    | Some x, Some y, Some z, _ ->
+      state,
+      (Printf.sprintf
+         "%s %s %s"
+         (match z with
+          | Public_data.Masculin ->
+            "Tuteur : "
+          | Public_data.Feminin ->
+            "Tutrice : "
+          | Public_data.Unknown -> "")
+         (Special_char.capitalize y)
+         (Special_char.uppercase x),
+         Printf.sprintf
+            "Mentor: %s %s"
+            (Special_char.capitalize y)
+            (Special_char.uppercase x),
+       2./.3.
+      )
+    | None, _, _, Some x ->
+      state, (x, x, 2./.3.)
+    | Some x, _, _, _ ->
+      state, (x, x, 2./.3.)
+  end
+in
+let state, tuteur_bis =
+begin
+  match
+    tuteurs_secondaires
+  with
+  | [] -> state, None
+  | tuteur::_ ->
+    begin
+      match
+        tuteur.Public_data.nom_du_tuteur,
+        tuteur.Public_data.prenom_du_tuteur,
+        tuteur.Public_data.genre_du_tuteur,
+        tuteur.Public_data.courriel_du_tuteur
+      with
+      | None, (None | Some _),
+        (None | Some _), None ->
+        let msg =
+          Printf.sprintf
+            "Tuteur secondaire inconnu pour %s"
+            who
+        in
+        Remanent_state.warn_dft
+          __POS__
+          msg
+          Exit
+          (Some ("","",1.))
+          state
+      | Some x, Some y, Some z, _ ->
+        state,
+        Some (Printf.sprintf
+           "%s %s %s"
+           (match z with
+            | Public_data.Masculin ->
+              "Tuteur (secondaire): "
+            | Public_data.Feminin ->
+              "Tutrice (secondaire): "
+            | Public_data.Unknown -> "")
+           (Special_char.capitalize y)
+           (Special_char.uppercase x),
+           Printf.sprintf
+              "Secondary mentor: %s %s"
+              (Special_char.capitalize y)
+              (Special_char.uppercase x),
+         2./.3.
+        )
+      | None, _, _, Some x ->
+        state, Some (x, x, 2./.3.)
+      | Some x, _, _, _ ->
+        state, Some (x, x, 2./.3.)
+    end
+end
+in
+  let state,_ =
+      heading
+        ~who ~firstname ~lastname
+        ~promo ~origine
+        ~year:""   ~gpscodelist:[]
+        ~tuteur ?tuteur_bis
+        cursus_map StringOptMap.empty
+        picture_list false gps_file ~situation:empty_bilan_annuel state
+  in
   let state = Dens.dump_dens dens state in
   let state =
           if
