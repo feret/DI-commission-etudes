@@ -127,8 +127,8 @@ let f_gen get store ~main_dpt (state,dens) course =
       state, dens
       | Activite ->
       let dens_cours_activite = dens.Public_data.dens_cours_activite in
-      let list = get dens_cours_activite in
-      let dens_cours_activite = store (course::list) dens_cours_activite in
+      let list = dens_cours_activite in
+      let dens_cours_activite = course::list in
       let dens = {dens with Public_data.dens_cours_activite} in
       state, dens
     | Humanities | Sciences | Sans_mineure ->
