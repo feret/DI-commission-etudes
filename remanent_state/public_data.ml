@@ -613,6 +613,7 @@ type missing_internship_description =
   let  empty_repartition_diplomes = {dens= []; diplomes_nationaux = []}
   type dens =
     {
+      dens_main_dpt : main_dpt ;
       dens_firstname : string ;
       dens_lastname : string ;
       dens_promotion : string ;
@@ -632,6 +633,7 @@ type missing_internship_description =
       dens_cours_discipline_principale: cours_supplement list repartition_diplomes ;
       dens_cours_hors_disciplines_principale: cours_supplement list repartition_diplomes;
       dens_cours_par_dpt: cours_supplement list repartition_diplomes StringMap.t;
+      dens_cours_activite: cours_supplement list;
       dens_cours_langue: cours_supplement list;
       dens_cours_mineure: cours_supplement list repartition_diplomes StringMap.t;
       dens_cours_majeure: cours_supplement list repartition_diplomes StringMap.t;
