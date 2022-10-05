@@ -132,21 +132,21 @@ let f_gen get store ~main_dpt (state,dens) course =
       let dens = {dens with Public_data.dens_cours_activite} in
       state, dens
     | Humanities | Sciences | Sans_mineure ->
-      let dens_cours_hors_disciplines_principale = dens.dens_cours_hors_disciplines_principale in
+      let dens_cours_par_dpt = dens.Public_data.dens_cours_par_dpt in
       begin
         let old =
             match
-              Public_data.StringMap.find_opt key dens_cours_hors_disciplines_principale
+              Public_data.StringMap.find_opt key dens_cours_par_dpt
             with
               | None -> Public_data.empty_repartition_diplomes
               | Some repartition -> repartition
         in
-        let list = get repartition in
-        let repartition = store (course::list) repartition in
-        let dens_cours_hors_disciplines_principale =
-          Public_data.StringMap.add key repartition dens_cours_hors_disciplines_principale
+        let list = get old in
+        let repartition = store (course::list) old in
+        let dens_cours_par_dpt =
+          Public_data.StringMap.add key repartition dens_cours_par_dpt
         in
-        state, {dens with Public_data.dens_cours_hors_disciplines_principale}
+        state, {dens with Public_data.dens_cours_par_dpt}
       end
       | Missing ->
       let dens_cours_a_trier = dens.Public_data.dens_cours_a_trier in
