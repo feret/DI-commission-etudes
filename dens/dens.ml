@@ -234,7 +234,6 @@ let dump_repartition ?key repartition state =
 
 
 let dump_dens dens state =
-    let _ = Remanent_state.log_string state "SUPPLEMENT AU DIPLOME" in
     let size = [None;None;None;None] in
     let bgcolor = [None;None;None;None] in
     let () = Remanent_state.log_string state "Discipline principale" in
