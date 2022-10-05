@@ -7003,6 +7003,47 @@ let export_transcript
           let state, main_dpt =
             Remanent_state.get_main_dpt state
           in
+          let state = Remanent_state.warn __POS__ "DUMP DENS" Exit state in
+          let cours_a_trier = cours_list in
+          let stages_a_trier = stage_list in
+          let dens =
+          {
+            Public_data.dens_main_dpt = main_dpt ;
+            Public_data.dens_firstname = firstname ;
+            Public_data.dens_lastname = lastname;
+            Public_data.dens_promotion = promo;
+            Public_data.dens_total_ects = dens_total ;
+            Public_data.dens_current_year_ects =
+              dens_year ;
+            Public_data.dens_total_potential_ects =
+              dens_total_potential ;
+            Public_data.dens_current_year_potential_ects = dens_year_potential ;
+            Public_data.dens_nb_inscriptions = n_inscription ;
+            Public_data.dens_nb_mandatory_course = mandatory ;
+            Public_data.dens_nb_math_course = math ;
+            Public_data.dens_nb_math_and_math_info_course = math_math_info ;
+            Public_data.dens_sortant=false;
+            Public_data.dens_derogation=false;
+            Public_data.dens_master=None;
+            Public_data.dens_parcours=[];
+            Public_data.dens_cours_a_trier= cours_a_trier;
+            Public_data.dens_cours_discipline_principale=Public_data.empty_repartition_diplomes;
+            Public_data.dens_cours_hors_disciplines_principale=Public_data.empty_repartition_diplomes; Public_data.dens_cours_langue=[];
+            Public_data.dens_cours_mineure=Public_data.StringMap.empty;
+            Public_data.dens_cours_majeure=Public_data.StringMap.empty;
+            Public_data.dens_cours_activite=[];
+            Public_data.dens_activite_a_trier=stages_a_trier;
+            Public_data.dens_activite_recherche=[];
+            Public_data.dens_activite_internationale=[];
+            Public_data.dens_activite_autre=[];
+            Public_data.dens_cours_par_dpt = Public_data.StringMap.empty;
+          }
+          in
+          let state, dens = Dens.split_courses dens state in
+          let state, dens = Dens.split_stages dens state in
+          let state, dens = Dens.collect_mineure dens state in
+          let state = Dens.dump_dens dens state in
+
           let state =
             if
               main_dpt = current_dpt
@@ -7011,47 +7052,7 @@ let export_transcript
                (n_inscription > 0 || dens_total_potential > 0.
                 || dens_total > 0.)
             then
-              let state = Remanent_state.warn __POS__ "DUMP DENS" Exit state in 
-              let cours_a_trier = cours_list in
-              let stages_a_trier = stage_list in
-              let dens =
-              {
-                Public_data.dens_main_dpt = main_dpt ;
-                Public_data.dens_firstname = firstname ;
-                Public_data.dens_lastname = lastname;
-                Public_data.dens_promotion = promo;
-                Public_data.dens_total_ects = dens_total ;
-                Public_data.dens_current_year_ects =
-                  dens_year ;
-                Public_data.dens_total_potential_ects =
-                  dens_total_potential ;
-                Public_data.dens_current_year_potential_ects = dens_year_potential ;
-                Public_data.dens_nb_inscriptions = n_inscription ;
-                Public_data.dens_nb_mandatory_course = mandatory ;
-                Public_data.dens_nb_math_course = math ;
-                Public_data.dens_nb_math_and_math_info_course = math_math_info ;
-                Public_data.dens_sortant=false;
-                Public_data.dens_derogation=false;
-                Public_data.dens_master=None;
-                Public_data.dens_parcours=[];
-                Public_data.dens_cours_a_trier= cours_a_trier;
-                Public_data.dens_cours_discipline_principale=Public_data.empty_repartition_diplomes;
-                Public_data.dens_cours_hors_disciplines_principale=Public_data.empty_repartition_diplomes; Public_data.dens_cours_langue=[];
-                Public_data.dens_cours_mineure=Public_data.StringMap.empty;
-                Public_data.dens_cours_majeure=Public_data.StringMap.empty;
-                Public_data.dens_cours_activite=[];
-                Public_data.dens_activite_a_trier=stages_a_trier;
-                Public_data.dens_activite_recherche=[];
-                Public_data.dens_activite_internationale=[];
-                Public_data.dens_activite_autre=[];
-                Public_data.dens_cours_par_dpt = Public_data.StringMap.empty;
-              }
-              in
-              let state, dens = Dens.split_courses dens state in
-              let state, dens = Dens.split_stages dens state in
-              let state, dens = Dens.collect_mineure dens state in
-              let state = Dens.dump_dens dens state in
-              Remanent_state.add_dens
+                    Remanent_state.add_dens
                 state
                 dens
             else
