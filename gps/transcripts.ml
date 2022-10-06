@@ -1,3 +1,6 @@
+let int_of_string i =
+ try int_of_string i with _ -> 0
+
 module StringOptMap =
   Map_tools.MakeSimplified
     (
