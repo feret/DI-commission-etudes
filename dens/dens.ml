@@ -5,6 +5,7 @@ let info = "INFO"
 let dma = "DMA"
 let bio = "BIO"
 let phys = "PHYS"
+let phil = "PHIL"
 let dec = "DEC"
 let ibens = "IBENS"
 let arts = "ARTS"
@@ -20,7 +21,7 @@ let dri = "DRI"
 let xt = "XT"
 
 let sciences = [info;dma;bio;phys;dec;ibens]
-let humanities = [arts;dsa;eco;lila]
+let humanities = [arts;dsa;eco;lila;phil]
 let sans_mineure = [ceres]
 let ecla = [ecla]
 let activite = [vetu;dg;actd]
@@ -188,75 +189,65 @@ let split_stages dens state = state, dens
 let collect_mineure dens state = state, dens
 
 
-let dump_repartition ?key repartition state =
-  let () = Remanent_state.open_row state in
-  let () =
-      match key with None -> ()
-                  | Some key ->
-      Remanent_state.print_cell key state
-  in
+let dump_repartition ?key repartition (state, total) =
   let i,ects =
     List.fold_left
       (fun (i,ects) course ->
           (i+1,ects+.course.Public_data.supplement_ects))
       (0,0.) repartition.Public_data.diplomes_nationaux
   in
-  let () = Remanent_state.print_cell (string_of_float ects) state in
-  let () = Remanent_state.print_cell (string_of_int i) state in
-  let i,ects =
+  let i',ects' =
     List.fold_left
       (fun (i,ects) course ->
           (i+1,ects+.course.Public_data.supplement_ects))
       (0,0.) repartition.Public_data.dens
   in
+  if i=0 && i'=0 && ects=0. && ects'=0. then state, total
+  else
+  let () = Remanent_state.open_row state in
+  let () =
+      match key with None -> ()
+                  | Some key ->
+      Remanent_state.print_cell key state
+  in
   let () = Remanent_state.print_cell (string_of_float ects) state in
   let () = Remanent_state.print_cell (string_of_int i) state in
+  let () = Remanent_state.print_cell (string_of_float ects') state in
+  let () = Remanent_state.print_cell (string_of_int i') state in
   let () = Remanent_state.close_row state in
-  state
+  let (j,j',fcts,fcts') = total in
+  state, (i+j,i'+j',ects+.fcts,ects'+.fcts')
 
-  let dump_list ?key list state =
-    let () = Remanent_state.open_row state in
-    let () =
-        match key with None -> ()
-                    | Some key ->
-        Remanent_state.print_cell key state
-    in
+  let dump_list ?key list (state,total) =
     let i,ects =
       List.fold_left
         (fun (i,ects) course ->
             (i+1,ects+.course.Public_data.supplement_ects))
         (0,0.) list
     in
-    let () = Remanent_state.print_cell (string_of_float ects) state in
-    let () = Remanent_state.print_cell (string_of_int i) state in
-    let () = Remanent_state.close_row state in
-  state
+    if i = 0 && ects = 0. then state, total
+    else
+      let () = Remanent_state.open_row state in
+      let () =
+        match key with None -> ()
+                    | Some key ->
+        Remanent_state.print_cell key state
+      in
+      let () = Remanent_state.print_cell (string_of_float 0.) state in
+      let () = Remanent_state.print_cell (string_of_int 0) state in
+      let () = Remanent_state.print_cell (string_of_float ects) state in
+      let () = Remanent_state.print_cell (string_of_int i) state in
+      let () = Remanent_state.close_row state in
+      let (j,j',fcts,fcts') = total in
+      state, (j,j'+i,fcts,ects+.fcts')
 
 
 let dump_dens dens state =
     let size = [None;None;None;None] in
     let bgcolor = [None;None;None;None] in
-    let () = Remanent_state.log_string state "Discipline principale" in
-    let () = Remanent_state.fprintf state "\\renewcommand{\\row}[4]{#1&#2&#3&#4\\cr}" in
-    let () = Remanent_state.fprintf state "\\begin{center}" in
-    let state =
-        Remanent_state.open_array
-            __POS__
-            ~bgcolor
-            ~size
-            ~with_lines:true
-            ~title:[["ECTS diplôme nationaux"];["Nb cours diplôme nationaux"]; ["ECTS DENS"];["Nb cours DENS"]]
-            ~title_english:[["ECTS diplôme nationaux"];["Nb cours diplôme nationaux"]; ["ECTS DENS"];["Nb cours DENS"]]
-            state
-    in
-    let state = dump_repartition dens.Public_data.dens_cours_discipline_principale state in
-    let () = Remanent_state.close_array state in
-    let () = Remanent_state.fprintf state "\\end{center}" in
-    let size = [None;None;None;None;None] in
-    let bgcolor = [None;None;None;None;None] in
-    let () = Remanent_state.fprintf state  "\\renewcommand{\\row}[5]{#1&#2&#3&#4&#5\\cr}" in
-
-    let () = Remanent_state.log_string state "Hors discipline principale" in
+    let total = 0,0,0.,0. in
+    (*let () = Remanent_state.log_string state "Discipline principale" in*)
+    let () = Remanent_state.fprintf state "\\renewcommand{\\row}[5]{#1&#2&#3&#4&#5\\cr}" in
     let () = Remanent_state.fprintf state "\\begin{center}" in
     let state =
       Remanent_state.open_array
@@ -264,72 +255,41 @@ let dump_dens dens state =
         ~bgcolor
         ~size
         ~with_lines:true
-        ~title:[["Département"];["ECTS diplôme nationaux"];["Nb cours diplôme nationaux"]; ["ECTS DENS"];["Nb cours DENS"]]
+        ~title:[["Catégorie"];["ECTS diplôme nationaux"];["Nb cours diplôme nationaux"]; ["ECTS DENS"];["Nb cours DENS"]]
         ~title_english:[["Département"];["ECTS diplôme nationaux"];["Nb cours diplôme nationaux"]; ["ECTS DENS"];["Nb cours DENS"]]
         state
     in
-    let liste = dens.Public_data.dens_cours_par_dpt in
-    let state =
-        Public_data.StringMap.fold
-          (fun key  -> dump_repartition ~key )
-          liste state
+    let state, total =
+          dump_repartition
+            ~key:"Discipline principale" dens.Public_data.dens_cours_discipline_principale (state,total)
     in
-   let () = Remanent_state.close_array state in
-   let () = Remanent_state.fprintf state "\\end{center}" in
-
-   let size = [None;None] in
-   let bgcolor = [None;None] in
-   let () = Remanent_state.fprintf state "\\renewcommand{\\row}[2]{#1&#2\\cr}" in
-   let () = Remanent_state.log_string state "Langues" in
-   let () = Remanent_state.fprintf state "\\begin{center}" in
-   let state =
-       Remanent_state.open_array
-           __POS__
-           ~bgcolor
-           ~size
-           ~with_lines:true
-           ~title:[["ECTS"];["Nb cours"]]
-           ~title_english:[["ECTS"];["Nb cours"]]
-           state
-   in
-   let state = dump_list dens.Public_data.dens_cours_langue state in
-   let () = Remanent_state.close_array state in
-   let () = Remanent_state.fprintf state "\\end{center}" in
-   let size = [None;None] in
-   let bgcolor = [None;None] in
-   let () = Remanent_state.fprintf state "\\renewcommand{\\row}[2]{#1&#2\\cr}" in
-   let () = Remanent_state.log_string state "Responsabilité" in
-   let () = Remanent_state.fprintf state "\\begin{center}" in
-   let state =
-       Remanent_state.open_array
-           __POS__
-           ~bgcolor
-           ~size
-           ~with_lines:true
-           ~title:[["ECTS"];["Nb cours"]]
-           ~title_english:[["ECTS"];["Nb cours"]]
-           state
-   in
-   let state = dump_list dens.Public_data.dens_cours_activite state in
-   let () = Remanent_state.close_array state in
-   let () = Remanent_state.fprintf state "\\end{center}" in
-   let size = [None;None;None;None] in
-   let bgcolor = [None;None;None;None] in
-   let () = Remanent_state.log_string state "Discipline principale" in
-   let () = Remanent_state.log_string state "A trier" in
-   let () = Remanent_state.fprintf state "\\begin{center}" in
-   let state =
-       Remanent_state.open_array
-           __POS__
-           ~bgcolor
-           ~size
-           ~with_lines:true
-           ~title:[["ECTS diplôme nationaux"];["Nb cours diplôme nationaux"]; ["ECTS DENS"];["Nb cours DENS"]]
-           ~title_english:[["ECTS diplôme nationaux"];["Nb cours diplôme nationaux"]; ["ECTS DENS"];["Nb cours DENS"]]
-           state
-   in
-   let state = dump_repartition dens.Public_data.dens_cours_a_trier state in
-   let () = Remanent_state.close_array state in
-   let () = Remanent_state.fprintf state "\\end{center}" in
-
+    let liste = dens.Public_data.dens_cours_par_dpt in
+    let state,total  =
+        Public_data.StringMap.fold
+          (fun key  -> dump_repartition ~key)
+          liste (state,total)
+    in
+    let state, total =
+        dump_list
+          ~key:"Langues"
+          dens.Public_data.dens_cours_langue (state,total)
+     in
+     let state, total  =
+        dump_list
+          ~key:"Responsabilités"
+          dens.Public_data.dens_cours_activite (state,total) in
+     let state, total =
+        dump_repartition
+          ~key:"À trier"
+          dens.Public_data.dens_cours_a_trier (state,total)
+      in
+      let () = Remanent_state.open_row state in
+      let (i,i',ects,ects') = total in
+      let () = Remanent_state.print_cell (string_of_float ects) state in
+      let () = Remanent_state.print_cell (string_of_int i) state in
+      let () = Remanent_state.print_cell (string_of_float ects') state in
+      let () = Remanent_state.print_cell (string_of_int i') state in
+      let () = Remanent_state.close_row state in
+      let () = Remanent_state.close_array state in
+      let () = Remanent_state.fprintf state "\\end{center}" in
     state
