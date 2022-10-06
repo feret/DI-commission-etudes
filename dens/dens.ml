@@ -237,6 +237,7 @@ let dump_dens dens state =
     let size = [None;None;None;None] in
     let bgcolor = [None;None;None;None] in
     let () = Remanent_state.log_string state "Discipline principale" in
+    let () = Remanent_state.fprintf state "\\renewcommand{\row}[4]{#1&#2&#3&#4\\cr}" in
     let () = Remanent_state.fprintf state "\\begin{center}" in
     let state =
         Remanent_state.open_array
@@ -253,6 +254,8 @@ let dump_dens dens state =
     let () = Remanent_state.fprintf state "\\end{center}" in
     let size = [None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None] in
+    let () = Remanent_state.fprintf state  "\\renewcommand{\row}[5]{#1&#2&#3&#4&#5\\cr}" in
+
     let () = Remanent_state.log_string state "Hors discipline principale" in
     let () = Remanent_state.fprintf state "\\begin{center}" in
     let state =
@@ -276,6 +279,8 @@ let dump_dens dens state =
 
    let size = [None;None] in
    let bgcolor = [None;None] in
+   let () = Remanent_state.fprintf state "\\renewcommand{\row}[2]{#1&#2\\cr}"
+
    let () = Remanent_state.log_string state "Langues" in
    let () = Remanent_state.fprintf state "\\begin{center}" in
    let state =
@@ -293,6 +298,7 @@ let dump_dens dens state =
    let () = Remanent_state.fprintf state "\\end{center}" in
    let size = [None;None] in
    let bgcolor = [None;None] in
+   let () = Remanent_state.fprintf state "\\renewcommand{\row}[2]{#1&#2\\cr}"
    let () = Remanent_state.log_string state "Responsabilité" in
    let () = Remanent_state.fprintf state "\\begin{center}" in
    let state =
@@ -310,6 +316,7 @@ let dump_dens dens state =
    let () = Remanent_state.fprintf state "\\end{center}" in
    let size = [None;None;None;None] in
    let bgcolor = [None;None;None;None] in
+   let () = Remanent_state.log_string state "Discipline principale" in
    let () = Remanent_state.log_string state "A trier" in
    let () = Remanent_state.fprintf state "\\begin{center}" in
    let state =
