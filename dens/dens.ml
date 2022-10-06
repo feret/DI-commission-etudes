@@ -267,7 +267,7 @@ let () = Remanent_state.fprintf state "\\renewcommand{\\innerline}{}" in
     let liste = dens.Public_data.dens_cours_par_dpt in
     let state,total  =
         Public_data.StringMap.fold
-          (fun key  -> dump_repartition ~key)
+          (fun key  -> dump_repartition ~key:(String.uppercase_ascii key))
           liste (state,total)
     in
     let state, total =
