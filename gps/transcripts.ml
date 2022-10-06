@@ -1,6 +1,3 @@
-let int_of_string i =
- try int_of_string i with _ -> 0
-
 module StringOptMap =
   Map_tools.MakeSimplified
     (
@@ -7471,11 +7468,12 @@ begin
     end
 end
 in
+let state,year = Remanent_state.get_current_academic_year state in
   let state,_ =
       heading
         ~who ~firstname ~lastname
         ~promo ~origine ~dens:true
-        ~year:""   ~gpscodelist:[]
+        ~year   ~gpscodelist:[]
         ~tuteur ?tuteur_bis
         cursus_map StringOptMap.empty
         picture_list false gps_file ~situation:empty_bilan_annuel state

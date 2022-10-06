@@ -229,7 +229,7 @@ let dump_repartition ?key repartition state =
     in
     let () = Remanent_state.print_cell (string_of_float ects) state in
     let () = Remanent_state.print_cell (string_of_int i) state in
-
+    let () = Remanent_state.close_row state in
   state
 
 

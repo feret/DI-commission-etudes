@@ -1,8 +1,3 @@
-let int_of_string i =
-    try
-      int_of_string i
-    with _ -> 0
-
 let unsome a_opt a =
   match a_opt with
   | Some a -> a

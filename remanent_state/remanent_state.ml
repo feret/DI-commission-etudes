@@ -1492,13 +1492,13 @@ let get_scholarship ~firstname ~lastname ~current_year t =
   let scholarship_list =
     List.filter
       (fun a ->
-         try (match a.Public_data.funding_begin with
+      (match a.Public_data.funding_begin with
          | None -> true
          | Some a -> int_of_string a <= int_of_string current_year)
          &&
          (match a.Public_data.funding_end with
           | None -> true
-          | Some a -> int_of_string current_year <= int_of_string a) with _ -> false)
+          | Some a -> int_of_string current_year <= int_of_string a) )
       scholarship_list
   in
   match scholarship_list with
