@@ -279,8 +279,7 @@ let dump_dens dens state =
 
    let size = [None;None] in
    let bgcolor = [None;None] in
-   let () = Remanent_state.fprintf state "\\renewcommand{\row}[2]{#1&#2\\cr}"
-
+   let () = Remanent_state.fprintf state "\\renewcommand{\row}[2]{#1&#2\\cr}" in
    let () = Remanent_state.log_string state "Langues" in
    let () = Remanent_state.fprintf state "\\begin{center}" in
    let state =
@@ -298,7 +297,7 @@ let dump_dens dens state =
    let () = Remanent_state.fprintf state "\\end{center}" in
    let size = [None;None] in
    let bgcolor = [None;None] in
-   let () = Remanent_state.fprintf state "\\renewcommand{\row}[2]{#1&#2\\cr}"
+   let () = Remanent_state.fprintf state "\\renewcommand{\row}[2]{#1&#2\\cr}" in 
    let () = Remanent_state.log_string state "Responsabilité" in
    let () = Remanent_state.fprintf state "\\begin{center}" in
    let state =
