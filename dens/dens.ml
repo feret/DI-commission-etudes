@@ -243,8 +243,8 @@ let dump_repartition ?key repartition (state, total) =
 
 
 let dump_dens dens state =
-    let size = [None;None;None;None] in
-    let bgcolor = [None;None;None;None] in
+    let size = [None;None;None;None;None] in
+    let bgcolor = [None;None;None;None;None] in
     let total = 0,0,0.,0. in
     (*let () = Remanent_state.log_string state "Discipline principale" in*)
     let () = Remanent_state.fprintf state "\\renewcommand{\\row}[5]{#1&#2&#3&#4&#5\\cr}" in
