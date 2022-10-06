@@ -241,14 +241,20 @@ let dump_repartition ?key repartition (state, total) =
       let (j,j',fcts,fcts') = total in
       state, (j,j'+i,fcts,ects+.fcts')
 
+let add_total l =
+    List.fold_left
+        (fun (i,i',ects,ects') (j,j',fcts,fcts') ->
+                (i+j,i'+j',ects+.fcts,ects'+.fcts'))
+        (0,0,0.,0.) l
 
 let dump_dens dens state =
     let size = [None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None] in
-    let total = 0,0,0.,0. in
+    let state, main_dpt = Remanent_state.get_main_dpt state in
+    let total_init = 0,0,0.,0. in
     (*let () = Remanent_state.log_string state "Discipline principale" in*)
     let () = Remanent_state.fprintf state "\\renewcommand{\\row}[5]{#1&#2&#3&#4&#5\\cr}" in
-let () = Remanent_state.fprintf state "\\renewcommand{\\innerline}{}" in
+    let () = Remanent_state.fprintf state "\\renewcommand{\\innerline}{}" in
     let () = Remanent_state.fprintf state "\\begin{center}" in
     let state =
       Remanent_state.open_array
@@ -256,34 +262,35 @@ let () = Remanent_state.fprintf state "\\renewcommand{\\innerline}{}" in
         ~bgcolor
         ~size
         ~with_lines:true
-        ~title:[["Catégorie"];["ECTS diplôme nationaux"];["Nb cours diplôme nationaux"]; ["ECTS DENS"];["Nb cours DENS"]]
+        ~title:[["Catégories"];["ECTS diplôme nationaux"];["Nb cours diplôme nationaux"]; ["ECTS DENS"];["Nb cours DENS"]]
         ~title_english:[["Département"];["ECTS diplôme nationaux"];["Nb cours diplôme nationaux"]; ["ECTS DENS"];["Nb cours DENS"]]
         state
     in
-    let state, total =
+    let state, total_principale =
           dump_repartition
-            ~key:"Discipline principale" dens.Public_data.dens_cours_discipline_principale (state,total)
+            ~key:"Discipline principale" dens.Public_data.dens_cours_discipline_principale (state,total_init)
     in
     let liste = dens.Public_data.dens_cours_par_dpt in
-    let state,total  =
+    let state,total_other  =
         Public_data.StringMap.fold
           (fun key  -> dump_repartition ~key:(String.uppercase_ascii key))
-          liste (state,total)
+          liste (state,total_init)
     in
-    let state, total =
+    let state, total_ecla =
         dump_list
           ~key:"Langues"
-          dens.Public_data.dens_cours_langue (state,total)
+          dens.Public_data.dens_cours_langue (state,total_init)
      in
-     let state, total  =
+     let state, total_resp =
         dump_list
           ~key:"Responsabilités"
-          dens.Public_data.dens_cours_activite (state,total) in
-     let state, total =
+          dens.Public_data.dens_cours_activite (state,total_init) in
+     let state, total_to_sort =
         dump_repartition
           ~key:"À trier"
-          dens.Public_data.dens_cours_a_trier (state,total)
+          dens.Public_data.dens_cours_a_trier (state,total_init)
       in
+     let total = add_total [total_to_sort; total_resp; total_ecla; total_other; total_principale] in
       let () = Remanent_state.fprintf state "\\hline" in
       let () = Remanent_state.open_row state in
       let (i,i',ects,ects') = total in
@@ -295,4 +302,49 @@ let () = Remanent_state.fprintf state "\\renewcommand{\\innerline}{}" in
       let () = Remanent_state.close_row state in
       let () = Remanent_state.close_array state in
       let () = Remanent_state.fprintf state "\\end{center}" in
+      let () = Remanent_state.fprintf state "Nbr inscriptions au DENS : %i (3 sont nécessaires)" dens.Public_data.dens_nb_inscriptions in
+      let () = Remanent_state.print_newline state in
+      let () = Remanent_state.fprintf state "Sortant : %s (doit être sortant)" (if dens.Public_data.dens_sortant then "O" else "F") in
+      let () = Remanent_state.print_newline state in
+      let () = Remanent_state.fprintf state "ECTS DENS : %f (72 sont nécessaires)" ects' in
+      let () = Remanent_state.print_newline state in
+      let () = Remanent_state.fprintf state
+                  "ECTS discipline principale : %f (24 sont nécessaires)"
+                  (let (_,_,_,ects')=total_principale in ects')
+      in
+      let () = Remanent_state.print_newline state in
+      let () = Remanent_state.fprintf state
+                  "ECTS autres disciplines : %f (24 sont nécessaires)"
+                  (let (_,_,_,ects')=total_other in ects')
+      in
+      let () = Remanent_state.print_newline state in
+      let () = Remanent_state.fprintf state
+                  "ECTS langues : %f (24 sont nécessaires%s)"
+                  (let (_,_,_,ects')=total_ecla in ects')
+                  (match main_dpt with | Public_data.DI -> " ou un stage à l'étranger" | Public_data.DMA | Public_data.ENS|Public_data.PHYS|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> "")
+      in
+      let () = Remanent_state.print_newline state in
+      let () =
+        match main_dpt with
+        | Public_data.DI ->
+           begin
+           let () = Remanent_state.fprintf state "M2 recherche en informatique : %s (obligatoire)" (match dens.Public_data.dens_master with
+                                | None -> "non implémenté"
+                                | Some parcours ->
+                                      let _ = parcours in "non implémenté") in
+           let () = Remanent_state.print_newline state in
+           let () = Remanent_state.fprintf state "Cours obligatoires : %i (5 sont nécessaires)" dens.Public_data.dens_nb_mandatory_course in
+           let () = Remanent_state.print_newline state in
+           let () =
+              Remanent_state.fprintf
+                  state
+                  "Cours de maths/maths info : %i/%i (2 sont nécessaires dont au moins un de maths)"
+                  dens.Public_data.dens_nb_math_course
+                  (dens.Public_data.dens_nb_math_and_math_info_course - dens.Public_data.dens_nb_math_course)
+           in
+           let () = Remanent_state.print_newline state in ()
+           end
+        | Public_data.DMA | Public_data.ENS|Public_data.PHYS|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> ()
+      in
+
     state
