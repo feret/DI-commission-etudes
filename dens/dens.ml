@@ -306,21 +306,21 @@ let dump_dens dens state =
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state "Sortant : %s (doit être sortant)" (if dens.Public_data.dens_sortant then "O" else "F") in
       let () = Remanent_state.print_newline state in
-      let () = Remanent_state.fprintf state "ECTS DENS : %f (72 sont nécessaires)" ects' in
+      let () = Remanent_state.fprintf state "ECTS DENS : %s (72 sont nécessaires)" (string_of_float ects') in
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state
-                  "ECTS discipline principale : %f (24 sont nécessaires)"
-                  (let (_,_,_,ects')=total_principale in ects')
+                  "ECTS discipline principale : %s (24 sont nécessaires)"
+                  (let (_,_,_,ects')=total_principale in (string_of_float ects'))
       in
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state
-                  "ECTS autres disciplines : %f (24 sont nécessaires)"
-                  (let (_,_,_,ects')=total_other in ects')
+                  "ECTS autres disciplines : %s (24 sont nécessaires)"
+                  (let (_,_,_,ects')=total_other in (string_of_float ects'))
       in
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state
-                  "ECTS langues : %f (24 sont nécessaires%s)"
-                  (let (_,_,_,ects')=total_ecla in ects')
+                  "ECTS langues : %s (24 sont nécessaires%s)"
+                  (let (_,_,_,ects')=total_ecla in (string_of_float ects'))
                   (match main_dpt with | Public_data.DI -> " ou un stage à l'étranger" | Public_data.DMA | Public_data.ENS|Public_data.PHYS|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> "")
       in
       let () = Remanent_state.print_newline state in
