@@ -283,7 +283,7 @@ let dump_dens dens state =
           ~key:"À trier"
           dens.Public_data.dens_cours_a_trier (state,total)
       in
-      let () = Remanent_state.fprint "\\hline\\hline"
+      let () = Remanent_state.fprint state "\\hline\\hline" in 
       let () = Remanent_state.open_row state in
       let (i,i',ects,ects') = total in
       let () = Remanent_state.print_cell "total" state in
