@@ -248,6 +248,7 @@ let dump_dens dens state =
     let total = 0,0,0.,0. in
     (*let () = Remanent_state.log_string state "Discipline principale" in*)
     let () = Remanent_state.fprintf state "\\renewcommand{\\row}[5]{#1&#2&#3&#4&#5\\cr}" in
+let () = Remanent_state.fprintf state "\\renewcommand{\\innerline}{}" in
     let () = Remanent_state.fprintf state "\\begin{center}" in
     let state =
       Remanent_state.open_array
@@ -283,7 +284,7 @@ let dump_dens dens state =
           ~key:"À trier"
           dens.Public_data.dens_cours_a_trier (state,total)
       in
-      let () = Remanent_state.fprintf state "\\hline\\hline" in 
+      let () = Remanent_state.fprintf state "\\hline\\hline" in
       let () = Remanent_state.open_row state in
       let (i,i',ects,ects') = total in
       let () = Remanent_state.print_cell "total" state in
