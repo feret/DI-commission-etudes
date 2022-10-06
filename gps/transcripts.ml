@@ -2433,9 +2433,10 @@ let mmod = gen_master "M-MOD" ["gps87632";"gps85959";"gps88472"] "XT 00000000000
 let mphys = gen_master "M-Phys" ["MPSL-PHY"] "NOWAY"
 let mprobfin = gen_master "M-PROBFIN" ["gps82128"] "NOWAY"
 let mformens = gen_master "M-FORMENS" ["gps87633"] "NOWAY"
-let agregmathsu = gen_master "M-AGREGMATH" [] "NOWAY"
 let mappsu = gen_master "M-APPSU" ["gps82525"] "NOWAY"
 let mape = gen_master "M-APE" ["MPSL-APE"] "NOWAY"
+let agreginfo = gen_master "AGINFOSU" ["gps86919"] "NOWAY"
+let agregmaths = gen_master "AGMATHUPC" ["gps85871"] "NOWAY"
 
 let string_of_stringopt s_opt =
   match s_opt with
@@ -2604,7 +2605,10 @@ let translate_diplome
           | "iasd" -> state,"M2 IASD","M2 IASD"
           | "mash" -> state,"M2 MASH","M2 MASH"
           | "sesi" -> state,"M1 SESI","M1 SESI"
-          | "agregmathsu" -> state, "Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggreation"
+          | "agregmathsu" -> state, "Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation"
+            | "agregmathupc" -> state, "Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation"
+            | "agreginfosu" -> state, "Formation à l'agrégation d'Informatique","Formation to Computer Science Aggregation"
+              | "agreginfoupc" -> state, "Formation à l'agrégation d'Informatique","Formation to Computer Science Aggregation"
           | "interaction" -> state,"M2 Interaction", "M2 Interaction"
           | "mathfond" | "mathfondsu" | "mathfondupc" | "mathfondpantheonsor"
              -> state,"M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics"
@@ -2810,8 +2814,10 @@ let translate_diplome
       state, (Some "MASH","M2 MASH","M2 MASH", dpt_info,dpt_info_en,false)
     else if msesi situation then
       state, (Some "SESI","M1 SESI","M1 SESI", dpt_info,dpt_info_en,false)
-    else if agregmathsu situation then
-      state, (Some "AGREGMATHSU","Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggreation", dpt_maths, dpt_maths_en,false )
+    else if agregmaths situation then
+      state, (Some "AGREGMATHSU","Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation", dpt_maths, dpt_maths_en,false )
+    else if agreginfo situation then
+            state, (Some "AGREGINFOUPC","Formation à l'agrégation d'Informatique","Formation to Computer Science Aggregation", dpt_info, dpt_info_en,false )
     else if mint situation then
       state, (Some "Interaction", "M2 Interaction", "M2 Interaction",dpt_info,dpt_info_en,false)
   (*  else if mmf situation then
@@ -2854,6 +2860,10 @@ let translate_diplome
       state, (Some "IMALIS","M2 IMALIS","M2 IMALIS",dpt_bio,dpt_bio_en,false)
     else if mphylo situation then
       state, (Some "PHILOSorbonne","M2 Phylo (SU)", "M2 Phylo (SU)", dpt_phyl,dpt_phyl_en, false)
+    else if agreginfo situation then
+      state, (Some "AGINFOSU","Préparation à l'agrégation d'informatique","Prepartion to the Computer Science Aggregation", dpt_info,dpt_info_en,false)
+    else if agregmaths situation then
+        state, (Some "AGMATHUPC","Préparation à l'agrégation de mathématiques","Prepartion to the Mathematics Aggregation", dpt_info,dpt_info_en,false)
     else
     if mmaths situation then
       state, (Some "M","M1 de mathématiques","M1 in Mathematics", dpt_maths,dpt_maths_en,false)
@@ -4651,9 +4661,9 @@ let program
       in
       state,None
     | Some ("DENS" | "dens") -> state, Some Color.blue
-    | Some ("LInfo" | "linfo") ->
+    | Some ("LInfo" | "linfo" | "agreginfosu" | "agreginfoupc") ->
       state, Some Color.yellow
-    | Some ("lmath" | "mmath" | "LMath" | "MMath" | "mape" | "mathfond" | "mathfondpantheonsor" | "mathfondsu" | "modsimorsay" | "modsimversailles" | "prob" | "mfimfa" |   "mfimfaorsay" |  "mmod" | "mprobfinmformens" |  "malea" | "marianageo" | "mmathgeneric" | "agregmathsu") ->
+    | Some ("lmath" | "mmath" | "LMath" | "MMath" | "mape" | "mathfond" | "mathfondpantheonsor" | "mathfondsu" | "modsimorsay" | "modsimversailles" | "prob" | "mfimfa" |   "mfimfaorsay" |  "mmod" | "mprobfinmformens" |  "malea" | "marianageo" | "mmathgeneric" | "agregmathsu" | "agregmathupc") ->
       state, Some Color.orange
     | Some ("imalis") ->
       state, Some Color.green
