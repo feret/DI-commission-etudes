@@ -284,7 +284,7 @@ let () = Remanent_state.fprintf state "\\renewcommand{\\innerline}{}" in
           ~key:"À trier"
           dens.Public_data.dens_cours_a_trier (state,total)
       in
-      let () = Remanent_state.fprintf state "\\hline\\hline" in
+      let () = Remanent_state.fprintf state "\\hline" in
       let () = Remanent_state.open_row state in
       let (i,i',ects,ects') = total in
       let () = Remanent_state.print_cell "total" state in
