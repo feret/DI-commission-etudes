@@ -331,7 +331,7 @@ type missing_internship_description =
 type parcours_universitaire =
 {
   etablissement_parcours: string;
-  domaine_oarcours: string;
+  domaine_parcours: string;
   annee_obtention_parcours: string;
 }
 
@@ -354,6 +354,76 @@ type 'a repartition_diplomes =
   { dens: 'a  ; diplomes_nationaux: 'a}
 
 val empty_repartition_diplomes: cours_supplement list repartition_diplomes
+
+type valide =
+  | Bool of bool
+  | Abs
+
+type note =
+  | Float of float
+  | String of string
+  | Temporary of float
+  | Absent
+  | En_cours
+  | Abandon
+  | Valide_sans_note
+
+type statut =
+  | Boursier_si
+  | Eleve
+  | Etudiant
+  | Eleve_bis
+  | Ex_boursier_si
+  | Ex_eleve
+  | Ex_eleve_bis
+  | Ex_etudiant
+  | Hors_GPS
+  | Ex_hors_GPS
+
+type origin =
+  | AL
+  | BCPST
+  | DensDEC
+  | DensInfo
+  | DensMath
+  | DensPhys
+  | Nes
+  | EchErasm
+  | Info
+  | Mpi
+  | Pc
+  | PensionnaireEtranger
+  | Psi
+  | Sis
+  | M_MPRI
+  | ED386
+
+val file_suffix_of_univ: universite -> string
+val univ_of_string: string -> universite
+
+type diplome_national =
+  {
+    diplome_firstname : string ;
+    diplome_lastname : string ;
+    diplome_origine : origin option ;
+    diplome_statut : statut option ;
+    diplome_ranking : int option ;
+    diplome_effectif : int option ;
+    diplome_gender : genre ;
+    diplome_promotion : string ;
+    diplome_niveau : string ;
+    diplome_dpt : main_dpt ;
+    diplome_univ_key : universite ;
+    diplome_cursus : cursus ;
+    diplome_moyenne : float option;
+    diplome_nb_ects : float ;
+    diplome_mention : string option;
+    diplome_recu : bool ;
+    diplome_year : string ;
+    diplome_commission: bool ;
+  }
+
+
 type dens =
   {
     dens_main_dpt: main_dpt ;
@@ -370,13 +440,13 @@ type dens =
     dens_nb_mandatory_course : int ;
     dens_nb_math_course : int ;
     dens_nb_math_and_math_info_course : int ;
-    dens_master : parcours_universitaire option ;
-    dens_parcours: parcours_universitaire list ;
+    dens_master : diplome_national list;
+    dens_parcours: diplome_national list ;
     dens_cours_a_trier: cours_supplement list repartition_diplomes ;
     dens_cours_discipline_principale: cours_supplement list repartition_diplomes ;
     dens_cours_hors_disciplines_principale: cours_supplement list repartition_diplomes;
     dens_cours_par_dpt: cours_supplement list repartition_diplomes StringMap.t;
-    dens_cours_activite: cours_supplement list; 
+    dens_cours_activite: cours_supplement list;
     dens_cours_langue: cours_supplement list;
     dens_cours_mineure: cours_supplement list repartition_diplomes StringMap.t;
     dens_cours_majeure: cours_supplement list repartition_diplomes StringMap.t;
@@ -502,73 +572,6 @@ type keywords =
   | Valide
   | Ignore
 
-type valide =
-  | Bool of bool
-  | Abs
-
-type note =
-  | Float of float
-  | String of string
-  | Temporary of float
-  | Absent
-  | En_cours
-  | Abandon
-  | Valide_sans_note
-
-type statut =
-  | Boursier_si
-  | Eleve
-  | Etudiant
-  | Eleve_bis
-  | Ex_boursier_si
-  | Ex_eleve
-  | Ex_eleve_bis
-  | Ex_etudiant
-  | Hors_GPS
-  | Ex_hors_GPS
-
-type origin =
-  | AL
-  | BCPST
-  | DensDEC
-  | DensInfo
-  | DensMath
-  | DensPhys
-  | Nes
-  | EchErasm
-  | Info
-  | Mpi
-  | Pc
-  | PensionnaireEtranger
-  | Psi
-  | Sis
-  | M_MPRI
-  | ED386
-
-val file_suffix_of_univ: universite -> string
-val univ_of_string: string -> universite
-
-type diplome_national =
-  {
-    diplome_firstname : string ;
-    diplome_lastname : string ;
-    diplome_origine : origin option ;
-    diplome_statut : statut option ;
-    diplome_ranking : int option ;
-    diplome_effectif : int option ;
-    diplome_gender : genre ;
-    diplome_promotion : string ;
-    diplome_niveau : string ;
-    diplome_dpt : main_dpt ;
-    diplome_univ_key : universite ;
-    diplome_cursus : cursus ;
-    diplome_moyenne : float option;
-    diplome_nb_ects : float ;
-    diplome_mention : string option;
-    diplome_recu : bool ;
-    diplome_year : string ;
-    diplome_commission: bool ;
-  }
 
 type remove_non_valided_classes =
   | All

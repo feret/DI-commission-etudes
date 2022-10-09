@@ -2596,37 +2596,37 @@ let translate_diplome
       | state, Some dpt ->
         let gerund = dpt.Public_data.dpt_genitif in
         let gerund_en = dpt.Public_data.dpt_genitif_en in
-        let state,label,label_en =
+        let state,label,label_en,is_m2 =
           match String.lowercase_ascii level with
-          | "l" -> state, "L3 "^gerund, "Bachelor 3 "^gerund_en
-          | "m" -> state, "M1 "^gerund, "M1 "^gerund_en
-          | "mpri" -> state,"M2 du MPRI","M2 MPRI"
-          | "mva" -> state,"M2 du MVA","M2 MVA"
-          | "iasd" -> state,"M2 IASD","M2 IASD"
-          | "mash" -> state,"M2 MASH","M2 MASH"
-          | "sesi" -> state,"M1 SESI","M1 SESI"
-          | "agregmathsu" -> state, "Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation"
-            | "agregmathupc" -> state, "Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation"
-            | "agreginfosu" -> state, "Formation à l'agrégation d'Informatique","Formation to Computer Science Aggregation"
-              | "agreginfoupc" -> state, "Formation à l'agrégation d'Informatique","Formation to Computer Science Aggregation"
-          | "interaction" -> state,"M2 Interaction", "M2 Interaction"
+          | "l" -> state, "L3 "^gerund, "Bachelor 3 "^gerund_en,false
+          | "m" -> state, "M1 "^gerund, "M1 "^gerund_en,false
+          | "mpri" -> state,"M2 du MPRI","M2 MPRI",true
+          | "mva" -> state,"M2 du MVA","M2 MVA",true
+          | "iasd" -> state,"M2 IASD","M2 IASD",true
+          | "mash" -> state,"M2 MASH","M2 MASH",true
+          | "sesi" -> state,"M1 SESI","M1 SESI",false
+          | "agregmathsu" -> state, "Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation",false
+            | "agregmathupc" -> state, "Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation",false
+            | "agreginfosu" -> state, "Formation à l'agrégation d'Informatique","Formation to Computer Science Aggregation",false
+              | "agreginfoupc" -> state, "Formation à l'agrégation d'Informatique","Formation to Computer Science Aggregation",false
+          | "interaction" -> state,"M2 Interaction", "M2 Interaction", true
           | "mathfond" | "mathfondsu" | "mathfondupc" | "mathfondpantheonsor"
-             -> state,"M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics"
-          | "lmfi" -> state,"M2 LMFI", "M2 LMFI"
-          | "marianageo" -> state, "M2 Arithmétique Analyse et Géométrie","M2 Analysis, Number Theory and Geometry"
-          | "malea" | "alea" -> state, "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness"
-          | "modsimorsay" | "modsimversailles" -> state,"M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation"
-          | "prob" -> state,"M2 Probabilités et Modèles Aléatoires", "M2 Mathematics Probability and Random Models"
-          | "mmathgeneric" -> state,"M2 Mathématiques ?","M2 Mathematics ?"
-         | "mfimfa" | "mfimfaorsay" -> state, "M2 FIMFA", "M2 FIMFA"
-          | "mprobfin" -> state, "M2 Probabilités et Finance", "M2 Probability and Finance"
-          | "mformens" ->   state, "M2 Formation à l'Enseignement Supérieur en Mathématiques","M2 Formation to Higher Eduction in Mathematics"
-          | "mappsu" -> state,"M2 Mathematiques et applications ","M2 Mathematics and applications"
-          | "mape" -> state,"M1 Analyse politique et économique","M1 Political and economical analysis"
-          | "mmod" -> state, "M2 Mathématiques de la modelisation", "M2 Mathematics of Modeling"
-          | "mphys" -> state, "M2 Physique","M2 Physics"
-          | "imalis" -> state, "M2 IMALIS","M2 IMALIS"
-          | "philosorbonne" -> state, "M2 Phylo (SU)", "M2 Phylo (SU)"
+             -> state,"M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",true
+          | "lmfi" -> state,"M2 LMFI", "M2 LMFI",true
+          | "marianageo" -> state, "M2 Arithmétique Analyse et Géométrie","M2 Analysis, Number Theory and Geometry",true
+          | "malea" | "alea" -> state, "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness",true
+          | "modsimorsay" | "modsimversailles" -> state,"M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation",true
+          | "prob" -> state,"M2 Probabilités et Modèles Aléatoires", "M2 Mathematics Probability and Random Models",true
+          | "mmathgeneric" -> state,"M2 Mathématiques ?","M2 Mathematics ?",true
+         | "mfimfa" | "mfimfaorsay" -> state, "M2 FIMFA", "M2 FIMFA",true
+          | "mprobfin" -> state, "M2 Probabilités et Finance", "M2 Probability and Finance",true
+          | "mformens" ->   state, "M2 Formation à l'Enseignement Supérieur en Mathématiques","M2 Formation to Higher Eduction in Mathematics",true
+          | "mappsu" -> state,"M2 Mathematiques et applications ","M2 Mathematics and applications",true
+          | "mape" -> state,"M1 Analyse politique et économique","M1 Political and economical analysis",false
+          | "mmod" -> state, "M2 Mathématiques de la modelisation", "M2 Mathematics of Modeling",true
+          | "mphys" -> state, "M2 Physique","M2 Physics",true
+          | "imalis" -> state, "M2 IMALIS","M2 IMALIS",true
+          | "philosorbonne" -> state, "M2 Phylo (SU)", "M2 Phylo (SU)", true
           | _ ->
             let msg =
               Format.sprintf
@@ -2637,7 +2637,7 @@ let translate_diplome
               __POS__
               msg
               Exit
-              state, "",""
+              state, "","", false
         in
         let dpt,dpt_en =
           match dpt.Public_data.dpt_acronyme with
@@ -2651,7 +2651,7 @@ let translate_diplome
           | _ -> "",""
         in
         state,
-        (Some level,label,label_en,dpt,dpt_en,true)
+        (Some level,label,label_en,dpt,dpt_en,true,is_m2)
       | state, None ->
       let msg =
         Format.sprintf
@@ -2662,11 +2662,11 @@ let translate_diplome
         __POS__
         msg
         Exit
-        (None, "","", "", "", true)
+        (None, "","", "", "", true, false )
         state
     end
   | state, None  ->
-  let check_dpt pos state origine diplome label label_en code_cours year situation =
+  let check_dpt pos state origine diplome label label_en code_cours year situation is_m2 =
     match
       situation.departement_principal,
       lerasmus origine || lpe origine || lechange_dri situation
@@ -2676,10 +2676,10 @@ let translate_diplome
         pos
         "Main teaching dpt is missing"
         Exit
-        (Some diplome,label,label_en,"","",false)
+        (Some diplome,label,label_en,"","",false,false)
         state
     | None, true ->
-      state, (Some diplome,label,label_en,"","",false)
+      state, (Some diplome,label,label_en,"","",false,false)
     | Some dpt, _  ->
       let dpt = Special_char.lowercase dpt in
       let dpt,dpt_en =
@@ -2734,20 +2734,21 @@ let translate_diplome
           else
             label^" de "^dpt
         in
-                state, (Some diplome,label,label_en,dpt,dpt_en,false)
+                state, (Some diplome,label,label_en,dpt,dpt_en,false,is_m2)
       else
-        state, (Some diplome,label,label_en,dpt,dpt_en,false)
+        state, (Some diplome,label,label_en,dpt,dpt_en,false,is_m2)
   in
   match diplome with
   | Some "L" ->
     begin
+      let is_m2 = false in
       if lpoly situation
       then
         check_dpt __POS__ state origine "L"
           "Bachelor de l'École Polytechnique"
           "École Polytechnique Bachelor"
           code_cours year
-          situation
+          situation is_m2
       else
       if lerasmus origine || lpe origine || lechange_dri situation
       then
@@ -2755,134 +2756,128 @@ let translate_diplome
           "Année d'échange"
           "Exchange year"
           code_cours year
-          situation
+          situation is_m2
       else
       if lmathphys situation
       then
         if is_dma_course code_cours year
         then
           state,
-          (Some "L","L3 de mathématiques","Bachelor in Mathematics", dpt_maths,dpt_maths_en,false)
+          (Some "L","L3 de mathématiques","Bachelor in Mathematics", dpt_maths,dpt_maths_en,false,is_m2)
         else
           state,
-          (Some "L","L3 de physique","Bachelor in Physics",dpt_phys,dpt_phys_en,false)
+          (Some "L","L3 de physique","Bachelor in Physics",dpt_phys,dpt_phys_en,false,is_m2)
       else
       if linfo situation && lmath ~year ~firstname ~lastname situation state
       then
         if is_dma_course code_cours year
         then
           state,
-          (Some "L","L3 de mathématiques","Bachelor in Mathematics",dpt_maths,dpt_maths_en,false)
+          (Some "L","L3 de mathématiques","Bachelor in Mathematics",dpt_maths,dpt_maths_en,false,is_m2)
         else
           state,
-          (Some "L","L3 d'informatique","Bachelor in Computer Science",dpt_info,dpt_info_en,false)
+          (Some "L","L3 d'informatique","Bachelor in Computer Science",dpt_info,dpt_info_en,false,is_m2)
       else
       if leco situation then
         state,
-        (Some "L","L3 d'économie","Bachelor in Economy",dpt_eco,dpt_eco_en,false)
+        (Some "L","L3 d'économie","Bachelor in Economy",dpt_eco,dpt_eco_en,false,is_m2)
       else
       if larts situation then
         state,
-        (Some "L","L3 d'arts","Bachelor in Arts",dpt_arts,dpt_arts_en,false)
+        (Some "L","L3 d'arts","Bachelor in Arts",dpt_arts,dpt_arts_en,false,is_m2)
       else
       if llila situation then
         state,
-        (Some "L","L3 en littératures et langage","Bachelor in Litteratures and Languages",dpt_lila,dpt_lila_en,false)
+        (Some "L","L3 en littératures et langage","Bachelor in Litteratures and Languages",dpt_lila,dpt_lila_en,false,is_m2)
       else if ldec situation
       then
         state,
-        (Some "L","L3 de sciences cognitives","Bachelor in Cognitive Sciences",dpt_dec,dpt_dec_en,false)
+        (Some "L","L3 de sciences cognitives","Bachelor in Cognitive Sciences",dpt_dec,dpt_dec_en,false,is_m2)
       else if lbio situation then
         state,
-        (Some "L","L3 de biologie","Bachelor in Biology",dpt_ibens,dpt_ibens_en,false)
+        (Some "L","L3 de biologie","Bachelor in Biology",dpt_ibens,dpt_ibens_en,false,is_m2)
       else if ldec situation then
         state,
-        (Some "L","L3 de sciences cognitives","Bachelor in Cognitive Sciences",dpt_ibens,dpt_ibens_en,false)
+        (Some "L","L3 de sciences cognitives","Bachelor in Cognitive Sciences",dpt_ibens,dpt_ibens_en,false,is_m2)
       else check_dpt __POS__ state origine
         "L" "L3" "Bachelor" code_cours year
-        situation
+        situation is_m2
 
     end
   | Some "M" ->
     if mpri situation then
-      state, (Some "MPRI","M2 du MPRI","M2 MPRI",dpt_info,dpt_info_en,false)
+      state, (Some "MPRI","M2 du MPRI","M2 MPRI",dpt_info,dpt_info_en,false,true)
     else if mva situation then
-      state, (Some "MVA","M2 du MVA","M2 MVA",dpt_info,dpt_info_en,false)
+      state, (Some "MVA","M2 du MVA","M2 MVA",dpt_info,dpt_info_en,false,true)
     else if iasd situation then
-      state, (Some "IASD","M2 IASD","M2 IASD",dpt_info,dpt_info_en,false)
+      state, (Some "IASD","M2 IASD","M2 IASD",dpt_info,dpt_info_en,false,true)
     else if mash situation then
-      state, (Some "MASH","M2 MASH","M2 MASH", dpt_info,dpt_info_en,false)
+      state, (Some "MASH","M2 MASH","M2 MASH", dpt_info,dpt_info_en,false,true)
     else if msesi situation then
-      state, (Some "SESI","M1 SESI","M1 SESI", dpt_info,dpt_info_en,false)
+      state, (Some "SESI","M1 SESI","M1 SESI", dpt_info,dpt_info_en,false,false)
     else if agregmaths situation then
-      state, (Some "AGREGMATHSU","Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation", dpt_maths, dpt_maths_en,false )
+      state, (Some "AGREGMATHSU","Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation", dpt_maths, dpt_maths_en,false,false )
     else if agreginfo situation then
-            state, (Some "AGREGINFOUPC","Formation à l'agrégation d'Informatique","Formation to Computer Science Aggregation", dpt_info, dpt_info_en,false )
+            state, (Some "AGREGINFOUPC","Formation à l'agrégation d'Informatique","Formation to Computer Science Aggregation", dpt_info, dpt_info_en,false,false )
     else if mint situation then
-      state, (Some "Interaction", "M2 Interaction", "M2 Interaction",dpt_info,dpt_info_en,false)
-  (*  else if mmf situation then
-      state, (Some "MathFond", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false)*)
+      state, (Some "Interaction", "M2 Interaction", "M2 Interaction",dpt_info,dpt_info_en,false,true)
     else if mfondsu situation then
-      state, (Some "MathFondSu", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false)
+      state, (Some "MathFondSu", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false,true)
     else if mfondupc situation then
-      state, (Some "MathFondUPC", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false)
+      state, (Some "MathFondUPC", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false,true)
     else if mfondps situation then
-      state, (Some "MathFondPantheonSor", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false)
+      state, (Some "MathFondPantheonSor", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false,true)
     else if mlmfi situation then
-      state, (Some "LMFI", "M2 LMFI", "M2 LMFI", dpt_info, dpt_info_en,false)
+      state, (Some "LMFI", "M2 LMFI", "M2 LMFI", dpt_info, dpt_info_en,false,true)
     else if mrandom situation then
-      state, (Some "ALEA", "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness", dpt_maths, dpt_maths_en,false)
+      state, (Some "ALEA", "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness", dpt_maths, dpt_maths_en,false,true)
     else if marianageo situation then
-      state, (Some "MARIANAGEO", "M2 Arithmétique Analyse et Géométrie","M2 Analysis, Number Theory and Geometry",dpt_maths, dpt_maths_en,false)
+      state, (Some "MARIANAGEO", "M2 Arithmétique Analyse et Géométrie","M2 Analysis, Number Theory and Geometry",dpt_maths, dpt_maths_en,false,true)
     else if manamodsimorsay situation then
-      state, (Some "MODSIMORSAY", "M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation",dpt_maths, dpt_maths_en,false)
+      state, (Some "MODSIMORSAY", "M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation",dpt_maths, dpt_maths_en,false,true)
     else if manamodsimversailles situation then
-      state, (Some "MODSIMVERSAILLES", "M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation",dpt_maths, dpt_maths_en,false)
+      state, (Some "MODSIMVERSAILLES", "M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation",dpt_maths, dpt_maths_en,false,true)
     else if mprobaalea situation then
-      state, (Some "PROB", "M2 Probabilités et Modèles Aléatoires", "M2 Mathematics Probability and Random Models",dpt_maths, dpt_maths_en,false)
-  (*  else if mfimfa situation then
-      state, (Some "MFIMFA", "M2 FIMFA", "M2 FIMFA",dpt_maths, dpt_maths_en,false)
-    else if mfimfaorsay situation then
-        state, (Some "MFIMFA", "M2 FIMFA", "M2 FIMFA",dpt_maths, dpt_maths_en,false)*)
+      state, (Some "PROB", "M2 Probabilités et Modèles Aléatoires", "M2 Mathematics Probability and Random Models",dpt_maths, dpt_maths_en,false,true)
     else if mprobfin situation then
-      state, (Some "MPROBFIN", "M2 Probabilités et Finance", "M2 Probability and Finance",dpt_maths,dpt_maths_en,false)
+      state, (Some "MPROBFIN", "M2 Probabilités et Finance", "M2 Probability and Finance",dpt_maths,dpt_maths_en,false,true)
     else if mformens situation then
-      state, (Some "MFORMENS", "M2 Formation à l'Enseignement Supérieur en Mathématiques","M2 Formation to Higher Eduction in Mathematics",dpt_maths,dpt_maths_en,false)
+      state, (Some "MFORMENS", "M2 Formation à l'Enseignement Supérieur en Mathématiques","M2 Formation to Higher Eduction in Mathematics",dpt_maths,dpt_maths_en,false,true)
     else if mappsu situation then
-      state, (Some "M-APP", "M2 Mathematiques et applications ","M2 Mathematics and applications",dpt_maths,dpt_maths_en,false)
+      state, (Some "M-APP", "M2 Mathematiques et applications ","M2 Mathematics and applications",dpt_maths,dpt_maths_en,false,true)
     else if mape situation then
-      state, (Some "MAPE", "M1 Analyse politique et économique","M1 Political and economical analysis",dpt_maths,dpt_maths_en,false)
+      state, (Some "MAPE", "M1 Analyse politique et économique","M1 Political and economical analysis",dpt_maths,dpt_maths_en,false,false)
     else if mmod situation then
-      state, (Some "MMOD", "M2 Mathématiques de la modelisation", "M2 Mathematics of Modeling",dpt_maths, dpt_maths_en,false)
+      state, (Some "MMOD", "M2 Mathématiques de la modelisation", "M2 Mathematics of Modeling",dpt_maths, dpt_maths_en,false,true)
     else if mphys situation then
-      state, (Some "MPHYS","M2 Physique","M2 Physics",dpt_phys, dpt_phys_en,false)
+      state, (Some "MPHYS","M2 Physique","M2 Physics",dpt_phys, dpt_phys_en,false,true)
     else if mimalis situation then
-      state, (Some "IMALIS","M2 IMALIS","M2 IMALIS",dpt_bio,dpt_bio_en,false)
+      state, (Some "IMALIS","M2 IMALIS","M2 IMALIS",dpt_bio,dpt_bio_en,false,true)
     else if mphylo situation then
-      state, (Some "PHILOSorbonne","M2 Phylo (SU)", "M2 Phylo (SU)", dpt_phyl,dpt_phyl_en, false)
+      state, (Some "PHILOSorbonne","M2 Phylo (SU)", "M2 Phylo (SU)", dpt_phyl,dpt_phyl_en, false, true)
     else if agreginfo situation then
-      state, (Some "AGINFOSU","Préparation à l'agrégation d'informatique","Prepartion to the Computer Science Aggregation", dpt_info,dpt_info_en,false)
+      state, (Some "AGINFOSU","Préparation à l'agrégation d'informatique","Prepartion to the Computer Science Aggregation", dpt_info,dpt_info_en,false,false)
     else if agregmaths situation then
-        state, (Some "AGMATHUPC","Préparation à l'agrégation de mathématiques","Prepartion to the Mathematics Aggregation", dpt_info,dpt_info_en,false)
+        state, (Some "AGMATHUPC","Préparation à l'agrégation de mathématiques","Prepartion to the Mathematics Aggregation", dpt_info,dpt_info_en,false,false)
     else
     if mmaths situation then
-      state, (Some "M","M1 de mathématiques","M1 in Mathematics", dpt_maths,dpt_maths_en,false)
+      state, (Some "M","M1 de mathématiques","M1 in Mathematics", dpt_maths,dpt_maths_en,false,false)
     else
 
       check_dpt __POS__ state origine
         "M" "M1" "M1" code_cours year
-        situation
+        situation false
   | Some ("DENS" | "dens") ->
-    state, (Some ("DENS"), "DENS", "DENS", "DENS", "DENS", false)
+    state, (Some ("DENS"), "DENS", "DENS", "DENS", "DENS", false, false)
   | Some x ->
     check_dpt __POS__ state origine
       x x x code_cours year
-      situation
+      situation false
   | None ->
-    let state, (_,b,b_en,c,c_en,d) =
-      check_dpt __POS__ state origine "" "" "" code_cours year situation
+    let state, (_,b,b_en,c,c_en,d,is_m2) =
+      check_dpt __POS__ state origine "" "" "" code_cours year situation false
     in
-    state, (None,b,b_en,c,c_en,d)
+    state, (None,b,b_en,c,c_en,d,is_m2)
 
 
 
@@ -3007,7 +3002,7 @@ let do_report report =
   | Some b -> b
 
 let fetch gen dft missing a =
-  let _,_,_,cours = a in
+  let _,_,_,_,cours = a in
   match cours.code_cours with
   | None -> missing
   | Some code ->
@@ -3022,7 +3017,7 @@ let fetch gen dft missing a =
   aux code_list
 
 let fetch gen dft missing stage stage_string  a =
-  let (_,_,_,cours) = a in
+  let (_,_,_,_,cours) = a in
   if is_stage cours then
     gen (stage,stage_string)
   else
@@ -3031,7 +3026,7 @@ let fetch gen dft missing stage stage_string  a =
 let fetch_code  = fetch snd "Hors ENS" "Sans code GPS" stage stage_string
 let fetch = fetch fst autre manquant stage stage_string
 
-let p (t,(_,_,_,cours)) (t',(_,_,_,cours')) =
+let p (t,(_,_,_,_,cours)) (t',(_,_,_,_,cours')) =
   let cmp = compare t t' in
   if cmp = 0
   then compare cours.cours_libelle cours'.cours_libelle
@@ -3158,6 +3153,8 @@ let next_year i =
 let mean_init = (StringOptMap.empty,[])
 let cours_list_init=Public_data.empty_repartition_diplomes
 let stage_list_init=[]
+let m2_init = []
+let dip_autre_list_init = []
 let dens_init = Public_data.YearMap.empty
 let n_att_init = Public_data.YearMap.empty
 
@@ -3264,26 +3261,26 @@ let add_dens state year compensation course course_list map =
       | Some false -> state, course_list, map
       | None -> state, course_list, add_dens_potential year course map
 
-let add_mean_empty state ~dens ~natt ~decision ~exception_cursus key year  map =
-  let ects,old,y =
+let add_mean_empty is_m2 state ~dens ~natt ~decision ~exception_cursus key year  map =
+  let is_m2,ects,old,y =
     match StringOptMap.find_opt key (fst map)
     with
-    | None -> 0.,[],0
+    | None -> is_m2,0.,[],0
     | Some a -> a
   in
   if ects < 60. || exception_cursus || decision || dens || natt
   then
     state,
-    (StringOptMap.add key (ects,old, max y year) (fst map),
+    (StringOptMap.add key (is_m2,ects,old, max y year) (fst map),
      snd map)
   else
     state, map
 
-let add_mean_ok state key course course_list year map dens =
-  let ects,old,y =
+let add_mean_ok is_m2 state key course course_list year map dens =
+  let is_m2,ects,old,y =
     match StringOptMap.find_opt key (fst map)
     with
-    | None -> 0.,[],0
+    | None -> is_m2,0.,[],0
     | Some a -> a
   in
   let year_int =
@@ -3291,7 +3288,7 @@ let add_mean_ok state key course course_list year map dens =
   in
   let map =
     StringOptMap.add key
-            (ects+.(match course.note
+            (is_m2,ects+.(match course.note
                     with
                     | None -> 0.
                     | Some a ->
@@ -3318,20 +3315,20 @@ let add_mean_ok state key course course_list year map dens =
   in
   state, map, course_list, dens
 
-let add_mean state key compensation course course_list year map dens =
+let add_mean is_m2 state key compensation course course_list year map dens =
     match compensation, course.note with
-  | Some _, _ -> add_mean_ok state key course course_list year map dens
+  | Some _, _ -> add_mean_ok is_m2 state key course course_list year map dens
   | None,None -> state, map, course_list, dens
   | None,Some note ->
       match
         Notes.valide note
       with
-      | Some true -> add_mean_ok state key course course_list year map dens
+      | Some true -> add_mean_ok is_m2 state key course course_list year map dens
       | Some false | None ->
         state, map, course_list, dens
 
-let add_mean_diplome state ~dens ~natt ~decision ~exception_cursus d mean_opt mention_opt validated_opt year mean =
-  add_mean_empty state ~dens ~natt ~decision ~exception_cursus
+let add_mean_diplome is_m2 state ~dens ~natt ~decision ~exception_cursus d mean_opt mention_opt validated_opt year mean =
+  add_mean_empty is_m2 state ~dens ~natt ~decision ~exception_cursus
     d year (fst mean, (d,mean_opt,mention_opt,validated_opt,year)::(snd mean))
 
 let get_origine who promo gps_file state =
@@ -4437,8 +4434,8 @@ let foot signature state  =
 let program
     ~origine ~gpscodelist ~string ~dpt ~year ~who ~alloc_suffix ~mean ~cours_list ~stage_list ~firstname ~lastname ~promo ~cursus_map
     ~size ~stages ~current_year ~report ~keep_faillure ~keep_success
-    ~dens ~natt
-    list state =
+    ~dens ~natt ~is_m2
+    (list:(bool * string * string * string * cours) list) state =
   let state,
       entete,entete_en,
       footpage,footpage_en =
@@ -4554,7 +4551,7 @@ let program
         let rec aux state l =
           match l with
           | [] -> state, false
-          | (_,_,_,h)::t ->
+          | (_,_,_,_,h)::t ->
             begin
               match
                 h.code_cours
@@ -4582,6 +4579,7 @@ let program
         | Some _ -> true
       in
       add_mean_diplome
+        is_m2
         state
         ~dens
         ~natt
@@ -4620,7 +4618,7 @@ let program
       let state =
         List.fold_left
           (fun state elt ->
-             let _,_,_,cours = elt in
+             let _,_,_,_,cours = elt in
              match cours.note with
              | Some Public_data.En_cours
              | Some Public_data.Absent
@@ -4680,7 +4678,7 @@ let program
   let state =
     List.fold_left
       (fun state elt ->
-         let _,_,_,cours = elt in
+         let _,_,_,_,cours = elt in
          match cours.note with
          | None -> state
          | Some note ->
@@ -4839,8 +4837,10 @@ let program
   let state, mean, dens, natt, cours_list, stage_list  =
     List.fold_left
       (fun
-        (state, mean, dens, natt, cours_list, stage_list)
-        (dpt_en,(diplome:string),diplome_en,cours) ->
+        (state, (mean:(bool * float * (Public_data.note option * float option) list * int)
+         StringOptMap.t * (StringOptMap.key * float option * string option * bool option * int)
+         list), dens, natt, cours_list, stage_list)
+        (is_m2,dpt_en,(diplome:string),diplome_en,cours) ->
         let () =
           Remanent_state.open_row ~macro state
         in
@@ -4869,9 +4869,9 @@ let program
             | Some a ->
               Notes.en_cours a
           then
-            let dpt = fetch_code (dpt_en,diplome,diplome_en,cours) in
+            let dpt = fetch_code (is_m2,dpt_en,diplome,diplome_en,cours) in
             let dpt_indice =
-              string_of_int (fetch (dpt_en,diplome,diplome_en,cours))
+              string_of_int (fetch (is_m2,dpt_en,diplome,diplome_en,cours))
             in
             Remanent_state.add_missing_grade
               state
@@ -5370,7 +5370,7 @@ let program
               state, mean, dens, natt, cours_list, stage_list
             | Some _ ->
               let state, mean, cours_list, dens =
-                add_mean state
+                add_mean is_m2 state
                   (string,(Public_data.string_of_dpt dpt)) compensation cours
                 cours_list year
                 mean dens
@@ -6196,7 +6196,7 @@ let export_transcript
                  | Some code_cours  ->
                    let state,
                        (diplome_key,diplome_label,diplome_label_en,
-                        diplome_dpt,diplome_dpt_en,dispense)
+                        diplome_dpt,diplome_dpt_en,dispense,is_m2)
                      =
                      translate_diplome
                        ~origine ~situation ~firstname
@@ -6217,7 +6217,7 @@ let export_transcript
                      cursus_map,
                      addmap
                        (diplome_key,diplome_dpt)
-                       (diplome_dpt_en,diplome_label,diplome_label_en,elt) course_map)
+                       (is_m2,diplome_dpt_en,diplome_label,diplome_label_en,elt) course_map)
                  | None ->
                    Remanent_state.warn_dft
                    __POS__
@@ -6344,9 +6344,9 @@ let export_transcript
           state, l
         end
     in
-    let state,mean,dens,natt, is_l3, cours_list, stage_list =
+    let state,mean,dens,m2_list,dip_autre_list,natt, is_l3, cours_list, stage_list =
       List.fold_left
-        (fun (state,mean,dens,natt, is_l3, cours_list, stage_list )
+        (fun (state,mean,dens,m2_list,dip_autre_list,natt, is_l3, cours_list, stage_list )
           (year,situation,gpscodelist,split_cours) ->
            let who =
              Format.sprintf "%s in %s" who year
@@ -6707,7 +6707,7 @@ let export_transcript
              else state
            in
 
-           if year > current_year then state,mean,dens,natt, is_l3, cours_list, stage_list
+           if year > current_year then    state,mean,dens,m2_list,dip_autre_list,natt, is_l3, cours_list, stage_list
            else
              let l =
                [21.0;11.67;48.33;26.67;7.3;10.00;5.17]
@@ -6789,7 +6789,7 @@ let export_transcript
                    Remanent_state.fprintf
                      state "\\pagebreak\n\ "
                in
-               state, mean, dens, natt, is_l3 || is_l3', cours_list, stage_list
+               state, mean, dens, m2_list, dip_autre_list, natt, is_l3 || is_l3', cours_list, stage_list
              else
                begin
                  let _, state, mean, dens, natt, is_l3, cours_list, stage_list  =
@@ -6798,6 +6798,10 @@ let export_transcript
                        (string,dpt)  list
                        (i,state,mean,dens,natt, is_l3,cours_list,stage_list)
                        ->
+                         let is_m2 =
+                              match list with [] -> false
+                                            | (b,_,_,_,_)::_ -> b
+                         in
                          let state, is_l3' =
                            if i mod 2 = 1
                            then
@@ -6822,13 +6826,15 @@ let export_transcript
                            (state,mean,dens,natt,cours_list,stage_list)
                            =
                            program
+                             ~is_m2
                              ~origine ~string ~dpt:(Public_data.dpt_of_string dpt) ~year ~who ~gpscodelist
                              ~alloc_suffix ~mean ~cours_list ~stage_list
                              ~firstname ~lastname ~promo ~cursus_map ~size
                              ~stages ~current_year ~report
                              ~keep_success ~keep_faillure
                              ~dens
-                             ~natt list state
+                             ~natt
+                              list state
                          in
                          let () =
                            Remanent_state.fprintf
@@ -6894,10 +6900,10 @@ let export_transcript
                      split_cours
                      (1,state,mean,dens,natt,false,cours_list,stage_list)
                  in
-                 state,mean,dens,natt, is_l3, cours_list, stage_list
+                 state,mean,dens,m2_list,dip_autre_list,natt, is_l3, cours_list, stage_list
                end
         )
-        (state,mean_init,dens_init,n_att_init, false,cours_list_init,stage_list_init)
+        (state,mean_init,dens_init,m2_init,dip_autre_list_init,n_att_init, false,cours_list_init,stage_list_init)
         l
     in
     let _ = natt in
@@ -6939,9 +6945,9 @@ let export_transcript
           com_year
           gps_file.situation
     in
-    let state =
+    let state,m2_list,dip_autre_list =
       match situation with
-      | None -> state
+      | None -> state,m2_list,dip_autre_list
       | Some situation ->
         begin
           let gpscodelist =
@@ -7006,14 +7012,14 @@ let export_transcript
                 else state
           in
           let list_national_diploma = snd mean in
-          let state =
+          let state,m2_list,dip_autre_list =
             List.fold_left
-              (fun state (key, moyenne_opt, mention_opt, validated_opt, val_year)  ->
+              (fun (state,m2_list,dip_autre_list) (key, moyenne_opt, mention_opt, validated_opt, val_year)  ->
                  match
                    StringOptMap.find_opt key (fst mean)
                  with
-                 | None -> state
-                 | Some (_,l,_) ->
+                 | None -> state,m2_list,dip_autre_list
+                 | Some (is_m2,_,l,_) ->
                    let state, total, ects_qui_comptent, ects =
                      List.fold_left
                        (fun (state, total, ects_qui_comptent,
@@ -7191,73 +7197,88 @@ let export_transcript
                                  let x = String.trim (String.lowercase_ascii a) in
                                  x = "" || x = "dens")
                    in
-                   if lpoly situation then
-                     state
-                   else
+                   let state, dip_autre_list, m2_list =
+                        if (d_nat || d_nat_stat) && (not (lpoly situation))
+                        then
+                          state, dip_autre_list, m2_list
+                        else
+                          state, dip_autre_list, m2_list
+                   in
+
                    if (d_nat || d_nat_stat) && do_report report
                    then
-                     let diplome_dpt = Public_data.dpt_of_string (snd key) in
-                     let diplome_niveau =
-                        (match fst key with
-                            | None -> ""
-                            | Some a -> a)
-                     in
-                     let diplome_year = string_of_int val_year in
-                     let state, univ, cursus =
-                        Univ.get_univ
-                          ~diplome_dpt ~diplome_niveau ~diplome_year ~firstname ~lastname
-                          gpscodelist state
-                     in
-                     let univ =
-                        match univ with
-                         | Some univ -> univ
-                         | _ -> Public_data.Upartenaire
-                     in
-                     let cursus =
-                       match cursus with
-                       | Some cursus -> cursus
-                       | _ -> Public_data.empty_cursus
-                     in
-                     if
-                         is_l3
-                       && cursus.Public_data.cursus_gps = None
-                       && cursus.Public_data.cursus_niveau = "m"
-                     then state
-                     else
-                        Remanent_state.add_national_diploma
-                          state
-                          {
-                            Public_data.diplome_dpt;
-                            Public_data.diplome_niveau ;
-                            Public_data.diplome_univ_key = univ ;
-                            Public_data.diplome_cursus = cursus ;
-                            Public_data.diplome_ranking = None ;
-                            Public_data.diplome_effectif = None ;
-                            Public_data.diplome_origine = origine;
-                            Public_data.diplome_statut = gps_file.statut ;
-                            Public_data.diplome_firstname = firstname ;
-                            Public_data.diplome_lastname = lastname ;
-                            Public_data.diplome_gender =
-                              begin
-                                match gps_file.genre
-                                with
-                                | Some a -> a
-                                | None -> Public_data.Unknown
-                                end ;
-                            Public_data.diplome_promotion = promo;
-                            Public_data.diplome_nb_ects = ects ;
-                            Public_data.diplome_moyenne = mean ;
-                            Public_data.diplome_year;
-                            Public_data.diplome_mention = mention;
-                            Public_data.diplome_recu = validated ;
-                            Public_data.diplome_commission = d_nat ;
-                        }
-                   else state
+                   let diplome_dpt = Public_data.dpt_of_string (snd key) in
+                   let diplome_niveau =
+                      (match fst key with
+                          | None -> ""
+                          | Some a -> a)
+                   in
+                   let diplome_year = string_of_int val_year in
+                   let state, univ, cursus =
+                      Univ.get_univ
+                        ~diplome_dpt ~diplome_niveau ~diplome_year ~firstname ~lastname
+                        gpscodelist state
+                   in
+                   let univ =
+                      match univ with
+                       | Some univ -> univ
+                       | _ -> Public_data.Upartenaire
+                   in
+                   let cursus =
+                     match cursus with
+                     | Some cursus -> cursus
+                     | _ -> Public_data.empty_cursus
+                   in
+                   let dpl =
+                   {
+                     Public_data.diplome_dpt;
+                     Public_data.diplome_niveau ;
+                     Public_data.diplome_univ_key = univ ;
+                     Public_data.diplome_cursus = cursus ;
+                     Public_data.diplome_ranking = None ;
+                     Public_data.diplome_effectif = None ;
+                     Public_data.diplome_origine = origine;
+                     Public_data.diplome_statut = gps_file.statut ;
+                     Public_data.diplome_firstname = firstname ;
+                     Public_data.diplome_lastname = lastname ;
+                     Public_data.diplome_gender =
+                       begin
+                         match gps_file.genre
+                         with
+                         | Some a -> a
+                         | None -> Public_data.Unknown
+                         end ;
+                     Public_data.diplome_promotion = promo;
+                     Public_data.diplome_nb_ects = ects ;
+                     Public_data.diplome_moyenne = mean ;
+                     Public_data.diplome_year;
+                     Public_data.diplome_mention = mention;
+                     Public_data.diplome_recu = validated ;
+                     Public_data.diplome_commission = d_nat ;
+                 }
+                 in
+                 if (is_l3
+                    && cursus.Public_data.cursus_gps = None
+                    && cursus.Public_data.cursus_niveau = "m")
+                 then state, m2_list, dip_autre_list
+                 else
+                   let state, m2_list, dip_autre_list =
+                      if validated then
+                          if is_m2 then state, dpl::m2_list, dip_autre_list
+                          else state, m2_list, dpl::dip_autre_list
+                      else state, m2_list, dip_autre_list
+                   in
+                   if not (do_report report)
+                   then state, m2_list, dip_autre_list
+                   else
+                     Remanent_state.add_national_diploma state dpl,
+                        m2_list, dip_autre_list
+              else state,m2_list, dip_autre_list
               )
-              state
+              (state,m2_list,dip_autre_list)
               list_national_diploma
           in
-          state
+          state, m2_list, dip_autre_list
         end
     in
     let state, main_dpt =
@@ -7303,8 +7324,8 @@ let export_transcript
           Public_data.dens_nb_math_and_math_info_course = math_math_info ;
           Public_data.dens_sortant=false;
           Public_data.dens_derogation=false;
-          Public_data.dens_master=None;
-          Public_data.dens_parcours=[];
+          Public_data.dens_master=m2_list;
+          Public_data.dens_parcours=dip_autre_list;
           Public_data.dens_cours_a_trier= cours_a_trier;
           Public_data.dens_cours_discipline_principale=Public_data.empty_repartition_diplomes;
           Public_data.dens_cours_hors_disciplines_principale=Public_data.empty_repartition_diplomes; Public_data.dens_cours_langue=[];

@@ -328,10 +328,24 @@ let dump_dens dens state =
         match main_dpt with
         | Public_data.DI ->
            begin
-           let () = Remanent_state.fprintf state "M2 recherche en informatique : %s (obligatoire)" (match dens.Public_data.dens_master with
-                                | None -> "non implémenté"
-                                | Some parcours ->
-                                      let _ = parcours in "non implémenté") in
+           let () = Remanent_state.fprintf state "M2 recherche : " in
+           let () = (match dens.Public_data.dens_master with
+                    | [] -> Remanent_state.fprintf state "aucun"
+                    | l ->
+                      List.iter
+                        (fun dpl -> Remanent_state.fprintf state "%s ;"
+                              (dpl.Public_data.diplome_niveau)) l)
+           in
+           let () = Remanent_state.fprintf state " (M2 recherche en informatique obligatoire)" in
+           let () = Remanent_state.print_newline state in
+           let () = Remanent_state.fprintf state "Diplômes autre : " in
+           let () = (match dens.Public_data.dens_parcours with
+                    | [] -> Remanent_state.fprintf state "aucun"
+                    | l ->
+                      List.iter
+                        (fun dpl -> Remanent_state.fprintf state "%s ;"
+                              (dpl.Public_data.diplome_niveau)) l)
+           in
            let () = Remanent_state.print_newline state in
            let () = Remanent_state.fprintf state "Cours obligatoires : %i (5 sont nécessaires)" dens.Public_data.dens_nb_mandatory_course in
            let () = Remanent_state.print_newline state in
