@@ -7205,7 +7205,7 @@ let export_transcript
                           state, dip_autre_list, m2_list
                    in
 
-                   if (d_nat || d_nat_stat) && do_report report
+                   if (d_nat || d_nat_stat) 
                    then
                    let diplome_dpt = Public_data.dpt_of_string (snd key) in
                    let diplome_niveau =
