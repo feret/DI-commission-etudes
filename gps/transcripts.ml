@@ -7252,7 +7252,7 @@ let export_transcript
                   && cursus.Public_data.cursus_niveau = "m")
                then state, m2_list, dip_autre_list
                else
-                 let state = Remanent_state.warn __POS__ (Format.sprintf "here %s") Exit state dpl.Public_data.diplome_niveau in
+                 let state = Remanent_state.warn __POS__ (Format.sprintf "here %s" dpl.Public_data.diplome_niveau) Exit state  in
                  let state, m2_list, dip_autre_list =
                     if validated then
                         if is_m2 then state, dpl::m2_list, dip_autre_list
