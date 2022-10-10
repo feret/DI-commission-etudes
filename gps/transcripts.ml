@@ -6356,9 +6356,9 @@ let export_transcript
           state, l
         end
     in
-    let state,mean,dens,m2_list,dip_autre_list,natt, is_l3, cours_list, stage_list =
+    let state,mean,dens,natt, is_l3, cours_list, stage_list =
       List.fold_left
-        (fun (state,mean,dens,m2_list,dip_autre_list,natt, is_l3, cours_list, stage_list )
+        (fun (state,mean,dens,natt,is_l3, cours_list, stage_list )
           (year,situation,split_cours) ->
            let gpscodelist = situation.gpscodelist in
            let who =
@@ -6720,7 +6720,8 @@ let export_transcript
              else state
            in
 
-           if year > current_year then    state,mean,dens,m2_list,dip_autre_list,natt, is_l3, cours_list, stage_list
+           if year > current_year then
+               state,mean,dens,natt,is_l3,cours_list, stage_list
            else
              let l =
                [21.0;11.67;48.33;26.67;7.3;10.00;5.17]
@@ -6802,7 +6803,7 @@ let export_transcript
                    Remanent_state.fprintf
                      state "\\pagebreak\n\ "
                in
-               state, mean, dens, m2_list, dip_autre_list, natt, is_l3 || is_l3', cours_list, stage_list
+               state, mean, dens, natt, is_l3 || is_l3', cours_list, stage_list
              else
                begin
                  let _, state, mean, dens, natt, is_l3, cours_list, stage_list  =
@@ -6913,10 +6914,10 @@ let export_transcript
                      split_cours
                      (1,state,mean,dens,natt,false,cours_list,stage_list)
                  in
-                 state,mean,dens,m2_list,dip_autre_list,natt, is_l3, cours_list, stage_list
+                 state,mean,dens,natt, is_l3, cours_list, stage_list
                end
         )
-        (state,mean_init,dens_init,m2_init,dip_autre_list_init,n_att_init, false,cours_list_init,stage_list_init)
+        (state,mean_init,dens_init,n_att_init, false,cours_list_init,stage_list_init)
         l
     in
     let _ = natt in
@@ -6950,7 +6951,7 @@ let export_transcript
     let state, m2_list, dip_autre_list =
       Public_data.YearMap.fold
         (fun year situation (state, m2_list, dip_autre_list) ->
-      if not (year = current_year) then (state, m2_list, dip_autre_list) else 
+      if not (year = current_year) then (state, m2_list, dip_autre_list) else
     let state,m2_list,dip_autre_list =
         begin
         let gpscodelist = situation.gpscodelist in
@@ -7008,7 +7009,10 @@ let export_transcript
         let list_national_diploma = snd mean in
         let state,m2_list,dip_autre_list =
           List.fold_left
-            (fun (state,m2_list,dip_autre_list) (key, moyenne_opt, mention_opt, validated_opt, val_year)  ->
+            (fun
+                (state,m2_list,dip_autre_list)
+                (key, moyenne_opt, mention_opt, validated_opt, val_year)
+              ->
                match
                  StringOptMap.find_opt key (fst mean)
                with
@@ -7191,14 +7195,6 @@ let export_transcript
                                let x = String.trim (String.lowercase_ascii a) in
                                x = "" || x = "dens")
                  in
-                 let state, dip_autre_list, m2_list =
-                      if (d_nat || d_nat_stat) && (not (lpoly situation))
-                      then
-                        state, dip_autre_list, m2_list
-                      else
-                        state, dip_autre_list, m2_list
-                 in
-
                  if (d_nat || d_nat_stat)
                  then
                  let diplome_dpt = Public_data.dpt_of_string (snd key) in
@@ -7256,7 +7252,7 @@ let export_transcript
                   && cursus.Public_data.cursus_niveau = "m")
                then state, m2_list, dip_autre_list
                else
-                 let state = Remanent_state.warn __POS__ (Format.sprintf "here") Exit state in
+                 let state = Remanent_state.warn __POS__ (Format.sprintf "here %s") Exit state dpl.Public_data.diplome_niveau in
                  let state, m2_list, dip_autre_list =
                     if validated then
                         if is_m2 then state, dpl::m2_list, dip_autre_list
@@ -7281,19 +7277,12 @@ let export_transcript
         state, m2_list, dip_autre_list
       end
       in state, m2_list, dip_autre_list)
-      gps_file.situation (state, m2_list, dip_autre_list)
+      gps_file.situation (state, m2_init, dip_autre_list_init)
 
     in
     let state, main_dpt =
       Remanent_state.get_main_dpt state
     in
-    (*let current_dpt =
-      match
-        situation.departement_principal
-      with
-      | Some a -> Public_data.dpt_of_string (acro_of_gps_name a)
-      | None -> Public_data.ENS
-    in*)
     let current_dpt = main_dpt in
     let cours_a_trier = cours_list in
     let stages_a_trier = stage_list in
