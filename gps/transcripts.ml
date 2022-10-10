@@ -6950,7 +6950,7 @@ let export_transcript
     in
     let state, m2_list, dip_autre_list =
       Public_data.YearMap.fold
-        (fun _year situation (state, m2_list, dip_autre_list) ->
+        (fun year situation (state, m2_list, dip_autre_list) ->
       (*if not (year = current_year) then (state, m2_list, dip_autre_list) else*)
     let state,m2_list,dip_autre_list =
         begin
@@ -7252,7 +7252,7 @@ let export_transcript
                   && cursus.Public_data.cursus_niveau = "m")
                then state, m2_list, dip_autre_list
                else
-                 let state = Remanent_state.warn __POS__ (Format.sprintf "here %s" dpl.Public_data.diplome_niveau) Exit state  in
+                 let state = Remanent_state.warn __POS__ (Format.sprintf "here %s %s" year dpl.Public_data.diplome_niveau) Exit state  in
                  let state, m2_list, dip_autre_list =
                     if validated then
                         if is_m2 then state, dpl::m2_list, dip_autre_list
