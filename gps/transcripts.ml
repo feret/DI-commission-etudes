@@ -4433,7 +4433,7 @@ let foot signature state  =
 
 let program
     ~origine ~gpscodelist ~string ~dpt ~year ~who ~alloc_suffix ~mean ~cours_list ~stage_list ~firstname ~lastname ~promo ~cursus_map
-    ~size ~stages ~current_year ~report ~keep_faillure ~keep_success
+    ~size ~stages ~current_year (*~report ~keep_faillure ~keep_success*)
     ~dens ~natt ~is_m2
     (list:(bool * string * string * string * cours) list) state =
   let state,
@@ -4545,8 +4545,6 @@ let program
       d.Public_data.decision_validated
   in
   let state, mean =
-    if do_report report || keep_faillure || keep_success
-    then
       let state, exception_cursus =
         let rec aux state l =
           match l with
@@ -4591,8 +4589,7 @@ let program
         validated_opt
         (try int_of_string year with _ -> 0)
         mean
-    else
-      state, mean
+
   in
   let () =
     if b
@@ -6830,8 +6827,8 @@ let export_transcript
                              ~origine ~string ~dpt:(Public_data.dpt_of_string dpt) ~year ~who ~gpscodelist
                              ~alloc_suffix ~mean ~cours_list ~stage_list
                              ~firstname ~lastname ~promo ~cursus_map ~size
-                             ~stages ~current_year ~report
-                             ~keep_success ~keep_faillure
+                             ~stages ~current_year (*~report
+                             ~keep_success ~keep_faillure*)
                              ~dens
                              ~natt
                               list state
@@ -7205,7 +7202,7 @@ let export_transcript
                           state, dip_autre_list, m2_list
                    in
 
-                   if (d_nat || d_nat_stat) 
+                   if (d_nat || d_nat_stat)
                    then
                    let diplome_dpt = Public_data.dpt_of_string (snd key) in
                    let diplome_niveau =
