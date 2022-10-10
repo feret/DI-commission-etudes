@@ -7013,8 +7013,8 @@ let export_transcript
                 (state,m2_list,dip_autre_list)
                 (key, moyenne_opt, mention_opt, validated_opt, val_year)
               ->
-               if not (year = val_year) then (state,m2_list,dip_autre_list)
-               else 
+               if not (year = string_of_int val_year) then (state,m2_list,dip_autre_list)
+               else
                match
                  StringOptMap.find_opt key (fst mean)
                with
