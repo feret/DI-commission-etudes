@@ -229,7 +229,7 @@ let add_course pos msg state year  key courses map =
         Exit
         state, map
     end
-  | Some (a,b,c,d_map) ->
+  | Some (a,b,d_map) ->
     let old =
       match
         StringOptMap.find_opt key d_map
@@ -240,7 +240,7 @@ let add_course pos msg state year  key courses map =
     let d_map =
       StringOptMap.add key (List.concat [courses;old]) d_map
     in
-    state, Public_data.YearMap.add year (a,b,c,d_map) map
+    state, Public_data.YearMap.add year (a,b,d_map) map
 
 type diplome =
   {
@@ -639,6 +639,7 @@ type bilan_annuel =
          code_option: string option;
          option: string option;
          nannee: int option;
+         gpscodelist: string list ;
        }
 
 let log_bilan_annuel state bilan =
@@ -696,6 +697,7 @@ let empty_bilan_annuel =
     code_option = None;
     option=None;
     nannee=None;
+    gpscodelist=[]
   }
 
 type gps_file =
@@ -5774,6 +5776,19 @@ let good (a,_) =
   | Some a ->
     List.mem a ["l";"m"]
 
+let build_gpscodelist ~year ~firstname ~lastname  situation state =
+    let gpscodelist =
+      List.fold_left
+       (fun acc diplome ->
+          match diplome.diplome_diplome
+          with
+          | None -> acc
+          | Some a -> a::acc)
+       [] situation.diplomes
+    in
+    let gpscodelist = fill_gpscodelist ~year ~firstname ~lastname gpscodelist situation state in
+    state, {situation with gpscodelist}
+
 let export_transcript
     ~output
     ?language
@@ -5932,6 +5947,16 @@ let export_transcript
           state,
         0
     in
+    let state, situation =
+      Public_data.YearMap.fold
+        (fun year situation (state,map) ->
+            let state, situation =
+              build_gpscodelist ~year ~firstname ~lastname situation state
+            in
+            state, Public_data.YearMap.add year situation map)
+        gps_file.situation (state,gps_file.situation)
+    in
+    let gps_file = {gps_file with situation} in
     let state, promo_int =
       Public_data.YearMap.fold
         (fun year _ (state, y') ->
@@ -6169,16 +6194,6 @@ let export_transcript
     let state, cursus_map, l =
       List.fold_left
         (fun (state, cursus_map, l) (year, situation) ->
-           let gpscodelist =
-             List.fold_left
-              (fun acc diplome ->
-                 match diplome.diplome_diplome
-                 with
-                 | None -> acc
-                 | Some a -> a::acc)
-              [] situation.diplomes
-           in
-           let gpscodelist = fill_gpscodelist ~year ~firstname ~lastname gpscodelist situation state in
            let state, filtered_classes =
              filter_class ~firstname ~lastname ~year
                state remove_non_valided_classes
@@ -6286,14 +6301,14 @@ let export_transcript
                (state,cursus_map,split_cours) decision_list
            in
 
-        state, cursus_map, (year,situation,gpscodelist,split_cours)::l)
+        state, cursus_map, (year,situation,split_cours)::l)
         (state, StringOptMap.empty, [])
         l_rev
     in
     let l =
       match l with
       | [] ->
-        [current_year, empty_bilan_annuel, [], StringOptMap.empty]
+        [current_year, empty_bilan_annuel, StringOptMap.empty]
       | _ -> l
     in
     let state, l =
@@ -6303,9 +6318,9 @@ let export_transcript
         begin
           let map =
             List.fold_left
-              (fun map (year,situation,codegpslist,_) ->
+              (fun map (year,situation,_) ->
                  Public_data.YearMap.add year
-                   (year,situation,codegpslist,StringOptMap.empty)
+                   (year,situation,StringOptMap.empty)
                    map)
               Public_data.YearMap.empty
               l
@@ -6314,7 +6329,7 @@ let export_transcript
             List.fold_left
               (fun
                 (state, map)
-                (year,_,_,split_cours) ->
+                (year,_,split_cours) ->
                  StringOptMap.fold
                    (fun key course (state, map) ->
                       let state, year =
@@ -6344,7 +6359,8 @@ let export_transcript
     let state,mean,dens,m2_list,dip_autre_list,natt, is_l3, cours_list, stage_list =
       List.fold_left
         (fun (state,mean,dens,m2_list,dip_autre_list,natt, is_l3, cours_list, stage_list )
-          (year,situation,gpscodelist,split_cours) ->
+          (year,situation,split_cours) ->
+           let gpscodelist = situation.gpscodelist in
            let who =
              Format.sprintf "%s in %s" who year
            in
@@ -6931,353 +6947,341 @@ let export_transcript
         | Some a -> a
         | None -> (0.,0.,0,0,0)
     in
-    let state, situation =
-      match com_year with
-      | None ->
-          state,
-          None
-      | Some com_year ->
-        state,
-        Public_data.YearMap.find_opt
-          com_year
-          gps_file.situation
-    in
+    let state, m2_list, dip_autre_list =
+      Public_data.YearMap.fold
+        (fun current_year situation (state, m2_list, dip_autre_list) ->
     let state,m2_list,dip_autre_list =
-      match situation with
-      | None -> state,m2_list,dip_autre_list
-      | Some situation ->
         begin
-          let gpscodelist =
-            List.fold_left
-              (fun acc diplome ->
-                 match diplome.diplome_diplome
-                 with
-                 | None -> acc
-                 | Some a -> a::acc)
-              [] situation.diplomes
-          in
-          let gpscodelist = fill_gpscodelist ~year:current_year ~firstname ~lastname gpscodelist situation state in
-          let state, list =
-            Remanent_state.get_dispenses
-              ~firstname
-              ~lastname
-              ~year:current_year
-              state
-          in
-          let key =
-            if lpoly situation then Some "Bachelor_de_l_X"
-            else if lpe origine then Some "Pensionnaires_etrangers"
-            else if lerasmus origine then Some "Erasmus"
-            else if lechange_dri situation then Some "Échange DRI"
-            else if list <> [] then Some "Dispenses"
-            else
-              None
-          in
-          let state =
-            match key with
-            | None -> state
-            | Some key ->
-              let input_rep,file_name = rep, snd output in
-              let file_name = Copy.pdf_file file_name in
-              match Remanent_state.get_commission state with
-              | state, None -> state
-              | state, Some _ ->
-                if
-                   keep_success
-                then
-                  match
-                      Remanent_state.get_commission_rep_from_key
-                        key
+        let gpscodelist = situation.gpscodelist in
+        let state, list =
+          Remanent_state.get_dispenses
+            ~firstname
+            ~lastname
+            ~year:current_year
+            state
+        in
+        let key =
+          if lpoly situation then Some "Bachelor_de_l_X"
+          else if lpe origine then Some "Pensionnaires_etrangers"
+          else if lerasmus origine then Some "Erasmus"
+          else if lechange_dri situation then Some "Échange DRI"
+          else if list <> [] then Some "Dispenses"
+          else
+            None
+        in
+        let state =
+          match key with
+          | None -> state
+          | Some key ->
+            let input_rep,file_name = rep, snd output in
+            let file_name = Copy.pdf_file file_name in
+            match Remanent_state.get_commission state with
+            | state, None -> state
+            | state, Some _ ->
+              if
+                 keep_success
+              then
+                match
+                    Remanent_state.get_commission_rep_from_key
+                      key
+                      state
+                with
+                | state, (_,_,output_rep) ->
+                  let state =
+                    if lpoly situation
+                    || lerasmus origine || lpe origine
+                    || lechange_dri situation
+                    || list <> []
+                    then
+                      Remanent_state.push_copy
+                        ~input_rep
+                        ~file_name
+                        ~output_rep
                         state
-                  with
-                  | state, (_,_,output_rep) ->
-                    let state =
-                      if lpoly situation
-                      || lerasmus origine || lpe origine
-                      || lechange_dri situation
-                      || list <> []
-                      then
-                        Remanent_state.push_copy
-                          ~input_rep
-                          ~file_name
-                          ~output_rep
-                          state
-                      else
-                        state
-                    in
-                    state
-                else state
-          in
-          let list_national_diploma = snd mean in
-          let state,m2_list,dip_autre_list =
-            List.fold_left
-              (fun (state,m2_list,dip_autre_list) (key, moyenne_opt, mention_opt, validated_opt, val_year)  ->
-                 match
-                   StringOptMap.find_opt key (fst mean)
-                 with
-                 | None -> state,m2_list,dip_autre_list
-                 | Some (is_m2,_,l,_) ->
-                   let state, total, ects_qui_comptent, ects =
-                     List.fold_left
-                       (fun (state, total, ects_qui_comptent,
-                             ects) data  ->
-                         match data with
-                         | _, None -> state, total,
-                                      ects_qui_comptent, ects
-                         | Some Public_data.Float f, Some
-                             cours_ects ->
-                           state,
-                           total+.f*.cours_ects,
-                           ects_qui_comptent+.cours_ects,
-                           ects+.cours_ects
-                        | Some (Public_data.Valide_sans_note | Public_data.String _) ,
-                           Some cours_ects  ->
-                           state, total, ects_qui_comptent,
-                           ects+.cours_ects
-                         | (None, _)
-                         | (Some (Public_data.Temporary _ | Public_data.Abandon | Public_data.En_cours | Public_data.Absent),_) ->
-                           (Remanent_state.warn
-                              __POS__
-                              "Incompatible grade"
-                              Exit
-                              state),
-                           total, ects_qui_comptent, ects
-                       )
-                       (state, 0., 0., 0.)
-                       l
-                   in
-                   let mean =
-                     if ects < 60.
-                     then
-                       None
-                     else
-                       Some (total /. ects_qui_comptent)
-                   in
-                   let mean =
-                     match
-                       moyenne_opt
-                     with
-                     | None -> mean
-                     | Some _ -> moyenne_opt
-                   in
-                   let mention =
-                     match mean with
-                     | None -> None
-                     | Some mean ->
-                       if mean <12. then Some ""
-                       else if mean <14. then Some "Assez Bien"
-                       else if mean <16. then Some "Bien"
-                       else Some "Très bien";
-                   in
-                   let mention =
-                     match
-                       mention_opt
-                     with
-                     | None -> mention
-                     | (Some _) -> mention_opt
-                   in
-                   let validated =
-                     match validated_opt with
-                     | Some v -> v
-                     | None ->
-                       match mean with
-                       | None -> false
-                       | Some mean -> mean >= 10.
-                   in
-                   let state, d_nat =
-                     let input_rep,file_name = rep, snd output in
-                     let file_name = Copy.pdf_file file_name in
-                     let y = string_of_int val_year in
-                     match Remanent_state.get_commission state with
-                     | state, None -> state, false
-                     | state, Some (_,i) ->
-                       let state, dpt = Remanent_state.get_main_dpt state in
-                       if i=y &&
-                          (dpt = Public_data.dpt_of_string (snd key))
-                           &&
-                           ((validated && keep_success)
-                            || ((not validated) && keep_faillure))
-                       then
-                         let state, output_rep =
-                           if lpoly situation then
-                             state, "Bachelor_de_l_X"
-                           else if lerasmus origine then
-                             state, "Erasmus"
-                           else if lpe origine then
-                             state, "Pensionnaires_etrangers"
-                           else if lechange_dri situation then
-                             state, "Échange DRI"
-                           else
-                             match
-                               let state, key =
-                                 match fst key with
-                                  | None -> state, ""
-                                  | Some "l" ->
-                                    if
-                                      lmath ~year:current_year ~firstname ~lastname situation state && linfo situation
-                                    then state, "L3_mathinfo"
-                                    else if lmathphys situation
-                                    then state, "L3_mathphys"
-                                    else state, "L3"
-                                  | Some "m" -> state, "M1"
-                                  | Some a ->
-                                      state,
-                                      a
-                               in
-                               Remanent_state.get_commission_rep_from_key
-                                 key
-                                 state
-                             with
-                             | state, (_,_,rep') ->
-                               let suf =
-                                 if validated then
-                                   "ras"
-                                 else
-                                   "a_discuter"
-                               in
-                               let output_rep =
-                                 match rep',suf with
-                                 | a,"" | "",a -> a
-                                 | a,b -> Printf.sprintf "%s/%s"  a b
-                               in
-                               state, output_rep
-                         in
-                         let state =
-                           if good key || lpoly situation
-                              || lerasmus origine || lpe origine
-                              || lechange_dri situation
-                           then
-                           let diplome_dpt = Public_data.dpt_of_string (snd key) in
-                           let diplome_niveau =
-                              (match fst key with
-                                  | None -> ""
-                                  | Some a -> a)
-                           in
-                           let diplome_year = string_of_int val_year in
-
-                           let state, _, cursus =
-                              Univ.get_univ
-                                ~diplome_dpt ~diplome_niveau ~diplome_year ~firstname ~lastname
-                                gpscodelist state
-                           in
-
-                           let cursus =
-                             match cursus with
-                             | Some cursus -> cursus
-                             | _ -> Public_data.empty_cursus
-                           in
-                              if is_l3
-                               && cursus.Public_data.cursus_gps = None
-                               && cursus.Public_data.cursus_niveau = "m"
-                              then state
-                              else
-                             Remanent_state.push_copy
-                                 ~input_rep
-                                 ~file_name
-                                 ~output_rep
-                                 state
-                             else
-                               state
-                           in
-                           state, true
-                       else
-                         state, false
-                   in
-                   let state, d_nat_stat =
-                     let state, dpt = Remanent_state.get_main_dpt state in
-                     state, (dpt = Public_data.dpt_of_string (snd key))
-                            &&
-                            not
-                              (match fst key with
-                               | None -> true
-                               | Some a ->
-                                 let x = String.trim (String.lowercase_ascii a) in
-                                 x = "" || x = "dens")
-                   in
-                   let state, dip_autre_list, m2_list =
-                        if (d_nat || d_nat_stat) && (not (lpoly situation))
-                        then
-                          state, dip_autre_list, m2_list
-                        else
-                          state, dip_autre_list, m2_list
-                   in
-
-                   if (d_nat || d_nat_stat)
-                   then
-                   let diplome_dpt = Public_data.dpt_of_string (snd key) in
-                   let diplome_niveau =
-                      (match fst key with
-                          | None -> ""
-                          | Some a -> a)
-                   in
-                   let diplome_year = string_of_int val_year in
-                   let state, univ, cursus =
-                      Univ.get_univ
-                        ~diplome_dpt ~diplome_niveau ~diplome_year ~firstname ~lastname
-                        gpscodelist state
-                   in
-                   let univ =
-                      match univ with
-                       | Some univ -> univ
-                       | _ -> Public_data.Upartenaire
-                   in
-                   let cursus =
-                     match cursus with
-                     | Some cursus -> cursus
-                     | _ -> Public_data.empty_cursus
-                   in
-                   let dpl =
-                   {
-                     Public_data.diplome_dpt;
-                     Public_data.diplome_niveau ;
-                     Public_data.diplome_univ_key = univ ;
-                     Public_data.diplome_cursus = cursus ;
-                     Public_data.diplome_ranking = None ;
-                     Public_data.diplome_effectif = None ;
-                     Public_data.diplome_origine = origine;
-                     Public_data.diplome_statut = gps_file.statut ;
-                     Public_data.diplome_firstname = firstname ;
-                     Public_data.diplome_lastname = lastname ;
-                     Public_data.diplome_gender =
-                       begin
-                         match gps_file.genre
-                         with
-                         | Some a -> a
-                         | None -> Public_data.Unknown
-                         end ;
-                     Public_data.diplome_promotion = promo;
-                     Public_data.diplome_nb_ects = ects ;
-                     Public_data.diplome_moyenne = mean ;
-                     Public_data.diplome_year;
-                     Public_data.diplome_mention = mention;
-                     Public_data.diplome_recu = validated ;
-                     Public_data.diplome_commission = d_nat ;
-                 }
+                    else
+                      state
+                  in
+                  state
+              else state
+        in
+        let list_national_diploma = snd mean in
+        let state,m2_list,dip_autre_list =
+          List.fold_left
+            (fun (state,m2_list,dip_autre_list) (key, moyenne_opt, mention_opt, validated_opt, val_year)  ->
+               match
+                 StringOptMap.find_opt key (fst mean)
+               with
+               | None -> state,m2_list,dip_autre_list
+               | Some (is_m2,_,l,_) ->
+                 let state, total, ects_qui_comptent, ects =
+                   List.fold_left
+                     (fun (state, total, ects_qui_comptent,
+                           ects) data  ->
+                       match data with
+                       | _, None -> state, total,
+                                    ects_qui_comptent, ects
+                       | Some Public_data.Float f, Some
+                           cours_ects ->
+                         state,
+                         total+.f*.cours_ects,
+                         ects_qui_comptent+.cours_ects,
+                         ects+.cours_ects
+                      | Some (Public_data.Valide_sans_note | Public_data.String _) ,
+                         Some cours_ects  ->
+                         state, total, ects_qui_comptent,
+                         ects+.cours_ects
+                       | (None, _)
+                       | (Some (Public_data.Temporary _ | Public_data.Abandon | Public_data.En_cours | Public_data.Absent),_) ->
+                         (Remanent_state.warn
+                            __POS__
+                            "Incompatible grade"
+                            Exit
+                            state),
+                         total, ects_qui_comptent, ects
+                     )
+                     (state, 0., 0., 0.)
+                     l
                  in
-                 if (is_l3
-                    && cursus.Public_data.cursus_gps = None
-                    && cursus.Public_data.cursus_niveau = "m")
+                 let mean =
+                   if ects < 60.
+                   then
+                     None
+                   else
+                     Some (total /. ects_qui_comptent)
+                 in
+                 let mean =
+                   match
+                     moyenne_opt
+                   with
+                   | None -> mean
+                   | Some _ -> moyenne_opt
+                 in
+                 let mention =
+                   match mean with
+                   | None -> None
+                   | Some mean ->
+                     if mean <12. then Some ""
+                     else if mean <14. then Some "Assez Bien"
+                     else if mean <16. then Some "Bien"
+                     else Some "Très bien";
+                 in
+                 let mention =
+                   match
+                     mention_opt
+                   with
+                   | None -> mention
+                   | (Some _) -> mention_opt
+                 in
+                 let validated =
+                   match validated_opt with
+                   | Some v -> v
+                   | None ->
+                     match mean with
+                     | None -> false
+                     | Some mean -> mean >= 10.
+                 in
+                 let state, d_nat =
+                   let input_rep,file_name = rep, snd output in
+                   let file_name = Copy.pdf_file file_name in
+                   let y = string_of_int val_year in
+                   match Remanent_state.get_commission state with
+                   | state, None -> state, false
+                   | state, Some (_,i) ->
+                     let state, dpt = Remanent_state.get_main_dpt state in
+                     if i=y &&
+                        (dpt = Public_data.dpt_of_string (snd key))
+                         &&
+                         ((validated && keep_success)
+                          || ((not validated) && keep_faillure))
+                     then
+                       let state, output_rep =
+                         if lpoly situation then
+                           state, "Bachelor_de_l_X"
+                         else if lerasmus origine then
+                           state, "Erasmus"
+                         else if lpe origine then
+                           state, "Pensionnaires_etrangers"
+                         else if lechange_dri situation then
+                           state, "Échange DRI"
+                         else
+                           match
+                             let state, key =
+                               match fst key with
+                                | None -> state, ""
+                                | Some "l" ->
+                                  if
+                                    lmath ~year:current_year ~firstname ~lastname situation state && linfo situation
+                                  then state, "L3_mathinfo"
+                                  else if lmathphys situation
+                                  then state, "L3_mathphys"
+                                  else state, "L3"
+                                | Some "m" -> state, "M1"
+                                | Some a ->
+                                    state,
+                                    a
+                             in
+                             Remanent_state.get_commission_rep_from_key
+                               key
+                               state
+                           with
+                           | state, (_,_,rep') ->
+                             let suf =
+                               if validated then
+                                 "ras"
+                               else
+                                 "a_discuter"
+                             in
+                             let output_rep =
+                               match rep',suf with
+                               | a,"" | "",a -> a
+                               | a,b -> Printf.sprintf "%s/%s"  a b
+                             in
+                             state, output_rep
+                       in
+                       let state =
+                         if good key || lpoly situation
+                            || lerasmus origine || lpe origine
+                            || lechange_dri situation
+                         then
+                         let diplome_dpt = Public_data.dpt_of_string (snd key) in
+                         let diplome_niveau =
+                            (match fst key with
+                                | None -> ""
+                                | Some a -> a)
+                         in
+                         let diplome_year = string_of_int val_year in
+
+                         let state, _, cursus =
+                            Univ.get_univ
+                              ~diplome_dpt ~diplome_niveau ~diplome_year ~firstname ~lastname
+                              gpscodelist state
+                         in
+
+                         let cursus =
+                           match cursus with
+                           | Some cursus -> cursus
+                           | _ -> Public_data.empty_cursus
+                         in
+                            if is_l3
+                             && cursus.Public_data.cursus_gps = None
+                             && cursus.Public_data.cursus_niveau = "m"
+                            then state
+                            else
+                           Remanent_state.push_copy
+                               ~input_rep
+                               ~file_name
+                               ~output_rep
+                               state
+                           else
+                             state
+                         in
+                         state, true
+                     else
+                       state, false
+                 in
+                 let state, d_nat_stat =
+                   let state, dpt = Remanent_state.get_main_dpt state in
+                   state, (dpt = Public_data.dpt_of_string (snd key))
+                          &&
+                          not
+                            (match fst key with
+                             | None -> true
+                             | Some a ->
+                               let x = String.trim (String.lowercase_ascii a) in
+                               x = "" || x = "dens")
+                 in
+                 let state, dip_autre_list, m2_list =
+                      if (d_nat || d_nat_stat) && (not (lpoly situation))
+                      then
+                        state, dip_autre_list, m2_list
+                      else
+                        state, dip_autre_list, m2_list
+                 in
+
+                 if (d_nat || d_nat_stat)
+                 then
+                 let diplome_dpt = Public_data.dpt_of_string (snd key) in
+                 let diplome_niveau =
+                    (match fst key with
+                        | None -> ""
+                        | Some a -> a)
+                 in
+                 let diplome_year = string_of_int val_year in
+                 let state, univ, cursus =
+                    Univ.get_univ
+                      ~diplome_dpt ~diplome_niveau ~diplome_year ~firstname ~lastname
+                      gpscodelist state
+                 in
+                 let univ =
+                    match univ with
+                     | Some univ -> univ
+                     | _ -> Public_data.Upartenaire
+                 in
+                 let cursus =
+                   match cursus with
+                   | Some cursus -> cursus
+                   | _ -> Public_data.empty_cursus
+                 in
+                 let dpl =
+                 {
+                   Public_data.diplome_dpt;
+                   Public_data.diplome_niveau ;
+                   Public_data.diplome_univ_key = univ ;
+                   Public_data.diplome_cursus = cursus ;
+                   Public_data.diplome_ranking = None ;
+                   Public_data.diplome_effectif = None ;
+                   Public_data.diplome_origine = origine;
+                   Public_data.diplome_statut = gps_file.statut ;
+                   Public_data.diplome_firstname = firstname ;
+                   Public_data.diplome_lastname = lastname ;
+                   Public_data.diplome_gender =
+                     begin
+                       match gps_file.genre
+                       with
+                       | Some a -> a
+                       | None -> Public_data.Unknown
+                       end ;
+                   Public_data.diplome_promotion = promo;
+                   Public_data.diplome_nb_ects = ects ;
+                   Public_data.diplome_moyenne = mean ;
+                   Public_data.diplome_year;
+                   Public_data.diplome_mention = mention;
+                   Public_data.diplome_recu = validated ;
+                   Public_data.diplome_commission = d_nat ;
+               }
+               in
+               if (is_l3
+                  && cursus.Public_data.cursus_gps = None
+                  && cursus.Public_data.cursus_niveau = "m")
+               then state, m2_list, dip_autre_list
+               else
+                 let state = Remanent_state.warn __POS__ (Format.sprintf "here") Exit state in
+                 let state, m2_list, dip_autre_list =
+                    if validated then
+                        if is_m2 then state, dpl::m2_list, dip_autre_list
+                        else state, m2_list, dpl::dip_autre_list
+                    else state, m2_list, dip_autre_list
+                 in
+                 if not (do_report report)
                  then state, m2_list, dip_autre_list
                  else
-                   let state = Remanent_state.warn __POS__ (Format.sprintf "here") Exit state in 
-                   let state, m2_list, dip_autre_list =
-                      if validated then
-                          if is_m2 then state, dpl::m2_list, dip_autre_list
-                          else state, m2_list, dpl::dip_autre_list
-                      else state, m2_list, dip_autre_list
-                   in
-                   if not (do_report report)
-                   then state, m2_list, dip_autre_list
-                   else
-                     Remanent_state.add_national_diploma state dpl,
-                        m2_list, dip_autre_list
-              else state,m2_list, dip_autre_list
-              )
-              (state,m2_list,dip_autre_list)
-              list_national_diploma
-          in
-          state, m2_list, dip_autre_list
-        end
+                       match com_year with
+                       | Some com_year when com_year = current_year ->
+                      Remanent_state.add_national_diploma state dpl,
+                      m2_list, dip_autre_list
+                      | None  | Some _ ->
+                          state,m2_list, dip_autre_list
+
+            else state,m2_list, dip_autre_list
+            )
+            (state,m2_list,dip_autre_list)
+            list_national_diploma
+        in
+        state, m2_list, dip_autre_list
+      end
+      in state, m2_list, dip_autre_list)
+      gps_file.situation (state, m2_list, dip_autre_list)
+
     in
     let state, main_dpt =
       Remanent_state.get_main_dpt state
