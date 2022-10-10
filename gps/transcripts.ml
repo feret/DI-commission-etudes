@@ -6951,7 +6951,7 @@ let export_transcript
     let state, m2_list, dip_autre_list =
       Public_data.YearMap.fold
         (fun year situation (state, m2_list, dip_autre_list) ->
-      if not (year = current_year) then (state, m2_list, dip_autre_list) else
+      (*if not (year = current_year) then (state, m2_list, dip_autre_list) else*)
     let state,m2_list,dip_autre_list =
         begin
         let gpscodelist = situation.gpscodelist in
