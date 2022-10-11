@@ -248,7 +248,7 @@ let add_total l =
         (0,0,0.,0.) l
 
 let label_of_diplome dip =
-    match dip.Public_data.diplome_cursus.Public_data.entete with
+    match dip.Public_data.diplome_cursus.Public_data.inscription with
       | None ->
         Format.sprintf
           "%s (%s)"
