@@ -247,6 +247,15 @@ let add_total l =
                 (i+j,i'+j',ects+.fcts,ects'+.fcts'))
         (0,0,0.,0.) l
 
+let label_of_diplome dip =
+    match dip.Public_data.diplome_cursus.Public_data.entete with
+      | None ->
+        Format.sprintf
+          "%s (%s)"
+          dip.Public_data.diplome_niveau
+          (Public_data.string_of_dpt dip.Public_data.diplome_dpt)
+      | Some l -> l
+
 let dump_dens dens state =
     let size = [None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None] in
@@ -302,6 +311,9 @@ let dump_dens dens state =
       let () = Remanent_state.close_row state in
       let () = Remanent_state.close_array state in
       let () = Remanent_state.fprintf state "\\end{center}" in
+      let () = Remanent_state.fprintf state "\\vfill" in
+      let () = Remanent_state.fprintf state "\\begin{center}" in
+      let () = Remanent_state.fprintf state "\\begin{minipage}{\\linewidth}" in
       let () = Remanent_state.fprintf state "Nbr inscriptions au DENS : %i (3 sont nécessaires)" dens.Public_data.dens_nb_inscriptions in
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state "Sortant : %s (doit être sortant)" (*(if dens.Public_data.dens_sortant then "Oui" else "Non")*) "non implémenté" in
@@ -333,8 +345,9 @@ let dump_dens dens state =
                     | [] -> Remanent_state.fprintf state "aucun"
                     | l ->
                       List.iter
-                        (fun dpl -> Remanent_state.fprintf state "%s ;"
-                              (dpl.Public_data.diplome_niveau)) l)
+                        (fun dpl ->
+                            Remanent_state.fprintf state "%s ;"
+                              (label_of_diplome dpl)) (List.rev l))
            in
            let () = Remanent_state.fprintf state " (M2 recherche en informatique obligatoire)" in
            let () = Remanent_state.print_newline state in
@@ -344,7 +357,7 @@ let dump_dens dens state =
                     | l ->
                       List.iter
                         (fun dpl -> Remanent_state.fprintf state "%s ;"
-                              (dpl.Public_data.diplome_niveau)) l)
+                              (label_of_diplome dpl)) (List.rev l))
            in
            let () = Remanent_state.print_newline state in
            let () = Remanent_state.fprintf state "Cours obligatoires : %i (5 sont nécessaires)" dens.Public_data.dens_nb_mandatory_course in
@@ -356,7 +369,11 @@ let dump_dens dens state =
                   dens.Public_data.dens_nb_math_course
                   (dens.Public_data.dens_nb_math_and_math_info_course - dens.Public_data.dens_nb_math_course)
            in
-           let () = Remanent_state.print_newline state in ()
+           let () = Remanent_state.print_newline state in
+           let () = Remanent_state.fprintf state "\\end{minipage}" in
+           let () = Remanent_state.fprintf state "\\end{center}" in
+           let () = Remanent_state.fprintf state "\\vfill\\mbox{}" in
+           ()
            end
         | Public_data.DMA | Public_data.ENS|Public_data.PHYS|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> ()
       in
