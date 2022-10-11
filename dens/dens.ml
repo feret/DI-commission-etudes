@@ -346,7 +346,7 @@ let dump_dens dens state =
                     | l ->
                       List.iter
                         (fun dpl ->
-                            Remanent_state.fprintf state "%s ;"
+                            Remanent_state.fprintf state "%s ; "
                               (label_of_diplome dpl)) (List.rev l))
            in
            let () = Remanent_state.fprintf state " (M2 recherche en informatique obligatoire)" in
@@ -356,7 +356,7 @@ let dump_dens dens state =
                     | [] -> Remanent_state.fprintf state "aucun"
                     | l ->
                       List.iter
-                        (fun dpl -> Remanent_state.fprintf state "%s ;"
+                        (fun dpl -> Remanent_state.fprintf state "%s ; "
                               (label_of_diplome dpl)) (List.rev l))
            in
            let () = Remanent_state.print_newline state in
