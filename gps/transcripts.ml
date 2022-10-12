@@ -4434,6 +4434,7 @@ let foot signature state  =
   state
 
 let program
+    ~print_foot_note
     ~origine ~gpscodelist ~string ~dpt ~year ~who ~alloc_suffix ~mean ~cours_list ~stage_list ~firstname ~lastname ~promo ~cursus_map
     ~size ~stages ~current_year (*~report ~keep_faillure ~keep_success*)
     ~dens ~natt ~is_m2
@@ -4715,6 +4716,58 @@ let program
       "\\setcounter{totalrows}{%i}%%%%\n\ "
       (List.length list)
   in
+  let state =
+      StringOptMap.fold
+        (fun (s,d) _ state ->
+      Remanent_state.warn __POS__ (Format.sprintf "%s %s" (match s with None -> "none" | Some x -> x) d) Exit state )
+      cursus_map state
+    in
+  let dpt' =
+    match dpt, string with
+    | _, (None |  Some "dens") -> "dens"
+    |_, _ -> Public_data.string_of_dpt dpt
+  in
+  let state, foot_english =
+    (match
+      StringOptMap.find_opt
+        (string,dpt')
+        cursus_map, footpage_en
+      with
+    | None, _
+    | Some (_,None),_
+    | _,None -> state, ""
+    | Some (_,Some x),Some y ->
+    let state, b = print_foot_note string dpt x year y state in
+    if b then
+       state, Format.sprintf
+         "\\footnote{%s}"
+         y
+     else
+       state,"")
+  in
+  let state, foot_french =
+    (match
+      StringOptMap.find_opt
+        (string,dpt')
+        cursus_map, footpage
+      with
+    | None, _ -> Remanent_state.warn __POS__ (Format.sprintf "FRENCHNONE %s %s"
+   (match string with None -> "none" | Some x -> x) (Public_data.string_of_dpt dpt)) Exit state, ""
+    | Some (_,None),_ -> Remanent_state.warn __POS__ (Format.sprintf "FRENCHNOENDDATE %s %s"
+   (match string with None -> "none" | Some x -> x) (Public_data.string_of_dpt dpt)) Exit state, ""
+    | _,None ->
+     Remanent_state.warn __POS__ (Format.sprintf "FRENCH %s %s"
+    (match string with None -> "none" | Some x -> x) (Public_data.string_of_dpt dpt)) Exit state, ""
+    | Some (_,Some x),Some y ->
+    let state, b = print_foot_note string dpt x year y state in
+    if b then
+       state, Format.sprintf
+         "\\footnote{%s}"
+         y
+     else
+       state,"")
+  in
+
   let () =
     match entete,entete_en with
     | None, None -> ()
@@ -4726,83 +4779,15 @@ let program
           Exit
           state
       in
-      Remanent_state.log_string
-        state
-        ~english:(Format.sprintf "%s%s"
-                    x
-                    (match
-                       StringOptMap.find_opt
-                         (string,(Public_data.string_of_dpt dpt))
-                         cursus_map, footpage_en
-                     with
-                     | None, _
-                     | Some (_,None),_
-                     | _,None -> ""
-                     | Some (_,Some x),Some y ->
-                       if x = year then
-                         Format.sprintf
-                           "\\footnote{%s}"
-                           y
-                       else
-                         ""
-                    ))
-        (Format.sprintf "%s%s"
-           x
-           (match
-              StringOptMap.find_opt
-                (string,(Public_data.string_of_dpt dpt))
-                cursus_map, footpage
-            with
-            | None, _
-            | Some (_,None),_
-            | _,None -> ""
-            | Some (_,Some x),Some y ->
-              if x = year then
-                Format.sprintf
-                  "\\footnote{%s}"
-                  y
-              else
-                ""
-           ))
+      let state,s = Remanent_state.bilingual_string
+      ~english:(Format.sprintf "%s%s" x foot_english)
+      ~french:(Format.sprintf "%s%s" x foot_french) state in
+      Remanent_state.fprintf state "%s" s
     | Some x, Some y ->
-      Remanent_state.log_string
-        state
-        ~english:(Format.sprintf "%s%s"
-                       y
-                       (match
-                          StringOptMap.find_opt
-                            (string,(Public_data.string_of_dpt dpt))
-                            cursus_map, footpage_en
-                        with
-                        | None, _
-                        | Some (_,None),_
-                        | _,None -> ""
-                        | Some (_,Some x),Some y ->
-                          if x = year then
-                            Format.sprintf
-                              "\\footnote{%s}"
-                              y
-                          else
-                            ""
-                       ))
-          (Format.sprintf "%s%s"
-        x
-        (match
-           StringOptMap.find_opt
-             (string,(Public_data.string_of_dpt dpt))
-             cursus_map, footpage
-         with
-         | None, _
-         | Some (_,None),_
-         | _,None -> ""
-         | Some (_,Some x),Some y ->
-           if x = year then
-             Format.sprintf
-               "\\footnote{%s}"
-               y
-           else
-             ""
-        ))
+    let state,s = Remanent_state.bilingual_string
+    ~english:(Format.sprintf "%s%s" y foot_english)
+    ~french:(Format.sprintf "%s%s" x foot_french) state in
+    Remanent_state.fprintf state "%s" s
   in
   let _ =
     Remanent_state.print_newline state
@@ -6305,6 +6290,21 @@ let export_transcript
         (state, StringOptMap.empty, [])
         l_rev
     in
+    let print_foot_note string dpt x year y state =
+        let dpt' =
+          match dpt, string with
+        | _, (None |  Some "dens") -> "dens"
+        |_, _ -> Public_data.string_of_dpt dpt
+        in
+        Remanent_state.warn
+            __POS__
+            (Format.sprintf "FOOT %s %s %s %s %s" (match string with None -> "none" | Some x -> x) dpt' x year y) Exit state,
+        String.trim y <> "" &&
+        (match StringOptMap.find_opt (string,dpt') cursus_map with
+        | None
+        | Some(_,None) -> false
+        | Some (_,Some y') -> year=y')
+    in
     let l =
       match l with
       | [] ->
@@ -6840,7 +6840,7 @@ let export_transcript
                            (state,mean,dens,natt,cours_list,stage_list)
                            =
                            program
-                             ~is_m2
+                             ~is_m2 ~print_foot_note
                              ~origine ~string ~dpt:(Public_data.dpt_of_string dpt) ~year ~who ~gpscodelist
                              ~alloc_suffix ~mean ~cours_list ~stage_list
                              ~firstname ~lastname ~promo ~cursus_map ~size
