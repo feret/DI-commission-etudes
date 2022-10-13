@@ -7186,18 +7186,7 @@ let export_transcript
                      else
                        state, false
                  in
-                 let state, d_nat_stat =
-                   let state, dpt = Remanent_state.get_main_dpt state in
-                   state, (dpt = Public_data.dpt_of_string (snd key))
-                          &&
-                          not
-                            (match fst key with
-                             | None -> true
-                             | Some a ->
-                               let x = String.trim (String.lowercase_ascii a) in
-                               x = "" || x = "dens")
-                 in
-                 if (d_nat || d_nat_stat)
+                 if validated
                  then
                  let diplome_dpt = Public_data.dpt_of_string (snd key) in
                  let diplome_niveau =
@@ -7249,7 +7238,7 @@ let export_transcript
                    Public_data.diplome_commission = d_nat ;
                }
                in
-               if (is_l3
+               if (not validated) || (is_l3
                   && cursus.Public_data.cursus_gps = None
                   && cursus.Public_data.cursus_niveau = "m")
                then state, m2_list, dip_autre_list
