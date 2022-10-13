@@ -264,6 +264,7 @@ let dump_dens dens state =
     (*let () = Remanent_state.log_string state "Discipline principale" in*)
     let () = Remanent_state.fprintf state "\\renewcommand{\\row}[5]{#1&#2&#3&#4&#5\\cr}" in
     let () = Remanent_state.fprintf state "\\renewcommand{\\innerline}{}" in
+    let () = Remanent_state.fprintf state "\\vfill" in 
     let () = Remanent_state.fprintf state "\\begin{center}" in
     let state =
       Remanent_state.open_array
