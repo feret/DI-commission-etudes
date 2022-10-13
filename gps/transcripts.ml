@@ -7186,8 +7186,6 @@ let export_transcript
                      else
                        state, false
                  in
-                 if validated
-                 then
                  let diplome_dpt = Public_data.dpt_of_string (snd key) in
                  let diplome_niveau =
                     (match fst key with
@@ -7241,6 +7239,9 @@ let export_transcript
                if (not validated) || (is_l3
                   && cursus.Public_data.cursus_gps = None
                   && cursus.Public_data.cursus_niveau = "m")
+                  ||  match StringOptMap.find_opt
+                      key
+                      cursus_map with | Some (_,Some fin) -> fin = diplome_year | _ -> false
                then state, m2_list, dip_autre_list
                else
                  let state, m2_list, dip_autre_list =
@@ -7259,7 +7260,6 @@ let export_transcript
                       | None  | Some _ ->
                           state,m2_list, dip_autre_list
 
-            else state,m2_list, dip_autre_list
             )
             (state,m2_list,dip_autre_list)
             list_national_diploma
