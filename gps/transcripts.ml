@@ -7241,7 +7241,7 @@ let export_transcript
                   && cursus.Public_data.cursus_niveau = "m")
                   ||  match StringOptMap.find_opt
                       key
-                      cursus_map with | Some (_,Some fin) -> fin = diplome_year | _ -> false
+                      cursus_map with | Some (_,Some fin) -> not (fin = diplome_year) | _ -> true 
                then state, m2_list, dip_autre_list
                else
                  let state, m2_list, dip_autre_list =
