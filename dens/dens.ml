@@ -264,7 +264,7 @@ let dump_dens dens state =
     (*let () = Remanent_state.log_string state "Discipline principale" in*)
     let () = Remanent_state.fprintf state "\\renewcommand{\\row}[5]{#1&#2&#3&#4&#5\\cr}" in
     let () = Remanent_state.fprintf state "\\renewcommand{\\innerline}{}" in
-    let () = Remanent_state.fprintf state "\\vfill" in 
+    let () = Remanent_state.fprintf state "\\vfill" in
     let () = Remanent_state.fprintf state "\\begin{center}" in
     let state =
       Remanent_state.open_array
@@ -337,31 +337,31 @@ let dump_dens dens state =
                   (match main_dpt with | Public_data.DI -> " ou un stage à l'étranger" | Public_data.DMA | Public_data.ENS|Public_data.PHYS|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> "")
       in
       let () = Remanent_state.print_newline state in
+      let () = Remanent_state.fprintf state "M2 recherche : " in
+      let () = (match dens.Public_data.dens_master with
+               | [] -> Remanent_state.fprintf state "aucun"
+               | l ->
+                 List.iter
+                   (fun dpl ->
+                       Remanent_state.fprintf state "%s ; "
+                         (label_of_diplome dpl)) (List.rev l))
+      in
+      let () = Remanent_state.fprintf state " (M2 recherche en informatique obligatoire)" in
+      let () = Remanent_state.print_newline state in
+      let () = Remanent_state.fprintf state "Diplômes autre : " in
+      let () = (match dens.Public_data.dens_parcours with
+               | [] -> Remanent_state.fprintf state "aucun"
+               | l ->
+                 List.iter
+                   (fun dpl -> Remanent_state.fprintf state "%s ; "
+                         (label_of_diplome dpl)) (List.rev l))
+      in
+      let () = Remanent_state.print_newline state in
       let () =
         match main_dpt with
         | Public_data.DI ->
            begin
-           let () = Remanent_state.fprintf state "M2 recherche : " in
-           let () = (match dens.Public_data.dens_master with
-                    | [] -> Remanent_state.fprintf state "aucun"
-                    | l ->
-                      List.iter
-                        (fun dpl ->
-                            Remanent_state.fprintf state "%s ; "
-                              (label_of_diplome dpl)) (List.rev l))
-           in
-           let () = Remanent_state.fprintf state " (M2 recherche en informatique obligatoire)" in
-           let () = Remanent_state.print_newline state in
-           let () = Remanent_state.fprintf state "Diplômes autre : " in
-           let () = (match dens.Public_data.dens_parcours with
-                    | [] -> Remanent_state.fprintf state "aucun"
-                    | l ->
-                      List.iter
-                        (fun dpl -> Remanent_state.fprintf state "%s ; "
-                              (label_of_diplome dpl)) (List.rev l))
-           in
-           let () = Remanent_state.print_newline state in
-           let () = Remanent_state.fprintf state "Cours obligatoires : %i (5 sont nécessaires)" dens.Public_data.dens_nb_mandatory_course in
+               let () = Remanent_state.fprintf state "Cours obligatoires : %i (5 sont nécessaires)" dens.Public_data.dens_nb_mandatory_course in
            let () = Remanent_state.print_newline state in
            let () =
               Remanent_state.fprintf
@@ -376,7 +376,8 @@ let dump_dens dens state =
            let () = Remanent_state.fprintf state "\\vfill\\mbox{}" in
            ()
            end
-        | Public_data.DMA | Public_data.ENS|Public_data.PHYS|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> ()
+        | Public_data.DMA
+| Public_data.ENS | Public_data.PHYS | Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> ()
       in
 
     state
