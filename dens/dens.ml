@@ -371,13 +371,12 @@ let dump_dens dens state =
                   (dens.Public_data.dens_nb_math_and_math_info_course - dens.Public_data.dens_nb_math_course)
            in
            let () = Remanent_state.print_newline state in
-           let () = Remanent_state.fprintf state "\\end{minipage}" in
-           let () = Remanent_state.fprintf state "\\end{center}" in
-           let () = Remanent_state.fprintf state "\\vfill\\mbox{}" in
            ()
            end
-        | Public_data.DMA
-| Public_data.ENS | Public_data.PHYS | Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> ()
+           | Public_data.DMA
+           | Public_data.ENS | Public_data.PHYS | Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> ()
       in
-
-    state
+      let () = Remanent_state.fprintf state "\\end{minipage}" in
+      let () = Remanent_state.fprintf state "\\end{center}" in
+      let () = Remanent_state.fprintf state "\\vfill\\mbox{}" in
+  state
