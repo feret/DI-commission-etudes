@@ -2433,8 +2433,9 @@ let mprobaalea = gen_master "M-ProbaAlea" ["gps86372";"gps87274"] "NOWAY"
 (*let mfimfa = gen_master "M-FIMFA" ["gps3103"] "NOWAY"
 let mfimfaorsay = gen_master "M-FIMFAOrsay" ["gps2458"] "NOWAY"*)
 let mmod = gen_master "M-MOD" ["gps87632";"gps85959";"gps88472"] "XT 00000000000667923"
+let mprobfinsu = gen_master "M-PROBFINSU" ["gps82128"] "NOWAY"
+let mprobfinpantheon = gen_master "M-PROBFINPantheon" ["gps75922"] "NOWAY"
 let mphys = gen_master "M-Phys" ["MPSL-PHY"] "NOWAY"
-let mprobfin = gen_master "M-PROBFIN" ["gps82128"] "NOWAY"
 let mformens = gen_master "M-FORMENS" ["gps87633"] "NOWAY"
 let mappsu = gen_master "M-APPSU" ["gps82525"] "NOWAY"
 let mape = gen_master "M-APE" ["MPSL-APE"] "NOWAY"
@@ -2622,7 +2623,8 @@ let translate_diplome
           | "prob" -> state,"M2 Probabilités et Modèles Aléatoires", "M2 Mathematics Probability and Random Models",true
           | "mmathgeneric" -> state,"M2 Mathématiques ?","M2 Mathematics ?",true
          | "mfimfa" | "mfimfaorsay" -> state, "M2 FIMFA", "M2 FIMFA",true
-          | "mprobfin" -> state, "M2 Probabilités et Finance", "M2 Probability and Finance",true
+          | "mprobfinsu" | "mprobfinpantheon"-> state, "M2 Probabilités et Finance", "M2 Probability and Finance",true
+
           | "mformens" ->   state, "M2 Formation à l'Enseignement Supérieur en Mathématiques","M2 Formation to Higher Eduction in Mathematics",true
           | "mappsu" -> state,"M2 Mathematiques et applications ","M2 Mathematics and applications",true
           | "mape" -> state,"M1 Analyse politique et économique","M1 Political and economical analysis",false
@@ -2844,8 +2846,10 @@ let translate_diplome
       state, (Some "MODSIMVERSAILLES", "M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation",dpt_maths, dpt_maths_en,false,true)
     else if mprobaalea situation then
       state, (Some "PROB", "M2 Probabilités et Modèles Aléatoires", "M2 Mathematics Probability and Random Models",dpt_maths, dpt_maths_en,false,true)
-    else if mprobfin situation then
-      state, (Some "MPROBFIN", "M2 Probabilités et Finance", "M2 Probability and Finance",dpt_maths,dpt_maths_en,false,true)
+    else if mprobfinsu situation then
+      state, (Some "MPROBFINSU", "M2 Probabilités et Finance", "M2 Probability and Finance",dpt_maths,dpt_maths_en,false,true)
+    else if mprobfinpantheon situation then
+      state, (Some "MPROBFINPANTHEON", "M2 Probabilités et Finance", "M2 Probability and Finance",dpt_maths,dpt_maths_en,false,true)
     else if mformens situation then
       state, (Some "MFORMENS", "M2 Formation à l'Enseignement Supérieur en Mathématiques","M2 Formation to Higher Eduction in Mathematics",dpt_maths,dpt_maths_en,false,true)
     else if mappsu situation then
@@ -4664,7 +4668,8 @@ let program
     | Some ("DENS" | "dens") -> state, Some Color.blue
     | Some ("LInfo" | "linfo" | "agreginfosu" | "agreginfoupc") ->
       state, Some Color.yellow
-    | Some ("lmath" | "mmath" | "LMath" | "MMath" | "mape" | "mathfond" | "mathfondpantheonsor" | "mathfondsu" | "modsimorsay" | "modsimversailles" | "prob" | "mfimfa" |   "mfimfaorsay" |  "mmod" | "mprobfinmformens" |  "malea" | "marianageo" | "mmathgeneric" | "agregmathsu" | "agregmathupc") ->
+    | Some ("lmath" | "mmath" | "LMath" | "MMath" | "mape" | "mathfond" | "mathfondpantheonsor" | "mathfondsu" | "modsimorsay" | "modsimversailles" | "prob" | "mfimfa" |   "mfimfaorsay" |  "mmod" | "mformens" | "mprobfinsu"
+    | "mprobfinpanthon" | "malea" | "marianageo" | "mmathgeneric" | "agregmathsu" | "agregmathupc") ->
       state, Some Color.orange
     | Some ("imalis") ->
       state, Some Color.green
