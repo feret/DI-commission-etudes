@@ -346,7 +346,8 @@ let dump_dens dens state =
                        Remanent_state.fprintf state "%s ; "
                          (label_of_diplome dpl)) (List.rev l))
       in
-      let () = Remanent_state.fprintf state " (M2 recherche en %s obligatoire)" (match main_dpt with Public_data.DMA -> "mathématiques" | Public_data.DI -> "informatique" | _ -> "informatique") in
+      let () = Remanent_state.fprintf state " (M2 recherche en %s obligatoire)" (match main_dpt with Public_data.DMA -> "mathématiques" | Public_data.DI -> "informatique" | (Public_data.ENS|Public_data.PHYS|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA)
+  -> "informatique") in
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state "Diplômes autre : " in
       let () = (match dens.Public_data.dens_parcours with
