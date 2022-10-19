@@ -2402,6 +2402,25 @@ int_of_string i >=2 | None -> false)
     (fun cours -> cours.code_cours = Some stage)
     d.cours
 
+    let gen_master_one
+        diplome' gps stage d =
+      List.exists
+        (fun diplome ->
+           (match (Tools.map_opt String.trim diplome.niveau) with Some i ->
+    int_of_string i =1 | None -> false)
+           &&
+           ((Tools.map_opt String.trim diplome.diplome_diplome)=Some diplome'
+           ||
+           List.exists
+             (fun gps -> diplome.diplome_diplome=Some gps)
+             gps)
+        )
+        d.diplomes
+      ||
+      List.exists
+        (fun cours -> cours.code_cours = Some stage)
+        d.cours
+
 let fill_gpscodelist ~year ~firstname ~lastname list situation state =
   if lmathphys situation then
     List.rev ("gps1672"::"gps3017"::(List.rev list))
@@ -2415,7 +2434,7 @@ let mpri = gen_master "M-MPRI" ["gps62263";"gps78782"] "INFO-M2-MPRI200-S2"
 let mva = gen_master "M-MVA" ["gps2228"] "INFO-M2-MVASTAGE-S2"
 let iasd = gen_master "M-IASD" ["gps76822";"gps78762"] "INFO-M2-IASD-STG-S2"
 let mash = gen_master "M-MASH" ["gps59622"] "INFO-M2-MASH-STG-S2"
-let msesi = gen_master "M-SESI" ["gps86653"] "NOWAY"
+let msesi = gen_master_one "M-SESI" ["gps86653"] "NOWAY"
 let msesi2 = gen_master "M2-SESI" ["gps90592"] "NOWAY"
 let mint = gen_master "M-Interaction" ["gps78864"] "XT 00000000000647168"
 (*let mmf = gen_master "M-MathFond" ["gps3102"] "XT 00000000000664965"*)
