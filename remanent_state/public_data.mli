@@ -368,7 +368,9 @@ type note =
   | Abandon
   | Valide_sans_note
 
-val all_notes_string: string list 
+val all_notes_string: string list
+
+val valide_string: string -> bool
 
 type statut =
   | Boursier_si

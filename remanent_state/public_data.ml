@@ -629,6 +629,10 @@ type missing_internship_description =
 let all_notes_string =
       ["A";"A+";"A-";"B";"B+";"B-";"C";"C+";"C-";"D";"D+";"D-";"E";"E-";"E+";"P";"a";"a+";"a-";"b";"b+";"b-";"c";"c+";"p"]
 
+  let valide_string f =
+    List.mem
+      (String.trim f)
+      ["A";"A+";"A-";"B";"B+";"B-";"C";"C+";"P";"a";"a+";"a-";"b";"b+";"b-";"c";"c+";"p"]
   type statut =
     | Boursier_si
     | Eleve

@@ -1,6 +1,6 @@
 (library
   (name sco_remanent_state)
-  (libraries sco_tools camlp-streams) 
+  (libraries sco_tools camlp-streams)
   (flags (:standard -w @a
   -open Sco_tools
 )))

@@ -144,12 +144,7 @@ let to_string _pos ?force_dec_sep_to_dot state t =
 let valid_string f =
   List.mem
       (String.trim f)
-      ["A";"A+";"A-";"B";"B+";"B-";"C";"C+";"C-";"D";"D+";"D-";"E";"E+";"E-";"P";"a";"a+";"a-";"b";"b+";"b-";"c";"c+";"c-";"d";"d+";"d-";"e";"e+";"e-";"p"]
-
-let valide_string f =
-List.mem
-    (String.trim f)
-    ["A";"A+";"A-";"B";"B+";"B-";"C";"C+";"P";"a";"a+";"a-";"b";"b+";"b-";"c";"c+";"p"]
+      Public_data.all_notes_string
 
 let of_string pos state s v =
   if Tools.space_only s then
@@ -190,7 +185,7 @@ let of_string pos state s v =
 
 let valide f =
   match f with
-  | Public_data.String s -> Some (valide_string s)
+  | Public_data.String s -> Some (Public_data.valide_string s)
   | Public_data.Float f -> Some (f >= 10.)
   | Public_data.Valide_sans_note
     -> Some true

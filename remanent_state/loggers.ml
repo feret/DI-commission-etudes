@@ -709,6 +709,8 @@ let print_preamble
 \\setcounter{vectsa}{0}\n\
 \\newcounter{vectsb}\n\
 \\setcounter{vectsb}{0}\n\
+\\newcounter{vectsc}\n\
+\\setcounter{vectsc}{0}\n\
 \\newcounter{cnote}\n\
 \\setcounter{cnote}{0}\n\
 \n\
@@ -777,13 +779,26 @@ let print_preamble
 %%\n\
 %%\n\ " in
 let () =
-    List.iter (fprintf logger
-   "\\IfStrEq{#7}{%s}%%\n\
-  {\\setcounter{pectsa}{\\fpeval{\\resects*\\factor}}}%%\n\
-  {\\setcounter{pectsa}{0}}%%\n\
-   %%\n\ ") Public_data.all_notes_string
+    List.iter (fun x ->
+    if Public_data.valide_string  x
+    then fprintf logger
+   "\\IfStrEq{#7}{%s}%%\n\ {\\setcounter{vectsc}{\\fpeval{\\resects*\\factor}}}%%\n\
+    {" x) Public_data.all_notes_string
 in
-let () = fprintf logger  
+let () =
+  match Public_data.all_notes_string with
+      | [] -> ()
+      | _::_ -> fprintf
+                  logger "\\setcounter{vectsc}{0}%%\n\ "
+in
+let () =
+    List.iter (fun x ->
+    if Public_data.valide_string  x
+    then fprintf logger
+   "}") Public_data.all_notes_string
+in
+let () = fprintf logger "%%\n\ " in
+let () = fprintf logger
 "\\IfStrEq{#7}{en cours}%%\n\
 {\\setcounter{pectsa}{\\fpeval{\\resects*\\factor}}}%%\n\
 {\\setcounter{pectsa}{0}}%%\n\
@@ -812,7 +827,7 @@ let () = fprintf logger
 \\addtocounter{ects}{\\fpeval{\\thecects*\\factor}}%%\n\
 \\addtocounter{potentialects}{\\fpeval{\\thepectsa*\\factor+\\thepectsb*\\factor+\\thepectsc*\\factor+\\thepectsd*\\factor}}%%\n\
 %%\n\
-\\addtocounter{vsnects}{\\fpeval{\\thevectsa*\\factor+\\thevectsb*\\factor}}%%\n\
+\\addtocounter{vsnects}{\\fpeval{\\thevectsc*\\factor+\\thevectsa*\\factor+\\thevectsb*\\factor}}%%\n\
  %%\n\       #2 & \\ifnum \\thenrow=\\thetotalrows %%\n\ \\multirow{-\\thetotalrows}{\\hsize}{{\\centering #3}}\\fi & \\ifnum \\thetotalrows=1 %%\n\  \\mbox{}\\newline\\newline#4\\newline\\newline\\else\\ifnum \\thetotalrows=2 %%\n\  \\mbox{}\\newline#4\\newline\\else#4\\fi\\fi  & #5 & #6 & \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#7}}}{\\mynumprint{#7}} & \\mynumprint{#8}\\cr%%\n\
 }%%\n\
 %%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
