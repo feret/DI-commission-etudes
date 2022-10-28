@@ -368,6 +368,8 @@ type note =
   | Abandon
   | Valide_sans_note
 
+val all_notes_string: string list 
+
 type statut =
   | Boursier_si
   | Eleve

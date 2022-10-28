@@ -626,6 +626,9 @@ type missing_internship_description =
     | Abandon
     | Valide_sans_note
 
+let all_notes_string =
+      ["A";"A+";"A-";"B";"B+";"B-";"C";"C+";"C-";"D";"D+";"D-";"E";"E-";"E+";"P";"a";"a+";"a-";"b";"b+";"b-";"c";"c+";"p"]
+
   type statut =
     | Boursier_si
     | Eleve

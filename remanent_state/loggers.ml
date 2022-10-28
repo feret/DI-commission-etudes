@@ -775,8 +775,16 @@ let print_preamble
 \\setcounter{cects}{0}%%\n\
 }%%\n\
 %%\n\
-%%\n\
-\\IfStrEq{#7}{en cours}%%\n\
+%%\n\ " in
+let () =
+    List.iter (fprintf logger
+   "\\IfStrEq{#7}{%s}%%\n\
+  {\\setcounter{pectsa}{\\fpeval{\\resects*\\factor}}}%%\n\
+  {\\setcounter{pectsa}{0}}%%\n\
+   %%\n\ ") Public_data.all_notes_string
+in
+let () = fprintf logger  
+"\\IfStrEq{#7}{en cours}%%\n\
 {\\setcounter{pectsa}{\\fpeval{\\resects*\\factor}}}%%\n\
 {\\setcounter{pectsa}{0}}%%\n\
  %%\n\

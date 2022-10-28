@@ -360,7 +360,7 @@ let state =
       state
 let state, commission_rep =
   Remanent_state.get_main_commission_rep state
-let state, dpt, signataires =
+let state, _dpt, signataires =
   match
     Remanent_state.get_main_dpt state
   with
@@ -388,7 +388,7 @@ let state =
 
   | state, Some (commission_date,commission_year) ->
     begin
-      let state =
+      (*let state =
         Diploma_report.dump_attestations
           ~signataires
           ~recu:true
@@ -405,7 +405,7 @@ let state =
           ~niveau:"l"
           ~dpt
           state
-      in
+      in*)
       let state =
         Commissions.prepare_commission
           ~commission_rep
