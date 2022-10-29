@@ -4747,12 +4747,6 @@ let program
       "\\setcounter{totalrows}{%i}%%%%\n\ "
       (List.length list)
   in
-  let state =
-      StringOptMap.fold
-        (fun (s,d) _ state ->
-      Remanent_state.warn __POS__ (Format.sprintf "%s %s" (match s with None -> "none" | Some x -> x) d) Exit state )
-      cursus_map state
-    in
   let dpt' =
     match dpt, string with
     | _, (None |  Some "dens") -> "dens"
@@ -4767,8 +4761,8 @@ let program
     | None, _
     | Some (_,None),_
     | _,None -> state, ""
-    | Some (_,Some x),Some y ->
-    let state, b = print_foot_note string dpt x year y state in
+    | Some (_,Some _),Some y ->
+    let state, b = print_foot_note string dpt year y state in
     if b then
        state, Format.sprintf
          "\\footnote{%s}"
@@ -4786,11 +4780,9 @@ let program
    (match string with None -> "none" | Some x -> x) (Public_data.string_of_dpt dpt)) Exit state, ""
     | Some (_,None),_ -> Remanent_state.warn __POS__ (Format.sprintf "FRENCHNOENDDATE %s %s"
    (match string with None -> "none" | Some x -> x) (Public_data.string_of_dpt dpt)) Exit state, ""
-    | _,None ->
-     Remanent_state.warn __POS__ (Format.sprintf "FRENCH %s %s"
-    (match string with None -> "none" | Some x -> x) (Public_data.string_of_dpt dpt)) Exit state, ""
-    | Some (_,Some x),Some y ->
-    let state, b = print_foot_note string dpt x year y state in
+    | _,None -> state, ""
+    | Some (_,Some _),Some y ->
+    let state, b = print_foot_note string dpt year y state in
     if b then
        state, Format.sprintf
          "\\footnote{%s}"
@@ -6321,15 +6313,13 @@ let export_transcript
         (state, StringOptMap.empty, [])
         l_rev
     in
-    let print_foot_note string dpt x year y state =
+    let print_foot_note string dpt year y state =
         let dpt' =
           match dpt, string with
         | _, (None |  Some "dens") -> "dens"
         |_, _ -> Public_data.string_of_dpt dpt
         in
-        Remanent_state.warn
-            __POS__
-            (Format.sprintf "FOOT %s %s %s %s %s" (match string with None -> "none" | Some x -> x) dpt' x year y) Exit state,
+        state,
         String.trim y <> "" &&
         (match StringOptMap.find_opt (string,dpt') cursus_map with
         | None
