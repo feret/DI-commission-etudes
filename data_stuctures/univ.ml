@@ -1,6 +1,7 @@
-let get_univ ~diplome_dpt ~diplome_niveau ~diplome_year code state =
+let get_univ ~firstname ~lastname ~diplome_dpt ~diplome_niveau ~diplome_year code state =
   match
     Remanent_state.get_cursus
+      ~firstname ~lastname
       ~year:diplome_year
       ~level:diplome_niveau
       ~dpt:diplome_dpt
@@ -12,7 +13,7 @@ let get_univ ~diplome_dpt ~diplome_niveau ~diplome_year code state =
   | state, Some x -> state, x.Public_data.cursus_univ, Some x
 
 let get_univ ~diplome_dpt ~diplome_niveau ~diplome_year ~firstname ~lastname code state =
-  let state, a, b = get_univ ~diplome_dpt ~diplome_niveau ~diplome_year code state in
+  let state, a, b = get_univ ~firstname ~lastname ~diplome_dpt ~diplome_niveau ~diplome_year code state in
   let state, univ_opt =
     Remanent_state.get_inscription
     ~year:diplome_year

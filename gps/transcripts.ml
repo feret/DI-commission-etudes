@@ -4778,8 +4778,8 @@ let program
       with
     | None, _ -> Remanent_state.warn __POS__ (Format.sprintf "FRENCHNONE %s %s"
    (match string with None -> "none" | Some x -> x) (Public_data.string_of_dpt dpt)) Exit state, ""
-    | Some (_,None),_ -> Remanent_state.warn __POS__ (Format.sprintf "FRENCHNOENDDATE %s %s"
-   (match string with None -> "none" | Some x -> x) (Public_data.string_of_dpt dpt)) Exit state, ""
+    | Some (_,None),_ -> Remanent_state.warn __POS__ (Format.sprintf "FRENCHNOENDDATE %s %s %s %s %s"
+   (match string with None -> "none" | Some x -> x) (Public_data.string_of_dpt dpt) firstname lastname year) Exit state, ""
     | _,None -> state, ""
     | Some (_,Some _),Some y ->
     let state, b = print_foot_note string dpt year y state in

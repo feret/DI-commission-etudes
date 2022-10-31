@@ -1615,7 +1615,7 @@ let add_cursus unify =
     set_cursus
     (Cursus.add_cursus unify)
 
-let get_cursus ~year ~level ?dpt ~gpscodelist pos t =
+let get_cursus ?firstname ?lastname ~year ~level ?dpt ~gpscodelist pos t =
     let rec aux l =
         match l with
         | [] -> None
@@ -1636,7 +1636,7 @@ let get_cursus ~year ~level ?dpt ~gpscodelist pos t =
         | None ->
           let msg =
             Format.sprintf
-              "Pas de cursus pour %s%s en %s dans les fichiers du département"
+              "Pas de cursus pour %s%s en %s dans les fichiers du département pour %s %s"
               level
               (match dpt with
              | None -> ""
@@ -1644,6 +1644,9 @@ let get_cursus ~year ~level ?dpt ~gpscodelist pos t =
                   Format.sprintf " %s"
                         (Public_data.string_of_dpt i))
               year
+              (match firstname with None -> "" | Some x -> x)
+              (match lastname with None -> "" | Some x -> x)
+
             in
             warn pos msg Exit t,
             None
@@ -1666,7 +1669,7 @@ let get_cursus ~year ~level ?dpt ~gpscodelist ?firstname ?lastname pos t =
   | Some firstname, Some lastname ->
       get_inscription ~year ~level ?dpt ~lastname ~firstname t
   in
-  let t, cursus_opt = get_cursus ~year ~level ?dpt ~gpscodelist pos t in
+  let t, cursus_opt = get_cursus ?firstname ?lastname ~year ~level ?dpt ~gpscodelist pos t in
   match univ_opt with
      | None -> t, cursus_opt
      | Some a ->
