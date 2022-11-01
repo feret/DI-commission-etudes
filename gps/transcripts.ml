@@ -2677,7 +2677,7 @@ let translate_diplome
           | _ -> "",""
         in
         state,
-        (Some level,label,label_en,dpt,dpt_en,true,is_m2)
+        (Some level,label,label_en,dpt,dpt_en,false,is_m2)
       | state, None ->
       let msg =
         Format.sprintf
@@ -2688,7 +2688,7 @@ let translate_diplome
         __POS__
         msg
         Exit
-        (None, "","", "", "", true, false )
+        (None, "","", "", "", false, false )
         state
     end
   | state, None  ->
