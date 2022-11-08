@@ -478,4 +478,4 @@ let split_name s =
 let () = Format.printf "%s" (correct_string "AéÉdjlkdsçZEjk - qdsjlkq d &ééà")
 let () = Format.printf "%s" (correct_string_latex "rgb")
 let () = Format.printf "%s" (correct_string_latex "{rgb}")
-let () = Format.printf "%s" (correct_string_latex "\SubString")
+let () = Format.printf "%s" (correct_string_latex "\\SubString")
