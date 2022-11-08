@@ -356,7 +356,7 @@ let gen_char ?dft map  c =
     | [] | _::_::_::_ -> failwith "BAD STRING in Special_char tabs"
 
 let uppercase_char = gen_char ~dft:String.uppercase_ascii uppercase_char_map
-(*let lowercase_char = gen_char ~dft:String.lowercase_ascii lowercase_char_map*)
+let lowercase_char = gen_char ~dft:String.lowercase_ascii lowercase_char_map
 let lowercase_spe = gen_char lowercase_char_map
 
 let uppercase s =
@@ -400,33 +400,109 @@ let delimiter =
    '\"';'\'';
    '\\';',';'.';'?';':';'!';'{';'}';'_';'[';']';'#']
 
-
-let clean_spurious_uppercase_letters s =
-    let n = String.length s in
-    let rec aux k bool accu =
-      if k=n
-      then String.concat "" (List.rev accu)
-      else
-      if k = n-1
-      then
+let correct_buggy s =
+let n = String.length s in
+let rec aux k accu =
+  if k=n
+  then String.concat "" (List.rev accu)
+  else
+    if k = n-1
+    then
       let c1 = String.get s k in
       let elt =
-        if bool then lowercase_spe [c1] else (String.make 1 c1)
+        if k=0
+        then String.make 1 c1
+        else lowercase_spe [c1]
       in
-      aux (k+1) (not (List.mem c1 delimiter)) (elt::accu)
+      aux (k+1) (elt::accu)
     else
       let c1 = String.get s k in
       let c2 = String.get s (k+1) in
       match Char2Map.find_opt (c1,c2) (snd special_char_map) with
-      | Some c -> aux (k+2) true (if bool then c::accu else ((String.make 1 c2)::(String.make 1 c1)::accu))
+      | Some _ ->
+          let elt =
+            if k=0
+            then String.sub s k 2
+            else lowercase_spe [c1;c2]
+          in
+          aux (k+2) (elt::accu)
       | None ->
         begin
           let elt =
-            if bool then lowercase_spe [c1] else (String.make 1 c1)
+            if k=0
+            then String.make 1 c1
+            else lowercase_spe [c1]
           in
-          aux (k+1) (not (List.mem c1 delimiter)) (elt::accu)
+          aux (k+1)  (elt::accu)
        end
-in aux 0 false []
+in aux 0 []
+
+
+let update s i j has_buggy has_lowercase accu =
+    if has_lowercase && has_buggy then
+      (correct_buggy (String.sub s i (j-i+1)))::accu
+    else
+      (String.sub s i (j-i+1))::accu
+
+let clean_spurious_uppercase_letters s =
+    let n = String.length s in
+    let rec aux k has_buggy has_lowercase start accu =
+      if k=n
+      then
+        let accu =
+          if start = n then accu
+          else update s start (n-1) has_buggy has_lowercase accu
+        in
+        String.concat "" (List.rev accu)
+      else
+      if k = n-1
+      then
+        let c1 = String.get s k in
+        let sc1 = String.sub s k 1 in
+        if List.mem c1 delimiter
+        then
+           let accu = update s start k has_buggy has_lowercase accu in
+           aux (k+1) false false (k+1) accu
+        else
+          let has_lowercase =
+            has_lowercase ||
+            (sc1 = lowercase_char [c1] && sc1 <> uppercase_char [c1])
+          in
+          let has_buggy =
+            has_buggy ||
+            (String.lowercase_ascii sc1 <> lowercase_char [c1])
+          in
+          aux (k+1) has_buggy has_lowercase start accu
+      else
+        let c1 = String.get s k in
+        let c2 = String.get s (k+1) in
+        let sc1 = String.sub s k 1 in
+        let sc12 = String.sub s k 2 in
+        match Char2Map.find_opt (c1,c2) (snd special_char_map) with
+          | Some _ ->
+            let has_lowercase =
+              has_lowercase ||
+              (sc12 = lowercase_char [c1;c2]
+              && sc12 <> uppercase_char [c1;c2])
+            in
+            let has_buggy =
+              has_buggy ||
+              String.lowercase_ascii sc12 <> lowercase_char [c1;c2]
+            in
+            aux (k+2) has_buggy has_lowercase start accu
+          | None ->
+            begin
+              let has_lowercase =
+                has_lowercase ||
+                (sc1 = lowercase_char [c1] && sc1 <> uppercase_char [c1])
+              in
+              let has_buggy =
+                has_buggy ||
+                String.lowercase_ascii sc1 <> lowercase_char [c1]
+              in
+              aux (k+1) has_buggy has_lowercase start accu
+            end
+    in aux 0 false false 0 []
 
 let clean_mlle_gen char s =
   let a = String.split_on_char char s in
@@ -480,3 +556,4 @@ let () = Format.printf "%s" (correct_string "AéÉdjlkdsçZEjk - qdsjlkq d &éé
 let () = Format.printf "%s" (correct_string_latex "rgb")
 let () = Format.printf "%s" (correct_string_latex "{rgb}")
 let () = Format.printf "%s" (correct_string_latex "\\SubString")
+let () = Format.printf "%s" (clean_spurious_uppercase_letters "ÉlÈve ÉLÈVE AéÉdjlkdsçZEjk")
