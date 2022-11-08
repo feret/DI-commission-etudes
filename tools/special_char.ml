@@ -5,342 +5,178 @@ module CharMap =
       let compare = compare
     end)
 
-let special_char_latex =
+module Char2Map =
+  Map.Make
+    (struct
+      type t = char * char
+      let compare = compare
+    end)
+
+let get_main (a,_,_,_,_,_,_) = a
+let get_latex (_,a,_,_,_,_,_) = a
+let get_html (_,_,a,_,_,_,_) = a
+let get_url (_,_,_,a,_,_,_) =  a
+let get_lowercase (_,_,_,_,a,_,_) = a
+let get_uppercase  (_,_,_,_,_,a,_) = a
+let get_txt (_,_,_,_,_,_,a) = a
+let special_char_tab  =
   [
-      '\128', "{\\`A}";
-      '\129', "{\\'A}";
-      '\130', "{\\^A}";
-      '\131', "{\\~A}";
-      '\132', "{\\\"A}";
-      '\134', "{\\AE}";
-      '\135', "{\\c C}";
-      '\136', "{\\`E}";
-      '\137', "{\\'E}";
-      '\138', "{\\^E}";
-      '\139', "{\\\"E}";
-      '\140', "{\\`I}";
-      '\141', "{\\'I}";
-      '\142', "{\\^I}";
-      '\143', "{\\\"I}";
-      '\146', "{\\OE}";
-      '\147', "{\\oe}";
-      '\148', "{\\^O}";
-      '\149', "{\\~O}";
-      '\150', "{\\\"O}";
-      '\152', "{\\c E}";
-      '\153', "{\\`U}";
-      '\155', "{\\^U}";
-      '\156', "{\\\"U}";
-      '\160', "{\\`a}";
-      '\161', "{\\'a}";
-      '\162', "{\\^a}";
-      '\163', "{\\~a}";
-      '\164', "{\\\"a}";
-      '\166', "{\\ae}";
-      '\167', "{\\c c}";
-      '\168', "{\\`e}";
-      '\169', "{\\'e}";
-      '\170', "{\\^e}";
-      '\171', "{\\\"e}";
-      '\172', "{\\`i}";
-      '\173', "{\\'i}";
-      '\174', "{\\^i}";
-      '\175', "{\\\"i}";
-      '\178', "{\\`o}";
-      '\179', "{\\'o}";
-      '\180', "{\\^o}";
-      '\181', "{\\~o}";
-      '\182', "{\\\"o}";
-      '\185', "{\\`u}";
-      '\187', "{\\^u}";
-      '\191', "'";
-      '_', "\\_";
-      '\194',"";
-      '\195', "";
+      "À", "{\\`A}", "&Agrave;","%C0","à","À","A";
+      "Â", "{\\^A}", "&Acirc;","%C2","â","Â","A";
+      "Æ", "{\\AE}", "&AElig","Æ","æ","Æ","AE";
+      "Á", "{\\'A}", "&Aacute;","%C1","á","Á","A";
+      "Ä", "{\\\"A}", "&Auml;","%C4","ä","Ä","A";
+      "Ã", "{\\~A}", "&Atilde;","%C3","ã","Ã","A";
+      (*"Å",*)
+      (*"Ā",*)
+      "Ç","{\\c C}", "&Ccedil;","%C7","ç","Ç","C";
+      "É", "{\\'E}", "&Eacute;","%C9","é","É","E";
+      "È", "{\\`E}", "&Egrave;","%C8","è","È","E";
+      "Ê", "{\\^E}", "&Ecirc;","%CA","ê","Ê","E";
+      "Ë", "{\\\"E}", "&Euml;","%CB","ë","Ë","E";
+      "Ę", "{\\c E}", "&Ecedil;","Ę","ę","Ę","E";
+      (*
+        "Ė",
+        "Ē", *)
+      "Î", "{\\^I}", "&Icirc;","%CE","î","Î","I";
+      "Ï", "{\\\"I}", "&Iuml;","%CF","ï","Ï","I";
+      "Ì", "{\\`I}", "&Igrace;","%CC","ì","Ì","I";
+      "Í", "{\\'I}", "&Iacute;","%CD","í","Í","I";
+    (*  "Į",
+      "Ī", *)
+      "Ô", "{\\^O}", "&Ocirc;","%D4","ô","Ô","O";
+      "Œ", "{\\OE}", "&OElig;","%D2","œ","Œ","OE";
+      "Ö", "{\\\"O}", "&Ouml;","%D6","ö","Ö","O";
+      "Ò", "{\\`O}", "&Ograve;","Ò","ò","Ò","O";
+      "Ó", "{\\'O}", "&Oacute;","Ó","ó","Ó","O";
+      "Õ", "{\\~O}", "&Otilde;","%D5","õ","Õ","O";
+      (*"Ø",
+      "Ō",*)
+      "Û", "{\\^U}", "&Ucirc;","%DB","û","Û","U";
+      "Ù", "{\\`U}", "&Ugrave;","%D9","ù","Ù","U";
+      "Ü", "{\\\"U}", "&Uuml;","%DC","ü","Ü","U";
+      "Ú", "{\\\'U}", "&Uacute;","Ú","ú","Ú","U";
+      (*"Ū",*)
+      "à", "{\\`a}", "&agrave;","%E0","à","À","a";
+      "â", "{\\^a}", "&acirc;","%E2","â","Â","a";
+      "æ", "{\\ae}", "&aelig;","%E6","æ","Æ","ae";
+      "á", "{\\'a}", "&aacute;","%E1","á","Á","a";
+      "ä", "{\\\"a}", "&auml;","%E4","ä","Ä","a";
+      "ã", "{\\~a}", "&atilde;","%E3","ã","Ã","a";
+      (*"å",
+      "ā",*)
+      "ç", "{\\c c}", "&ccedil;","%E7","ç","Ç","c";
+      "é", "{\\'e}", "&eacute;","%E9","é","É","e";
+      "è", "{\\`e}", "&egrave;","%E8","è","È","e";
+      "ê", "{\\^e}", "&ecirc;","%EA","ê","Ê","e";
+      "ë", "{\\\"e}", "&euml;","%EB","ë","Ë","e";
+    (*  "ę",
+      "ė",
+      "ē",*)
+      "î", "{\\^i}", "&icirc;","%EE","î","Î","i";
+      "ï", "{\\\"i}", "&iuml;","%EF","ï","Ï","i";
+      "ì", "{\\`i}", "&iagrave;","%EC","ì","Ì","i";
+      "í", "{\\\'i}", "&iacute;","%ED","í","Í","i";
+      (*"į",
+      "ī"*)
+      "ô", "{\\^o}", "&ocirc;","%F4","ô","Ô","o";
+      "œ", "{\\oe}", "&oelig;","œ","œ","Œ","oe";
+      "ö", "{\\\"o}", "&ouml;","%F6","ö","Ö","o";
+      "ò", "{\\`o}", "&ograve;","%F2","ò","Ò","o";
+      "ó", "{\\\'o}", "&oacute;","%F3","ó","Ó","o";
+      "õ", "{\\~o}", "&otilde;","%F5","õ","Õ","o";
+      (*"ø", "ō"; *)
+      "û","{\\^u}", "&ucirc;","%FA","û","Û","u";
+      "ù","{\\`u}", "&ugrave;","%F9","ù","Ù","u";
+      "ü","{\\¨u}", "&uuml;","%F6","ü","Ü","u";
+      "ú","{\\'u}", "&uacute;","ú","ú","Ú","u";
+      (*"ū"*)
+      "\191", "'", "'","'","'","'","\'";
+      "_", "\\_" , "_","_","_","_","_";
+
     ]
 
-let special_char_html =
-  [
-    '\128', "&Agrave;";
-    '\129', "&Aacute;";
-    '\130', "&Acirc;";
-    '\131', "&Atilde;";
-    '\132', "&Auml;";
-    '\134', "&AElig;";
-    '\135', "&Ccedil;";
-    '\136', "&Egrave;";
-    '\137', "&Eacute;";
-    '\138', "&Ecirc;";
-    '\139', "&Euml;";
-    '\140', "&Igrave;";
-    '\141', "&Iacute;";
-    '\142', "&Icirc;";
-    '\143', "&Iuml;";
-    '\146', "&OElig";
-    '\147', "&oelig;";
-    '\148', "&Ocirc;";
-    '\149', "&Otilde;";
-    '\150', "&Ouml;";
-    '\152', "&Ecedil;";
-    '\153', "&Ugrave;";
-    '\155', "&Ucirc;";
-    '\156', "&Uuml;";
-    '\160', "&agrave;";
-    '\161', "&aacute;";
-    '\162', "&acirc;";
-    '\163', "&atilde;";
-    '\164', "&auml;";
-    '\166', "&aelig;";
-    '\167', "&ccedil;";
-    '\168', "&egrave;";
-    '\169', "&eacute;";
-    '\170', "&ecirc;";
-    '\171', "&euml";
-    '\172', "&igrave;";
-    '\173', "&iacute;";
-    '\174', "&icirc;";
-    '\175', "&iuml;";
-    '\178', "&ograve;";
-    '\179', "&oacute;";
-    '\180', "&ocirc;";
-    '\181', "&otilde;";
-    '\182', "&ouml;";
-    '\185', "&ugrave;";
-    '\187', "&ucirc";
-    '\191', "'";
-    '\194', "";
-    '\195', "";
-  ]
+let get_gen proj =
+  List.rev_map
+      (fun k -> get_main k, proj k)
+      (List.rev special_char_tab)
 
-let special_char_url =
-  [
-    ' ', "+";
-    '\128', "%C0";
-    '\129', "%C1";
-    '\130', "%C2";
-    '\131', "%C3";
-    '\132', "%C4";
-    '\135', "%C7";
-    '\136', "%C8";
-    '\137', "%C9";
-    '\138', "%CA";
-    '\139', "%CB";
-    '\140', "%CC";
-    '\141', "%CD";
-    '\142', "%CE";
-    '\143', "%CF";
-    '\146', "%D2";
-    '\147', "%D3";
-    '\148', "%D4";
-    '\149', "%D5";
-    '\150', "%D6";
-    (*'\152', "{\\c E}";*)
-    '\153', "%D9";
-    '\155', "%DB";
-    '\156', "%DC";
-    '\160', "%E0";
-    '\161', "%E1";
-    '\162', "%E2";
-    '\163', "%E3";
-    '\164', "%E4";
-    '\167', "%E7";
-    '\168', "%E8";
-    '\169', "%E9";
-    '\170', "%EA";
-    '\171', "%EB";
-    '\172', "%EC";
-    '\173', "%ED";
-    '\174', "%EE";
-    '\175', "%EF";
-    '\178', "%F2";
-    '\179', "%F3";
-    '\180', "%F4";
-    '\181', "%F5";
-    '\182', "%F6";
-    '\185', "%F9";
-    '\187', "%FA";
-    '\194', "";
-    '\195', "";
-  ]
-
-let special_char_email_latex =
-  [] (*['_',"\\_"]*)
+let special_char_latex = get_gen get_latex
+let special_char_html = get_gen get_html
+let special_char_url = get_gen get_url
+let lowercase_char = get_gen get_lowercase
+let uppercase_char = get_gen get_uppercase
+let special_char = get_gen get_txt
 
 let special_char_csv =
   ['"',"\"\"";
    '{',"\"";
    '}',"\""]
 
-let lowercase_char =
-  [
-    '\128', '\160';
-    '\129', '\161';
-    '\130', '\162';
-    '\131', '\163';
-    '\132', '\164';
-    '\134', '\166';
-    '\135', '\167';
-    '\136', '\168';
-    '\137', '\169';
-    '\138', '\170';
-    '\139', '\171';
-    '\140', '\172';
-    '\141', '\173';
-    '\142', '\174';
-    '\143', '\175';
-    '\146', '\147';
-    '\148', '\180';
-    '\149', '\181';
-    '\150', '\182';
-    '\152', '\184';
-    '\153', '\185';
-    '\155', '\187';
-    '\156', '\188'
-]
-
-let uppercase_char =
-  List.rev_map
-    (fun (a,b) -> (b,a))
-    (List.rev lowercase_char)
-
-let special_char =
-  [
-    '\128', 'A';
-    '\129', 'A';
-    '\130', 'A';
-    '\131', 'A';
-    '\132', 'A';
-    '\135', 'C';
-    '\136', 'E';
-    '\137', 'E';
-    '\138', 'E';
-    '\139', 'E';
-    '\140', 'I';
-    '\141', 'I';
-    '\142', 'I';
-    '\143', 'I';
-    '\146', 'O';
-    '\147', 'O';
-    '\148', 'O';
-    '\149', 'O';
-    '\150', 'O';
-    '\151', 'e';
-    '\152', 'E';
-    '\153', 'U';
-    '\155', 'U';
-    '\156', 'U';
-    '\160', 'a';
-    '\161', 'a';
-    '\162', 'a';
-    '\163', 'a';
-    '\164', 'a';
-    '\167', 'c';
-    '\168', 'e';
-    '\169', 'e';
-    '\170', 'e';
-    '\171', 'e';
-    '\172', 'i';
-    '\173', 'i';
-    '\174', 'i';
-    '\175', 'i';
-    '\178', 'o';
-    '\179', 'o';
-    '\180', 'o';
-    '\181', 'o';
-    '\182', 'o';
-    '\185', 'u';
-    '\187', 'u';
-    '\188', 'u';
-    '\191', '\'';
-  ]
 
 let special_char_txt =
-  ('\194',"")::('\195',"")::(List.rev_map (fun (a,b) -> a,String.make 1 b) (List.rev special_char))
+  ("\194","")::("\195","")::special_char
 
 let special_char_utf8 =
   ['\233',"e"]
 
 let special_char_file_name =
-  (' ', "")::special_char_txt
+  (" ", "")::special_char_txt
+
+let map_from_char_list l =
+  List.fold_left
+    (fun map (x,y) -> CharMap.add x y map)
+    CharMap.empty l, Char2Map.empty
+
+let map_from_string_list =
+  List.fold_left
+    (fun (map1,map2) (x,y) ->
+        if String.length x = 1 then
+          CharMap.add (String.get x 0) y map1, map2
+        else
+        if String.length x = 2 then
+          map1,
+          Char2Map.add
+            (String.get x 0, String.get x 1)
+            y
+          map2
+        else failwith "BAD STRING in Special_char tabs")
+    (CharMap.empty, Char2Map.empty)
 
 let special_char_map =
-  List.fold_left
-    (fun map (x,y) ->
-       CharMap.add x y map)
-    CharMap.empty
-    special_char
+    map_from_string_list special_char
 
 let special_char_url_map =
-  List.fold_left
-    (fun map (x,y) ->
-       CharMap.add x y map)
-    CharMap.empty
-    special_char_url
+    map_from_string_list special_char_url
 
 let special_char_utf8_map =
-  List.fold_left
-    (fun map (x,y) ->
-       CharMap.add x y map)
-    CharMap.empty
-    special_char_utf8
+    map_from_char_list special_char_utf8
 
 let special_char_email_latex =
-  List.fold_left
-    (fun map (x,y) ->
-       CharMap.add x y map)
-    CharMap.empty
-    special_char_email_latex
+    CharMap.empty, Char2Map.empty
 
 let special_char_latex_map =
-  List.fold_left
-    (fun map (x,y) ->
-       CharMap.add x y map)
-    CharMap.empty
-    special_char_latex
+    map_from_string_list special_char_latex
 
 let special_char_html_map =
-  List.fold_left
-    (fun map (x,y) ->
-       CharMap.add x y map)
-    CharMap.empty
-    special_char_html
+    map_from_string_list special_char_html
 
 let special_char_txt_map =
-      List.fold_left
-        (fun map (x,y) ->
-           CharMap.add x y map)
-        CharMap.empty
-        special_char_txt
+    map_from_string_list special_char_txt
 
 let special_char_file_name_map =
-  List.fold_left
-    (fun map (x,y) ->
-       CharMap.add x y map)
-    CharMap.empty
-    special_char_file_name
+    map_from_string_list special_char_file_name
 
 let special_char_csv_map =
-  List.fold_left
-    (fun map (x,y) ->
-       CharMap.add x y map)
-    CharMap.empty
-    special_char_csv
+    map_from_char_list special_char_csv
 
 let lowercase_char_map =
-  List.fold_left
-    (fun map (x,y) ->
-       CharMap.add x y map)
-    CharMap.empty
-    lowercase_char
+    map_from_string_list lowercase_char
 
 let uppercase_char_map =
-  List.fold_left
-    (fun map (x,y) ->
-       CharMap.add x y map)
-    CharMap.empty
-    uppercase_char
+    map_from_string_list uppercase_char
 
-let correct_acute_in_char c =
+(*let correct_acute_in_char c =
 match
   CharMap.find_opt c special_char_map
 with
@@ -348,9 +184,9 @@ with
 | None -> c
 
 let correct_char c =
-  Char.lowercase_ascii (correct_acute_in_char c)
+  Char.lowercase_ascii (correct_acute_in_char c)*)
 
-let expand_acute_in_char c =
+(*let expand_acute_in_char c =
   match
     CharMap.find_opt c special_char_map
   with
@@ -368,181 +204,228 @@ let expand_char c =
   List.flatten
     (List.rev_map
        expand_acute_in_char
-       (expand_char_upper_lower c))
+       (expand_char_upper_lower c))*)
 
-let remove_acute s =
-  String.map correct_acute_in_char s
-
-let correct_string s =
-  String.map correct_char s
-
-let string_to_list s =
-  let n = String.length s in
-  let rec aux k out =
-    if k<0 then out
-    else
-      aux (k-1) ((s.[k])::out)
+let string_map ?dft (map1,map2) s =
+  let dft =
+    match dft with
+      | None -> (fun x -> x)
+      | Some f -> f
   in
-  aux (n-1) []
+  let size = String.length s in
+  let rec aux k accu =
+      if k=size
+      then String.concat "" (List.rev accu)
+      else
+        if k=size-1
+        then
+          let c1 = String.get s k in
+          match CharMap.find_opt c1 map1 with
+          | None -> aux (k+1) (dft (String.make 1 c1)::accu)
+          | Some c -> aux (k+1) (c::accu)
+        else
+          let c1 = String.get s k in
+          let c2 = String.get s (k+1) in
+          match Char2Map.find_opt (c1,c2) map2 with
+          | Some c -> aux (k+2) (c::accu)
+          | None ->
+            begin
+              match CharMap.find_opt c1 map1 with
+                | None -> aux (k+1) (dft (String.make 1 c1)::accu)
+                | Some c -> aux (k+1) (c::accu)
+            end
+  in
+  aux 0 []
 
-let cartesian_product l =
-  List.fold_left
-    (fun suffix_list elt_list ->
-       List.fold_left
-         (fun output elt ->
-            List.fold_left
-              (fun output suffix -> (elt::suffix)::output)
-              output suffix_list
-         )
-         [] elt_list
-    )
-    [[]]
-    (List.rev l)
-
-let list_to_string l =
-  let n = List.length l in
-  let s = Bytes.create n in
-  let _ =
+ let cartesian_product l =
     List.fold_left
-      (fun i elt -> let () = Bytes.set s i elt in i+1)
-      0 l
-  in
-  Bytes.to_string s
+      (fun suffix_list elt_list ->
+         List.fold_left
+           (fun output elt ->
+              List.fold_left
+                (fun output suffix -> (elt::suffix)::output)
+                output suffix_list
+           )
+           [] elt_list
+      )
+      [[]]
+      (List.rev l)
 
+let both a b = [a;b]
+let expand_string (map1,map2) s =
+  let size = String.length s in
+  let rec aux k accu =
+      if k=size
+      then accu
+      else
+        if k=size-1
+        then
+          let c1 = String.get s k in
+          let s1 = String.make 1 c1 in
+          match CharMap.find_opt c1 map1 with
+          | None -> aux (k+1) ([s1]::accu)
+          | Some c -> aux (k+1) ((both s1 c)::accu)
+        else
+            let c1 = String.get s k in
+            let s1 = String.make 1 c1 in
+            let c2 = String.get s (k+1) in
+            let s2 = String.sub s k 2 in
+            match Char2Map.find_opt (c1,c2) map2 with
+              | None ->
+                begin
+                  match CharMap.find_opt c1 map1 with
+                  | None -> aux (k+1) ([s1]::accu)
+                  | Some c -> aux (k+1) ((both s1 c)::accu)
+                end
+              | Some c -> aux (k+2) ((both s2 c)::accu)
+    in
+    let l =  aux 0 [] in
+    let l = cartesian_product l in
+    List.rev_map
+      (fun x ->
+          String.concat "" (List.rev x))
+      l
 
 let expand_string s =
-  let list = string_to_list s in
-  let (list:char list list) = List.rev_map expand_char (List.rev list) in
-  let (list:char list list) = cartesian_product list in
-  List.rev_map list_to_string (List.rev list)
-
-let correct_string_gen map s =
-  let list = string_to_list s in
-  let list =
-    List.rev_map
-      (fun c ->
-         match CharMap.find_opt c map with
-         | Some a -> a
-         | None ->
-           let s = String.make 1 c in s)
-      (List.rev list)
+  let l1 = expand_string lowercase_char_map s in
+  let l2 =
+      List.flatten
+          (List.rev_map
+              (expand_string uppercase_char_map)
+              l1)
   in
-  String.concat "" list
+  List.flatten
+    (List.rev_map (expand_string special_char_map) l2)
+
+let remove_acute s =
+  string_map special_char_map s
+
+let lowercase s =
+  string_map lowercase_char_map s
+
+let correct_string s =
+  lowercase (remove_acute s)
 
 let correct_string_utf8 s =
-  correct_string_gen special_char_utf8_map s
+  string_map special_char_utf8_map s
 
 let correct_string_url s =
-  correct_string_gen special_char_url_map s
+  string_map special_char_url_map s
 
 let correct_string_email_latex s =
-  correct_string_gen special_char_email_latex s
+  string_map special_char_email_latex s
 
 let correct_string_latex s =
-  correct_string_gen special_char_latex_map s
+  string_map special_char_latex_map s
 
 let correct_string_html s =
-  correct_string_gen special_char_html_map s
+  string_map special_char_html_map s
 
 let correct_string_txt s =
-    correct_string_gen special_char_txt_map s
+  string_map special_char_txt_map s
 
 let correct_string_filename s =
-  correct_string_gen special_char_file_name_map s
+  string_map special_char_file_name_map s
 
 let correct_string_csv s =
-  correct_string_gen special_char_csv_map s
+  string_map special_char_csv_map s
 
-let uppercase_char c =
-  match
-    CharMap.find_opt c uppercase_char_map
-  with
-  | Some a -> a
-  | None -> Char.uppercase_ascii c
-let lowercase_char c =
-  match
-    CharMap.find_opt c lowercase_char_map
-  with
-  | Some a -> a
-  | None -> Char.lowercase_ascii c
+let gen_char ?dft map  c =
+  let dft =
+    match dft with
+      | None -> (fun x->x)
+      | Some f -> f
+  in
+  match c with
+    | [a] ->
+      begin
+        match
+          CharMap.find_opt a (fst map)
+        with
+          | None -> dft (String.make 1 a)
+          | Some a -> a
+      end
+    | [a;b] ->
+    begin
+      match
+        Char2Map.find_opt (a,b) (snd map)
+      with
+        | None -> dft ((String.make 1 a)^(String.make 1 b))
+        | Some a -> a
+    end
+    | [] | _::_::_::_ -> failwith "BAD STRING in Special_char tabs"
 
+let uppercase_char = gen_char ~dft:String.uppercase_ascii uppercase_char_map
+let lowercase_char = gen_char ~dft:String.lowercase_ascii lowercase_char_map
 
 let uppercase s =
-  String.map uppercase_char s
+  string_map
+      ~dft:String.uppercase_ascii
+      uppercase_char_map s
 let lowercase s =
-  String.map lowercase_char s
+  string_map
+      ~dft:String.lowercase_ascii
+      lowercase_char_map s
 
 let capitalize s =
   let n = String.length s in
-  let a = Array.make n ' ' in
-  let rec aux k bool =
+  let rec aux k bool accu =
     if k=n
-    then ()
+    then String.concat "" (List.rev accu)
     else
-      let () =
-        a.(k)<-(if bool then uppercase_char s.[k] else s.[k])
-      in
-      aux (k+1) (s.[k]=' ' || s.[k]='-' || (bool && (s.[k]='\195' || s.[k]='\194')))
-  in
-  let () = aux 0 true in
-  String.init n (fun i -> a.(i))
+      if k = n-1
+      then
+        let c1 = String.get s k in
+        let elt =
+          if bool then uppercase_char [c1] else (String.make 1 c1)
+        in
+        aux (k+1) (s.[k]=' ' || s.[k]='-') (elt::accu)
+      else
+        let c1 = String.get s k in
+        let c2 = String.get s (k+1) in
+        match Char2Map.find_opt (c1,c2) (snd special_char_map) with
+        | Some c -> aux (k+2) false (if bool then c::accu else ((String.make 1 c2)::(String.make 1 c1)::accu))
+        | None ->
+          begin
+            let elt =
+              if bool then uppercase_char [c1] else (String.make 1 c1)
+            in
+            aux (k+1) (c1=' ' || c1='-') (elt::accu)
+         end
+  in aux 0 true []
 
 let delimiter =
   [' ';'-';
    '\"';'\'';
    '\\';',';'.';'?';':';'!';'{';'}';'_';'[';']';'#']
 
-let clean_spurious_uppercase_letters string =
-  let n = String.length string in
-  let string = Bytes.of_string string in
-  let buggy i =
-    let c = Bytes.get string i in
-    Char.lowercase_ascii c <> lowercase_char c
-  in
-  let lower l =
-    List.iter
-      (fun i -> Bytes.set string i (lowercase_char (Bytes.get string i)))
-      l
-  in
-  let rec aux k has_lowercase acc =
-    if k>=n then
-      let () =
-        if has_lowercase then
-          lower acc
-      in
-      Bytes.to_string string
-    else
-      let c = Bytes.get string k in
-      if List.mem c delimiter
-      then
-        let () =
-          if has_lowercase
-          then
-            lower acc
-        in
-        f (k+1)
+
+let clean_spurious_uppercase_letters s =
+    let n = String.length s in
+    let rec aux k bool accu =
+      if k=n
+      then String.concat "" (List.rev accu)
       else
-        let has_lowercase =
-          has_lowercase
-          || ((c = lowercase_char c)
-              && (c <> uppercase_char c))
-        in
-        let acc =
-          if buggy k
-          then
-            k::acc
-          else acc
-        in
-          aux (k+1) has_lowercase acc
-  and
-    f k =
-    if k>=n then Bytes.to_string string
+      if k = n-1
+      then
+      let c1 = String.get s k in
+      let elt =
+        if bool then lowercase_char [c1] else (String.make 1 c1)
+      in
+      aux (k+1) (not (List.mem c1 delimiter)) (elt::accu)
     else
-      let c = Bytes.get string k in
-      if c = '\195' || c = '\194'
-      then f (k+1)
-      else aux (k+1) false []
-  in f 0
+      let c1 = String.get s k in
+      let c2 = String.get s (k+1) in
+      match Char2Map.find_opt (c1,c2) (snd special_char_map) with
+      | Some c -> aux (k+2) true (if bool then c::accu else ((String.make 1 c2)::(String.make 1 c1)::accu))
+      | None ->
+        begin
+          let elt =
+            if bool then lowercase_char [c1] else (String.make 1 c1)
+          in
+          aux (k+1) (not (List.mem c1 delimiter)) (elt::accu)
+       end
+in aux 0 false []
 
 let clean_mlle_gen char s =
   let a = String.split_on_char char s in
