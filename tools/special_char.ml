@@ -356,7 +356,8 @@ let gen_char ?dft map  c =
     | [] | _::_::_::_ -> failwith "BAD STRING in Special_char tabs"
 
 let uppercase_char = gen_char ~dft:String.uppercase_ascii uppercase_char_map
-let lowercase_char = gen_char ~dft:String.lowercase_ascii lowercase_char_map
+(*let lowercase_char = gen_char ~dft:String.lowercase_ascii lowercase_char_map*)
+let lowercase_spe = gen_char lowercase_char_map
 
 let uppercase s =
   string_map
@@ -410,7 +411,7 @@ let clean_spurious_uppercase_letters s =
       then
       let c1 = String.get s k in
       let elt =
-        if bool then lowercase_char [c1] else (String.make 1 c1)
+        if bool then lowercase_spe [c1] else (String.make 1 c1)
       in
       aux (k+1) (not (List.mem c1 delimiter)) (elt::accu)
     else
@@ -421,7 +422,7 @@ let clean_spurious_uppercase_letters s =
       | None ->
         begin
           let elt =
-            if bool then lowercase_char [c1] else (String.make 1 c1)
+            if bool then lowercase_spe [c1] else (String.make 1 c1)
           in
           aux (k+1) (not (List.mem c1 delimiter)) (elt::accu)
        end
