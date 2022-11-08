@@ -301,7 +301,7 @@ let remove_acute s =
   string_map special_char_map s
 
 let lowercase s =
-  string_map ?def:String.lowercase_ascii lowercase_char_map s
+  string_map ~dft:String.lowercase_ascii lowercase_char_map s
 
 let correct_string s =
   lowercase (remove_acute s)
