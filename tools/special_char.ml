@@ -492,15 +492,20 @@ let clean_spurious_uppercase_letters s =
             aux (k+2) has_buggy has_lowercase start accu
           | None ->
             begin
-              let has_lowercase =
-                has_lowercase ||
-                (sc1 = lowercase_char [c1] && sc1 <> uppercase_char [c1])
-              in
-              let has_buggy =
-                has_buggy ||
-                String.lowercase_ascii sc1 <> lowercase_char [c1]
-              in
-              aux (k+1) has_buggy has_lowercase start accu
+              if List.mem c1 delimiter
+              then
+                let accu = update s start k has_buggy has_lowercase accu in
+                aux (k+1) false false (k+1) accu
+              else
+                let has_lowercase =
+                  has_lowercase ||
+                  (sc1 = lowercase_char [c1] && sc1 <> uppercase_char [c1])
+                in
+                let has_buggy =
+                  has_buggy ||
+                  String.lowercase_ascii sc1 <> lowercase_char [c1]
+                in
+                aux (k+1) has_buggy has_lowercase start accu
             end
     in aux 0 false false 0 []
 
