@@ -473,3 +473,6 @@ let split_name s =
       end
   in
   aux (List.rev a ) [] [] []
+
+
+let () = Format.printf "%s" (correct_string "AéÉdjlkdsçZEjk - qdsjlkq d &ééà")
