@@ -93,7 +93,6 @@ let special_char_tab  =
       (*"ū"*)
       "\191", "'", "'","'","'","'","\'";
       "_", "\\_" , "_","_","_","_","_";
-      " ", " ", " ", "+", " ", " ", " ";
     ]
 
 let get_gen proj =
@@ -102,8 +101,9 @@ let get_gen proj =
       (List.rev special_char_tab)
 
 let special_char_latex = get_gen get_latex
-let special_char_html = get_gen get_html
-let special_char_url = get_gen get_url
+let special_char_html = get_gen
+get_html
+let special_char_url = (" ", "+")::(get_gen  get_url)
 let lowercase_char = get_gen get_lowercase
 let uppercase_char = get_gen get_uppercase
 let special_char = get_gen get_txt
