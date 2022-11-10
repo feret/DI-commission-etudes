@@ -2630,10 +2630,10 @@ let translate_diplome
           | "mash" -> state,"M2 MASH","M2 MASH",true
           | "sesi" -> state,"M1 SESI","M1 SESI",false
           | "sesi2" -> state,"M2 SESI","M2 SESI",true
-          | "agregmathsu" -> state, "Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation",false
-            | "agregmathupc" -> state, "Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation",false
-            | "agreginfosu" -> state, "Formation à l'agrégation d'Informatique","Formation to Computer Science Aggregation",false
-              | "agreginfoupc" -> state, "Formation à l'agrégation d'Informatique","Formation to Computer Science Aggregation",false
+          | "agregmathsu" | "agmathsu" -> state, "Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation",false
+            | "agregmathupc" | "agmathupc" -> state, "Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation",false
+            | "agreginfosu" | "aginfosu"-> state, "Formation à l'agrégation d'Informatique","Formation to Computer Science Aggregation",false
+              | "agreginfoupc" | "aginfosupc" -> state, "Formation à l'agrégation d'Informatique","Formation to Computer Science Aggregation",false
           | "interaction" -> state,"M2 Interaction", "M2 Interaction", true
           | "mathfond" | "mathfondsu" | "mathfondupc" | "mathfondpantheonsor"
              -> state,"M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",true
