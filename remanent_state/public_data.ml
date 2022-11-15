@@ -648,7 +648,7 @@ let all_notes_string =
   type origin =
     | AL
     | BCPST
-    | DensBio 
+    | DensBio
     | DensDEC
     | DensInfo
     | DensMath
@@ -948,7 +948,8 @@ let string_of_origin_opt a =
   | Some Psi -> "CPGE Physique-Sciences de l'Ingénieur"
   | Some Sis -> "sélection Internationale"
   | Some M_MPRI -> "Master Parisien de recherche en informatique"
-  | Some DensMath -> "concours universitaire mathématiques"
+  | Some DensMath -> "concours universitaire de mathématiques"
+  | Some DensBio -> "concours universitaire de biologie"
   | Some DensPhys -> "concours universitaire de physique"
   | Some Nes -> "concours normalien étudiant Sciences"
 
