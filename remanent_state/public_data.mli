@@ -387,6 +387,7 @@ type statut =
 type origin =
   | AL
   | BCPST
+  | DensBio 
   | DensDEC
   | DensInfo
   | DensMath

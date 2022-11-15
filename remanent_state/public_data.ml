@@ -648,6 +648,7 @@ let all_notes_string =
   type origin =
     | AL
     | BCPST
+    | DensBio 
     | DensDEC
     | DensInfo
     | DensMath

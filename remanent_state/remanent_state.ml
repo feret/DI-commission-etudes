@@ -1634,7 +1634,8 @@ let get_cursus ?firstname ?lastname ~year ~level ?dpt ~gpscodelist pos t =
         with
         | Some a -> t, Some a
         | None ->
-          let msg =
+          if level = "" then t, None
+          else let msg =
             Format.sprintf
               "Pas de cursus pour %s%s en %s dans les fichiers du département pour %s %s"
               level

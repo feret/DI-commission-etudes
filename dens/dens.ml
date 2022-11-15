@@ -27,7 +27,7 @@ let xt = "XT"
 let sciences = [info;dma;bio;phys;dec;ibens;gsc]
 let humanities = [arts;dsa;eco;lila;phil;hist;dss;geog]
 let sans_mineure = [ceres]
-let ecla = [ecla]
+let ecla = [ecla;"code3251"]
 let activite = [vetu;dg;actd]
 
 let all =
