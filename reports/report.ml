@@ -174,11 +174,6 @@ let dump_issues state =
       ~file_name:"descriptions_de_stage_ambigues_par_etudiant.html"
       state
   in
-  let state, _ =
-    Course_translations.MissingCourseTranslations.dump_per_code
-      ~file_name:"traductions_de_noms_de_cours_manquantes.csv"
-      state
-  in
   let state,_ =
     Course_translations.MissingCourseEntries.dump
       ~file_name:"entrees_de_cours_incompletes.csv"
@@ -194,10 +189,9 @@ let dump_issues state =
 let warn state =
   let state =
     let state, a = Remanent_state.get_missing_course_entries state in
-    let state, b = Remanent_state.get_missing_course_name_translations state in
-    match a,b
+    match a
     with
-    | [],[] -> state
+    | []-> state
     | _ ->
       Remanent_state.warn
         __POS__

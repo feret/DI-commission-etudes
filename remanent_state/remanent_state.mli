@@ -153,9 +153,6 @@ val get_monitoring_list_repository: t -> t * string
 val get_course_exceptions_list_prefix: t -> t * string
 val get_course_exceptions_list_repository: t -> t * string
 
-val get_course_name_translation_list_prefix: t -> t * string
-val get_course_name_translation_list_repository: t -> t * string
-
 val get_course_entry_list_prefix: t -> t * string
 val get_course_entry_list_repository: t -> t * string
 
@@ -277,22 +274,10 @@ val add_course_exception:
   Public_data.course_exception ->
   t -> t
 
-
-val get_course_name_translation:
-  label:string ->
-  codegps:string ->
-  year:Public_data.annee ->
-  t ->
-  t * (string option * string option)
-
-val add_course_name_translation:
-    (string * int * int * int ->
-     t ->
-     Public_data.course_name_translation ->
-     Public_data.course_name_translation-> t * Public_data.course_name_translation) ->
-    (string * int * int * int) ->
-    Public_data.course_name_translation ->
-    t -> t
+  val get_course_name_translation:
+   label:string ->
+   t ->
+   t * (string option * string option)
 
   val get_course_entry:
       string ->
@@ -583,15 +568,8 @@ val add_missing_ects_attribution:
 val get_missing_ects_attributions:
   t -> t * Public_data.missing_grade list
 
-val add_missing_course_name_translation:
-  t -> Public_data.course_name_translation -> t
-
-val get_missing_course_name_translations:
-  t -> t * Public_data.course_name_translation list
-
 val add_missing_course_entry:
   t -> Public_data.course_entry -> t
-
 val get_missing_course_entries:
   t -> t * Public_data.course_entry list
 

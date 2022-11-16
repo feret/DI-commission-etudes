@@ -1,4 +1,11 @@
-type kind = Humanities | Sciences | Ecla | Activite | Sans_mineure | Missing
+type kind =
+  | Humanities
+  | Sciences
+  | Ecla
+  | Activite
+  | Sans_mineure
+  | Missing
+  | Dummy
 
 let actd = "ACTD"
 let info = "INFO"
@@ -60,8 +67,11 @@ let translate_main_dpt x =
   | Public_data.LILA -> lila
   | Public_data.DMA -> dma
 
-let kind_of_course state code  =
-  match String.split_on_char '-' code with
+let kind_of_course state code extra =
+  if code = "" && extra
+  then state, ("", Dummy)
+  else
+    match String.split_on_char '-' code with
       | t::_ ->
         begin
           match
@@ -131,7 +141,7 @@ let f_gen get store ~main_dpt (state,dens) course =
         let dens = {dens with Public_data.dens_cours_a_trier} in
         state, dens
     else
-      let state, (key,kind) = kind_of_course state code in
+      let state, (key,kind) = kind_of_course state code course.Public_data.supplement_extra in
       match kind with
       | Ecla ->
       let dens_cours_langue = dens.Public_data.dens_cours_langue in
@@ -168,6 +178,7 @@ let f_gen get store ~main_dpt (state,dens) course =
       let dens_cours_a_trier = store (course::list) dens_cours_a_trier in
       let dens = {dens with Public_data.dens_cours_a_trier} in
       state, dens
+      | Dummy -> state, dens
 
 let f_nat =
     f_gen

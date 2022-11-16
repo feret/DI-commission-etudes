@@ -599,6 +599,7 @@ type missing_internship_description =
       supplement_intitule: string;
       supplement_ects: float;
       supplement_dens: bool;
+      supplement_extra: bool; 
   }
 
   type experience_supplement =

@@ -342,6 +342,7 @@ type cours_supplement =
     supplement_intitule: string;
     supplement_ects: float;
     supplement_dens: bool;
+    supplement_extra: bool; 
 }
 
 type experience_supplement =
@@ -387,7 +388,7 @@ type statut =
 type origin =
   | AL
   | BCPST
-  | DensBio 
+  | DensBio
   | DensDEC
   | DensInfo
   | DensMath
