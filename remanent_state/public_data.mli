@@ -43,6 +43,7 @@ val empty_scholarship: scholarship
 
 module StringMap: Map.S with type key = string
 module StringOptMap: Map.S with type key = string option
+module StringOptStringOptMap: Map.S with type key = string option * string option
 module StringUnivMap: Map.S with type key = string * universite
 module DptMap: Map.S with type key = main_dpt
 module DptOptMap : Map.S with type key = main_dpt option
@@ -342,7 +343,7 @@ type cours_supplement =
     supplement_intitule: string;
     supplement_ects: float;
     supplement_dens: bool;
-    supplement_extra: bool; 
+    supplement_extra: bool;
 }
 
 type experience_supplement =

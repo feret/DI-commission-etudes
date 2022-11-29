@@ -444,9 +444,12 @@ type cours =
     contrat: bool option;
     accord: bool option;
     note: Public_data.note option;
+    valide_dans_gps: Public_data.valide option;
     lettre: string option;
     commentaire: string list;
-    extra:bool
+    extra:bool;
+    inconsistency:((string*int*int*int)*string) option;
+    cours_annee:string option;
   }
 
 let log_cours state cours =
@@ -522,10 +525,13 @@ let empty_cours =
     diplome = None ;
     contrat = None ;
     accord = None ;
+    valide_dans_gps = None ;
     note = None ;
     lettre = None ;
     commentaire = [];
     extra = false;
+    inconsistency = None ;
+    cours_annee = None ;
   }
 
 type date =
@@ -1079,41 +1085,26 @@ let store_cours  =
          Printf.sprintf
            "%s in %s" who c
        in
-       let state, note  =
+       let state, note, inconsistency  =
          match remanent.prevalide, remanent.prenote with
          | Some (Public_data.Bool false | Public_data.Abs), None
            ->
-           state, Some Public_data.Absent
+           state, Some Public_data.Absent, None
          | Some Public_data.Abs, Some i ->
            let msg =
              Format.sprintf
                "Note and validity status are incompatible (validation:abs, note:%s) for %s" i who
            in
-           Remanent_state.warn_dft
+           let state = Remanent_state.warn
              pos
              msg
              Exit
-             (Some Public_data.Absent)
              state
+           in state, Some Public_data.Absent, None
          | Some Public_data.Bool true, None ->
-           state, (Some Public_data.Valide_sans_note)
+           state, (Some Public_data.Valide_sans_note), None
          | v , Some n ->
            begin
-             (*let state =
-               match v with
-               | Some _ -> state
-               | None ->
-                 let msg =
-                   Format.sprintf
-                     "Undefined validity status for note %s for %s"
-                     n who
-                 in
-                 Remanent_state.warn
-                   pos
-                   msg
-                   Exit
-                   state
-                   in*)
              let state, note_opt = Notes.of_string __POS__ state n v in
              match note_opt with
              | None ->
@@ -1121,19 +1112,20 @@ let store_cours  =
                  Format.sprintf
                    "Invalid content for the field note for %s" who
                in
-               Remanent_state.warn_dft
+               let state =
+               Remanent_state.warn
                  pos
                  msg
                  Exit
-                 note_opt
                  state
+               in state, note_opt, None
              | Some note ->
                if
                  (match v with
                  | Some v -> Notes.valide note = Valide.valide v
                  | None -> true)
                then
-                 state, note_opt
+                 state, note_opt, None
                else
                  let state, compensation =
                      match
@@ -1156,7 +1148,7 @@ let store_cours  =
                          state
                      in state, false
                    in
-                   if compensation then state, note_opt
+                   if compensation then state, note_opt, None
                    else
                      begin
                        let state, note_string =
@@ -1175,23 +1167,175 @@ let store_cours  =
                            "Note %s and validity status %s are  incompatible for %s"
                            note_string v_string who
                        in
-                       Remanent_state.warn_dft
-                         __POS__
-                         msg
-                         Exit
-                         note_opt
-                         state
-
+                       state, note_opt, Some (__POS__,msg)
            end
            end
          | None, None ->
-           state, Some Public_data.En_cours
+           state, Some Public_data.En_cours, None
        in
        let code_cours = remanent.precode in
        let accord = remanent.preaccord in
        let commentaire = remanent.rem_commentaires in
-       state, {remanent.rem_cours with note ; code_cours ; accord ; commentaire})
+       let valide_dans_gps = remanent.prevalide in
+       let cours_annee = remanent.annee_de_travail in
+       state, {remanent.rem_cours with valide_dans_gps ; note ; code_cours ; accord ; commentaire ; cours_annee ; inconsistency})
     (fun state bilan cours -> state, {bilan with cours})
+
+let warn_on_courses state m =
+    Public_data.StringOptStringOptMap.fold
+        (fun _ x state  ->
+            List.fold_left
+              (fun state cours ->
+                match cours.inconsistency with
+                | None -> state
+                | Some (pos,msg) ->
+                      Remanent_state.warn pos msg Exit state)
+              state x)
+        m state
+
+let is_consistent list =
+    let rec aux list old =
+        match list with
+        | [] -> true
+        | h::t ->
+          match h.note with
+          | None -> aux t old
+          | Some note ->
+          match Notes.temporary note with
+          | Some true -> aux t old
+          | Some false | None  ->
+            match old with
+              | None -> aux t h.note
+              | Some y ->
+                if Notes.comparable note y
+                then aux t old
+                else false
+      in aux list None
+
+let best_grade list (*consistent list of notes*)=
+  let rec aux tail best_grade =
+    match tail with
+      | [] -> best_grade
+      | h::t ->
+          begin
+            match h.note, best_grade with
+            | Some x, Some y  ->
+               aux t (if Notes.better x y then h.note else best_grade)
+            | Some x, None ->
+              begin
+              match Notes.temporary x
+              with Some true -> aux t best_grade | None | Some false ->  aux t h.note
+              end
+            | None, _ -> aux t best_grade
+          end
+  in aux list None
+
+  let is_stage cours =
+    begin
+      match cours.code_cours with
+      | None -> false
+      | Some a ->
+        Tools.substring "STAGE" a
+        || Tools.substring "STG" a
+    end
+    ||
+    begin
+      match cours.cours_libelle with
+      | None -> false
+      | Some a ->
+        let a = String.lowercase_ascii a in
+        (Tools.substring "internship" a
+         || Tools.substring "stage" a || Tools.substring "séjour linguistique" a) &&
+        (not
+           (Tools.substring "intensif" a))
+    end
+
+let clean_warn state map context =
+    let state = ref state in
+    let unvalidated = ref [] in
+    let add_unvalidated c =
+        unvalidated := c::(!unvalidated)
+    in
+    let map =
+      Public_data.StringOptStringOptMap.mapi
+      (fun (code,_) list ->
+          match code, list with
+            | None, _ | _, ([]|[_]) -> list
+            | Some _, t::_ when is_consistent list ->
+              let extra =
+                List.exists (fun c -> c.extra) list
+              in
+              let b =
+                match code with
+                | None -> true
+                | Some x ->
+                  let s,b = Dens.repeatable (!state) x extra in
+                  let b = b || is_stage t in
+                  let () = state:=s in b
+              in
+              if b then list else
+              let best_grade = best_grade list in
+                begin match best_grade with
+                  | None -> list
+                  | Some best_grade ->
+                  List.map (fun x ->
+                    match x.inconsistency,  x.note  with
+                      | _, (None | Some (Public_data.Absent|Public_data.Abandon) ) -> x
+                      | None, Some g when Notes.better best_grade g ->
+                                  if match x.valide_dans_gps with None -> false | Some x ->
+                                    match Valide.valide x with
+                                      | Some true -> true
+                                      | Some false | None -> false then
+                                       {x with inconsistency = Some (__POS__,Format.sprintf "course %s %s"
+                                        (match x.code_cours with None -> "N/A" | Some x -> x ) context)} else x
+
+                      | None, Some g when g=best_grade -> x
+                      | Some _, Some g when Notes.better best_grade g ->
+                            let () = add_unvalidated x in
+                            {x with inconsistency = None}
+                      | Some _, Some g when g=best_grade -> x
+                      | _, (Some (Public_data.Float _ | Public_data.En_cours|Public_data.Valide_sans_note|Public_data.String _|Public_data.Temporary _)) ->
+                      if match x.valide_dans_gps with None -> false | Some x ->
+                        match Valide.valide x with
+                          | Some true -> true
+                          | Some false | None -> false then
+                      {x with inconsistency = Some (__POS__,Format.sprintf "course %s %s %s"
+                          (match x.code_cours with None -> "N/A" | Some x -> x ) context (match x.valide_dans_gps with None -> "NONE" | Some x -> begin match Valide.valide x with
+                            | Some true -> "true"
+                            | Some false | None -> "false"  end ))} else x
+       ) list end
+            | _,_ -> list
+      ) map
+      in !state, !unvalidated, map
+
+let make_unvalidated_map list = list
+
+let is_unvalidated gpscode year list =
+    List.exists
+      (fun x -> x.code_cours=(Some gpscode) && x.cours_annee=(Some year))
+      list
+
+let store_courses state l =
+    let map  = Public_data.StringOptStringOptMap.empty in
+    let add map course =
+        let key = course.code_cours,course.cours_libelle in
+        match Public_data.StringOptStringOptMap.find_opt key map with
+          | None ->
+            Public_data.StringOptStringOptMap.add key [course] map
+          | Some l ->
+            Public_data.StringOptStringOptMap.add key (course::l) map
+    in
+    state, List.fold_left add map l
+
+let warn_on_course_list state l context =
+    let l =
+      List.fold_left (fun sol (_,elt) -> elt.cours::sol) [] l
+    in
+    let l = List.flatten l in
+    let state, map = store_courses state l in
+    let state, unvalidated, map = clean_warn state map context in
+    let state = warn_on_courses state map in
+    state, make_unvalidated_map unvalidated
 
 let add_extra_course state cours_a_ajouter gps_file =
   let situation = gps_file.situation in
@@ -1231,6 +1375,9 @@ let add_extra_course state cours_a_ajouter gps_file =
         lettre = None;
       commentaire = [];
       extra = true;
+      inconsistency = None;
+      valide_dans_gps = None;
+      cours_annee = Some cours_a_ajouter.Public_data.coursaj_annee ;
     }
   in
   let bilan = {bilan with cours = elt::bilan.cours} in
@@ -2512,9 +2659,15 @@ let translate_dpt ~firstname ~lastname ~year state d =
               (Special_char.lowercase x)))
     end
 
-let keep_class state filter year note =
+let valide unvalidated note =
+    match Tools.map_opt Notes.valide note with
+      | None -> None
+      | Some None -> Some None
+      | Some (Some a) -> Some (Some (a && (not unvalidated)))
+
+let keep_class state filter year unvalidated note =
   match
-    filter, Tools.map_opt Notes.valide note
+    filter, valide unvalidated note
   with
   | _, None ->
     Remanent_state.warn_dft
@@ -2543,7 +2696,7 @@ let keep_class state filter year note =
 
 let keep_class
     ~firstname ~lastname ~year ~codecours ~note
-    state filter =
+    state unvalidated_map  filter =
   let state, current_year =
     Remanent_state.get_current_academic_year state
   in
@@ -2553,11 +2706,12 @@ let keep_class
         ~firstname ~lastname ~year ~codecours
         note state
   in
-  let state, valide = keep_class state filter year note in
+  let unvalidated = is_unvalidated codecours year unvalidated_map in
+  let state, valide = keep_class state filter year unvalidated note in
   let success = valide || compensation in
   state, (not future) && success
 
-let filter_class state filter ~firstname ~lastname ~year class_list =
+let filter_class state unvalidated filter ~firstname ~lastname ~year class_list =
   let rec aux state list acc =
     match list with
     | [] -> state, acc
@@ -2579,7 +2733,7 @@ let filter_class state filter ~firstname ~lastname ~year class_list =
             state, ""
       in
       let state, b =
-        keep_class state filter
+        keep_class state unvalidated filter
           ~firstname ~lastname ~year ~note:h.note ~codecours
       in
       if b then
@@ -3020,25 +3174,7 @@ let code_list =
     vetu, "VETU";
   ]
 
-let is_stage cours =
-  begin
-    match cours.code_cours with
-    | None -> false
-    | Some a ->
-      Tools.substring "STAGE" a
-      || Tools.substring "STG" a
-  end
-  ||
-  begin
-    match cours.cours_libelle with
-    | None -> false
-    | Some a ->
-      let a = String.lowercase_ascii a in
-      (Tools.substring "internship" a
-       || Tools.substring "stage" a || Tools.substring "séjour linguistique" a) &&
-      (not
-         (Tools.substring "intensif" a))
-  end
+
 
 let do_report report =
   match report with
@@ -6135,12 +6271,15 @@ let export_transcript
     let state, origine =
       get_origine who promo gps_file state
     in
+    let state, unvalidated =
+        warn_on_course_list state l (Format.sprintf "%s %s %s" firstname lastname promo)
+    in
     let state, cursus_map, l =
       List.fold_left
         (fun (state, cursus_map, l) (year, situation) ->
            let state, filtered_classes =
              filter_class ~firstname ~lastname ~year
-               state remove_non_valided_classes
+               state unvalidated remove_non_valided_classes
                situation.cours
            in
            let state, (cursus_map, split_cours) =

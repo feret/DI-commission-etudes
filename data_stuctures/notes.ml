@@ -237,32 +237,43 @@ let compensable f =
                 | Public_data.En_cours
                 | Public_data.Absent) -> false
 
+let better a b =
+    match a,b
+    with
+    | Public_data.Float a,
+      Public_data.Float b -> a > b
+    | Public_data.String a, Public_data.String b -> a<b && a<>"P" && b<>"P"
+    | (Public_data.Valide_sans_note | Public_data.Float _
+                  | Public_data.String _
+                  | Public_data.Abandon
+                  | Public_data.Temporary _
+                  | Public_data.En_cours
+                  | Public_data.Absent),(Public_data.Valide_sans_note | Public_data.Float _ 
+                                | Public_data.String _
+                                | Public_data.Abandon
+                                | Public_data.Temporary _
+                                | Public_data.En_cours
+                                | Public_data.Absent) -> false
 
-let compare a b =
-  match a,b
-  with
-  | Public_data.Float a,
-    Public_data.Float b -> compare a b
-  | _, Public_data.Float _ -> 1
-  | Public_data.Float _, _ -> (-1)
-  | Public_data.String a,
-    Public_data.String b -> compare a b
-  | _, Public_data.String _ -> 1
-  | Public_data.String _, _ -> (-1)
-  | Public_data.Valide_sans_note, Public_data.Valide_sans_note -> 0
-  | _, Public_data.Valide_sans_note -> 1
-  | Public_data.Valide_sans_note,_ -> -1
-  | Public_data.Temporary a,
-    Public_data.Temporary b -> compare a b
-  | _, Public_data.Temporary _ -> 1
-  | Public_data.Temporary _, _ -> (-1)
-  | Public_data.En_cours, Public_data.En_cours -> 0
-  | _, Public_data.En_cours -> 1
-  | Public_data.En_cours,_ -> (-1)
-  | Public_data.Absent,Public_data.Absent -> 0
-  | _, Public_data.Absent -> 1
-  | Public_data.Absent, _ -> (-1)
-  | Public_data.Abandon, Public_data.Abandon -> 0
+
+let comparable a b =
+    match a,b
+    with
+    | _, Public_data.En_cours | Public_data.En_cours, _
+    | (Public_data.Temporary _ | Public_data.Float _),(Public_data.Temporary _ | Public_data.Float _)
+    | Public_data.Valide_sans_note,Public_data.Valide_sans_note
+    | Public_data.String _, Public_data.String _ -> true
+    | (Public_data.Valide_sans_note
+| Public_data.Float _
+                  | Public_data.String _
+                  | Public_data.Abandon
+                  | Public_data.Temporary _
+                  | Public_data.Absent),(Public_data.Valide_sans_note | Public_data.Float _
+                                | Public_data.String _
+                                | Public_data.Abandon
+                                | Public_data.Temporary _
+                                | Public_data.Absent) -> false
+
 
 let string_of_ects f_opt =
   match f_opt with

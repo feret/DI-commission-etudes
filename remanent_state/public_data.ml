@@ -42,6 +42,33 @@ module StringOptMap =
     end
     )
 
+    module StringOptStringOptMap =
+      Map_tools.MakeSimplified
+        (
+        struct
+          module Ord   =
+            (
+            struct
+              type t = string option * string option
+              let compare = compare
+
+            end
+            )
+
+          let simplify (s_opt,s'_opt) =
+            Tools.map_opt
+              (fun s ->
+                 Special_char.lowercase
+                   (Special_char.correct_string_txt
+                      (String.trim s)))
+              s_opt, Tools.map_opt
+                (fun s ->
+                   Special_char.lowercase
+                     (Special_char.correct_string_txt
+                        (String.trim s)))
+                s'_opt
+        end
+        )
 
 type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO | DRI | ARTS | LILA
 type universite =
@@ -599,7 +626,7 @@ type missing_internship_description =
       supplement_intitule: string;
       supplement_ects: float;
       supplement_dens: bool;
-      supplement_extra: bool; 
+      supplement_extra: bool;
   }
 
   type experience_supplement =

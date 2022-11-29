@@ -55,7 +55,7 @@ let latex_to_pdf ?rev ?times:(times=1) ~input state =
     let state =
       if rev then
         let command =
-          Printf.sprintf "pdftk %s.pdf cat 1-endeast output %s.tmp"
+            Printf.sprintf "pdftk %s.pdf cat 1-endeast output %s.tmp"
             basename basename
         in
         let state =
@@ -99,7 +99,7 @@ let concat_pdf ~pattern ?exclude ~output state =
     | Some exclude ->
       Format.sprintf
         "pdftk $(ls %s | grep -v \"%s\"|tr '\n' ' ') cat output %s"
-        pattern exclude output 
+        pattern exclude output
   in
   let state = Safe_sys.command __POS__ state command in
   state

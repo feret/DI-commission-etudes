@@ -396,3 +396,10 @@ let dump_dens dens state =
       let () = Remanent_state.fprintf state "\\end{center}" in
       let () = Remanent_state.fprintf state "\\vfill\\mbox{}" in
   state
+
+let repeatable state cours extra =
+  match kind_of_course state cours extra with
+      | state , (_,(Activite | Dummy | Missing  )) -> state, true
+      | state, (_,( Humanities | Ecla
+        | Sciences
+        | Sans_mineure)) -> state, false
