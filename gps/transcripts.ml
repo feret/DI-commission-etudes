@@ -3430,11 +3430,12 @@ let add_dens_potential year course map =
       (total, potential+.f,mandatory,math,math_math_info)
       map
 
-let add_dens state year compensation course course_list map =
-  match compensation, course.note with
-  | Some _, _ -> add_dens_ok state year course course_list map
-  | None,None -> state, course_list, add_dens_potential year course map
-  | None,Some note ->
+let add_dens state year compensation unvalidated course course_list map =
+  match compensation, unvalidated, course.note with
+  | Some _, _, _ -> add_dens_ok state year course course_list map
+  | _, true, _ -> state, course_list, map
+  | None,_,None -> state, course_list, add_dens_potential year course map
+  | None,_,Some note ->
       match
         Notes.valide note
       with
@@ -3496,11 +3497,11 @@ let add_mean_ok is_m2 state key course course_list year map dens =
   in
   state, map, course_list, dens
 
-let add_mean is_m2 state key compensation course course_list year map dens =
-    match compensation, course.note with
-  | Some _, _ -> add_mean_ok is_m2 state key course course_list year map dens
-  | None,None -> state, map, course_list, dens
-  | None,Some note ->
+let add_mean is_m2 state key compensation unvalidated course course_list year map dens =
+    match compensation, unvalidated, course.note with
+  | Some _, _, _ -> add_mean_ok is_m2 state key course course_list year map dens
+  | None, true, _ | None,_, None -> state, map, course_list, dens
+  | None,_, Some note ->
       match
         Notes.valide note
       with
@@ -4619,7 +4620,7 @@ let program
     ~print_foot_note
     ~origine ~gpscodelist ~string ~dpt ~year ~who ~alloc_suffix ~mean ~cours_list ~stage_list ~firstname ~lastname ~promo ~cursus_map
     ~size ~stages ~current_year (*~report ~keep_faillure ~keep_success*)
-    ~dens ~natt ~is_m2
+    ~dens ~natt ~is_m2 ~unvalidated_map
     (list:(bool * string * string * string * cours) list) state =
   let state,
       entete,entete_en,
@@ -5001,6 +5002,9 @@ let program
             state
             ~firstname ~lastname ~year ~codecours
         in
+        let unvalidated =
+            is_unvalidated codecours year unvalidated_map
+        in
         let () =
           match
             compensation
@@ -5009,7 +5013,12 @@ let program
             Remanent_state.print_optional_cell
               "compensation"
               state
-          | None -> ()
+          | None ->
+            if unvalidated then
+            Remanent_state.print_optional_cell
+              "unvalidated"
+              state
+            else ()
         in
         let state =
           if
@@ -5438,19 +5447,19 @@ let program
             | None
             | Some ""->
               let state, cours_list, natt =
-                add_dens state year compensation cours cours_list natt
+                add_dens state year compensation unvalidated cours cours_list natt
               in
                 state, mean, dens, natt, cours_list, stage_list
 
             | Some ("dens" | "DENS") ->
               let state, cours_list, dens =
-                add_dens state year compensation cours cours_list dens
+                add_dens state year compensation unvalidated cours cours_list dens
               in
               state, mean, dens, natt, cours_list, stage_list
             | Some _ ->
               let state, mean, cours_list, dens =
                 add_mean is_m2 state
-                  (string,(Public_data.string_of_dpt dpt)) compensation cours
+                  (string,(Public_data.string_of_dpt dpt)) compensation unvalidated cours
                 cours_list year
                 mean dens
               in state, mean, dens, natt, cours_list, stage_list
@@ -6944,6 +6953,7 @@ let export_transcript
                              ~keep_success ~keep_faillure*)
                              ~dens
                              ~natt
+                             ~unvalidated_map:unvalidated 
                               list state
                          in
                          let () =

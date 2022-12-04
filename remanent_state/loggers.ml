@@ -769,7 +769,9 @@ let print_preamble
 {\\setcounter{cects}{\\fpeval{\\resects*\\factor}}}%%\n\
 {\\setcounter{cects}{0}}%%\n\
 \\else%%\n\
-\\setcounter{cects}{\\fpeval{\\resects*\\factor}}%%\n\
+\\IfStrEq{#1}{unvalidated}%%\n\
+{\\setcounter{cects}{0}}%%\n\
+{\\setcounter{cects}{\\fpeval{\\resects*\\factor}}}%%\n\
 \\fi%%\n\
 }%%\n\
 {%%\n\
@@ -828,7 +830,7 @@ let () = fprintf logger
 \\addtocounter{potentialects}{\\fpeval{\\thepectsa*\\factor+\\thepectsb*\\factor+\\thepectsc*\\factor+\\thepectsd*\\factor}}%%\n\
 %%\n\
 \\addtocounter{vsnects}{\\fpeval{\\thevectsc*\\factor+\\thevectsa*\\factor+\\thevectsb*\\factor}}%%\n\
- %%\n\       #2 & \\ifnum \\thenrow=\\thetotalrows %%\n\ \\multirow{-\\thetotalrows}{\\hsize}{{\\centering #3}}\\fi & \\ifnum \\thetotalrows=1 %%\n\  \\mbox{}\\newline\\newline#4\\newline\\newline\\else\\ifnum \\thetotalrows=2 %%\n\  \\mbox{}\\newline#4\\newline\\else#4\\fi\\fi  & #5 & #6 & \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#7}}}{\\mynumprint{#7}} & \\mynumprint{#8}\\cr%%\n\
+ %%\n\       #2 & \\ifnum \\thenrow=\\thetotalrows %%\n\ \\multirow{-\\thetotalrows}{\\hsize}{{\\centering #3}}\\fi & \\ifnum \\thetotalrows=1 %%\n\  \\mbox{}\\newline\\newline#4\\newline\\newline\\else\\ifnum \\thetotalrows=2 %%\n\  \\mbox{}\\newline#4\\newline\\else#4\\fi\\fi  & #5 & #6 & \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#7}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{gray}{\\mynumprint{#7}}}{\\mynumprint{#7}}} & \\mynumprint{#8}\\cr%%\n\
 }%%\n\
 %%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
     in
