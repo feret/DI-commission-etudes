@@ -5261,6 +5261,12 @@ let program
                             ~french:"dirigé par"
                             state
                         in
+                        let state, a =
+                          Remanent_state.bilingual_string
+                            ~english:(Tools.translate_et a)
+                            ~french:a
+                            state
+                        in
                         state, Format.sprintf
                           "\\newline %s %s" directed a
                   in
@@ -6968,6 +6974,35 @@ let export_transcript
                                  state "\n\ \\vfill\n\ \n\ "
                              in
                              state, is_l3
+                           else
+                             if List.length list > 10 && i mod 2 = 0
+                             then
+                              let state =
+                                foot signature state
+                              in
+                              let () =
+                                Remanent_state.fprintf
+                                  state "\n\ \\vfill\n\ \n\ "
+                              in
+                              let () =
+                                Remanent_state.fprintf
+                                  state "\\pagebreak\n\ "
+                              in
+                              let suite = true in
+                              let state, is_l3 =
+                               heading
+                                 ~who ~firstname ~lastname
+                                 ~promo ~origine ~gpscodelist
+                                 ~year ~situation
+                                 ~tuteur ?tuteur_bis
+                                 cursus_map split_cours
+                                 picture_list suite gps_file state
+                              in
+                              let () =
+                                Remanent_state.fprintf
+                                  state "\n\ \\vfill\n\ \n\ "
+                              in
+                              state,is_l3
                            else state, is_l3
                          in
                          let

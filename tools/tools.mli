@@ -145,3 +145,5 @@ val date_to_string_fr:
 
 val date_to_string_en:
   string -> string
+
+val translate_et: string -> string 

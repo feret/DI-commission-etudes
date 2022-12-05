@@ -693,3 +693,11 @@ let collect_int warn =
   collect_conv
     "string %s cannot be converted into an int"
     int_of_string warn
+
+let translate_et a =
+  let l = String.split_on_char ' ' a in
+  let l = List.rev_map
+            (fun x -> if x = "et" then "and" else x)
+            (List.rev l)
+  in
+  String.concat " " l 
