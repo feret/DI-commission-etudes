@@ -564,9 +564,13 @@ val get_repository_to_dump_missing_mentors:
 
 val add_missing_ects_attribution:
   t -> Public_data.missing_grade -> t
-
 val get_missing_ects_attributions:
   t -> t * Public_data.missing_grade list
+
+val add_courses_validated_twice:
+    t -> Public_data.missing_grade -> t
+val get_courses_validated_twice:
+    t -> t * Public_data.missing_grade list
 
 val add_missing_course_entry:
   t -> Public_data.course_entry -> t
@@ -578,6 +582,9 @@ val get_course_entries_report:
 
 val get_repository_to_dump_missing_ects_attributions:
   t -> t * string
+
+val get_repository_to_dump_courses_validated_twice:
+    t -> t * string
 
 val get_repository_to_dump_missing_course_name_translations:
   t -> t * string

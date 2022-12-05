@@ -22,3 +22,4 @@ end
 module MissingGrades: ReportGrades
 module MissingECTSAttributions: ReportGrades
 module NonAcceptedGrades: ReportGrades
+module Validated_twice: ReportGrades 

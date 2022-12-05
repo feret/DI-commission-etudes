@@ -1181,7 +1181,98 @@ let store_cours  =
        state, {remanent.rem_cours with valide_dans_gps ; note ; code_cours ; accord ; commentaire ; cours_annee ; inconsistency})
     (fun state bilan cours -> state, {bilan with cours})
 
-let warn_on_courses state m =
+    let is_stage cours =
+      begin
+        match cours.code_cours with
+        | None -> false
+        | Some a ->
+          Tools.substring "STAGE" a
+          || Tools.substring "STG" a
+      end
+      ||
+      begin
+        match cours.cours_libelle with
+        | None -> false
+        | Some a ->
+          let a = String.lowercase_ascii a in
+          (Tools.substring "internship" a
+           || Tools.substring "stage" a || Tools.substring "séjour linguistique" a) &&
+          (not
+             (Tools.substring "intensif" a))
+      end
+
+
+      let stage = 250
+      let memoire = 240
+      let ecla = -10
+      let actd = -6
+      let arts = -5
+      let bio = -3
+      let dec = -2
+      let dma = 0
+      let dsa = 5
+      let eco = 10
+      let info = 20
+      let lila = 24
+      let phil = 25
+      let phys = 30
+      let vetu = 35
+      let autre = 40
+      let manquant = 50
+      let stage_string = "STRING"
+      let code_list =
+        [
+          stage, stage_string;
+          memoire, "MIIME";
+          actd, "ACTD";
+          arts, "ARTS";
+          bio, "BIO";
+          ecla, "ECLA";
+          dec, "DEC";
+          dsa, "DSA";
+          eco, "ECO";
+          dma, "DMA";
+          info, "INFO";
+          lila, "LILA";
+          phil, "PHIL";
+          phys, "PHYS";
+          vetu, "VETU";
+        ]
+
+
+
+      let do_report report =
+        match report with
+        | None -> false
+        | Some b -> b
+
+      let fetch gen dft missing a =
+        let _,_,_,_,cours = a in
+        match cours.code_cours with
+        | None -> missing
+        | Some code ->
+        let rec aux l =
+          match l with
+          | [] -> dft
+          | (a,b)::t ->
+            if Tools.substring b code
+            then gen (a,b)
+            else aux t
+        in
+        aux code_list
+
+      let fetch gen dft missing stage stage_string  a =
+        let (_,_,_,_,cours) = a in
+        if is_stage cours then
+          gen (stage,stage_string)
+        else
+          fetch gen dft missing a
+
+      let fetch_code  = fetch snd "Hors ENS" "Sans code GPS" stage stage_string
+      let fetch = fetch fst autre manquant stage stage_string
+
+
+let warn_on_courses ~promo ~firstname ~lastname state m =
     Public_data.StringOptStringOptMap.fold
         (fun _ x state  ->
             List.fold_left
@@ -1189,7 +1280,33 @@ let warn_on_courses state m =
                 match cours.inconsistency with
                 | None -> state
                 | Some (pos,msg) ->
-                      Remanent_state.warn pos msg Exit state)
+                  let dou =
+                      {
+                  Public_data.missing_grade_promotion =
+                    promo;
+                  Public_data.missing_grade_dpt=
+                    (fetch_code (true,"","","",cours));
+                  Public_data.missing_grade_dpt_indice =
+                    string_of_int (fetch (true,"","","",cours));
+                  Public_data.missing_grade_teacher =
+                    Tools.unsome_string
+                     cours.responsable ;
+                  Public_data.missing_grade_intitule =
+                    Tools.unsome_string
+                      cours.cours_libelle  ;
+                  Public_data.missing_grade_code_gps =
+                    Tools.unsome_string
+                      cours.code_cours ;
+                  Public_data.missing_grade_year =
+                        (match cours.cours_annee with None -> "" | Some a -> a);
+                  Public_data.missing_grade_lastname =
+                    lastname;
+                  Public_data.missing_grade_firstname =
+                    firstname;
+                } in
+                    let state =
+                      Remanent_state.add_courses_validated_twice state dou in
+                    Remanent_state.warn pos msg Exit state)
               state x)
         m state
 
@@ -1230,25 +1347,6 @@ let best_grade list (*consistent list of notes*)=
           end
   in aux list None
 
-  let is_stage cours =
-    begin
-      match cours.code_cours with
-      | None -> false
-      | Some a ->
-        Tools.substring "STAGE" a
-        || Tools.substring "STG" a
-    end
-    ||
-    begin
-      match cours.cours_libelle with
-      | None -> false
-      | Some a ->
-        let a = String.lowercase_ascii a in
-        (Tools.substring "internship" a
-         || Tools.substring "stage" a || Tools.substring "séjour linguistique" a) &&
-        (not
-           (Tools.substring "intensif" a))
-    end
 
 let clean_warn state map context =
     let state = ref state in
@@ -1327,14 +1425,14 @@ let store_courses state l =
     in
     state, List.fold_left add map l
 
-let warn_on_course_list state l context =
+let warn_on_course_list ~promo ~firstname ~lastname state l context =
     let l =
       List.fold_left (fun sol (_,elt) -> elt.cours::sol) [] l
     in
     let l = List.flatten l in
     let state, map = store_courses state l in
     let state, unvalidated, map = clean_warn state map context in
-    let state = warn_on_courses state map in
+    let state = warn_on_courses ~promo ~firstname ~lastname state map in
     state, make_unvalidated_map unvalidated
 
 let add_extra_course state cours_a_ajouter gps_file =
@@ -3136,75 +3234,6 @@ let dpt_of_acro who pos state dpt origine =
         None
         state
 
-
-let stage = 250
-let memoire = 240
-let ecla = -10
-let actd = -6
-let arts = -5
-let bio = -3
-let dec = -2
-let dma = 0
-let dsa = 5
-let eco = 10
-let info = 20
-let lila = 24
-let phil = 25
-let phys = 30
-let vetu = 35
-let autre = 40
-let manquant = 50
-let stage_string = "STRING"
-let code_list =
-  [
-    stage, stage_string;
-    memoire, "MIIME";
-    actd, "ACTD";
-    arts, "ARTS";
-    bio, "BIO";
-    ecla, "ECLA";
-    dec, "DEC";
-    dsa, "DSA";
-    eco, "ECO";
-    dma, "DMA";
-    info, "INFO";
-    lila, "LILA";
-    phil, "PHIL";
-    phys, "PHYS";
-    vetu, "VETU";
-  ]
-
-
-
-let do_report report =
-  match report with
-  | None -> false
-  | Some b -> b
-
-let fetch gen dft missing a =
-  let _,_,_,_,cours = a in
-  match cours.code_cours with
-  | None -> missing
-  | Some code ->
-  let rec aux l =
-    match l with
-    | [] -> dft
-    | (a,b)::t ->
-      if Tools.substring b code
-      then gen (a,b)
-      else aux t
-  in
-  aux code_list
-
-let fetch gen dft missing stage stage_string  a =
-  let (_,_,_,_,cours) = a in
-  if is_stage cours then
-    gen (stage,stage_string)
-  else
-    fetch gen dft missing a
-
-let fetch_code  = fetch snd "Hors ENS" "Sans code GPS" stage stage_string
-let fetch = fetch fst autre manquant stage stage_string
 
 let p (t,(_,_,_,_,cours)) (t',(_,_,_,_,cours')) =
   let cmp = compare t t' in
@@ -6281,7 +6310,7 @@ let export_transcript
       get_origine who promo gps_file state
     in
     let state, unvalidated =
-        warn_on_course_list state l (Format.sprintf "%s %s %s" firstname lastname promo)
+        warn_on_course_list ~promo ~firstname ~lastname state l (Format.sprintf "%s %s %s" firstname lastname promo)
     in
     let state, cursus_map, l =
       List.fold_left
@@ -6953,7 +6982,7 @@ let export_transcript
                              ~keep_success ~keep_faillure*)
                              ~dens
                              ~natt
-                             ~unvalidated_map:unvalidated 
+                             ~unvalidated_map:unvalidated
                               list state
                          in
                          let () =

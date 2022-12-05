@@ -467,3 +467,14 @@ module MissingECTSAttributions =
       let get_repository =
         Remanent_state.get_repository_to_dump_missing_ects_attributions
     end)
+
+module Validated_twice =
+  Build
+    (struct
+      type elt = Public_data.missing_grade
+
+      let default_file_name = "cours_en_double.html"
+      let get = Remanent_state.get_courses_validated_twice
+      let get_repository =
+            Remanent_state.get_repository_to_dump_courses_validated_twice
+     end)

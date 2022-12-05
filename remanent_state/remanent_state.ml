@@ -87,6 +87,7 @@ type parameters =
     repository_to_dump_missing_grades: string;
     repository_to_dump_missing_mentors: string;
     repository_to_dump_missing_ects_attributions: string;
+    repository_to_dump_courses_validated_twice: string;
     repository_to_dump_missing_internship_descriptions: string;
     repository_to_dump_ambiguous_internship_descriptions:string;
     repository_to_dump_national_diplomas: string;
@@ -143,6 +144,7 @@ let parameters =
     repository_to_dump_missing_grades = "notes_manquantes";
     repository_to_dump_missing_mentors = "tuteurs_manquants";
     repository_to_dump_missing_ects_attributions = "ects_non_attribuees";
+    repository_to_dump_courses_validated_twice = "valides_deux_fois" ;
     repository_to_dump_missing_internship_descriptions = "stages_manquants";
     repository_to_dump_ambiguous_internship_descriptions = "stages_ambigus";
     repository_to_dump_missing_course_name_translation = "cours_non_traduits_par_code_gps";
@@ -259,6 +261,7 @@ type data =
       Public_data.missing_internship_description list;
     missing_grades: Public_data.missing_grade list;
     missing_ects_attributions: Public_data.missing_grade list;
+    courses_validated_twice: Public_data.missing_grade list;
     missing_mentors: Public_data.missing_mentor list;
     missing_internship_descriptions: Public_data.missing_internship_description list;
     ambiguous_internship_descriptions: Public_data.missing_internship_description list;
@@ -293,6 +296,7 @@ let empty_data =
     non_accepted_grades = [];
     missing_grades = [];
     missing_ects_attributions = [];
+    courses_validated_twice = [];
     missing_mentors = [];
     missing_internship_descriptions = [];
     ambiguous_internship_descriptions = [];
@@ -596,6 +600,11 @@ let get_repository_to_dump_missing_ects_attributions t =
        t.parameters.repository_to_dump_missing_ects_attributions)
     t
 
+let get_repository_to_dump_courses_validated_twice t =
+      get_repository_to_dump_missing_gen
+        (fun t ->
+           t.parameters.repository_to_dump_courses_validated_twice)
+        t
 let get_repository_to_dump_ambiguous_internship_descriptions t =
   get_repository_to_dump_missing_gen
     (fun t ->
@@ -1343,6 +1352,13 @@ let set_missing_ects_attributions missing_ects_attributions data =
 let set_missing_ects_attributions missing_ects_attributions t =
   lift_set set_missing_ects_attributions missing_ects_attributions t
 
+let get_courses_validated_twice data = data.courses_validated_twice
+let get_courses_validated_twice t = lift_get get_courses_validated_twice t
+let set_courses_validated_twice courses_validated_twice data =
+    {data with courses_validated_twice}
+let set_courses_validated_twice courses_validated_twice t =
+    lift_set set_courses_validated_twice courses_validated_twice t
+
 let get_missing_internship_descriptions data =
   data.missing_internship_descriptions
 let get_missing_internship_descriptions t = lift_get get_missing_internship_descriptions t
@@ -2013,6 +2029,8 @@ let add_missing_mentor, get_missing_mentors =
   gen get_missing_mentors set_missing_mentors
 let add_missing_ects_attribution, get_missing_ects_attributions =
   gen get_missing_ects_attributions set_missing_ects_attributions
+let add_courses_validated_twice, get_courses_validated_twice =
+  gen get_courses_validated_twice set_courses_validated_twice
 let add_missing_internship_description, get_missing_internship_descriptions =
   gen get_missing_internship_descriptions set_missing_internship_descriptions
 let add_non_validated_internship, get_non_validated_internships =

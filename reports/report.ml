@@ -115,6 +115,31 @@ let dump_issues state =
     state
   in
   let state,_ =
+    Grades.Validated_twice.dump_per_dpt_student_year
+      ~file_name:"cours_en_double_par_dpt_et_étudiant.html"
+      state
+  in
+  let state,_ =
+    Grades.Validated_twice.dump_per_year_dpt_student
+      ~file_name:"cours_en_double_par_année_dpt_et_étudiant.html"
+      state
+  in
+  let state,_ =
+    Grades.Validated_twice.dump_per_dpt_class_year
+      ~file_name:"cours_en_double_par_dpt_et_étudiant.html"
+      state
+  in
+  let state,_ =
+    Grades.Validated_twice.dump_per_student
+    ~file_name:"cours_en_double_par_étudiant.html"
+    state
+  in
+  let state,_ =
+    Grades.Validated_twice.dump_per_promotion
+    ~file_name:"cours_en_double_par_promotion.html"
+    state
+  in
+  let state,_ =
     Mentors.ReportMissingMentors.dump_per_student
       ~file_name:"tuteurs_manquants_par_étudiant.html"
       state
@@ -207,6 +232,17 @@ let warn state =
       Remanent_state.warn
         __POS__
         "Some ects are not attributed"
+        Exit
+        state
+  in
+  let state =
+    match Remanent_state.get_courses_validated_twice state
+    with
+    | state, [] -> state
+    | state, _::_ ->
+      Remanent_state.warn
+        __POS__
+        "Some courses are validated several times"
         Exit
         state
   in
