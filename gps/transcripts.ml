@@ -5524,7 +5524,7 @@ let program
   in
   let state, bien =
     Remanent_state.bilingual_string
-      ~english:"Distinction: \textbf{Upper Second-Class Honours}"
+      ~english:"Distinction: \\textbf{Upper Second-Class Honours}"
       ~french:"Mention : \\textbf{Bien}"
       state
   in
