@@ -1340,8 +1340,11 @@ let best_grade list (*consistent list of notes*)=
                aux t (if Notes.better x y then h.note else best_grade)
             | Some x, None ->
               begin
-              match Notes.temporary x
-              with Some true -> aux t best_grade | None | Some false ->  aux t h.note
+              match Notes.temporary x, Notes.valide x
+              with Some true, _
+              | (None | Some false), (Some false | None) ->  aux t best_grade
+              | _, Some true ->
+                    aux t h.note
               end
             | None, _ -> aux t best_grade
           end
@@ -1392,7 +1395,12 @@ let clean_warn state map context =
                             let () = add_unvalidated x in
                             {x with inconsistency = None}
                       | Some _, Some g when g=best_grade -> x
-                      | _, (Some (Public_data.Float _ | Public_data.En_cours|Public_data.Valide_sans_note|Public_data.String _|Public_data.Temporary _)) ->
+                      | _, Some Public_data.En_cours ->
+                      {x with inconsistency = Some (__POS__,Format.sprintf "course %s %s %s"
+                          (match x.code_cours with None -> "N/A" | Some x -> x ) context (match x.valide_dans_gps with None -> "NONE" | Some x -> begin match Valide.valide x with
+                            | Some true -> "true"
+                            | Some false | None -> "false"  end ))}
+                      | _, (Some (Public_data.Float _ | Public_data.Valide_sans_note|Public_data.String _|Public_data.Temporary _)) ->
                       if match x.valide_dans_gps with None -> false | Some x ->
                         match Valide.valide x with
                           | Some true -> true
