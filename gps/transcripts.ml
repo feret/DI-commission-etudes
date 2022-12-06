@@ -6199,8 +6199,9 @@ let export_transcript
                  ||
                  counter = 0
                | Some sit ->
-                 (
-                   (simplify_string sit = "scolarite a l'ens"
+                 (let ssit = simplify_string sit in
+                   (ssit = "scolarite a l'ens" ||
+                    (int_of_string y>=2022 && ssit = "etalement : conge sur l'annee")
                     &&
                     not
                       (List.exists
@@ -6210,7 +6211,9 @@ let export_transcript
                             | None -> false
                             | Some dip ->
                               if String.length dip < 3 then false
-                              else String.sub dip 0 3 = "CES")
+                              else let sdip = String.sub dip 0 3 in
+                                    (sdip = "CES")
+                                || (sdip = "CST"))
                          annee.diplomes))
                    ||
                    (simplify_string sit = "autre cas"
