@@ -5924,6 +5924,7 @@ let build_gpscodelist ~year ~firstname ~lastname  situation state =
 let export_transcript
     ~output
     ?language
+    ?number_of_diploma_per_page
     ?bilinguage
     ?include_picture
     ?repartition
@@ -5933,6 +5934,11 @@ let export_transcript
     ?keep_success
     ?keep_faillure
     state gps_file =
+  let number_of_diploma_per_page =
+    match number_of_diploma_per_page with
+      | Some i -> i
+      | None -> 2
+  in
   let signature =
     match signature with
     | None -> []
@@ -6968,7 +6974,8 @@ let export_transcript
                                             | (b,_,_,_,_)::_ -> b
                          in
                          let state, is_l3' =
-                           if i mod 2 = 1
+                           if i mod number_of_diploma_per_page <> 0
+                           || number_of_diploma_per_page = 1
                            then
                              let suite = i<>1 in
                              let state, is_l3 =
@@ -6986,7 +6993,8 @@ let export_transcript
                              in
                              state, is_l3
                            else
-                             if List.length list > 10 && i mod 2 = 0
+                             if List.length list > 10
+                             && i mod number_of_diploma_per_page = 0
                              then
                               let state =
                                 foot signature state
@@ -7071,7 +7079,8 @@ let export_transcript
                                ()
                          in
                          let state =
-                           if i mod 2 = 0 || i = nprogram
+                           if i mod number_of_diploma_per_page = 0
+                            || i = nprogram
                            then
                              let state =
                                foot signature state
@@ -7085,7 +7094,8 @@ let export_transcript
                              state
                          in
                          let () =
-                           if i mod 2 = 0 || i = nprogram
+                           if i mod number_of_diploma_per_page = 0
+                           || i = nprogram
                            then
                              Remanent_state.fprintf
                                state "\\pagebreak\n\ "

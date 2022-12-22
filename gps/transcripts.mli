@@ -6,7 +6,8 @@ val get_gps_file:
 val export_transcript:
   output: string * string ->
   ?language:Public_data.language ->
-  ?bilinguage:bool -> 
+  ?number_of_diploma_per_page:int ->
+  ?bilinguage:bool ->
   ?include_picture:bool ->
   ?repartition:Public_data.repartition ->
   ?signature:(string list)->

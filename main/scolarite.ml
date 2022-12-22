@@ -294,6 +294,80 @@ let state =
              state
            | false -> state
          in
+         let state =
+           match is_di
+           with
+           | true ->
+             let output =
+               (fst output0,
+                (Tools.basename (snd
+                                   output0))^".1_by_1.signe_JF.tex")
+             in
+             let state, signature =
+               Remanent_state.get_signature state
+             in
+             let state =
+               match gps with
+               | None -> state
+               | Some gps ->
+                 let state, input =
+                   Transcripts.export_transcript
+                     ~number_of_diploma_per_page:1
+                     ~signature ~output state gps
+                 in
+                 (*let state =
+                   match input with
+                   | None -> state
+                   | Some (input_rep,file_name) ->
+                     let file_name = Copy.pdf_file file_name in
+                     let state,rep  =
+                       Remanent_state.get_student_personnal_repository
+                         ~firstname ~lastname ?promo state
+                     in
+                     let output_rep = Printf.sprintf "%s/" rep in
+                     Remanent_state.push_copy
+                       ~input_rep ~output_rep ~file_name state
+                 in*)
+                 Latex_engine.latex_opt_to_pdf
+                   ~rev:true state ~input
+             in
+             let output =
+               (fst output0,
+                (Tools.basename (snd
+                                   output0))^".1_by_1.signe_JF.en.tex")
+             in
+             let state, signature =
+               Remanent_state.get_signature state
+             in
+             let state =
+               match gps with
+               | None -> state
+               | Some gps ->
+                 let state, input =
+                   Transcripts.export_transcript
+                      ~number_of_diploma_per_page:1
+                     ~language:Public_data.English ~signature ~output state gps
+                 in
+                (* let state =
+                   match input with
+                   | None -> state
+                   | Some (input_rep,file_name) ->
+                     let file_name = Copy.pdf_file file_name in
+                     let state,rep  =
+                       Remanent_state.get_student_personnal_repository
+                         ~firstname ~lastname ?promo state
+                     in
+                     let output_rep = Printf.sprintf "%s/" rep in
+                     Remanent_state.push_copy
+                       ~input_rep ~output_rep ~file_name state
+                 in*)
+                 Latex_engine.latex_opt_to_pdf
+                   ~rev:true state ~input
+             in
+             state
+           | false -> state
+         in
+
          let output =
            (fst output0, (Tools.basename (snd output0))^".all.tex")
          in
