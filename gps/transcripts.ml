@@ -2511,7 +2511,8 @@ let code_mandatory_course_DI_maths year code_cours =
   let i = int_of_string year in
   if i <= 2015 then code_cours = "INFO-L3-MIIMC-S2"
     else if i <= 2018 then code_cours = "INFO-L3-THEOIC-S2"
-    else code_cours = "INFO-L3-APPREN-S2"
+    else if i <= 2021 then code_cours = "INFO-L3-APPREN-S2"
+    else code_cours = "INFO-M1-MPRI113-S2"
 
 let lmath ~year ~firstname ~lastname d state =
   lgen "licence" ["gps2274";"gps3017";"gps2262"] dpt_maths_gps_name (Some "DMA") d ||
