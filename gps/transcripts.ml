@@ -2729,6 +2729,13 @@ let string_of_stringopt s_opt =
   | None -> ""
   | Some s -> s
 
+let semester_of_stringopt s_opt =
+  let s = String.trim (string_of_stringopt s_opt) in
+  match s with
+  | "1" | "2" -> s
+  | "3" -> "1\\&2"
+  | _ -> s
+
 let translate_dpt ~firstname ~lastname ~year state d =
   match d with
   | None ->
@@ -5457,7 +5464,7 @@ let program
         in
         let () =
           Remanent_state.print_cell
-            (string_of_stringopt cours.semestre)
+            (semester_of_stringopt cours.semestre)
             state
         in
         let state, note_string =
@@ -6215,7 +6222,20 @@ let export_transcript
                  counter = 0
                | Some sit ->
                  (let ssit = simplify_string sit in
-                   (ssit = "scolarite a l'ens" ||
+                   ((ssit = "scolarite a l'ens"
+                    &&
+                    (not
+                       (List.exists
+                          (fun dip ->
+                             let code = dip.diplome_diplome in
+                             match code with
+                             | None -> false
+                             | Some dip ->
+                               String.sub dip 0 5 = "CST-A")
+                          annee.diplomes))
+)
+    ||
+
                     (int_of_string y>=2022 && ssit = "etalement : conge sur l'annee")
                     &&
                     not
@@ -6241,7 +6261,9 @@ let export_transcript
                              | None -> false
                              | Some dip ->
                                if String.length dip < 3 then false
-                               else String.sub dip 0 3 = "CES")
+                               else
+                                  String.sub dip 0 3 = "CES"
+                              || String.sub dip 0 5 = "CST-A")
                           annee.diplomes))
                     &&
                     (annee.derniere_annee = Some true
