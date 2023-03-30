@@ -6251,7 +6251,8 @@ let export_transcript
                                 || (sdip = "CST"))
                          annee.diplomes))
                    ||
-                   (simplify_string sit = "autre cas"
+                   (List.mem (simplify_string sit)
+                        ["autre cas";"etalement : conge sur le s1";"etalement : conge sur le s2"]
                     &&
                     (not
                        (List.exists
