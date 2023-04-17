@@ -6231,7 +6231,8 @@ let export_transcript
                              match code with
                              | None -> false
                              | Some dip ->
-                               String.sub dip 0 5 = "CST-A")
+                               if String.length dip <5 then false else
+                                String.sub dip 0 5 = "CST-A")
                           annee.diplomes))
 )
     ||
