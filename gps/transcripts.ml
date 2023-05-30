@@ -33,6 +33,7 @@ module StringOptMap =
 
 let dpt_maths = "mathematiques"
 let dpt_info = "informatique"
+let dpt_chimie = "chimie"
 let dpt_phys = "physique"
 let dpt_phyl = "phylosiphie"
 let dpt_bio = "biologie"
@@ -61,6 +62,7 @@ let dpt_eco_gps_name = dpt_eco
 let dpt_info_gps_name = dpt_info
 let dpt_phys_gps_name = dpt_phys
 let dpt_maths_gps_name = "mathematiques et applications"
+let dpt_chimie_gps_name = dpt_chimie
 let dpt_bio_gps_name = dpt_bio
 let dpt_dri_gps_name = dpt_dri
 let dpt_dec_gps_name = dpt_dec
@@ -71,6 +73,7 @@ let acro_dpt_arts = "ARTS"
 let acro_dpt_phys = "PHYS"
 let acro_dpt_info = "DI"
 let acro_dpt_maths = "DMA"
+let acro_dpt_chimie = "CHIMIE"
 let acro_dpt_eco = "ECO"
 let acro_dpt_bio = "BIO"
 let acro_dpt_dri = "DRI"
@@ -79,6 +82,7 @@ let acro_dpt_lila = "LILA"
 let dpt_arts_full = "Département d'Arts"
 let dpt_info_full = "Département d'Informatique"
 let dpt_maths_full = "Département de Mathématiques et Applications"
+let dpt_chimie_full = "Département de Chimie"
 let dpt_phys_full = "Département de Physique"
 let dpt_bio_full = "Institut de Biologie"
 let dpt_dec_full = "Département d'Études Cognitives"
@@ -89,6 +93,7 @@ let dpt_lila_full = "Département de Litteratures et Langage"
 let dpt_arts_full_en = "Arts Department"
 let dpt_info_full_en = "Computer Science Department"
 let dpt_maths_full_en = "Department of Mathematics and their Applications"
+let dpt_chimie_full_en = "Chemistry"
 let dpt_phys_full_en = "Physics Department"
 let dpt_bio_full_en = "Biology Institute"
 let dpt_dec_full_en = "Cognitive Studies Department"
@@ -107,6 +112,8 @@ let acro_of_gps_name x =
   then acro_dpt_info
   else if x = dpt_maths_gps_name
   then acro_dpt_maths
+  else if x = dpt_chimie_gps_name
+  then acro_dpt_chimie
   else if x = dpt_bio_gps_name
   then acro_dpt_bio
   else if x = dpt_eco_gps_name
@@ -1210,6 +1217,7 @@ let store_cours  =
       let bio = -3
       let dec = -2
       let dma = 0
+      let chimie = 32
       let dsa = 5
       let eco = 10
       let info = 20
@@ -1232,6 +1240,7 @@ let store_cours  =
           dsa, "DSA";
           eco, "ECO";
           dma, "DMA";
+          chimie, "CHIMIE";
           info, "INFO";
           lila, "LILA";
           phil, "PHIL";
@@ -2752,6 +2761,7 @@ let translate_dpt ~firstname ~lastname ~year state d =
       | x when x=dpt_info_gps_name -> state, (dpt_info_full,dpt_info_full_en)
       | x when x=dpt_maths_gps_name -> state, (dpt_maths_full,dpt_maths_full_en)
       | x when x=dpt_phys_gps_name -> state, (dpt_phys_full,dpt_phys_full_en)
+      | x when x=dpt_chimie_gps_name -> state, (dpt_chimie_full,dpt_chimie_full_en)
       | x when x=dpt_bio_gps_name -> state, (dpt_bio_full,dpt_bio_full_en)
       | x when x=dpt_dec_gps_name        -> state, (dpt_dec_full,dpt_dec_full_en)
       | x when x=dpt_eco_gps_name -> state, (dpt_eco_full,dpt_eco_full_en)
@@ -2949,6 +2959,7 @@ let translate_diplome
           match dpt.Public_data.dpt_acronyme with
           | "DI" -> "informatique","Computer Science"
           | "DMA" -> "mathématiques","Mathematics"
+          | "CHIMIE" -> "chimie", "Chemistry"
           | "PHYS" -> "physique","Physics"
           | "IBENS" -> "biologie","Biology"
           | "LILA" -> "littératures et langage","Litteratures and Language"
@@ -3031,10 +3042,10 @@ let translate_diplome
           label^" in "^dpt_en
         in
         let label =
-          if List.mem
+          if (if dpt="" then false else List.mem
               (String.lowercase_ascii
                  (String.sub dpt 0 1))
-              ["a";"e";"i";"o";"u";"y"]
+              ["a";"e";"i";"o";"u";"y"])
           then
             label^" d'"^dpt
           else
@@ -3232,6 +3243,7 @@ let dpt_of_acro who pos state dpt origine =
     match dpt with
   | Public_data.DI -> state, Some dpt_info
     | Public_data.DMA -> state, Some dpt_maths
+    | Public_data.CHIMIE -> state, Some dpt_chimie
     | Public_data.IBENS -> state, Some dpt_ibens
     | Public_data.PHYS -> state, Some dpt_phys
     | Public_data.ECO -> state, Some dpt_eco
@@ -3277,7 +3289,7 @@ let check_mandatory state cours =
       true
     else
       false
-  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.DMA | Public_data.LILA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> state, false
+  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.CHIMIE | Public_data.DMA | Public_data.LILA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> state, false
 
 let is_mandatory state cours =
   let state, b = check_mandatory state cours in
@@ -3317,7 +3329,7 @@ let check_count_for_maths state cours =
         ||
         course_by_dma cours
     end
-  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.DMA | Public_data.LILA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, false
+  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.CHIMIE | Public_data.DMA | Public_data.LILA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, false
 
 let count_for_maths state cours =
   let state, b = check_count_for_maths state cours in
@@ -3700,6 +3712,15 @@ let heading
             "D\\'epartement de Physique. \\'Ecole  Normale  Sup\\'erieure. 4XXXXXXX 75005 Paris. Tel : +33 (0)1 44 32 ?? ??."
         in
         state
+        | state, Public_data.CHIMIE ->
+          let () =
+            Remanent_state.log_string
+              ?backgroundcolor
+              state
+              ~english:"Department of Chemistry. \\'Ecole Normale Sup\\'erieure. XXXXXXXXXXX 75005 Paris. Phone: +33 (0)1 44 32 ?? ??."
+              "D\\'epartement de Chimie. \\'Ecole  Normale  Sup\\'erieure. 4XXXXXXX 75005 Paris. Tel : +33 (0)1 44 32 ?? ??."
+          in
+          state
       | state, (Public_data.ARTS | Public_data.DRI | Public_data.ENS | Public_data.ECO | Public_data.IBENS | Public_data.LILA) ->
       let state =
         Remanent_state.warn
@@ -3903,6 +3924,7 @@ let heading
           | Public_data.DMA -> "de mathématiques"
           | Public_data.ENS -> ""
           | Public_data.PHYS -> "de physique"
+          | Public_data.CHIMIE -> "de chimie"
           | Public_data.IBENS -> "de biologie"
           | Public_data.ECO -> "d'économie"
           | Public_data.ARTS -> "d'arts"
@@ -3915,6 +3937,7 @@ let heading
           | Public_data.DMA -> "Mathematics"
           | Public_data.ENS -> ""
           | Public_data.PHYS -> "Physics"
+          | Public_data.CHIMIE -> "Chemistry"
           | Public_data.IBENS -> "Biology"
           | Public_data.ECO -> "Economy"
           | Public_data.ARTS -> "Arts"
@@ -4689,7 +4712,7 @@ let program
                 | _,Public_data.DRI
                 | _,Public_data.ENS -> None
                 | _,(Public_data.ARTS
-                    | Public_data.ECO | Public_data.DI | Public_data.DMA | Public_data.IBENS | Public_data.PHYS | Public_data.LILA) ->
+                    | Public_data.ECO | Public_data.DI | Public_data.DMA | Public_data.CHIMIE | Public_data.IBENS | Public_data.PHYS | Public_data.LILA) ->
                   Some dpt)
             ~gpscodelist
             ~year
@@ -6575,6 +6598,7 @@ let export_transcript
                  | state, (Public_data.ARTS
                           | Public_data.ECO
                           | Public_data.DMA
+                          | Public_data.CHIMIE
                           | Public_data.PHYS
                           | Public_data.IBENS
                           | Public_data.LILA)->
@@ -7570,6 +7594,7 @@ let export_transcript
                  | Public_data.DI
                  | Public_data.ECO
                  | Public_data.DMA
+                 | Public_data.CHIMIE
                  | Public_data.PHYS
                  | Public_data.IBENS
                  | Public_data.LILA)->

@@ -70,7 +70,7 @@ module StringOptMap =
         end
         )
 
-type main_dpt = DI | DMA | ENS | PHYS | IBENS | ECO | DRI | ARTS | LILA
+type main_dpt = DI | DMA | ENS | CHIMIE | PHYS | IBENS | ECO | DRI | ARTS | LILA
 type universite =
   | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud | UPNord | USPN | UDauphine
 
@@ -98,6 +98,7 @@ let string_of_dpt x =
   match x with
   | DI -> "informatique"
   | DMA -> "mathématiques"
+  | CHIMIE -> "chimie"
   | IBENS -> "biologie"
   | PHYS -> "physique"
   | ECO -> "économie"
@@ -111,6 +112,7 @@ let dpt_of_string x =
   match x with
   | "informatique" | "di" -> DI
   | "mathematiques" | "dma" -> DMA
+  | "chimie" -> CHIMIE
   | "physique" -> PHYS
   | "biologie" -> IBENS
   | "" | "ens" -> ENS

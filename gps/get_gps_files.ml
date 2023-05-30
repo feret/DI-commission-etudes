@@ -1,4 +1,4 @@
-type dpt = Maths | PE | DRI | PHYS
+type dpt = Maths | PE | DRI | PHYS | CHIMIE
 type access_type =
        GPS of dpt option | Backup | Preempt | Warn
 
@@ -16,6 +16,7 @@ let string_of_dpt_opt =
   | Some PE -> "&dept=pe"
   | Some DRI -> "&dept=dri"
   | Some PHYS -> "&dept=phys"
+  | Some CHIMIE -> "&dept=chim"
 
 let profiling_label_of_dpt_opt =
   function
@@ -24,6 +25,7 @@ let profiling_label_of_dpt_opt =
   | Some PE -> Some "PE"
   | Some DRI -> Some "DRI"
   | Some PHYS -> Some "PHYS"
+  | Some CHIMIE -> Some "CHIMIE"
 
 let build_output
     pos ~has_promo
@@ -637,6 +639,25 @@ let modelist_phys_false_true =
 let modelist_phys_false_false =
   modelist_phys_gen false false
 
+
+  let modelist_chimie_gen b1 b2 =
+    add_to_list b1 b2 Preempt
+      (add_to_list b1 b2 (GPS (Some CHIMIE))
+         (add_to_list b1 b2 (GPS (Some Maths))
+            (add_to_list b1 b2 (GPS (Some DRI))
+               (add_to_list b1 b2 (GPS (Some PE))
+                  (add_to_list true true Warn
+                     (add_to_list b1 b2 Backup []))))))
+
+  let modelist_chimie_true_true =
+    modelist_chimie_gen true true
+  let modelist_chimie_true_false =
+    modelist_chimie_gen true false
+  let modelist_chimie_false_true =
+    modelist_chimie_gen false true
+  let modelist_chimie_false_false =
+    modelist_chimie_gen false false
+
 let get_student_file
       student_id
       ?modelist
@@ -687,6 +708,11 @@ let get_student_file
         | true, false, Public_data.PHYS -> modelist_phys_true_false
         | false, true, Public_data.PHYS -> modelist_phys_false_true
         | false, false, Public_data.PHYS -> modelist_phys_false_false
+        | true, true, Public_data.CHIMIE -> modelist_chimie_true_true
+        | true, false, Public_data.CHIMIE -> modelist_chimie_true_false
+        | false, true, Public_data.CHIMIE -> modelist_chimie_false_true
+        | false, false, Public_data.CHIMIE -> modelist_chimie_false_false
+
       end
   in
   let state, output =

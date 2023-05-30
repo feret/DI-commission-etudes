@@ -1,4 +1,4 @@
-type dpt = Maths | PE | DRI | PHYS
+type dpt = Maths | PE | DRI | PHYS | CHIMIE 
 type access_type =
     GPS of dpt option | Backup | Preempt | Warn
 

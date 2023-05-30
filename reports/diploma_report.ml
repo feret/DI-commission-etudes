@@ -301,6 +301,13 @@ let direction_etude_phys =
     Public_data.StringMap.empty
     People.phys_list
 
+    let direction_etude_chimie =
+      List.fold_left
+        (fun map elt ->
+           Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+        Public_data.StringMap.empty
+        People.chimie_list
+
 let direction_etude_dri =
   List.fold_left
     (fun map elt ->
@@ -535,6 +542,12 @@ let dump_attestation
         Loggers.setfootpage logger ~color
           [Loggers.fprintf,
            People.footpage_string_phys], direction_etude_phys, "physique"
+           | Public_data.CHIMIE ->
+             let color = Color.blue in
+             Loggers.setfootpage logger ~color
+               [Loggers.fprintf,
+                People.footpage_string_chimie], direction_etude_chimie, "chimie"
+
 
     in
     let dir =  Public_data.StringMap.find_opt signataire dir_list in

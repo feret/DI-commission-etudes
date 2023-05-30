@@ -248,6 +248,13 @@ let direction_etude_phys =
     Public_data.StringMap.empty
     People.phys_list
 
+let direction_etude_chimie=
+      List.fold_left
+        (fun map elt ->
+           Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+        Public_data.StringMap.empty
+        People.chimie_list
+
 let direction_etude_eco =
   List.fold_left
     (fun map elt ->
@@ -318,6 +325,20 @@ let diplomes_phys =
     Public_data.StringUnivMap.empty
     [dens]
 
+    let diplomes_chimie =
+      List.fold_left
+        (fun map elt ->
+           Public_data.StringUnivMap.add
+             (match elt with
+              | Public_data.Diplome_ENS elt ->
+                elt.Public_data.dens_key, Public_data.UENS
+              | Public_data.Diplome_National elt ->
+                elt.Public_data.dn_key,elt.Public_data.dn_univ_key)
+             elt map)
+        Public_data.StringUnivMap.empty
+        [dens]
+
+
 let diplomes_eco =
   List.fold_left
     (fun map elt ->
@@ -374,7 +395,9 @@ let print_sous_commission
       People.dpt_ibens, direction_etude_ibens,diplomes_ibens,People.footpage_string_ibens,Color.green
     | Public_data.PHYS ->
       People.dpt_phys, direction_etude_phys,diplomes_phys,People.footpage_string_phys,Color.blue
-    | Public_data.ECO ->
+    | Public_data.CHIMIE ->
+      People.dpt_chimie, direction_etude_chimie,diplomes_chimie,People.footpage_string_chimie,Color.blue
+  | Public_data.ECO ->
       People.dpt_eco,
       direction_etude_eco,diplomes_eco,People.footpage_string_eco,Color.pink
     | Public_data.LILA ->

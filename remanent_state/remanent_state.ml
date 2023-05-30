@@ -235,6 +235,17 @@ let set_phys parameters =
     include_pictures = false;
   }
 
+  let set_chimie parameters =
+    {
+      parameters with
+      main_dpt = Public_data.CHIMIE ;
+      commission = None (*Some ("23 juin 2021",  "2020")*);
+      local_repository = "chimie/suivi_pedagogique" ;
+      scholarships_repository = "chimie/scolarite/ELEVES" ;
+      repartition = Public_data.Annee_obtention_du_diplome ;
+      include_pictures = false;
+    }
+
 type data =
   {
     students: Public_data.student_id list ;
@@ -932,6 +943,7 @@ let get_option parameters =
         match String.lowercase_ascii h with
         | "dma" -> set_dma parameters
         | "phys" -> set_phys parameters
+        | "chimie" -> set_chimie parameters 
         | _ -> parameters
       end
     | [] -> parameters
@@ -2183,6 +2195,10 @@ let is_main_dpt_dma t =
 let is_main_dpt_phys t =
   let t,dpt = get_main_dpt t in
   t, dpt = Public_data.PHYS
+
+  let is_main_dpt_chimie t =
+    let t,dpt = get_main_dpt t in
+    t, dpt = Public_data.CHIMIE
 
 let get_language t =
   t, t.parameters.language
