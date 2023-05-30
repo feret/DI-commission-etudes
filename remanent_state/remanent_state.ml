@@ -236,7 +236,6 @@ let set_phys parameters =
   }
 
   let set_chimie parameters =
-    let _ = Format.printf "CHIMIE @." in
     {
       parameters with
       main_dpt = Public_data.CHIMIE ;
@@ -935,14 +934,12 @@ let split_dpt =
        List.mem p list_dpt)
 
 let get_option parameters =
-  let _ = Format.printf "get_option @." in
   let l = get_cmd_options () in
   let dpt, others = split_dpt l in
   let parameters =
     match dpt with
     | h::_ ->
       begin
-        let _ = Format.printf "%s %s @." h (String.lowercase_ascii h) in
         match String.lowercase_ascii h with
         | "dma" -> set_dma parameters
         | "phys" -> set_phys parameters
