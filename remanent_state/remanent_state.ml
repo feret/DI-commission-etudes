@@ -236,6 +236,7 @@ let set_phys parameters =
   }
 
   let set_chimie parameters =
+    let _ = Format.printf "CHIMIE @." in 
     {
       parameters with
       main_dpt = Public_data.CHIMIE ;
@@ -943,7 +944,7 @@ let get_option parameters =
         match String.lowercase_ascii h with
         | "dma" -> set_dma parameters
         | "phys" -> set_phys parameters
-        | "chimie" -> set_chimie parameters 
+        | "chimie" -> set_chimie parameters
         | _ -> parameters
       end
     | [] -> parameters
