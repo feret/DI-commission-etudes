@@ -6288,7 +6288,7 @@ let export_transcript
                                if String.length dip < 3 then false
                                else
                                   String.sub dip 0 3 = "CES"
-                              || String.sub dip 0 5 = "CST-A")
+                              || (if String.length dip < 5 then false else String.sub dip 0 5 = "CST-A"))
                           annee.diplomes))
                     &&
                     (annee.derniere_annee = Some true
