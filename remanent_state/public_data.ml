@@ -679,6 +679,7 @@ let all_notes_string =
     | AL
     | BCPST
     | DensBio
+    | DensChimie
     | DensDEC
     | DensInfo
     | DensMath
@@ -969,6 +970,7 @@ let string_of_origin_opt a =
   | Some BCPST -> "CPGE Biologie-Chimie-Physique-Sciences de la terre"
   | Some DensDEC -> "concours universitaire sciences cognitives"
   | Some DensInfo -> "concours universitaire informatique"
+  | Some DensChimie -> "concours universitaire chimie"
   | Some EchErasm -> "Erasmus"
   | Some ED386 -> "ED386"
   | Some Info -> "CPGE Informatique"

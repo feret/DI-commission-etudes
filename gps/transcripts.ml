@@ -47,6 +47,7 @@ let dpt_dri = "relations internationales"
 
 let dpt_maths_en = "mathematics"
 let dpt_info_en = "computer science"
+let dpt_chimie_en = "chemistry"
 let dpt_phys_en = "physics"
 let dpt_phyl_en = "phylosophy"
 let dpt_bio_en = "biology"
@@ -355,6 +356,7 @@ let string_of_origin_short_opt a =
       | Public_data.DensDEC
       | Public_data.DensPhys
       | Public_data.DensBio
+      | Public_data.DensChimie
       | Public_data.DensMath) -> "universitaire"
   | Some Public_data.Nes -> "Normalien Étudiant Sciences"
   | Some Public_data.EchErasm -> "Erasmus"
@@ -377,6 +379,7 @@ let string_of_origin_short_opt a =
         | Public_data.DensDEC
         | Public_data.DensPhys
         | Public_data.DensBio
+        | Public_data.DensChimie
         | Public_data.DensMath) -> "university"
     | Some Public_data.Nes -> "Sciences Normalien Student"
     | Some Public_data.EchErasm -> "Erasmus"
@@ -1907,6 +1910,7 @@ let origines =
     Public_data.DensMath,["dens-dma"];
     Public_data.DensPhys,["dens-phys"];
     Public_data.DensBio,["dens-bio"];
+    Public_data.DensChimie,["dens-chim"];
     Public_data.Nes,["nes"];
     Public_data.DensDEC,["dens-dec"];
     Public_data.EchErasm,["e-echerasm"];
@@ -2548,6 +2552,8 @@ let larts d =
   lgen "licence" ["gps69522"] dpt_arts_gps_name None d
 let llila d =
   lgen "licence" ["gps83025"] dpt_lila_gps_name None d
+let lchimie d =
+  lgen "licence" ["gps80663"] dpt_chimie_gps_name None d
 let lpoly d =
   lgen "licence" ["gps74842"] "" None d
 let lbio _ = false
@@ -2561,6 +2567,7 @@ let lerasmus origine =
       | Public_data.DensMath
       | Public_data.DensPhys
       | Public_data.DensBio
+      | Public_data.DensChimie
       | Public_data.Nes
       | Public_data.AL
       | Public_data.DensDEC
@@ -2587,6 +2594,7 @@ let lpe origine =
       (Public_data.DensInfo
       | Public_data.DensMath
       | Public_data.DensBio
+      | Public_data.DensChimie
       | Public_data.DensPhys
       | Public_data.Nes
       | Public_data.AL
@@ -3113,6 +3121,9 @@ let translate_diplome
       else if lbio situation then
         state,
         (Some "L","L3 de biologie","Bachelor in Biology",dpt_ibens,dpt_ibens_en,false,is_m2)
+      else if lchimie situation then
+        state,
+        (Some "L","L3 de chimie","Bachelor in Chemistry",dpt_chimie,dpt_chimie_en,false,is_m2)
       else if ldec situation then
         state,
         (Some "L","L3 de sciences cognitives","Bachelor in Cognitive Sciences",dpt_ibens,dpt_ibens_en,false,is_m2)
@@ -3222,6 +3233,8 @@ let color_of_dpt who pos state dpt origine =
   then state, Some Color.brown
   else if dpt = dpt_lila
   then state, Some Color.blue
+  else if dpt = dpt_chimie
+  then state, Some Color.white
   else
     let msg =
       Format.sprintf "Unknown departement (%s) for %s"
@@ -3579,6 +3592,7 @@ let get_origine who promo gps_file state =
       | Public_data.DensDEC
       | Public_data.DensMath
       | Public_data.DensBio
+      | Public_data.DensChimie
       | Public_data.DensPhys
       | Public_data.Nes
       |Public_data.EchErasm
@@ -3660,6 +3674,7 @@ let is_elligble_for_funding origine gps_file state =
              | Public_data.DensMath
              | Public_data.DensPhys
              | Public_data.DensBio
+             | Public_data.DensChimie
              | Public_data.DensInfo
              | Public_data.DensDEC)
         -> state, true
@@ -3802,6 +3817,7 @@ let heading
                | Public_data.DensMath
                | Public_data.DensPhys
                | Public_data.DensBio
+               | Public_data.DensChimie
                | Public_data.DensInfo
                | Public_data.DensDEC)
           ->
@@ -4090,11 +4106,9 @@ let heading
                   if s = dpt_phys_gps_name
                   then
                     state,acro_dpt_phys
-                  else if s =
-                          dpt_maths_gps_name
+                  else if s = dpt_maths_gps_name
                   then state, acro_dpt_maths
-                  else if s =
-                          dpt_info_gps_name
+                  else if s = dpt_info_gps_name
                   then state, acro_dpt_info
                   else
                     let msg =

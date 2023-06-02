@@ -25,6 +25,18 @@ let jf =
 
   }
 
+let jd =
+    {
+      Public_data.direction_initiales = "JD";
+      Public_data.direction_nom_complet = "Jérôme Delacotte";
+      Public_data.direction_genre = Public_data.Masculin ;
+      Public_data.direction_signature =
+        Some Remanent_state.get_signature;
+      Public_data.direction_titre = "Directeur des études";
+      Public_data.direction_departement = "de chimie";
+
+    }
+
 let am =
   {
     Public_data.direction_initiales = "AM";
@@ -78,7 +90,7 @@ let eco_list = []
 let dri_list = []
 let arts_list = []
 let lila_list = []
-let chimie_list = []
+let chimie_list = [jd]
 
 let dpt_di = "informatique"
 let dpt_dma = "mathématiques"
@@ -95,7 +107,7 @@ let footpage_string_dma =
   "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 31 72 45 --  Fax : + 33 (0) 1 44 32 20 69 -- education@math.ens.fr}"
 let footpage_string_phys = ""
 let footpage_string_ibens = ""
-let footpage_string_chimie = ""
+let footpage_string_chimie = "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : +33 (0)1 44 32 33 29 -- enseignement.chimie@ens.psl.eu}"
 let footpage_string_eco = ""
 let footpage_string_dri = ""
 let footpage_string_arts = ""

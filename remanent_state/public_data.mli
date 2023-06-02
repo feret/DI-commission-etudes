@@ -390,6 +390,7 @@ type origin =
   | AL
   | BCPST
   | DensBio
+  | DensChimie
   | DensDEC
   | DensInfo
   | DensMath
