@@ -92,7 +92,7 @@ let special_char_tab  =
       "ú","{\\'u}", "&uacute;","ú","ú","Ú","u";
       (*"ū"*)
       "\191", "'", "'","'","'","'","\'";
-      "%"   , "" ,"%" ,"%","%","%","%";
+    (*  "%"   , "" ,"%" ,"%","%","%","%";*)
       "_", "\\_" , "_","_","_","_","_";
     ]
 
@@ -120,6 +120,9 @@ let special_char_txt =
 
 let special_char_utf8 =
   ['\233',"e"]
+
+let special_char_percent_from_csv_to_latex =
+  ['%',"\\%"]
 
 let special_char_file_name =
   (" ", "")::special_char_txt
@@ -152,6 +155,9 @@ let special_char_url_map =
 
 let special_char_utf8_map =
     map_from_char_list special_char_utf8
+
+let special_char_percent_from_csv_to_latex_map =
+    map_from_char_list special_char_percent_from_csv_to_latex
 
 let special_char_email_latex =
     CharMap.empty, Char2Map.empty
@@ -309,6 +315,9 @@ let correct_string s =
 
 let correct_string_utf8 s =
   string_map special_char_utf8_map s
+
+let correct_string_percent_from_csv_to_latex s =
+  string_map special_char_percent_from_csv_to_latex_map s
 
 let correct_string_url s =
   string_map special_char_url_map s

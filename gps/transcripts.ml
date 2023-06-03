@@ -2123,7 +2123,10 @@ let asso_list =
               let cours_libelle =
                 match cours_libelle with
                 | None -> None
-                | Some a -> Some (String.trim a)
+                | Some a ->
+                    Some
+                        (Special_char.correct_string_percent_from_csv_to_latex
+                              (String.trim a))
               in
             {cours with cours_libelle}))
           state l remanent)
