@@ -468,13 +468,35 @@ module MissingECTSAttributions =
         Remanent_state.get_repository_to_dump_missing_ects_attributions
     end)
 
-module Validated_twice =
+module Underaveragevalidated =
   Build
     (struct
       type elt = Public_data.missing_grade
 
-      let default_file_name = "cours_en_double.html"
-      let get = Remanent_state.get_courses_validated_twice
+      let default_file_name = "cours_sous_la_moyenne_valide.html"
+      let get = Remanent_state.get_under_average_validated_grades
       let get_repository =
-            Remanent_state.get_repository_to_dump_courses_validated_twice
+            Remanent_state.get_repository_to_dump_under_average_validated_grades
      end)
+
+module Validated_twice =
+   Build
+    (struct
+           type elt = Public_data.missing_grade
+
+           let default_file_name = "cours_en_double.html"
+           let get = Remanent_state.get_courses_validated_twice
+           let get_repository =
+                 Remanent_state.get_repository_to_dump_courses_validated_twice
+          end)
+
+module Outofschoolingyears =
+   Build
+    (struct
+         type elt = Public_data.missing_grade
+
+         let default_file_name = "cours_en_hors_scolarite.html"
+         let get = Remanent_state.get_out_of_schooling_years
+         let get_repository =
+              Remanent_state.get_repository_to_dump_out_of_schooling_years
+      end)

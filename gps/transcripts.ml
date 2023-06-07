@@ -459,6 +459,7 @@ type cours =
     commentaire: string list;
     extra:bool;
     inconsistency:((string*int*int*int)*string) option;
+    validated_under_average: bool;
     cours_annee:string option;
   }
 
@@ -542,6 +543,7 @@ let empty_cours =
     extra = false;
     inconsistency = None ;
     cours_annee = None ;
+    validated_under_average = false ;
   }
 
 type date =
@@ -1095,11 +1097,11 @@ let store_cours  =
          Printf.sprintf
            "%s in %s" who c
        in
-       let state, note, inconsistency  =
+       let state, note, inconsistency, validated_under_average  =
          match remanent.prevalide, remanent.prenote with
          | Some (Public_data.Bool false | Public_data.Abs), None
            ->
-           state, Some Public_data.Absent, None
+           state, Some Public_data.Absent, None, false
          | Some Public_data.Abs, Some i ->
            let msg =
              Format.sprintf
@@ -1110,9 +1112,9 @@ let store_cours  =
              msg
              Exit
              state
-           in state, Some Public_data.Absent, None
+           in state, Some Public_data.Absent, None, false
          | Some Public_data.Bool true, None ->
-           state, (Some Public_data.Valide_sans_note), None
+           state, (Some Public_data.Valide_sans_note), None, false
          | v , Some n ->
            begin
              let state, note_opt = Notes.of_string __POS__ state n v in
@@ -1128,14 +1130,14 @@ let store_cours  =
                  msg
                  Exit
                  state
-               in state, note_opt, None
+               in state, note_opt, None, false
              | Some note ->
                if
                  (match v with
                  | Some v -> Notes.valide note = Valide.valide v
                  | None -> true)
                then
-                 state, note_opt, None
+                 state, note_opt, None, false
                else
                  let state, compensation =
                      match
@@ -1158,7 +1160,7 @@ let store_cours  =
                          state
                      in state, false
                    in
-                   if compensation then state, note_opt, None
+                   if compensation then state, note_opt, None, false
                    else
                      begin
                        let state, note_string =
@@ -1177,18 +1179,18 @@ let store_cours  =
                            "Note %s and validity status %s are  incompatible for %s"
                            note_string v_string who
                        in
-                       state, note_opt, Some (__POS__,msg)
+                       state, note_opt, Some (__POS__,msg), true
            end
            end
          | None, None ->
-           state, Some Public_data.En_cours, None
+           state, Some Public_data.En_cours, None, false
        in
        let code_cours = remanent.precode in
        let accord = remanent.preaccord in
        let commentaire = remanent.rem_commentaires in
        let valide_dans_gps = remanent.prevalide in
        let cours_annee = remanent.annee_de_travail in
-       state, {remanent.rem_cours with valide_dans_gps ; note ; code_cours ; accord ; commentaire ; cours_annee ; inconsistency})
+       state, {remanent.rem_cours with valide_dans_gps ; note ; code_cours ; accord ; commentaire ; cours_annee ; inconsistency; validated_under_average})
     (fun state bilan cours -> state, {bilan with cours})
 
     let is_stage cours =
@@ -1221,6 +1223,7 @@ let store_cours  =
       let dec = -2
       let dma = 0
       let chimie = 32
+      let ceres = 33
       let dsa = 5
       let eco = 10
       let info = 20
@@ -1243,7 +1246,8 @@ let store_cours  =
           dsa, "DSA";
           eco, "ECO";
           dma, "DMA";
-          chimie, "CHIMIE";
+          ceres, "CERES";
+          chimie, "CHIM";
           info, "INFO";
           lila, "LILA";
           phil, "PHIL";
@@ -1284,18 +1288,18 @@ let store_cours  =
       let fetch = fetch fst autre manquant stage stage_string
 
 
-let warn_on_courses ~promo ~firstname ~lastname state m =
+let warn_on_courses ~promo_gps ~firstname ~lastname state m =
     Public_data.StringOptStringOptMap.fold
         (fun _ x state  ->
             List.fold_left
               (fun state cours ->
                 match cours.inconsistency with
                 | None -> state
-                | Some (pos,msg) ->
+                | Some (_pos,_msg) ->
                   let dou =
                       {
                   Public_data.missing_grade_promotion =
-                    promo;
+                    promo_gps;
                   Public_data.missing_grade_dpt=
                     (fetch_code (true,"","","",cours));
                   Public_data.missing_grade_dpt_indice =
@@ -1316,9 +1320,14 @@ let warn_on_courses ~promo ~firstname ~lastname state m =
                   Public_data.missing_grade_firstname =
                     firstname;
                 } in
-                    let state =
-                      Remanent_state.add_courses_validated_twice state dou in
-                    Remanent_state.warn pos msg Exit state)
+                  let state =
+                    if cours.validated_under_average
+                    then
+                      Remanent_state.add_under_average_validated_grades state dou
+                    else
+                      Remanent_state.add_courses_validated_twice state dou
+                  in
+                  state)
               state x)
         m state
 
@@ -1445,14 +1454,14 @@ let store_courses state l =
     in
     state, List.fold_left add map l
 
-let warn_on_course_list ~promo ~firstname ~lastname state l context =
+let warn_on_course_list ~promo_gps ~firstname ~lastname state l context =
     let l =
       List.fold_left (fun sol (_,elt) -> elt.cours::sol) [] l
     in
     let l = List.flatten l in
     let state, map = store_courses state l in
     let state, unvalidated, map = clean_warn state map context in
-    let state = warn_on_courses ~promo ~firstname ~lastname state map in
+    let state = warn_on_courses ~promo_gps ~firstname ~lastname state map in
     state, make_unvalidated_map unvalidated
 
 let add_extra_course state cours_a_ajouter gps_file =
@@ -1496,6 +1505,7 @@ let add_extra_course state cours_a_ajouter gps_file =
       inconsistency = None;
       valide_dans_gps = None;
       cours_annee = Some cours_a_ajouter.Public_data.coursaj_annee ;
+      validated_under_average = false;
     }
   in
   let bilan = {bilan with cours = elt::bilan.cours} in
@@ -2900,7 +2910,7 @@ let is_di_course code_cours _year =
 
 let translate_diplome
     ~situation ~firstname ~lastname ~year ~code_cours
-    ~origine
+    ~origine ~promo_gps
     state diplome =
   let code_gps = code_cours in
   match Remanent_state.get_cursus_exception
@@ -3200,14 +3210,16 @@ let translate_diplome
     if mmaths situation then
       state, (Some "M","M1 de mathématiques","M1 in Mathematics", dpt_maths,dpt_maths_en,false,false)
     else
-
       check_dpt __POS__ state origine
         "M" "M1" "M1" code_cours year
         situation false
   | Some ("DENS" | "dens") ->
     state, (Some ("DENS"), "DENS", "DENS", "DENS", "DENS", false, false)
   | Some x ->
-    check_dpt __POS__ state origine
+    if year < promo_gps then
+    state, (Some x,x,x,"","",false,false)
+    else
+      check_dpt __POS__ state origine
       x x x code_cours year
       situation false
   | None ->
@@ -3586,7 +3598,7 @@ let add_mean_diplome is_m2 state ~dens ~natt ~decision ~exception_cursus d mean_
   add_mean_empty is_m2 state ~dens ~natt ~decision ~exception_cursus
     d year (fst mean, (d,mean_opt,mention_opt,validated_opt,year)::(snd mean))
 
-let get_origine who promo gps_file state =
+let get_origine who promo_gps gps_file state =
   match
     gps_file.origine
   with
@@ -3613,7 +3625,7 @@ let get_origine who promo gps_file state =
     begin
       match
         Public_data.YearMap.find_opt
-          promo
+          promo_gps
           gps_file.situation
       with
       | None ->
@@ -3621,7 +3633,7 @@ let get_origine who promo gps_file state =
           __POS__
           (Format.sprintf
              "cannot find situation in %s (%s)"
-             promo who)
+             promo_gps who)
           Exit
           state, None
       | Some situation ->
@@ -3689,7 +3701,7 @@ let not_dispense ~firstname ~lastname ~year state =
       | _, _::_ -> false
 
 let heading
-    ?dens ~who ~firstname ~lastname ~promo ~origine
+    ?dens ~who ~firstname ~lastname ~promo_gps ~origine
     ~year ~situation ~gpscodelist ~tuteur ?tuteur_bis
     cursus_map split_cours picture_list is_suite gps_file state =
   let state, main_dpt =
@@ -3886,9 +3898,9 @@ let heading
       ?backgroundcolor
       ?lineproportion
       state
-      ~english:(Format.sprintf "\\large Promotion: %s" promo)
+      ~english:(Format.sprintf "\\large Promotion: %s" promo_gps)
       (Format.sprintf "\\large Promotion : %s"
-         promo)
+         promo_gps)
   in
   let () =
     Remanent_state.print_newline state
@@ -4156,6 +4168,9 @@ let heading
               Some "Bachelor in Maths and Bachelor in Physics at Paris-Saclay   University"
             else
               let state, (string,string_en) =
+              match situation.departement_principal with
+                | None when annee_int<int_of_string promo_gps -> state, ("", "")
+                | None | Some _ ->
                 translate_dpt ~firstname ~lastname ~year:annee_int state
                   situation.departement_principal
               in
@@ -4703,7 +4718,7 @@ let foot signature state  =
 
 let program
     ~print_foot_note
-    ~origine ~gpscodelist ~string ~dpt ~year ~who ~alloc_suffix ~mean ~cours_list ~stage_list ~firstname ~lastname ~promo ~cursus_map
+    ~origine ~gpscodelist ~string ~dpt ~year ~who ~alloc_suffix ~mean ~cours_list ~stage_list ~firstname ~lastname ~promo_gps ~cursus_map
     ~size ~stages ~current_year (*~report ~keep_faillure ~keep_success*)
     ~dens ~natt ~is_m2 ~unvalidated_map
     (list:(bool * string * string * string * cours) list) state =
@@ -4891,7 +4906,7 @@ let program
                state
                {
                  Public_data.missing_grade_promotion =
-                   promo;
+                   promo_gps;
                  Public_data.missing_grade_dpt=
                    fetch_code elt ;
                  Public_data.missing_grade_dpt_indice =
@@ -4951,7 +4966,7 @@ let program
              Remanent_state.add_non_accepted_grade
                state
                {
-                 Public_data.missing_grade_promotion = promo;
+                 Public_data.missing_grade_promotion = promo_gps;
                  Public_data.missing_grade_dpt=
                    fetch_code elt ;
                  Public_data.missing_grade_dpt_indice =
@@ -5106,6 +5121,31 @@ let program
             else ()
         in
         let state =
+          if int_of_string year < int_of_string promo_gps
+          then
+          let dpt = fetch_code (is_m2,dpt_en,diplome,diplome_en,cours) in
+          let dpt_indice =
+            string_of_int (fetch (is_m2,dpt_en,diplome,diplome_en,cours))
+          in
+          Remanent_state.add_out_of_schooling_years
+            state
+            {
+              Public_data.missing_grade_promotion =
+                promo_gps;
+              Public_data.missing_grade_firstname =
+                firstname ;
+              Public_data.missing_grade_lastname =
+                lastname  ;
+              Public_data.missing_grade_year = year ;
+              Public_data.missing_grade_dpt = dpt ;
+              Public_data.missing_grade_dpt_indice = dpt_indice ;
+              Public_data.missing_grade_code_gps =                              Tools.unsome_string cours.code_cours;
+              Public_data.missing_grade_teacher = Tools.unsome_string cours.responsable;
+              Public_data.missing_grade_intitule = Tools.unsome_string cours.cours_libelle
+            }
+          else state
+        in
+        let state =
           if
             match cours.note with
             | None -> true
@@ -5120,7 +5160,7 @@ let program
               state
               {
                 Public_data.missing_grade_promotion =
-                  promo;
+                  promo_gps;
                 Public_data.missing_grade_firstname =
                   firstname ;
                 Public_data.missing_grade_lastname =
@@ -5172,7 +5212,7 @@ let program
               begin
                 let internship =
                   {
-                    Public_data.missing_internship_promotion = promo ;
+                    Public_data.missing_internship_promotion = promo_gps ;
                     Public_data.missing_internship_year=year;
                     Public_data.missing_internship_firstname=firstname;
                     Public_data.missing_internship_lastname=lastname;
@@ -6117,7 +6157,8 @@ let export_transcript
     let promo =
       (Tools.unsome_string gps_file.promotion)
     in
-    let state, promo_int =
+    let promo_gps = promo in
+      let state, promo_int =
       try
         state, int_of_string promo
       with
@@ -6346,7 +6387,7 @@ let export_transcript
       if include_picture
       then
         Photos.get
-          ~firstname ~lastname ~promo state
+          ~firstname ~lastname ~promo:promo_gps state
       else
         state, []
     in
@@ -6372,7 +6413,7 @@ let export_transcript
           {
             Public_data.student_firstname_report = firstname ;
             Public_data.student_lastname_report = lastname ;
-            Public_data.student_promo_report = promo ;
+            Public_data.student_promo_report = promo_gps ;
           }
     in
     let state, picture_list =
@@ -6395,10 +6436,10 @@ let export_transcript
         gps_file.stages
     in
     let state, origine =
-      get_origine who promo gps_file state
+      get_origine who promo_gps gps_file state
     in
     let state, unvalidated =
-        warn_on_course_list ~promo ~firstname ~lastname state l (Format.sprintf "%s %s %s" firstname lastname promo)
+        warn_on_course_list ~promo_gps ~firstname ~lastname state l (Format.sprintf "%s %s %s" firstname lastname promo_gps)
     in
     let state, cursus_map, l =
       List.fold_left
@@ -6421,7 +6462,7 @@ let export_transcript
                      =
                      translate_diplome
                        ~origine ~situation ~firstname
-                       ~lastname
+                       ~lastname ~promo_gps
                        ~year ~code_cours state
                        elt.diplome
                    in
@@ -6666,7 +6707,7 @@ let export_transcript
                      Public_data.missing_mentor_firstname=firstname;
                      Public_data.missing_mentor_lastname=lastname;
                      Public_data.missing_mentor_year=year;
-                     Public_data.missing_mentor_promotion=promo;
+                     Public_data.missing_mentor_promotion=promo_gps;
                    }
                in
                state,
@@ -6741,7 +6782,7 @@ let export_transcript
                           prenom_du_tuteur;
                         Public_data.mentor_academic_year = year;
                         Public_data.mentor_student_promo =
-                         promo ;
+                         promo_gps ;
                         Public_data.mentor_student_gender =
                           genre;
                         Public_data.mentor_student_lastname =
@@ -6924,7 +6965,7 @@ let export_transcript
                          prenom_du_tuteur;
                        Public_data.mentor_academic_year = year;
                        Public_data.mentor_student_promo =
-                         promo ;
+                         promo_gps ;
                        Public_data.mentor_student_gender =
                          genre;
                        Public_data.mentor_student_lastname =
@@ -7005,7 +7046,7 @@ let export_transcript
                let state, is_l3' =
                  heading
                    ~who ~firstname ~lastname
-                   ~promo ~origine
+                   ~promo_gps ~origine
                    ~year ~situation ~gpscodelist
                    ~tuteur ?tuteur_bis
                    cursus_map split_cours
@@ -7047,7 +7088,7 @@ let export_transcript
                              let state, is_l3 =
                                heading
                                  ~who ~firstname ~lastname
-                                 ~promo ~origine ~gpscodelist
+                                 ~promo_gps ~origine ~gpscodelist
                                  ~year ~situation
                                  ~tuteur ?tuteur_bis
                                  cursus_map split_cours
@@ -7077,7 +7118,7 @@ let export_transcript
                               let state, is_l3 =
                                heading
                                  ~who ~firstname ~lastname
-                                 ~promo ~origine ~gpscodelist
+                                 ~promo_gps ~origine ~gpscodelist
                                  ~year ~situation
                                  ~tuteur ?tuteur_bis
                                  cursus_map split_cours
@@ -7097,7 +7138,7 @@ let export_transcript
                              ~is_m2 ~print_foot_note
                              ~origine ~string ~dpt:(Public_data.dpt_of_string dpt) ~year ~who ~gpscodelist
                              ~alloc_suffix ~mean ~cours_list ~stage_list
-                             ~firstname ~lastname ~promo ~cursus_map ~size
+                             ~firstname ~lastname ~promo_gps ~cursus_map ~size
                              ~stages ~current_year (*~report
                              ~keep_success ~keep_faillure*)
                              ~dens
@@ -7484,7 +7525,7 @@ let export_transcript
                        | Some a -> a
                        | None -> Public_data.Unknown
                        end ;
-                   Public_data.diplome_promotion = promo;
+                   Public_data.diplome_promotion = promo_gps;
                    Public_data.diplome_nb_ects = ects ;
                    Public_data.diplome_moyenne = mean ;
                    Public_data.diplome_year;
@@ -7550,7 +7591,7 @@ let export_transcript
           Public_data.dens_main_dpt = main_dpt ;
           Public_data.dens_firstname = firstname ;
           Public_data.dens_lastname = lastname;
-          Public_data.dens_promotion = promo;
+          Public_data.dens_promotion = promo_gps;
           Public_data.dens_total_ects = dens_total ;
           Public_data.dens_current_year_ects =
             dens_year ;
@@ -7744,7 +7785,7 @@ let state,year = Remanent_state.get_current_academic_year state in
   let state,_ =
       heading
         ~who ~firstname ~lastname
-        ~promo ~origine ~dens:true
+        ~promo_gps ~origine ~dens:true
         ~year   ~gpscodelist:[]
         ~tuteur ?tuteur_bis
         cursus_map StringOptMap.empty
@@ -7818,7 +7859,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                  ;
                   Public_data.mentor_academic_year =
                     current_year;
-                  Public_data.mentor_student_promo = promo ;
+                  Public_data.mentor_student_promo = promo_gps ;
                   Public_data.mentor_student_gender =
                     (match gps_file.genre
                      with Some a -> a

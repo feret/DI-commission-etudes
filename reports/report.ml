@@ -55,6 +55,67 @@ let dump_issues state =
       state
   in
   let state,_ =
+    Grades.Underaveragevalidated.dump_per_dpt_student_year
+      ~file_name:"cours_valides_sans_la_moyenne_par_dpt_et_étudiant.html"
+      state
+  in
+  let state,_ =
+    Grades.Underaveragevalidated.dump_per_year_dpt_student
+      ~file_name:"cours_valides_sans_la_moyenne_par_année_dpt_et_étudiant.html"
+      state
+  in
+  let state,_ =
+    Grades.Underaveragevalidated.dump_per_dpt_class_year
+      ~file_name:"cours_valides_sans_la_moyenne_par_dpt_et_étudiant.html"
+      state
+  in
+  let state,_ =
+    Grades.Underaveragevalidated.dump_per_dpt_year_student
+      ~file_name:"cours_valides_sans_la_moyenne_par_dpt_et_année_et_étudiant.html"
+      state
+  in
+  let state,_ =
+    Grades.Underaveragevalidated.dump_per_dpt_year_class
+      ~file_name:"cours_valides_sans_la_moyenne_par_dpt_et_année_et_cours.html"
+      state
+  in
+  let state,_ =
+    Grades.Underaveragevalidated.dump_per_student
+      ~file_name:"cours_valides_sans_la_moyenne_par_étudiant.html"
+      state
+  in
+  let state,_ =
+    Grades.Outofschoolingyears.dump_per_dpt_student_year
+      ~file_name:"cours_hors_scolarite_par_dpt_et_étudiant.html"
+      state
+  in
+  let state,_ =
+    Grades.Outofschoolingyears.dump_per_year_dpt_student
+      ~file_name:"cours_hors_scolarite_par_année_dpt_et_étudiant.html"
+      state
+  in
+  let state,_ =
+    Grades.Outofschoolingyears.dump_per_dpt_class_year
+      ~file_name:"cours_hors_scolarite_par_dpt_et_étudiant.html"
+      state
+  in
+  let state,_ =
+    Grades.Outofschoolingyears.dump_per_dpt_year_student
+      ~file_name:"cours_hors_scolarite_par_dpt_et_année_et_étudiant.html"
+      state
+  in
+  let state,_ =
+    Grades.Outofschoolingyears.dump_per_dpt_year_class
+      ~file_name:"cours_hors_scolarite_par_dpt_et_année_et_cours.html"
+      state
+  in
+  let state,_ =
+    Grades.Outofschoolingyears.dump_per_student
+      ~file_name:"cours_hors_scolarite_par_étudiant.html"
+      state
+  in
+
+  let state,_ =
     Grades.NonAcceptedGrades.dump_per_dpt_student_year
       ~file_name:"cours_non_acceptes_par_dpt_et_étudiant.html"
       state
@@ -265,6 +326,28 @@ let warn state =
       Remanent_state.warn
         __POS__
         "Some courses should be validated by the department"
+        Exit
+        state
+  in
+  let state =
+    match Remanent_state.get_under_average_validated_grades state
+    with
+    | state, [] -> state
+    | state, _::_ ->
+      Remanent_state.warn
+        __POS__
+        "Some courses are validated with a grade below average"
+        Exit
+        state
+  in
+  let state =
+    match Remanent_state.get_out_of_schooling_years state
+    with
+    | state, [] -> state
+    | state, _::_ ->
+      Remanent_state.warn
+        __POS__
+        "Some courses does not match with some schooling years"
         Exit
         state
   in

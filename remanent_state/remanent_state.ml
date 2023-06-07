@@ -84,6 +84,8 @@ type parameters =
     repository_to_dump_missing_pictures: string;
     repository_to_dump_non_accepted_grades: string;
     repository_to_dump_non_validated_internships: string;
+    repository_to_dump_under_average_validated_grades: string;
+    repository_to_dump_out_of_schooling_years: string;
     repository_to_dump_missing_grades: string;
     repository_to_dump_missing_mentors: string;
     repository_to_dump_missing_ects_attributions: string;
@@ -139,6 +141,8 @@ let parameters =
     repository_to_dump_missing_pictures = "photos_manquantes";
     repository_to_dump_gps_server_faillures = "echecs_extraction_gps";
     repository_to_dump_non_accepted_grades = "notes_non_acceptees" ;
+    repository_to_dump_under_average_validated_grades = "notes_sous_la_moyenne_validees" ;
+    repository_to_dump_out_of_schooling_years = "cours_hors_scolarite" ;
     repository_to_dump_non_validated_internships = "stages_non_acceptes";
     repository_to_dump_attestations = "attestations";
     repository_to_dump_missing_grades = "notes_manquantes";
@@ -268,6 +272,8 @@ type data =
     missing_pictures: Public_data.student list;
     gps_server_faillures: Public_data.student list;
     non_accepted_grades: Public_data.missing_grade list;
+    under_average_validated_grades: Public_data.missing_grade list;
+    out_of_schooling_years: Public_data.missing_grade list;
     non_validated_internships:
       Public_data.missing_internship_description list;
     missing_grades: Public_data.missing_grade list;
@@ -305,6 +311,8 @@ let empty_data =
     missing_pictures = [];
     gps_server_faillures = [];
     non_accepted_grades = [];
+    under_average_validated_grades = [];
+    out_of_schooling_years = [];
     missing_grades = [];
     missing_ects_attributions = [];
     courses_validated_twice = [];
@@ -571,6 +579,17 @@ let get_repository_to_dump_non_accepted_grades t =
        t.parameters.repository_to_dump_non_accepted_grades)
     t
 
+let get_repository_to_dump_under_average_validated_grades t =
+  get_repository_to_dump_missing_gen
+    (fun t ->
+       t.parameters.repository_to_dump_under_average_validated_grades)
+    t
+
+let get_repository_to_dump_out_of_schooling_years t =
+  get_repository_to_dump_missing_gen
+    (fun t ->
+       t.parameters.repository_to_dump_out_of_schooling_years)
+    t
 
 let get_repository_to_dump_missing_grades t =
   get_repository_to_dump_missing_gen
@@ -1335,6 +1354,20 @@ let set_non_accepted_grades non_accepted_grades data =
 let set_non_accepted_grades non_accepted_grades t =
   lift_set set_non_accepted_grades non_accepted_grades t
 
+let get_out_of_schooling_years data = data.out_of_schooling_years
+let get_out_of_schooling_years t = lift_get get_out_of_schooling_years t
+let set_out_of_schooling_years out_of_schooling_years data =
+    {data with out_of_schooling_years}
+let set_out_of_schooling_years out_of_schooling_years t =
+    lift_set set_out_of_schooling_years out_of_schooling_years t
+
+let get_under_average_validated_grades data = data.under_average_validated_grades
+let get_under_average_validated_grades t = lift_get get_under_average_validated_grades t
+let set_under_average_validated_grades under_average_validated_grades data =
+    {data with under_average_validated_grades}
+let set_under_average_validated_grades under_average_validated_grades t =
+    lift_set set_under_average_validated_grades under_average_validated_grades t
+
 let get_missing_pictures data = data.missing_pictures
 let get_missing_pictures t = lift_get get_missing_pictures t
 let set_missing_pictures missing_pictures data =
@@ -2026,6 +2059,11 @@ let add_missing_grade, get_missing_grades =
   gen get_missing_grades set_missing_grades
 let add_non_accepted_grade, get_non_accepted_grades =
   gen get_non_accepted_grades set_non_accepted_grades
+let add_under_average_validated_grades,get_under_average_validated_grades =
+  gen get_under_average_validated_grades set_under_average_validated_grades
+let add_out_of_schooling_years,get_out_of_schooling_years =
+    gen get_out_of_schooling_years set_out_of_schooling_years
+
 let add_dens, get_dens =
   gen get_dens set_dens
 let add_national_diploma, get_national_diplomas =

@@ -526,6 +526,24 @@ val get_missing_pictures:
 val add_missing_picture:
   t -> Public_data.student -> t
 
+val get_repository_to_dump_under_average_validated_grades:
+    t -> t * string
+
+val get_under_average_validated_grades:
+    t -> t * Public_data.missing_grade list
+
+val add_under_average_validated_grades:
+    t -> Public_data.missing_grade -> t
+
+val get_repository_to_dump_out_of_schooling_years:
+    t -> t * string
+
+val get_out_of_schooling_years:
+    t -> t * Public_data.missing_grade list
+
+val add_out_of_schooling_years:
+    t -> Public_data.missing_grade -> t
+
 val get_repository_to_dump_gps_server_faillures:
   t -> t * string
 
@@ -653,7 +671,7 @@ val get_main_dpt: t -> t * Public_data.main_dpt
 val is_main_dpt_di: t -> t * bool
 val is_main_dpt_dma: t -> t * bool
 val is_main_dpt_phys: t -> t * bool
-val is_main_dpt_chimie: t -> t * bool 
+val is_main_dpt_chimie: t -> t * bool
 
 val get_file_retriever_skip: t -> t * bool
 val file_retriever_fail: t -> t
