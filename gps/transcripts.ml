@@ -664,6 +664,11 @@ type bilan_annuel =
          gpscodelist: string list ;
        }
 
+let keep_bilan b =
+    match b.situation_administrative with
+      | None -> false
+      | Some _ -> true
+
 let log_bilan_annuel state bilan =
   let state =
     log_annee
@@ -6208,7 +6213,8 @@ let export_transcript
     let gps_file = {gps_file with situation} in
     let state, promo_int =
       Public_data.YearMap.fold
-        (fun year _ (state, y') ->
+        (fun year a (state, y') ->
+           if keep_bilan a then
            let state, y_int =
              try
                state, int_of_string year
@@ -6225,7 +6231,8 @@ let export_transcript
               state,
                y'
            in
-           state, min y' y_int)
+           state, min y' y_int
+          else state, y')
         gps_file.situation
         (state, promo_int)
     in
