@@ -2646,6 +2646,36 @@ let lpe origine =
   | None -> false
 
 
+let lphysgeos d =
+  ((List.exists
+      (fun diplome ->
+        match diplome.grade with
+        | None -> false
+        | Some s ->
+          simplify_string s = "licence")
+      d.diplomes
+)
+&&
+(List.exists
+  (fun diplome ->
+    (List.mem diplome.diplome_diplome
+        [Some "gps77482"]))
+  d.diplomes))
+||
+d.nannee = Some 1
+&&
+(
+  match d.departement_principal,d.departement_secondaire with
+  | None, None -> false
+  | Some _, None | None, Some _ -> false
+  | Some x, Some y ->
+    (simplify_string x = dpt_geosciences_gps_name
+     && simplify_string y = dpt_phys_gps_name)
+    || (simplify_string x = dpt_phys_gps_name
+        && simplify_string y = dpt_geosciences_gps_name)
+)
+
+
 let lmathphys d =
   (List.exists
      (fun gps_code ->
@@ -3133,6 +3163,15 @@ let translate_diplome
         else
           state,
           (Some "L","L3 de physique","Bachelor in Physics",dpt_phys,dpt_phys_en,false,is_m2)
+      else
+      if lphysgeos situation
+      then if is_phys_course code_cours year
+          then
+          state,
+          (Some "L","L3 de physique","Bachelor in Physics",dpt_phys,dpt_phys_en,false,is_m2)
+          else
+          state,
+          (Some "L","L3 de Sciences de la Terre","Bachelor in Earth Sciences",dpt_phys,dpt_phys_en,false,is_m2)
       else
       if linfo situation && lmath ~year ~firstname ~lastname situation state
       then
@@ -4215,6 +4254,7 @@ let heading
                     Exit
                     "DI"
                     state
+
               in
               if annee_int < 2020 then
                 state,
@@ -4232,6 +4272,55 @@ let heading
                 "Maths-Phys program, registed at %s " dpt,
               Some "Licence L3 Maths et L3 Phys Université Paris-Saclay",
               Some "Bachelor in Maths and Bachelor in Physics at Paris-Saclay   University"
+          else if
+                lphysgeos situation
+                && not_dispense ~firstname ~lastname ~year state
+              then
+                let state, dpt =
+                  match
+                    situation.departement_principal
+                  with
+                  | Some x ->
+                    let s  = simplify_string x in
+                    if s = dpt_phys_gps_name
+                    then
+                      state,acro_dpt_phys
+                    else if s = dpt_geosciences_gps_name
+                    then state, acro_dpt_geosciences
+                    else
+                      let msg =
+                        Printf.sprintf
+                          "mauvais dpt principal pour une double licence physique-géosciences pour %s"
+                          who
+                      in
+                      Remanent_state.warn_dft
+                        __POS__
+                        msg
+                        Exit
+                        "DI"
+                        state
+                  | _ ->
+                    let msg =
+                      Printf.sprintf
+                        "mauvais dpt principal pour une double licence pour %s"
+                        who
+                    in
+                    Remanent_state.warn_dft
+                      __POS__
+                      msg
+                      Exit
+                      "DI"
+                      state
+
+                in
+                  state,
+                  Printf.sprintf
+                    "Cursus physique-géosciences et rattaché au %s" dpt,
+                  Printf.sprintf
+                    "Phys-Earth Sciences program, registed at %s " dpt,
+                  Some "Licence L3 Phys et L3 Géosciences Sorbonne Université ",
+                  Some "Bachelor in Physics and Bachelor in Earth Sciences  at Sorbonne  University"
+
             else
               let state, (string,string_en) =
               match situation.departement_principal with
