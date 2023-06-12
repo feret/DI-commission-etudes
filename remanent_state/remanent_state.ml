@@ -974,7 +974,7 @@ let get_option parameters =
         | "dma" -> set_dma parameters
         | "phys" -> set_phys parameters
         | "chimie" -> set_chimie parameters
-        | "geos" | "geosciences" | "géos" | "géosciences" -> set_geosciences parameters
+        | "gsc" | "geos" | "geosciences" | "géos" | "géosciences" -> set_geosciences parameters
         | _ -> parameters
       end
     | [] -> parameters
