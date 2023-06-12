@@ -936,7 +936,9 @@ let close_event_opt step_kind_opt t =
   gen_profiler Profiling.close_event_opt step_kind_opt t
 
 let list_dpt =
-  ["DI";"di";"DMA";"dma";"PHYS";"Phys";"phys";"chimie"]
+  [
+    "DI";"di";"DMA";"dma";"PHYS";"Phys";"phys";"chimie";
+    "gsc";"geos";"geosciences";"géos";"géosciences" ]
 
 let get_cmd_options () =
   let a = Sys.argv in
@@ -970,7 +972,6 @@ let get_option parameters =
     match dpt with
     | h::_ ->
       begin
-        let _ = Format.printf "h @" in 
         match String.lowercase_ascii h with
         | "dma" -> set_dma parameters
         | "phys" -> set_phys parameters
@@ -983,7 +984,7 @@ let get_option parameters =
   let target =
     match others with
     | [] -> None
-    | h::_ -> Some h
+    | h::_ ->  Some h
   in
   {parameters with target}
 
