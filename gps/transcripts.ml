@@ -3168,7 +3168,7 @@ let translate_diplome
     else if msesi2 situation then
         state, (Some "SESI2","M2 SESI","M2 SESI", dpt_info,dpt_info_en,false,true)
     else if agregmaths situation then
-      state, (Some "AGREGMATHSU","Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation", dpt_maths, dpt_maths_en,false,false )
+      state, (Some "AGMATHSU","Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation", dpt_maths, dpt_maths_en,false,false )
     else if agreginfo situation then
             state, (Some "AGREGINFOUPC","Formation à l'agrégation d'Informatique","Formation to Computer Science Aggregation", dpt_info, dpt_info_en,false,false )
     else if mint situation then
@@ -3221,13 +3221,13 @@ let translate_diplome
   | Some ("PRAGR" | "pragr") ->
       (*if agregmathsu situation
       then
-        state, (Some "AGREGMATHSU","Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation", dpt_maths, dpt_maths_en,false,false )
+        state, (Some "AGMATHSU","Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation", dpt_maths, dpt_maths_en,false,false )
       else*) if agregmathsupc situation
       then
-        state, (Some "AGREGMATHUPC","Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation", dpt_maths, dpt_maths_en,false,false )
+        state, (Some "AGMATHUPC","Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation", dpt_maths, dpt_maths_en,false,false )
       else if agregmathsups situation
       then
-        state, (Some "AGREGMATHUPS","Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation", dpt_maths, dpt_maths_en,false,false )
+        state, (Some "AGMATHUPS","Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation", dpt_maths, dpt_maths_en,false,false )
       (*else if agreginfoupc situation
       then
         state, (Some "AGREGINFOUPC","Formation à l'agrégation d'Informatique","Formation to Computer Science Aggregation", dpt_info, dpt_info_en,false,false )*)
@@ -4962,7 +4962,7 @@ let program
     | Some ("LInfo" | "linfo" | "agreginfosu" | "agreginfoupc") ->
       state, Some Color.yellow
     | Some ("lmath" | "mmath" | "LMath" | "MMath" | "mape" | "mathfond" | "mathfondpantheonsor" | "mathfondsu" | "modsimorsay" | "modsimversailles" | "prob" | "mfimfa" |   "mfimfaorsay" |  "mmod" | "mformens" | "mprobfinsu"
-    | "mprobfinpanthon" | "malea" | "marianageo" | "mmathgeneric" | "agregmathsu" | "agregmathupc") ->
+    | "mprobfinpanthon" | "malea" | "marianageo" | "mmathgeneric" | "agmathsu" | "agmathupc") ->
       state, Some Color.orange
     | Some ("imalis") ->
       state, Some Color.green
