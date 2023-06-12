@@ -168,7 +168,7 @@ let state =
              let report = true in
              let state, input =
                Transcripts.export_transcript
-                 ~output ~keep_success:true ~report state gps
+                 ~output ~keep_success:true (*~report*) state gps
              in
              let state =
                match input, is_dma || is_phys || is_chimie with

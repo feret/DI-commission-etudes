@@ -247,7 +247,7 @@ let set_phys parameters =
       local_repository = "chimie/suivi_pedagogique" ;
       scholarships_repository = "chimie/scolarite/ELEVES" ;
       repartition = Public_data.Annee_obtention_du_diplome ;
-      include_pictures = false;
+      include_pictures = true;
     }
 
 type data =
