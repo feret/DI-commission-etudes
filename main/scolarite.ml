@@ -161,6 +161,7 @@ let state =
          let state, is_di = Remanent_state.is_main_dpt_di state in
          let state, is_phys = Remanent_state.is_main_dpt_phys state in
          let state, is_chimie = Remanent_state.is_main_dpt_chimie state in
+         let state, is_geosciences = Remanent_state.is_main_dpt_geosciences state in
          let state =
            match gps with
            | None -> state
@@ -171,7 +172,8 @@ let state =
                  ~output ~keep_success:true (*~report*) state gps
              in
              let state =
-               match input, is_dma || is_phys || is_chimie with
+               match input, is_dma || is_phys || is_chimie || is_geosciences
+               with
                | Some (input_rep,file_name), true ->
                  let state,rep  =
                    Remanent_state.get_student_personnal_repository
@@ -190,7 +192,7 @@ let state =
              Latex_engine.latex_opt_to_pdf ~rev:true state ~input
          in
          let state =
-           if is_dma || is_phys || is_chimie then
+           if is_dma || is_phys || is_chimie || is_geosciences then
              let output =
                (fst output0,
                 (Tools.basename (snd
@@ -205,7 +207,7 @@ let state =
                    ~output state gps
                in
                let state =
-                 match input, is_dma || is_phys || is_chimie with
+                 match input, is_dma || is_phys || is_chimie || is_geosciences with
                  | Some (input_rep,file_name), true ->
                    let state,rep  =
                      Remanent_state.get_student_personnal_repository
@@ -440,6 +442,7 @@ let state, _dpt, signataires =
   | state, Public_data.DI -> state, Public_data.DI, ["JF";"MP";"LB"]
   | state, Public_data.DMA -> state, Public_data.DMA, ["DC"]
   | state, Public_data.CHIMIE -> state, Public_data.CHIMIE, ["JD"]
+  | state, Public_data.GEOSCIENCES -> state, Public_data.GEOSCIENCES, ["PM"]
   | state, Public_data.ARTS -> state, Public_data.ARTS, []
   | state, Public_data.ENS -> state, Public_data.ENS, []
   | state, Public_data.PHYS -> state, Public_data.PHYS, []

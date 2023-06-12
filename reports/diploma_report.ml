@@ -336,6 +336,12 @@ let direction_etude_eco =
     Public_data.StringMap.empty
     People.eco_list
 
+    let direction_etude_gsc=
+      List.fold_left
+        (fun map elt ->
+           Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+        Public_data.StringMap.empty
+        People.gsc_list
 let dump_attestation
   ?output_repository
   ?prefix
@@ -547,6 +553,11 @@ let dump_attestation
              Loggers.setfootpage logger ~color
                [Loggers.fprintf,
                 People.footpage_string_chimie], direction_etude_chimie, "chimie"
+                | Public_data.GEOSCIENCES ->
+                  let color = Color.green in
+                  Loggers.setfootpage logger ~color
+                    [Loggers.fprintf,
+                     People.footpage_string_gsc], direction_etude_gsc, "géosciences"
 
 
     in

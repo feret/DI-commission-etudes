@@ -1,4 +1,4 @@
-type dpt = Maths | PE | DRI | PHYS | CHIMIE
+type dpt = Maths | PE | DRI | PHYS | CHIMIE | GEOSCIENCES
 type access_type =
        GPS of dpt option | Backup | Preempt | Warn
 
@@ -17,6 +17,7 @@ let string_of_dpt_opt =
   | Some DRI -> "&dept=dri"
   | Some PHYS -> "&dept=phys"
   | Some CHIMIE -> "&dept=chim"
+  | Some GEOSCIENCES -> "&dept=5"
 
 let profiling_label_of_dpt_opt =
   function
@@ -26,6 +27,7 @@ let profiling_label_of_dpt_opt =
   | Some DRI -> Some "DRI"
   | Some PHYS -> Some "PHYS"
   | Some CHIMIE -> Some "CHIMIE"
+  | Some GEOSCIENCES -> Some "GSC"
 
 let build_output
     pos ~has_promo
@@ -649,6 +651,15 @@ let modelist_phys_false_false =
                   (add_to_list true true Warn
                      (add_to_list b1 b2 Backup []))))))
 
+let modelist_gsc_gen b1 b2 =
+                       add_to_list b1 b2 Preempt
+                         (add_to_list b1 b2 (GPS (Some GEOSCIENCES))
+                            (add_to_list b1 b2 (GPS (Some Maths))
+                               (add_to_list b1 b2 (GPS (Some DRI))
+                                  (add_to_list b1 b2 (GPS (Some PE))
+                                     (add_to_list true true Warn
+                                        (add_to_list b1 b2 Backup []))))))
+
   let modelist_chimie_true_true =
     modelist_chimie_gen true true
   let modelist_chimie_true_false =
@@ -657,6 +668,16 @@ let modelist_phys_false_false =
     modelist_chimie_gen false true
   let modelist_chimie_false_false =
     modelist_chimie_gen false false
+
+
+    let modelist_gsc_true_true =
+      modelist_gsc_gen true true
+    let modelist_gsc_true_false =
+      modelist_gsc_gen true false
+    let modelist_gsc_false_true =
+      modelist_gsc_gen false true
+    let modelist_gsc_false_false =
+      modelist_gsc_gen false false
 
 let get_student_file
       student_id
@@ -712,6 +733,10 @@ let get_student_file
         | true, false, Public_data.CHIMIE -> modelist_chimie_true_false
         | false, true, Public_data.CHIMIE -> modelist_chimie_false_true
         | false, false, Public_data.CHIMIE -> modelist_chimie_false_false
+        | true, true, Public_data.GEOSCIENCES -> modelist_gsc_true_true
+        | true, false, Public_data.GEOSCIENCES-> modelist_gsc_true_false
+        | false, true, Public_data.GEOSCIENCES -> modelist_gsc_false_true
+        | false, false, Public_data.GEOSCIENCES-> modelist_gsc_false_false
 
       end
   in

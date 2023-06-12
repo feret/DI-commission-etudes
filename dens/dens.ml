@@ -13,6 +13,7 @@ let dma = "DMA"
 let bio = "BIO"
 let phys = "PHYS"
 let chimie = "CHIM"
+let gsc = "GSC"
 let phil = "PHIL"
 let dec = "DEC"
 let ibens = "IBENS"
@@ -23,7 +24,6 @@ let eco = "ECO"
 let lila = "LILA"
 let geog = "GEOG"
 let hist = "HIST"
-let gsc = "GSC"
 let ceres = "CERES"
 let ecla = "ECLA"
 let vetu = "VETU"
@@ -62,6 +62,7 @@ let translate_main_dpt x =
   | Public_data.ENS -> ens
   | Public_data.PHYS -> phys
   | Public_data.CHIMIE -> chimie
+  | Public_data.GEOSCIENCES -> gsc 
   | Public_data.IBENS -> ibens
   | Public_data.ECO -> eco
   | Public_data.DRI -> dri
@@ -351,7 +352,7 @@ let dump_dens dens state =
       let () = Remanent_state.fprintf state
                   "ECTS langues : %s (24 sont nécessaires%s)"
                   (let (_,_,_,ects')=total_ecla in (string_of_float ects'))
-                  (match main_dpt with | Public_data.DI -> " ou un stage à l'étranger" | Public_data.DMA | Public_data.ENS|Public_data.PHYS|Public_data.CHIMIE|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> "")
+                  (match main_dpt with | Public_data.DI -> " ou un stage à l'étranger" | Public_data.DMA | Public_data.ENS|Public_data.PHYS|Public_data.GEOSCIENCES | Public_data.CHIMIE|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> "")
       in
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state "M2 recherche : " in
@@ -366,7 +367,8 @@ let dump_dens dens state =
       let () = Remanent_state.fprintf state " (M2 recherche en %s obligatoire)" (match main_dpt with
             Public_data.DMA -> "mathématiques"
           | Public_data.DI -> "informatique"
-          | Public_data.CHIMIE -> "chimie" | (Public_data.ENS|Public_data.PHYS|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA)
+          | Public_data.CHIMIE -> "chimie"
+          | Public_data.GEOSCIENCES -> "géosciences" | (Public_data.ENS|Public_data.PHYS|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA)
   -> "informatique") in
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state "Diplômes autre : " in
@@ -395,7 +397,8 @@ let dump_dens dens state =
            ()
            end
            | Public_data.DMA
-           | Public_data.ENS | Public_data.PHYS | Public_data.CHIMIE |  Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> ()
+           | Public_data.ENS | Public_data.GEOSCIENCES
+           | Public_data.PHYS | Public_data.CHIMIE |  Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> ()
       in
       let () = Remanent_state.fprintf state "\\end{minipage}" in
       let () = Remanent_state.fprintf state "\\end{center}" in

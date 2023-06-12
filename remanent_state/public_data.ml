@@ -70,7 +70,7 @@ module StringOptMap =
         end
         )
 
-type main_dpt = DI | DMA | ENS | CHIMIE | PHYS | IBENS | ECO | DRI | ARTS | LILA
+type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA
 type universite =
   | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud | UPNord | USPN | UDauphine
 
@@ -99,6 +99,7 @@ let string_of_dpt x =
   | DI -> "informatique"
   | DMA -> "mathématiques"
   | CHIMIE -> "chimie"
+  | GEOSCIENCES -> "géosciences"
   | IBENS -> "biologie"
   | PHYS -> "physique"
   | ECO -> "économie"
@@ -113,6 +114,7 @@ let dpt_of_string x =
   | "informatique" | "di" -> DI
   | "mathematiques" | "dma" -> DMA
   | "chimie" -> CHIMIE
+  | "géosciences" -> GEOSCIENCES
   | "physique" -> PHYS
   | "biologie" -> IBENS
   | "" | "ens" -> ENS
@@ -680,6 +682,7 @@ let all_notes_string =
     | BCPST
     | DensBio
     | DensChimie
+    | DensGeosciences
     | DensDEC
     | DensInfo
     | DensMath
@@ -971,6 +974,7 @@ let string_of_origin_opt a =
   | Some DensDEC -> "concours universitaire sciences cognitives"
   | Some DensInfo -> "concours universitaire informatique"
   | Some DensChimie -> "concours universitaire chimie"
+  | Some DensGeosciences -> "concours universitaire géosciences"
   | Some EchErasm -> "Erasmus"
   | Some ED386 -> "ED386"
   | Some Info -> "CPGE Informatique"

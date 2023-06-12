@@ -162,7 +162,7 @@ let dump_dens
         main_dpt
       with
       | Public_data.ENS | Public_data.PHYS | Public_data.CHIMIE
-      | Public_data.IBENS | Public_data.DMA
+      | Public_data.IBENS | Public_data.DMA | Public_data.GEOSCIENCES
       | Public_data.ECO | Public_data.DRI | Public_data.ARTS
       | Public_data.LILA
         ->
@@ -202,7 +202,7 @@ let dump_dens
         main_dpt
       with
       | Public_data.ENS | Public_data.PHYS | Public_data.CHIMIE
-      | Public_data.IBENS | Public_data.DMA
+      | Public_data.IBENS | Public_data.DMA | Public_data.GEOSCIENCES
       | Public_data.LILA
       | Public_data.ECO | Public_data.DRI | Public_data.ARTS
         ->
@@ -243,7 +243,7 @@ let dump_dens
         main_dpt
       with
       | Public_data.ENS | Public_data.PHYS | Public_data.CHIMIE
-      | Public_data.IBENS | Public_data.DMA
+      | Public_data.IBENS | Public_data.DMA | Public_data.GEOSCIENCES
       | Public_data.LILA
       | Public_data.ECO | Public_data.DRI | Public_data.ARTS
         ->

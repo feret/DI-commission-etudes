@@ -250,6 +250,17 @@ let set_phys parameters =
       include_pictures = true;
     }
 
+    let set_geosciences parameters =
+      {
+        parameters with
+        main_dpt = Public_data.GEOSCIENCES ;
+        commission = None (*Some ("23 juin 2021",  "2020")*);
+        local_repository = "geosciences/suivi_pedagogique" ;
+        scholarships_repository = "geosciences/scolarite/ELEVES" ;
+        repartition = Public_data.Annee_obtention_du_diplome ;
+        include_pictures = true;
+      }
+
 type data =
   {
     students: Public_data.student_id list ;
@@ -963,6 +974,7 @@ let get_option parameters =
         | "dma" -> set_dma parameters
         | "phys" -> set_phys parameters
         | "chimie" -> set_chimie parameters
+        | "geos" | "geosciences" | "géos" | "géosciences" -> set_geosciences parameters
         | _ -> parameters
       end
     | [] -> parameters
@@ -2237,6 +2249,10 @@ let is_main_dpt_phys t =
   let is_main_dpt_chimie t =
     let t,dpt = get_main_dpt t in
     t, dpt = Public_data.CHIMIE
+
+    let is_main_dpt_geosciences t =
+      let t,dpt = get_main_dpt t in
+      t, dpt = Public_data.GEOSCIENCES
 
 let get_language t =
   t, t.parameters.language

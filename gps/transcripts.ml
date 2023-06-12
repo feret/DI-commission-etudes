@@ -34,6 +34,7 @@ module StringOptMap =
 let dpt_maths = "mathematiques"
 let dpt_info = "informatique"
 let dpt_chimie = "chimie"
+let dpt_geosciences = "geosciences"
 let dpt_phys = "physique"
 let dpt_phyl = "phylosiphie"
 let dpt_bio = "biologie"
@@ -48,6 +49,7 @@ let dpt_dri = "relations internationales"
 let dpt_maths_en = "mathematics"
 let dpt_info_en = "computer science"
 let dpt_chimie_en = "chemistry"
+let dpt_geosciences_en = "earth sciences"
 let dpt_phys_en = "physics"
 let dpt_phyl_en = "phylosophy"
 let dpt_bio_en = "biology"
@@ -64,6 +66,7 @@ let dpt_info_gps_name = dpt_info
 let dpt_phys_gps_name = dpt_phys
 let dpt_maths_gps_name = "mathematiques et applications"
 let dpt_chimie_gps_name = dpt_chimie
+let dpt_geosciences_gps_name = dpt_geosciences
 let dpt_bio_gps_name = dpt_bio
 let dpt_dri_gps_name = dpt_dri
 let dpt_dec_gps_name = dpt_dec
@@ -75,6 +78,7 @@ let acro_dpt_phys = "PHYS"
 let acro_dpt_info = "DI"
 let acro_dpt_maths = "DMA"
 let acro_dpt_chimie = "CHIMIE"
+let acro_dpt_geosciences = "G\'EOSCIENCES"
 let acro_dpt_eco = "ECO"
 let acro_dpt_bio = "BIO"
 let acro_dpt_dri = "DRI"
@@ -84,6 +88,7 @@ let dpt_arts_full = "Département d'Arts"
 let dpt_info_full = "Département d'Informatique"
 let dpt_maths_full = "Département de Mathématiques et Applications"
 let dpt_chimie_full = "Département de Chimie"
+let dpt_geosciences_full = "Département de Géosciences"
 let dpt_phys_full = "Département de Physique"
 let dpt_bio_full = "Institut de Biologie"
 let dpt_dec_full = "Département d'Études Cognitives"
@@ -94,7 +99,8 @@ let dpt_lila_full = "Département de Litteratures et Langage"
 let dpt_arts_full_en = "Arts Department"
 let dpt_info_full_en = "Computer Science Department"
 let dpt_maths_full_en = "Department of Mathematics and their Applications"
-let dpt_chimie_full_en = "Chemistry"
+let dpt_chimie_full_en = "Departement of Chemistry"
+let dpt_geosciences_full_en = "Department of Earth Sciences"
 let dpt_phys_full_en = "Physics Department"
 let dpt_bio_full_en = "Biology Institute"
 let dpt_dec_full_en = "Cognitive Studies Department"
@@ -115,6 +121,8 @@ let acro_of_gps_name x =
   then acro_dpt_maths
   else if x = dpt_chimie_gps_name
   then acro_dpt_chimie
+  else if x= dpt_geosciences_gps_name
+  then acro_dpt_geosciences
   else if x = dpt_bio_gps_name
   then acro_dpt_bio
   else if x = dpt_eco_gps_name
@@ -357,7 +365,8 @@ let string_of_origin_short_opt a =
       | Public_data.DensPhys
       | Public_data.DensBio
       | Public_data.DensChimie
-      | Public_data.DensMath) -> "universitaire"
+      | Public_data.DensMath
+      | Public_data.DensGeosciences) -> "universitaire"
   | Some Public_data.Nes -> "Normalien Étudiant Sciences"
   | Some Public_data.EchErasm -> "Erasmus"
   | Some Public_data.Info -> "Info"
@@ -380,6 +389,7 @@ let string_of_origin_short_opt a =
         | Public_data.DensPhys
         | Public_data.DensBio
         | Public_data.DensChimie
+        | Public_data.DensGeosciences
         | Public_data.DensMath) -> "university"
     | Some Public_data.Nes -> "Sciences Normalien Student"
     | Some Public_data.EchErasm -> "Erasmus"
@@ -1228,6 +1238,7 @@ let store_cours  =
       let dec = -2
       let dma = 0
       let chimie = 32
+      let geosciences = 31
       let ceres = 33
       let dsa = 5
       let eco = 10
@@ -1253,6 +1264,7 @@ let store_cours  =
           dma, "DMA";
           ceres, "CERES";
           chimie, "CHIM";
+          geosciences, "GSC";
           info, "INFO";
           lila, "LILA";
           phil, "PHIL";
@@ -1926,6 +1938,7 @@ let origines =
     Public_data.DensPhys,["dens-phys"];
     Public_data.DensBio,["dens-bio"];
     Public_data.DensChimie,["dens-chim"];
+    Public_data.DensGeosciences,["dens-gsc"];
     Public_data.Nes,["nes"];
     Public_data.DensDEC,["dens-dec"];
     Public_data.EchErasm,["e-echerasm"];
@@ -2572,6 +2585,8 @@ let llila d =
   lgen "licence" ["gps83025"] dpt_lila_gps_name None d
 let lchimie d =
   lgen "licence" ["gps80663"] dpt_chimie_gps_name None d
+let lgsc d =
+  lgen "licence" ["gps86133"] dpt_geosciences_gps_name None d
 let lpoly d =
   lgen "licence" ["gps74842"] "" None d
 let lbio _ = false
@@ -2586,6 +2601,7 @@ let lerasmus origine =
       | Public_data.DensPhys
       | Public_data.DensBio
       | Public_data.DensChimie
+      | Public_data.DensGeosciences
       | Public_data.Nes
       | Public_data.AL
       | Public_data.DensDEC
@@ -2613,6 +2629,7 @@ let lpe origine =
       | Public_data.DensMath
       | Public_data.DensBio
       | Public_data.DensChimie
+      | Public_data.DensGeosciences
       | Public_data.DensPhys
       | Public_data.Nes
       | Public_data.AL
@@ -2792,6 +2809,7 @@ let translate_dpt ~firstname ~lastname ~year state d =
       | x when x=dpt_maths_gps_name -> state, (dpt_maths_full,dpt_maths_full_en)
       | x when x=dpt_phys_gps_name -> state, (dpt_phys_full,dpt_phys_full_en)
       | x when x=dpt_chimie_gps_name -> state, (dpt_chimie_full,dpt_chimie_full_en)
+      | x when x=dpt_geosciences_gps_name -> state, (dpt_geosciences_full,dpt_geosciences_full_en)
       | x when x=dpt_bio_gps_name -> state, (dpt_bio_full,dpt_bio_full_en)
       | x when x=dpt_dec_gps_name        -> state, (dpt_dec_full,dpt_dec_full_en)
       | x when x=dpt_eco_gps_name -> state, (dpt_eco_full,dpt_eco_full_en)
@@ -2990,6 +3008,7 @@ let translate_diplome
           | "DI" -> "informatique","Computer Science"
           | "DMA" -> "mathématiques","Mathematics"
           | "CHIMIE" -> "chimie", "Chemistry"
+          | "GEOSCIENCES" -> "géosciences", "Earth Sciences"
           | "PHYS" -> "physique","Physics"
           | "IBENS" -> "biologie","Biology"
           | "LILA" -> "littératures et langage","Litteratures and Language"
@@ -3146,6 +3165,9 @@ let translate_diplome
       else if lchimie situation then
         state,
         (Some "L","L3 de chimie","Bachelor in Chemistry",dpt_chimie,dpt_chimie_en,false,is_m2)
+      else if lgsc situation then
+      state,
+      (Some "L","L3 de Sciences de la Terre","Bachelor in Earth Sciences",dpt_geosciences,dpt_geosciences_en,false,is_m2)
       else if ldec situation then
         state,
         (Some "L","L3 de sciences cognitives","Bachelor in Cognitive Sciences",dpt_ibens,dpt_ibens_en,false,is_m2)
@@ -3277,6 +3299,8 @@ let color_of_dpt who pos state dpt origine =
   then state, Some Color.blue
   else if dpt = dpt_chimie
   then state, Some Color.white
+  else if dpt = dpt_geosciences
+  then state, Some Color.green
   else
     let msg =
       Format.sprintf "Unknown departement (%s) for %s"
@@ -3299,6 +3323,7 @@ let dpt_of_acro who pos state dpt origine =
   | Public_data.DI -> state, Some dpt_info
     | Public_data.DMA -> state, Some dpt_maths
     | Public_data.CHIMIE -> state, Some dpt_chimie
+    | Public_data.GEOSCIENCES -> state, Some dpt_geosciences
     | Public_data.IBENS -> state, Some dpt_ibens
     | Public_data.PHYS -> state, Some dpt_phys
     | Public_data.ECO -> state, Some dpt_eco
@@ -3344,7 +3369,7 @@ let check_mandatory state cours =
       true
     else
       false
-  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.CHIMIE | Public_data.DMA | Public_data.LILA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> state, false
+  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.DMA | Public_data.LILA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> state, false
 
 let is_mandatory state cours =
   let state, b = check_mandatory state cours in
@@ -3384,7 +3409,7 @@ let check_count_for_maths state cours =
         ||
         course_by_dma cours
     end
-  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.CHIMIE | Public_data.DMA | Public_data.LILA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, false
+  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.DMA | Public_data.LILA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, false
 
 let count_for_maths state cours =
   let state, b = check_count_for_maths state cours in
@@ -3635,6 +3660,7 @@ let get_origine who promo gps_file state =
       | Public_data.DensMath
       | Public_data.DensBio
       | Public_data.DensChimie
+      | Public_data.DensGeosciences
       | Public_data.DensPhys
       | Public_data.Nes
       |Public_data.EchErasm
@@ -3717,6 +3743,7 @@ let is_elligble_for_funding origine gps_file state =
              | Public_data.DensPhys
              | Public_data.DensBio
              | Public_data.DensChimie
+             | Public_data.DensGeosciences
              | Public_data.DensInfo
              | Public_data.DensDEC)
         -> state, true
@@ -3778,6 +3805,15 @@ let heading
               "D\\'epartement de Chimie. \\'Ecole  Normale  Sup\\'erieure. 4XXXXXXX 75005 Paris. Tel : +33 (0)1 44 32 ?? ??."
           in
           state
+          | state, Public_data.GEOSCIENCES ->
+            let () =
+              Remanent_state.log_string
+                ?backgroundcolor
+                state
+                ~english:"Department of Earth Sciences. \\'Ecole Normale Sup\\'erieure. XXXXXXXXXXX 75005 Paris. Phone: +33 (0)1 44 32 ?? ??."
+                "D\\'epartement de Géosciences. \\'Ecole  Normale  Sup\\'erieure. 4XXXXXXX 75005 Paris. Tel : +33 (0)1 44 32 ?? ??."
+            in
+            state
       | state, (Public_data.ARTS | Public_data.DRI | Public_data.ENS | Public_data.ECO | Public_data.IBENS | Public_data.LILA) ->
       let state =
         Remanent_state.warn
@@ -3860,6 +3896,7 @@ let heading
                | Public_data.DensPhys
                | Public_data.DensBio
                | Public_data.DensChimie
+               | Public_data.DensGeosciences
                | Public_data.DensInfo
                | Public_data.DensDEC)
           ->
@@ -3983,6 +4020,7 @@ let heading
           | Public_data.ENS -> ""
           | Public_data.PHYS -> "de physique"
           | Public_data.CHIMIE -> "de chimie"
+          | Public_data.GEOSCIENCES -> "de géosciences"
           | Public_data.IBENS -> "de biologie"
           | Public_data.ECO -> "d'économie"
           | Public_data.ARTS -> "d'arts"
@@ -3996,6 +4034,7 @@ let heading
           | Public_data.ENS -> ""
           | Public_data.PHYS -> "Physics"
           | Public_data.CHIMIE -> "Chemistry"
+          | Public_data.GEOSCIENCES -> "Earch Sciences"
           | Public_data.IBENS -> "Biology"
           | Public_data.ECO -> "Economy"
           | Public_data.ARTS -> "Arts"
@@ -4771,7 +4810,8 @@ let program
                 | _,Public_data.DRI
                 | _,Public_data.ENS -> None
                 | _,(Public_data.ARTS
-                    | Public_data.ECO | Public_data.DI | Public_data.DMA | Public_data.CHIMIE | Public_data.IBENS | Public_data.PHYS | Public_data.LILA) ->
+                    | Public_data.ECO | Public_data.DI | Public_data.DMA | Public_data.CHIMIE | Public_data.GEOSCIENCES
+                | Public_data.IBENS | Public_data.PHYS | Public_data.LILA) ->
                   Some dpt)
             ~gpscodelist
             ~year
@@ -6686,6 +6726,7 @@ let export_transcript
                           | Public_data.ECO
                           | Public_data.DMA
                           | Public_data.CHIMIE
+                          | Public_data.GEOSCIENCES
                           | Public_data.PHYS
                           | Public_data.IBENS
                           | Public_data.LILA)->
@@ -7682,6 +7723,7 @@ let export_transcript
                  | Public_data.ECO
                  | Public_data.DMA
                  | Public_data.CHIMIE
+                 | Public_data.GEOSCIENCES
                  | Public_data.PHYS
                  | Public_data.IBENS
                  | Public_data.LILA)->

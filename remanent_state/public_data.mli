@@ -20,7 +20,7 @@ type student_id =
     promotion: string option;
   }
 
-type main_dpt = DI | DMA | ENS | CHIMIE | PHYS | IBENS | ECO | DRI | ARTS | LILA
+type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA
 type universite =  | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud | UPNord | USPN | UDauphine
 val string_of_dpt: main_dpt -> string
 val dpt_of_string: string -> main_dpt
@@ -391,6 +391,7 @@ type origin =
   | BCPST
   | DensBio
   | DensChimie
+  | DensGeosciences 
   | DensDEC
   | DensInfo
   | DensMath
