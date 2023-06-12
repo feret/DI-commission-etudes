@@ -970,6 +970,7 @@ let get_option parameters =
     match dpt with
     | h::_ ->
       begin
+        let _ = Format.printf "h @" in 
         match String.lowercase_ascii h with
         | "dma" -> set_dma parameters
         | "phys" -> set_phys parameters
