@@ -2803,6 +2803,7 @@ let mphys = gen_master "M-Phys" ["MPSL-PHY"] "NOWAY"
 let mformens = gen_master "M-FORMENS" ["gps87633"] "NOWAY"
 let mappsu = gen_master "M-APPSU" ["gps82525"] "NOWAY"
 let mape = gen_master "M-APE" ["MPSL-APE"] "NOWAY"
+let mste = gen_master "M-STE" ["MPSL-STE"] "NOWAY"
 let agreginfosu = gen_master "AGINFOSU" ["gps86919"] "NOWAY"
 let agregmathsupc = gen_master "AGMATHUPC" ["gps85871"] "NOWAY"
 let agregmathsups = gen_master "AGMATHUPS" ["gps3577"] "NOWAY"
@@ -3013,6 +3014,7 @@ let translate_diplome
           | "mformens" ->   state, "M2 Formation à l'Enseignement Supérieur en Mathématiques","M2 Formation to Higher Eduction in Mathematics",true
           | "mappsu" -> state,"M2 Mathematiques et applications ","M2 Mathematics and applications",true
           | "mape" -> state,"M1 Analyse politique et économique","M1 Political and economical analysis",false
+          | "mste" -> state,"M1 Sciences de la Vie, de la Terre et de l'Univers", "M1 Life, Earth, and Universe Sciences", false
           | "mmod" -> state, "M2 Mathématiques de la modelisation", "M2 Mathematics of Modeling",true
           | "mphys" -> state, "M2 Physique","M2 Physics",true
           | "imalis" -> state, "M2 IMALIS","M2 IMALIS",true
@@ -3265,7 +3267,9 @@ let translate_diplome
       state, (Some "M-APP", "M2 Mathematiques et applications ","M2 Mathematics and applications",dpt_maths,dpt_maths_en,false,true)
     else if mape situation then
       state, (Some "MAPE", "M1 Analyse politique et économique","M1 Political and economical analysis",dpt_maths,dpt_maths_en,false,false)
-    else if mmod situation then
+    else if mste situation then
+      state, (Some "MSTE", "M1 Sciences de la Vie, de la Terre et de l'Univers","M1 Life, Earth, and Universe Sciences",dpt_geosciences,dpt_geosciences_en,false,false)
+  else if mmod situation then
       state, (Some "MMOD", "M2 Mathématiques de la modelisation", "M2 Mathematics of Modeling",dpt_maths, dpt_maths_en,false,true)
     else if mphys situation then
       state, (Some "MPHYS","M2 Physique","M2 Physics",dpt_phys, dpt_phys_en,false,true)
@@ -5094,6 +5098,8 @@ let program
     | Some ("lmath" | "mmath" | "LMath" | "MMath" | "mape" | "mathfond" | "mathfondpantheonsor" | "mathfondsu" | "modsimorsay" | "modsimversailles" | "prob" | "mfimfa" |   "mfimfaorsay" |  "mmod" | "mformens" | "mprobfinsu"
     | "mprobfinpanthon" | "malea" | "marianageo" | "mmathgeneric" | "agmathsu" | "agmathupc") ->
       state, Some Color.orange
+    | Some ("mste") ->
+        state, Some Color.green
     | Some ("imalis") ->
       state, Some Color.green
     | Some ("leco" | "LEco") ->
