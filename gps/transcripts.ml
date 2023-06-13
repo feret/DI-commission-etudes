@@ -3171,7 +3171,7 @@ let translate_diplome
           (Some "L","L3 de physique","Bachelor in Physics",dpt_phys,dpt_phys_en,false,is_m2)
           else
           state,
-          (Some "L","L3 de Sciences de la Terre","Bachelor in Earth Sciences",dpt_phys,dpt_phys_en,false,is_m2)
+          (Some "L","L3 de Sciences de la Terre","Bachelor in Earth Sciences",dpt_geosciences,dpt_geosciences_en,false,is_m2)
       else
       if linfo situation && lmath ~year ~firstname ~lastname situation state
       then
