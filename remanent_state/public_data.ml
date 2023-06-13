@@ -114,7 +114,7 @@ let dpt_of_string x =
   | "informatique" | "di" -> DI
   | "mathematiques" | "dma" -> DMA
   | "chimie" -> CHIMIE
-  | "géosciences" -> GEOSCIENCES
+  | "geosciences" -> GEOSCIENCES
   | "physique" -> PHYS
   | "biologie" -> IBENS
   | "" | "ens" -> ENS
