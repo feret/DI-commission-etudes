@@ -73,14 +73,14 @@ let dpt_dec_gps_name = dpt_dec
 let dpt_arts_gps_name  = dpt_arts
 let dpt_lila_gps_name = dpt_lila
 
-let acro_dpt_arts = "ARTS"
-let acro_dpt_phys = "PHYS"
+let acro_dpt_arts = "Département des arts"
+let acro_dpt_phys = "Département de Physique"
 let acro_dpt_info = "DI"
 let acro_dpt_maths = "DMA"
-let acro_dpt_chimie = "CHIMIE"
-let acro_dpt_geosciences = "G\'EOSCIENCES"
-let acro_dpt_eco = "ECO"
-let acro_dpt_bio = "BIO"
+let acro_dpt_chimie = "Départmenent de Chimie"
+let acro_dpt_geosciences = "Départmenent de G\'eosciences"
+let acro_dpt_eco = "Département de d'Économie"
+let acro_dpt_bio = "Département de Biologie"
 let acro_dpt_dri = "DRI"
 let acro_dpt_lila = "LILA"
 
@@ -3065,7 +3065,7 @@ let translate_diplome
   let check_dpt pos state origine diplome label label_en code_cours year situation is_m2 =
     match
       situation.departement_principal,
-      lerasmus origine || lpe origine || lechange_dri situation
+      lerasmus origine || lpe origine || lechange_dri situation || year < promo
     with
     | None, false ->
       Remanent_state.warn_dft
@@ -3210,9 +3210,10 @@ let translate_diplome
       else if ldec situation then
         state,
         (Some "L","L3 de sciences cognitives","Bachelor in Cognitive Sciences",dpt_ibens,dpt_ibens_en,false,is_m2)
-      else check_dpt __POS__ state origine
-        "L" "L3" "Bachelor" code_cours year
-        situation is_m2
+      else
+        check_dpt __POS__ state origine
+              "L" "L3" "Bachelor" code_cours year
+              situation is_m2
 
     end
   | Some "M" ->
@@ -4262,7 +4263,7 @@ let heading
                   "Cursus maths-physique et rattaché au %s" dpt,
                 Printf.sprintf
                   "Maths-Phys program, registed at %s " dpt,
-                Some "Licence L3 Maths et L3 Phys Université Paris-Sud",
+                Some "Licence L3 de Mathématiques et L3 Physique Université Paris-Sud",
                 Some "Bachelor in Maths and Bachelor in Physics at Paris-South  University"
               else
               state,
@@ -4270,7 +4271,7 @@ let heading
                 "Cursus maths-physique et rattaché au %s" dpt,
               Printf.sprintf
                 "Maths-Phys program, registed at %s " dpt,
-              Some "Licence L3 Maths et L3 Phys Université Paris-Saclay",
+              Some "Licence L3 de Mathématiques et L3 Physique Université Paris-Saclay",
               Some "Bachelor in Maths and Bachelor in Physics at Paris-Saclay   University"
           else if
                 lphysgeos situation
@@ -4318,7 +4319,7 @@ let heading
                     "Cursus physique-géosciences et rattaché au %s" dpt,
                   Printf.sprintf
                     "Phys-Earth Sciences program, registed at %s " dpt,
-                  Some "Licence L3 Phys et L3 Géosciences Sorbonne Université ",
+                  Some "Licence L3 de Physique et L3 Géosciences Sorbonne Université ",
                   Some "Bachelor in Physics and Bachelor in Earth Sciences  at Sorbonne  University"
 
             else
@@ -5175,8 +5176,9 @@ let program
         (string,dpt')
         cursus_map, footpage
       with
-    | None, _ -> Remanent_state.warn __POS__ (Format.sprintf "FRENCHNONE %s %s"
-   (match string with None -> "none" | Some x -> x) (Public_data.string_of_dpt dpt)) Exit state, ""
+    | None, _ ->
+      Remanent_state.warn __POS__ (Format.sprintf "FRENCHNONE %s %s %s"
+   (match string with None -> "none" | Some x -> x) (Public_data.string_of_dpt dpt) year) Exit state, ""
     | Some (_,None),_ -> Remanent_state.warn __POS__ (Format.sprintf "FRENCHNOENDDATE %s %s %s %s %s"
    (match string with None -> "none" | Some x -> x) (Public_data.string_of_dpt dpt) firstname lastname year) Exit state, ""
     | _,None -> state, ""
