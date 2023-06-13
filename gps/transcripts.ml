@@ -4494,6 +4494,7 @@ let heading
                     | Some fin ->
                       int_of_string year <= int_of_string
                         fin
+                    && year >= promo
                   then
                       let state, cursus_opt =
                         Remanent_state.get_cursus
@@ -4892,7 +4893,7 @@ let program
     else
       match string with
       | None -> state, None, None, None, None
-      | Some s when String.trim s = "" ->
+      | Some s when String.trim s = "" || year < promo ->
         state, None, None, None, None
       | Some string ->
         let state, cursus_opt =
@@ -5106,7 +5107,9 @@ let program
       state, Some Color.pink
     | Some ("mphys") -> state, Some Color.duckblue
     | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" | "lmfi" | "PHILOSorbonne" | "sesi" | "sesi2" | "alea") ->
-      color_of_dpt
+      if year < promo then state, Some Color.white
+      else
+        color_of_dpt
         who __POS__ state
         (Public_data.string_of_dpt dpt)
         origine
@@ -7659,19 +7662,25 @@ let export_transcript
                  in
                  let diplome_year = string_of_int val_year in
                  let state, univ, cursus =
-                    Univ.get_univ
-                      ~diplome_dpt ~diplome_niveau ~diplome_year ~firstname ~lastname
-                      gpscodelist state
-                 in
-                 let univ =
-                    match univ with
-                     | Some univ -> univ
-                     | _ -> Public_data.Upartenaire
-                 in
-                 let cursus =
-                   match cursus with
-                   | Some cursus -> cursus
-                   | _ -> Public_data.empty_cursus
+                    if diplome_year < promo then
+                    state, Public_data.Upartenaire, Public_data.empty_cursus
+                    else
+                      let state, univ, cursus =
+                          Univ.get_univ
+                              ~diplome_dpt ~diplome_niveau ~diplome_year ~firstname ~lastname
+                              gpscodelist state
+                      in
+                      let univ =
+                          match univ with
+                            | Some univ -> univ
+                            | _ -> Public_data.Upartenaire
+                      in
+                      let cursus =
+                        match cursus with
+                          | Some cursus -> cursus
+                          | _ -> Public_data.empty_cursus
+                      in
+                      state, univ, cursus
                  in
                  let dpl =
                  {
