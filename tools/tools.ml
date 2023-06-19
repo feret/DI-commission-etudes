@@ -10,6 +10,14 @@ let remove_space_from_string s =
   let seq = Seq.filter (fun x -> not (x=' ')) seq in
   String.of_seq seq
 
+let remove_single_quote_from_string s =
+    let seq = String.to_seq s in
+    let seq = Seq.filter (fun x -> not (x='\'')) seq in
+    String.of_seq seq
+
+let remove_space_and_single_quote_from_string s =
+    remove_single_quote_from_string (remove_space_from_string s)
+
 let array_map_of_list =
   let rec fill f i v = function
     | [] -> ()
@@ -486,7 +494,7 @@ let build_output
     | Some file_name -> state, file_name
   in
   let output_file_name =
-    remove_space_from_string output_file_name
+    remove_space_and_single_quote_from_string output_file_name
   in
   let output_repository =
     match output_repository,prefix  with
@@ -700,4 +708,4 @@ let translate_et a =
             (fun x -> if x = "et" then "and" else x)
             (List.rev l)
   in
-  String.concat " " l 
+  String.concat " " l

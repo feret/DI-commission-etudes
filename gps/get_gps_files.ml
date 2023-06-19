@@ -705,8 +705,8 @@ let get_student_file
     | Some modelist -> modelist
     | None ->
       begin
-        match Special_char.remove_acute firstname = firstname,
-              Special_char.remove_acute lastname = lastname,
+        match Special_char.remove_simple_quote (Special_char.remove_acute firstname) = firstname,
+              Special_char.remove_simple_quote (Special_char.remove_acute lastname) = lastname,
               main_dpt
         with
         | true, true,
