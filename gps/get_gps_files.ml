@@ -352,13 +352,13 @@ let try_get_student_file
     if mode.avec_accent_sur_le_prenom then
       Special_char.uppercase
     else
-      (fun x -> Special_char.uppercase (Special_char.correct_string x))
+      (fun x -> Special_char.uppercase (Special_char.correct_string (Special_char.remove_simple_quote x)))
   in
   let f_lastname =
     if mode.avec_accent_sur_le_nom then
       Special_char.uppercase
     else
-      (fun x -> Special_char.uppercase (Special_char.correct_string x))
+      (fun x -> Special_char.uppercase (Special_char.correct_string (Special_char.remove_simple_quote x)))
   in
   let state, output =
     match mode.access_type with

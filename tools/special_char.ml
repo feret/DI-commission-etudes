@@ -125,7 +125,10 @@ let special_char_percent_from_csv_to_latex =
   ['%',"\\%"]
 
 let special_char_file_name =
-  (" ", "")::special_char_txt
+  ("'", "")::(" ", "")::special_char_txt
+
+let special_char_simple_quote =
+  ["'"," "]
 
 let map_from_char_list l =
   List.fold_left
@@ -183,6 +186,8 @@ let lowercase_char_map =
 let uppercase_char_map =
     map_from_string_list uppercase_char
 
+let special_char_map_simple_quote =
+    map_from_string_list special_char_simple_quote
 (*let correct_acute_in_char c =
 match
   CharMap.find_opt c special_char_map
@@ -306,6 +311,9 @@ let expand_string s =
 
 let remove_acute s =
   string_map special_char_map s
+
+let remove_simple_quote s =
+  string_map special_char_map_simple_quote s
 
 let lowercase s =
   string_map ~dft:String.lowercase_ascii lowercase_char_map s

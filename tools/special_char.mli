@@ -1,5 +1,6 @@
 val correct_string: string -> string
 val remove_acute: string -> string
+val remove_simple_quote: string -> string 
 val correct_string_txt: string -> string
 val correct_string_latex: string -> string
 val correct_string_email_latex: string -> string
