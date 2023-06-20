@@ -3004,6 +3004,7 @@ let translate_diplome
           | "interaction" -> state,"M2 Interaction", "M2 Interaction", true
           | "mathfond" | "mathfondsu" | "mathfondupc" | "mathfondpantheonsor"
              -> state,"M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",true
+          | "muspn" -> state, "M2 Mathématiques", "M2 Mathematics",true
           | "lmfi" -> state,"M2 LMFI", "M2 LMFI",true
           | "marianageo" -> state, "M2 Arithmétique Analyse et Géométrie","M2 Analysis, Number Theory and Geometry",true
           | "malea" | "alea" -> state, "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness",true
