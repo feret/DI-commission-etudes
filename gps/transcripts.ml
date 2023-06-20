@@ -5100,7 +5100,7 @@ let program
     | Some ("LInfo" | "linfo" | "agreginfosu" | "agreginfoupc") ->
       state, Some Color.yellow
     | Some ("lmath" | "mmath" | "LMath" | "MMath" | "mape" | "mathfond" | "mathfondpantheonsor" | "mathfondsu" | "modsimorsay" | "modsimversailles" | "prob" | "mfimfa" |   "mfimfaorsay" |  "mmod" | "mformens" | "mprobfinsu"
-    | "mprobfinpanthon" | "malea" | "marianageo" | "mmathgeneric" | "agmathsu" | "agmathupc") ->
+    | "mprobfinpanthon" | "malea" | "marianageo" | "mmathgeneric" | "agmathsu" | "agmathupc" | "muspn") ->
       state, Some Color.orange
     | Some ("mste") ->
         state, Some Color.green
