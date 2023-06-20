@@ -2785,11 +2785,13 @@ let mint = gen_master "M-Interaction" ["gps78864"] "XT 00000000000647168"
 let mlmfi = gen_master "M-LMFI" ["gps2005";"gps3579"] "NOWAY"
 let mimalis = gen_master "M-ScVivant" [] "BIO-M2-E14-S2"
 let mphylo = gen_master "M-Philo" ["gps07302"] "NOWAY"
-let mrandom = gen_master "M-ALEA" ["gps85775";"gps87012"] "NOWAY"
-let mpropalea = gen_master "M-PROBALEA" ["gps76402"] "NOWAY"
+let mrandom = gen_master "M-ALEA" ["gps85775";"gps87012";"gps90077";"gps89812";"gps91733"] "NOWAY"
+let mprobalea = gen_master "M-PROBALEA" ["gps76402";"gps89974"] "NOWAY"
 let marianageo = gen_master "M-AAG" [] "NOWAY"
 let mfondps = gen_master "M-FONDPS" ["gps85612"] "NOWAY"
-let mfondsu = gen_master "M-FONDSU" ["gps87094";"gps85911";"gps86231"] "NOWAY"
+let mfondsu =
+    gen_master "M-FONDSU"
+        ["gps87094";"gps85911";"gps86231";"gps91692";"gps91933";"gps91454"] "NOWAY"
 let mfondupc = gen_master "M-FONDUPC" ["gps3102"] "NOWAY"
 let manamodsimorsay = gen_master "M-AnaModSimOrsay" ["gps86273"] "NOWAY"
 let manamodsimversailles = gen_master "M-AnaModSimVersaille" ["gps85915"] "NOWAY"
@@ -3247,7 +3249,7 @@ let translate_diplome
       state, (Some "LMFI", "M2 LMFI", "M2 LMFI", dpt_info, dpt_info_en,false,true)
     else if mrandom situation then
       state, (Some "ALEA", "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness", dpt_maths, dpt_maths_en,false,true)
-    else if mpropalea situation then
+    else if mprobalea situation then
       state, (Some "PROBALEA", "M2 Probabilités et Modèles Aléatoires", "M2 Probabilities and Random models", dpt_maths, dpt_maths_en,false,true)
     else if marianageo situation then
       state, (Some "MARIANAGEO", "M2 Arithmétique Analyse et Géométrie","M2 Analysis, Number Theory and Geometry",dpt_maths, dpt_maths_en,false,true)
