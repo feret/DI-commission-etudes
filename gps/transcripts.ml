@@ -1249,11 +1249,13 @@ let store_cours  =
       let vetu = 35
       let autre = 40
       let manquant = 50
+      let pratique = 15
       let stage_string = "STRING"
       let code_list =
         [
           stage, stage_string;
           memoire, "MIIME";
+          pratique, "PRATIQUE";
           actd, "ACTD";
           arts, "ARTS";
           bio, "BIO";
