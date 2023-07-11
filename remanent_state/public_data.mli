@@ -391,7 +391,7 @@ type origin =
   | BCPST
   | DensBio
   | DensChimie
-  | DensGeosciences 
+  | DensGeosciences
   | DensDEC
   | DensInfo
   | DensMath
@@ -634,3 +634,35 @@ type 'a commission =
 
 val string_of_origin_opt: origin option -> string
 val string_of_statut_opt: statut option -> string
+
+type internship =
+  {
+    internship_student_firstname : string ;
+    internship_student_lastname : string ;
+    internship_student_promotion : string ;
+    internship_code_gps : string ;
+    internship_year : string ;
+    internship_intitule_fr : string ;
+    internship_intitule_en : string ;
+    internship_sujet_fr : string option ;
+    internship_sujet_en : string option ;
+    internship_universite_fr : string option ;
+    internship_universite_en : string option ;
+    internship_resp_ens_firstname : string option;
+    internship_resp_ens_lastname : string option;
+    internship_resp_ens_gender : genre option;
+    internship_resp_host_firstname : string option;
+    internship_resp_host_lastname : string option;
+    internship_resp_host_gender : genre option;
+    internship_en_france : bool option ;
+    internship_ectc: int option ;
+    internship_grade: note option
+  }
+
+type mineur_majeure =
+  {
+    secondary_student_firstname: string ;
+    secondary_student_lastname : string ;
+    secondary_student_promo : string ;
+    secondary_dpt : dpt ;
+  }

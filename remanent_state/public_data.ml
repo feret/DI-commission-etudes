@@ -616,6 +616,52 @@ type missing_internship_description =
     missing_internship_intitule: string ;
   }
 
+type valide =
+  | Bool of bool
+  | Abs
+
+type note =
+  | Float of float
+  | String of string
+  | Temporary of float
+  | Absent
+  | En_cours
+  | Abandon
+  | Valide_sans_note
+
+
+type internship =
+  {
+    internship_student_firstname : string ;
+    internship_student_lastname : string ;
+    internship_student_promotion : string ;
+    internship_code_gps : string ;
+    internship_year : string ;
+    internship_intitule_fr : string ;
+    internship_intitule_en : string ;
+    internship_sujet_fr : string option ;
+    internship_sujet_en : string option ;
+    internship_universite_fr : string option ;
+    internship_universite_en : string option ;
+    internship_resp_ens_firstname : string option;
+    internship_resp_ens_lastname : string option;
+    internship_resp_ens_gender : genre option;
+    internship_resp_host_firstname : string option;
+    internship_resp_host_lastname : string option;
+    internship_resp_host_gender : genre option;
+    internship_en_france : bool option ;
+    internship_ectc: int option ;
+    internship_grade: note option
+  }
+
+type mineur_majeure =
+       {
+         secondary_student_firstname: string ;
+         secondary_student_lastname : string ;
+         secondary_student_promo : string ;
+         secondary_dpt : dpt ;
+       }
+
   type parcours_universitaire =
   {
     etablissement_parcours: string;
@@ -644,19 +690,6 @@ type missing_internship_description =
 
   let  empty_repartition_diplomes = {dens= []; diplomes_nationaux = []}
 
-
-  type valide =
-    | Bool of bool
-    | Abs
-
-  type note =
-    | Float of float
-    | String of string
-    | Temporary of float
-    | Absent
-    | En_cours
-    | Abandon
-    | Valide_sans_note
 
 let all_notes_string =
       ["A";"A+";"A-";"B";"B+";"B-";"C";"C+";"C-";"D";"D+";"D-";"E";"E-";"E+";"P";"a";"a+";"a-";"b";"b+";"b-";"c";"c+";"p"]

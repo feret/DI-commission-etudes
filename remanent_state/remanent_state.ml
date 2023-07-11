@@ -65,11 +65,16 @@ type parameters =
     current_academic_year: Public_data.annee;
     commissions_repository: string;
     commission: (string * Public_data.annee) option;
+    dens_repository: string;
+    diplomation_year: string;
     target: string option;
     repository_for_bourses: string;
     repository_for_tuteurs: string;
     repository_for_cours: string;
     repository_for_course_entry: string;
+    repository_for_internship_entry: string;
+    repository_for_minor_major: string;
+    repository_for_dens_candidate: string;
     repository_for_departements: string;
     repository_for_cursus: string;
     repository_for_diplomes: string;
@@ -96,9 +101,11 @@ type parameters =
     repository_to_dump_dens: string;
     repository_to_dump_mentors: string;
     repository_to_dump_missing_course_name_translation: string;
+    repository_to_dump_missing_minor_major: string;
+    repository_to_dump_missing_internship_translation: string;
     repository_to_dump_missing_course_entries: string;
     repository_to_dump_course_entries_report: string;
-
+    repository_to_dump_dens_candidate: string;
     signature: string;
     log_mkdir: bool;
     bilinguage: bool;
@@ -206,6 +213,13 @@ let parameters =
     error_log_repository = "erreurs_internes";
     error_log_file = "error.txt";
     comma_symbol = ',';
+    dens_repository = "diplomation";
+    diplomation_year = "2023" ;
+    repository_for_internship_entry = "stages" ;
+    repository_for_minor_major = "mineurs-majeures" ;
+    repository_for_dens_candidate = "dens-candidate" ; repository_to_dump_missing_minor_major = "mineures-majeures" ;
+    repository_to_dump_missing_internship_translation = "stages" ;
+    repository_to_dump_dens_candidate = "dens-candidate" ;
     current_academic_year = "2022";
     commissions_repository = "commissions_des_etudes";
     commission = Some ("16 septembre 2023", "2022");
