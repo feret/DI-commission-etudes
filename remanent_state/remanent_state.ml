@@ -66,7 +66,7 @@ type parameters =
     commissions_repository: string;
     commission: (string * Public_data.annee) option;
     dens_repository: string;
-    diplomation_year: string;
+    diplomation_year: string option ;
     target: string option;
     repository_for_bourses: string;
     repository_for_tuteurs: string;
@@ -214,7 +214,7 @@ let parameters =
     error_log_file = "error.txt";
     comma_symbol = ',';
     dens_repository = "diplomation";
-    diplomation_year = "2023" ;
+    diplomation_year = Some "2023" ;
     repository_for_internship_entry = "stages" ;
     repository_for_minor_major = "mineurs-majeures" ;
     repository_for_dens_candidate = "dens-candidate" ; repository_to_dump_missing_minor_major = "mineures-majeures" ;
@@ -312,6 +312,7 @@ type data =
     mentors: Public_data.mentor list;
     national_diplomas: Public_data.diplome_national list;
     dens: Public_data.dens list;
+    dens_candidates: Dens_candidates.t;
   }
 
 let empty_data =
@@ -350,6 +351,7 @@ let empty_data =
     mentors = [];
     national_diplomas = [];
     dens = [];
+    dens_candidates = Dens_candidates.empty;
   }
 
 type t =
@@ -630,12 +632,34 @@ let get_repository_to_dump_missing_course_name_translations t =
     )
     t
 
+let get_dens_candidate_suggestion_list_repository t =
+      get_repository_to_dump_missing_gen
+        (fun t ->
+           t.parameters.repository_for_dens_candidate
+        )
+        t
+
+let get_repository_to_dump_internship_translations t =
+      get_repository_to_dump_missing_gen
+        (fun t ->
+           t.parameters.repository_to_dump_missing_internship_translation
+        )
+        t
+
+
 let get_repository_to_dump_missing_course_entries t =
   get_repository_to_dump_missing_gen
     (fun t ->
        t.parameters.repository_to_dump_missing_course_entries
     )
     t
+
+let get_repository_to_dump_missing_minor_major t =
+    get_repository_to_dump_missing_gen
+        (fun t ->
+           t.parameters.repository_to_dump_missing_minor_major
+        )
+        t
 
 let get_repository_to_dump_missing_mentors t =
   get_repository_to_dump_missing_gen
@@ -723,6 +747,20 @@ let get_repository_to_dump_gps_files ?output_repository t =
   | "",a | a,""-> t, a
   | a,b -> t, Format.sprintf "%s/%s" a b
 
+  let get_repository_to_dump_dens_supplement ?output_repository t =
+    let t, output =
+      match output_repository with
+      | Some rep -> t, rep
+      | None -> get_dated_output_repository t
+    in
+    match
+      output,
+      t.parameters.dens_repository
+    with
+    | "","" -> t, ""
+    | "",a | a,""-> t, a
+    | a,b -> t, Format.sprintf "%s/%s" a b
+
 let get_repository_to_dump_attestations t =
   let t, output =
     get_dated_output_repository t
@@ -799,6 +837,17 @@ let get_rep_gen get_main get_prefix t =
 let get_students_list_prefix t =
   t, "etudiants"
 
+let get_dens_candidates_list_prefix t =
+    t, t.parameters.repository_to_dump_dens_candidate
+
+let get_stage_entry_list_prefix t =
+  t, t.parameters.repository_for_internship_entry
+
+let get_mineur_majeur_entry_list_prefix t =
+  t, t.parameters.repository_for_minor_major
+
+
+
 let get_study t =
   let t, local = get_local_repository t in
   match local, t.parameters.study_repository with
@@ -815,6 +864,15 @@ let get_bdd t =
 
 let get_students_list_repository t =
   get_rep_gen get_bdd get_students_list_prefix t
+
+let get_stage_entry_list_repository t =
+  get_rep_gen get_bdd get_stage_entry_list_prefix t
+
+let get_mineur_majeur_entry_repository t =
+  get_rep_gen get_bdd get_mineur_majeur_entry_list_prefix t
+
+let get_dens_candidates_list_repository t =
+    get_rep_gen get_bdd get_dens_candidates_list_prefix t
 
 let get_scholarships_list_prefix t =
   t, t.parameters.repository_for_bourses
@@ -1306,6 +1364,12 @@ let get_students t = lift_get get_students t
 let set_students students data = {data with students}
 let set_students students t = lift_set set_students students t
 
+let get_dens_candidates data = data.dens_candidates
+let get_dens_candidates t = lift_get get_dens_candidates t
+let set_dens_candidates dens_candidates data = {data with dens_candidates}
+let set_dens_candidates dens_candidates t =
+  lift_set set_dens_candidates dens_candidates t
+
 let get_scholarships data = data.scholarships
 let get_scholarships t = lift_get get_scholarships t
 let set_scholarships scholarships data = {data with scholarships}
@@ -1541,6 +1605,12 @@ let add_student _unify =
     get_students
     set_students
     (fun _ t a b -> t, a::b)
+
+let add_dens_candidate unify =
+  add_gen
+    get_dens_candidates
+    set_dens_candidates
+    (Dens_candidates.add_dens_candidate unify)
 
 let add_scholarship unify =
   add_gen
@@ -2436,3 +2506,6 @@ let log_string
       ?lineproportion ?english t french
   in
   fprintf ?logger t "%s" s
+
+let get_dens_candidates t = t, t.data.dens_candidates
+let get_diplomation_year t = t, t.parameters.diplomation_year

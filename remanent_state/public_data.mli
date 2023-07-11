@@ -432,6 +432,14 @@ type diplome_national =
     diplome_commission: bool ;
   }
 
+type dens_candidate =
+  {
+    dens_candidate_main_dpt: main_dpt ;
+    dens_candidate_firstname : string ;
+    dens_candidate_lastname : string ;
+    dens_candidate_promotion : string ;
+    dens_candidate_ok : bool option ;
+  }
 
 type dens =
   {

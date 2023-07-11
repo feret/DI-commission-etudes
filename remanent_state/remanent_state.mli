@@ -142,6 +142,11 @@ val get_csv_separator: t -> t * char option
 val get_students_list_prefix: t -> t * string
 val get_students_list_repository: t -> t * string
 
+val get_dens_candidates_list_prefix: t -> t * string
+val get_dens_candidates_list_repository: t -> t * string
+
+val get_dens_candidate_suggestion_list_repository: t -> t * string
+
 (** list of scholarships *)
 val get_scholarships_list_prefix: t -> t * string
 val get_scholarships_list_repository: t -> t * string
@@ -155,6 +160,12 @@ val get_course_exceptions_list_repository: t -> t * string
 
 val get_course_entry_list_prefix: t -> t * string
 val get_course_entry_list_repository: t -> t * string
+
+val get_stage_entry_list_prefix: t -> t * string
+val get_stage_entry_list_repository: t -> t * string
+
+val get_mineur_majeur_entry_list_prefix: t -> t * string
+val get_mineur_majeur_entry_repository: t -> t * string
 
 val get_departments_list_prefix: t -> t * string
 val get_departments_list_repository: t -> t * string
@@ -213,6 +224,15 @@ val add_student:
    Public_data.student_id ->
    Public_data.student_id -> t * Public_data.student_id) ->
   (string * int * int * int) -> Public_data.student_id -> t -> t
+
+val get_dens_candidates:
+  t -> t * Dens_candidates.t
+
+val add_dens_candidate:
+  (string * int * int * int ->
+  t -> Public_data.dens_candidate -> Public_data.dens_candidate -> t * Public_data.dens_candidate) ->
+  (string * int * int * int) -> Public_data.dens_candidate -> t -> t
+
 
 (** scholarships *)
 val get_scholarship:
@@ -508,6 +528,15 @@ val get_dens:
 val get_repository_to_dump_dens:
   t -> t * string
 
+val get_repository_to_dump_missing_minor_major:
+  t -> t * string
+
+val get_repository_to_dump_internship_translations:
+  t -> t * string
+
+val get_repository_to_dump_dens_supplement:
+  ?output_repository:string -> t -> t * string
+
 val add_national_diploma:
   t -> Public_data.diplome_national -> t
 
@@ -691,5 +720,6 @@ val empty_copy:
         file_name:string -> output_rep:string -> t -> t)
   -> t -> t
 
+val get_diplomation_year: t -> t * string option
 val get_is_bilingual: t -> t * bool
 val bilingual_string: ?english:string -> french:string -> t -> t * string
