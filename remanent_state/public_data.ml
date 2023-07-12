@@ -654,7 +654,7 @@ type internship =
     internship_grade: note option
   }
 
-type mineur_majeure =
+type mineure_majeure =
        {
          secondary_student_firstname: string ;
          secondary_student_lastname : string ;

@@ -306,6 +306,9 @@ type data =
     courses_validated_twice: Public_data.missing_grade list;
     missing_mentors: Public_data.missing_mentor list;
     missing_internship_descriptions: Public_data.missing_internship_description list;
+    minor_suggestion: Public_data.mineure_majeure list;
+    major_suggestion: Public_data.mineure_majeure list;
+    missing_internship_translations: Public_data.internship list;
     ambiguous_internship_descriptions: Public_data.missing_internship_description list;
     missing_course_entries:Public_data.course_entry list;
     course_entries_report:Course_name_translation.tentry;
@@ -351,6 +354,9 @@ let empty_data =
     mentors = [];
     national_diplomas = [];
     dens = [];
+    minor_suggestion = [];
+    major_suggestion = [];
+    missing_internship_translations = [];
     dens_candidates = Dens_candidates.empty;
   }
 
@@ -639,7 +645,7 @@ let get_dens_candidate_suggestion_list_repository t =
         )
         t
 
-let get_repository_to_dump_internship_translations t =
+let get_repository_to_dump_missing_internship_translations t =
       get_repository_to_dump_missing_gen
         (fun t ->
            t.parameters.repository_to_dump_missing_internship_translation
@@ -843,7 +849,7 @@ let get_dens_candidates_list_prefix t =
 let get_stage_entry_list_prefix t =
   t, t.parameters.repository_for_internship_entry
 
-let get_mineur_majeur_entry_list_prefix t =
+let get_mineure_majeur_entry_list_prefix t =
   t, t.parameters.repository_for_minor_major
 
 
@@ -868,8 +874,8 @@ let get_students_list_repository t =
 let get_stage_entry_list_repository t =
   get_rep_gen get_bdd get_stage_entry_list_prefix t
 
-let get_mineur_majeur_entry_repository t =
-  get_rep_gen get_bdd get_mineur_majeur_entry_list_prefix t
+let get_mineure_majeur_entry_repository t =
+  get_rep_gen get_bdd get_mineure_majeur_entry_list_prefix t
 
 let get_dens_candidates_list_repository t =
     get_rep_gen get_bdd get_dens_candidates_list_prefix t
@@ -1439,6 +1445,21 @@ let set_missing_grades missing_grades data =
 let set_missing_grades missing_grades t =
   lift_set set_missing_grades missing_grades t
 
+let get_minor_suggestions data = data.minor_suggestion
+let get_minor_suggestions t = lift_get get_minor_suggestions t
+let set_minor_suggestions minor_suggestion data =
+    {data with minor_suggestion}
+let set_minor_suggestions minor_suggestions t =
+    lift_set set_minor_suggestions minor_suggestions t
+
+let get_major_suggestions data = data.major_suggestion
+let get_major_suggestions t = lift_get get_major_suggestions t
+let set_major_suggestions major_suggestion data =
+    {data with major_suggestion}
+let set_major_suggestions major_suggestions t =
+    lift_set set_major_suggestions major_suggestions t
+
+
 let get_non_accepted_grades data = data.non_accepted_grades
 let get_non_accepted_grades t = lift_get get_non_accepted_grades t
 let set_non_accepted_grades non_accepted_grades data =
@@ -1503,6 +1524,17 @@ let set_missing_internship_descriptions missing_internship_descriptions data =
   {data with missing_internship_descriptions}
 let set_missing_internship_descriptions missing_internship_descriptions t =
   lift_set set_missing_internship_descriptions missing_internship_descriptions t
+
+let get_missing_internship_translations data =
+    data.missing_internship_translations
+let get_missing_internship_translations t =
+    lift_get get_missing_internship_translations t
+let set_missing_internship_translations missing_internship_translations data =
+    {data with missing_internship_translations}
+let set_missing_internship_translations missing_internship_translations t =
+    lift_set set_missing_internship_translations missing_internship_translations t
+
+
 
 let get_missing_course_entries data = data.missing_course_entries
 let get_missing_course_entries t = lift_get get_missing_course_entries t
@@ -2161,6 +2193,12 @@ let add_under_average_validated_grades,get_under_average_validated_grades =
   gen get_under_average_validated_grades set_under_average_validated_grades
 let add_out_of_schooling_years,get_out_of_schooling_years =
     gen get_out_of_schooling_years set_out_of_schooling_years
+let add_minor_suggestion, get_minor_suggestion_list =
+    gen get_minor_suggestions set_minor_suggestions
+let add_major_suggestion, get_major_suggestion_list =
+    gen get_major_suggestions set_major_suggestions
+let add_missing_internship_translation, get_missing_internship_translation_list =
+    gen get_missing_internship_translations set_missing_internship_translations
 
 let add_dens, get_dens =
   gen get_dens set_dens

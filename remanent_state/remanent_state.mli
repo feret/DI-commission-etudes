@@ -164,8 +164,8 @@ val get_course_entry_list_repository: t -> t * string
 val get_stage_entry_list_prefix: t -> t * string
 val get_stage_entry_list_repository: t -> t * string
 
-val get_mineur_majeur_entry_list_prefix: t -> t * string
-val get_mineur_majeur_entry_repository: t -> t * string
+val get_mineure_majeur_entry_list_prefix: t -> t * string
+val get_mineure_majeur_entry_repository: t -> t * string
 
 val get_departments_list_prefix: t -> t * string
 val get_departments_list_repository: t -> t * string
@@ -531,7 +531,7 @@ val get_repository_to_dump_dens:
 val get_repository_to_dump_missing_minor_major:
   t -> t * string
 
-val get_repository_to_dump_internship_translations:
+val get_repository_to_dump_missing_internship_translations:
   t -> t * string
 
 val get_repository_to_dump_dens_supplement:
@@ -647,6 +647,22 @@ val add_missing_internship_description:
 
 val get_missing_internship_descriptions:
   t -> t * Public_data.missing_internship_description list
+
+val add_missing_internship_translation:
+  t -> Public_data.internship -> t
+val get_missing_internship_translation_list:
+  t -> t * Public_data.internship list
+
+val add_minor_suggestion:
+    t -> Public_data.mineure_majeure -> t
+val get_minor_suggestion_list:
+    t -> t * Public_data.mineure_majeure list
+
+
+val add_major_suggestion:
+     t -> Public_data.mineure_majeure -> t
+val get_major_suggestion_list:
+     t -> t * Public_data.mineure_majeure list
 
 val get_repository_to_dump_non_validated_internships:
   t -> t * string
