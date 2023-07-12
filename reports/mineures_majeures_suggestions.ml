@@ -24,7 +24,7 @@ struct
       ["PROMO"],
       (fun a -> a.Public_data.secondary_student_promo);
       ["DPT"],
-      (fun a -> Public_data.string_of_dpt (a.Public_data.secondary_dpt));
+      (fun a -> a.Public_data.secondary_dpt);
       ["ACCEPTE"],
       (fun a ->
           match a.Public_data.secondary_accepted with

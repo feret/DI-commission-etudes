@@ -659,7 +659,7 @@ type mineure_majeure =
          secondary_student_firstname: string ;
          secondary_student_lastname : string ;
          secondary_student_promo : string ;
-         secondary_dpt : main_dpt ;
+         secondary_dpt : string ;
          secondary_accepted : bool option ;
        }
 

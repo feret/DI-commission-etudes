@@ -431,7 +431,7 @@ let suggest_mineure dens state =
              Public_data.secondary_student_lastname=dens.Public_data.dens_lastname;
              Public_data.secondary_student_firstname=dens.Public_data.dens_firstname;
              Public_data.secondary_student_promo=dens.Public_data.dens_promotion;
-             Public_data.secondary_dpt = dens.Public_data.dens_main_dpt;
+             Public_data.secondary_dpt = key ;
              Public_data.secondary_accepted = None}
             in
             Remanent_state.add_minor_suggestion state m
