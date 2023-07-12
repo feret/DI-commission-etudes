@@ -40,6 +40,7 @@ type step_kind =
   | Dump_national_diploma_list
   | Dump_dens_result
   | Dump_student_list
+  | Dump_mineures_suggestions
 
 type log_info
 

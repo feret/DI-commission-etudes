@@ -659,7 +659,8 @@ type mineure_majeure =
          secondary_student_firstname: string ;
          secondary_student_lastname : string ;
          secondary_student_promo : string ;
-         secondary_dpt : dpt ;
+         secondary_dpt : main_dpt ;
+         secondary_accepted : bool option ;
        }
 
   type parcours_universitaire =

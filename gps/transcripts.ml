@@ -7982,9 +7982,14 @@ let state,year = Remanent_state.get_current_academic_year state in
              (n_inscription > 0 || dens_total_potential > 0.
               || dens_total > 0.)
           then
-                  Remanent_state.add_dens
-              state
-              dens
+            let state =
+              Remanent_state.add_dens
+                    state
+                    dens
+            in
+            let state =
+              Dens.suggest_mineure dens state
+            in state 
           else
             state
         in

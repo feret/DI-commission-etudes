@@ -40,6 +40,7 @@ type step_kind =
   | Dump_national_diploma_list
   | Dump_dens_result
   | Dump_student_list
+  | Dump_mineures_suggestions
 
 
 
@@ -127,6 +128,7 @@ let string_of_step_kind x =
   | Dump_student_list -> "Dump student list"
   | Dump_course_entries -> "Dump course entries"
   | Dump_missing_course_translation -> "Dump missing course translation"
+  | Dump_mineures_suggestions -> "Dump Mineures/Majeures suggestion"
 
 let print_step_kind logger x =
   Loggers.print_cell logger
@@ -230,6 +232,7 @@ let is_dummy step_kind =
   | Dump_student_list
   | Dump_course_entries
   | Dump_missing_course_translation
+  | Dump_mineures_suggestions
     -> false
 
 let open_event

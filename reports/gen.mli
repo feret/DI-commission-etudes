@@ -73,7 +73,7 @@ val dump_elts:
 val filter:
   ?commission:bool ->
   ?dpt:Public_data.main_dpt ->
-  ?universite:Public_data.universite -> 
+  ?universite:Public_data.universite ->
   ?dpt_gps_code:string ->
   ?firstname:string ->
   ?lastname:string ->
@@ -114,6 +114,8 @@ val filter_course_name_translation:
   Public_data.course_name_translation filter
 val filter_course_entry:
   Public_data.course_entry filter
+val filter_mineures_majeures:
+  Public_data.mineure_majeure filter
 
 module type Interface =
 sig

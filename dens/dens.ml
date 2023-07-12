@@ -62,7 +62,7 @@ let translate_main_dpt x =
   | Public_data.ENS -> ens
   | Public_data.PHYS -> phys
   | Public_data.CHIMIE -> chimie
-  | Public_data.GEOSCIENCES -> gsc 
+  | Public_data.GEOSCIENCES -> gsc
   | Public_data.IBENS -> ibens
   | Public_data.ECO -> eco
   | Public_data.DRI -> dri
@@ -204,8 +204,7 @@ let split_courses dens state =
       state courses dens
 
 let split_stages dens state = state, dens
-let collect_mineure dens state = state, dens
-
+let collect_mineure dens state = state,dens
 
 let dump_repartition ?key repartition (state, total) =
   let i,ects =
@@ -404,6 +403,43 @@ let dump_dens dens state =
       let () = Remanent_state.fprintf state "\\end{center}" in
       let () = Remanent_state.fprintf state "\\vfill\\mbox{}" in
   state
+
+let suggest_mineure dens state =
+  let liste = dens.Public_data.dens_cours_par_dpt in
+  let state =
+    Public_data.StringMap.fold
+      (fun key elt state ->
+          let key = String.uppercase_ascii key in
+          let ects =
+              List.fold_left
+                (fun ects course ->
+                    ects+.course.Public_data.supplement_ects)
+                0. elt.Public_data.diplomes_nationaux
+          in
+          let ects =
+              List.fold_left
+                (fun ects course ->
+                    ects+.course.Public_data.supplement_ects)
+              ects elt.Public_data.dens
+          in
+          if
+            (List.mem key humanities && ects >= 48. ||
+             List.mem key sciences && ects >= 24.)
+          then
+            let m =
+            {
+             Public_data.secondary_student_lastname=dens.Public_data.dens_lastname;
+             Public_data.secondary_student_firstname=dens.Public_data.dens_firstname;
+             Public_data.secondary_student_promo=dens.Public_data.dens_promotion;
+             Public_data.secondary_dpt = dens.Public_data.dens_main_dpt;
+             Public_data.secondary_accepted = None}
+            in
+            Remanent_state.add_minor_suggestion state m
+        else state)
+      liste state
+in state
+
+
 
 let repeatable state cours extra =
   match kind_of_course state cours extra with

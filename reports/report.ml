@@ -270,6 +270,11 @@ let dump_issues state =
       ~file_name:"course_entries.csv"
       state
   in
+  let state,_ =
+    Mineures_majeures_suggestions.SuggestionsMineures.dump
+      ~file_name:"suggestion_de_mineures.csv"
+      state
+  in
   state
 
 let warn state =
@@ -416,4 +421,16 @@ let warn state =
         "Some gps extractions failed"
         Exit
         state
-  in state
+  in
+  let state =
+    match Remanent_state.get_minor_suggestion_list state
+    with
+      | state, [] -> state
+      | state, _::_ ->
+      Remanent_state.warn
+        __POS__
+        "Some minor should be requested"
+        Exit
+        state
+  in
+  state

@@ -407,6 +407,18 @@ let filter_course_name_translation
   &&
   check academicyear course.Public_data.year
 
+  let filter_mineures_majeures
+      ?commission ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
+      ?niveau
+      ?recu state mineure_majeure =
+    let _ =
+      commission, dpt, universite, dpt_gps_code, niveau, mentorname, mentorfirstname, mentorlastname, teachername, ninscription, attributionyear, promo, lastname, firstname, academicyear, codegps
+    in
+    state,
+    match mineure_majeure.Public_data.secondary_accepted with
+      | None -> true
+      | Some a -> check recu a
+
   let filter_course_entry
       ?commission ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
       ?niveau
