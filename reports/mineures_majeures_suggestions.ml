@@ -61,6 +61,8 @@ struct
             (fun a -> a.Public_data.secondary_student_firstname);
         Gen.lift_cmp
             (fun a -> a.Public_data.secondary_dpt);
+        Gen.lift_cmp
+                (fun a -> a.Public_data.secondary_student_promo);
 
       ]
     in

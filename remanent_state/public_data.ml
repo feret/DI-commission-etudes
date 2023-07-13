@@ -773,7 +773,7 @@ let all_notes_string =
       dens_promotion : string ;
       dens_total_ects : float ;
       dens_current_year_ects : float ;
-      dens_sortant: bool;
+      dens_sortant: bool option;
       dens_derogation: bool;
       dens_total_potential_ects : float ;
       dens_current_year_potential_ects : float ;

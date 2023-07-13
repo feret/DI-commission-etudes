@@ -419,6 +419,18 @@ let filter_course_name_translation
       | None -> true
       | Some a -> check recu a
 
+  let filter_dens_candidate
+          ?commission ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
+          ?niveau
+          ?recu state dens_candidate =
+        let _ =
+          commission, dpt, universite, dpt_gps_code, niveau, mentorname, mentorfirstname, mentorlastname, teachername, ninscription, attributionyear, promo, lastname, firstname, academicyear, codegps
+        in
+        state,
+        match dens_candidate.Public_data.dens_candidate_ok with
+          | None -> true
+          | Some a -> check recu a
+
   let filter_course_entry
       ?commission ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
       ?niveau

@@ -225,13 +225,19 @@ val add_student:
    Public_data.student_id -> t * Public_data.student_id) ->
   (string * int * int * int) -> Public_data.student_id -> t -> t
 
-val get_dens_candidates:
+val get_dens_candidates_list:
   t -> t * Dens_candidates.t
 
 val add_dens_candidate:
   (string * int * int * int ->
   t -> Public_data.dens_candidate -> Public_data.dens_candidate -> t * Public_data.dens_candidate) ->
   (string * int * int * int) -> Public_data.dens_candidate -> t -> t
+
+val get_dens_candidates_suggestion_list:
+  t -> t * Public_data.dens_candidate list
+
+val add_dens_candidate_suggestion:
+  t -> Public_data.dens_candidate -> t
 
 
 (** scholarships *)

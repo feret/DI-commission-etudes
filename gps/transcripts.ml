@@ -7767,6 +7767,19 @@ let export_transcript
         gps_file.situation
         0
     in
+    let state, sortant =
+      match
+        Public_data.YearMap.find_last_opt
+            (fun _ -> true) gps_file.situation
+      with
+        | None ->
+          Remanent_state.warn
+              __POS__
+              "Pas de situation administrative"
+              Exit
+              state, None
+        | Some (_,x) -> state, x.derniere_annee
+    in
     let dens =
         {
           Public_data.dens_main_dpt = main_dpt ;
@@ -7783,7 +7796,7 @@ let export_transcript
           Public_data.dens_nb_mandatory_course = mandatory ;
           Public_data.dens_nb_math_course = math ;
           Public_data.dens_nb_math_and_math_info_course = math_math_info ;
-          Public_data.dens_sortant=false;
+          Public_data.dens_sortant=sortant;
           Public_data.dens_derogation=false;
           Public_data.dens_master=m2_list;
           Public_data.dens_parcours=dip_autre_list;
@@ -7989,7 +8002,11 @@ let state,year = Remanent_state.get_current_academic_year state in
             in
             let state =
               Dens.suggest_mineure dens state
-            in state 
+            in
+            let state =
+              Dens.suggest_candidate dens state
+            in
+            state 
           else
             state
         in

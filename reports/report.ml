@@ -275,6 +275,11 @@ let dump_issues state =
       ~file_name:"suggestion_de_mineures.csv"
       state
   in
+  let state,_ =
+    Dens_candidates_suggestion.SuggestionsDensCandidates.dump
+      ~file_name:"suggestion_de_diplomants.csv"
+      state
+  in
   state
 
 let warn state =
@@ -430,6 +435,17 @@ let warn state =
       Remanent_state.warn
         __POS__
         "Some minor should be requested"
+        Exit
+        state
+  in
+  let state =
+    match Remanent_state.get_dens_candidates_suggestion_list state
+    with
+      | state, [] -> state
+      | state, _::_ ->
+      Remanent_state.warn
+        __POS__
+        "Some students are elligible for the DENS"
         Exit
         state
   in

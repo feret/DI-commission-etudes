@@ -316,6 +316,8 @@ type data =
     national_diplomas: Public_data.diplome_national list;
     dens: Public_data.dens list;
     dens_candidates: Dens_candidates.t;
+    dens_candidates_suggestion: Public_data.dens_candidate list
+
   }
 
 let empty_data =
@@ -358,6 +360,7 @@ let empty_data =
     major_suggestion = [];
     missing_internship_translations = [];
     dens_candidates = Dens_candidates.empty;
+    dens_candidates_suggestion = [] ;
   }
 
 type t =
@@ -1376,6 +1379,13 @@ let set_dens_candidates dens_candidates data = {data with dens_candidates}
 let set_dens_candidates dens_candidates t =
   lift_set set_dens_candidates dens_candidates t
 
+
+let get_dens_candidates_suggestion data = data.dens_candidates_suggestion
+let get_dens_candidates_suggestion t = lift_get get_dens_candidates_suggestion t
+let set_dens_candidates_suggestion dens_candidates_suggestion data = {data with dens_candidates_suggestion}
+let set_dens_candidates_suggestion dens_candidates_suggestion t =
+    lift_set set_dens_candidates_suggestion dens_candidates_suggestion t
+
 let get_scholarships data = data.scholarships
 let get_scholarships t = lift_get get_scholarships t
 let set_scholarships scholarships data = {data with scholarships}
@@ -2197,6 +2207,9 @@ let add_minor_suggestion, get_minor_suggestion_list =
     gen get_minor_suggestions set_minor_suggestions
 let add_major_suggestion, get_major_suggestion_list =
     gen get_major_suggestions set_major_suggestions
+let add_dens_candidate_suggestion, get_dens_candidates_suggestion_list =
+    gen get_dens_candidates_suggestion set_dens_candidates_suggestion
+
 let add_missing_internship_translation, get_missing_internship_translation_list =
     gen get_missing_internship_translations set_missing_internship_translations
 
@@ -2545,5 +2558,5 @@ let log_string
   in
   fprintf ?logger t "%s" s
 
-let get_dens_candidates t = t, t.data.dens_candidates
+let get_dens_candidates_list t = t, t.data.dens_candidates
 let get_diplomation_year t = t, t.parameters.diplomation_year

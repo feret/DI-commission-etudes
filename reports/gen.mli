@@ -116,6 +116,8 @@ val filter_course_entry:
   Public_data.course_entry filter
 val filter_mineures_majeures:
   Public_data.mineure_majeure filter
+val filter_dens_candidate:
+  Public_data.dens_candidate filter
 
 module type Interface =
 sig

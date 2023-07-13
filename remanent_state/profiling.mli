@@ -41,6 +41,7 @@ type step_kind =
   | Dump_dens_result
   | Dump_student_list
   | Dump_mineures_suggestions
+  | Dump_dens_candidate_suggestions
 
 type log_info
 

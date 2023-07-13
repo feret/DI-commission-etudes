@@ -334,7 +334,10 @@ let dump_dens dens state =
       let () = Remanent_state.fprintf state "\\begin{minipage}{0.5\\linewidth}" in
       let () = Remanent_state.fprintf state "Nbr inscriptions au DENS : %i (3 sont nécessaires)" dens.Public_data.dens_nb_inscriptions in
       let () = Remanent_state.print_newline state in
-      let () = Remanent_state.fprintf state "Sortant : %s (doit être sortant)" (*(if dens.Public_data.dens_sortant then "Oui" else "Non")*) "non implémenté" in
+      let () = Remanent_state.fprintf state "Sortant : %s (doit être sortant)" (match dens.Public_data.dens_sortant with
+          | None -> "non précisé"
+          | Some true -> "Oui"
+          | Some false -> "Non") in
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state "ECTS DENS : %s (72 sont nécessaires)" (string_of_float ects') in
       let () = Remanent_state.print_newline state in
@@ -439,8 +442,23 @@ let suggest_mineure dens state =
       liste state
 in state
 
-
-
+let suggest_candidate dens state =
+    if
+      (dens.Public_data.dens_nb_inscriptions>=3 )
+      && (match dens.Public_data.dens_sortant with
+            | Some false -> false | _ -> true)
+      && (dens.Public_data.dens_total_ects>=72.)
+      && (match dens.Public_data.dens_master with [] -> false | _ -> true)
+    then
+      let s =
+           {Public_data.dens_candidate_main_dpt = dens.Public_data.dens_main_dpt ;
+      Public_data.dens_candidate_firstname = dens.Public_data.dens_firstname ;
+      Public_data.dens_candidate_lastname = dens.Public_data.dens_lastname ;
+      Public_data.dens_candidate_promotion = dens.Public_data.dens_promotion ;
+      Public_data.dens_candidate_ok = None  }
+      in
+      Remanent_state.add_dens_candidate_suggestion state s
+    else state 
 let repeatable state cours extra =
   match kind_of_course state cours extra with
       | state , (_,(Activite | Dummy | Missing  )) -> state, true
