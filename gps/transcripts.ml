@@ -2488,7 +2488,7 @@ let filter_stage_string string get comment state stage =
   state, List.filter
     (fun stage ->
        match get stage with
-       | None -> true
+       | None -> false
        | Some a -> a=data)
     stage
 
@@ -8006,7 +8006,7 @@ let state,year = Remanent_state.get_current_academic_year state in
             let state =
               Dens.suggest_candidate dens state
             in
-            state 
+            state
           else
             state
         in
