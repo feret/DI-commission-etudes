@@ -392,7 +392,7 @@ let print_sous_commission
     ?commission_year
     ?commission_date
     direction_key
-    sous_commission_key
+    (sous_commission_key,sous_commission_key_next_opt)
     universite_key
     todo
     state
@@ -519,7 +519,7 @@ let print_sous_commission
                         let signature _ =
                           [
                             Loggers.fprintf,
-                            Format.sprintf "Rapport intérmédiare du \\today.\\\\";
+                            Format.sprintf "Rapport intermédiaire du \\today.\\\\";
                             Loggers.fprintf_verbatim, s
                           ]
                         in
@@ -752,7 +752,100 @@ let print_sous_commission
               ~times:2 state ~input
           in
           state
-        in state
+        in
+        let state =
+          match sous_commission_key_next_opt with
+          | None -> state
+          | Some x ->
+          begin
+          match
+            Public_data.StringUnivMap.find_opt (x,Public_data.PSL) diplomes
+          with None -> state
+          | Some Public_data.Diplome_ENS _ -> state
+          | Some Public_data.Diplome_National dip ->
+          let preamble _ =
+            match commission_date with
+            | None -> []
+            | Some commission_date ->
+              [Loggers.fprintf,
+               Format.sprintf
+                 "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en %s à l'ENS et aux décisions de la commission des études du %s,} je soussigné%s \\textbf{%s}, %s du département %s de l'École Normale Supérieure, certifie que les étudiants suivants sont \\textbf{admis en %s - parcours : Formation interuniversitaire en %s de l'ENS Paris.}"
+                 dpt
+                 commission_date
+                 (People.e_of_direction direction)
+                 direction.Public_data.direction_nom_complet
+                 direction.Public_data.direction_titre
+                 direction.Public_data.direction_departement
+                 (* full_year *)
+                 (*dip.Public_data.dn_universite*)
+                 dip.Public_data.dn_long
+                 dpt]
+          in
+          let state,input =
+            f
+              ~file_name:(Format.sprintf "PV_admission_%s%s_sans_signature_%s%s.tex"
+                            dip.Public_data.dn_short lbl direction.Public_data.direction_initiales
+                            (Public_data.file_suffix_of_univ dip.Public_data.dn_univ_key))
+              ?academicyear
+              ~niveau:dip.Public_data.dn_niveau ~dpt:dip.Public_data.dn_departement
+              ~headpage:headpage
+              ~preamble:preamble
+              ~commission:true
+              ~universite:univ
+              ~footpage ~footcolor
+              state
+          in
+          let state =
+            match direction.Public_data.direction_signature with
+            | None ->
+              begin
+                match input with
+                | None -> state
+                | Some (input_rep,file_name) ->
+                  let file_name = Copy.pdf_file file_name in
+                  Remanent_state.push_copy
+                    ~input_rep ~output_rep ~file_name state
+              end
+            | Some _ -> state
+          in
+          let state =
+            Latex_engine.latex_opt_to_pdf
+              ~times:2 state ~input
+          in
+          let state =
+            match direction.Public_data.direction_signature with
+            | None -> state
+            | Some _ ->
+          (*  let state, s =
+              s state
+            in*)
+          (*  let fa x =
+              Format.sprintf
+                "\\includegraphics{%s}"
+                x
+            in*)
+            (*let state, s =
+              Tools.include_latex_list
+                fa
+                state
+                s
+            in*)
+            (*let signature _ =
+              match commission_date with
+              | None -> []
+              | Some commission_date ->
+                [
+                  Loggers.fprintf,
+                  Format.sprintf
+                    "Certifié exact à Paris \\\\ le %s \\\\"
+                    commission_date ;
+                  Loggers.fprintf_verbatim,
+                  s
+                ]
+            in*) state
+        in
+        state
+        end in state
       | TODO_DENS _, Public_data.Diplome_ENS _, (Public_data.UPC | Public_data.PSL | Public_data.UP | Public_data.SU | Public_data.UPSud | Public_data.UPantheonSorbonne | Public_data.UPS | Public_data.Upartenaire | Public_data.UDiderot | Public_data.UDauphine | Public_data.USPN | Public_data.UPNord ) ->
         let state =
           Remanent_state.warn
@@ -774,7 +867,7 @@ let prepare_commission
     ?date_complete
     ?universites:(universites=[Public_data.UPC;Public_data.UPS;Public_data.PSL;Public_data.Upartenaire;Public_data.UENS;Public_data.SU;Public_data.UPantheonSorbonne;Public_data.USPN])
     ?signataires:(persons=["MP";"JF";"LB"])
-    ?diplomes:(sous_commissions=["dens";"l";"m"])
+    ?diplomes:(sous_commissions=[("dens",None);("l",Some "m");("m",None)])
     state =
   let commission_year = annee in
   let commission_date = date_complete in

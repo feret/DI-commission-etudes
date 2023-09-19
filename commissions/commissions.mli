@@ -16,6 +16,6 @@ val prepare_commission:
   ?date_complete:string ->
   ?universites:(Public_data.universite list) ->
   ?signataires:(direction_key list) ->
-  ?diplomes:(sous_commission_key list)  ->
+  ?diplomes:((sous_commission_key * sous_commission_key option) list)  ->
   Remanent_state.t ->
   Remanent_state.t
