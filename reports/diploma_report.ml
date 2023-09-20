@@ -36,6 +36,7 @@ sig
   val dump_per_result_per_student: dump
   val dump_per_student: dump
   val dump_stats: dump
+  val dump_situation: string -> dump
 end
 
 module Build
@@ -82,6 +83,8 @@ struct
   let prenom_etudiant =
     ["Prénom"],
     (fun a -> a.Public_data.diplome_firstname)
+  let commentaire =
+    ["Commentaire"], (fun _ -> "")
   let moyenne =
     ["Moyenne"],
     (fun a ->
@@ -209,6 +212,39 @@ struct
       ?headpage ?footpage ?footcolor
       ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name cmp headers columns state
+
+  let dump_situation
+          situation
+          ?commission
+          ?firstname
+          ?lastname
+          ?promo
+          ?niveau
+          ?dpt
+          ?universite
+          ?recu
+          ?academicyear
+          ?headpage ?footpage ?footcolor
+          ?title ?preamble ?signature
+          ?output_repository ?prefix ?file_name
+          state =
+        let cmp =
+          [
+            Gen.lift_cmp (fun a -> a.Public_data.diplome_lastname);
+            Gen.lift_cmp (fun a -> a.Public_data.diplome_firstname) ;
+          ]
+        in
+        let columns = [prenom_etudiant;nom_etudiant;["situation"],(fun _ -> situation);commentaire] in
+        let headers =
+          []
+        in
+        dump_national_diploma_list
+          ?commission ?firstname ?lastname ?promo ?niveau ?dpt ?universite
+          ?recu ?academicyear
+          ?headpage ?footpage ?footcolor
+          ?title ?preamble ?signature
+          ?output_repository ?prefix ?file_name cmp headers columns state
+
 
   let dump_stats
       ?commission

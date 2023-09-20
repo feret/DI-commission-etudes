@@ -42,6 +42,7 @@ sig
   val dump_per_result_per_student: dump
   val dump_per_student: dump
   val dump_stats: dump
+  val dump_situation: string -> dump 
 end
 
 module DiplomaReport: DiplomaReport

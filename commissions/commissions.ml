@@ -769,18 +769,14 @@ let print_sous_commission
               | Some commission_date ->
               [Loggers.fprintf,
                Format.sprintf
-                 "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en %s à l'ENS et aux décisions de la commission des études du %s,} je soussigné%s \\textbf{%s}, %s du département %s de l'École Normale Supérieure, certifie que les étudiants suivants sont \\textbf{admis en %s - parcours : Formation interuniversitaire en %s de l'ENS Paris.}"
-                 dpt
+                 "\\begin{tabular}{c}\\textbf{PROCÈS VERBAL D'ADMISSION EN MASTER} \\cr \\textbf{Niveau~: MASTER 1}\\bigskipline\\end{tabular}\\begin{tabular}{rl}\\textbf{Domaine~:}&\\textbf{SCIENCES, TECHNOLOGIES, SANTÉ}\\cr\\textbf{Mention~:}&\\textbf{INFORMATIQUE}\\cr\\textbf{Parcours~:}&\\textbf{Algorithmique et fondements de la programmation (M1)}\\cr\\textbf{Année~:}&au titre de l'année universitaire %s\\cr\\textbf{Session~:}&Session 1 \\cr \\cr \\textbf{Date de tenue du jury~:}& %s \\cr& Le jury est prédidé par %s\\end{tabular}"
+                 full_year
                  commission_date
-                 (People.e_of_direction direction)
                  direction.Public_data.direction_nom_complet
-                 direction.Public_data.direction_titre
-                 direction.Public_data.direction_departement
-                 dip'.Public_data.dn_long
-                 dpt]
+                ]
           in
           let state,input =
-            f
+            (Diploma_report.DiplomaReport.dump_situation "admis en M1")
               ~file_name:(Format.sprintf "PV_admission_%s%s_sans_signature_%s%s.tex"
                             dip'.Public_data.dn_short lbl direction.Public_data.direction_initiales
                             (Public_data.file_suffix_of_univ dip'.Public_data.dn_univ_key))
