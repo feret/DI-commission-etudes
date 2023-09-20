@@ -758,15 +758,18 @@ let print_sous_commission
           | None -> state
           | Some x ->
           begin
+          let state = Remanent_state.warn __POS__ "S_NEXT" Exit state in
           match
             Public_data.StringUnivMap.find_opt (x,Public_data.PSL) diplomes
           with None -> state
           | Some Public_data.Diplome_ENS _ -> state
-          | Some Public_data.Diplome_National dip ->
+          | Some Public_data.Diplome_National dip' ->
+          let state = Remanent_state.warn __POS__ "S_NEXT 2" Exit state in
+
           let preamble _ =
             match commission_date with
             | None -> []
-            | Some commission_date ->
+              | Some commission_date ->
               [Loggers.fprintf,
                Format.sprintf
                  "\\textbf{Conformément aux dispositions générales de la scolarité au sein des Études pré-doctorales en %s à l'ENS et aux décisions de la commission des études du %s,} je soussigné%s \\textbf{%s}, %s du département %s de l'École Normale Supérieure, certifie que les étudiants suivants sont \\textbf{admis en %s - parcours : Formation interuniversitaire en %s de l'ENS Paris.}"
@@ -778,14 +781,14 @@ let print_sous_commission
                  direction.Public_data.direction_departement
                  (* full_year *)
                  (*dip.Public_data.dn_universite*)
-                 dip.Public_data.dn_long
+                 dip'.Public_data.dn_long
                  dpt]
           in
           let state,input =
             f
               ~file_name:(Format.sprintf "PV_admission_%s%s_sans_signature_%s%s.tex"
-                            dip.Public_data.dn_short lbl direction.Public_data.direction_initiales
-                            (Public_data.file_suffix_of_univ dip.Public_data.dn_univ_key))
+                            dip'.Public_data.dn_short lbl direction.Public_data.direction_initiales
+                            (Public_data.file_suffix_of_univ dip'.Public_data.dn_univ_key))
               ?academicyear
               ~niveau:dip.Public_data.dn_niveau ~dpt:dip.Public_data.dn_departement
               ~headpage:headpage
