@@ -82,6 +82,17 @@ let lb =
     Public_data.direction_departement = "d'informatique";
   }
 
+  let msa =
+    {
+      Public_data.direction_initiales = "MCA";
+      Public_data.direction_nom_complet = "Mohamed Salim Aboubacar";
+      Public_data.direction_genre = Public_data.Masculin ;
+      Public_data.direction_signature =
+        None;
+      Public_data.direction_titre = "Secrétaire pédagogique";
+      Public_data.direction_departement = "d'informatique";
+    }
+
   let mpe =
   {
     Public_data.direction_initiales = "MPE";
@@ -94,7 +105,7 @@ let lb =
   }
 
 let _ = am
-let di_list = [jf;mp;lb]
+let di_list = [jf;mp;lb;msa]
 let dma_list = [dc;mpe]
 let phys_list = []
 let ibens_list = []
