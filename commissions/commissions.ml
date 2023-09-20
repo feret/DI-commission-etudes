@@ -758,14 +758,11 @@ let print_sous_commission
           | None -> state
           | Some x ->
           begin
-          let state = Remanent_state.warn __POS__ "S_NEXT" Exit state in
           match
             Public_data.StringUnivMap.find_opt (x,Public_data.PSL) diplomes
           with None -> state
           | Some Public_data.Diplome_ENS _ -> state
           | Some Public_data.Diplome_National dip' ->
-          let state = Remanent_state.warn __POS__ "S_NEXT 2" Exit state in
-
           let preamble _ =
             match commission_date with
             | None -> []
@@ -779,8 +776,6 @@ let print_sous_commission
                  direction.Public_data.direction_nom_complet
                  direction.Public_data.direction_titre
                  direction.Public_data.direction_departement
-                 (* full_year *)
-                 (*dip.Public_data.dn_universite*)
                  dip'.Public_data.dn_long
                  dpt]
           in
@@ -818,22 +813,22 @@ let print_sous_commission
           let state =
             match direction.Public_data.direction_signature with
             | None -> state
-            | Some _ ->
-          (*  let state, s =
+            | Some s ->
+            let state, s =
               s state
-            in*)
-          (*  let fa x =
+            in
+            let fa x =
               Format.sprintf
                 "\\includegraphics{%s}"
                 x
-            in*)
-            (*let state, s =
+            in
+            let state, s =
               Tools.include_latex_list
                 fa
                 state
                 s
-            in*)
-            (*let signature _ =
+            in
+            let signature _ =
               match commission_date with
               | None -> []
               | Some commission_date ->
@@ -845,7 +840,34 @@ let print_sous_commission
                   Loggers.fprintf_verbatim,
                   s
                 ]
-            in*) state
+            in
+            let state,input =
+              f
+                ~file_name:(Format.sprintf "PV_admission_%s%s_signe_%s%s.tex"
+                              dip'.Public_data.dn_short lbl direction.Public_data.direction_initiales
+                              (Public_data.file_suffix_of_univ dip'.Public_data.dn_univ_key))
+                ?academicyear
+                ~niveau:dip.Public_data.dn_niveau ~dpt:dip.Public_data.dn_departement
+                ~commission:true
+                ~universite:univ
+                ~headpage
+                ~preamble
+                ~footpage ~footcolor ~signature
+                state
+            in
+            let state =
+              match input with
+              | None -> state
+              | Some (input_rep,file_name) ->
+                let file_name = Copy.pdf_file file_name in
+                Remanent_state.push_copy
+                  ~input_rep ~output_rep ~file_name state
+            in
+            let state =
+              Latex_engine.latex_opt_to_pdf
+                ~times:2 state ~input
+            in
+           state
         in
         state
         end in state
