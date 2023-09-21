@@ -84,7 +84,7 @@ let lb =
 
   let msa =
     {
-      Public_data.direction_initiales = "MCA";
+      Public_data.direction_initiales = "MSA";
       Public_data.direction_nom_complet = "Mohamed Salim Aboubacar";
       Public_data.direction_genre = Public_data.Masculin ;
       Public_data.direction_signature =
@@ -105,7 +105,7 @@ let lb =
   }
 
 let _ = am
-let di_list = [jf;mp;lb;msa]
+let di_list = [jf;mp;msa]
 let dma_list = [dc;mpe]
 let phys_list = []
 let ibens_list = []
