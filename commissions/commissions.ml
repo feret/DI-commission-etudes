@@ -779,11 +779,10 @@ let print_sous_commission
               | Some commission_date ->
               [Loggers.fprintf,
                Format.sprintf
-                 "\\begin{tabular}{rl}\\textbf{Domaine~:}&\\textbf{SCIENCES, TECHNOLOGIES, SANTÉ}\\cr\\textbf{Mention~:}&\\textbf{INFORMATIQUE}\\cr\\textbf{Parcours~:}&\\textbf{Algorithmique et fondements de la programmation (M1)}\\cr\\textbf{Année~:}&au titre de l'année universitaire %s\\cr\\textbf{Session~:}&Session 1 \\cr \\cr \\textbf{Date de tenue du jury~:}& %s \\cr& Le jury est prédidé par %s\\end{tabular}"
+                 "\\begin{tabular}{rl}\\textbf{Domaine~:}&\\textbf{SCIENCES, TECHNOLOGIES, SANTÉ}\\cr\\textbf{Mention~:}&\\textbf{INFORMATIQUE}\\cr\\textbf{Parcours~:}&\\textbf{Algorithmique et fondements de la programmation (M1)}\\cr\\textbf{Année~:}&au titre de l'année universitaire %s\\cr\\textbf{Session~:}&Session 1 \\cr \\cr \\textbf{Date de tenue du jury~:}& %s \\cr\\end{tabular}"
                  full_year
                  commission_date
-                 direction.Public_data.direction_nom_complet
-                ]
+                  ]
           in
           let state,input =
             (Diploma_report.DiplomaReport.dump_situation "admis en M1")
