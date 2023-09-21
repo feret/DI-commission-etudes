@@ -763,13 +763,23 @@ let print_sous_commission
           with None -> state
           | Some Public_data.Diplome_ENS _ -> state
           | Some Public_data.Diplome_National dip' ->
+          let state, enspsl = Remanent_state.get_ENSPSL_logo state in
+          let headpage _ =
+            [Loggers.fprintf_verbatim,
+             Format.sprintf "\\IfFileExists{%s}{\\includegraphics{%s} \\\\}{}"
+               enspsl enspsl;
+             Loggers.fprintf,
+               Format.sprintf
+                 "\\textbf{PROCÈS VERBAL D'ADMISSION EN MASTER} \\cr \\textbf{Niveau~: MASTER 1}\\\\Page \\thepage/\\pageref{LastPage}\\\\"
+            ]
+          in
           let preamble _ =
             match commission_date with
             | None -> []
               | Some commission_date ->
               [Loggers.fprintf,
                Format.sprintf
-                 "\\begin{tabular}{c}\\textbf{PROCÈS VERBAL D'ADMISSION EN MASTER} \\cr \\textbf{Niveau~: MASTER 1}\\bigskipline\\end{tabular}\\begin{tabular}{rl}\\textbf{Domaine~:}&\\textbf{SCIENCES, TECHNOLOGIES, SANTÉ}\\cr\\textbf{Mention~:}&\\textbf{INFORMATIQUE}\\cr\\textbf{Parcours~:}&\\textbf{Algorithmique et fondements de la programmation (M1)}\\cr\\textbf{Année~:}&au titre de l'année universitaire %s\\cr\\textbf{Session~:}&Session 1 \\cr \\cr \\textbf{Date de tenue du jury~:}& %s \\cr& Le jury est prédidé par %s\\end{tabular}"
+                 "\\begin{tabular}{rl}\\textbf{Domaine~:}&\\textbf{SCIENCES, TECHNOLOGIES, SANTÉ}\\cr\\textbf{Mention~:}&\\textbf{INFORMATIQUE}\\cr\\textbf{Parcours~:}&\\textbf{Algorithmique et fondements de la programmation (M1)}\\cr\\textbf{Année~:}&au titre de l'année universitaire %s\\cr\\textbf{Session~:}&Session 1 \\cr \\cr \\textbf{Date de tenue du jury~:}& %s \\cr& Le jury est prédidé par %s\\end{tabular}"
                  full_year
                  commission_date
                  direction.Public_data.direction_nom_complet
@@ -838,7 +848,7 @@ let print_sous_commission
                 ]
             in
             let state,input =
-              f
+              (Diploma_report.DiplomaReport.dump_situation "admis en M1")
                 ~file_name:(Format.sprintf "PV_admission_%s%s_signe_%s%s.tex"
                               dip'.Public_data.dn_short lbl direction.Public_data.direction_initiales
                               (Public_data.file_suffix_of_univ dip'.Public_data.dn_univ_key))

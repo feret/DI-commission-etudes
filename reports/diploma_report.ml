@@ -234,7 +234,7 @@ struct
             Gen.lift_cmp (fun a -> a.Public_data.diplome_firstname) ;
           ]
         in
-        let columns = [prenom_etudiant;nom_etudiant;["situation"],(fun _ -> situation);commentaire] in
+        let columns = [prenom_etudiant;nom_etudiant;["Situation"],(fun _ -> situation);commentaire] in
         let headers =
           []
         in
