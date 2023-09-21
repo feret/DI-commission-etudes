@@ -71,7 +71,7 @@ let dc =
 
   }
 
-let lb =
+let _lb =
   {
     Public_data.direction_initiales = "LB";
     Public_data.direction_nom_complet = "Linda Boulevart";
