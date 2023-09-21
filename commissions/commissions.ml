@@ -770,7 +770,7 @@ let print_sous_commission
                enspsl enspsl;
              Loggers.fprintf,
                Format.sprintf
-                 "\\textbf{PROCÈS VERBAL D'ADMISSION EN MASTER} \\cr \\textbf{Niveau~: MASTER 1}\\\\Page \\thepage/\\pageref{LastPage}\\\\"
+                 "\\textbf{PROCÈS VERBAL D'ADMISSION EN MASTER} \\\\ \\textbf{Niveau~: MASTER 1}\\\\Page \\thepage/\\pageref{LastPage}\\\\"
             ]
           in
           let preamble _ =
