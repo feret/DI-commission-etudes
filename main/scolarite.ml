@@ -439,7 +439,7 @@ let state, _dpt, signataires =
   match
     Remanent_state.get_main_dpt state
   with
-  | state, Public_data.DI -> state, Public_data.DI, ["JF";"MP";"LB"]
+  | state, Public_data.DI -> state, Public_data.DI, ["JF";"MP";"MSA"]
   | state, Public_data.DMA -> state, Public_data.DMA, ["DC"]
   | state, Public_data.CHIMIE -> state, Public_data.CHIMIE, ["JD"]
   | state, Public_data.GEOSCIENCES -> state, Public_data.GEOSCIENCES, ["PM"]
