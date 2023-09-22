@@ -45,14 +45,9 @@ let remove_comma =
        else x)
 
 let float_to_string_easy f =
+  let f = f +. 0.005 in
+  let f = (float_of_int (truncate (f*.100.)))/.100. in
   let s = Format.sprintf "%.2f" f in
-  let f' = float_of_string s in
-  let s =
-    if f'+.0.005 = f
-    then
-      Format.sprintf "%.2f" (f'+.0.01)
-    else s
-  in
   correct_comma_easy  s
 
 let float_of_string pos state t =
@@ -248,7 +243,7 @@ let better a b =
                   | Public_data.Abandon
                   | Public_data.Temporary _
                   | Public_data.En_cours
-                  | Public_data.Absent),(Public_data.Valide_sans_note | Public_data.Float _ 
+                  | Public_data.Absent),(Public_data.Valide_sans_note | Public_data.Float _
                                 | Public_data.String _
                                 | Public_data.Abandon
                                 | Public_data.Temporary _
