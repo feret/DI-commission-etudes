@@ -7715,29 +7715,30 @@ let export_transcript
                    Public_data.diplome_commission = d_nat ;
                }
                in
-               if (not validated) || (is_l3
+               let state, m2_list, dip_autre_list =
+                  if (not validated) || (is_l3
                   && cursus.Public_data.cursus_gps = None
                   && cursus.Public_data.cursus_niveau = "m")
                   ||  match StringOptMap.find_opt
                       key
                       cursus_map with | Some (_,Some fin) -> not (fin = diplome_year) | _ -> true
-               then state, m2_list, dip_autre_list
-               else
-                 let state, m2_list, dip_autre_list =
-                    if validated then
+                  then state, m2_list, dip_autre_list
+                  else
+                        if validated then
                         if is_m2 then state, dpl::m2_list, dip_autre_list
                         else state, m2_list, dpl::dip_autre_list
-                    else state, m2_list, dip_autre_list
-                 in
-                 if not (do_report report)
-                 then state, m2_list, dip_autre_list
-                 else
-                       match com_year with
+                        else state, m2_list, dip_autre_list
+              in
+              if (do_report report) && ((validated && keep_success)
+               || ((not validated) && keep_faillure))
+              then
+                match com_year with
                        | Some com_year when com_year = current_year ->
                       Remanent_state.add_national_diploma state dpl,
                       m2_list, dip_autre_list
                       | None  | Some _ ->
                           state,m2_list, dip_autre_list
+              else state, m2_list, dip_autre_list 
 
             )
             (state,m2_list,dip_autre_list)
