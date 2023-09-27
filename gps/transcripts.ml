@@ -994,6 +994,7 @@ let set_bilan_annuel state remanent year bilan =
   in
   state, {remanent with gps_file}
 
+
 let store_gen
     get get_current set
     pos ~who state current_file current_file' output  =
@@ -1694,6 +1695,28 @@ let empty_remanent =
     preaccord = None ;
   }
 
+  let saturate_bilan_annuel state gps_file =
+    let remanent = {empty_remanent with gps_file} in
+    let state, remanent =
+    try
+      let state, bilan =
+          get_bilan_annuel state remanent "2022" in
+      if match bilan.derniere_annee with Some true -> true | None | Some false -> false then state, remanent
+      else
+        let bilan =
+          {bilan with
+            annee = Some "2023" ;
+            programme_d_etudes = None ;
+            inscription_au_DENS = None;
+            cours = [];
+            code_option = None;
+            option=None;
+            nannee=None;
+            gpscodelist=[]}
+        in
+        set_bilan_annuel state remanent "2023" bilan
+     with  _ -> state, remanent
+      in state, remanent.gps_file
 
 let fun_default =
   (fun state _ x -> state, x)
@@ -6346,6 +6369,9 @@ let export_transcript
           state,
         0
     in
+    let state, gps_file =
+        saturate_bilan_annuel state gps_file
+    in
     let state, situation =
       Public_data.YearMap.fold
         (fun year situation (state,map) ->
@@ -7738,7 +7764,7 @@ let export_transcript
                       m2_list, dip_autre_list
                       | None  | Some _ ->
                           state,m2_list, dip_autre_list
-              else state, m2_list, dip_autre_list 
+              else state, m2_list, dip_autre_list
 
             )
             (state,m2_list,dip_autre_list)
