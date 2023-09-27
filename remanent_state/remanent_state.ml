@@ -220,9 +220,9 @@ let parameters =
     repository_for_dens_candidate = "dens-candidate" ; repository_to_dump_missing_minor_major = "mineures-majeures" ;
     repository_to_dump_missing_internship_translation = "stages" ;
     repository_to_dump_dens_candidate = "dens-candidate" ;
-    current_academic_year = "2022";
+    current_academic_year = "2023";
     commissions_repository = "commissions_des_etudes";
-    commission = Some ("22 septembre 2023", "2022");
+    commission = None ;
     target = None ;
     signature = "feret+tampon.pdf";
     bilinguage = true ;
