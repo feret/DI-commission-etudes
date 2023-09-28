@@ -58,8 +58,6 @@ let state =
            students_list
        then state
        else
-       let state = Remanent_state.warn __POS__ (Format.sprintf "(%s) (%s)" (s elt.Public_data.nom_de_l_etudiant) (s elt.Public_data.prenom_de_l_etudiant)) Exit state in
-
        Remanent_state.add_mentor
          state
          {Public_data.mentor_attribution_year =
@@ -84,8 +82,9 @@ let state =
            Public_data.mentor_student_promo = current_year ;
            Public_data.mentor_student_gender =
              Public_data.Unknown ;
-           Public_data.mentor_student_lastname =  elt.Public_data.nom_de_l_etudiant ;
-           Public_data.mentor_student_firstname =  elt.Public_data.prenom_de_l_etudiant ;
+           Public_data.mentor_student_lastname =
+              Special_char.uppercase elt.Public_data.nom_de_l_etudiant ;
+           Public_data.mentor_student_firstname =  Special_char.capitalize elt.Public_data.prenom_de_l_etudiant ;
           Public_data.mentor_student_dpt = main_dpt ;
           Public_data.mentor_secondary = elt.Public_data.secondaire;
          })
