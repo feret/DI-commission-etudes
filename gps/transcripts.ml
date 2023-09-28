@@ -6969,6 +6969,8 @@ let export_transcript
                     (year <= current_year ||
                      need_a_mentor gps_file)
                  then
+                 let state = Remanent_state.warn __POS__ (Format.sprintf "(%s) (%s)" lastname firstname) Exit state in
+
                    let state =
                      Remanent_state.add_mentor
                        state
@@ -7153,6 +7155,8 @@ let export_transcript
                          state, ""
                      | Some a -> state, a
                    in
+                   let state = Remanent_state.warn __POS__ (Format.sprintf "(%s) (%s)" lastname firstname) Exit state in
+
                    Remanent_state.add_mentor
                       state
                       {Public_data.mentor_attribution_year =
@@ -8072,6 +8076,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                tuteur.Public_data.annee_academique =
                current_year
              then
+               let state = Remanent_state.warn __POS__ (Format.sprintf "(%s) (%s)" lastname firstname) Exit state in
                Remanent_state.add_mentor
                  state
                  {Public_data.mentor_attribution_year =
