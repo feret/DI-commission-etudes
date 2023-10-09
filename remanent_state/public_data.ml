@@ -660,6 +660,7 @@ type mineure_majeure =
          secondary_student_lastname : string ;
          secondary_student_promo : string ;
          secondary_dpt : string ;
+         secondary_diplomation_year : string ;
          secondary_accepted : bool option ;
        }
 
@@ -760,10 +761,19 @@ let all_notes_string =
         dens_candidate_firstname : string ;
         dens_candidate_lastname : string ;
         dens_candidate_promotion : string ;
+        dens_candidate_diplomation_year : string ;
         dens_candidate_ok : bool option ;
       }
 
-
+  let empty_dens_candidate =
+  {
+      dens_candidate_main_dpt= DI;
+      dens_candidate_firstname = "";
+      dens_candidate_lastname = "";
+      dens_candidate_promotion = "" ;
+      dens_candidate_diplomation_year = "" ;
+      dens_candidate_ok = None ;
+    }
 
   type dens =
     {
@@ -795,6 +805,7 @@ let all_notes_string =
       dens_activite_recherche: experience_supplement list;
       dens_activite_internationale: experience_supplement list;
       dens_activite_autre: experience_supplement list;
+      dens_diplomation_year: string;
     }
 
 
@@ -815,6 +826,7 @@ type mentor =
   }
 
 type keywords =
+  | Accepte
   | Accord
   | Acronyme
   | Annee_Academique

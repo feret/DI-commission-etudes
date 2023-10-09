@@ -110,6 +110,8 @@ let state =
   Collect_dispenses.get_dispenses state
 let state =
   Collect_course_entries.get_course_entries state
+let state =
+    Dens.get_dens_candidates state
 let state, output =
   Cloud_interaction.get_dated_repository state
 let state, output_repository =

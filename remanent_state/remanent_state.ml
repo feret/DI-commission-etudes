@@ -216,10 +216,10 @@ let parameters =
     dens_repository = "diplomation";
     diplomation_year = Some "2023" ;
     repository_for_internship_entry = "stages" ;
-    repository_for_minor_major = "mineurs-majeures" ;
-    repository_for_dens_candidate = "dens-candidate" ; repository_to_dump_missing_minor_major = "mineures-majeures" ;
+    repository_for_minor_major = "mineurs_majeures" ;
+    repository_for_dens_candidate = "dens_candidates" ; repository_to_dump_missing_minor_major = "mineures_majeures" ;
     repository_to_dump_missing_internship_translation = "stages" ;
-    repository_to_dump_dens_candidate = "dens-candidate" ;
+    repository_to_dump_dens_candidate = "dens_candidates" ;
     current_academic_year = "2023";
     commissions_repository = "commissions_des_etudes";
     commission = None ;
@@ -1980,6 +1980,23 @@ let get_decision_list
     ?year
     ?program ?dpt
     t.data.decisions
+
+let get_dens_candidate
+    ~firstname ~lastname ~year t =
+  match
+    Dens_candidates.get_dens_candidate
+              ~firstname ~lastname ~year
+              t.data.dens_candidates
+  with
+  | [] -> t, None
+  | [a] -> t, Some a
+  | _::_::_ ->
+            warn
+              __POS__
+              "Several dens candidates for the same year and the same student"
+              Exit
+              t,
+            None
 
 let add_admission unify =
   add_gen

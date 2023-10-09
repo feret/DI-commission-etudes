@@ -90,6 +90,7 @@ type 'a preprocessed =
 
 let asso_list =
   [
+    Public_data.Accepte, ["accepté";"accepte"];
     Public_data.Accord, ["accord"];
     Public_data.Acronyme, ["acronyme"];
     Public_data.Annee_Academique, ["année"; "année académique"];

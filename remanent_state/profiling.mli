@@ -18,6 +18,7 @@ type step_kind =
   | Collect_scholarships
   | Collect_mentoring
   | Collect_departement
+  | Collect_dens_candidates
   | Collect_program
   | Collect_cursus_exceptions
   | Collect_decisions

@@ -435,6 +435,7 @@ let suggest_mineure dens state =
              Public_data.secondary_student_firstname=dens.Public_data.dens_firstname;
              Public_data.secondary_student_promo=dens.Public_data.dens_promotion;
              Public_data.secondary_dpt = key ;
+             Public_data.secondary_diplomation_year = dens.Public_data.dens_diplomation_year ;
              Public_data.secondary_accepted = None}
             in
             Remanent_state.add_minor_suggestion state m
@@ -445,23 +446,208 @@ in state
 let suggest_candidate dens state =
     if
       (dens.Public_data.dens_nb_inscriptions>=3 )
-      && (match dens.Public_data.dens_sortant with
+      (*&& (match dens.Public_data.dens_sortant with
             | Some false -> false | _ -> true)
       && (dens.Public_data.dens_total_ects>=72.)
-      && (match dens.Public_data.dens_master with [] -> false | _ -> true)
+      && (match dens.Public_data.dens_master with [] -> false | _ -> true)*)
     then
       let s =
            {Public_data.dens_candidate_main_dpt = dens.Public_data.dens_main_dpt ;
       Public_data.dens_candidate_firstname = dens.Public_data.dens_firstname ;
       Public_data.dens_candidate_lastname = dens.Public_data.dens_lastname ;
       Public_data.dens_candidate_promotion = dens.Public_data.dens_promotion ;
+      Public_data.dens_candidate_diplomation_year = dens.Public_data.dens_diplomation_year ;
       Public_data.dens_candidate_ok = None  }
       in
       Remanent_state.add_dens_candidate_suggestion state s
-    else state 
+    else state
+
 let repeatable state cours extra =
   match kind_of_course state cours extra with
       | state , (_,(Activite | Dummy | Missing  )) -> state, true
       | state, (_,( Humanities | Ecla
         | Sciences
         | Sans_mineure)) -> state, false
+
+type dens_candidate_id =
+  {
+    candidate_main_dpt: Public_data.main_dpt option ;
+    candidate_firstname : string option ;
+    candidate_lastname : string option ;
+    candidate_promotion : string option ;
+    candidate_diplomation_year : string option ;
+    candidate_ok : bool option ;
+}
+
+let empty_candidate_id =
+{
+  candidate_main_dpt =  None ;
+  candidate_firstname = None ;
+  candidate_lastname = None ;
+  candidate_promotion = None ;
+  candidate_diplomation_year = None ;
+  candidate_ok = None ;
+}
+
+let collect_bool suffix pos state =
+  Tools.collect_bool
+    (fun msg state ->
+       let msg = msg^suffix in
+       Remanent_state.warn
+         pos
+         msg
+         Exit
+         state
+    )
+    state
+
+let event_opt = Some (Profiling.Collect_dens_candidates)
+let compute_repository = Remanent_state.get_dens_candidates_list_repository
+
+let lift_pred = Lift.pred_safe
+let lift_string =
+  (Lift.string empty_candidate_id Public_data.empty_dens_candidate).Lift.safe
+(*let lift_string_opt =
+  (Lift.string empty_candidate_id Public_data.empty_dens_candidate).Lift.opt_safe*)
+let lift_bool_opt =
+  (Lift.bool empty_candidate_id Public_data.empty_dens_candidate).Lift.opt_safe
+let lift_dpt =
+  (Lift.main_dpt empty_candidate_id Public_data.empty_dens_candidate).Lift.safe
+
+
+let keywords_list =
+  [
+    Public_data.Ignore ;
+    Public_data.FirstName;
+    Public_data.LastName;
+    Public_data.Annee_Academique;
+    Public_data.Promo;
+    Public_data.Departement;
+    Public_data.Accepte;
+  ]
+
+  let keywords_of_interest =
+    [
+      Public_data.FirstName;
+      Public_data.LastName;
+      Public_data.Annee_Academique;
+      Public_data.Promo;
+      Public_data.Departement;
+    ]
+
+let mandatory_fields =
+      [
+        lift_pred (fun a -> a.candidate_diplomation_year) "diplomation year";
+        lift_pred (fun a -> a.candidate_firstname) "the first name of the student";
+        lift_pred (fun a -> a.candidate_lastname) "the last name of the student";
+        lift_pred (fun a -> a.candidate_promotion) "promotion";
+
+        lift_pred (fun a -> a.candidate_main_dpt) "the department";
+      ]
+
+let all_fields =
+    let record_name = "dens candidate" in
+        [
+          lift_string
+            ~keyword:Public_data.FirstName
+            ~set_tmp:(Tools.collect_string
+                        (fun candidate_firstname x ->
+                              {x with candidate_firstname}))
+            ~get_tmp:(fun a -> a.candidate_firstname)
+            ~get:(fun a -> a.Public_data.dens_candidate_firstname)
+            ~set:(fun dens_candidate_firstname a ->
+               {a with Public_data.dens_candidate_firstname})
+            ~record_name
+            ~field_name:"first name of the student"
+            ~pos:__POS__ ;
+          lift_string
+            ~keyword:Public_data.LastName
+            ~set_tmp:(Tools.collect_string
+                          (fun candidate_lastname x ->
+                                {x with candidate_lastname}))
+            ~get_tmp:(fun a -> a.candidate_lastname)
+            ~get:(fun a -> a.Public_data.dens_candidate_lastname)
+            ~set:(fun dens_candidate_lastname a ->
+                {a with Public_data.dens_candidate_lastname})
+            ~record_name
+            ~field_name:"last name of the student"
+            ~pos:__POS__ ;
+
+
+          lift_string
+            ~keyword:Public_data.Annee_Academique
+            ~set_tmp:(Tools.collect_string
+                  (fun candidate_diplomation_year x ->
+                      {x with candidate_diplomation_year}))
+            ~get_tmp:(fun a -> a.candidate_diplomation_year)
+            ~get:(fun a -> a.Public_data.dens_candidate_diplomation_year)
+            ~set:(fun dens_candidate_diplomation_year a ->
+                {a with Public_data.dens_candidate_diplomation_year})
+            ~record_name
+            ~field_name:"diplomation year of the student"
+            ~pos:__POS__;
+          lift_dpt
+            ~keyword:Public_data.Departement
+            ~set_tmp:(Tools.collect_string (fun dpt x ->
+                let candidate_main_dpt =
+                  Tools.map_opt
+                    Public_data.dpt_of_string dpt
+                in {x with candidate_main_dpt}))
+            ~get_tmp:(fun a -> a.candidate_main_dpt)
+            ~get:(fun a -> a.Public_data.dens_candidate_main_dpt)
+            ~set:(fun dens_candidate_main_dpt a ->
+                {a with Public_data.dens_candidate_main_dpt})
+            ~record_name
+            ~field_name:"department of the student"
+            ~pos:__POS__ ;
+
+            lift_string
+              ~keyword:Public_data.Promo
+              ~set_tmp:(Tools.collect_string (fun candidate_promotion x -> {x with candidate_promotion}))
+              ~get_tmp:(fun a -> a.candidate_promotion)
+              ~get:(fun a -> a.Public_data.dens_candidate_promotion)
+              ~set:(fun dens_candidate_promotion a ->
+                  {a with Public_data.dens_candidate_promotion})
+              ~record_name
+              ~field_name:"Promo of the student"
+              ~pos:__POS__;
+          lift_bool_opt
+            ~keyword:Public_data.Accepte
+            ~set_tmp:(collect_bool "in validation" __POS__
+                        (fun candidate_ok x -> {x with candidate_ok}))
+            ~get_tmp:(fun a -> a.candidate_ok)
+            ~get:(fun a -> a.Public_data.dens_candidate_ok)
+            ~set:(fun dens_candidate_ok a ->
+                {a with Public_data.dens_candidate_ok})
+            ~field_name:"validation"
+            ~record_name
+            ~pos:__POS__;
+            ]
+
+let get_dens_candidates
+    ?repository
+    ?prefix
+    ?file_name
+    state
+    =
+    Scan_csv_files.collect_gen
+      ?repository
+      ?prefix
+      ?file_name
+      ~compute_repository
+      ~fun_default:Tools.fun_ignore
+      ~keywords_of_interest
+      ~keywords_list
+      ~init_state:empty_candidate_id
+      ~empty_elt:Public_data.empty_dens_candidate            ~add_elt:Remanent_state.add_dens_candidate
+      ~mandatory_fields
+      ~all_fields
+      ?event_opt
+      state
+
+
+let _ = keywords_of_interest, keywords_list
+let get_mineures_suggestions
+        ?repository ?prefix ?file_name x
+    =
+      let _ = repository, prefix, file_name in x

@@ -228,6 +228,11 @@ val add_student:
 val get_dens_candidates_list:
   t -> t * Dens_candidates.t
 
+val get_dens_candidate:
+  firstname:string -> lastname:string -> year:string -> 
+  t -> t * Public_data.dens_candidate option
+
+
 val add_dens_candidate:
   (string * int * int * int ->
   t -> Public_data.dens_candidate -> Public_data.dens_candidate -> t * Public_data.dens_candidate) ->

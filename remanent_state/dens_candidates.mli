@@ -2,7 +2,8 @@ type t
 val empty: t
 val get_dens_candidate:
   firstname:string ->
-  lastname:string -> t -> Public_data.dens_candidate list
+  lastname:string ->
+  year:string -> t -> Public_data.dens_candidate list
 
 val add_dens_candidate:
 ((string * int * int * int) ->

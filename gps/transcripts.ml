@@ -7813,6 +7813,7 @@ let export_transcript
           Public_data.dens_firstname = firstname ;
           Public_data.dens_lastname = lastname;
           Public_data.dens_promotion = promo;
+          Public_data.dens_diplomation_year = current_year;
           Public_data.dens_total_ects = dens_total ;
           Public_data.dens_current_year_ects =
             dens_year ;
@@ -8008,20 +8009,37 @@ let state,year = Remanent_state.get_current_academic_year state in
       heading
         ~who ~firstname ~lastname
         ~promo ~origine ~dens:true
-        ~year   ~gpscodelist:[]
+        ~year  ~gpscodelist:[]
         ~tuteur ?tuteur_bis
         cursus_map StringOptMap.empty
         picture_list false gps_file ~situation:empty_bilan_annuel state
   in
   let state = Dens.dump_dens dens state in
+  let state, dens_in_bdd =
+      Remanent_state.get_dens_candidate ~firstname ~lastname ~year:dens.Public_data.dens_diplomation_year state in
   let state =
           if
             main_dpt = current_dpt
             &&
             do_report report &&
              (n_inscription > 0 || dens_total_potential > 0.
-              || dens_total > 0.)
+              || dens_total > 0. ||
+                match dens_in_bdd with
+                  | None -> false
+                  | Some dens_in_bdd ->
+                      begin match
+                        dens_in_bdd.Public_data.dens_candidate_ok with
+                                        | Some true -> true
+                                        | Some false | None -> false
+                      end)
           then
+            let dens =
+              match dens_in_bdd with
+                | None -> dens
+                | Some dens_in_bdd ->
+                  {dens with
+                          Public_data.dens_diplomation_year = dens_in_bdd.Public_data.dens_candidate_diplomation_year}
+            in
             let state =
               Remanent_state.add_dens
                     state

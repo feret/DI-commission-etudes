@@ -26,6 +26,8 @@ struct
       (fun a -> a.Public_data.dens_candidate_promotion);
       ["DPT"],
       (fun a -> Public_data.string_of_dpt (a.Public_data.dens_candidate_main_dpt));
+      ["ANNEE"],
+      (fun a -> a.Public_data.dens_candidate_diplomation_year);
       ["ACCEPTE"],
       (fun a ->
           match a.Public_data.dens_candidate_ok with
@@ -64,7 +66,8 @@ struct
             (fun a -> a.Public_data.dens_candidate_main_dpt);
         Gen.lift_cmp
                 (fun a -> a.Public_data.dens_candidate_promotion);
-
+        Gen.lift_cmp
+          (fun a -> a.Public_data.dens_candidate_diplomation_year);
       ]
     in
     dump_suggestion
@@ -79,7 +82,7 @@ module SuggestionsDensCandidates =
       type elt = Public_data.dens_candidate
 
       let default_file_name = "suggestions_dens_candidates.csv"
-      let get = Remanent_state.get_dens_candidates_suggestion_list 
+      let get = Remanent_state.get_dens_candidates_suggestion_list
       let get_repository =
         Remanent_state.get_dens_candidate_suggestion_list_repository
     end)

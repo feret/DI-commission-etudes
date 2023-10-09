@@ -18,6 +18,7 @@ type step_kind =
   | Collect_scholarships
   | Collect_mentoring
   | Collect_departement
+  | Collect_dens_candidates
   | Collect_program
   | Collect_cursus_exceptions
   | Collect_decisions
@@ -104,6 +105,7 @@ let string_of_step_kind x =
       "Export transcript (%s)"
       x
   | Collect_additional_courses -> "Collect data about not-in-gps courses"
+  | Collect_dens_candidates -> "Collect dens candidates"
   | Collect_scholarships -> "Collect data about scholarships"
   | Collect_mentoring -> "Collect data about mentoring"
   | Collect_departement -> "Collect data about teaching departments"
@@ -211,6 +213,7 @@ let is_dummy step_kind =
   | Collect_scholarships
   | Collect_mentoring
   | Collect_departement
+  | Collect_dens_candidates
   | Collect_program
   | Collect_cursus_exceptions
   | Collect_decisions

@@ -25,6 +25,8 @@ struct
       (fun a -> a.Public_data.secondary_student_promo);
       ["DPT"],
       (fun a -> a.Public_data.secondary_dpt);
+      ["ANNEE"],
+      (fun a -> a.Public_data.secondary_diplomation_year);
       ["ACCEPTE"],
       (fun a ->
           match a.Public_data.secondary_accepted with
@@ -63,6 +65,8 @@ struct
             (fun a -> a.Public_data.secondary_dpt);
         Gen.lift_cmp
                 (fun a -> a.Public_data.secondary_student_promo);
+        Gen.lift_cmp
+                (fun a -> a.Public_data.secondary_diplomation_year)
 
       ]
     in

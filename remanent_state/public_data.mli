@@ -438,8 +438,11 @@ type dens_candidate =
     dens_candidate_firstname : string ;
     dens_candidate_lastname : string ;
     dens_candidate_promotion : string ;
+    dens_candidate_diplomation_year : string ;
     dens_candidate_ok : bool option ;
   }
+
+val empty_dens_candidate: dens_candidate
 
 type dens =
   {
@@ -471,6 +474,7 @@ type dens =
     dens_activite_recherche: experience_supplement list;
     dens_activite_internationale: experience_supplement list;
     dens_activite_autre: experience_supplement list;
+    dens_diplomation_year : string ;
   }
 
 type mentor =
@@ -490,6 +494,7 @@ type mentor =
   }
 
 type keywords =
+  | Accepte
   | Accord
   | Acronyme
   | Annee_Academique
@@ -673,5 +678,6 @@ type mineure_majeure =
     secondary_student_lastname : string ;
     secondary_student_promo : string ;
     secondary_dpt : string ;
+    secondary_diplomation_year : string ;
     secondary_accepted : bool option ;
   }

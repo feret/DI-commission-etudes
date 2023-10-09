@@ -2,10 +2,11 @@ type t =
   {
     per_promo:
       Public_data.dens_candidate list
-        Public_data.FirstNameMap.t Public_data.LastNameMap.t Public_data.PromoMap.t ;
+        Public_data.FirstNameMap.t Public_data.LastNameMap.t Public_data.YearMap.t
+        Public_data.PromoMap.t ;
     per_name:
       Public_data.dens_candidate list
-        Public_data.FirstNameMap.t Public_data.LastNameMap.t
+        Public_data.YearMap.t Public_data.FirstNameMap.t Public_data.LastNameMap.t
   }
 
 let empty =
@@ -16,7 +17,7 @@ let empty =
       Public_data.LastNameMap.empty
   }
 
-let get_dens_candidate ~firstname ~lastname dens_candidates =
+let get_dens_candidate ~firstname ~lastname ~year dens_candidates =
   let firstname =
     String.lowercase_ascii firstname
   in
@@ -35,8 +36,13 @@ let get_dens_candidate ~firstname ~lastname dens_candidates =
         firstname
         a
     with
-    | Some a -> a
     | None -> []
+    | Some a ->
+        match
+          Public_data.YearMap.find_opt
+            year a
+        with None -> []
+          | Some a -> a
 
 let add_dens_candidate
     unify pos state
@@ -44,7 +50,8 @@ let add_dens_candidate
   let _ = unify, pos in
   let firstname = dens_candidate.Public_data.dens_candidate_firstname in
   let lastname = dens_candidate.Public_data.dens_candidate_lastname in
-  let dens_candidate_list = get_dens_candidate ~firstname ~lastname dens_candidates in
+  let year = dens_candidate.Public_data.dens_candidate_diplomation_year in
+  let dens_candidate_list = get_dens_candidate ~firstname ~lastname ~year  dens_candidates in
   let dens_candidate_list = dens_candidate::dens_candidate_list in
   let dens_candidates =
     let promo = dens_candidate.Public_data.dens_candidate_promotion in
@@ -54,25 +61,36 @@ let add_dens_candidate
             dens_candidates.per_promo
         with
         | Some map -> map
+        | None -> Public_data.YearMap.empty
+      in
+      let old_year =
+        match
+          Public_data.YearMap.find_opt year
+            old_promo
+        with
+        | Some map -> map
         | None -> Public_data.LastNameMap.empty
       in
       let old_lastname =
         match
           Public_data.LastNameMap.find_opt
             lastname
-            old_promo
+            old_year
         with
         | Some map -> map
         | None -> Public_data.FirstNameMap.empty
       in
       let per_promo =
         Public_data.PromoMap.add promo
-          (Public_data.LastNameMap.add
-             lastname
-             (Public_data.FirstNameMap.add
-                firstname dens_candidate_list
-                old_lastname)
-             old_promo)
+          (Public_data.YearMap.add year
+            (Public_data.LastNameMap.add
+              lastname
+              (Public_data.FirstNameMap.add
+                  firstname
+                  dens_candidate_list
+                  old_lastname)
+               old_year)
+          old_promo)
           dens_candidates.per_promo
       in
       {dens_candidates with per_promo}
@@ -87,11 +105,24 @@ let add_dens_candidate
       | Some map -> map
       | None -> Public_data.FirstNameMap.empty
     in
+    let old_firstname =
+      match
+        Public_data.FirstNameMap.find_opt
+          firstname
+          old_lastname
+      with
+      | Some map -> map
+      | None -> Public_data.YearMap.empty
+    in
     let per_name =
       Public_data.LastNameMap.add
         lastname
         (Public_data.FirstNameMap.add
-           firstname dens_candidate_list
+           firstname
+           (Public_data.YearMap.add
+              year
+              dens_candidate_list
+              old_firstname)
            old_lastname)
         dens_candidates.per_name
     in
