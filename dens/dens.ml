@@ -630,7 +630,10 @@ let get_dens_candidates
     ?file_name
     state
     =
-    Scan_csv_files.collect_gen
+    let state, str = compute_repository state in
+    let event = Some (Profiling.Scan_csv_files (str,"")) in
+    let state = Remanent_state.open_event_opt event state in
+    let state = Scan_csv_files.collect_gen
       ?repository
       ?prefix
       ?file_name
@@ -644,6 +647,9 @@ let get_dens_candidates
       ~all_fields
       ?event_opt
       state
+    in
+    let state = Remanent_state.close_event_opt event_opt state in
+    state
 
 
 let _ = keywords_of_interest, keywords_list
