@@ -1116,7 +1116,7 @@ let init () =
     let fic = open_out (Printf.sprintf "%s/%s" rep file) in
     Some
       (Loggers.open_logger_from_channel
-         ~mode:Loggers.HTML
+         ~mode:Loggers.HTML_Tabular
          fic)
   in
   let data = empty_data in
