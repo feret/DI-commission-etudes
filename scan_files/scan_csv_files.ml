@@ -285,6 +285,8 @@ let get_list
     in
       List.fold_left
         (fun (state, output) file ->
+           let event = Some (Profiling.Scan_csv_files (fst file,snd file)) in
+           let state = Remanent_state.open_event_opt event state in
            let _ =
              Format.printf
                "Scanning file : %s %s @." (fst file) (snd file)
@@ -295,10 +297,14 @@ let get_list
            let _ =
              Format.print_flush ()
            in
-           get_list_from_a_file
-             automaton
-             init_state
-             state file output)
+           let state, output =
+              get_list_from_a_file
+                  automaton
+                  init_state
+                  state file output
+            in
+            let state = Remanent_state.close_event_opt event state in
+            state, output)
         (state, output) files_list
 
 let unify_gen
@@ -462,6 +468,7 @@ let collect_gen
       (Keywords_handler.shorten)
       (List.rev all_fields)
   in
+
   let state, list =
     get_list
       ~keywords_of_interest ~all_fields:all_fields_short ~keywords_list

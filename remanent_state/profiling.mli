@@ -43,6 +43,7 @@ type step_kind =
   | Dump_student_list
   | Dump_mineures_suggestions
   | Dump_dens_candidate_suggestions
+  | Scan_csv_files of string * string
 
 type log_info
 

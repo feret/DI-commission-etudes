@@ -43,6 +43,7 @@ type step_kind =
   | Dump_student_list
   | Dump_mineures_suggestions
   | Dump_dens_candidate_suggestions
+  | Scan_csv_files of string * string
 
 
 
@@ -133,6 +134,7 @@ let string_of_step_kind x =
   | Dump_missing_course_translation -> "Dump missing course translation"
   | Dump_mineures_suggestions -> "Dump Mineures/Majeures suggestion"
   | Dump_dens_candidate_suggestions -> "Dump dens candidate suggestion"
+  | Scan_csv_files (rep,file) -> (Format.sprintf "Scan %s/%s" rep file)
 
 let print_step_kind logger x =
   Loggers.print_cell logger
@@ -239,6 +241,7 @@ let is_dummy step_kind =
   | Dump_missing_course_translation
   | Dump_mineures_suggestions
   | Dump_dens_candidate_suggestions
+  | Scan_csv_files _
     -> false
 
 let open_event
