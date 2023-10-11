@@ -8018,6 +8018,11 @@ let state,year = Remanent_state.get_current_academic_year state in
   let state, dens_in_bdd =
       Remanent_state.get_dens_candidate ~firstname ~lastname ~year:dens.Public_data.dens_diplomation_year state in
   let state =
+      Remanent_state.warn
+        __POS__
+        (Format.sprintf "DENS: %s %s %s %s" firstname lastname dens.Public_data.dens_diplomation_year (match dens_in_bdd with None -> "NONE" | Some a -> match a.Public_data.dens_candidate_ok with | Some true -> "TRUE" | Some false -> "FALSE" | None -> "missing"))
+        Exit state in 
+  let state =
           if
             main_dpt = current_dpt
             &&
