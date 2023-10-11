@@ -115,7 +115,7 @@ let asso_list =
     Public_data.Date_de_Naissance, ["date de naissance";"naissance"];
     Public_data.Decision, ["décision"];
     Public_data.Decision_en, ["décision_en";"decision(english)";"decision(anglais)"];
-    Public_data.Departement, ["département"];
+    Public_data.Departement, ["département";"dpt"];
     Public_data.Departements,["département(s)"];
     Public_data.Departement_principal, ["principal";"département principal"];
     Public_data.Departement_secondaire, ["secondaire";"département secondaire"];
