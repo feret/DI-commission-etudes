@@ -7839,6 +7839,7 @@ let export_transcript
           Public_data.dens_activite_internationale=[];
           Public_data.dens_activite_autre=[];
           Public_data.dens_cours_par_dpt = Public_data.StringMap.empty;
+          Public_data.dens_ok = None ;
         }
   in
   let state, dens = Dens.split_courses dens state in
@@ -8018,11 +8019,6 @@ let state,year = Remanent_state.get_current_academic_year state in
   let state, dens_in_bdd =
       Remanent_state.get_dens_candidate ~firstname ~lastname ~year:dens.Public_data.dens_diplomation_year state in
   let state =
-      Remanent_state.warn
-        __POS__
-        (Format.sprintf "DENS: %s %s %s %s" firstname lastname dens.Public_data.dens_diplomation_year (match dens_in_bdd with None -> "NONE" | Some a -> match a.Public_data.dens_candidate_ok with | Some true -> "TRUE" | Some false -> "FALSE" | None -> "missing"))
-        Exit state in 
-  let state =
           if
             main_dpt = current_dpt
             &&
@@ -8043,7 +8039,8 @@ let state,year = Remanent_state.get_current_academic_year state in
                 | None -> dens
                 | Some dens_in_bdd ->
                   {dens with
-                          Public_data.dens_diplomation_year = dens_in_bdd.Public_data.dens_candidate_diplomation_year}
+                          Public_data.dens_diplomation_year = dens_in_bdd.Public_data.dens_candidate_diplomation_year;
+                          Public_data.dens_ok = dens_in_bdd.Public_data.dens_candidate_ok}
             in
             let state =
               Remanent_state.add_dens

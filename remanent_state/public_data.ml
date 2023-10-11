@@ -806,6 +806,7 @@ let all_notes_string =
       dens_activite_internationale: experience_supplement list;
       dens_activite_autre: experience_supplement list;
       dens_diplomation_year: string;
+      dens_ok : bool option ; 
     }
 
 

@@ -457,7 +457,7 @@ let suggest_candidate dens state =
       Public_data.dens_candidate_lastname = dens.Public_data.dens_lastname ;
       Public_data.dens_candidate_promotion = dens.Public_data.dens_promotion ;
       Public_data.dens_candidate_diplomation_year = dens.Public_data.dens_diplomation_year ;
-      Public_data.dens_candidate_ok = None  }
+      Public_data.dens_candidate_ok = dens.Public_data.dens_ok}
       in
       Remanent_state.add_dens_candidate_suggestion state s
     else state
