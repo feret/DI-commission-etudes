@@ -164,8 +164,10 @@ val get_course_entry_list_repository: t -> t * string
 val get_stage_entry_list_prefix: t -> t * string
 val get_stage_entry_list_repository: t -> t * string
 
-val get_mineure_majeur_entry_list_prefix: t -> t * string
-val get_mineure_majeur_entry_repository: t -> t * string
+val get_mineure_entry_list_prefix: t -> t * string
+val get_mineure_entry_list_repository: t -> t * string
+val get_majeure_entry_list_prefix: t -> t * string
+val get_majeure_entry_list_repository: t -> t * string
 
 val get_departments_list_prefix: t -> t * string
 val get_departments_list_repository: t -> t * string
@@ -229,7 +231,7 @@ val get_dens_candidates_list:
   t -> t * Dens_candidates.t
 
 val get_dens_candidate:
-  firstname:string -> lastname:string -> year:string -> 
+  firstname:string -> lastname:string -> year:string ->
   t -> t * Public_data.dens_candidate option
 
 
@@ -237,6 +239,18 @@ val add_dens_candidate:
   (string * int * int * int ->
   t -> Public_data.dens_candidate -> Public_data.dens_candidate -> t * Public_data.dens_candidate) ->
   (string * int * int * int) -> Public_data.dens_candidate -> t -> t
+
+
+val add_dens_minor:
+    (string * int * int * int ->
+    t -> Public_data.mineure_majeure -> Public_data.mineure_majeure -> t * Public_data.mineure_majeure) ->
+    (string * int * int * int) -> Public_data.mineure_majeure -> t -> t
+
+val add_dens_major:
+        (string * int * int * int ->
+        t -> Public_data.mineure_majeure -> Public_data.mineure_majeure -> t * Public_data.mineure_majeure) ->
+        (string * int * int * int) -> Public_data.mineure_majeure -> t -> t
+
 
 val get_dens_candidates_suggestion_list:
   t -> t * Public_data.dens_candidate list
@@ -539,8 +553,11 @@ val get_dens:
 val get_repository_to_dump_dens:
   t -> t * string
 
-val get_repository_to_dump_missing_minor_major:
+val get_repository_to_dump_missing_minors:
   t -> t * string
+
+  val get_repository_to_dump_missing_majors:
+    t -> t * string
 
 val get_repository_to_dump_missing_internship_translations:
   t -> t * string

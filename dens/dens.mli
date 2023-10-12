@@ -5,9 +5,13 @@ val get_dens_candidates: ?repository:string ->
                          ?prefix:string ->
                          ?file_name:string -> Remanent_state.t -> Remanent_state.t
 
-val get_mineures_suggestions: ?repository:string ->
+val get_mineures_candidates: ?repository:string ->
                               ?prefix:string ->
-                                                  ?file_name:string -> Remanent_state.t -> Remanent_state.t 
+                                                  ?file_name:string -> Remanent_state.t -> Remanent_state.t
+
+val get_majeures_candidates: ?repository:string ->
+                          ?prefix:string ->
+                                                                                                    ?file_name:string -> Remanent_state.t -> Remanent_state.t
 
 val dump_dens: Public_data.dens -> Remanent_state.t -> Remanent_state.t
 val repeatable: Remanent_state.t -> string -> bool -> Remanent_state.t * bool

@@ -475,7 +475,7 @@ type dens =
     dens_activite_internationale: experience_supplement list;
     dens_activite_autre: experience_supplement list;
     dens_diplomation_year : string ;
-    dens_ok : bool option ; 
+    dens_ok : bool option ;
   }
 
 type mentor =
@@ -678,7 +678,10 @@ type mineure_majeure =
     secondary_student_firstname: string ;
     secondary_student_lastname : string ;
     secondary_student_promo : string ;
-    secondary_dpt : string ;
+    secondary_dpt : main_dpt ;
     secondary_diplomation_year : string ;
     secondary_accepted : bool option ;
   }
+
+val empty_mineure_majeure: mineure_majeure
+  

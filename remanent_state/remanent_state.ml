@@ -73,7 +73,8 @@ type parameters =
     repository_for_cours: string;
     repository_for_course_entry: string;
     repository_for_internship_entry: string;
-    repository_for_minor_major: string;
+    repository_for_minors: string;
+    repository_for_majors: string;
     repository_for_dens_candidate: string;
     repository_for_departements: string;
     repository_for_cursus: string;
@@ -101,7 +102,8 @@ type parameters =
     repository_to_dump_dens: string;
     repository_to_dump_mentors: string;
     repository_to_dump_missing_course_name_translation: string;
-    repository_to_dump_missing_minor_major: string;
+    repository_to_dump_missing_minors: string;
+    repository_to_dump_missing_majors: string;
     repository_to_dump_missing_internship_translation: string;
     repository_to_dump_missing_course_entries: string;
     repository_to_dump_course_entries_report: string;
@@ -113,8 +115,6 @@ type parameters =
     repartition: Public_data.repartition;
   }
 
-
-let _d p = p.parameters_repository
 
 let parameters =
   {
@@ -216,8 +216,10 @@ let parameters =
     dens_repository = "diplomation";
     diplomation_year = Some "2023" ;
     repository_for_internship_entry = "stages" ;
-    repository_for_minor_major = "mineurs_majeures" ;
-    repository_for_dens_candidate = "dens_candidates" ; repository_to_dump_missing_minor_major = "mineures_majeures" ;
+    repository_for_minors = "mineure" ;
+      repository_for_majors = "majeures" ;
+    repository_for_dens_candidate = "dens_candidates" ; repository_to_dump_missing_minors = "mineures" ;
+    repository_to_dump_missing_majors = "majeures" ;
     repository_to_dump_missing_internship_translation = "stages" ;
     repository_to_dump_dens_candidate = "dens_candidates" ;
     current_academic_year = "2023";
@@ -230,6 +232,8 @@ let parameters =
     repartition = Public_data.Annee_de_validation_du_cours;
 
   }
+
+let _ = parameters.parameters_repository
 
 let set_dma parameters =
   {
@@ -308,6 +312,8 @@ type data =
     missing_internship_descriptions: Public_data.missing_internship_description list;
     minor_suggestion: Public_data.mineure_majeure list;
     major_suggestion: Public_data.mineure_majeure list;
+    minors: Minor_candidates.t;
+    majors: Major_candidates.t;
     missing_internship_translations: Public_data.internship list;
     ambiguous_internship_descriptions: Public_data.missing_internship_description list;
     missing_course_entries:Public_data.course_entry list;
@@ -360,6 +366,8 @@ let empty_data =
     major_suggestion = [];
     missing_internship_translations = [];
     dens_candidates = Dens_candidates.empty;
+    minors = Minor_candidates.empty;
+    majors = Major_candidates.empty;
     dens_candidates_suggestion = [] ;
   }
 
@@ -663,12 +671,19 @@ let get_repository_to_dump_missing_course_entries t =
     )
     t
 
-let get_repository_to_dump_missing_minor_major t =
+let get_repository_to_dump_missing_minors t =
     get_repository_to_dump_missing_gen
         (fun t ->
-           t.parameters.repository_to_dump_missing_minor_major
+           t.parameters.repository_to_dump_missing_minors
         )
         t
+
+        let get_repository_to_dump_missing_majors t =
+            get_repository_to_dump_missing_gen
+                (fun t ->
+                   t.parameters.repository_to_dump_missing_majors
+                )
+                t
 
 let get_repository_to_dump_missing_mentors t =
   get_repository_to_dump_missing_gen
@@ -852,10 +867,11 @@ let get_dens_candidates_list_prefix t =
 let get_stage_entry_list_prefix t =
   t, t.parameters.repository_for_internship_entry
 
-let get_mineure_majeur_entry_list_prefix t =
-  t, t.parameters.repository_for_minor_major
+let get_mineure_entry_list_prefix t =
+  t, t.parameters.repository_for_minors
 
-
+  let get_majeure_entry_list_prefix t =
+    t, t.parameters.repository_for_majors
 
 let get_study t =
   let t, local = get_local_repository t in
@@ -877,8 +893,11 @@ let get_students_list_repository t =
 let get_stage_entry_list_repository t =
   get_rep_gen get_bdd get_stage_entry_list_prefix t
 
-let get_mineure_majeur_entry_repository t =
-  get_rep_gen get_bdd get_mineure_majeur_entry_list_prefix t
+let get_mineure_entry_list_repository t =
+  get_rep_gen get_bdd get_mineure_entry_list_prefix t
+
+  let get_majeure_entry_list_repository t =
+    get_rep_gen get_bdd get_majeure_entry_list_prefix t
 
 let get_dens_candidates_list_repository t =
     get_rep_gen get_bdd get_dens_candidates_list_prefix t
@@ -1379,6 +1398,18 @@ let set_dens_candidates dens_candidates data = {data with dens_candidates}
 let set_dens_candidates dens_candidates t =
   lift_set set_dens_candidates dens_candidates t
 
+let get_minors data = data.minors
+let get_minors t = lift_get get_minors t
+let set_minors minors data = {data with minors}
+let set_minors minors t =
+  lift_set set_minors minors t
+
+let get_majors data = data.majors
+let get_majors t = lift_get get_majors t
+let set_majors majors data = {data with majors}
+let set_majors majors t =
+    lift_set set_majors majors t
+
 
 let get_dens_candidates_suggestion data = data.dens_candidates_suggestion
 let get_dens_candidates_suggestion t = lift_get get_dens_candidates_suggestion t
@@ -1653,6 +1684,19 @@ let add_dens_candidate unify =
     get_dens_candidates
     set_dens_candidates
     (Dens_candidates.add_dens_candidate unify)
+
+let add_dens_minor unify =
+    add_gen
+      get_minors
+      set_minors
+        (Minor_candidates.add_minor_candidate unify)
+
+let add_dens_major unify =
+    add_gen
+      get_majors
+      set_majors
+      (Major_candidates.add_major_candidate unify)
+
 
 let add_scholarship unify =
   add_gen

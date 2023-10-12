@@ -8018,6 +8018,10 @@ let state,year = Remanent_state.get_current_academic_year state in
   let state = Dens.dump_dens dens state in
   let state, dens_in_bdd =
       Remanent_state.get_dens_candidate ~firstname ~lastname ~year:dens.Public_data.dens_diplomation_year state in
+  let accepte =
+      match dens_in_bdd with None -> None
+                          |  Some dens_in_bdd -> dens_in_bdd.Public_data.dens_candidate_ok
+  in
   let state =
           if
             main_dpt = current_dpt
@@ -8025,14 +8029,10 @@ let state,year = Remanent_state.get_current_academic_year state in
             do_report report &&
              (n_inscription > 0 || dens_total_potential > 0.
               || dens_total > 0. ||
-                match dens_in_bdd with
-                  | None -> false
-                  | Some dens_in_bdd ->
-                      begin match
-                        dens_in_bdd.Public_data.dens_candidate_ok with
-                                        | Some true -> true
-                                        | Some false | None -> false
-                      end)
+                match accepte with
+                  | Some true -> true
+                  | Some false | None -> false
+                    )
           then
             let dens =
               match dens_in_bdd with
@@ -8040,7 +8040,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                 | Some dens_in_bdd ->
                   {dens with
                           Public_data.dens_diplomation_year = dens_in_bdd.Public_data.dens_candidate_diplomation_year;
-                          Public_data.dens_ok = dens_in_bdd.Public_data.dens_candidate_ok}
+                          Public_data.dens_ok = accepte}
             in
             let state =
               Remanent_state.add_dens
@@ -8048,7 +8048,9 @@ let state,year = Remanent_state.get_current_academic_year state in
                     dens
             in
             let state =
-              Dens.suggest_mineure dens state
+              match accepte with
+               | Some true ->                 Dens.suggest_mineure dens state
+               | Some false | None -> state
             in
             let state =
               Dens.suggest_candidate dens state

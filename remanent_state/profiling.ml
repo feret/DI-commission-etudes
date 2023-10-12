@@ -17,6 +17,8 @@ type step_kind =
   | Collect_admissions
   | Collect_scholarships
   | Collect_mentoring
+  | Collect_minors
+  | Collect_majors
   | Collect_departement
   | Collect_dens_candidates
   | Collect_program
@@ -109,6 +111,8 @@ let string_of_step_kind x =
   | Collect_dens_candidates -> "Collect dens candidates"
   | Collect_scholarships -> "Collect data about scholarships"
   | Collect_mentoring -> "Collect data about mentoring"
+  | Collect_minors -> "Collect data about minors"
+  | Collect_majors -> "Collect data about majors"
   | Collect_departement -> "Collect data about teaching departments"
   | Collect_program -> "Collect data about teaching programs"
   | Collect_inscriptions -> "Collect inscriptions"
@@ -214,6 +218,8 @@ let is_dummy step_kind =
   | Collect_additional_courses
   | Collect_scholarships
   | Collect_mentoring
+  | Collect_minors
+  | Collect_majors 
   | Collect_departement
   | Collect_dens_candidates
   | Collect_program

@@ -425,6 +425,8 @@ let suggest_mineure dens state =
                     ects+.course.Public_data.supplement_ects)
               ects elt.Public_data.dens
           in
+(*         let state, mineure_ok =
+              Remanent_state.get_mine*)
           if
             (List.mem key humanities && ects >= 48. ||
              List.mem key sciences && ects >= 24.)
@@ -434,7 +436,7 @@ let suggest_mineure dens state =
              Public_data.secondary_student_lastname=dens.Public_data.dens_lastname;
              Public_data.secondary_student_firstname=dens.Public_data.dens_firstname;
              Public_data.secondary_student_promo=dens.Public_data.dens_promotion;
-             Public_data.secondary_dpt = key ;
+             Public_data.secondary_dpt = Public_data.dpt_of_string key ;
              Public_data.secondary_diplomation_year = dens.Public_data.dens_diplomation_year ;
              Public_data.secondary_accepted = None}
             in
@@ -469,6 +471,8 @@ let repeatable state cours extra =
         | Sciences
         | Sans_mineure)) -> state, false
 
+
+(* Collect dens candidates from the data-bases *)
 type dens_candidate_id =
   {
     candidate_main_dpt: Public_data.main_dpt option ;
@@ -648,12 +652,284 @@ let get_dens_candidates
       ?event_opt
       state
     in
-    let state = Remanent_state.close_event_opt event_opt state in
+    let state = Remanent_state.close_event_opt event state in
     state
 
+    (* Collect minors candidates from the data-bases *)
+    type secondary_id =
+      {
+        secondary_dpt: Public_data.main_dpt option ;
+        secondary_firstname : string option ;
+        secondary_lastname : string option ;
+        secondary_promotion : string option ;
+        secondary_diplomation_year : string option ;
+        secondary_ok : bool option ;
+    }
 
-let _ = keywords_of_interest, keywords_list
-let get_mineures_suggestions
-        ?repository ?prefix ?file_name x
-    =
-      let _ = repository, prefix, file_name in x
+    let empty_secondary_id =
+    {
+      secondary_dpt =  None ;
+      secondary_firstname = None ;
+      secondary_lastname = None ;
+      secondary_promotion = None ;
+      secondary_diplomation_year = None ;
+      secondary_ok = None ;
+    }
+
+    let event_opt = Some (Profiling.Collect_minors)
+    let compute_repository = Remanent_state.get_mineure_entry_list_repository
+
+
+    let keywords_list =
+      [
+        Public_data.Ignore ;
+        Public_data.FirstName;
+        Public_data.LastName;
+        Public_data.Annee_Academique;
+        Public_data.Promo;
+        Public_data.Departement;
+        Public_data.Accepte;
+      ]
+
+      let keywords_of_interest =
+        [
+          Public_data.FirstName;
+          Public_data.LastName;
+          Public_data.Annee_Academique;
+          Public_data.Promo;
+          Public_data.Departement;
+        ]
+
+        let lift_string =
+          (Lift.string empty_secondary_id Public_data.empty_mineure_majeure).Lift.safe
+        (*let lift_string_opt =
+          (Lift.string empty_candidate_id Public_data.empty_dens_candidate).Lift.opt_safe*)
+        let lift_bool_opt =
+          (Lift.bool empty_secondary_id Public_data.empty_mineure_majeure).Lift.opt_safe
+        let lift_dpt =
+          (Lift.main_dpt empty_secondary_id Public_data.empty_mineure_majeure).Lift.safe
+
+
+    let mandatory_fields =
+          [
+            lift_pred (fun a -> a.secondary_diplomation_year) "diplomation year";
+            lift_pred (fun a -> a.secondary_firstname) "the first name of the student";
+            lift_pred (fun a -> a.secondary_lastname) "the last name of the student";
+            lift_pred (fun a -> a.secondary_promotion) "promotion";
+            lift_pred (fun a -> a.secondary_dpt) "fields of the minor";
+          ]
+
+    let all_fields =
+        let record_name = "dens minor candidate" in
+            [
+              lift_string
+                ~keyword:Public_data.FirstName
+                ~set_tmp:(Tools.collect_string
+                            (fun secondary_firstname x ->
+                                  {x with secondary_firstname}))
+                ~get_tmp:(fun a -> a.secondary_firstname)
+                ~get:(fun a -> a.Public_data.secondary_student_firstname)
+                ~set:(fun secondary_student_firstname a ->
+                   {a with Public_data.secondary_student_firstname})
+                ~record_name
+                ~field_name:"first name of the student"
+                ~pos:__POS__ ;
+              lift_string
+                ~keyword:Public_data.LastName
+                ~set_tmp:(Tools.collect_string
+                              (fun secondary_lastname x ->
+                                    {x with secondary_lastname}))
+                ~get_tmp:(fun a -> a.secondary_lastname)
+                ~get:(fun a -> a.Public_data.secondary_student_lastname)
+                ~set:(fun secondary_student_lastname a ->
+                    {a with Public_data.secondary_student_lastname})
+                ~record_name
+                ~field_name:"last name of the student"
+                ~pos:__POS__ ;
+
+
+              lift_string
+                ~keyword:Public_data.Annee_Academique
+                ~set_tmp:(Tools.collect_string
+                      (fun secondary_diplomation_year x ->
+                          {x with secondary_diplomation_year}))
+                ~get_tmp:(fun a -> a.secondary_diplomation_year)
+                ~get:(fun a -> a.Public_data.secondary_diplomation_year)
+                ~set:(fun secondary_diplomation_year a ->
+                    {a with Public_data.secondary_diplomation_year})
+                ~record_name
+                ~field_name:"diplomation year of the student"
+                ~pos:__POS__;
+              lift_dpt
+                ~keyword:Public_data.Departement
+                ~set_tmp:(Tools.collect_string (fun dpt x ->
+                    let secondary_dpt =
+                      Tools.map_opt
+                        Public_data.dpt_of_string dpt
+                    in {x with secondary_dpt}))
+                ~get_tmp:(fun a -> a.secondary_dpt)
+                ~get:(fun a -> a.Public_data.secondary_dpt)
+                ~set:(fun secondary_dpt a ->
+                    {a with Public_data.secondary_dpt})
+                ~record_name
+                ~field_name:"department of the minor/major"
+                ~pos:__POS__ ;
+
+                lift_string
+                  ~keyword:Public_data.Promo
+                  ~set_tmp:(Tools.collect_string (fun secondary_promotion x -> {x with secondary_promotion}))
+                  ~get_tmp:(fun a -> a.secondary_promotion)
+                  ~get:(fun a -> a.Public_data.secondary_student_promo)
+                  ~set:(fun secondary_student_promo a ->
+                      {a with Public_data.secondary_student_promo})
+                  ~record_name
+                  ~field_name:"Promo of the student"
+                  ~pos:__POS__;
+              lift_bool_opt
+                ~keyword:Public_data.Accepte
+                ~set_tmp:(collect_bool "in validation" __POS__
+                            (fun secondary_ok x -> {x with secondary_ok}))
+                ~get_tmp:(fun a -> a.secondary_ok)
+                ~get:(fun a -> a.Public_data.secondary_accepted)
+                ~set:(fun secondary_accepted a ->
+                    {a with Public_data.secondary_accepted})
+                ~field_name:"validation"
+                ~record_name
+                ~pos:__POS__;
+                ]
+
+    let get_mineures_candidates
+        ?repository
+        ?prefix
+        ?file_name
+        state
+        =
+        let state, str = compute_repository state in
+        let event = Some (Profiling.Scan_csv_files (str,"")) in
+        let state = Remanent_state.open_event_opt event state in
+        let state = Scan_csv_files.collect_gen
+          ?repository
+          ?prefix
+          ?file_name
+          ~compute_repository
+          ~fun_default:Tools.fun_ignore
+          ~keywords_of_interest
+          ~keywords_list
+          ~init_state:empty_secondary_id
+          ~empty_elt:Public_data.empty_mineure_majeure   ~add_elt:Remanent_state.add_dens_minor
+          ~mandatory_fields
+          ~all_fields
+          ?event_opt
+          state
+        in
+        let state = Remanent_state.close_event_opt event state in
+        state
+
+        let event_opt = Some (Profiling.Collect_majors)
+        let compute_repository = Remanent_state.get_majeure_entry_list_repository
+
+        let all_fields =
+            let record_name = "dens major candidate" in
+                [
+                  lift_string
+                    ~keyword:Public_data.FirstName
+                    ~set_tmp:(Tools.collect_string
+                                (fun secondary_firstname x ->
+                                      {x with secondary_firstname}))
+                    ~get_tmp:(fun a -> a.secondary_firstname)
+                    ~get:(fun a -> a.Public_data.secondary_student_firstname)
+                    ~set:(fun secondary_student_firstname a ->
+                       {a with Public_data.secondary_student_firstname})
+                    ~record_name
+                    ~field_name:"first name of the student"
+                    ~pos:__POS__ ;
+                  lift_string
+                    ~keyword:Public_data.LastName
+                    ~set_tmp:(Tools.collect_string
+                                  (fun secondary_lastname x ->
+                                        {x with secondary_lastname}))
+                    ~get_tmp:(fun a -> a.secondary_lastname)
+                    ~get:(fun a -> a.Public_data.secondary_student_lastname)
+                    ~set:(fun secondary_student_lastname a ->
+                        {a with Public_data.secondary_student_lastname})
+                    ~record_name
+                    ~field_name:"last name of the student"
+                    ~pos:__POS__ ;
+
+
+                  lift_string
+                    ~keyword:Public_data.Annee_Academique
+                    ~set_tmp:(Tools.collect_string
+                          (fun secondary_diplomation_year x ->
+                              {x with secondary_diplomation_year}))
+                    ~get_tmp:(fun a -> a.secondary_diplomation_year)
+                    ~get:(fun a -> a.Public_data.secondary_diplomation_year)
+                    ~set:(fun secondary_diplomation_year a ->
+                        {a with Public_data.secondary_diplomation_year})
+                    ~record_name
+                    ~field_name:"diplomation year of the student"
+                    ~pos:__POS__;
+                  lift_dpt
+                    ~keyword:Public_data.Departement
+                    ~set_tmp:(Tools.collect_string (fun dpt x ->
+                        let secondary_dpt =
+                          Tools.map_opt
+                            Public_data.dpt_of_string dpt
+                        in {x with secondary_dpt}))
+                    ~get_tmp:(fun a -> a.secondary_dpt)
+                    ~get:(fun a -> a.Public_data.secondary_dpt)
+                    ~set:(fun secondary_dpt a ->
+                        {a with Public_data.secondary_dpt})
+                    ~record_name
+                    ~field_name:"department of the minor/major"
+                    ~pos:__POS__ ;
+
+                    lift_string
+                      ~keyword:Public_data.Promo
+                      ~set_tmp:(Tools.collect_string (fun secondary_promotion x -> {x with secondary_promotion}))
+                      ~get_tmp:(fun a -> a.secondary_promotion)
+                      ~get:(fun a -> a.Public_data.secondary_student_promo)
+                      ~set:(fun secondary_student_promo a ->
+                          {a with Public_data.secondary_student_promo})
+                      ~record_name
+                      ~field_name:"Promo of the student"
+                      ~pos:__POS__;
+                  lift_bool_opt
+                    ~keyword:Public_data.Accepte
+                    ~set_tmp:(collect_bool "in validation" __POS__
+                                (fun secondary_ok x -> {x with secondary_ok}))
+                    ~get_tmp:(fun a -> a.secondary_ok)
+                    ~get:(fun a -> a.Public_data.secondary_accepted)
+                    ~set:(fun secondary_accepted a ->
+                        {a with Public_data.secondary_accepted})
+                    ~field_name:"validation"
+                    ~record_name
+                    ~pos:__POS__;
+                    ]
+
+        let get_majeures_candidates
+            ?repository
+            ?prefix
+            ?file_name
+            state
+            =
+            let state, str = compute_repository state in
+            let event = Some (Profiling.Scan_csv_files (str,"")) in
+            let state = Remanent_state.open_event_opt event state in
+            let state = Scan_csv_files.collect_gen
+              ?repository
+              ?prefix
+              ?file_name
+              ~compute_repository
+              ~fun_default:Tools.fun_ignore
+              ~keywords_of_interest
+              ~keywords_list
+              ~init_state:empty_secondary_id
+              ~empty_elt:Public_data.empty_mineure_majeure   ~add_elt:Remanent_state.add_dens_major
+              ~mandatory_fields
+              ~all_fields
+              ?event_opt
+              state
+            in
+            let state = Remanent_state.close_event_opt event state in
+            state

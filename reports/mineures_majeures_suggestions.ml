@@ -24,7 +24,7 @@ struct
       ["PROMO"],
       (fun a -> a.Public_data.secondary_student_promo);
       ["DPT"],
-      (fun a -> a.Public_data.secondary_dpt);
+      (fun a -> Public_data.string_of_dpt (a.Public_data.secondary_dpt));
       ["ANNEE"],
       (fun a -> a.Public_data.secondary_diplomation_year);
       ["ACCEPTE"],
@@ -84,7 +84,7 @@ module SuggestionsMineures =
       let default_file_name = "suggestions_mineures.csv"
       let get = Remanent_state.get_minor_suggestion_list
       let get_repository =
-        Remanent_state.get_repository_to_dump_missing_minor_major
+        Remanent_state.get_repository_to_dump_missing_minors
     end)
 
 module SuggestionsMajeures =
@@ -95,5 +95,5 @@ module SuggestionsMajeures =
       let default_file_name = "suggestions_doubles_majeures.csv"
       let get = Remanent_state.get_major_suggestion_list
       let get_repository =
-        Remanent_state.get_repository_to_dump_missing_minor_major
+        Remanent_state.get_repository_to_dump_missing_majors
     end)
