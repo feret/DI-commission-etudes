@@ -216,7 +216,7 @@ let parameters =
     dens_repository = "diplomation";
     diplomation_year = Some "2023" ;
     repository_for_internship_entry = "stages" ;
-    repository_for_minors = "mineure" ;
+    repository_for_minors = "mineures" ;
       repository_for_majors = "majeures" ;
     repository_for_dens_candidate = "dens_candidates" ; repository_to_dump_missing_minors = "mineures" ;
     repository_to_dump_missing_majors = "majeures" ;
