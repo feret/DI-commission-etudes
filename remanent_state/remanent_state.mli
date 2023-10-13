@@ -234,6 +234,13 @@ val get_dens_candidate:
   firstname:string -> lastname:string -> year:string ->
   t -> t * Public_data.dens_candidate option
 
+val get_minor_candidates:
+  firstname:string -> lastname:string -> year:string ->
+  t -> t * Public_data.mineure_majeure list
+
+val get_major_candidates:
+  firstname:string -> lastname:string -> year:string ->
+  t -> t * Public_data.mineure_majeure list
 
 val add_dens_candidate:
   (string * int * int * int ->

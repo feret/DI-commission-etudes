@@ -409,9 +409,31 @@ let dump_dens dens state =
 
 let suggest_mineure dens state =
   let liste = dens.Public_data.dens_cours_par_dpt in
-  let state =
+  let firstname = dens.Public_data.dens_firstname in
+  let lastname = dens.Public_data.dens_lastname in
+  let year = dens.Public_data.dens_diplomation_year in
+  let state, minors_list =
+      Remanent_state.get_minor_candidates
+        ~firstname ~lastname ~year
+        state
+  in
+  let state, map' =
+      List.fold_left
+          (fun (state,map') a ->
+              state, Public_data.StringMap.add
+                (translate_main_dpt a.Public_data.secondary_dpt)
+                a map'
+            )
+          (state,Public_data.StringMap.empty) minors_list
+  in
+  let map', state =
     Public_data.StringMap.fold
-      (fun key elt state ->
+      (fun key elt (map',state) ->
+          let map', accepted =
+              match Public_data.StringMap.find_opt key map' with
+                | None -> map', None
+                | Some a -> Public_data.StringMap.remove key map', a.Public_data.secondary_accepted
+          in
           let key = String.uppercase_ascii key in
           let ects =
               List.fold_left
@@ -425,25 +447,40 @@ let suggest_mineure dens state =
                     ects+.course.Public_data.supplement_ects)
               ects elt.Public_data.dens
           in
-(*         let state, mineure_ok =
-              Remanent_state.get_mine*)
           if
             (List.mem key humanities && ects >= 48. ||
-             List.mem key sciences && ects >= 24.)
+             List.mem key sciences && ects >= 24.) || (accepted = Some true)
+            && (not (accepted = Some false))
           then
             let m =
             {
-             Public_data.secondary_student_lastname=dens.Public_data.dens_lastname;
-             Public_data.secondary_student_firstname=dens.Public_data.dens_firstname;
+             Public_data.secondary_student_lastname=lastname;
+             Public_data.secondary_student_firstname=firstname;
              Public_data.secondary_student_promo=dens.Public_data.dens_promotion;
              Public_data.secondary_dpt = Public_data.dpt_of_string key ;
-             Public_data.secondary_diplomation_year = dens.Public_data.dens_diplomation_year ;
-             Public_data.secondary_accepted = None}
+             Public_data.secondary_diplomation_year = year;
+             Public_data.secondary_accepted = accepted}
             in
-            Remanent_state.add_minor_suggestion state m
-        else state)
-      liste state
-in state
+            map', Remanent_state.add_minor_suggestion state m
+        else map', state)
+      liste  (map',state)
+in
+let state =
+Public_data.StringMap.fold
+  (fun key elt state ->
+      let m =
+        {
+         Public_data.secondary_student_lastname=lastname;
+         Public_data.secondary_student_firstname=firstname;
+         Public_data.secondary_student_promo=dens.Public_data.dens_promotion;
+         Public_data.secondary_dpt = Public_data.dpt_of_string key ;
+         Public_data.secondary_diplomation_year = year ;
+         Public_data.secondary_accepted = elt.Public_data.secondary_accepted}
+        in
+        Remanent_state.add_minor_suggestion state m)
+  map' state
+in
+state
 
 let suggest_candidate dens state =
     if

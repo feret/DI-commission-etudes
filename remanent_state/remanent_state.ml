@@ -2042,6 +2042,20 @@ let get_dens_candidate
               t,
             None
 
+
+let get_minor_candidates
+      ~firstname ~lastname ~year t =
+      t, Minor_candidates.get_minor_candidate
+          ~firstname ~lastname ~year
+          t.data.minors
+
+let get_major_candidates
+      ~firstname ~lastname ~year t =
+      t, Major_candidates.get_major_candidate
+        ~firstname ~lastname ~year
+        t.data.majors
+
+
 let add_admission unify =
   add_gen
     get_admissions
