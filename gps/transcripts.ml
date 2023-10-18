@@ -3402,6 +3402,7 @@ let dpt_of_acro who pos state dpt origine =
     | Public_data.ARTS -> state, Some dpt_arts
     | Public_data.LILA -> state, Some dpt_lila
     | Public_data.DRI -> state, Some dpt_dri
+    | Public_data.DEC -> state, Some dpt_dec
     | Public_data.ENS ->
       let msg =
         Format.sprintf "Unknown departement (%s) for %s"
@@ -3441,7 +3442,7 @@ let check_mandatory state cours =
       true
     else
       false
-  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.DMA | Public_data.LILA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> state, false
+  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.DMA | Public_data.DEC | Public_data.LILA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> state, false
 
 let is_mandatory state cours =
   let state, b = check_mandatory state cours in
@@ -3481,7 +3482,7 @@ let check_count_for_maths state cours =
         ||
         course_by_dma cours
     end
-  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.DMA | Public_data.LILA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, false
+  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.DEC |  Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.DMA | Public_data.LILA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, false
 
 let count_for_maths state cours =
   let state, b = check_count_for_maths state cours in
@@ -3877,6 +3878,15 @@ let heading
               "D\\'epartement de Chimie. \\'Ecole  Normale  Sup\\'erieure. 4XXXXXXX 75005 Paris. Tel : +33 (0)1 44 32 ?? ??."
           in
           state
+        | state, Public_data.DEC ->
+        let () =
+          Remanent_state.log_string
+            ?backgroundcolor
+            state
+            ~english:"Department of Cognitive Studies. \\'Ecole Normale Sup\\'erieure. XXXXXXXXXXX 75005 Paris. Phone: +33 (0)1 44 32 ?? ??."
+            "D\\'epartement d'\'Etudes Cognitives. \\'Ecole  Normale  Sup\\'erieure. 4XXXXXXX 75005 Paris. Tel : +33 (0)1 44 32 ?? ??."
+        in
+        state
           | state, Public_data.GEOSCIENCES ->
             let () =
               Remanent_state.log_string
@@ -4097,6 +4107,7 @@ let heading
           | Public_data.ECO -> "d'économie"
           | Public_data.ARTS -> "d'arts"
           | Public_data.LILA -> "de littératures et langage"
+          | Public_data.DEC -> "d'études cognitives"
           | Public_data.DRI -> "")
       ),
       (Format.sprintf "Year: %s Department"
@@ -4111,6 +4122,7 @@ let heading
           | Public_data.ECO -> "Economy"
           | Public_data.ARTS -> "Arts"
           | Public_data.LILA -> "Litteratures and Language"
+          | Public_data.DEC  -> "Cognitive Studies"
           | Public_data.DRI -> "")
          ),
       None, None
@@ -4933,7 +4945,7 @@ let program
                 | _,Public_data.DRI
                 | _,Public_data.ENS -> None
                 | _,(Public_data.ARTS
-                    | Public_data.ECO | Public_data.DI | Public_data.DMA | Public_data.CHIMIE | Public_data.GEOSCIENCES
+                    | Public_data.ECO | Public_data.DI | Public_data.DMA | Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.DEC
                 | Public_data.IBENS | Public_data.PHYS | Public_data.LILA) ->
                   Some dpt)
             ~gpscodelist
@@ -6856,6 +6868,7 @@ let export_transcript
                  | state, (Public_data.ARTS
                           | Public_data.ECO
                           | Public_data.DMA
+                          | Public_data.DEC
                           | Public_data.CHIMIE
                           | Public_data.GEOSCIENCES
                           | Public_data.PHYS
@@ -7879,6 +7892,7 @@ let export_transcript
                  | Public_data.GEOSCIENCES
                  | Public_data.PHYS
                  | Public_data.IBENS
+                 | Public_data.DEC
                  | Public_data.LILA)->
           begin
             match

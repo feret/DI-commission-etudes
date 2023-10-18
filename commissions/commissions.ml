@@ -255,6 +255,13 @@ let direction_etude_chimie=
         Public_data.StringMap.empty
         People.chimie_list
 
+let direction_etude_dec =
+      List.fold_left
+        (fun map elt ->
+          Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+        Public_data.StringMap.empty
+        People.dec_list
+
 let direction_etude_gsc=
               List.fold_left
                 (fun map elt ->
@@ -410,6 +417,8 @@ let print_sous_commission
       People.dpt_dri,direction_etude_dri,Public_data.StringUnivMap.empty ,People.footpage_string_dri,Color.orange
     | Public_data.ARTS ->
       People.dpt_arts,direction_etude_arts,Public_data.StringUnivMap.empty,People.footpage_string_arts,Color.brown
+    | Public_data.DEC ->
+      People.dpt_dec,direction_etude_dec,Public_data.StringUnivMap.empty,People.footpage_string_dec,Color.white
     | Public_data.ENS ->
       People.dpt_di,Public_data.StringMap.empty,Public_data.StringUnivMap.empty,"",Color.digreen
     | Public_data.IBENS ->

@@ -70,7 +70,7 @@ module StringOptMap =
         end
         )
 
-type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA | DEC 
+type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA | DEC
 type universite =
   | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud | UPNord | USPN | UDauphine
 
@@ -106,6 +106,7 @@ let string_of_dpt x =
   | DRI -> "échanges DRI"
   | ARTS -> "arts"
   | LILA -> "littératures et langage"
+  | DEC -> "études cognitives"
   | ENS -> ""
 
 let dpt_of_string x =
@@ -122,6 +123,7 @@ let dpt_of_string x =
   | "echanges dri"
   | "relations internationales" -> DRI
   | "litteratures et langage" -> LILA
+  | "etudes cognitives" -> DEC 
   | _ -> DI
 
 let file_suffix_of_univ x =

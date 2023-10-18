@@ -451,6 +451,7 @@ let state, _dpt, signataires =
   | state, Public_data.CHIMIE -> state, Public_data.CHIMIE, ["JD"]
   | state, Public_data.GEOSCIENCES -> state, Public_data.GEOSCIENCES, ["PM"]
   | state, Public_data.ARTS -> state, Public_data.ARTS, []
+  | state, Public_data.DEC -> state, Public_data.DEC, []
   | state, Public_data.ENS -> state, Public_data.ENS, []
   | state, Public_data.PHYS -> state, Public_data.PHYS, []
   | state, Public_data.IBENS -> state, Public_data.IBENS, []

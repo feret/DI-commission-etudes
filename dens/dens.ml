@@ -69,6 +69,7 @@ let translate_main_dpt x =
   | Public_data.ARTS -> arts
   | Public_data.LILA -> lila
   | Public_data.DMA -> dma
+  | Public_data.DEC -> dec 
 
 let kind_of_course state code extra =
   if code = "" && extra
@@ -354,7 +355,7 @@ let dump_dens dens state =
       let () = Remanent_state.fprintf state
                   "ECTS langues : %s (24 sont nécessaires%s)"
                   (let (_,_,_,ects')=total_ecla in (string_of_float ects'))
-                  (match main_dpt with | Public_data.DI -> " ou un stage à l'étranger" | Public_data.DMA | Public_data.ENS|Public_data.PHYS|Public_data.GEOSCIENCES | Public_data.CHIMIE|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> "")
+                  (match main_dpt with | Public_data.DI -> " ou un stage à l'étranger" | Public_data.DMA | Public_data.ENS|Public_data.PHYS|Public_data.GEOSCIENCES | Public_data.DEC |  Public_data.CHIMIE|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> "")
       in
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state "M2 recherche : " in
@@ -370,6 +371,7 @@ let dump_dens dens state =
             Public_data.DMA -> "mathématiques"
           | Public_data.DI -> "informatique"
           | Public_data.CHIMIE -> "chimie"
+          | Public_data.DEC -> "sciences cognitives"
           | Public_data.GEOSCIENCES -> "géosciences" | (Public_data.ENS|Public_data.PHYS|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA)
   -> "informatique") in
       let () = Remanent_state.print_newline state in
@@ -400,7 +402,7 @@ let dump_dens dens state =
            end
            | Public_data.DMA
            | Public_data.ENS | Public_data.GEOSCIENCES
-           | Public_data.PHYS | Public_data.CHIMIE |  Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> ()
+           | Public_data.PHYS | Public_data.CHIMIE | Public_data.DEC |  Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> ()
       in
       let () = Remanent_state.fprintf state "\\end{minipage}" in
       let () = Remanent_state.fprintf state "\\end{center}" in

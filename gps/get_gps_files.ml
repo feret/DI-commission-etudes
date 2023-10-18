@@ -711,16 +711,16 @@ let get_student_file
         with
         | true, true,
           (Public_data.DRI | Public_data.ARTS | Public_data.DI | Public_data.ENS
-          | Public_data.IBENS | Public_data.ECO | Public_data.LILA) -> modelist_di_true_true
+          | Public_data.IBENS | Public_data.ECO | Public_data.LILA | Public_data.DEC ) -> modelist_di_true_true
         | true, false,
           (Public_data.DRI | Public_data.ARTS | Public_data.DI | Public_data.ENS
-          | Public_data.IBENS  | Public_data.ECO | Public_data.LILA) -> modelist_di_true_false
+          | Public_data.IBENS  | Public_data.ECO | Public_data.LILA | Public_data.DEC ) -> modelist_di_true_false
         | false, true,
           (Public_data.DRI | Public_data.ARTS | Public_data.DI | Public_data.ENS
-          | Public_data.IBENS | Public_data.ECO | Public_data.LILA)  -> modelist_di_false_true
+          | Public_data.IBENS | Public_data.ECO | Public_data.LILA | Public_data.DEC )  -> modelist_di_false_true
         | false, false,
           (Public_data.DRI | Public_data.ARTS | Public_data.DI | Public_data.ENS
-          | Public_data.IBENS | Public_data.ECO | Public_data.LILA) -> modelist_di_false_false
+          | Public_data.IBENS | Public_data.ECO | Public_data.LILA | Public_data.DEC ) -> modelist_di_false_false
         | true, true, Public_data.DMA -> modelist_dma_true_true
         | true, false, Public_data.DMA -> modelist_dma_true_false
         | false, true, Public_data.DMA  -> modelist_dma_false_true

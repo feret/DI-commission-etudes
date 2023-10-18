@@ -10,6 +10,7 @@ val arts_list: Remanent_state.t Public_data.direction_des_etudes list
 val lila_list: Remanent_state.t Public_data.direction_des_etudes list
 val chimie_list: Remanent_state.t Public_data.direction_des_etudes list
 val gsc_list: Remanent_state.t Public_data.direction_des_etudes list
+val dec_list: Remanent_state.t Public_data.direction_des_etudes list
 
 val dpt_di: string
 val dpt_gsc: string
@@ -21,6 +22,7 @@ val dpt_dri: string
 val dpt_arts: string
 val dpt_lila: string
 val dpt_chimie: string
+val dpt_dec: string
 
 val footpage_string: string
 val footpage_string_dma: string
@@ -31,4 +33,5 @@ val footpage_string_dri: string
 val footpage_string_arts: string
 val footpage_string_lila: string
 val footpage_string_chimie: string
-val footpage_string_gsc: string 
+val footpage_string_gsc: string
+val footpage_string_dec: string

@@ -544,6 +544,13 @@ let dump_attestation
           Loggers.fprintf,
           People.footpage_string
         ],direction_etude_arts,"arts"
+      | Public_data.DEC  ->
+          let color = Color.white in
+          Loggers.setfootpage logger ~color
+          [
+            Loggers.fprintf,
+            People.footpage_string
+          ],direction_etude, "études cognitives"
       | Public_data.DI | Public_data.ENS ->
         let color = Color.digreen in
         Loggers.setfootpage logger ~color
