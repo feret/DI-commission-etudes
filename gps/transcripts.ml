@@ -8053,6 +8053,11 @@ let state,year = Remanent_state.get_current_academic_year state in
                | Some false | None -> state
             in
             let state =
+              match accepte with
+               | Some true -> Dens.suggest_majeure dens state
+               | Some false | None -> state
+            in
+            let state =
               Dens.suggest_candidate dens state
             in
             state
