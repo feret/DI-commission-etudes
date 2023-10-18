@@ -8049,7 +8049,7 @@ let state,year = Remanent_state.get_current_academic_year state in
             in
             let state =
               match accepte with
-               | Some true ->                 Dens.suggest_mineure dens state
+               | Some true -> Dens.suggest_mineure dens state
                | Some false | None -> state
             in
             let state =

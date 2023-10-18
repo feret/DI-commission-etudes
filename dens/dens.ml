@@ -203,8 +203,8 @@ let split_courses dens state =
       ~f_nat ~f_dens
       state courses dens
 
-let split_stages dens state = state, dens
-let collect_mineure dens state = state,dens
+let split_stages dens state = state, dens (* TODO *)
+let collect_mineure dens state = state,dens (* TODO *)
 
 let dump_repartition ?key repartition (state, total) =
   let i,ects =
@@ -478,6 +478,81 @@ Public_data.StringMap.fold
          Public_data.secondary_accepted = elt.Public_data.secondary_accepted}
         in
         Remanent_state.add_minor_suggestion state m)
+  map' state
+in
+state
+
+
+let suggest_majeure dens state =
+  let l1 = dens.Public_data.dens_master in
+  let l2 = dens.Public_data.dens_parcours in
+  let add m a =
+      let dpt = a.Public_data.diplome_dpt in
+      Public_data.DptMap.add
+          dpt (match Public_data.DptMap.find_opt dpt m
+             with
+              | None -> 1
+              | Some n -> n+1)
+          m
+  in
+  let map =
+      List.fold_left add (List.fold_left add Public_data.DptMap.empty l2) l1
+  in
+  let firstname = dens.Public_data.dens_firstname in
+  let lastname = dens.Public_data.dens_lastname in
+  let year = dens.Public_data.dens_diplomation_year in
+  let state, majors_list =
+      Remanent_state.get_major_candidates
+        ~firstname ~lastname ~year
+        state
+  in
+  let state, map' =
+      List.fold_left
+          (fun (state,map') a ->
+              state, Public_data.DptMap.add
+                a.Public_data.secondary_dpt
+                a map'
+            )
+          (state,Public_data.DptMap.empty) majors_list
+  in
+  let map', state =
+    Public_data.DptMap.fold
+      (fun key elt (map',state) ->
+          let map', accepted =
+              match Public_data.DptMap.find_opt key map' with
+                | None -> map', None
+                | Some a -> Public_data.DptMap.remove key map', a.Public_data.secondary_accepted
+          in
+          if
+            ((elt > 1 && key <> dens.Public_data.dens_main_dpt)  || (accepted = Some true))
+            && (not (accepted = Some false))
+          then
+            let m =
+            {
+             Public_data.secondary_student_lastname=lastname;
+             Public_data.secondary_student_firstname=firstname;
+             Public_data.secondary_student_promo=dens.Public_data.dens_promotion;
+             Public_data.secondary_dpt = key ;
+             Public_data.secondary_diplomation_year = year;
+             Public_data.secondary_accepted = accepted}
+            in
+            map', Remanent_state.add_major_suggestion state m
+        else map', state)
+      map  (map',state)
+in
+let state =
+Public_data.DptMap.fold
+  (fun key elt state ->
+      let m =
+        {
+         Public_data.secondary_student_lastname=lastname;
+         Public_data.secondary_student_firstname=firstname;
+         Public_data.secondary_student_promo=dens.Public_data.dens_promotion;
+         Public_data.secondary_dpt = key ;
+         Public_data.secondary_diplomation_year = year ;
+         Public_data.secondary_accepted = elt.Public_data.secondary_accepted}
+        in
+        Remanent_state.add_major_suggestion state m)
   map' state
 in
 state

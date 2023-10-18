@@ -276,6 +276,11 @@ let dump_issues state =
       state
   in
   let state,_ =
+    Mineures_majeures_suggestions.SuggestionsMajeures.dump
+      ~file_name:"suggestion_de_majeures.csv"
+      state
+  in
+  let state,_ =
     Dens_candidates_suggestion.SuggestionsDensCandidates.dump
       ~file_name:"suggestion_de_diplomants.csv"
       state

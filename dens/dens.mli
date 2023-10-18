@@ -16,4 +16,5 @@ val get_majeures_candidates: ?repository:string ->
 val dump_dens: Public_data.dens -> Remanent_state.t -> Remanent_state.t
 val repeatable: Remanent_state.t -> string -> bool -> Remanent_state.t * bool
 val suggest_mineure: Public_data.dens -> Remanent_state.t -> Remanent_state.t
+val suggest_majeure: Public_data.dens -> Remanent_state.t -> Remanent_state.t
 val suggest_candidate: Public_data.dens -> Remanent_state.t -> Remanent_state.t
