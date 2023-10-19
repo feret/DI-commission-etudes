@@ -123,7 +123,7 @@ let dpt_of_string x =
   | "echanges dri"
   | "relations internationales" -> DRI
   | "litteratures et langage" -> LILA
-  | "etudes cognitives" -> DEC 
+  | "etudes cognitives" | "sciences cognitives" -> DEC 
   | _ -> DI
 
 let file_suffix_of_univ x =
