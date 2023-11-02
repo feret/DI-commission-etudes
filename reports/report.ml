@@ -285,6 +285,11 @@ let dump_issues state =
       ~file_name:"suggestion_de_diplomants.csv"
       state
   in
+  let state,_ =
+    Courses_to_be_sorted.CoursesToBeSorted.dump
+      ~file_name:"courses_to_be_attributed.csv"
+      state
+  in
   state
 
 let warn state =
@@ -429,6 +434,17 @@ let warn state =
       Remanent_state.warn
         __POS__
         "Some gps extractions failed"
+        Exit
+        state
+  in
+  let state =
+    match Remanent_state.get_courses_to_be_sorted state
+    with
+      | state, [] -> state
+      | state, _::_ ->
+      Remanent_state.warn
+        __POS__
+        "Some courses should be attributed to some departments"
         Exit
         state
   in

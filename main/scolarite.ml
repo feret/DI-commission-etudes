@@ -32,6 +32,8 @@ let state =
   Collect_scholarships.get_scholarships state
 let state =
   Collect_mentoring.get_mentoring state
+let state =
+  Collect_sorted_courses.get_sorted_courses state 
 let state, current_year =
   Remanent_state.get_current_academic_year state
 let state, l =

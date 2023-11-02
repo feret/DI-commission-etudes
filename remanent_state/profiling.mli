@@ -18,7 +18,7 @@ type step_kind =
   | Collect_scholarships
   | Collect_mentoring
   | Collect_minors
-  | Collect_majors 
+  | Collect_majors
   | Collect_departement
   | Collect_dens_candidates
   | Collect_program
@@ -32,7 +32,9 @@ type step_kind =
   | Collect_modified_grade
   | Collect_course_name_translations
   | Collect_course_entries
+  | Collect_sorted_courses
   | Dump_course_entries
+  | Dump_courses_to_be_sorted
   | Dump_missing_course_translation
   | Dump_missing_grades
   | Dump_missing_ects_attributions

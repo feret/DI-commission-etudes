@@ -20,7 +20,7 @@ type student_id =
     promotion: string option;
   }
 
-type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA | DEC 
+type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA | DEC
 type universite =  | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud | UPNord | USPN | UDauphine
 val string_of_dpt: main_dpt -> string
 val dpt_of_string: string -> main_dpt
@@ -63,6 +63,13 @@ module CodeExtendedMap : Map_tools.Collect
   with type key = CodeMap.key
    and type 'a t = 'a CodeMap.t
 
+module CodeOptExtendedMap : Map_tools.Collect
+  with type key = CodeOptMap.key
+  and type 'a t = 'a CodeOptMap.t
+
+module LibelleExtendedMap : Map_tools.Collect
+    with type key = LibelleMap.key
+    and type 'a t = 'a LibelleMap.t
 
 module PromoExtendedMap : Map_tools.Collect
   with type key = PromoMap.key
@@ -142,6 +149,18 @@ type cours_a_ajouter =
   }
 
 val empty_cours_a_ajouter:cours_a_ajouter
+
+type cours_a_trier =
+  {
+    coursat_nom: string;
+    coursat_prenom: string;
+    coursat_annee: annee;
+    coursat_libelle: string ;
+    coursat_dpt: main_dpt option;
+    coursat_codegps: string ;
+}
+
+val empty_cours_a_trier: cours_a_trier
 
 type note_a_modifier =
   {
@@ -341,6 +360,7 @@ type cours_supplement =
     supplement_code: string;
     supplement_discipline: string;
     supplement_intitule: string;
+    supplement_validation_year: annee; 
     supplement_ects: float;
     supplement_dens: bool;
     supplement_extra: bool;
@@ -502,6 +522,7 @@ type keywords =
   | Annee_Debut
   | Annee_en_Cours
   | Annee_Fin
+  | Annee_de_Validation_du_Cours
   | Classement
   | Code
   | Code_gps

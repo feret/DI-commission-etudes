@@ -3548,7 +3548,7 @@ let dip_autre_list_init = []
 let dens_init = Public_data.YearMap.empty
 let n_att_init = Public_data.YearMap.empty
 
-let translate_course_dens course =
+let translate_course_dens course year =
 {
  Public_data.supplement_code=(match course.code_cours with None -> "" | Some c -> c);
  Public_data.supplement_discipline="";
@@ -3556,11 +3556,12 @@ let translate_course_dens course =
  Public_data.supplement_ects=(match course.ects with None -> 0. | Some i -> i) ;
  Public_data.supplement_dens=true;
  Public_data.supplement_extra = course.extra;
+ Public_data.supplement_validation_year = year;
 }
 
 
-let translate_course_nat course =
-{(translate_course_dens course) with
+let translate_course_nat course year =
+{(translate_course_dens course year) with
  Public_data.supplement_dens=false
 }
 
@@ -3606,7 +3607,7 @@ let add_dens_requirements state year course map =
 let add_dens_ok state year course course_list map =
   match course.ects with
   | None -> state,
-            {course_list with Public_data.dens  = (translate_course_dens course)::course_list.Public_data.dens},
+            {course_list with Public_data.dens  = (translate_course_dens course year )::course_list.Public_data.dens },
             map
   | Some f ->
     let total,potential,mandatory,math,math_math_info =
@@ -3623,7 +3624,7 @@ let add_dens_ok state year course course_list map =
     in
     let state, map = add_dens_requirements state year course map in
     state,
-    {course_list with Public_data.dens  = (translate_course_dens course)::course_list.Public_data.dens}, map
+    {course_list with Public_data.dens  = (translate_course_dens course year)::course_list.Public_data.dens}, map
 
 let add_dens_potential year course map =
   match course.ects with
@@ -3703,7 +3704,7 @@ let add_mean_ok is_m2 state key course course_list year map dens =
     add_dens_requirements state year course dens
   in
   let course_list =
-      {course_list with Public_data.diplomes_nationaux = (translate_course_nat course)::course_list.Public_data.diplomes_nationaux }
+      {course_list with Public_data.diplomes_nationaux = (translate_course_nat course year)::course_list.Public_data.diplomes_nationaux }
   in
   state, map, course_list, dens
 
@@ -7855,7 +7856,7 @@ let export_transcript
           Public_data.dens_ok = None ;
         }
   in
-  let state, dens = Dens.split_courses dens state in
+  let state, dens = Dens.split_courses ~firstname ~lastname dens state in
   let state, dens = Dens.split_stages dens state in
   let state, dens = Dens.collect_mineure dens state in
   let state, tuteur =

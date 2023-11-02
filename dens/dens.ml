@@ -69,7 +69,7 @@ let translate_main_dpt x =
   | Public_data.ARTS -> arts
   | Public_data.LILA -> lila
   | Public_data.DMA -> dma
-  | Public_data.DEC -> dec 
+  | Public_data.DEC -> dec
 
 let kind_of_course state code extra =
   if code = "" && extra
@@ -97,48 +97,76 @@ let kind_of_course state code extra =
                   (Format.sprintf "Ill-formed GPS code %s" code)
                   Exit state, ("", Missing)
 
-let fold_repartition_diplome ~main_dpt ~f_nat ~f_dens state repartition dens =
+let fold_repartition_diplome ~main_dpt ~firstname ~lastname ~f_nat ~f_dens state repartition dens =
   let state, dens =
       List.fold_left
-          (fun (state, dens) course -> f_nat ~main_dpt (state, dens) course)
+          (fun (state, dens) course -> f_nat ~main_dpt ~firstname ~lastname (state, dens) course)
           (state,dens)
           repartition.Public_data.diplomes_nationaux
   in
   let state, dens =
       List.fold_left
-          (fun (state, dens) course -> f_dens ~main_dpt (state, dens) course)
+          (fun (state, dens) course -> f_dens ~main_dpt ~firstname ~lastname (state, dens) course)
           (state,dens)
           repartition.Public_data.dens
   in
   state, dens
 
-let f_gen get store ~main_dpt (state,dens) course =
-    let code = String.split_on_char '-' course.Public_data.supplement_code in
-    let state, code  =
-      match code with
-        | t::_ ->
+let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
+    let year = course.Public_data.supplement_validation_year in
+    let libelle = course.Public_data.supplement_intitule in
+    let codegps = course.Public_data.supplement_code in
+    let state, courselist =
+        Remanent_state.get_sorted_courses ~firstname ~lastname ~year ~libelle ~codegps state
+    in
+    let courselist = List.filter (fun x -> not (x.Public_data.coursat_dpt = None)) courselist in
+    let state, code =
+    match courselist with
+      | cours::_  ->
           begin
-              match String.split_on_char ' ' t with
-              | t::_ -> state, t
-              | [] ->
-                Remanent_state.warn
+            match cours.Public_data.coursat_dpt with
+            | None -> state, "xt"
+            | Some a ->
+                state, translate_main_dpt a
+          end
+      | [] ->
+        begin
+          let code = String.split_on_char '-' course.Public_data.supplement_code in
+          match code with
+            | t::_ ->
+              begin
+                match String.split_on_char ' ' t with
+                | t::_ -> state, t
+                | [] ->
+                  Remanent_state.warn
                     __POS__
                     (Format.sprintf "Ill-formed code: %s" course.Public_data.supplement_code)
                     Exit state, ""
-          end
-        | [] ->
-          Remanent_state.warn
-              __POS__
-              (Format.sprintf "Ill-formed code: %s" course.Public_data.supplement_code)
-              Exit state, ""
+              end
+            | [] ->
+                Remanent_state.warn
+                  __POS__
+                    (Format.sprintf "Ill-formed code: %s" course.Public_data.supplement_code)
+                Exit state, ""
+      end
     in
     if code = main_dpt then
-        let dens_cours_discipline_principale = dens.Public_data.dens_cours_discipline_principale in
-        let list = get dens_cours_discipline_principale in
-        let dens_cours_discipline_principale = store (course::list) dens_cours_discipline_principale in
-        let dens = {dens with Public_data.dens_cours_discipline_principale} in
+      let dens_cours_discipline_principale =    dens.Public_data.dens_cours_discipline_principale in
+      let list = get dens_cours_discipline_principale in
+      let dens_cours_discipline_principale = store (course::list) dens_cours_discipline_principale in
+      let dens = {dens with Public_data.dens_cours_discipline_principale} in
         state, dens
     else if code = xt then
+        let state = Remanent_state.add_course_to_be_sorted
+                          state
+                          {Public_data.coursat_nom = lastname;
+                           Public_data.coursat_prenom = firstname;
+                           Public_data.coursat_annee = year ;
+                           Public_data.coursat_dpt = None ;
+                           Public_data.coursat_libelle = course.Public_data.supplement_intitule;
+                           Public_data.coursat_codegps = course.Public_data.supplement_code
+                            }
+                     in
         let dens_cours_a_trier = dens.Public_data.dens_cours_a_trier in
         let list = get dens_cours_a_trier in
         let dens_cours_a_trier = store (course::list) dens_cours_a_trier in
@@ -194,13 +222,13 @@ let f_dens =
         (fun dens -> dens.Public_data.dens)
         (fun dens d_dens -> {d_dens with Public_data.dens})
 
-let split_courses dens state =
+let split_courses ~firstname ~lastname dens state =
   let courses = dens.Public_data.dens_cours_a_trier in
   let dens = {dens with Public_data.dens_cours_a_trier = Public_data.empty_repartition_diplomes} in
   let state, main_dpt = Remanent_state.get_main_dpt state in
   let main_dpt = translate_main_dpt main_dpt in
   fold_repartition_diplome
-      ~main_dpt
+      ~main_dpt ~firstname ~lastname
       ~f_nat ~f_dens
       state courses dens
 

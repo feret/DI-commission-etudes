@@ -85,6 +85,8 @@ type parameters =
     repository_for_compensation: string;
     repository_for_dispenses: string;
     repository_for_additional_courses: string;
+    repository_for_courses_to_be_sorted: string;
+    repository_for_sorted_courses: string;
     repository_for_grades_to_modify: string;
     repository_for_inscriptions: string;
     repository_to_dump_missing_pictures: string;
@@ -174,6 +176,8 @@ let parameters =
     repository_for_compensation = "compensations";
     repository_for_dispenses = "dispenses";
     repository_for_additional_courses = "cours_a_ajouter";
+    repository_for_courses_to_be_sorted = "cours_a_trier";
+    repository_for_sorted_courses = "cours_tries";
     repository_for_grades_to_modify = "notes_a_modifier" ;
     repository_for_inscriptions = "inscriptions" ;
     repository_to_dump_dens = "dens";
@@ -296,6 +300,8 @@ type data =
     admissions: Admissions.t;
     compensations: Compensations.t;
     additional_courses: Cours_a_ajouter.t;
+    courses_to_be_sorted: Public_data.cours_a_trier list;
+    sorted_courses: Cours_a_trier.t;
     notes_a_modifier : Notes_a_modifier.t ;
     dispenses: Dispenses.t;
     missing_pictures: Public_data.student list;
@@ -338,6 +344,8 @@ let empty_data =
     inscriptions = Inscriptions.empty;
     programs = Programs.empty;
     additional_courses = Cours_a_ajouter.empty;
+    courses_to_be_sorted = [];
+    sorted_courses = Cours_a_trier.empty;
     notes_a_modifier = Notes_a_modifier.empty;
     output_alias = None;
     cursus_exceptions = Cursus_exception.empty;
@@ -656,6 +664,12 @@ let get_dens_candidate_suggestion_list_repository t =
         )
         t
 
+let get_courses_to_be_sorted_list_repository t =
+      get_repository_to_dump_missing_gen
+        (fun t ->
+           t.parameters.repository_for_courses_to_be_sorted)
+        t
+
 let get_repository_to_dump_missing_internship_translations t =
       get_repository_to_dump_missing_gen
         (fun t ->
@@ -896,8 +910,8 @@ let get_stage_entry_list_repository t =
 let get_mineure_entry_list_repository t =
   get_rep_gen get_bdd get_mineure_entry_list_prefix t
 
-  let get_majeure_entry_list_repository t =
-    get_rep_gen get_bdd get_majeure_entry_list_prefix t
+let get_majeure_entry_list_repository t =
+  get_rep_gen get_bdd get_majeure_entry_list_prefix t
 
 let get_dens_candidates_list_repository t =
     get_rep_gen get_bdd get_dens_candidates_list_prefix t
@@ -986,6 +1000,11 @@ let get_additional_courses_list_prefix t =
   t, t.parameters.repository_for_additional_courses
 let get_additional_courses_list_repository t =
   get_rep_gen get_bdd get_additional_courses_list_prefix t
+
+let get_sorted_courses_list_prefix t =
+      t, t.parameters.repository_for_sorted_courses
+let get_sorted_courses_list_repository t =
+      get_rep_gen get_bdd get_sorted_courses_list_prefix t
 
 let get_modified_grades_list_prefix t =
   t, t.parameters.repository_for_grades_to_modify
@@ -1656,6 +1675,23 @@ let set_additional_course additional_courses data =
 let set_additional_course additional_courses t =
   lift_set set_additional_course additional_courses t
 
+
+let get_courses_to_be_sorted data = data.courses_to_be_sorted
+let get_courses_to_be_sorted t =
+    lift_get get_courses_to_be_sorted t
+let set_courses_to_be_sorted courses_to_be_sorted data =
+      {data with courses_to_be_sorted}
+let set_courses_to_be_sorted courses_to_be_sorted t =
+    lift_set set_courses_to_be_sorted courses_to_be_sorted t
+
+let get_sorted_courses data = data.sorted_courses
+let get_sorted_courses t =
+    lift_get get_sorted_courses t
+let set_sorted_courses sorted_courses data =
+    {data with sorted_courses}
+let set_sorted_courses sorted_courses t =
+        lift_set set_sorted_courses sorted_courses t
+
 let get_notes_a_modifier data = data.notes_a_modifier
 let get_notes_a_modifier t =
   lift_get get_notes_a_modifier t
@@ -1950,7 +1986,27 @@ let get_additional_course
     ~firstname ~lastname
     t.data.additional_courses
 
+let add_sorted_course unify =
+    add_gen
+        get_sorted_courses
+        set_sorted_courses
+        (Cours_a_trier.add_sorted_course unify)
 
+let get_sorted_courses
+      ?firstname ?lastname
+      ?year
+      ?libelle
+      ?codegps
+      t =
+      let courses_opt =
+        Cours_a_trier.get_sorted_courses
+                ?firstname ?lastname
+                ?year
+                ?libelle
+                ?codegps
+                t.data.sorted_courses
+            in
+            t, courses_opt
 
 let add_note_a_modifier unify =
   add_gen
@@ -2284,6 +2340,9 @@ let add_major_suggestion, get_major_suggestion_list =
     gen get_major_suggestions set_major_suggestions
 let add_dens_candidate_suggestion, get_dens_candidates_suggestion_list =
     gen get_dens_candidates_suggestion set_dens_candidates_suggestion
+
+let add_course_to_be_sorted, get_courses_to_be_sorted =
+    gen get_courses_to_be_sorted set_courses_to_be_sorted
 
 let add_missing_internship_translation, get_missing_internship_translation_list =
     gen get_missing_internship_translations set_missing_internship_translations

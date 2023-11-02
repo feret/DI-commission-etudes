@@ -161,6 +161,8 @@ val get_course_exceptions_list_repository: t -> t * string
 val get_course_entry_list_prefix: t -> t * string
 val get_course_entry_list_repository: t -> t * string
 
+val get_courses_to_be_sorted_list_repository: t -> t * string
+
 val get_stage_entry_list_prefix: t -> t * string
 val get_stage_entry_list_repository: t -> t * string
 
@@ -247,6 +249,19 @@ val add_dens_candidate:
   t -> Public_data.dens_candidate -> Public_data.dens_candidate -> t * Public_data.dens_candidate) ->
   (string * int * int * int) -> Public_data.dens_candidate -> t -> t
 
+val get_sorted_courses_list_repository: t -> t * string
+val add_sorted_course:      (string * int * int * int ->
+             t ->
+             Public_data.cours_a_trier ->
+             Public_data.cours_a_trier -> t * Public_data.cours_a_trier) ->
+            string * int * int * int -> Public_data.cours_a_trier -> t -> t
+
+val get_sorted_courses:
+   ?firstname:string ->
+   ?lastname:string ->
+   ?year:string ->
+   ?libelle:string ->
+   ?codegps:string -> t -> t * Public_data.cours_a_trier list
 
 val add_dens_minor:
     (string * int * int * int ->
@@ -496,18 +511,27 @@ val get_dispenses:
   ?firstname:string -> ?lastname:string -> ?year:string -> ?program:string -> ?dpt:string->
   t -> t * Public_data.dispense list
 
-val add_additional_course:
-  (string * int * int * int ->
-   t ->
-   Public_data.cours_a_ajouter ->
-   Public_data.cours_a_ajouter -> t * Public_data.cours_a_ajouter) ->
-  (string * int * int * int) ->
-  Public_data.cours_a_ajouter ->
-  t -> t
 
-val get_additional_course:
-  firstname:string -> lastname:string ->
-  t -> t * Public_data.cours_a_ajouter list
+val add_course_to_be_sorted:
+  t -> Public_data.cours_a_trier -> t
+
+val get_courses_to_be_sorted:
+  t -> t * Public_data.cours_a_trier list
+
+
+
+  val add_additional_course:
+    (string * int * int * int ->
+     t ->
+     Public_data.cours_a_ajouter ->
+     Public_data.cours_a_ajouter -> t * Public_data.cours_a_ajouter) ->
+    (string * int * int * int) ->
+    Public_data.cours_a_ajouter ->
+    t -> t
+
+  val get_additional_course:
+    firstname:string -> lastname:string ->
+    t -> t * Public_data.cours_a_ajouter list
 
 val add_note_a_modifier:
   (string * int * int * int ->

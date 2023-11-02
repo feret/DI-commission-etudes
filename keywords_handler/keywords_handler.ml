@@ -96,6 +96,7 @@ let asso_list =
     Public_data.Annee_Academique, ["année"; "année académique"];
     Public_data.Annee_Debut, ["année début"];
     Public_data.Annee_Fin, ["année fin"];
+    Public_data.Annee_de_Validation_du_Cours, ["année de validation"];
     Public_data.Annee_en_Cours, ["année en cours"];
     Public_data.Classement, ["classement";"rang"];
     Public_data.Code, ["code";"code cours"];

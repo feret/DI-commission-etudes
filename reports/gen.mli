@@ -25,6 +25,7 @@ val dump_elts:
   ?ninscription:int ->
   ?niveau:string ->
   ?recu:bool ->
+  ?libelle:string ->
   ?output_repository:string ->
   ?prefix:string ->
   ?file_name:string ->
@@ -88,6 +89,7 @@ val filter:
   ?ninscription:int ->
   ?niveau:string ->
   ?recu:bool ->
+  ?libelle:string ->
   'a filter ->
   Remanent_state.t ->
   'a list -> Remanent_state.t * 'a list
@@ -118,6 +120,8 @@ val filter_mineures_majeures:
   Public_data.mineure_majeure filter
 val filter_dens_candidate:
   Public_data.dens_candidate filter
+val filter_coursat:
+  Public_data.cours_a_trier filter
 
 module type Interface =
 sig

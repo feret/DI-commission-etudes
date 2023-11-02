@@ -32,7 +32,9 @@ type step_kind =
   | Collect_modified_grade
   | Collect_course_name_translations
   | Collect_course_entries
+  | Collect_sorted_courses
   | Dump_course_entries
+  | Dump_courses_to_be_sorted
   | Dump_missing_course_translation
   | Dump_missing_grades
   | Dump_missing_ects_attributions
@@ -125,6 +127,7 @@ let string_of_step_kind x =
   | Collect_course_exceptions -> "Collect course exceptions"
   | Collect_modified_grade -> "Collect modified grades"
   | Collect_course_entries -> "Collect course entries"
+  | Collect_sorted_courses -> "Collect sorted courses"
   | Dump_missing_grades -> "Dump missing notes"
   | Dump_missing_ects_attributions-> "Dump missing ects attributions"
   | Dump_missing_mentors -> "Dump missing mentors"
@@ -135,6 +138,7 @@ let string_of_step_kind x =
   | Dump_dens_result -> "Dump DENS result"
   | Dump_student_list -> "Dump student list"
   | Dump_course_entries -> "Dump course entries"
+  | Dump_courses_to_be_sorted -> "Dump courses to be sorted"
   | Dump_missing_course_translation -> "Dump missing course translation"
   | Dump_mineures_suggestions -> "Dump Mineures/Majeures suggestion"
   | Dump_dens_candidate_suggestions -> "Dump dens candidate suggestion"
@@ -219,7 +223,7 @@ let is_dummy step_kind =
   | Collect_scholarships
   | Collect_mentoring
   | Collect_minors
-  | Collect_majors 
+  | Collect_majors
   | Collect_departement
   | Collect_dens_candidates
   | Collect_program
@@ -234,6 +238,7 @@ let is_dummy step_kind =
   | Collect_modified_grade
   | Collect_course_name_translations
   | Collect_course_entries
+  | Collect_sorted_courses 
   | Dump_missing_grades
   | Dump_missing_ects_attributions
   | Dump_missing_mentors
@@ -244,6 +249,7 @@ let is_dummy step_kind =
   | Dump_dens_result
   | Dump_student_list
   | Dump_course_entries
+  | Dump_courses_to_be_sorted
   | Dump_missing_course_translation
   | Dump_mineures_suggestions
   | Dump_dens_candidate_suggestions

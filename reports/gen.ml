@@ -23,6 +23,7 @@ type 'elt filter =
   ?ninscription:int ->
   ?niveau:string ->
   ?recu:bool ->
+  ?libelle:string ->
   Remanent_state.t -> 'elt -> Remanent_state.t * bool
 
 let dump_elts
@@ -43,6 +44,7 @@ let dump_elts
     ?ninscription
     ?niveau
     ?recu
+    ?libelle
     ?output_repository ?prefix ?file_name
     ?event_opt
     ?headpage
@@ -83,6 +85,7 @@ let dump_elts
              ?ninscription
              ?niveau
              ?recu
+             ?libelle
              state elt
          in
          if b then
@@ -243,12 +246,17 @@ let check elt_opt elt =
   | Some elt' ->
     elt = elt'
 
+let check_opt elt_opt elt_opt' =
+  match elt_opt,elt_opt' with
+    | None, _ | _,None -> true
+    | Some a,Some b -> a=b
+
 let filter_grade
     ?commission
     ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
-    ?niveau ?recu state grade =
+    ?niveau ?recu ?libelle state grade =
   let _  =
-    commission, dpt, niveau, recu, mentorname, mentorfirstname, mentorlastname, ninscription, attributionyear, universite
+    commission, dpt, niveau, recu, mentorname, mentorfirstname, mentorlastname, ninscription, attributionyear, universite, libelle
   in
   state, check dpt_gps_code grade.Public_data.missing_grade_dpt
   &&
@@ -266,9 +274,9 @@ let filter_grade
 
 let filter_internship_description
     ?commission ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname  ?teachername ?academicyear ?attributionyear ?promo ?ninscription
-    ?niveau ?recu state internship =
+    ?niveau ?recu ?libelle state internship =
   let _ =
-    commission, dpt, universite, dpt_gps_code, mentorname, teachername, mentorfirstname, mentorlastname, ninscription, niveau, recu, attributionyear
+    commission, dpt, universite, dpt_gps_code, mentorname, teachername, mentorfirstname, mentorlastname, ninscription, niveau, recu, attributionyear, libelle
   in
   state,
   check
@@ -285,10 +293,10 @@ let filter_internship_description
 
 let filter_mentoring
     ?commission ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
-    ?niveau
-    ?recu state mentoring =
+    ?niveau ?recu ?libelle
+    state mentoring =
   let _ =
-    commission, dpt, universite, dpt_gps_code, mentorname, mentorfirstname, mentorlastname, teachername, codegps, ninscription, niveau, recu, attributionyear
+    commission, dpt, universite, dpt_gps_code, mentorname, mentorfirstname, mentorlastname, teachername, codegps, ninscription, niveau, recu, attributionyear, libelle
   in
   state,
   check firstname mentoring.Public_data.missing_mentor_firstname
@@ -302,9 +310,9 @@ let filter_mentoring
 let filter_mentoring_list
     ?commission ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
     ?niveau
-    ?recu state mentoring =
+    ?recu ?libelle  state mentoring =
   let _ =
-    commission, universite, dpt_gps_code, teachername, mentorname, codegps, ninscription, niveau, recu
+    commission, universite, dpt_gps_code, teachername, mentorname, codegps, ninscription, niveau, recu, libelle
   in
   state,
   (check dpt
@@ -331,10 +339,10 @@ let filter_dens
     ?commission
     ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear
     ?promo ?ninscription ?niveau
-    ?recu
+    ?recu ?libelle
     state dens =
   let _ =
-    commission, universite, dpt, dpt_gps_code, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, niveau, recu, attributionyear
+    commission, universite, dpt, dpt_gps_code, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, niveau, recu, attributionyear, libelle
   in
   state,
   begin
@@ -358,9 +366,9 @@ let filter_dens
   let filter_national_diploma
         ?commission ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
         ?niveau
-        ?recu state dens =
+        ?recu ?libelle  state dens =
     let _ =
-      dpt, dpt_gps_code, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription, attributionyear
+      dpt, dpt_gps_code, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription, attributionyear, libelle
     in
     state,
     check commission dens.Public_data.diplome_commission
@@ -384,9 +392,9 @@ let filter_dens
 let filter_student_list
     ?commission ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
     ?niveau
-    ?recu state student =
+    ?recu ?libelle  state student =
   let _ =
-    commission, dpt, universite, dpt_gps_code, niveau, recu, academicyear, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription, attributionyear
+    commission, dpt, universite, dpt_gps_code, niveau, recu, academicyear, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription, attributionyear, libelle
   in
   state,
   check firstname student.Public_data.student_firstname_report
@@ -395,12 +403,35 @@ let filter_student_list
   &&
   check promo student.Public_data.student_promo_report
 
+
+let filter_coursat
+      ?commission ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
+      ?niveau
+      ?recu ?libelle state cours =
+    let _ =
+      commission, dpt, universite, dpt_gps_code, niveau, recu, academicyear, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription,  libelle, promo 
+    in
+    state,
+    check firstname cours.Public_data.coursat_nom
+    &&
+    check lastname cours.Public_data.coursat_prenom
+    &&
+    check attributionyear cours.Public_data.coursat_annee
+    &&
+    check libelle cours.Public_data.coursat_libelle
+    &&
+    check codegps cours.Public_data.coursat_codegps
+    &&
+    check_opt dpt cours.Public_data.coursat_dpt
+
+let _ = (filter_coursat:Public_data.cours_a_trier filter)
+
 let filter_course_name_translation
     ?commission ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
     ?niveau
-    ?recu state course =
+    ?recu ?libelle  state course =
   let _ =
-    commission, dpt, universite, dpt_gps_code, niveau, recu, mentorname, mentorfirstname, mentorlastname, teachername, ninscription, attributionyear, promo, lastname, firstname
+    commission, dpt, universite, dpt_gps_code, niveau, recu, mentorname, mentorfirstname, mentorlastname, teachername, ninscription, attributionyear, promo, lastname, firstname, libelle
   in
   state,
   check codegps course.Public_data.code
@@ -410,9 +441,9 @@ let filter_course_name_translation
   let filter_mineures_majeures
       ?commission ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
       ?niveau
-      ?recu state mineure_majeure =
+      ?recu ?libelle  state mineure_majeure =
     let _ =
-      commission, dpt, universite, dpt_gps_code, niveau, mentorname, mentorfirstname, mentorlastname, teachername, ninscription, attributionyear, promo, lastname, firstname, academicyear, codegps
+      commission, dpt, universite, dpt_gps_code, niveau, mentorname, mentorfirstname, mentorlastname, teachername, ninscription, attributionyear, promo, lastname, firstname, academicyear, codegps, libelle
     in
     state,
     match mineure_majeure.Public_data.secondary_accepted with
@@ -422,9 +453,9 @@ let filter_course_name_translation
   let filter_dens_candidate
           ?commission ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
           ?niveau
-          ?recu state dens_candidate =
+          ?recu ?libelle  state dens_candidate =
         let _ =
-          commission, dpt, universite, dpt_gps_code, niveau, mentorname, mentorfirstname, mentorlastname, teachername, ninscription, attributionyear, promo, lastname, firstname, academicyear, codegps
+          commission, dpt, universite, dpt_gps_code, niveau, mentorname, mentorfirstname, mentorlastname, teachername, ninscription, attributionyear, promo, lastname, firstname, academicyear, codegps, libelle
         in
         state,
         match dens_candidate.Public_data.dens_candidate_ok with
@@ -434,9 +465,9 @@ let filter_course_name_translation
   let filter_course_entry
       ?commission ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
       ?niveau
-      ?recu state course =
+      ?recu ?libelle state course =
     let _ =
-      commission, dpt, universite, dpt_gps_code, niveau, recu, mentorname, mentorfirstname, mentorlastname, teachername, ninscription, attributionyear, promo, lastname, firstname, course, academicyear, codegps
+      commission, dpt, universite, dpt_gps_code, niveau, recu, mentorname, mentorfirstname, mentorlastname, teachername, ninscription, attributionyear, promo, lastname, firstname, course, academicyear, codegps, libelle
     in
     state, true
 
@@ -456,7 +487,7 @@ let filter
 ?promo
 ?ninscription
 ?niveau
-?recu p state list =
+?recu ?libelle p state list =
   List.fold_left
     (fun (state,list) elt ->
        let state,b =
@@ -478,6 +509,7 @@ let filter
            ?ninscription
            ?niveau
            ?recu
+           ?libelle
            state elt in
       if b then
         state, elt::list

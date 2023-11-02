@@ -123,7 +123,7 @@ let dpt_of_string x =
   | "echanges dri"
   | "relations internationales" -> DRI
   | "litteratures et langage" -> LILA
-  | "etudes cognitives" | "sciences cognitives" -> DEC 
+  | "etudes cognitives" | "sciences cognitives" -> DEC
   | _ -> DI
 
 let file_suffix_of_univ x =
@@ -256,6 +256,7 @@ let empty_scholarship =
     funding_begin=None;
     funding_end=None;
   }
+
 type course_name_translation =
   {
     year: annee ;
@@ -303,6 +304,26 @@ let empty_course_exception =
     course_exception_firstname="";
     course_exception_lastname="";
   }
+
+type cours_a_trier =
+  {
+    coursat_nom: string;
+    coursat_prenom: string;
+    coursat_annee: annee;
+    coursat_libelle: string;
+    coursat_dpt: main_dpt option;
+    coursat_codegps: string;
+}
+
+let empty_cours_a_trier =
+{
+  coursat_nom="";
+  coursat_prenom="";
+  coursat_annee="";
+  coursat_libelle="";
+  coursat_dpt=None;
+  coursat_codegps="";
+}
 
 type cours_a_ajouter =
   {
@@ -687,6 +708,7 @@ let empty_mineure_majeure ={
       supplement_code: string;
       supplement_discipline: string;
       supplement_intitule: string;
+      supplement_validation_year: annee; 
       supplement_ects: float;
       supplement_dens: bool;
       supplement_extra: bool;
@@ -845,6 +867,7 @@ type keywords =
   | Annee_Debut
   | Annee_en_Cours
   | Annee_Fin
+  | Annee_de_Validation_du_Cours
   | Classement
   | Code
   | Code_gps
@@ -981,6 +1004,8 @@ module YearMap =
 module LevelMap = StringMap
 
 module CodeExtendedMap = Map_tools.Collect(CodeMap)
+module CodeOptExtendedMap = Map_tools.Collect(CodeOptMap)
+module LibelleExtendedMap = Map_tools.Collect(LibelleMap)
 module PromoExtendedMap = Map_tools.Collect(PromoMap)
 module FinanceurExtendedMap = Map_tools.Collect(FinanceurMap)
 module FirstNameExtendedMap = Map_tools.Collect(FirstNameMap)
