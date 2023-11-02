@@ -3552,7 +3552,7 @@ let translate_course_dens course year =
 {
  Public_data.supplement_code=(match course.code_cours with None -> "" | Some c -> c);
  Public_data.supplement_discipline="";
- Public_data.supplement_intitule="";
+ Public_data.supplement_intitule=(match course.cours_libelle with None -> "" | Some a -> a);
  Public_data.supplement_ects=(match course.ects with None -> 0. | Some i -> i) ;
  Public_data.supplement_dens=true;
  Public_data.supplement_extra = course.extra;
