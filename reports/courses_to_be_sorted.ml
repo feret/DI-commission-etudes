@@ -26,7 +26,7 @@ struct
       (fun a -> a.Public_data.coursat_annee);
       ["CODE GPS"],
       (fun a -> a.Public_data.coursat_codegps);
-      ["LIBELLE GPS"],
+      ["LIBELLE"],
       (fun a -> a.Public_data.coursat_libelle);
       ["DPT"],
       (fun a ->

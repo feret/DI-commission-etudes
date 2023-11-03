@@ -119,7 +119,9 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
     let state, courselist =
         Remanent_state.get_sorted_courses ~firstname ~lastname ~year ~libelle ~codegps state
     in
+    let i = List.length courselist in
     let courselist = List.filter (fun x -> not (x.Public_data.coursat_dpt = None)) courselist in
+    let j = List.length courselist in
     let state, code =
     match courselist with
       | cours::_  ->
@@ -157,14 +159,15 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
       let dens = {dens with Public_data.dens_cours_discipline_principale} in
         state, dens
     else if code = xt then
+        let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %s %s %s %i %i" lastname firstname year libelle codegps i j) Exit state in 
         let state = Remanent_state.add_course_to_be_sorted
                           state
                           {Public_data.coursat_nom = lastname;
                            Public_data.coursat_prenom = firstname;
                            Public_data.coursat_annee = year ;
                            Public_data.coursat_dpt = None ;
-                           Public_data.coursat_libelle = course.Public_data.supplement_intitule;
-                           Public_data.coursat_codegps = course.Public_data.supplement_code
+                           Public_data.coursat_libelle = libelle;
+                           Public_data.coursat_codegps = codegps
                             }
                      in
         let dens_cours_a_trier = dens.Public_data.dens_cours_a_trier in
