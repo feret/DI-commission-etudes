@@ -87,6 +87,8 @@ type parameters =
     repository_for_additional_courses: string;
     repository_for_courses_to_be_sorted: string;
     repository_for_sorted_courses: string;
+    repository_for_internships_to_be_sorted: string;
+    repository_for_sorted_internships: string;
     repository_for_grades_to_modify: string;
     repository_for_inscriptions: string;
     repository_to_dump_missing_pictures: string;
@@ -177,7 +179,9 @@ let parameters =
     repository_for_dispenses = "dispenses";
     repository_for_additional_courses = "cours_a_ajouter";
     repository_for_courses_to_be_sorted = "cours_a_trier";
+    repository_for_internships_to_be_sorted = "stages_a_trier";
     repository_for_sorted_courses = "cours_tries";
+    repository_for_sorted_internships = "stages_tries";
     repository_for_grades_to_modify = "notes_a_modifier" ;
     repository_for_inscriptions = "inscriptions" ;
     repository_to_dump_dens = "dens";
@@ -301,7 +305,9 @@ type data =
     compensations: Compensations.t;
     additional_courses: Cours_a_ajouter.t;
     courses_to_be_sorted: Public_data.cours_a_trier list;
+    internships_to_be_sorted: Public_data.stage_a_trier list;
     sorted_courses: Cours_a_trier.t;
+    sorted_internships: Stages_a_trier.t;
     notes_a_modifier : Notes_a_modifier.t ;
     dispenses: Dispenses.t;
     missing_pictures: Public_data.student list;
@@ -346,6 +352,8 @@ let empty_data =
     additional_courses = Cours_a_ajouter.empty;
     courses_to_be_sorted = [];
     sorted_courses = Cours_a_trier.empty;
+    internships_to_be_sorted = [];
+    sorted_internships = Stages_a_trier.empty;
     notes_a_modifier = Notes_a_modifier.empty;
     output_alias = None;
     cursus_exceptions = Cursus_exception.empty;
@@ -668,6 +676,12 @@ let get_courses_to_be_sorted_list_repository t =
       get_repository_to_dump_missing_gen
         (fun t ->
            t.parameters.repository_for_courses_to_be_sorted)
+        t
+
+let get_internships_to_be_sorted_list_repository t =
+      get_repository_to_dump_missing_gen
+        (fun t ->
+            t.parameters.repository_for_internships_to_be_sorted)
         t
 
 let get_repository_to_dump_missing_internship_translations t =
@@ -1005,6 +1019,11 @@ let get_sorted_courses_list_prefix t =
       t, t.parameters.repository_for_sorted_courses
 let get_sorted_courses_list_repository t =
       get_rep_gen get_bdd get_sorted_courses_list_prefix t
+
+let get_sorted_internships_list_prefix t =
+      t, t.parameters.repository_for_sorted_internships
+let get_sorted_internships_list_repository t =
+      get_rep_gen get_bdd get_sorted_internships_list_prefix t
 
 let get_modified_grades_list_prefix t =
   t, t.parameters.repository_for_grades_to_modify
@@ -1692,6 +1711,23 @@ let set_sorted_courses sorted_courses data =
 let set_sorted_courses sorted_courses t =
         lift_set set_sorted_courses sorted_courses t
 
+let get_internships_to_be_sorted data = data.internships_to_be_sorted
+let get_internships_to_be_sorted t =
+    lift_get get_internships_to_be_sorted t
+let set_internships_to_be_sorted internships_to_be_sorted data =
+    {data with internships_to_be_sorted}
+let set_internships_to_be_sorted internships_to_be_sorted t =
+    lift_set set_internships_to_be_sorted internships_to_be_sorted t
+
+let get_sorted_internships data = data.sorted_internships
+let get_sorted_internships t =
+    lift_get get_sorted_internships t
+let set_sorted_internships sorted_internships data =
+    {data with sorted_internships}
+let set_sorted_internships sorted_internships t =
+    lift_set set_sorted_internships sorted_internships t
+
+
 let get_notes_a_modifier data = data.notes_a_modifier
 let get_notes_a_modifier t =
   lift_get get_notes_a_modifier t
@@ -2007,6 +2043,26 @@ let get_sorted_courses
                 t.data.sorted_courses
             in
             t, courses_opt
+
+let add_sorted_internship unify =
+    add_gen
+        get_sorted_internships
+        set_sorted_internships
+        (Stages_a_trier.add_sorted_internship unify)
+
+let get_sorted_internships
+      ?firstname ?lastname
+      ?year
+      ?libelle
+      t =
+      let internships_opt =
+                    Stages_a_trier.get_sorted_internships
+                            ?firstname ?lastname
+                            ?year
+                            ?libelle
+                            t.data.sorted_internships
+                        in
+                        t, internships_opt
 
 let add_note_a_modifier unify =
   add_gen
@@ -2343,6 +2399,9 @@ let add_dens_candidate_suggestion, get_dens_candidates_suggestion_list =
 
 let add_course_to_be_sorted, get_courses_to_be_sorted =
     gen get_courses_to_be_sorted set_courses_to_be_sorted
+
+let add_internship_to_be_sorted, get_internships_to_be_sorted =
+        gen get_internships_to_be_sorted set_internships_to_be_sorted
 
 let add_missing_internship_translation, get_missing_internship_translation_list =
     gen get_missing_internship_translations set_missing_internship_translations

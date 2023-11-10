@@ -162,6 +162,7 @@ val get_course_entry_list_prefix: t -> t * string
 val get_course_entry_list_repository: t -> t * string
 
 val get_courses_to_be_sorted_list_repository: t -> t * string
+val get_internships_to_be_sorted_list_repository: t -> t * string
 
 val get_stage_entry_list_prefix: t -> t * string
 val get_stage_entry_list_repository: t -> t * string
@@ -262,6 +263,20 @@ val get_sorted_courses:
    ?year:string ->
    ?libelle:string ->
    ?codegps:string -> t -> t * Public_data.cours_a_trier list
+
+val get_sorted_internships_list_repository: t -> t * string
+val add_sorted_internship:      (string * int * int * int ->
+                t ->
+                Public_data.stage_a_trier ->
+                Public_data.stage_a_trier -> t * Public_data.stage_a_trier) ->
+               string * int * int * int -> Public_data.stage_a_trier -> t -> t
+
+   val get_sorted_internships:
+      ?firstname:string ->
+      ?lastname:string ->
+      ?year:string ->
+      ?libelle:string ->
+     t -> t * Public_data.stage_a_trier list
 
 val add_dens_minor:
     (string * int * int * int ->
@@ -518,7 +533,11 @@ val add_course_to_be_sorted:
 val get_courses_to_be_sorted:
   t -> t * Public_data.cours_a_trier list
 
+  val add_internship_to_be_sorted:
+    t -> Public_data.stage_a_trier -> t
 
+  val get_internships_to_be_sorted:
+    t -> t * Public_data.stage_a_trier list
 
   val add_additional_course:
     (string * int * int * int ->

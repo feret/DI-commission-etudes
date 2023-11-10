@@ -1,5 +1,5 @@
 val split_courses: firstname:string -> lastname:string -> Public_data.dens -> Remanent_state.t -> Remanent_state.t * Public_data.dens
-val split_stages: Public_data.dens -> Remanent_state.t -> Remanent_state.t * Public_data.dens
+val split_stages: firstname:string -> lastname:string -> Public_data.dens -> Remanent_state.t -> Remanent_state.t * Public_data.dens
 val collect_mineure: Public_data.dens -> Remanent_state.t -> Remanent_state.t * Public_data.dens
 val get_dens_candidates: ?repository:string ->
                          ?prefix:string ->

@@ -159,7 +159,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
       let dens = {dens with Public_data.dens_cours_discipline_principale} in
         state, dens
     else if code = xt then
-        let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %s %s %s %i %i" lastname firstname year libelle codegps i j) Exit state in 
+        let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %s %s %s %i %i" lastname firstname year libelle codegps i j) Exit state in
         let state = Remanent_state.add_course_to_be_sorted
                           state
                           {Public_data.coursat_nom = lastname;
@@ -225,6 +225,95 @@ let f_dens =
         (fun dens -> dens.Public_data.dens)
         (fun dens d_dens -> {d_dens with Public_data.dens})
 
+let store_activite get set stage dens =
+    let l = get dens in
+    set (stage::l) dens
+
+let store_activite_recherche stage dens =
+    store_activite
+      (fun dens -> dens.Public_data.dens_activite_recherche)
+      (fun dens_activite_recherche dens -> {dens with Public_data.dens_activite_recherche})
+      stage dens
+
+let store_activite_internationale stage dens =
+          store_activite
+            (fun dens -> dens.Public_data.dens_activite_internationale)
+            (fun dens_activite_internationale dens -> {dens with Public_data.dens_activite_internationale})
+            stage dens
+
+let store_activite_ouverture stage dens =
+    store_activite
+      (fun dens -> dens.Public_data.dens_activite_ouverture)
+      (fun dens_activite_ouverture dens -> {dens with Public_data.dens_activite_ouverture})
+      stage dens
+
+let store_activite_autre stage dens =
+    store_activite
+    (fun dens -> dens.Public_data.dens_activite_autre)
+    (fun dens_activite_autre dens -> {dens with Public_data.dens_activite_autre})
+    stage dens
+
+let fold_repartition_stages ~firstname ~lastname state stages dens =
+    List.fold_left
+      (fun (state,dens) stage ->
+          match
+            Remanent_state.get_sorted_internships ~firstname ~lastname  state
+          with
+            | state, [] ->
+              begin
+                let dens_activite_a_trier = stage::dens.Public_data.dens_activite_a_trier in
+                let dens = {dens with Public_data.dens_activite_a_trier} in
+                let stage_entry =
+                  {Public_data.stageat_nom=lastname;
+                   Public_data.stageat_prenom=firstname;
+                   Public_data.stageat_annee=stage.Public_data.activite_annee;
+                   Public_data.stageat_libelle=
+                      Tools.unsome_string stage.Public_data.activite_intitule_fr ;
+                   Public_data.stageat_libelle_fr=
+Tools.unsome_string stage.Public_data.activite_intitule_fr;
+                   Public_data.stageat_libelle_en=stage.Public_data.activite_intitule_en;
+                   Public_data.stageat_activite_fr=stage.Public_data.activite_activite_fr;
+                   Public_data.stageat_activite_en=stage.Public_data.activite_activite_en;
+                   Public_data.stageat_type=None}
+                in
+                let state =
+                  Remanent_state.add_internship_to_be_sorted state stage_entry
+                in
+                state, dens
+              end
+            | state, s::q ->
+              begin
+                let state =
+                  match q with
+                    | [] -> state
+                    | _::_ ->
+                        Remanent_state.warn
+                          __POS__ "several internships match" Exit state
+                in
+                let activite_intitule_en = s.Public_data.stageat_libelle_en in
+                let activite_intitule_fr = Some s.Public_data.stageat_libelle_fr in
+                let activite_activite_en = s.Public_data.stageat_activite_en in
+                let activite_activite_fr = s.Public_data.stageat_activite_fr in
+                let stage =
+                    {stage with
+                        Public_data.activite_intitule_fr;
+                        Public_data.activite_intitule_en;
+                        Public_data.activite_activite_en;
+                        Public_data.activite_activite_fr}
+                in
+                let dens =
+                  match s.Public_data.stageat_type with
+                    | Some Public_data.Recherche -> store_activite_recherche stage dens
+                    | Some Public_data.Internationale -> store_activite_internationale stage dens
+                    | Some Public_data.Ouverture ->
+                    store_activite_ouverture stage dens
+                    | None ->
+                    store_activite_autre stage dens
+                in
+                state, dens
+              end)
+      (state,dens) stages
+
 let split_courses ~firstname ~lastname dens state =
   let courses = dens.Public_data.dens_cours_a_trier in
   let dens = {dens with Public_data.dens_cours_a_trier = Public_data.empty_repartition_diplomes} in
@@ -235,7 +324,14 @@ let split_courses ~firstname ~lastname dens state =
       ~f_nat ~f_dens
       state courses dens
 
-let split_stages dens state = state, dens (* TODO *)
+let split_stages ~firstname ~lastname dens state =
+    let stages = dens.Public_data.dens_activite_a_trier in
+    let dens = {dens with Public_data.dens_activite_a_trier = []} in
+    fold_repartition_stages
+        ~firstname ~lastname
+        state stages dens
+
+
 let collect_mineure dens state = state,dens (* TODO *)
 
 let dump_repartition ?key repartition (state, total) =
@@ -304,6 +400,12 @@ let label_of_diplome dip =
           dip.Public_data.diplome_niveau
           (Public_data.string_of_dpt dip.Public_data.diplome_dpt)
       | Some l -> l
+
+
+let display_exp state label l =
+    let n = List.length l in
+    if n=0 then ()
+    else Remanent_state.fprintf state "%s (%i)," label n
 
 let dump_dens dens state =
     let size = [None;None;None;None;None] in
@@ -388,6 +490,13 @@ let dump_dens dens state =
                   (let (_,_,_,ects')=total_ecla in (string_of_float ects'))
                   (match main_dpt with | Public_data.DI -> " ou un stage à l'étranger" | Public_data.DMA | Public_data.ENS|Public_data.PHYS|Public_data.GEOSCIENCES | Public_data.DEC |  Public_data.CHIMIE|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> "")
       in
+      let () = Remanent_state.print_newline state in
+      let () = Remanent_state.fprintf state "Expériences : " in
+      let () = display_exp state "Ouverture" dens.Public_data.dens_activite_ouverture in
+      let () = display_exp state "Recherche" dens.Public_data.dens_activite_recherche in
+      let () = display_exp state "Internationale" dens.Public_data.dens_activite_internationale in
+      let () = display_exp state "Autre"
+      dens.Public_data.dens_activite_autre in
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state "M2 recherche : " in
       let () = (match dens.Public_data.dens_master with

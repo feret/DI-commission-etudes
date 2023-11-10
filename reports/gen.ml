@@ -409,7 +409,7 @@ let filter_coursat
       ?niveau
       ?recu ?libelle state cours =
     let _ =
-      commission, dpt, universite, dpt_gps_code, niveau, recu, academicyear, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription,  libelle, promo 
+      commission, dpt, universite, dpt_gps_code, niveau, recu, academicyear, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription,  libelle, promo
     in
     state,
     check firstname cours.Public_data.coursat_nom
@@ -424,7 +424,22 @@ let filter_coursat
     &&
     check_opt dpt cours.Public_data.coursat_dpt
 
-let _ = (filter_coursat:Public_data.cours_a_trier filter)
+let filter_stageat
+          ?commission ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
+          ?niveau
+          ?recu ?libelle state cours =
+        let _ =
+          commission, dpt, universite, dpt_gps_code, niveau, recu, academicyear, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription,  libelle, promo
+        in
+        state,
+        check firstname cours.Public_data.stageat_nom
+        &&
+        check lastname cours.Public_data.stageat_prenom
+        &&
+        check attributionyear cours.Public_data.stageat_annee
+        &&
+        check libelle cours.Public_data.stageat_libelle
+
 
 let filter_course_name_translation
     ?commission ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription

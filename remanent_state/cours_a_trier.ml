@@ -72,9 +72,7 @@ let get_sorted_course ~firstname ~lastname ~year ~libelle ~codegps (t:t) =
                 match Public_data.LibelleMap.find_opt libelle map with
                   | None -> None
                   | Some map ->
-                  match Public_data.CodeMap.find_opt codegps map with
-                    | None -> None
-                    | Some map -> Some map
+                Public_data.CodeMap.find_opt codegps map 
 
   let add_sorted_course
       unify pos state

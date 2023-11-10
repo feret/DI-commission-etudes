@@ -5402,11 +5402,11 @@ let program
         let state, f =
           special_course state cours
         in
-        let state, libelle, course_entry =
+        let state, libelle, course_entry, stage_opt =
           match cours.cours_libelle with
           | None -> state,
                     None,
-                     Public_data.empty_course_entry
+                     Public_data.empty_course_entry, None
           | Some l ->
             let course_entry =
               {
@@ -5498,13 +5498,26 @@ let program
                         in
                         state, lib, lib_en
                     in
+                    let stage_entry =
+                        {
+                          Public_data.activite_annee = year ;Public_data.activite_activite="Stage d'Informatique";
+                          Public_data.activite_activite_fr=Some "Stage d'Informatique";
+Public_data.activite_activite_en=Some "Internship in Computer Science";
+                          Public_data.activite_intitule=(match l with None -> "" | Some l -> l) ;
+                          Public_data.activite_intitule_fr=l;
+                          Public_data.activite_intitule_en=
+(match l_en with None -> "" | Some l -> l);
+                          Public_data.activite_code = Tools.unsome_string
+                            cours.code_cours; }
+                    in
                     let state, libelle =
                       Remanent_state.bilingual_string
                         ?english:l_en
                         ~french:(string_of_stringopt l)
                         state
                     in
-                    state, Some libelle, course_entry
+                    state, Some libelle, course_entry,
+                    Some stage_entry
                   end
                 | Some stage ->
                   let issue =
@@ -5535,6 +5548,18 @@ let program
                         | Some (Public_data.Bool true), Some true -> false
                       end
                   in
+                  let stage_entry =
+                      {
+                        Public_data.activite_annee = year ;Public_data.activite_activite="Stage d'Informatique";
+                        Public_data.activite_activite_fr=Some "Stage d'Informatique";
+                Public_data.activite_activite_en=Some "Internship in Computer Science";
+                        Public_data.activite_intitule=(match stage.sujet with None -> "" | Some l -> l) ;
+                        Public_data.activite_intitule_fr=stage.sujet;
+                        Public_data.activite_intitule_en="";
+                        Public_data.activite_code = Tools.unsome_string
+                          cours.code_cours; }
+                  in
+
                   let state =
                     if issue then
                       Remanent_state.add_non_validated_internship
@@ -5635,9 +5660,13 @@ let program
                   state,
                   Some
                     (Format.sprintf "%s%s%s" libelle sujet directeur),
-                   course_entry
+                   course_entry,
+                  Some stage_entry
               end
-            else state, Some l,course_entry
+            else state, Some l,course_entry, None
+        in
+        let stage_list =
+          match stage_opt with None -> stage_list | Some st -> st::stage_list
         in
         let state, libelle, libelle_en =
           if is_stage cours then state, libelle, None
@@ -7851,13 +7880,14 @@ let export_transcript
           Public_data.dens_activite_a_trier=stages_a_trier;
           Public_data.dens_activite_recherche=[];
           Public_data.dens_activite_internationale=[];
+          Public_data.dens_activite_ouverture=[];
           Public_data.dens_activite_autre=[];
           Public_data.dens_cours_par_dpt = Public_data.StringMap.empty;
           Public_data.dens_ok = None ;
         }
   in
   let state, dens = Dens.split_courses ~firstname ~lastname dens state in
-  let state, dens = Dens.split_stages dens state in
+  let state, dens = Dens.split_stages ~firstname ~lastname dens state in
   let state, dens = Dens.collect_mineure dens state in
   let state, tuteur =
     Remanent_state.get_mentoring

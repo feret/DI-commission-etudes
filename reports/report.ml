@@ -290,6 +290,11 @@ let dump_issues state =
       ~file_name:"courses_to_be_attributed.csv"
       state
   in
+  let state,_ =
+    Internships_to_be_sorted.InternshipsToBeSorted.dump
+      ~file_name:"internships_to_be_attributed.csv"
+      state
+  in
   state
 
 let warn state =
@@ -445,6 +450,17 @@ let warn state =
       Remanent_state.warn
         __POS__
         "Some courses should be attributed to some departments"
+        Exit
+        state
+  in
+  let state =
+    match Remanent_state.get_internships_to_be_sorted state
+    with
+      | state, [] -> state
+      | state, _::_ ->
+      Remanent_state.warn
+        __POS__
+        "Some internships should be attributed to some departments"
         Exit
         state
   in

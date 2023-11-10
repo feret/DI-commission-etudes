@@ -122,6 +122,8 @@ val filter_dens_candidate:
   Public_data.dens_candidate filter
 val filter_coursat:
   Public_data.cours_a_trier filter
+val filter_stageat:
+  Public_data.stage_a_trier filter
 
 module type Interface =
 sig

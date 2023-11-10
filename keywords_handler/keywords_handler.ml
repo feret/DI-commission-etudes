@@ -140,6 +140,7 @@ let asso_list =
     Public_data.Entree_GPS,["entrée GPS"];
     Public_data.Etablissement,["établissement"];
     Public_data.Etablissement_ou_Entreprise,["établissement ou entreprise"];
+    Public_data.Experience,["expérience"]; 
     Public_data.FirstName, ["prénom";];
     Public_data.FullName, ["nom complet"];
     Public_data.Genitif, ["genitif"];
@@ -194,7 +195,9 @@ let asso_list =
     Public_data.Service_Labo_Dpt,
     ["service/labo/dpt"];
     Public_data.Situation, ["situation"];
-    Public_data.Sujet_du_Stage_Type_du_Sejour,["sujet du stage / Type du séjour"];
+    Public_data.Sujet_du_Stage_Type_du_Sejour,["sujet du stage / Type du séjour";"sujet gps";"sujet(gps)"];
+    Public_data.Sujet_FR,["sujet";"sujet(français)"];
+    Public_data.Sujet_EN,["topic";"sujet(english)"];
     Public_data.Stages_et_Sejours_a_l_Etranger,
     ["Stage(s) & Séjour(s) à l'étranger"];
     Public_data.Statut, ["statut"];

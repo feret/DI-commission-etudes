@@ -22,6 +22,11 @@ type student_id =
 
 type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA | DEC
 type universite =  | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud | UPNord | USPN | UDauphine
+type experience = Recherche | Internationale | Ouverture
+
+val string_of_experience: experience -> string
+val experience_of_string: string -> experience
+
 val string_of_dpt: main_dpt -> string
 val dpt_of_string: string -> main_dpt
 val string_of_universite: universite -> string
@@ -161,6 +166,22 @@ type cours_a_trier =
 }
 
 val empty_cours_a_trier: cours_a_trier
+
+type stage_a_trier =
+  {
+    stageat_nom: string;
+    stageat_prenom: string;
+    stageat_annee: annee ;
+    stageat_libelle: string;
+    stageat_libelle_fr: string;
+    stageat_libelle_en: string;
+    stageat_activite_fr: string option;
+    stageat_activite_en: string option;
+    stageat_type: experience option;
+
+}
+
+val empty_stage_a_trier: stage_a_trier
 
 type note_a_modifier =
   {
@@ -360,16 +381,22 @@ type cours_supplement =
     supplement_code: string;
     supplement_discipline: string;
     supplement_intitule: string;
-    supplement_validation_year: annee; 
+    supplement_validation_year: annee;
     supplement_ects: float;
     supplement_dens: bool;
     supplement_extra: bool;
 }
 
 type experience_supplement =
- { activite_code: string ;
-   activite_activite: string;
-   activite_intitule: string;
+{ activite_code: string ;
+  activite_activite: string;
+  activite_intitule: string;
+  activite_activite_fr: string option;
+  activite_intitule_fr: string option;
+  activite_activite_en: string option ;
+  activite_intitule_en: string;
+
+  activite_annee: string ;
 }
 
 type 'a repartition_diplomes =
@@ -493,6 +520,7 @@ type dens =
     dens_activite_a_trier: experience_supplement list;
     dens_activite_recherche: experience_supplement list;
     dens_activite_internationale: experience_supplement list;
+    dens_activite_ouverture: experience_supplement list;
     dens_activite_autre: experience_supplement list;
     dens_diplomation_year : string ;
     dens_ok : bool option ;
@@ -560,6 +588,7 @@ type keywords =
   | Enseignements
   | Etablissement
   | Etablissement_ou_Entreprise
+  | Experience
   | FirstName
   | FullName
   | Genitif
@@ -608,6 +637,8 @@ type keywords =
   | Service_Labo_Dpt
   | Situation
   | Sujet_du_Stage_Type_du_Sejour
+  | Sujet_FR
+  | Sujet_EN
   | Stages_et_Sejours_a_l_Etranger
   | Statut
   | Tuteur

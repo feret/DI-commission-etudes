@@ -33,8 +33,10 @@ type step_kind =
   | Collect_course_name_translations
   | Collect_course_entries
   | Collect_sorted_courses
+  | Collect_sorted_internships
   | Dump_course_entries
   | Dump_courses_to_be_sorted
+  | Dump_internships_to_be_sorted
   | Dump_missing_course_translation
   | Dump_missing_grades
   | Dump_missing_ects_attributions
@@ -143,6 +145,8 @@ let string_of_step_kind x =
   | Dump_mineures_suggestions -> "Dump Mineures/Majeures suggestion"
   | Dump_dens_candidate_suggestions -> "Dump dens candidate suggestion"
   | Scan_csv_files (rep,file) -> (Format.sprintf "Scan %s/%s" rep file)
+  | Dump_internships_to_be_sorted -> "Dump internships to be sorted"
+  | Collect_sorted_internships -> "Collect sorted internships"
 
 let print_step_kind logger x =
   Loggers.print_cell logger
@@ -238,7 +242,7 @@ let is_dummy step_kind =
   | Collect_modified_grade
   | Collect_course_name_translations
   | Collect_course_entries
-  | Collect_sorted_courses 
+  | Collect_sorted_courses
   | Dump_missing_grades
   | Dump_missing_ects_attributions
   | Dump_missing_mentors
@@ -253,6 +257,8 @@ let is_dummy step_kind =
   | Dump_missing_course_translation
   | Dump_mineures_suggestions
   | Dump_dens_candidate_suggestions
+  | Dump_internships_to_be_sorted
+  | Collect_sorted_internships
   | Scan_csv_files _
     -> false
 

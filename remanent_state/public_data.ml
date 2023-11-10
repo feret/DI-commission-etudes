@@ -74,6 +74,8 @@ type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI
 type universite =
   | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud | UPNord | USPN | UDauphine
 
+type experience = Recherche | Internationale | Ouverture
+
 module StringUnivMap =
   Map_tools.MakeSimplified
     (
@@ -93,6 +95,19 @@ module StringUnivMap =
              (String.trim s)), univ
     end
     )
+
+let string_of_experience x =
+  match x with
+  | Recherche -> "Recherche"
+  | Ouverture -> "Ouverture"
+  | Internationale -> "Internationale"
+
+let experience_of_string x =
+  let x = Special_char.lowercase (Special_char.correct_string_txt (Special_char.correct_string_utf8 (String.trim x))) in
+  match x with
+  | "ouverture" -> Ouverture
+  | "internationale" -> Internationale
+  | _ -> Recherche
 
 let string_of_dpt x =
   match x with
@@ -323,6 +338,33 @@ let empty_cours_a_trier =
   coursat_libelle="";
   coursat_dpt=None;
   coursat_codegps="";
+}
+
+type stage_a_trier =
+  {
+    stageat_nom: string;
+    stageat_prenom: string;
+    stageat_annee: annee ;
+    stageat_libelle: string;
+    stageat_libelle_fr: string;
+    stageat_libelle_en: string;
+    stageat_activite_fr: string option ;
+    stageat_activite_en: string option ;
+    stageat_type: experience option ;
+}
+
+let empty_stage_a_trier =
+{
+  stageat_nom = "";
+  stageat_prenom ="";
+  stageat_annee = "";
+  stageat_libelle = "";
+  stageat_libelle_fr = "";
+  stageat_libelle_en = "";
+  stageat_activite_fr = None;
+  stageat_activite_en = None;
+  stageat_type= None
+
 }
 
 type cours_a_ajouter =
@@ -708,7 +750,7 @@ let empty_mineure_majeure ={
       supplement_code: string;
       supplement_discipline: string;
       supplement_intitule: string;
-      supplement_validation_year: annee; 
+      supplement_validation_year: annee;
       supplement_ects: float;
       supplement_dens: bool;
       supplement_extra: bool;
@@ -718,6 +760,12 @@ let empty_mineure_majeure ={
    { activite_code: string ;
      activite_activite: string;
      activite_intitule: string;
+     activite_activite_fr: string option;
+     activite_intitule_fr: string option;
+     activite_activite_en: string option ;
+     activite_intitule_en: string;
+
+     activite_annee: string ;
   }
 
   type 'a repartition_diplomes =
@@ -837,6 +885,7 @@ let all_notes_string =
       dens_activite_a_trier: experience_supplement list;
       dens_activite_recherche: experience_supplement list;
       dens_activite_internationale: experience_supplement list;
+      dens_activite_ouverture: experience_supplement list;
       dens_activite_autre: experience_supplement list;
       dens_diplomation_year: string;
       dens_ok : bool option ;
@@ -905,6 +954,7 @@ type keywords =
   | Enseignements
   | Etablissement
   | Etablissement_ou_Entreprise
+  | Experience
   | FirstName
   | FullName
   | Genitif
@@ -953,6 +1003,8 @@ type keywords =
   | Service_Labo_Dpt
   | Situation
   | Sujet_du_Stage_Type_du_Sejour
+  | Sujet_FR
+  | Sujet_EN
   | Stages_et_Sejours_a_l_Etranger
   | Statut
   | Tuteur
