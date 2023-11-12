@@ -17,6 +17,9 @@ let get_sorted_internships ?firstname ?lastname ?year ?libelle
     let lastname =
         Tools.map_opt String.lowercase_ascii lastname
     in
+    let libelle =
+        Tools.map_opt String.lowercase_ascii libelle
+    in
     let acc0 =
         Public_data.LastNameExtendedMap.collect
             lastname
@@ -47,6 +50,9 @@ let get_sorted_internship ~firstname ~lastname ~year ~libelle t =
     let lastname =
         String.lowercase_ascii lastname
     in
+    let libelle =
+        Tools.map_opt String.lowercase_ascii libelle
+    in 
     match Public_data.LastNameMap.find_opt lastname t with
       | None -> None
       | Some map ->
