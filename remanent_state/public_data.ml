@@ -106,7 +106,8 @@ let experience_of_string x =
   let x = Special_char.lowercase (Special_char.correct_string_txt (Special_char.correct_string_utf8 (String.trim x))) in
   match x with
   | "ouverture" -> Ouverture
-  | "internationale" -> Internationale
+  | "internationale" | "international" -> Internationale
+  | "recherches" | "recherche" -> Recherche
   | _ -> Recherche
 
 let string_of_dpt x =

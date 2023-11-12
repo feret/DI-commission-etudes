@@ -33,7 +33,7 @@ let state =
 let state =
   Collect_mentoring.get_mentoring state
 let state =
-  Collect_sorted_courses.get_sorted_courses state 
+  Collect_sorted_courses.get_sorted_courses state
 let state, current_year =
   Remanent_state.get_current_academic_year state
 let state, l =
@@ -409,6 +409,10 @@ let years =
        | Some promo ->
          StringSet.add promo set)
     StringSet.empty students_list
+let state, output_repository_dens =
+      Remanent_state.get_repository_to_dump_dens
+        state
+let state = Sad.dump_sad ~repository:output_repository_dens state
 let title =
   [Loggers.fprintf,
    Format.sprintf
