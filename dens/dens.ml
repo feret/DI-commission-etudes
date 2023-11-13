@@ -119,9 +119,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
     let state, courselist =
         Remanent_state.get_sorted_courses ~firstname ~lastname ~year ~libelle ~codegps state
     in
-    let i = List.length courselist in
     let courselist = List.filter (fun x -> not (x.Public_data.coursat_dpt = None)) courselist in
-    let j = List.length courselist in
     let state, code =
     match courselist with
       | cours::_  ->
@@ -269,7 +267,7 @@ let fold_repartition_stages ~firstname ~lastname state stages dens =
                           x.Public_data.stageat_nom
                           x.Public_data.stageat_libelle) Exit state
                       ) state l
-                in 
+                in
                 let dens_activite_a_trier = stage::dens.Public_data.dens_activite_a_trier in
                 let dens = {dens with Public_data.dens_activite_a_trier} in
                 let stage_entry =
