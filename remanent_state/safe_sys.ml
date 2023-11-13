@@ -102,7 +102,11 @@ let rec_mk_when_necessary pos state output_repository =
   state, repository
 
 let readdir _pos state x =
-  state, Sys.readdir (safe x)
+  try
+    state, Sys.readdir (safe x)
+  with
+    | Sys_error m ->
+      Remanent_state.warn __POS__ m Exit state, [||]
 
 let getcwd _pos state = state, Sys.getcwd ()
 let chdir _pos state x =
