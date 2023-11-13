@@ -5509,7 +5509,8 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                           Public_data.activite_intitule_en=
 (match l_en with None -> "" | Some l -> l);
                           Public_data.activite_code = Tools.unsome_string
-                            cours.code_cours; }
+                            cours.code_cours;
+                          Public_data.activite_ects = 0.}
                     in
                     let state, libelle =
                       Remanent_state.bilingual_string
@@ -5558,7 +5559,9 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                         Public_data.activite_intitule_fr=stage.sujet;
                         Public_data.activite_intitule_en="";
                         Public_data.activite_code = Tools.unsome_string
-                          cours.code_cours; }
+                          cours.code_cours;
+                        Public_data.activite_ects =
+                          match stage.stage_credits with None -> 0. | Some f ->f}
                   in
 
                   let state =

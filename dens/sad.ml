@@ -2,6 +2,8 @@ let times = ["double";"triple";"quadruple";"quintuple"]
 let ordre = ["première";"seconde";"troisième";"quatrième";"cinquième"]
 let order = ["first";"second";"third";"fourth";"fifth"]
 
+let string_of_float x = if x=0. then "" else string_of_float x
+
 let maj map =
   let n = Public_data.StringMap.cardinal map in
   let rec aux n l =
@@ -24,10 +26,11 @@ let lift_dens dens =
     let diplomes_nationaux = [] in
     {Public_data.dens; Public_data.diplomes_nationaux}
 
-let dump_course_list _label list state =
+let dump_course_list label list state =
     let list = list.Public_data.dens in
     if list = [] then state
     else
+    let () = Remanent_state.fprintf state "\textbf{%s}" label in
     let ects = List.fold_left (fun ects cours -> ects+.cours.Public_data.supplement_ects) 0. list in
     let () = Remanent_state.fprintf state "Nombre d'ECTS~: %s" (string_of_float  ects) in
     let () = Remanent_state.print_newline state in
@@ -63,28 +66,57 @@ let dump_min_maj label map state pos =
     then
       Public_data.StringMap.fold
         (fun key list state ->
-            let label = Format.sprintf  "%s %s %s" undef label key in
-            let () = Remanent_state.print_newline state in
+            let label = Format.sprintf  "Enseignements validés dans le cadre d'%s %s en %s" undef label key in
             dump_repartition_diplomes label list state)
         map state
     else
       fst (Public_data.StringMap.fold
         (fun key list (state,pos) ->
-          let label = Format.sprintf  "\\textbf{Enseignements validés dans le cadre d'une %s %s en %s}" (List.hd (fst pos)) label key in
-          let () = Remanent_state.print_newline state in
+          let label = Format.sprintf  "Enseignements validés dans le cadre d'une %s %s en %s" (List.hd (fst pos)) label key in
           dump_repartition_diplomes label list state,next pos)
       map (state,pos))
 
 let dump_activite_list label list state =
     if list = [] then state
     else
-    let () = Remanent_state.fprintf state "%s" label in
+    let () = Remanent_state.fprintf state "\\textbf{%s}" label in
     let () = Remanent_state.print_newline state in
+    let ects =
+        List.fold_left
+          (fun ects cours -> ects+.cours.Public_data.activite_ects) 0. list
+    in
+    let state =
+        if ects = 0.
+        then state
+        else
+        let () = Remanent_state.fprintf state "\\textbf{Unités d’enseignement étudiées et nombre d'ECTS}" in
+        let () = Remanent_state.print_newline state in
+        let () = Remanent_state.fprintf state "\\textbf{Nombre d'ECTS~: %s}" (string_of_float ects) in
+        let () = Remanent_state.print_newline state in
+        state
+    in
+    let size = [None;None;None;None] in
+    let bgcolor = [None;None;None;None] in
+    let state = Remanent_state.open_array
+                ~bgcolor
+                ~size
+                ~with_lines:true
+                ~title:[["Code"];["Activité"];["Intitulé"]; ["ECTS"]]
+                ~title_english:[["Code"];["Activity"];["Name"]; ["ECTS"]]
+                __POS__
+                state
+    in
     let () =
         List.iter
             (fun elt ->
-              let () = Remanent_state.fprintf state "%s" elt.Public_data.activite_intitule in
-              Remanent_state.print_newline state)
+              let () = Remanent_state.open_row state in
+              let () = Remanent_state.print_cell
+                          (elt.Public_data.activite_code) state in
+              let () = Remanent_state.print_cell (Tools.unsome_string  elt.Public_data.activite_activite_fr) state in
+              let () = Remanent_state.print_cell (Tools.unsome_string elt.Public_data.activite_intitule_fr) state in
+              let () = Remanent_state.fprintf state "%s" (string_of_float elt.Public_data.activite_ects) in
+              let () = Remanent_state.close_row state in
+              ())
             list
         in state
 
@@ -112,36 +144,30 @@ let prompt_sad dens state =
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.print_newline state in
     let state =
-        if dens.Public_data.dens_cours_discipline_principale.Public_data.dens <>[]
-        then
-          let () = Remanent_state.fprintf state "\\textbf{Enseignements disciplinaires (cours et stages de recherche dans la spécialité principale)}" in
-          let () = Remanent_state.print_newline state in
-          let state = dump_course_list "Principale" dens.Public_data.dens_cours_discipline_principale state in state
-        else state
+        dump_course_list
+            "Enseignements disciplinaires (cours et stages de recherche dans la spécialité principale)" dens.Public_data.dens_cours_discipline_principale state
     in
     let state = dump_min_maj "mineure" dens.Public_data.dens_cours_mineure state pos_order_1 in
     let state = dump_min_maj "majeure" dens.Public_data.dens_cours_majeure state (maj dens.Public_data.dens_cours_majeure) in
     let state =
-      if dens.Public_data.dens_cours_hors_disciplines_principale.Public_data.dens  <> []
-      then
-        let () = Remanent_state.fprintf state "\\textbf{Enseignements hors discipline principale (hors cours de langues)}" in
-        let () = Remanent_state.print_newline state in
-        let state = dump_course_list "Autres disciplines" dens.Public_data.dens_cours_hors_disciplines_principale state in
-        state
-       else state in
-       let state =
-         if dens.Public_data.dens_cours_langue <> []
-         then
-           let () = Remanent_state.fprintf state "\\textbf{Cours de langues étrangères et certifications en langues}" in
-           let () = Remanent_state.print_newline state in
-           let state = dump_course_list "Langues" (lift_dens dens.Public_data.dens_cours_langue) state in
-           state
-          else state in
-    let state = dump_activite_list "Recherche" dens.Public_data.dens_activite_recherche state in
-    let state = dump_activite_list "Internationale" dens.Public_data.dens_activite_internationale state in
-    let state = dump_activite_list "Ouverture" dens.Public_data.dens_activite_ouverture state in
+        dump_course_list
+            "Enseignements hors discipline principale (hors cours de langues)"
+            dens.Public_data.dens_cours_hors_disciplines_principale state
+    in
+    let state =
+        dump_course_list
+            "Cours de langues étrangères et certifications en langues"
+            (lift_dens dens.Public_data.dens_cours_langue) state
+    in
+    let state = dump_activite_list "Expérience de recherche (collective pour les lettres, de laboratoire pour les sciences)" dens.Public_data.dens_activite_recherche state in
+    let state = dump_activite_list "Expérience internationale (stages académiques ou non-académiques à l’étranger)" dens.Public_data.dens_activite_internationale state in
+    let state =
+        dump_activite_list
+          "Expérience d’ouverture hors les murs (stages non-académiques uniquement, en France ou à l’étranger: stages en administration, entreprise, lycée, ONG, etc.)" dens.Public_data.dens_activite_ouverture state
+    in
     let state = dump_activite_list "Autre" dens.Public_data.dens_activite_autre state in
-    state
+    let state = dump_course_list "Autres (vie universitaire, initiatives citoyennes, sport, etc.)" (lift_dens dens.Public_data.dens_cours_activite) state
+    in state
 
 (*dens_main_dpt : main_dpt ;
     dens_firstname : string ;
@@ -185,6 +211,9 @@ let check a b =
 let dump_one_sad ~repository ?firstname ?lastname ?language ?bilingual dens state =
     if check firstname dens.Public_data.dens_firstname
     && check lastname dens.Public_data.dens_lastname
+    && match dens.Public_data.dens_ok with
+        | Some true -> true
+        | Some false | None -> false
     then
       begin
       let lastname =

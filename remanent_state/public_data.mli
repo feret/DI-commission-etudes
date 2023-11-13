@@ -395,7 +395,7 @@ type experience_supplement =
   activite_intitule_fr: string option;
   activite_activite_en: string option ;
   activite_intitule_en: string;
-
+  activite_ects: float ; 
   activite_annee: string ;
 }
 
@@ -547,7 +547,7 @@ type keywords =
   | Accord
   | Acronyme
   | Activite
-  | Activite_en 
+  | Activite_en
   | Annee_Academique
   | Annee_Debut
   | Annee_en_Cours
