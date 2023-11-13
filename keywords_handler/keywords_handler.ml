@@ -67,7 +67,7 @@ type 'record_tmp specification =
 
 type 'a preprocessed =
   {
-    is_keyword: 
+    is_keyword:
       string * int * int * int ->
       Remanent_state.t -> string -> Remanent_state.t * bool;
     action:
@@ -200,7 +200,7 @@ let asso_list =
     Public_data.Situation, ["situation"];
     Public_data.Sujet_du_Stage_Type_du_Sejour,["sujet du stage / Type du séjour";"sujet gps";"sujet(gps)"];
     Public_data.Sujet_FR,["sujet";"sujet(français)"];
-    Public_data.Sujet_EN,["topic";"sujet(english)"];
+    Public_data.Sujet_EN,["topic";"sujet(english)";"sujet(anglais)"];
     Public_data.Stages_et_Sejours_a_l_Etranger,
     ["Stage(s) & Séjour(s) à l'étranger"];
     Public_data.Statut, ["statut"];
