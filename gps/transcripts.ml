@@ -1224,9 +1224,10 @@ let store_cours  =
         | Some a ->
           let a = String.lowercase_ascii a in
           (Tools.substring "internship" a
-           || Tools.substring "stage" a || Tools.substring "séjour linguistique" a) &&
+           || Tools.substring "stage" a || ((Tools.substring "séjour" a || Tools.substring "sejour" a) && (Tools.substring "linguistique" a ||  Tools.substring "etranger" a || Tools.substring "étranger" a))) &&
           (not
              (Tools.substring "intensif" a))
+
       end
 
 
