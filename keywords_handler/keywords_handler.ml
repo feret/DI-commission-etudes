@@ -93,7 +93,7 @@ let asso_list =
     Public_data.Accepte, ["accepté"];
     Public_data.Accord, ["accord"];
     Public_data.Acronyme, ["acronyme"];
-    Public_data.Activite, ["activité";"activité_fr";"acticité(français)"];
+    Public_data.Activite, ["activité";"activité_fr";"activité(français)"];
     Public_data.Activite_en, ["activity";"activité_en";"acticité(english)";"activité(anglais)"];
 
     Public_data.Annee_Academique, ["année"; "année académique"];
