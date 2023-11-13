@@ -254,20 +254,10 @@ let fold_repartition_stages ~firstname ~lastname state stages dens =
     List.fold_left
       (fun (state,dens) stage ->
           match
-            Remanent_state.get_sorted_internships ~firstname ~lastname  state
+            Remanent_state.get_sorted_internships ~firstname ~lastname  ~libelle:stage.Public_data.activite_intitule  state
           with
             | state, [] ->
               begin
-                let state = Remanent_state.warn __POS__ "SORTED INTERNSHIPS" Exit state in
-                let state, l = Remanent_state.get_sorted_internships state in
-                let state =
-                    List.fold_left
-                      (fun state x ->
-                          Remanent_state.warn __POS__ (Format.sprintf "%s %s"
-                          x.Public_data.stageat_nom
-                          x.Public_data.stageat_libelle) Exit state
-                      ) state l
-                in
                 let dens_activite_a_trier = stage::dens.Public_data.dens_activite_a_trier in
                 let dens = {dens with Public_data.dens_activite_a_trier} in
                 let stage_entry =
