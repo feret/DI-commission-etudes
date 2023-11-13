@@ -159,7 +159,6 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
       let dens = {dens with Public_data.dens_cours_discipline_principale} in
         state, dens
     else if code = xt then
-        let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %s %s %s %i %i" lastname firstname year libelle codegps i j) Exit state in
         let state = Remanent_state.add_course_to_be_sorted
                           state
                           {Public_data.coursat_nom = lastname;
@@ -261,6 +260,16 @@ let fold_repartition_stages ~firstname ~lastname state stages dens =
           with
             | state, [] ->
               begin
+                let state = Remanent_state.warn __POS__ "SORTED INTERNSHIPS" Exit state in
+                let state, l = Remanent_state.get_sorted_internships state in
+                let state =
+                    List.fold_left
+                      (fun state x ->
+                          Remanent_state.warn __POS__ (Format.sprintf "%s %s"
+                          x.Public_data.stageat_nom
+                          x.Public_data.stageat_libelle) Exit state
+                      ) state l
+                in 
                 let dens_activite_a_trier = stage::dens.Public_data.dens_activite_a_trier in
                 let dens = {dens with Public_data.dens_activite_a_trier} in
                 let stage_entry =
