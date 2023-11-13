@@ -75,4 +75,5 @@ val float: (float, 'record_tmp, 'record) lift_record
 val gender: (Public_data.genre, 'record_tmp, 'record) lift_record
 val color: (Color.color, 'record_tmp, 'record) lift_record
 val main_dpt: (Public_data.main_dpt, 'record_tmp, 'record) lift_record
-val universite: (Public_data.universite, 'record_tmp, 'record) lift_record 
+val experience: (Public_data.experience, 'record_tmp, 'record) lift_record 
+val universite: (Public_data.universite, 'record_tmp, 'record) lift_record

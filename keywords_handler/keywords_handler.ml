@@ -93,6 +93,9 @@ let asso_list =
     Public_data.Accepte, ["accepté"];
     Public_data.Accord, ["accord"];
     Public_data.Acronyme, ["acronyme"];
+    Public_data.Activite, ["activité";"activité_fr";"acticité(français)"];
+    Public_data.Activite_en, ["activity";"activité_en";"acticité(english)";"activité(anglais)"];
+
     Public_data.Annee_Academique, ["année"; "année académique"];
     Public_data.Annee_Debut, ["année début"];
     Public_data.Annee_Fin, ["année fin"];
@@ -140,7 +143,7 @@ let asso_list =
     Public_data.Entree_GPS,["entrée GPS"];
     Public_data.Etablissement,["établissement"];
     Public_data.Etablissement_ou_Entreprise,["établissement ou entreprise"];
-    Public_data.Experience,["expérience"]; 
+    Public_data.Experience,["expérience"];
     Public_data.FirstName, ["prénom";];
     Public_data.FullName, ["nom complet"];
     Public_data.Genitif, ["genitif"];

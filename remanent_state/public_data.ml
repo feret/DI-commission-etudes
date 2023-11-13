@@ -913,6 +913,8 @@ type keywords =
   | Accepte
   | Accord
   | Acronyme
+  | Activite
+  | Activite_en
   | Annee_Academique
   | Annee_Debut
   | Annee_en_Cours
