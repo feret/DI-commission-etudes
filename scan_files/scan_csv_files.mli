@@ -4,9 +4,11 @@ val get_list_from_a_file:
   Remanent_state.t -> string * string -> 'a list -> Remanent_state.t * 'a list
 
 val get_list:
+  ?debug:bool ->
   repository:string ->
   ?prefix:string ->
   ?file_name:string ->
+  ?automaton:'a Keywords_handler.preprocessed ->
   keywords_list:Public_data.keywords list ->
   all_fields:'a Keywords_handler.any_field_short list ->
   fun_default:(Remanent_state.t ->
@@ -26,7 +28,7 @@ val get_list:
          'a -> 'a list -> Remanent_state.t * 'a list) ->
   init_state:'a ->
   Remanent_state.t ->
-   'a list -> Remanent_state.t * 'a list
+   'a list -> Remanent_state.t * 'a Keywords_handler.preprocessed option * 'a list
 
 type 'record_tmp mandatory_field =
   {
@@ -35,6 +37,7 @@ type 'record_tmp mandatory_field =
   }
 
 val collect_gen :
+  ?debug:bool ->
   ?repository:string ->
   ?prefix:string ->
   ?file_name:string ->

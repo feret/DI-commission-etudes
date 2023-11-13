@@ -81,6 +81,6 @@ type 'a preprocessed =
   }
 
 val make:
-  Remanent_state.t ->
+  ?debug:bool -> Remanent_state.t ->
   'record_tmp specification ->
   Remanent_state.t * 'record_tmp preprocessed

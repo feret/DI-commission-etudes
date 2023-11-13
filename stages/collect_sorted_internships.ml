@@ -12,6 +12,8 @@ type at =
     at_experience: Public_data.experience option
   }
 
+let debug=true 
+
 (*  ["NOM"],
   (fun a -> a.Public_data.stageat_nom);
   ["PRENOM"],
@@ -214,6 +216,7 @@ let get_sorted_internships
     state
   =
   Scan_csv_files.collect_gen
+    ~debug
     ?repository
     ?prefix
     ?file_name

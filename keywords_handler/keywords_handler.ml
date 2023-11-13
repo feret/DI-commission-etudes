@@ -67,7 +67,7 @@ type 'record_tmp specification =
 
 type 'a preprocessed =
   {
-    is_keyword:
+    is_keyword: 
       string * int * int * int ->
       Remanent_state.t -> string -> Remanent_state.t * bool;
     action:
@@ -237,7 +237,7 @@ let asso_list =
     (List.rev asso_list)
 
 
-let make state specification =
+let make ?debug state specification =
   let event_opt =
     Some Profiling.Build_keywords_automaton
   in
@@ -291,7 +291,14 @@ let make state specification =
   in
   let is_keyword a b c =
     let state, output = is_keyword a b (Special_char.correct_string c) in
-    state, output
+    let state =
+      match output, debug with
+      | _, (None | Some false) -> state
+      | true, _ -> Remanent_state.warn a (Format.sprintf "Keywd: Success:  %s" c) Exit state
+      | false, _ ->
+        Remanent_state.warn a (Format.sprintf "Keywd: Fail: %s" c) Exit state
+    in
+  state, output
   in
   let cache = ref (None) in
   let asso pos state x =
