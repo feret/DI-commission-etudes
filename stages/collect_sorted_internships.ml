@@ -12,26 +12,7 @@ type at =
     at_experience: Public_data.experience option
   }
 
-let debug=true 
-
-(*  ["NOM"],
-  (fun a -> a.Public_data.stageat_nom);
-  ["PRENOM"],
-  (fun a -> a.Public_data.stageat_prenom);
-  ["ANNEE DE VALIDATION"],
-  (fun a -> a.Public_data.stageat_annee);
-  ["SUJET(gps)"], (fun a -> a.Public_data.stageat_libelle);
-  ["SUJET(français)"], (fun a -> a.Public_data.stageat_libelle_fr);
-  ["SUJET(anglais)"], (fun a -> a.Public_data.stageat_libelle_en);
-  ["ACTIVITE(francais)"],   (fun a ->
-                              match a.Public_data.stageat_activite_fr with None -> "" | Some a -> a);
-  ["ACTIVITE(anglais)"],   (fun a ->
-                              match a.Public_data.stageat_activite_en with
-                              None -> "" | Some a -> a);
-
-  ["EXPERIENCE"],  (fun a ->
-                      match a.Public_data.stageat_type with None -> "" | Some a -> Public_data.string_of_experience a)
-*)
+let debug=false
 
 let empty_at=
   {
