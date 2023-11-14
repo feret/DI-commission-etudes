@@ -114,7 +114,7 @@ let dump_activite_list label list state =
                           (elt.Public_data.activite_code) state in
               let () = Remanent_state.print_cell (Tools.unsome_string  elt.Public_data.activite_activite_fr) state in
               let () = Remanent_state.print_cell (Tools.unsome_string elt.Public_data.activite_intitule_fr) state in
-              let () = Remanent_state.print_cell "%s" (string_of_float elt.Public_data.activite_ects) in
+              let () = Remanent_state.print_cell (Format.sprintf "%s" (string_of_float elt.Public_data.activite_ects)) in
               let () = Remanent_state.close_row state in
               ())
             list
