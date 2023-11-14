@@ -30,7 +30,7 @@ let dump_course_list label list state =
     let list = list.Public_data.dens in
     if list = [] then state
     else
-    let () = Remanent_state.fprintf state "\textbf{%s}" label in
+    let () = Remanent_state.fprintf state "\\textbf{%s}" label in
     let ects = List.fold_left (fun ects cours -> ects+.cours.Public_data.supplement_ects) 0. list in
     let () = Remanent_state.fprintf state "Nombre d'ECTS~: %s" (string_of_float  ects) in
     let () = Remanent_state.print_newline state in
@@ -56,7 +56,9 @@ let dump_course_list label list state =
           let () = Remanent_state.close_row state in
           ())
         list
-    in state
+    in
+    let () = Remanent_state.close_array state in
+    state
 
 let dump_repartition_diplomes label list state =
     dump_course_list label list state
