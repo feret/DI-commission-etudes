@@ -118,7 +118,9 @@ let dump_activite_list label list state =
               let () = Remanent_state.close_row state in
               ())
             list
-        in state
+        in
+      let () = Remanent_state.close_array state in
+      state
 
 let prompt_sad dens state =
     let lastname =
