@@ -59,8 +59,8 @@ let dump_course_list label list state =
         list
     in
     let () = Remanent_state.close_array state in
-    let () = Remanent_state.fprintf "\\mbox{}\\bigskip" in
-    let () = Remanent_state.print_newline () in 
+    let () = Remanent_state.fprintf state "\\mbox{}\\bigskip" in
+    let () = Remanent_state.print_newline state in
     state
 
 let dump_repartition_diplomes label list state =
@@ -123,8 +123,8 @@ let dump_activite_list label list state =
             list
         in
       let () = Remanent_state.close_array state in
-      let () = Remanent_state.fprintf "\\mbox{}\\bigskip" in
-      let () = Remanent_state.print_newline () in
+      let () = Remanent_state.fprintf state "\\mbox{}\\bigskip" in
+      let () = Remanent_state.print_newline state in
       state
 
 let prompt_sad dens state =

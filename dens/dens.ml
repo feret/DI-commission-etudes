@@ -178,11 +178,12 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
       | Ecla ->
       let dens_cours_langue = dens.Public_data.dens_cours_langue in
       let list = dens_cours_langue in
-      let dens_cours_langue = course::list in
+      let dens_cours_langue = {course with Public_data.supplement_discipline="Langues"}::list in
       let dens = {dens with Public_data.dens_cours_langue} in
       state, dens
       | Activite ->
       let dens_cours_activite = dens.Public_data.dens_cours_activite in
+      let course = {course with Public_data.supplement_discipline="Activité"} in
       let list = dens_cours_activite in
       let dens_cours_activite = course::list in
       let dens = {dens with Public_data.dens_cours_activite} in
@@ -198,6 +199,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
               | Some repartition -> repartition
         in
         let list = get old in
+        let course = {course with Public_data.supplement_discipline = key} in 
         let repartition = store (course::list) old in
         let dens_cours_par_dpt =
           Public_data.StringMap.add key repartition dens_cours_par_dpt
