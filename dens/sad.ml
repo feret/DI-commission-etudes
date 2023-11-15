@@ -31,6 +31,7 @@ let dump_course_list label list state =
     if list = [] then state
     else
     let () = Remanent_state.fprintf state "\\textbf{%s}" label in
+    let () = Remanent_state.print_newline state in
     let ects = List.fold_left (fun ects cours -> ects+.cours.Public_data.supplement_ects) 0. list in
     let () = Remanent_state.fprintf state "Nombre d'ECTS~: %s" (string_of_float  ects) in
     let () = Remanent_state.print_newline state in
@@ -58,6 +59,8 @@ let dump_course_list label list state =
         list
     in
     let () = Remanent_state.close_array state in
+    let () = Remanent_state.fprintf "\\mbox{}\\bigskip" in
+    let () = Remanent_state.print_newline () in 
     state
 
 let dump_repartition_diplomes label list state =
@@ -87,22 +90,22 @@ let dump_activite_list label list state =
         List.fold_left
           (fun ects cours -> ects+.cours.Public_data.activite_ects) 0. list
     in
-    let state,size,bgcolor =
+    let state,size,bgcolor,title,title_english =
         if ects = 0.
-        then state,[None;None;None],[None;None;None]
+        then state,[None;None;None],[None;None;None],[["Code"];["Activité"];["Intitulé"]],[["Code"];["Activity"];["Name"]]
         else
         let () = Remanent_state.fprintf state "\\textbf{Unités d’enseignement étudiées et nombre d'ECTS}" in
         let () = Remanent_state.print_newline state in
         let () = Remanent_state.fprintf state "\\textbf{Nombre d'ECTS~: %s}" (string_of_float ects) in
         let () = Remanent_state.print_newline state in
-        state,[None;None;None;None],[None;None;None;None]
+        state,[None;None;None;None],[None;None;None;None],[["Code"];["Activité"];["Intitulé"]; ["ECTS"]],[["Code"];["Activity"];["Name"]; ["ECTS"]]
     in
     let state = Remanent_state.open_array
                 ~bgcolor
                 ~size
                 ~with_lines:true
-                ~title:[["Code"];["Activité"];["Intitulé"]; ["ECTS"]]
-                ~title_english:[["Code"];["Activity"];["Name"]; ["ECTS"]]
+                ~title
+                ~title_english
                 __POS__
                 state
     in
@@ -120,6 +123,8 @@ let dump_activite_list label list state =
             list
         in
       let () = Remanent_state.close_array state in
+      let () = Remanent_state.fprintf "\\mbox{}\\bigskip" in
+      let () = Remanent_state.print_newline () in
       state
 
 let prompt_sad dens state =
@@ -137,12 +142,13 @@ let prompt_sad dens state =
       Remanent_state.print_newline state
     in
     let () =
-      Remanent_state.fprintf state "PROMO %s" dens.Public_data.dens_promotion
+      Remanent_state.fprintf state "PROMO %s\\bigskip" dens.Public_data.dens_promotion
     in
+    let () = Remanent_state.print_newline state in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "\\textbf{Enseignements complémentaires suivis et validés dans le cadre du Diplôme de l'ENS, et ECTS obtenus}" in
     let () = Remanent_state.print_newline state in
-    let () = Remanent_state.fprintf state "Nombre d'ECTS~: %s" (string_of_float  dens.Public_data.dens_total_ects) in
+    let () = Remanent_state.fprintf state "Nombre d'ECTS~: %s\\bigskip" (string_of_float  dens.Public_data.dens_total_ects) in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.print_newline state in
     let state =
@@ -162,10 +168,10 @@ let prompt_sad dens state =
             (lift_dens dens.Public_data.dens_cours_langue) state
     in
     let state = dump_activite_list "Expérience de recherche (collective pour les lettres, de laboratoire pour les sciences)" dens.Public_data.dens_activite_recherche state in
-    let state = dump_activite_list "Expérience internationale (stages académiques ou non-académiques à l’étranger)" dens.Public_data.dens_activite_internationale state in
+    let state = dump_activite_list "Expérience internationale (stages académiques ou non-académiques à l'étranger)" dens.Public_data.dens_activite_internationale state in
     let state =
         dump_activite_list
-          "Expérience d’ouverture hors les murs (stages non-académiques uniquement, en France ou à l’étranger: stages en administration, entreprise, lycée, ONG, etc.)" dens.Public_data.dens_activite_ouverture state
+          "Expérience d'ouverture hors les murs (stages non-académiques uniquement, en France ou à l'étranger: stages en administration, entreprise, lycée, ONG, etc.)" dens.Public_data.dens_activite_ouverture state
     in
     let state = dump_activite_list "Autre" dens.Public_data.dens_activite_autre state in
     let state = dump_course_list "Autres (vie universitaire, initiatives citoyennes, sport, etc.)" (lift_dens dens.Public_data.dens_cours_activite) state
@@ -271,7 +277,7 @@ let dump_one_sad ~repository ?firstname ?lastname ?language ?bilingual dens stat
        | None -> state
        | Some out ->
          let mode = Loggers.Latex
-             {Loggers.orientation = Loggers.Landscape ;
+             {Loggers.orientation = Loggers.Normal ;
               Loggers.language =
                 (match language with
                 | Public_data.French -> Loggers.French
