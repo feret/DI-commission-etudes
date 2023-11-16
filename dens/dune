@@ -1,7 +1,8 @@
 (library
   (name sco_dens)
-  (libraries csv sco_remanent_state sco_tools sco_keywords_handler sco_scan_files sco_datastructures)
+  (libraries csv sco_latex_engine sco_remanent_state sco_tools sco_keywords_handler sco_scan_files sco_datastructures)
   (flags (:standard -w @a
+    -open Sco_latex_engine
     -open Sco_remanent_state
     -open Sco_tools
     -open Sco_keywords_handler

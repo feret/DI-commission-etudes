@@ -804,6 +804,8 @@ val get_commission_rep_from_key: ?commission_rep:string -> ?univ:Public_data.uni
 
 val get_commission_rep: ?commission_rep:string -> sous_commission:Public_data.sous_commission -> ?univ:Public_data.universite -> t -> t * (string * string * string)
 
+val get_diplomation_rep: ?firstname:string  -> ?lastname:string ->  t -> t * string option 
+
 val push_copy: input_rep:string -> output_rep:string -> file_name:string -> t -> t
 val pop_copy:
   copy:(input_rep:string ->

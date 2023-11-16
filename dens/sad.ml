@@ -249,6 +249,7 @@ let dump_one_sad ~repository ?firstname ?lastname ?language ?bilingual dens stat
            state (fst output)
        in
        let file = snd output in
+       let output = (rep,file) in
        let file =
          if rep = ""
          then
@@ -293,7 +294,21 @@ let dump_one_sad ~repository ?firstname ?lastname ?language ?bilingual dens stat
          let state = prompt_sad dens state in
          let state = Remanent_state.close_logger state in
          let state = Remanent_state.restore_std_logger state old_logger in
-         state
+         let state =
+              Latex_engine.latex_opt_to_pdf
+                    ~times:2 ~rev:true state ~input:(Some output)
+         in
+             match
+               Remanent_state.get_diplomation_rep ~firstname ~lastname
+                state
+            with
+          | state, None -> state
+          | state, Some output_rep ->
+            Remanent_state.push_copy
+           ~input_rep:rep
+           ~file_name:file
+           ~output_rep
+           state
       end
     else
       state

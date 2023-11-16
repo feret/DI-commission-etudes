@@ -11,6 +11,7 @@ type parameters =
     pdfgenerator_options : string ;
     local_repository: string ;
     scholarships_repository: string ;
+    diplomation_repository: string ;
     repository_to_dump_transcripts: string ;
     distant_repository: string ;
     machine_to_access_gps: string ;
@@ -135,6 +136,7 @@ let parameters =
     local_repository = "di/suivi_pedagogique" ;
     enspsl_logo = "LOGOs/ENSPSL.png" ;
     scholarships_repository = "di/scolarite/ELEVES" ;
+    diplomation_repository = "di/scolarite/diplomation" ;
     repository_to_dump_transcripts = "fiches_de_notes" ;
     distant_repository = "https://cloud.di.ens.fr/" ;
     machine_to_access_gps = "violette.ens.fr" ;
@@ -250,6 +252,7 @@ let set_dma parameters =
     commission = Some ("20 juin 2023",  "2022");
     local_repository = "dma/suivi_pedagogique" ;
     scholarships_repository = "dma/scolarite/ELEVES" ;
+    diplomation_repository = "dma/scolarite/diplomation" ;
     repartition = Public_data.Annee_obtention_du_diplome ;
     include_pictures = false;
   }
@@ -261,6 +264,7 @@ let set_phys parameters =
     commission = None (*Some ("23 juin 2021",  "2020")*);
     local_repository = "phys/suivi_pedagogique" ;
     scholarships_repository = "phys/scolarite/ELEVES" ;
+    diplomation_repository = "phys/scolarite/diplomation" ;
     repartition = Public_data.Annee_obtention_du_diplome ;
     include_pictures = false;
   }
@@ -272,6 +276,7 @@ let set_phys parameters =
       commission = None (*Some ("23 juin 2021",  "2020")*);
       local_repository = "chimie/suivi_pedagogique" ;
       scholarships_repository = "chimie/scolarite/ELEVES" ;
+      diplomation_repository = "chimie/scolarite/diplomation" ;
       repartition = Public_data.Annee_obtention_du_diplome ;
       include_pictures = true;
     }
@@ -283,6 +288,8 @@ let set_phys parameters =
         commission = None (*Some ("23 juin 2021",  "2020")*);
         local_repository = "geosciences/suivi_pedagogique" ;
         scholarships_repository = "geosciences/scolarite/ELEVES" ;
+        diplomation_repository = "geosciences/scolarite/diplomation" ;
+
         repartition = Public_data.Annee_obtention_du_diplome ;
         include_pictures = true;
       }
@@ -2615,36 +2622,51 @@ let file_retriever_fail t =
   else
     t
 
-let get_commission_rep_from_key ?commission_rep ?univ sous_commission_short t =
-  let t, commission_rep =
-    match commission_rep with
-    | None -> get_main_commission_rep t
-    | Some commission_rep -> t, commission_rep
-  in
-  let t, main_rep =
-    get_dated_output_repository t
-  in
-  let commission_rep =
-    match main_rep,commission_rep with
-    | "",a | a,"" -> a
-    | a,b -> Printf.sprintf "%s/%s" a b
-  in
-  let sous_commission_short =
-    match univ with
-    | None -> sous_commission_short
-    | Some a -> sous_commission_short^(Public_data.file_suffix_of_univ a)
-  in
+let get_diplomation_rep ?firstname ?lastname t =
   t,
-  match commission_rep,sous_commission_short with
-    | "",a -> Printf.sprintf "attestations/%s" a,
-              Printf.sprintf "comptes-rendus/%s" a,
-              Printf.sprintf "transcripts/%s" a
-    | a,"" -> Printf.sprintf "%s/attestations" a,
-              Printf.sprintf "%s/comptes-rendus" a,
-              Printf.sprintf "%s/transcripts" a
-    | a,b -> Printf.sprintf "%s/attestations/%s" a b,
-              Printf.sprintf "%s/comptes-rendus/%s" a b,
-              Printf.sprintf "%s/transcripts/%s" a b
+    let main = t.parameters.diplomation_repository in
+      match t.parameters.diplomation_year with
+        | None -> None
+        | Some year ->
+        let year_i = int_of_string year in
+        let year = Format.sprintf "%i-%i" year_i (year_i+1) in
+        let rep = Format.sprintf "%s/%s/candidates/" main year in
+        match firstname, lastname with
+          | None, _ | _,None -> Some rep
+          | Some firstname, Some lastname ->
+            Some (Format.sprintf "%s%s_%s" rep (Special_char.uppercase lastname) (Special_char.capitalize firstname))
+
+let get_commission_rep_from_key ?commission_rep ?univ sous_commission_short t =
+                let t, commission_rep =
+                  match commission_rep with
+                  | None -> get_main_commission_rep t
+                  | Some commission_rep -> t, commission_rep
+                in
+                let t, main_rep =
+                  get_dated_output_repository t
+                in
+                let commission_rep =
+                  match main_rep,commission_rep with
+                  | "",a | a,"" -> a
+                  | a,b -> Printf.sprintf "%s/%s" a b
+                in
+                let sous_commission_short =
+                  match univ with
+                  | None -> sous_commission_short
+                  | Some a -> sous_commission_short^(Public_data.file_suffix_of_univ a)
+                in
+                t,
+                match commission_rep,sous_commission_short with
+                  | "",a -> Printf.sprintf "attestations/%s" a,
+                            Printf.sprintf "comptes-rendus/%s" a,
+                            Printf.sprintf "transcripts/%s" a
+                  | a,"" -> Printf.sprintf "%s/attestations" a,
+                            Printf.sprintf "%s/comptes-rendus" a,
+                            Printf.sprintf "%s/transcripts" a
+                  | a,b -> Printf.sprintf "%s/attestations/%s" a b,
+                            Printf.sprintf "%s/comptes-rendus/%s" a b,
+                            Printf.sprintf "%s/transcripts/%s" a b
+
 
 let get_commission_rep ?commission_rep ~sous_commission ?univ t =
   let sous_commission_short =
