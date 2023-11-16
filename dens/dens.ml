@@ -199,7 +199,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
               | Some repartition -> repartition
         in
         let list = get old in
-        let course = {course with Public_data.supplement_discipline = key} in 
+        let course = {course with Public_data.supplement_discipline = key} in
         let repartition = store (course::list) old in
         let dens_cours_par_dpt =
           Public_data.StringMap.add key repartition dens_cours_par_dpt
@@ -306,6 +306,7 @@ Tools.unsome_string stage.Public_data.activite_intitule_fr;
                     | Some Public_data.Internationale -> store_activite_internationale stage dens
                     | Some Public_data.Ouverture ->
                     store_activite_ouverture stage dens
+                    | Some Public_data.Hors_Dens -> dens 
                     | None ->
                     store_activite_autre stage dens
                 in

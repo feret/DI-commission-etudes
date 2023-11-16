@@ -90,15 +90,15 @@ let dump_activite_list label list state =
         List.fold_left
           (fun ects cours -> ects+.cours.Public_data.activite_ects) 0. list
     in
-    let state,size,bgcolor,title,title_english =
+    let state,size,bgcolor,title,title_english,ects_ =
         if ects = 0.
-        then state,[None;None;None],[None;None;None],[["Code"];["Activité"];["Intitulé"]],[["Code"];["Activity"];["Name"]]
+        then state,[None;None;None],[None;None;None],[["Code"];["Activité"];["Intitulé"]],[["Code"];["Activity"];["Name"]],false
         else
         let () = Remanent_state.fprintf state "\\textbf{Unités d’enseignement étudiées et nombre d'ECTS}" in
         let () = Remanent_state.print_newline state in
         let () = Remanent_state.fprintf state "\\textbf{Nombre d'ECTS~: %s}" (string_of_float ects) in
         let () = Remanent_state.print_newline state in
-        state,[None;None;None;None],[None;None;None;None],[["Code"];["Activité"];["Intitulé"]; ["ECTS"]],[["Code"];["Activity"];["Name"]; ["ECTS"]]
+        state,[None;None;None;None],[None;None;None;None],[["Code"];["Activité"];["Intitulé"]; ["ECTS"]],[["Code"];["Activity"];["Name"]; ["ECTS"]],true
     in
     let state = Remanent_state.open_array
                 ~bgcolor
@@ -117,7 +117,8 @@ let dump_activite_list label list state =
                           (elt.Public_data.activite_code) state in
               let () = Remanent_state.print_cell (Tools.unsome_string  elt.Public_data.activite_activite_fr) state in
               let () = Remanent_state.print_cell (Tools.unsome_string elt.Public_data.activite_intitule_fr) state in
-              let () = Remanent_state.print_cell (Format.sprintf "%s" (string_of_float elt.Public_data.activite_ects)) state in
+              let () = if ectc_ then
+                  aRemanent_state.print_cell (Format.sprintf "%s" (string_of_float elt.Public_data.activite_ects)) state in
               let () = Remanent_state.close_row state in
               ())
             list

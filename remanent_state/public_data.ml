@@ -74,7 +74,7 @@ type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI
 type universite =
   | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud | UPNord | USPN | UDauphine
 
-type experience = Recherche | Internationale | Ouverture
+type experience = Recherche | Internationale | Ouverture | Hors_Dens
 
 module StringUnivMap =
   Map_tools.MakeSimplified
@@ -101,6 +101,7 @@ let string_of_experience x =
   | Recherche -> "Recherche"
   | Ouverture -> "Ouverture"
   | Internationale -> "Internationale"
+  | Hors_Dens -> "Hors Dens"
 
 let experience_of_string x =
   let x = Special_char.lowercase (Special_char.correct_string_txt (Special_char.correct_string_utf8 (String.trim x))) in
@@ -108,6 +109,7 @@ let experience_of_string x =
   | "ouverture" -> Ouverture
   | "internationale" | "international" -> Internationale
   | "recherches" | "recherche" -> Recherche
+  | "hors" | "hors dens" -> Hors_Dens
   | _ -> Recherche
 
 let string_of_dpt x =
@@ -765,7 +767,7 @@ let empty_mineure_majeure ={
      activite_intitule_fr: string option;
      activite_activite_en: string option ;
      activite_intitule_en: string;
-     activite_ects: float ; 
+     activite_ects: float ;
      activite_annee: string ;
   }
 

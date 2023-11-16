@@ -22,7 +22,7 @@ type student_id =
 
 type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA | DEC
 type universite =  | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud | UPNord | USPN | UDauphine
-type experience = Recherche | Internationale | Ouverture
+type experience = Recherche | Internationale | Ouverture | Hors_Dens
 
 val string_of_experience: experience -> string
 val experience_of_string: string -> experience
@@ -395,7 +395,7 @@ type experience_supplement =
   activite_intitule_fr: string option;
   activite_activite_en: string option ;
   activite_intitule_en: string;
-  activite_ects: float ; 
+  activite_ects: float ;
   activite_annee: string ;
 }
 
