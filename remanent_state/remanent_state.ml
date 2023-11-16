@@ -2624,13 +2624,14 @@ let file_retriever_fail t =
 
 let get_diplomation_rep ?firstname ?lastname t =
   t,
+    let t, cloud = get_cloud_repository t in
     let main = t.parameters.diplomation_repository in
       match t.parameters.diplomation_year with
         | None -> None
         | Some year ->
         let year_i = int_of_string year in
         let year = Format.sprintf "%i-%i" year_i (year_i+1) in
-        let rep = Format.sprintf "%s/%s/candidates/" main year in
+        let rep = Format.sprintf "%s/%s/%s/candidates/" cloud main year in
         match firstname, lastname with
           | None, _ | _,None -> Some rep
           | Some firstname, Some lastname ->
