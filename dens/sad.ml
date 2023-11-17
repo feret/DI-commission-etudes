@@ -16,6 +16,10 @@ let maj map =
   in
   let l = aux2 10 [] in l,l
 
+let width_gps_code = 10.
+let width_discipline = 10.
+let width_intitule = 20.
+let width_ects = 2.
 
 let undef = "une"
 
@@ -38,17 +42,19 @@ let compute_size l =
         (List.rev l)
   in size
 
-let size4 = compute_size [5.;10.;20.;5.]
-let size3 = compute_size [5.;10.;20.]
+let size4 = compute_size [width_gps_code;width_discipline;width_intitule;width_ects]
+let size3 = compute_size [width_gps_code;width_discipline;width_intitule]
 
 
-let dump_course_list label list state =
-    let list = list.Public_data.dens in
-    if list = [] then state
+let dump_course_gen label is_empty fold iter acc state =
+    if is_empty acc  then state
     else
     let () = Remanent_state.fprintf state "\\textbf{%s}" label in
     let () = Remanent_state.print_newline state in
-    let ects = List.fold_left (fun ects cours -> ects+.cours.Public_data.supplement_ects) 0. list in
+    let ects =
+          fold
+            (fun cours ects -> ects+.cours.Public_data.supplement_ects) acc 0.
+    in
     let () = Remanent_state.fprintf state "Nombre d'ECTS~: %s" (string_of_float  ects) in
     let () = Remanent_state.print_newline state in
     let size = size4 in
@@ -63,7 +69,7 @@ let dump_course_list label list state =
                 state
     in
     let () =
-      List.iter
+      iter
         (fun elt ->
           let () = Remanent_state.open_row state in
           let () = Remanent_state.print_cell (elt.Public_data.supplement_code) state in
@@ -72,15 +78,37 @@ let dump_course_list label list state =
           let () = Remanent_state.print_cell (string_of_float elt.Public_data.supplement_ects) state in
           let () = Remanent_state.close_row state in
           ())
-        list
+        acc
     in
     let () = Remanent_state.close_array state in
     let () = Remanent_state.fprintf state "\\mbox{}\\bigskip" in
     let () = Remanent_state.print_newline state in
     state
 
+    let fold_left_tild f a b = List.fold_left (fun a b -> f b a) b a
+
+    let dump_course_list label list state =
+        let list = list.Public_data.dens in
+        dump_course_gen label (fun l -> l = []) fold_left_tild List.iter list state
+
+    let dump_course_list_autre label list map state =
+        let list = list.Public_data.dens in
+        dump_course_gen label
+          (fun (list,map) -> list=[] && Public_data.StringMap.is_empty map)
+          (fun f (list,map) acc ->
+            fold_left_tild f list
+              (Public_data.StringMap.fold (fun _  l ->
+                    fold_left_tild f l.Public_data.dens) map acc ))
+          (fun f (list,map) ->
+            Public_data.StringMap.iter (fun _ l -> List.iter f l.Public_data.dens) map;
+            List.iter f list)
+          (list,map)
+          state
+
 let dump_repartition_diplomes label list state =
     dump_course_list label list state
+
+
 
 let dump_min_maj label map state pos =
     if Public_data.StringMap.cardinal map = 1
@@ -175,9 +203,10 @@ let prompt_sad dens state =
     let state = dump_min_maj "mineure" dens.Public_data.dens_cours_mineure state pos_order_1 in
     let state = dump_min_maj "majeure" dens.Public_data.dens_cours_majeure state (maj dens.Public_data.dens_cours_majeure) in
     let state =
-        dump_course_list
+        dump_course_list_autre
             "Enseignements hors discipline principale (hors cours de langues)"
-            dens.Public_data.dens_cours_hors_disciplines_principale state
+            dens.Public_data.dens_cours_hors_disciplines_principale
+            dens.Public_data.dens_cours_par_dpt state
     in
     let state =
         dump_course_list

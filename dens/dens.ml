@@ -32,6 +32,31 @@ let ens = "DENS"
 let dri = "DRI"
 let xt = "XT"
 
+let string_of_key k =
+    match String.lowercase_ascii k with
+      | "info" -> "Informatique"
+      | "dma" -> "Mathématiques"
+      | "bio" | "ibens" -> "Biologie"
+      | "phys" -> "Physique"
+      | "chim" -> "Chimie"
+      | "gsc" -> "Géosciences"
+      | "phil" -> "Philosophie"
+      | "dec" -> "Études cognitives"
+      | "arts" -> "Arts"
+      | "dsa" -> "Sciences de l'Antiquité"
+      | "dss" -> "Sciences sociales"
+      | "eco" -> "Économie"
+      | "lila" -> "Langues anciennes"
+      | "geog" -> "Géographie"
+      | "hist" -> "Histoire"
+      | "ceres" -> "Environnement et société"
+      | "ecla" -> "Langues"
+      | "vetu" -> "VETU"
+      | "dg" -> "Délégation générale"
+      | "dens" -> "Diplôme de l'ENS"
+      | "dri" -> "Relations internationales"
+      | _ -> "Autre"
+
 let sciences = [info;dma;bio;phys;dec;ibens;gsc;chimie]
 let humanities = [arts;dsa;eco;lila;phil;hist;dss;geog]
 let sans_mineure = [ceres]
@@ -85,7 +110,7 @@ let kind_of_course state code extra =
                 begin
                   Remanent_state.warn
                             __POS__
-                            (Format.sprintf "Undefined GPS key : (%s) (%s)" code t)
+                            (Format.sprintf "Undefined GPS key: (%s) (%s)" code t)
                             Exit
                             state, (t, Missing)
                 end
@@ -151,10 +176,14 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
       end
     in
     if code = main_dpt then
-      let state, (key,_kind) = kind_of_course state code course.Public_data.supplement_extra  in
+      let state, (key,_kind) =
+          kind_of_course state code course.Public_data.supplement_extra
+      in
       let dens_cours_discipline_principale =    dens.Public_data.dens_cours_discipline_principale in
       let list = get dens_cours_discipline_principale in
-      let course = {course with Public_data.supplement_discipline = key} in
+      let course =
+            {course with Public_data.supplement_discipline = string_of_key key}
+      in
       let dens_cours_discipline_principale = store (course::list) dens_cours_discipline_principale in
       let dens = {dens with Public_data.dens_cours_discipline_principale} in
         state, dens
@@ -201,7 +230,9 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
               | Some repartition -> repartition
         in
         let list = get old in
-        let course = {course with Public_data.supplement_discipline = key} in
+        let course =
+            {course with Public_data.supplement_discipline = string_of_key key}
+        in
         let repartition = store (course::list) old in
         let dens_cours_par_dpt =
           Public_data.StringMap.add key repartition dens_cours_par_dpt
