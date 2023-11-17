@@ -169,6 +169,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
                      in
         let dens_cours_a_trier = dens.Public_data.dens_cours_a_trier in
         let list = get dens_cours_a_trier in
+        let course = {course with Public_data.supplement_discipline = key} in
         let dens_cours_a_trier = store (course::list) dens_cours_a_trier in
         let dens = {dens with Public_data.dens_cours_a_trier} in
         state, dens
@@ -306,7 +307,7 @@ Tools.unsome_string stage.Public_data.activite_intitule_fr;
                     | Some Public_data.Internationale -> store_activite_internationale stage dens
                     | Some Public_data.Ouverture ->
                     store_activite_ouverture stage dens
-                    | Some Public_data.Hors_Dens -> dens 
+                    | Some Public_data.Hors_Dens -> dens
                     | None ->
                     store_activite_autre stage dens
                 in
