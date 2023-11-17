@@ -151,8 +151,10 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
       end
     in
     if code = main_dpt then
+      let state, (key,_kind) = kind_of_course state code course.Public_data.supplement_extra  in
       let dens_cours_discipline_principale =    dens.Public_data.dens_cours_discipline_principale in
       let list = get dens_cours_discipline_principale in
+      let course = {course with Public_data.supplement_discipline = key} in
       let dens_cours_discipline_principale = store (course::list) dens_cours_discipline_principale in
       let dens = {dens with Public_data.dens_cours_discipline_principale} in
         state, dens
@@ -169,7 +171,6 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
                      in
         let dens_cours_a_trier = dens.Public_data.dens_cours_a_trier in
         let list = get dens_cours_a_trier in
-        let course = {course with Public_data.supplement_discipline = key} in
         let dens_cours_a_trier = store (course::list) dens_cours_a_trier in
         let dens = {dens with Public_data.dens_cours_a_trier} in
         state, dens
