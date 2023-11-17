@@ -26,6 +26,22 @@ let lift_dens dens =
     let diplomes_nationaux = [] in
     {Public_data.dens; Public_data.diplomes_nationaux}
 
+let compute_size l =
+  let sum =
+      List.fold_left
+        (fun total a -> total+.a)
+        0. l
+  in
+  let size =
+      List.rev_map
+        (fun a -> Some (a/.(sum*.1.12)))
+        (List.rev l)
+  in size
+
+let size4 = compute_size [5.;10.;20.;5.]
+let size3 = compute_size [5.;10.;20.]
+
+
 let dump_course_list label list state =
     let list = list.Public_data.dens in
     if list = [] then state
@@ -35,7 +51,7 @@ let dump_course_list label list state =
     let ects = List.fold_left (fun ects cours -> ects+.cours.Public_data.supplement_ects) 0. list in
     let () = Remanent_state.fprintf state "Nombre d'ECTS~: %s" (string_of_float  ects) in
     let () = Remanent_state.print_newline state in
-    let size = [None;None;None;None] in
+    let size = size4 in
     let bgcolor = [None;None;None;None] in
     let state = Remanent_state.open_array
                 ~bgcolor
@@ -92,13 +108,13 @@ let dump_activite_list label list state =
     in
     let state,size,bgcolor,title,title_english,ects_ =
         if ects = 0.
-        then state,[None;None;None],[None;None;None],[["Code"];["Activité"];["Intitulé"]],[["Code"];["Activity"];["Name"]],false
+        then state,size3,[None;None;None],[["Code"];["Activité"];["Intitulé"]],[["Code"];["Activity"];["Name"]],false
         else
         let () = Remanent_state.fprintf state "\\textbf{Unités d’enseignement étudiées et nombre d'ECTS}" in
         let () = Remanent_state.print_newline state in
         let () = Remanent_state.fprintf state "\\textbf{Nombre d'ECTS~: %s}" (string_of_float ects) in
         let () = Remanent_state.print_newline state in
-        state,[None;None;None;None],[None;None;None;None],[["Code"];["Activité"];["Intitulé"]; ["ECTS"]],[["Code"];["Activity"];["Name"]; ["ECTS"]],true
+        state,size4,[None;None;None;None],[["Code"];["Activité"];["Intitulé"]; ["ECTS"]],[["Code"];["Activity"];["Name"]; ["ECTS"]],true
     in
     let state = Remanent_state.open_array
                 ~bgcolor
@@ -296,7 +312,7 @@ let dump_one_sad ~repository ?firstname ?lastname ?language ?bilingual dens stat
          let state = Remanent_state.restore_std_logger state old_logger in
          let state =
               Latex_engine.latex_opt_to_pdf
-                    ~times:2 ~rev:true state ~input:(Some output)
+                    ~times:2 state ~input:(Some output)
          in
              match
                Remanent_state.get_diplomation_rep ~firstname ~lastname
@@ -306,7 +322,7 @@ let dump_one_sad ~repository ?firstname ?lastname ?language ?bilingual dens stat
           | state, Some output_rep ->
             Remanent_state.push_copy
            ~input_rep:rep
-           ~file_name:file
+           ~file_name:(snd output)
            ~output_rep
            state
       end
