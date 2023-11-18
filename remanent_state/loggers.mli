@@ -1,11 +1,14 @@
 type orientation = Landscape | Normal
 type language = French | English
+type mode = SAD | PV | Transcript
 
 type latex_parameters =
   {
     orientation:orientation;
     language:language;
     bilinguage:bool;
+    font:int;
+    template:mode;
   }
 
 val latex_normal:latex_parameters
@@ -68,7 +71,7 @@ val flush_and_clean: t -> Format.formatter -> unit
 
 (*val dump_json: t -> Yojson.Basic.t -> unit
 val to_json: t -> Yojson.Basic.t
-val of_json: Yojson.Basic.t -> string list*) 
+val of_json: Yojson.Basic.t -> string list*)
 
 val with_lines: t -> t
 val without_lines: t -> t

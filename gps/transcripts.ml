@@ -6382,6 +6382,8 @@ let export_transcript
            (match language with
            | Public_data.French -> Loggers.French
            | Public_data.English -> Loggers.English );
+         Loggers.font = 10 ;
+         Loggers.template = Loggers.Transcript ; 
          Loggers.bilinguage =
            bilinguage
         }

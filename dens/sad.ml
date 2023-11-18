@@ -16,10 +16,10 @@ let maj map =
   in
   let l = aux2 10 [] in l,l
 
-let width_gps_code = 10.
-let width_discipline = 10.
+let width_gps_code = 12.
+let width_discipline = 9.
 let width_intitule = 20.
-let width_ects = 2.
+let width_ects = 3.
 
 let undef = "une"
 
@@ -330,7 +330,9 @@ let dump_one_sad ~repository ?firstname ?lastname ?language ?bilingual dens stat
                 | Public_data.French -> Loggers.French
                 | Public_data.English -> Loggers.English );
               Loggers.bilinguage =
-                bilinguage
+                bilinguage;
+              Loggers.font = 8 ;
+              Loggers.template = Loggers.SAD;
              }
          in
          let logger = Loggers.open_logger_from_channel ~mode out in
@@ -351,7 +353,7 @@ let dump_one_sad ~repository ?firstname ?lastname ?language ?bilingual dens stat
           | state, Some output_rep ->
             Remanent_state.push_copy
            ~input_rep:rep
-           ~file_name:(snd output)
+           ~file_name:(Copy.pdf_file (snd output))
            ~output_rep
            state
       end

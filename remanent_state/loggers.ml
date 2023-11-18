@@ -1,15 +1,18 @@
 type orientation = Landscape | Normal
 type language = French | English
+type mode = SAD | PV | Transcript
 
 type latex_parameters =
   {
     orientation:orientation;
     language:language;
     bilinguage:bool;
+    font:int;
+    template:mode;
   }
 
 let latex_normal =
-  {orientation=Normal;language=French;bilinguage=false}
+  {orientation=Normal;language=French;bilinguage=false;template=PV;font=10}
 
 type encoding =
   | HTML | HTML_Tabular | HTML_encapsulated
@@ -632,15 +635,21 @@ let print_preamble
     fprintf logger "<body>\n<div>\n<TABLE>\n"
   | Latex orientation ->
     let package, size =
-      match orientation.orientation with
-      | Landscape -> "\\usepackage{lscape}",
+      match orientation.orientation, orientation.template with
+      | Landscape,_ -> "\\usepackage{lscape}",
                     "\\landscape\n\n\\setlength{\\textwidth}{28.3cm}\n\\setlength{\\hoffset}{-1.84cm}\n\\setlength{\\headsep}{0pt}\n\\setlength{\\topmargin}{0mm}\n\\setlength{\\footskip}{0mm}\n\\setlength{\\oddsidemargin}{0pt}\n\\setlength{\\evensidemargin}{0pt}\n\\setlength{\\voffset}{-2.15cm}\n\\setlength{\\textheight}{19.6cm}\n\\setlength{\\paperwidth}{21cm}\n\\setlength{\\paperheight}{29.7cm}\n\\setlength\\parindent{0pt}\n"
-      | Normal ->
-        Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{15.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\setlength{\\topmargin}{-1in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{24.7cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n"
+      | Normal,SAD ->
+        Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{17.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\setlength{\\topmargin}{-1in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{24.7cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n"
                     (if headerextralength=0 then "" else
                        Format.sprintf "\\addtolength{\\headheight}{%icm}\\addtolength{\\textheight}{-%icm}"
                          headerextralength
                          headerextralength),""
+       | Normal,(PV | Transcript) ->
+                           Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{15.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\setlength{\\topmargin}{-1in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{24.7cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n"
+                                       (if headerextralength=0 then "" else
+                                          Format.sprintf "\\addtolength{\\headheight}{%icm}\\addtolength{\\textheight}{-%icm}"
+                                            headerextralength
+                                            headerextralength),""
     in
     let lang =
       match orientation.bilinguage, orientation.language with
@@ -666,7 +675,7 @@ let print_preamble
     in
     let () =
       fprintf logger
-      "\\documentclass[10pt]{extarticle}%%\n%%\n\
+      "\\documentclass[%ipt]{extarticle}%%\n%%\n\
 \\usepackage[latin1]{inputenc}%%\n\
 %s%%\n\
 %s%%\n\
@@ -730,7 +739,7 @@ let print_preamble
 \\newcommand{\\correctnum}[1]%%\n\
 {\\StrSubstitute{#1}{,}{.}[\\res]\\myifdecimal{#1}{\res}{0}}%%\n\
 %%\n\
-       %%\n\ "
+       %%\n\ " orientation.font
       package lang size
       (match orientation.orientation with
          Landscape -> "empty" | Normal -> "fancy")   decimal
