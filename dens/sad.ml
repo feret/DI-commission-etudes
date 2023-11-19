@@ -9,7 +9,7 @@ let birthdate _dens = "N/A"
 let ine _dens = "N/A"
 
 let print_preamble state dens =
-   let () = Remanent_state.fprintf state "\\newcommand{\\percent}{$\\%$}"
+   let () = Remanent_state.fprintf state "\\newcommand{\\percent}{$\\%s$}" "%" in 
    let () = Remanent_state.fprintf state "\\title{%s}" title in
    let () = Remanent_state.print_newline state in
    let () = Remanent_state.fprintf state "\\maketitle" in
