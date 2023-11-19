@@ -2,7 +2,7 @@ let times = ["double";"triple";"quadruple";"quintuple"]
 let ordre = ["première";"seconde";"troisième";"quatrième";"cinquième"]
 let order = ["first";"second";"third";"fourth";"fifth"]
 
-let string_of_float x = if x=0. then "" else string_of_float x
+let string_of_float x = if x=0. then "" else Notes.string_of_ects (Some x)
 
 let title = "SUPPLÉMENT AU DIPLÔME DE L'ÉCOLE NORMALE SUPÉRIEURE"
 let birthdate _dens = "N/A"
@@ -31,7 +31,7 @@ let print_preamble state dens =
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state
       "Enfin, comme dans un véritable campus universitaire, étudiants et enseignants se côtoient régulièrement~; les normaliens et normaliennes sont suivi.e.s tout au long de leur scolarité par un tuteur ou une tutrice qui les conseille et les guide dans leurs choix, dans une relation de confiance et d'engagement mutuel." in
-    let () = Remanent_state.fprintf state "\\section{Conditions d'obtention du diplôme}" in
+    let () = Remanent_state.fprintf state "\\section*{Conditions d'obtention du diplôme}" in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "L'obtention du diplôme de l'ENS est subordonnée à la validation~:" in
     let () = Remanent_state.print_newline state in
@@ -65,7 +65,7 @@ let print_preamble state dens =
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "{\\noindent}École normale supérieure (ENS), Paris, France" in
     let () = Remanent_state.print_newline state in
-    let () = Remanent_state.fprintf state "{\\noindent} Établissement public à caractère scientifique, culturel et professionnel" in
+    let () = Remanent_state.fprintf state "{\\noindent}Établissement public à caractère scientifique, culturel et professionnel" in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Nom et statut de l'établissement dispensant les cours~:}" in
     let () = Remanent_state.print_newline state in
@@ -88,9 +88,10 @@ let print_preamble state dens =
     let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Durée officielle du programme d'études~:}" in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "{\\noindent}4 à 6 semestres en fonction de la voie d'accès et de la spécialité choisie" in
+    let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Niveau de qualification~:}" in
     let () = Remanent_state.print_newline state in
-    let () = Remanent_state.fprintf state "Diplôme de grade Master en Sciences (d'un niveau équivalent à un Master à orientation recherche 120 crédits européens compatibles ECTS) auquel s'ajoute un minimum de 36 ECTS d'enseignements complémentaires." in
+    let () = Remanent_state.fprintf state "{\\noindent}Diplôme de grade Master en Sciences (d'un niveau équivalent à un Master à orientation recherche 120 crédits européens compatibles ECTS) auquel s'ajoute un minimum de 36 ECTS d'enseignements complémentaires." in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "\\section{Informations concernant le contenu du diplôme et les résultats obtenus}" in
     let () = Remanent_state.print_newline state in
@@ -122,8 +123,8 @@ let maj map =
   in
   let l = aux2 10 [] in l,l
 
-let width_gps_code = 8.
-let width_discipline = 6.
+let width_gps_code = 7.
+let width_discipline = 5.5
 let width_intitule = 20.
 let width_ects = 2.5
 
