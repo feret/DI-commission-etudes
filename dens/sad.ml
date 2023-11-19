@@ -9,7 +9,7 @@ let birthdate _dens = "N/A"
 let ine _dens = "N/A"
 
 let print_preamble state dens =
-   let () = Remanent_state.fprintf state "\\newcommand{\\percent}{$\\%s$}" "%" in 
+   let () = Remanent_state.fprintf state "\\newcommand{\\percent}{$\\%s$}" "%" in
    let () = Remanent_state.fprintf state "\\title{%s}" title in
    let () = Remanent_state.print_newline state in
    let () = Remanent_state.fprintf state "\\maketitle" in
@@ -49,7 +49,7 @@ let print_preamble state dens =
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Date de naissance~:} %s" (birthdate dens) in
     let () = Remanent_state.print_newline state in
-    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Numéro d'identification de l'étudiant (N$^o$ INE)~:w) %s" (ine dens) in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Numéro d'identification de l'étudiant (N$^o$ INE)~:} %s" (ine dens) in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "\\section{Informations sur le diplôme}" in
     let () = Remanent_state.print_newline state in
