@@ -4,13 +4,30 @@ let order = ["first";"second";"third";"fourth";"fifth"]
 
 let string_of_float x = if x=0. then "" else Notes.string_of_ects (Some x)
 
-let title = "SUPPLÉMENT AU DIPLÔME DE L'ÉCOLE NORMALE SUPÉRIEURE"
+let title = "\\textbf{SUPPLÉMENT AU DIPLÔME DE L'ÉCOLE NORMALE SUPÉRIEURE}"
 let birthdate _dens = "N/A"
 let ine _dens = "N/A"
+let sad _dens = "N/A"
 
 let print_preamble state dens =
-   let () = Remanent_state.fprintf state "\\newcommand{\\percent}{$\\%s$}" "%" in
+    let state, enspsl =
+        Remanent_state.get_ENSPSL_logo state
+    in
+    let () =
+        Remanent_state.fprintf state "\\fancyhead[LO,LE]{\\IfFileExists{%s}{\\includegraphics{%s}}{}}" enspsl enspsl
+    in
+    let () = Remanent_state.print_newline state in
+    let () =
+        Remanent_state.fprintf state "\\fancyhead[RO,RE]{Supplément au diplôme de l’étudiant N$^o$\\;%s}" (sad dens)  in
+    let () = Remanent_state.print_newline state in
+    let () =
+        Remanent_state.fprintf state "\\fancyfoot[RO,RE]{\\textit{Supplément au diplôme de l’ENS – page \\thepage/\\pageref{LastPage}}}"
+    in 
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "\\newcommand{\\percent}{$\\%s$}" "%" in
    let () = Remanent_state.fprintf state "\\title{%s}" title in
+   let () = Remanent_state.print_newline state in
+   let () = Remanent_state.fprintf state "\\date{}"  in
    let () = Remanent_state.print_newline state in
    let () = Remanent_state.fprintf state "\\maketitle" in
    let () = Remanent_state.print_newline state in
@@ -421,7 +438,7 @@ let dump_one_sad ~repository ?firstname ?lastname ?language ?bilingual dens stat
                 | Public_data.English -> Loggers.English );
               Loggers.bilinguage =
                 bilinguage;
-              Loggers.font = 8 ;
+              Loggers.font = 9 ;
               Loggers.template = Loggers.SAD;
              }
          in
