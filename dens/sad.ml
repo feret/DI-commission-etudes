@@ -18,11 +18,15 @@ let print_preamble state dens =
     in
     let () = Remanent_state.print_newline state in
     let () =
-        Remanent_state.fprintf state "\\fancyhead[RO,RE]{Supplément au diplôme de l’étudiant N$^o$\\;%s}" (sad dens)  in
+        Remanent_state.fprintf state "\\fancyhead[R]{Supplément au diplôme de l'étudiant N$^o$\\;%s}" (sad dens)  in
     let () = Remanent_state.print_newline state in
     let () =
-        Remanent_state.fprintf state "\\fancyfoot[RO,RE]{\\textit{Supplément au diplôme de l’ENS – page \\thepage/\\pageref{LastPage}}}"
-    in 
+        Remanent_state.fprintf state "\\fancyfoot[C]{}"
+    in
+    let () = Remanent_state.print_newline state in
+    let () =
+        Remanent_state.fprintf state "\\fancyfoot[R]{\\textit{Supplément au diplôme de l'ENS - page \\thepage/\\pageref{LastPage}}}"
+    in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "\\newcommand{\\percent}{$\\%s$}" "%" in
    let () = Remanent_state.fprintf state "\\title{%s}" title in
@@ -30,6 +34,8 @@ let print_preamble state dens =
    let () = Remanent_state.fprintf state "\\date{}"  in
    let () = Remanent_state.print_newline state in
    let () = Remanent_state.fprintf state "\\maketitle" in
+   let () = Remanent_state.print_newline state in
+   let () = Remanent_state.fprintf state "\\thispagestyle{fancy}" in
    let () = Remanent_state.print_newline state in
    let () = Remanent_state.fprintf state
         "La présente annexe descriptive au diplôme (supplément au diplôme) suit le modèle élaboré par la Commission européenne, le Conseil de l'Europe et l'UNESCO/CEPES." in
