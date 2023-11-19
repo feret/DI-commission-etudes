@@ -4,6 +4,109 @@ let order = ["first";"second";"third";"fourth";"fifth"]
 
 let string_of_float x = if x=0. then "" else string_of_float x
 
+let title = "SUPPLÉMENT AU DIPLÔME DE L'ÉCOLE NORMALE SUPÉRIEURE"
+let birthdate _dens = "N/A"
+let ine _dens = "N/A"
+
+let print_preamble state dens =
+   let () = Remanent_state.fprintf state "\\title{%s}" title in
+   let () = Remanent_state.print_newline state in
+   let () = Remanent_state.fprintf state "\\maketitle" in
+   let () = Remanent_state.print_newline state in
+   let () = Remanent_state.fprintf state
+        "La présente annexe descriptive au diplôme (supplément au diplôme) suit le modèle élaboré par la Commission européenne, le Conseil de l'Europe et l'UNESCO/CEPES." in
+   let () = Remanent_state.print_newline state in
+   let () = Remanent_state.fprintf state "Elle vise à fournir des données indépendantes et suffisantes pour améliorer la transparence internationale et la reconnaissance académique et professionnelle équitable des qualifications (diplômes, acquis universitaires, certificats, etc.). Elle est destinée à décrire la nature, le niveau, le contexte, le contenu et le statut des études accomplies avec succès par la personne désignée par la qualification originale à laquelle ce présent supplément est annexé. Elle doit être dépourvue de tout jugement de valeur, déclaration d'équivalence ou suggestion de reconnaissance. Toutes les informations requises dans cette annexe doivent être fournies. Lorsqu'une information fait défaut, une explication doit être donnée." in
+   let () = Remanent_state.fprintf state "\\section*{Principes généraux du diplôme de l'ENS}" in
+   let () = Remanent_state.print_newline state in
+   let () = Remanent_state.fprintf state
+      "La formation reçue à l'École normale supérieure s'inscrit dans le schéma général européen du \" processus de Bologne \", dit système 3-5-8 ou LMD. À ce titre, le pivot du diplôme de l'ENS est le diplôme national de Master. Le rôle dévolu au diplôme d'établissement est d'identifier et de valoriser la formation spécifique donnée par l'ENS grâce aux multiples itinéraires intellectuels qu'elle permet." in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state
+      "La formation à l'ENS est avant tout une formation par la recherche. Elle accorde ainsi une place importante à l'initiative personnelle et à l'autonomie scientifique dont les diverses expressions (y compris les stages de recherche, sous certaines conditions) sont validées dans le cadre du diplôme. La recherche ayant une portée résolument internationale, les cursus proposés incluent ou permettent un séjour ou un stage à l'étranger de longue durée (6 mois à un an)." in
+    let () = Remanent_state.print_newline state in
+      let () = Remanent_state.fprintf state
+      "Une richesse majeure de l'École normale supérieure, l'une des rares écoles en France où cohabitent des étudiant.e.s littéraires et scientifiques, réside de surcroît dans une véritable pluridisciplinarité, à laquelle le diplôme réserve une place importante." in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state
+      "Enfin, comme dans un véritable campus universitaire, étudiants et enseignants se côtoient régulièrement~; les normaliens et normaliennes sont suivi.e.s tout au long de leur scolarité par un tuteur ou une tutrice qui les conseille et les guide dans leurs choix, dans une relation de confiance et d'engagement mutuel." in
+    let () = Remanent_state.fprintf state "\\section{Conditions d'obtention du diplôme}" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "L'obtention du diplôme de l'ENS est subordonnée à la validation~:" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "\\begin{itemize}" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "\\item  d'une formation principale sanctionnée par l'obtention d'un master à orientation recherche. Un master professionnel comportant un mémoire de recherche peut éventuellement se substituer au master recherche. La discipline ou la mention et la spécialité de ce master définissent la \" spécialité principale \" d'un normalien, et la mention qui sera portée sur le diplôme. Le jury peut décider d'une mention différente lorsque le parcours le justifie." in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "\\item  d'une formation complémentaire, dispensée ou agréée par l'ENS, répartie sur trois ans. Le volume global de cette formation doit représenter au moins un volume de travail additionnel équivalent à 1/5 (soit 20\\percent) de la formation principale." in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "\\section{Informations sur le titulaire du diplôme}" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Nom de famille~:} %s" (Special_char.uppercase dens.Public_data.dens_lastname) in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Prénom~:} %s" (Special_char.uppercase dens.Public_data.dens_firstname) in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Date de naissance~:} %s" (birthdate dens) in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Numéro d'identification de l'étudiant (N$^o$ INE)~:w) %s" (ine dens) in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "\\section{Informations sur le diplôme}" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Intitulé du diplôme~:} Diplôme de l'École normale supérieure" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Principal(aux) domaine(s) d'étude couvert(s) par le diplôme~:}" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}Spécialité principale~: INFORMATIQUE}" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "\\noindent\\textbf{Nom et statut de l'établissement ayant délivré le diplôme~:}" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}École normale supérieure (ENS), Paris, France" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent} Établissement public à caractère scientifique, culturel et professionnel" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Nom et statut de l'établissement dispensant les cours~:}" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}École normale supérieure (ENS), Paris, France" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "\\mbox{}" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Langue(s) utilisée(s) pour l'enseignement et les examens}" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}Français : 75 \\percent" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}Anglais : 25 \\percent" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "\\section{Informations sur le niveau de qualification}" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Conditions d'accès~:}" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}Accès par voie de concours (concours CPGE, voie universitaire ou voie de Sélection Internationale), après deux années d'études supérieures minimum" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Durée officielle du programme d'études~:}" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}4 à 6 semestres en fonction de la voie d'accès et de la spécialité choisie" in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Niveau de qualification~:}" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "Diplôme de grade Master en Sciences (d'un niveau équivalent à un Master à orientation recherche 120 crédits européens compatibles ECTS) auquel s'ajoute un minimum de 36 ECTS d'enseignements complémentaires." in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "\\section{Informations concernant le contenu du diplôme et les résultats obtenus}" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Organisation des études~:}" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}La formation est assurée à temps plein avec un stage obligatoire en laboratoire ou en entreprise." in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "\\mbox{}" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Exigences du programme~:" in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}Le Département d'informatique l'ENS assure une formation de haut niveau par la recherche dans le domaine de l'informatique, en mettant l'accent sur des aspects théoriques et fondamentaux de l'informatique moderne. Il prépare plus particulièrement aux métiers de la recherche académique ou industrielle en informatique et dans des disciplines utilisant l'informatique comme outil principal d'investigation. À travers le diplôme de l'ENS (DENS), les étudiants acquièrent en plus de leur spécialité des connaissances dans un ou plusieurs domaines complémentaires. Une importance particulière est accordée à l'interdisciplinarité et aux expériences professionnelles en France et à l'étranger." in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}Le titulaire du diplôme est un spécialiste dans le domaine de l'informatique. Il maîtrise des techniques de pointe en informatique et en mathématiques appliquées avec la profondeur d'analyse nécessaire pour appréhender les évolutions de sa discipline et y participer. Il est apte à s'intégrer rapidement dans des nouveaux environnements de travail, d'un point de vue aussi bien intellectuel que matériel. Il est autonome, fait preuve d'initiative et assimile rapidement de nouveaux concepts, tout en sachant replacer sa spécialité dans un contexte scientifique plus large. Il sait travailler en équipe et maîtrise la communication scientifique à destination de ses pairs et du grand public." in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "\\clearpage" in
+    let () = Remanent_state.print_newline state in
+    ()
+
 let maj map =
   let n = Public_data.StringMap.cardinal map in
   let rec aux n l =
@@ -16,10 +119,10 @@ let maj map =
   in
   let l = aux2 10 [] in l,l
 
-let width_gps_code = 12.
-let width_discipline = 9.
+let width_gps_code = 8.
+let width_discipline = 6.
 let width_intitule = 20.
-let width_ects = 3.
+let width_ects = 2.5
 
 let undef = "une"
 
@@ -49,13 +152,13 @@ let size3 = compute_size [width_gps_code;width_discipline;width_intitule]
 let dump_course_gen label is_empty fold iter acc state =
     if is_empty acc  then state
     else
-    let () = Remanent_state.fprintf state "\\textbf{%s}" label in
+    let () = Remanent_state.fprintf state "\\noindent\\textbf{%s}" label in
     let () = Remanent_state.print_newline state in
     let ects =
           fold
             (fun cours ects -> ects+.cours.Public_data.supplement_ects) acc 0.
     in
-    let () = Remanent_state.fprintf state "Nombre d'ECTS~: %s" (string_of_float  ects) in
+    let () = Remanent_state.fprintf state "{\\noindent}Nombre d'ECTS~: %s" (string_of_float  ects) in
     let () = Remanent_state.print_newline state in
     let size = size4 in
     let bgcolor = [None;None;None;None] in
@@ -115,20 +218,20 @@ let dump_min_maj label map state pos =
     then
       Public_data.StringMap.fold
         (fun key list state ->
-            let label = Format.sprintf  "Enseignements validés dans le cadre d'%s %s en %s" undef label key in
+            let label = Format.sprintf  "{\\noindent}Enseignements validés dans le cadre d'%s %s en %s" undef label key in
             dump_repartition_diplomes label list state)
         map state
     else
       fst (Public_data.StringMap.fold
         (fun key list (state,pos) ->
-          let label = Format.sprintf  "Enseignements validés dans le cadre d'une %s %s en %s" (List.hd (fst pos)) label key in
+          let label = Format.sprintf  "{\\noindent}Enseignements validés dans le cadre d'une %s %s en %s" (List.hd (fst pos)) label key in
           dump_repartition_diplomes label list state,next pos)
       map (state,pos))
 
 let dump_activite_list label list state =
     if list = [] then state
     else
-    let () = Remanent_state.fprintf state "\\textbf{%s}" label in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{%s}" label in
     let () = Remanent_state.print_newline state in
     let ects =
         List.fold_left
@@ -138,9 +241,9 @@ let dump_activite_list label list state =
         if ects = 0.
         then state,size3,[None;None;None],[["Code"];["Activité"];["Intitulé"]],[["Code"];["Activity"];["Name"]],false
         else
-        let () = Remanent_state.fprintf state "\\textbf{Unités d’enseignement étudiées et nombre d'ECTS}" in
+        let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Unités d'enseignement étudiées et nombre d'ECTS}" in
         let () = Remanent_state.print_newline state in
-        let () = Remanent_state.fprintf state "\\textbf{Nombre d'ECTS~: %s}" (string_of_float ects) in
+        let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Nombre d'ECTS~: %s}" (string_of_float ects) in
         let () = Remanent_state.print_newline state in
         state,size4,[None;None;None;None],[["Code"];["Activité"];["Intitulé"]; ["ECTS"]],[["Code"];["Activity"];["Name"]; ["ECTS"]],true
     in
@@ -173,27 +276,10 @@ let dump_activite_list label list state =
       state
 
 let prompt_sad dens state =
-    let lastname =
-        Special_char.uppercase dens.Public_data.dens_lastname
-    in
-    let firstname =
-      Special_char.capitalize dens.Public_data.dens_firstname
-    in
-    let () =
-      Remanent_state.fprintf
-        state "%s %s" lastname firstname
-    in
-    let () =
-      Remanent_state.print_newline state
-    in
-    let () =
-      Remanent_state.fprintf state "PROMO %s\\bigskip" dens.Public_data.dens_promotion
-    in
+    let () = print_preamble state dens in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Enseignements complémentaires suivis et validés dans le cadre du Diplôme de l'ENS, et ECTS obtenus}" in
     let () = Remanent_state.print_newline state in
-    let () = Remanent_state.print_newline state in
-    let () = Remanent_state.fprintf state "\\textbf{Enseignements complémentaires suivis et validés dans le cadre du Diplôme de l'ENS, et ECTS obtenus}" in
-    let () = Remanent_state.print_newline state in
-    let () = Remanent_state.fprintf state "Nombre d'ECTS~: %s\\bigskip" (string_of_float  dens.Public_data.dens_total_ects) in
+    let () = Remanent_state.fprintf state "{\\noindent}Nombre d'ECTS~: %s\\bigskip" (string_of_float  dens.Public_data.dens_total_ects) in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.print_newline state in
     let state =
