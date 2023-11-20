@@ -52,18 +52,18 @@ let print_preamble state dens =
    let () = Remanent_state.fprintf state
         "La présente annexe descriptive au diplôme (supplément au diplôme) suit le modèle élaboré par la Commission européenne, le Conseil de l'Europe et l'UNESCO/CEPES." in
    let () = Remanent_state.print_newline state in
-   let () = Remanent_state.fprintf state "Elle vise à fournir des données indépendantes et suffisantes pour améliorer la transparence internationale et la reconnaissance académique et professionnelle équitable des qualifications (diplômes, acquis universitaires, certificats, etc.).%%\\n" in
-   let () = Remanent_state.fprintf state "Elle est destinée à décrire la nature, le niveau, le contexte, le contenu et le statut des études accomplies avec succès par la personne désignée par la qualification originale à laquelle ce présent supplément est annexé.%%\\n" in
-   let () = Remanent_state.fprintf state "Elle doit être dépourvue de tout jugement de valeur, déclaration d'équivalence ou suggestion de reconnaissance. Toutes les informations requises dans cette annexe doivent être fournies. Lorsqu'une information fait défaut, une explication doit être donnée.%%\\n" in
+   let () = Remanent_state.fprintf state "Elle vise à fournir des données indépendantes et suffisantes pour améliorer la transparence internationale et la reconnaissance académique et professionnelle équitable des qualifications (diplômes, acquis universitaires, certificats, etc.).%%\n" in
+   let () = Remanent_state.fprintf state "Elle est destinée à décrire la nature, le niveau, le contexte, le contenu et le statut des études accomplies avec succès par la personne désignée par la qualification originale à laquelle ce présent supplément est annexé.%%\n" in
+   let () = Remanent_state.fprintf state "Elle doit être dépourvue de tout jugement de valeur, déclaration d'équivalence ou suggestion de reconnaissance. Toutes les informations requises dans cette annexe doivent être fournies. Lorsqu'une information fait défaut, une explication doit être donnée.%%\n" in
    let () = Remanent_state.fprintf state "\\section*{Principes généraux du diplôme de l'ENS}" in
    let () = Remanent_state.print_newline state in
    let () = Remanent_state.fprintf state
-      "La formation reçue à l'École normale supérieure s'inscrit dans le schéma général européen du \" processus de Bologne \", dit système 3-5-8 ou LMD.%%\\n " in
-   let () = Remanent_state.fprintf state "À ce titre, le pivot du diplôme de l'ENS est le diplôme national de Master.%%\\n" in
-  let () = Remanent_state.fprintf state "Le rôle dévolu au diplôme d'établissement est d'identifier et de valoriser la formation spécifique donnée par l'ENS grâce aux multiples itinéraires intellectuels qu'elle permet.%%\\n" in
+      "La formation reçue à l'École normale supérieure s'inscrit dans le schéma général européen du \" processus de Bologne \", dit système 3-5-8 ou LMD.%%\n " in
+   let () = Remanent_state.fprintf state "À ce titre, le pivot du diplôme de l'ENS est le diplôme national de Master.%%\n" in
+  let () = Remanent_state.fprintf state "Le rôle dévolu au diplôme d'établissement est d'identifier et de valoriser la formation spécifique donnée par l'ENS grâce aux multiples itinéraires intellectuels qu'elle permet.%%\n" in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state
-      "La formation à l'ENS est avant tout une formation par la recherche. Elle accorde ainsi une place importante à l'initiative personnelle et à l'autonomie scientifique dont les diverses expressions (y compris les stages de recherche, sous certaines conditions) sont validées dans le cadre du diplôme.%%\\n" in
+      "La formation à l'ENS est avant tout une formation par la recherche. Elle accorde ainsi une place importante à l'initiative personnelle et à l'autonomie scientifique dont les diverses expressions (y compris les stages de recherche, sous certaines conditions) sont validées dans le cadre du diplôme.%%\n" in
     let () = Remanent_state.fprintf state "La recherche ayant une portée résolument internationale, les cursus proposés incluent ou permettent un séjour ou un stage à l'étranger de longue durée (6 mois à un an)." in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state
@@ -144,14 +144,14 @@ let print_preamble state dens =
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Exigences du programme~:}" in
     let () = Remanent_state.print_newline state in
-    let () = Remanent_state.fprintf state "{\\noindent}Le Département d'informatique l'ENS assure une formation de haut niveau par la recherche dans le domaine de l'informatique, en mettant l'accent sur des aspects théoriques et fondamentaux de l'informatique moderne. %%\\n" in
-    let () = Remanent_state.fprintf state "Il prépare plus particulièrement aux métiers de la recherche académique ou industrielle en informatique et dans des disciplines utilisant l'informatique comme outil principal d'investigation. À travers le diplôme de l'ENS (DENS), les étudiants acquièrent en plus de leur spécialité des connaissances dans un ou plusieurs domaines complémentaires. %%\\n" in
+    let () = Remanent_state.fprintf state "{\\noindent}Le Département d'informatique l'ENS assure une formation de haut niveau par la recherche dans le domaine de l'informatique, en mettant l'accent sur des aspects théoriques et fondamentaux de l'informatique moderne. %%\n" in
+    let () = Remanent_state.fprintf state "Il prépare plus particulièrement aux métiers de la recherche académique ou industrielle en informatique et dans des disciplines utilisant l'informatique comme outil principal d'investigation. À travers le diplôme de l'ENS (DENS), les étudiants acquièrent en plus de leur spécialité des connaissances dans un ou plusieurs domaines complémentaires. %%\n" in
     let () = Remanent_state.fprintf state "Une importance particulière est accordée à l'interdisciplinarité et aux expériences professionnelles en France et à l'étranger." in
     let () = Remanent_state.print_newline state in
-    let () = Remanent_state.fprintf state "{\\noindent}Le titulaire du diplôme est un spécialiste dans le domaine de l'informatique. %%\\n" in
-    let () = Remanent_state.fprintf state "Il maîtrise des techniques de pointe en informatique et en mathématiques appliquées avec la profondeur d'analyse nécessaire pour appréhender les évolutions de sa discipline et y participer. %%\\n" in
-    let () = Remanent_state.fprintf state "Il est apte à s'intégrer rapidement dans des nouveaux environnements de travail, d'un point de vue aussi bien intellectuel que matériel. %%\\n" in
-    let () = Remanent_state.fprintf state "Il est autonome, fait preuve d'initiative et assimile rapidement de nouveaux concepts, tout en sachant replacer sa spécialité dans un contexte scientifique plus large. %%\\n" in
+    let () = Remanent_state.fprintf state "{\\noindent}Le titulaire du diplôme est un spécialiste dans le domaine de l'informatique. %%\n" in
+    let () = Remanent_state.fprintf state "Il maîtrise des techniques de pointe en informatique et en mathématiques appliquées avec la profondeur d'analyse nécessaire pour appréhender les évolutions de sa discipline et y participer. %%\n" in
+    let () = Remanent_state.fprintf state "Il est apte à s'intégrer rapidement dans des nouveaux environnements de travail, d'un point de vue aussi bien intellectuel que matériel. %%\n" in
+    let () = Remanent_state.fprintf state "Il est autonome, fait preuve d'initiative et assimile rapidement de nouveaux concepts, tout en sachant replacer sa spécialité dans un contexte scientifique plus large. %%\n" in
     let () = Remanent_state.fprintf state "Il sait travailler en équipe et maîtrise la communication scientifique à destination de ses pairs et du grand public." in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "\\clearpage" in
