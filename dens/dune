@@ -8,5 +8,5 @@
     -open Sco_keywords_handler
     -open Sco_scan_files
     -open Sco_datastructures
-    -open Sco_copy 
+    -open Sco_copy
 )))

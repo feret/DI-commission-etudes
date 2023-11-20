@@ -1,6 +1,6 @@
 val correct_string: string -> string
 val remove_acute: string -> string
-val remove_simple_quote: string -> string 
+val remove_simple_quote: string -> string
 val correct_string_txt: string -> string
 val correct_string_latex: string -> string
 val correct_string_email_latex: string -> string
@@ -21,3 +21,4 @@ val clean_spurious_uppercase_letters: string -> string
 val clean_mlle: string -> string
 
 val split_name: string -> string * string * string
+val trans_latex_address: string -> string
