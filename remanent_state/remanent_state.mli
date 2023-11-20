@@ -764,7 +764,8 @@ val get_ambiguous_internship_descriptions:
 val get_repository_to_dump_ambiguous_internship_descriptions:
     t -> t * string
 
-val get_ENSPSL_logo: t -> t * string
+val get_ENSPSL_logo: t -> t * string list
+val get_ENSPSL_logo_bis: t -> t * string list
 
 val get_commission: t -> t * (string * Public_data.annee) option
 val get_main_commission_rep: t -> t * string
@@ -804,7 +805,7 @@ val get_commission_rep_from_key: ?commission_rep:string -> ?univ:Public_data.uni
 
 val get_commission_rep: ?commission_rep:string -> sous_commission:Public_data.sous_commission -> ?univ:Public_data.universite -> t -> t * (string * string * string)
 
-val get_diplomation_rep: ?firstname:string  -> ?lastname:string ->  t -> t * string option 
+val get_diplomation_rep: ?firstname:string  -> ?lastname:string ->  t -> t * string option
 
 val push_copy: input_rep:string -> output_rep:string -> file_name:string -> t -> t
 val pop_copy:

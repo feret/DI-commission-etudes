@@ -520,13 +520,24 @@ let dump_attestation
     let state, enspsl =
       Remanent_state.get_ENSPSL_logo state
     in
-    let () =
+    let f x =
+      Printf.sprintf
+        "\\includegraphics{%s}"
+        x
+    in
+    let state, s  =
+      Tools.include_latex_list
+        f
+        state
+        enspsl
+    in
+      let () =
       Loggers.setheadpage logger
         [
           Loggers.fprintf_verbatim,
          (Format.sprintf
-           "\\IfFileExists{%s}{\\includegraphics{%s}}{}"
-           enspsl enspsl)]
+           "%s"
+           s)]
     in
     let (),dir_list,dir_dpt =
       match main_dpt with

@@ -481,10 +481,20 @@ let print_sous_commission
             ~commission_rep ~sous_commission state
       in
       let state, enspsl = Remanent_state.get_ENSPSL_logo state in
+      let f x =
+        Printf.sprintf
+          "\\includegraphics{%s}"
+          x
+      in
+      let state, psl  =
+        Tools.include_latex_list
+          f
+          state
+          enspsl
+      in
       let headpage s _ =
         [Loggers.fprintf_verbatim,
-         Format.sprintf "\\IfFileExists{%s}{\\includegraphics{%s} \\\\}{}"
-           enspsl enspsl;
+         Format.sprintf "%s \\\\}{}" psl;
          Loggers.fprintf,
            Format.sprintf
              "Résultats %s\\\\%s\\\\Page \\thepage/\\pageref{LastPage}\\\\"
@@ -773,10 +783,20 @@ let print_sous_commission
           | Some Public_data.Diplome_ENS _ -> state
           | Some Public_data.Diplome_National dip' ->
           let state, enspsl = Remanent_state.get_ENSPSL_logo state in
+          let f x =
+            Printf.sprintf
+              "\\includegraphics{%s}"
+              x
+          in
+          let state, s  =
+            Tools.include_latex_list
+              f
+              state
+              enspsl
+          in
           let headpage _ =
             [Loggers.fprintf_verbatim,
-             Format.sprintf "\\IfFileExists{%s}{\\includegraphics{%s} \\\\}{}"
-               enspsl enspsl;
+             Format.sprintf "%s \\\\}{}" s;
              Loggers.fprintf,
                Format.sprintf
                  "\\textbf{PROCÈS VERBAL D'ADMISSION EN MASTER} \\\\ \\textbf{Niveau~: MASTER 1}\\\\Page \\thepage/\\pageref{LastPage}\\\\"

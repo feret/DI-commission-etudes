@@ -11,10 +11,21 @@ let sad _dens = "N/A"
 
 let print_preamble state dens =
     let state, enspsl =
-        Remanent_state.get_ENSPSL_logo state
+        Remanent_state.get_ENSPSL_logo_bis state
+    in
+    let f x =
+      Printf.sprintf
+        "{\\includegraphics[width=5cm]{%s}}\\mbox{}"
+        x
+    in
+    let state, s  =
+      Tools.include_latex_list
+        f
+        state
+        enspsl
     in
     let () =
-        Remanent_state.fprintf state "\\fancyhead[LO,LE]{\\IfFileExists{%s}{\\includegraphics{%s}}{}}" enspsl enspsl
+        Remanent_state.fprintf state "\\fancyhead[L]{%s}" s
     in
     let () = Remanent_state.print_newline state in
     let () =
@@ -58,11 +69,11 @@ let print_preamble state dens =
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "L'obtention du diplôme de l'ENS est subordonnée à la validation~:" in
     let () = Remanent_state.print_newline state in
-    let () = Remanent_state.fprintf state "\\begin{itemize}" in
+    let () = Remanent_state.fprintf state "\\begin{itemize}[leftmargin=0.3cm]" in
     let () = Remanent_state.print_newline state in
-    let () = Remanent_state.fprintf state "\\item  d'une formation principale sanctionnée par l'obtention d'un master à orientation recherche. Un master professionnel comportant un mémoire de recherche peut éventuellement se substituer au master recherche. La discipline ou la mention et la spécialité de ce master définissent la \" spécialité principale \" d'un normalien, et la mention qui sera portée sur le diplôme. Le jury peut décider d'une mention différente lorsque le parcours le justifie." in
+    let () = Remanent_state.fprintf state "\\item[-]  d'une formation principale sanctionnée par l'obtention d'un master à orientation recherche. Un master professionnel comportant un mémoire de recherche peut éventuellement se substituer au master recherche. La discipline ou la mention et la spécialité de ce master définissent la \" spécialité principale \" d'un normalien, et la mention qui sera portée sur le diplôme. Le jury peut décider d'une mention différente lorsque le parcours le justifie." in
     let () = Remanent_state.print_newline state in
-    let () = Remanent_state.fprintf state "\\item  d'une formation complémentaire, dispensée ou agréée par l'ENS, répartie sur trois ans. Le volume global de cette formation doit représenter au moins un volume de travail additionnel équivalent à 1/5 (soit 20\\percent) de la formation principale." in
+    let () = Remanent_state.fprintf state "\\item[-]  d'une formation complémentaire, dispensée ou agréée par l'ENS, répartie sur trois ans. Le volume global de cette formation doit représenter au moins un volume de travail additionnel équivalent à 1/5 (soit 20\\percent) de la formation principale." in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "\\end{itemize}" in
     let () = Remanent_state.print_newline state in

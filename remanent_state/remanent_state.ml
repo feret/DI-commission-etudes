@@ -24,6 +24,7 @@ type parameters =
     parameters_repository:string;
     gps_backup_repository:string;
     enspsl_logo:string;
+    enspsl_logo_bis:string;
     repository_to_dump_gps_files: string;
     repository_to_dump_gps_server_faillures: string;
     repository_to_dump_attestations: string;
@@ -135,6 +136,7 @@ let parameters =
     pdfgenerator_options = "-interaction=nonstopmode";
     local_repository = "di/suivi_pedagogique" ;
     enspsl_logo = "LOGOs/ENSPSL.png" ;
+    enspsl_logo_bis = "LOGOs/ENSPSL2.png" ; 
     scholarships_repository = "di/scolarite/ELEVES" ;
     diplomation_repository = "di/scolarite/diplomation" ;
     repository_to_dump_transcripts = "fiches_de_notes" ;
@@ -2438,13 +2440,28 @@ let add_ambiguous_internship_description, get_ambiguous_internship_descriptions 
     gen get_ambiguous_internship_descriptions set_ambiguous_internship_descriptions
 
 let get_ENSPSL_logo t =
-  let t, local = get_local_repository t in
+  let t, local = get_all_potential_local_repositories t in
   let logo = t.parameters.enspsl_logo in
-  if local = ""
-  then
-    t, logo
-  else
-    t, Format.sprintf "%s/%s" local logo
+  t, List.rev_map
+    (fun local ->
+      if local = ""
+      then
+        logo
+      else
+        Format.sprintf "%s/%s" local logo)
+    (List.rev local)
+
+    let get_ENSPSL_logo_bis t =
+      let t, local = get_all_potential_local_repositories t in
+      let logo = t.parameters.enspsl_logo_bis in
+      t, List.rev_map
+        (fun local ->
+          if local = ""
+          then
+            logo
+          else
+            Format.sprintf "%s/%s" local logo)
+        (List.rev local)
 
 let get_promo ~firstname ~lastname t =
   let list = get_students t in
