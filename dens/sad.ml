@@ -52,7 +52,7 @@ let print_preamble state dens =
    let () = Remanent_state.fprintf state
         "La présente annexe descriptive au diplôme (supplément au diplôme) suit le modèle élaboré par la Commission européenne, le Conseil de l'Europe et l'UNESCO/CEPES." in
    let () = Remanent_state.print_newline state in
-   let () = Remanent_state.fprintf state "Elle vise à fournir des données indépendantes et suffisantes pour améliorer la transparence internationale et la reconnaissance académique et professionnelle équitable des qualifications (diplômes, acquis universitaires, certificats, etc.).%%\\n"
+   let () = Remanent_state.fprintf state "Elle vise à fournir des données indépendantes et suffisantes pour améliorer la transparence internationale et la reconnaissance académique et professionnelle équitable des qualifications (diplômes, acquis universitaires, certificats, etc.).%%\\n" in
    let () = Remanent_state.fprintf state "Elle est destinée à décrire la nature, le niveau, le contexte, le contenu et le statut des études accomplies avec succès par la personne désignée par la qualification originale à laquelle ce présent supplément est annexé.%%\\n" in
    let () = Remanent_state.fprintf state "Elle doit être dépourvue de tout jugement de valeur, déclaration d'équivalence ou suggestion de reconnaissance. Toutes les informations requises dans cette annexe doivent être fournies. Lorsqu'une information fait défaut, une explication doit être donnée.%%\\n" in
    let () = Remanent_state.fprintf state "\\section*{Principes généraux du diplôme de l'ENS}" in
