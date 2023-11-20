@@ -26,18 +26,18 @@ let print_preamble state dens =
         enspsl
     in
     let () =
-        Remanent_state.fprintf state "\\fancyhead[L]{%s}" s
+        Remanent_state.fprintf state "\\lhead{%s}" s
     in
     let () = Remanent_state.print_newline state in
     let () =
-        Remanent_state.fprintf state "\\fancyhead[R]{Supplément au diplôme de l'étudiant N$^o$\\;%s}" (sad dens)  in
+        Remanent_state.fprintf state "\\rhead{Supplément au diplôme de l'étudiant N$^o$\\;%s}" (sad dens)  in
     let () = Remanent_state.print_newline state in
     let () =
-        Remanent_state.fprintf state "\\fancyfoot[C]{}"
+        Remanent_state.fprintf state "\\cfoot{}"
     in
     let () = Remanent_state.print_newline state in
     let () =
-        Remanent_state.fprintf state "\\fancyfoot[R]{\\textit{Supplément au diplôme de l'ENS - page \\thepage/\\pageref{LastPage}}}"
+        Remanent_state.fprintf state "\\rfoot{\\textit{Supplément au diplôme de l'ENS - page \\thepage/\\pageref{LastPage}}}"
     in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "\\newcommand{\\percent}{$\\%s$}" "%" in

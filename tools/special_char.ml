@@ -92,13 +92,13 @@ let special_char_tab  =
       "ú","{\\'u}", "&uacute;","ú","ú","Ú","u";
       (*"ū"*)
       "\191", "'", "'","'","'","'","\'";
-      "\002", "_", "_","_","_","_","_";
+    (*  "\002", "_", "_","_","_","_","_";*)
     (*  "%"   , "" ,"%" ,"%","%","%","%";*)
       "_", "\\_" , "_","_","_","_","_";
     ]
 
-let trans_latex_address s =
-  String.map (fun i -> if i='_' then '\002' else i) s
+let trans_latex_address s = s
+  (*String.map (fun i -> if i='_' then '\002' else i) s*)
 
 let get_gen proj =
   List.rev_map
