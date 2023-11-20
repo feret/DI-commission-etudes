@@ -95,7 +95,7 @@ let print_preamble state dens =
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "{\\noindent}Spécialité principale~: INFORMATIQUE" in
     let () = Remanent_state.print_newline state in
-    let () = Remanent_state.fprintf state "\\noindent\\textbf{Nom et statut de l'établissement ayant délivré le diplôme~:}" in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Nom et statut de l'établissement ayant délivré le diplôme~:}" in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "{\\noindent}École normale supérieure (ENS), Paris, France" in
     let () = Remanent_state.print_newline state in
@@ -157,8 +157,8 @@ let maj map =
   in
   let l = aux2 10 [] in l,l
 
-let width_gps_code = 7.
-let width_discipline = 5.5
+let width_gps_code = 8.
+let width_discipline = 6.5
 let width_intitule = 20.
 let width_ects = 2.5
 
@@ -190,7 +190,7 @@ let size3 = compute_size [width_gps_code;width_discipline;width_intitule]
 let dump_course_gen label is_empty fold iter acc state =
     if is_empty acc  then state
     else
-    let () = Remanent_state.fprintf state "\\noindent\\textbf{%s}" label in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textbf{%s}" label in
     let () = Remanent_state.print_newline state in
     let ects =
           fold
