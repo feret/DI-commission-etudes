@@ -69,7 +69,7 @@ let all =
     humanities,Humanities;
     ecla,Ecla;
     sans_mineure,Sans_mineure;
-    activite,Activite
+    activite,Activite;
   ]
 
 let map =
@@ -741,12 +741,16 @@ let suggest_candidate dens state =
       && (match dens.Public_data.dens_master with [] -> false | _ -> true)*)
     then
       let s =
-           {Public_data.dens_candidate_main_dpt = dens.Public_data.dens_main_dpt ;
+           {
+      Public_data.dens_candidate_main_dpt = dens.Public_data.dens_main_dpt ;
       Public_data.dens_candidate_firstname = dens.Public_data.dens_firstname ;
       Public_data.dens_candidate_lastname = dens.Public_data.dens_lastname ;
       Public_data.dens_candidate_promotion = dens.Public_data.dens_promotion ;
       Public_data.dens_candidate_diplomation_year = dens.Public_data.dens_diplomation_year ;
-      Public_data.dens_candidate_ok = dens.Public_data.dens_ok}
+      Public_data.dens_candidate_ok = dens.Public_data.dens_ok;
+      Public_data.dens_candidate_ine = dens.Public_data.dens_ine;
+      Public_data.dens_candidate_sad = dens.Public_data.dens_sad
+      }
       in
       Remanent_state.add_dens_candidate_suggestion state s
     else state
@@ -768,6 +772,8 @@ type dens_candidate_id =
     candidate_promotion : string option ;
     candidate_diplomation_year : string option ;
     candidate_ok : bool option ;
+    candidate_ine : string option ;
+    candidate_sad : int option ;
 }
 
 let empty_candidate_id =
@@ -778,6 +784,8 @@ let empty_candidate_id =
   candidate_promotion = None ;
   candidate_diplomation_year = None ;
   candidate_ok = None ;
+  candidate_ine = None ;
+  candidate_sad = None ;
 }
 
 let collect_bool suffix pos state =
@@ -792,19 +800,32 @@ let collect_bool suffix pos state =
     )
     state
 
+    let collect_int suffix pos state =
+      Tools.collect_int
+        (fun msg state ->
+           let msg = msg^suffix in
+           Remanent_state.warn
+             pos
+             msg
+             Exit
+             state
+        )
+        state
+
 let event_opt = Some (Profiling.Collect_dens_candidates)
 let compute_repository = Remanent_state.get_dens_candidates_list_repository
 
 let lift_pred = Lift.pred_safe
 let lift_string =
   (Lift.string empty_candidate_id Public_data.empty_dens_candidate).Lift.safe
-(*let lift_string_opt =
-  (Lift.string empty_candidate_id Public_data.empty_dens_candidate).Lift.opt_safe*)
+let lift_string_opt =
+  (Lift.string empty_candidate_id Public_data.empty_dens_candidate).Lift.opt_safe
 let lift_bool_opt =
   (Lift.bool empty_candidate_id Public_data.empty_dens_candidate).Lift.opt_safe
 let lift_dpt =
   (Lift.main_dpt empty_candidate_id Public_data.empty_dens_candidate).Lift.safe
-
+  let lift_int_opt =
+    (Lift.int empty_candidate_id Public_data.empty_dens_candidate).Lift.opt_safe
 
 let keywords_list =
   [
@@ -815,6 +836,8 @@ let keywords_list =
     Public_data.Promo;
     Public_data.Departement;
     Public_data.Accepte;
+    Public_data.Numero_ine;
+    Public_data.Numero_sad;
   ]
 
   let keywords_of_interest =
@@ -824,6 +847,8 @@ let keywords_list =
       Public_data.Annee_Academique;
       Public_data.Promo;
       Public_data.Departement;
+      Public_data.Numero_ine;
+      Public_data.Numero_sad;
     ]
 
 let mandatory_fields =
@@ -913,6 +938,28 @@ let all_fields =
             ~field_name:"validation"
             ~record_name
             ~pos:__POS__;
+            lift_string_opt
+              ~keyword:Public_data.Numero_ine
+              ~set_tmp:(Tools.collect_string 
+                          (fun candidate_ine x -> {x with candidate_ine}))
+              ~get_tmp:(fun a -> a.candidate_ine)
+              ~get:(fun a -> a.Public_data.dens_candidate_ine)
+              ~set:(fun dens_candidate_ine a ->
+                  {a with Public_data.dens_candidate_ine})
+              ~field_name:"INE"
+              ~record_name
+              ~pos:__POS__;
+              lift_int_opt
+                ~keyword:Public_data.Numero_sad
+                ~set_tmp:(collect_int"sad" __POS__
+                            (fun candidate_sad x -> {x with candidate_sad}))
+                ~get_tmp:(fun a -> a.candidate_sad)
+                ~get:(fun a -> a.Public_data.dens_candidate_sad)
+                ~set:(fun dens_candidate_sad a ->
+                    {a with Public_data.dens_candidate_sad})
+                ~field_name:"Numeror SAD"
+                ~record_name
+                ~pos:__POS__;
             ]
 
 let get_dens_candidates

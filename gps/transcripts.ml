@@ -6383,7 +6383,7 @@ let export_transcript
            | Public_data.French -> Loggers.French
            | Public_data.English -> Loggers.English );
          Loggers.font = 10 ;
-         Loggers.template = Loggers.Transcript ; 
+         Loggers.template = Loggers.Transcript ;
          Loggers.bilinguage =
            bilinguage
         }
@@ -7863,6 +7863,7 @@ let export_transcript
           Public_data.dens_lastname = lastname;
           Public_data.dens_promotion = promo;
           Public_data.dens_diplomation_year = current_year;
+          Public_data.dens_birthdate = gps_file.date_de_naissance ;
           Public_data.dens_total_ects = dens_total ;
           Public_data.dens_current_year_ects =
             dens_year ;
@@ -7889,6 +7890,8 @@ let export_transcript
           Public_data.dens_activite_ouverture=[];
           Public_data.dens_activite_autre=[];
           Public_data.dens_cours_par_dpt = Public_data.StringMap.empty;
+          Public_data.dens_sad = None ;
+          Public_data.dens_ine = None ;
           Public_data.dens_ok = None ;
         }
   in
@@ -8091,7 +8094,9 @@ let state,year = Remanent_state.get_current_academic_year state in
                 | Some dens_in_bdd ->
                   {dens with
                           Public_data.dens_diplomation_year = dens_in_bdd.Public_data.dens_candidate_diplomation_year;
-                          Public_data.dens_ok = accepte}
+                          Public_data.dens_ok = accepte;
+                          Public_data.dens_ine = dens_in_bdd.Public_data.dens_candidate_ine;
+                          Public_data.dens_sad = dens_in_bdd.Public_data.dens_candidate_sad;   }
             in
             let state =
               Remanent_state.add_dens

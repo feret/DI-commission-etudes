@@ -167,6 +167,8 @@ let asso_list =
     Public_data.Niveau, ["niveau";"level"];
     Public_data.Nom_du_tuteur, ["nom du tuteur"];
     Public_data.Note, ["note"];
+    Public_data.Numero_ine, ["ine";"numero ine"];
+    Public_data.Numero_sad, ["sad";"numero sad"];
     Public_data.Obtenu_en, ["obtenu en"];
     Public_data.Option, ["option"];
     Public_data.Options, ["options"];

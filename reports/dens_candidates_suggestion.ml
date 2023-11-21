@@ -33,7 +33,18 @@ struct
           match a.Public_data.dens_candidate_ok with
           | None -> ""
           | Some true -> "O"
-          | Some false -> "N")
+          | Some false -> "N");
+       ["INE"],
+          (fun a ->
+              match a.Public_data.dens_candidate_ine with
+              | None -> ""
+              | Some i -> i );
+              ["SAD"],
+                 (fun a ->
+                     match a.Public_data.dens_candidate_sad with
+                     | None -> ""
+                     | Some i -> Format.sprintf "%i" i) ;
+
     ]
 
 

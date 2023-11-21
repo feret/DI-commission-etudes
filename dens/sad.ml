@@ -5,9 +5,19 @@ let order = ["first";"second";"third";"fourth";"fifth"]
 let string_of_float x = if x=0. then "" else Notes.string_of_ects (Some x)
 
 let title = "\\textbf{SUPPLÉMENT AU DIPLÔME DE L'ÉCOLE NORMALE SUPÉRIEURE}"
-let birthdate _dens = "N/A"
-let ine _dens = "N/A"
-let sad _dens = "N/A"
+let birthdate dens =
+    match dens.Public_data.dens_birthdate with
+      | None -> ""
+      | Some i -> i
+let ine dens =
+    match dens.Public_data.dens_ine with
+      | None -> ""
+      | Some i -> i
+
+let sad dens =
+match dens.Public_data.dens_sad with
+  | None -> ""
+  | Some i -> Format.sprintf "%i" i
 
 let print_preamble state dens =
     let state, enspsl =

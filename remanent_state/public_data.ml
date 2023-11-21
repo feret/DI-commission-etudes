@@ -847,6 +847,8 @@ let all_notes_string =
         dens_candidate_promotion : string ;
         dens_candidate_diplomation_year : string ;
         dens_candidate_ok : bool option ;
+        dens_candidate_ine : string option ;
+        dens_candidate_sad : int option ;
       }
 
   let empty_dens_candidate =
@@ -857,11 +859,14 @@ let all_notes_string =
       dens_candidate_promotion = "" ;
       dens_candidate_diplomation_year = "" ;
       dens_candidate_ok = None ;
+      dens_candidate_ine = None ;
+      dens_candidate_sad = None ;
     }
 
   type dens =
     {
       dens_main_dpt : main_dpt ;
+      dens_birthdate : string option ;
       dens_firstname : string ;
       dens_lastname : string ;
       dens_promotion : string ;
@@ -891,6 +896,8 @@ let all_notes_string =
       dens_activite_ouverture: experience_supplement list;
       dens_activite_autre: experience_supplement list;
       dens_diplomation_year: string;
+      dens_ine: string option;
+      dens_sad: int option;
       dens_ok : bool option ;
     }
 
@@ -984,6 +991,8 @@ type keywords =
   | Niveau
   | Nom_du_tuteur
   | Note
+  | Numero_sad
+  | Numero_ine
   | Obtenu_en
   | Option
   | Options
