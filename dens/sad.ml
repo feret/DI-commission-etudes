@@ -200,7 +200,7 @@ let size4 = compute_size [width_gps_code;width_discipline;width_intitule;width_e
 let size3 = compute_size [width_gps_code;width_discipline;width_intitule]
 
 
-let dump_course_gen label is_empty fold iter acc state =
+let dump_course_gen label is_empty fold fold_state _iter acc state =
     if is_empty acc  then state
     else
     let () = Remanent_state.fprintf state "{\\noindent}\\textbf{%s}" label in
@@ -222,17 +222,30 @@ let dump_course_gen label is_empty fold iter acc state =
                 __POS__
                 state
     in
-    let () =
-      iter
-        (fun elt ->
+    let state =
+      fold_state
+        (fun elt state  ->
+            let state, l, _l_en =
+              match
+                Remanent_state.get_course_name_translation
+                  ~label:elt.Public_data.supplement_intitule
+                  state
+              with
+              | state, (None,None) ->
+                state, elt.Public_data.supplement_intitule, elt.Public_data.supplement_intitule
+              | state, (Some lib, Some lib') ->
+                  state, lib, lib'
+              | state, ((Some lib, None) | (None, Some lib)) ->
+                  state, lib, lib
+          in
           let () = Remanent_state.open_row state in
           let () = Remanent_state.print_cell (elt.Public_data.supplement_code) state in
           let () = Remanent_state.print_cell (elt.Public_data.supplement_discipline) state in
-          let () = Remanent_state.print_cell (elt.Public_data.supplement_intitule) state in
+          let () = Remanent_state.print_cell l state in
           let () = Remanent_state.print_cell (string_of_float elt.Public_data.supplement_ects) state in
           let () = Remanent_state.close_row state in
-          ())
-        acc
+          state)
+        acc state
     in
     let () = Remanent_state.close_array state in
     let () = Remanent_state.fprintf state "\\mbox{}\\bigskip" in
@@ -240,10 +253,10 @@ let dump_course_gen label is_empty fold iter acc state =
     state
 
     let fold_left_tild f a b = List.fold_left (fun a b -> f b a) b a
-
+    let fold_left_tild' f a b = List.fold_left (fun a b -> f b a) b a
     let dump_course_list label list state =
         let list = list.Public_data.dens in
-        dump_course_gen label (fun l -> l = []) fold_left_tild List.iter list state
+        dump_course_gen label (fun l -> l = []) fold_left_tild fold_left_tild' List.iter list state
 
     let dump_course_list_autre label list map state =
         let list = list.Public_data.dens in
@@ -253,6 +266,10 @@ let dump_course_gen label is_empty fold iter acc state =
             fold_left_tild f list
               (Public_data.StringMap.fold (fun _  l ->
                     fold_left_tild f l.Public_data.dens) map acc ))
+          (fun f (list,map) acc ->
+              fold_left_tild' f list
+                  (Public_data.StringMap.fold (fun _  l ->
+                              fold_left_tild' f l.Public_data.dens) map acc ))
           (fun f (list,map) ->
             Public_data.StringMap.iter (fun _ l -> List.iter f l.Public_data.dens) map;
             List.iter f list)
