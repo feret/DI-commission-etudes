@@ -26,7 +26,7 @@ let print_preamble state dens =
         enspsl
     in
     let () =
-        Remanent_state.fprintf state "\\lhead{%s}" s
+        Remanent_state.fprintf_verbatim state "\\lhead{%s}" s
     in
     let () = Remanent_state.print_newline state in
     let () =

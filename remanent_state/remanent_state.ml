@@ -130,13 +130,17 @@ let parameters =
     cloud_synchronization_mode = Public_data.CommandLine ;
     cloud_client = Public_data.NextCloudCmd ;
     cloud_client_options = "-n --silent" ;
-    potential_cloud_repositories = ["/users/absint3/feret/Nextcloud";"/Users/feret/Nextcloud"] ;
+    potential_cloud_repositories =
+          [
+            "/users/absint3/feret/Nextcloud";
+            "/Users/feret/Nextcloud"
+          ] ;
     cloud_support_dynamic_link = false ;
     pdfgenerator = Public_data.PdfLatex ;
     pdfgenerator_options = "-interaction=nonstopmode";
     local_repository = "di/suivi_pedagogique" ;
     enspsl_logo = "LOGOs/ENSPSL.png" ;
-    enspsl_logo_bis = "LOGOs/ENSPSL2.png" ; 
+    enspsl_logo_bis = "LOGOs/ENSPSL2.png" ;
     scholarships_repository = "di/scolarite/ELEVES" ;
     diplomation_repository = "di/scolarite/diplomation" ;
     repository_to_dump_transcripts = "fiches_de_notes" ;
