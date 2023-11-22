@@ -189,6 +189,7 @@ let width_etbl = 1.
 let width_dom = 1.5
 let width_annee = 1.
 
+
 let undef = "une"
 
 let pos_order_1 = ordre,order
@@ -210,6 +211,7 @@ let compute_size l =
         (List.rev l)
   in size
 
+let size_m2 = compute_size [width_etbl;width_dom;width_annee]
 let size4 = compute_size [width_gps_code;width_discipline;width_intitule;width_ects]
 let size3 = compute_size [width_gps_code;width_discipline;width_intitule]
 
@@ -360,7 +362,7 @@ let dump_activite_list label list state =
 let dump_master dens state =
     let list = dens.Public_data.dens_master in
     match list with
-        | [] -> state 
+        | [] -> state
         | _ ->
           begin
             let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Diplôme national de Master}" in
@@ -368,7 +370,7 @@ let dump_master dens state =
           let () = Remanent_state.fprintf state "{\\noindent}Nombre d'ECTS~: 120" in
           let () = Remanent_state.print_newline state in
           let size,bgcolor,title,title_english =
-              [Some width_etbl;Some width_dom;Some width_annee],[None;None;None],[["Établissement"];["Domaine, Mention, Parcours"];["Année d'obtention"]],[["Etablissement"];["Field, Mention, Track"];["Year of obtention"]]
+              size_m2,[None;None;None],[["Établissement"];["Domaine, Mention, Parcours"];["Année d'obtention"]],[["Etablissement"];["Field, Mention, Track"];["Year of obtention"]]
           in
           let state = Remanent_state.open_array
                       ~bgcolor
