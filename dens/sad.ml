@@ -185,6 +185,10 @@ let width_discipline = 6.5
 let width_intitule = 20.
 let width_ects = 2.5
 
+let width_etbl = 1.
+let width_dom = 1.5
+let width_annee = 1.
+
 let undef = "une"
 
 let pos_order_1 = ordre,order
@@ -353,8 +357,49 @@ let dump_activite_list label list state =
       let () = Remanent_state.print_newline state in
       state
 
+let dump_master dens state =
+    let list = dens.Public_data.dens_master in
+    match list with
+        | [] -> state 
+        | _ ->
+          begin
+            let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Diplôme national de Master}" in
+          let () = Remanent_state.print_newline state in
+          let () = Remanent_state.fprintf state "{\\noindent}Nombre d'ECTS~: 120" in
+          let () = Remanent_state.print_newline state in
+          let size,bgcolor,title,title_english =
+              [Some width_etbl;Some width_dom;Some width_annee],[None;None;None],[["Établissement"];["Domaine, Mention, Parcours"];["Année d'obtention"]],[["Etablissement"];["Field, Mention, Track"];["Year of obtention"]]
+          in
+          let state = Remanent_state.open_array
+                      ~bgcolor
+                      ~size
+                      ~with_lines:true
+                      ~title
+                      ~title_english
+                      __POS__
+                      state
+          in
+          let () =
+              List.iter
+                  (fun elt ->
+                    let () = Remanent_state.open_row state in
+                    let () = Remanent_state.print_cell
+                              (Public_data.string_of_universite_long_fr         elt.Public_data.diplome_univ_key) state in
+                    let () = Remanent_state.print_cell (Tools.unsome_string elt.Public_data.diplome_cursus.Public_data.inscription) state in
+                    let () = Remanent_state.print_cell elt.Public_data.diplome_year state in
+                    let () = Remanent_state.close_row state in
+                    ())
+                  list
+              in
+            let () = Remanent_state.close_array state in
+            let () = Remanent_state.fprintf state "\\mbox{}\\bigskip" in
+            let () = Remanent_state.print_newline state in
+            state
+          end
+
 let prompt_sad dens state =
     let () = print_preamble state dens in
+    let state = dump_master dens state in
     let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Enseignements complémentaires suivis et validés dans le cadre du Diplôme de l'ENS, et ECTS obtenus}" in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "{\\noindent}Nombre d'ECTS~: %s\\bigskip" (string_of_float  dens.Public_data.dens_total_ects) in
@@ -387,37 +432,6 @@ let prompt_sad dens state =
     let state = dump_course_list "Autres (vie universitaire, initiatives citoyennes, sport, etc.)" (lift_dens dens.Public_data.dens_cours_activite) state
     in state
 
-(*dens_main_dpt : main_dpt ;
-    dens_firstname : string ;
-    dens_lastname : string ;
-    dens_promotion : string ;
-    dens_total_ects : float ;
-    dens_current_year_ects : float ;
-    dens_sortant: bool option;
-    dens_derogation: bool;
-    dens_total_potential_ects : float ;
-    dens_current_year_potential_ects : float ;
-    dens_nb_inscriptions : int ;
-    dens_nb_mandatory_course : int ;
-    dens_nb_math_course : int ;
-    dens_nb_math_and_math_info_course : int ;
-    dens_master : diplome_national list;
-    dens_parcours: diplome_national list ;
-    dens_cours_a_trier: cours_supplement list repartition_diplomes ;
-    dens_cours_discipline_principale: cours_supplement list repartition_diplomes ;
-    dens_cours_hors_disciplines_principale: cours_supplement list repartition_diplomes;
-    dens_cours_par_dpt: cours_supplement list repartition_diplomes StringMap.t;
-    dens_cours_activite: cours_supplement list;
-    dens_cours_langue: cours_supplement list;
-    dens_cours_mineure: cours_supplement list repartition_diplomes StringMap.t;
-    dens_cours_majeure: cours_supplement list repartition_diplomes StringMap.t;
-    dens_activite_a_trier: experience_supplement list;
-    dens_activite_recherche: experience_supplement list;
-    dens_activite_internationale: experience_supplement list;
-    dens_activite_ouverture: experience_supplement list;
-    dens_activite_autre: experience_supplement list;
-    dens_diplomation_year: string;
-    dens_ok : bool option ;*)
 
 
 
