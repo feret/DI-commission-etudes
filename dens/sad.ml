@@ -185,9 +185,9 @@ let width_discipline = 6.5
 let width_intitule = 20.
 let width_ects = 2.5
 
-let width_etbl = 1.
+let width_etbl = 0.7
 let width_dom = 1.5
-let width_annee = 1.
+let width_annee = 0.7
 
 
 let undef = "une"
