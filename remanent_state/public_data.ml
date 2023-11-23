@@ -449,6 +449,8 @@ type cursus =
     cursus_gps: string option;
     inscription: string option;
     inscription_en: string option;
+    label_sad: string option;
+    label_sad_en: string option;
     entete: string option;
     entete_en: string option;
     pied: string option;
@@ -462,6 +464,8 @@ let empty_cursus =
     cursus_dpt = None;
     cursus_gps = None;
     cursus_univ = None;
+    label_sad = None;
+    label_sad_en = None; 
     inscription = None;
     inscription_en = None;
     entete = None;

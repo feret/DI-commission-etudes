@@ -349,6 +349,8 @@ type cursus_id  =
     cursus_gps: string option;
     headpage: string option;
     headpage_en: string option;
+    label_sad: string option;
+    label_sad_en: string option;
     footpage: string option;
     footpage_en: string option;
     inscription: string option;
@@ -364,6 +366,8 @@ let empty_cursus =
     cursus_gps = None;
     headpage = None;
     headpage_en = None;
+    label_sad = None;
+    label_sad_en = None;
     footpage = None;
     footpage_en = None;
     inscription = None;
@@ -528,6 +532,40 @@ let all_fields =
       ~field_name:"incription notice (anglais)"
       ~record_name
       ~pos:__POS__;
+      lift_string_opt
+          ~keyword:Public_data.Libelle
+          ~set_tmp:(fun state label_sad x ->
+              state,
+              let label_sad =
+                match label_sad with
+                | Some x when String.trim x = "" -> None
+                | _ -> label_sad
+              in
+                {x with label_sad})
+          ~get_tmp:(fun a -> a.label_sad)
+          ~get:(fun a -> a.Public_data.label_sad)
+          ~set:(fun label_sad a ->
+              {a with Public_data.label_sad})
+          ~field_name:"incription notice"
+          ~record_name
+          ~pos:__POS__;
+      lift_string_opt
+        ~keyword:Public_data.Label
+        ~set_tmp:(fun state label_sad_en x ->
+            state,
+            let label_sad_en =
+              match label_sad_en with
+              | Some x when String.trim x = "" -> None
+              | _ -> label_sad_en
+            in
+            {x with label_sad_en})
+        ~get_tmp:(fun a -> a.label_sad_en)
+        ~get:(fun a -> a.Public_data.label_sad_en)
+        ~set:(fun label_sad_en a ->
+            {a with Public_data.label_sad_en})
+        ~field_name:"incription notice (anglais)"
+        ~record_name
+        ~pos:__POS__;
     lift_string_opt
       ~keyword:Public_data.Entete
           ~set_tmp:(fun state headpage x ->

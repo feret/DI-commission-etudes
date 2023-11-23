@@ -387,7 +387,7 @@ let dump_master dens state =
                     let () = Remanent_state.open_row state in
                     let () = Remanent_state.print_cell
                               (Public_data.string_of_universite_long_fr         elt.Public_data.diplome_univ_key) state in
-                    let () = Remanent_state.print_cell (Tools.unsome_string elt.Public_data.diplome_cursus.Public_data.inscription) state in
+                    let () = Remanent_state.print_cell (Tools.unsome_string elt.Public_data.diplome_cursus.Public_data.label_sad) state in
                     let () = Remanent_state.print_cell elt.Public_data.diplome_year state in
                     let () = Remanent_state.close_row state in
                     ())

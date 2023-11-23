@@ -232,6 +232,8 @@ type cursus =
     cursus_gps: string option;
     inscription: string option;
     inscription_en: string option;
+    label_sad: string option;
+    label_sad_en: string option; 
     entete: string option;
     entete_en: string option;
     pied: string option;
