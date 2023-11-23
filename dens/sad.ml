@@ -180,7 +180,7 @@ let maj map =
   in
   let l = aux2 10 [] in l,l
 
-let width_gps_code = 8.
+let width_gps_code = 9.
 let width_discipline = 6.5
 let width_intitule = 20.
 let width_ects = 2.5
