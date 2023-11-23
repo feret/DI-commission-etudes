@@ -635,6 +635,24 @@ let all_fields =
 
   ]
 
+  let keywords_list =
+    [
+      Public_data.Ignore ;
+      Public_data.Departement ;
+      Public_data.Annee_Academique;
+      Public_data.Niveau;
+      Public_data.Universite;
+      Public_data.Code_gps;
+      Public_data.Inscription;
+      Public_data.Inscription_en;
+      Public_data.Label;
+      Public_data.Libelle; 
+      Public_data.Entete;
+      Public_data.Entete_en;
+      Public_data.Pied_de_page;
+      Public_data.Pied_de_page_en;
+    ]
+
 let get_cursus
     ?repository
     ?prefix
