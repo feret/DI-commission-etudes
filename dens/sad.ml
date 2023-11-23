@@ -187,7 +187,7 @@ let width_ects = 2.5
 
 let width_etbl = 0.7
 let width_dom = 1.5
-let width_annee = 0.7
+let width_annee = 0.5
 
 
 let undef = "une"
