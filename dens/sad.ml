@@ -359,6 +359,12 @@ let dump_activite_list label list state =
       let () = Remanent_state.print_newline state in
       state
 
+let next_year y =
+  try
+    string_of_int (1+(int_of_string y))
+  with
+    | _ -> y
+
 let dump_master dens state =
     let list = dens.Public_data.dens_master in
     match list with
@@ -388,7 +394,7 @@ let dump_master dens state =
                     let () = Remanent_state.print_cell
                               (Public_data.string_of_universite_long_fr         elt.Public_data.diplome_univ_key) state in
                     let () = Remanent_state.print_cell (Tools.unsome_string elt.Public_data.diplome_cursus.Public_data.label_sad) state in
-                    let () = Remanent_state.print_cell elt.Public_data.diplome_year state in
+                    let () = Remanent_state.print_cell (next_year elt.Public_data.diplome_year) state in
                     let () = Remanent_state.close_row state in
                     ())
                   list
