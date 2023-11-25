@@ -494,7 +494,7 @@ let print_sous_commission
       in
       let headpage s _ =
         [Loggers.fprintf_verbatim,
-         Format.sprintf "%s \\\\}{}" psl;
+         Format.sprintf "%s \\\\" psl;
          Loggers.fprintf,
            Format.sprintf
              "Résultats %s\\\\%s\\\\Page \\thepage/\\pageref{LastPage}\\\\"
