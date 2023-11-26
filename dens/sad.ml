@@ -433,14 +433,15 @@ let prompt_sad dens state =
         dump_activite_list
           "Expérience d'ouverture hors les murs (stages non-académiques uniquement, en France ou à l'étranger: stages en administration, entreprise, lycée, ONG, etc.)" dens.Public_data.dens_activite_ouverture state
     in
-    let state = dump_activite_list "Autre" dens.Public_data.dens_activite_autre state in
-    let state = dump_course_list "Autres (vie universitaire, initiatives citoyennes, sport, etc.)" (lift_dens dens.Public_data.dens_cours_activite) state
-    in
     let state =
         dump_course_list
             "Cours de langues étrangères et certifications en langues"
             (lift_dens dens.Public_data.dens_cours_langue) state
-    in state
+    in
+    let state = dump_activite_list "Autre" dens.Public_data.dens_activite_autre state in
+    let state = dump_course_list "Autres (vie universitaire, initiatives citoyennes, sport, etc.)" (lift_dens dens.Public_data.dens_cours_activite) state
+    in
+     state
 
 
 
