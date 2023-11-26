@@ -367,34 +367,10 @@ let split_stages ~firstname ~lastname dens state =
 
 let declare_as_minor dpt (state,dens) =
       let dpt  = translate_main_dpt dpt in
-      let state =
-        Remanent_state.warn
-          __POS__
-          (Format.sprintf "DECLARE %s" dpt)
-          Exit
-          state
-      in
-      let state =
-          Public_data.StringMap.fold
-            (fun string _ state ->
-              Remanent_state.warn
-                __POS__
-                (Format.sprintf "MAP %s" string)
-                Exit
-                state)
-
-          dens.Public_data.dens_cours_par_dpt state in
       match Public_data.StringMap.find_opt dpt  dens.Public_data.dens_cours_par_dpt
       with
       | None -> state, dens
       | Some a ->
-      let state =
-        Remanent_state.warn
-          __POS__
-          (Format.sprintf "FOUND %s" dpt)
-          Exit
-          state
-      in
           let dens_cours_par_dpt =
               Public_data.StringMap.remove dpt
                 dens.Public_data.dens_cours_par_dpt
@@ -408,9 +384,6 @@ let declare_as_minor dpt (state,dens) =
                     Public_data.dens_cours_mineure}
 
 let collect_mineure dens state =
-    let state =
-      Remanent_state.warn __POS__ "COLLECT MINEURE" Exit state
-    in
     let firstname = dens.Public_data.dens_firstname in
     let lastname = dens.Public_data.dens_lastname in
     let year = dens.Public_data.dens_diplomation_year in
