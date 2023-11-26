@@ -365,7 +365,40 @@ let split_stages ~firstname ~lastname dens state =
         state stages dens
 
 
-let collect_mineure dens state = state,dens (* TODO *)
+let declare_as_minor dpt dens =
+      let dpt  = Public_data.string_of_dpt dpt in
+      match Public_data.StringMap.find_opt dpt  dens.Public_data.dens_cours_par_dpt
+      with
+      | None -> dens
+      | Some a ->
+          let dens_cours_par_dpt =
+              Public_data.StringMap.remove dpt
+                dens.Public_data.dens_cours_par_dpt
+          in
+          let dens_cours_mineure =
+              Public_data.StringMap.add dpt
+               a dens.Public_data.dens_cours_mineure
+          in
+          {dens with
+                    Public_data.dens_cours_par_dpt;
+                    Public_data.dens_cours_mineure}
+
+let collect_mineure dens state =
+    let firstname = dens.Public_data.dens_firstname in
+    let lastname = dens.Public_data.dens_lastname in
+    let year = dens.Public_data.dens_diplomation_year in
+    let state, minors_list =
+      Remanent_state.get_minor_candidates
+        ~firstname ~lastname ~year
+        state
+    in
+    state, List.fold_left
+      (fun dens elt  ->
+         match elt.Public_data.secondary_accepted with
+           | None | Some false -> dens
+           | Some true ->
+                declare_as_minor elt.Public_data.secondary_dpt dens
+      ) dens minors_list
 
 let dump_repartition ?key repartition (state, total) =
   let i,ects =
@@ -940,7 +973,7 @@ let all_fields =
             ~pos:__POS__;
             lift_string_opt
               ~keyword:Public_data.Numero_ine
-              ~set_tmp:(Tools.collect_string 
+              ~set_tmp:(Tools.collect_string
                           (fun candidate_ine x -> {x with candidate_ine}))
               ~get_tmp:(fun a -> a.candidate_ine)
               ~get:(fun a -> a.Public_data.dens_candidate_ine)
