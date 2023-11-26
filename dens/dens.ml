@@ -365,12 +365,26 @@ let split_stages ~firstname ~lastname dens state =
         state stages dens
 
 
-let declare_as_minor dpt dens =
+let declare_as_minor dpt (state,dens) =
       let dpt  = Public_data.string_of_dpt dpt in
+      let state =
+        Remanent_state.warn
+          __POS__
+          (Format.sprintf "DECLARE %s" dpt)
+          Exit
+          state
+      in
       match Public_data.StringMap.find_opt dpt  dens.Public_data.dens_cours_par_dpt
       with
-      | None -> dens
+      | None -> state, dens
       | Some a ->
+      let state =
+        Remanent_state.warn
+          __POS__
+          (Format.sprintf "FOUND %s" dpt)
+          Exit
+          state
+      in
           let dens_cours_par_dpt =
               Public_data.StringMap.remove dpt
                 dens.Public_data.dens_cours_par_dpt
@@ -379,11 +393,14 @@ let declare_as_minor dpt dens =
               Public_data.StringMap.add dpt
                a dens.Public_data.dens_cours_mineure
           in
-          {dens with
+          state, {dens with
                     Public_data.dens_cours_par_dpt;
                     Public_data.dens_cours_mineure}
 
 let collect_mineure dens state =
+    let state =
+      Remanent_state.warn __POS__ "COLLECT MINEURE" Exit state
+    in
     let firstname = dens.Public_data.dens_firstname in
     let lastname = dens.Public_data.dens_lastname in
     let year = dens.Public_data.dens_diplomation_year in
@@ -392,13 +409,13 @@ let collect_mineure dens state =
         ~firstname ~lastname ~year
         state
     in
-    state, List.fold_left
-      (fun dens elt  ->
+    List.fold_left
+      (fun (state,dens) elt  ->
          match elt.Public_data.secondary_accepted with
-           | None | Some false -> dens
+           | None | Some false -> state, dens
            | Some true ->
-                declare_as_minor elt.Public_data.secondary_dpt dens
-      ) dens minors_list
+                declare_as_minor elt.Public_data.secondary_dpt (state,dens)
+      ) (state,dens) minors_list
 
 let dump_repartition ?key repartition (state, total) =
   let i,ects =
