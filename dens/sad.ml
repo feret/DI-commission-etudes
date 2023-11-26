@@ -309,7 +309,7 @@ let dump_min_maj label map state pos =
     else
       fst (Public_data.StringMap.fold
         (fun key list (state,pos) ->
-            let key = Dens.string_of_key key in 
+            let key = Dens.string_of_key key in
           let label = Format.sprintf  "{\\noindent}Enseignements validés dans le cadre d'une %s %s en %s" (List.hd (fst pos)) label key in
           dump_repartition_diplomes label list state,next pos)
       map (state,pos))
@@ -427,11 +427,6 @@ let prompt_sad dens state =
             dens.Public_data.dens_cours_hors_disciplines_principale
             dens.Public_data.dens_cours_par_dpt state
     in
-    let state =
-        dump_course_list
-            "Cours de langues étrangères et certifications en langues"
-            (lift_dens dens.Public_data.dens_cours_langue) state
-    in
     let state = dump_activite_list "Expérience de recherche (collective pour les lettres, de laboratoire pour les sciences)" dens.Public_data.dens_activite_recherche state in
     let state = dump_activite_list "Expérience internationale (stages académiques ou non-académiques à l'étranger)" dens.Public_data.dens_activite_internationale state in
     let state =
@@ -440,6 +435,11 @@ let prompt_sad dens state =
     in
     let state = dump_activite_list "Autre" dens.Public_data.dens_activite_autre state in
     let state = dump_course_list "Autres (vie universitaire, initiatives citoyennes, sport, etc.)" (lift_dens dens.Public_data.dens_cours_activite) state
+    in
+    let state =
+        dump_course_list
+            "Cours de langues étrangères et certifications en langues"
+            (lift_dens dens.Public_data.dens_cours_langue) state
     in state
 
 
