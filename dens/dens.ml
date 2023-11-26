@@ -366,7 +366,7 @@ let split_stages ~firstname ~lastname dens state =
 
 
 let declare_as_minor dpt (state,dens) =
-      let dpt  = Public_data.string_of_dpt dpt in
+      let dpt  = translate_main_dpt dpt in
       let state =
         Remanent_state.warn
           __POS__
@@ -383,7 +383,7 @@ let declare_as_minor dpt (state,dens) =
                 Exit
                 state)
 
-          dens.Public_data.dens_cours_par_dpt state in 
+          dens.Public_data.dens_cours_par_dpt state in
       match Public_data.StringMap.find_opt dpt  dens.Public_data.dens_cours_par_dpt
       with
       | None -> state, dens
