@@ -374,6 +374,16 @@ let declare_as_minor dpt (state,dens) =
           Exit
           state
       in
+      let state =
+          Public_data.StringMap.fold
+            (fun string _ state ->
+              Remanent_state.warn
+                __POS__
+                (Format.sprintf "MAP %s" string)
+                Exit
+                state)
+
+          dens.Public_data.dens_cours_par_dpt state in 
       match Public_data.StringMap.find_opt dpt  dens.Public_data.dens_cours_par_dpt
       with
       | None -> state, dens
