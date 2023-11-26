@@ -40,7 +40,7 @@ let print_preamble state dens =
     in
     let () = Remanent_state.print_newline state in
     let () =
-        Remanent_state.fprintf state "\\rhead{Supplément au diplôme de l'étudiant N$^o$\\;%s}" (sad dens)  in
+        Remanent_state.fprintf state "\\rhead{Supplément au diplôme de l'étudiant N$^o\\;$%s}" (sad dens)  in
     let () = Remanent_state.print_newline state in
     let () =
         Remanent_state.fprintf state "\\cfoot{}"
