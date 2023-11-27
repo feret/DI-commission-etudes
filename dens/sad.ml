@@ -302,14 +302,14 @@ let dump_min_maj label map state pos =
     then
       Public_data.StringMap.fold
         (fun key list state ->
-            let key = Dens.string_of_key key in
+            let key = Special_char.lowercase (Dens.string_of_key key) in
             let label = Format.sprintf  "{\\noindent}Enseignements validés dans le cadre d'%s %s en %s" undef label key in
             dump_repartition_diplomes label list state)
         map state
     else
       fst (Public_data.StringMap.fold
         (fun key list (state,pos) ->
-            let key = Dens.string_of_key key in
+            let key = Special_char.lowercase (Dens.string_of_key key) in
           let label = Format.sprintf  "{\\noindent}Enseignements validés dans le cadre d'une %s %s en %s" (List.hd (fst pos)) label key in
           dump_repartition_diplomes label list state,next pos)
       map (state,pos))
