@@ -1,6 +1,6 @@
 type orientation = Landscape | Normal
 type language = French | English
-type mode = SAD | PV | Transcript | Transcript_sco 
+type mode = SAD | PV | Transcript | Transcript_sco
 
 type latex_parameters =
   {
@@ -645,7 +645,8 @@ let print_preamble
                          headerextralength
                          headerextralength),""
                          | Normal,Transcript_sco ->
-                           Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\usepackage{enumitem}%%\n\\usepackage{titlesec}%%\n\\titlespacing{\\section}{0pc}{1.5pc}{0pc}\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{17.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\setlength{\\LTpre}{3pt}%%\n\\setlength{\\LTpost}{0pt}%%\n\\renewcommand{\\headrulewidth}{0.0pt}\\setlength{\\hoffset}{-0.4in}%%\n\\setlength{\\headsep}{3.7cm}\\setlength{\\topmargin}{-0.8in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{22cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n"
+                           Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\usepackage{enumitem}%%\n\\usepackage{titlesec}%%\n\\titlespacing{\\section}{0pc}{1.5pc}{0pc}\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{17.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\setlength{\\LTpre}{3pt}%%\n\\setlength{\\LTpost}{0pt}%%\n\\renewcommand{\\headrulewidth}{0.0pt}\\setlength{\\hoffset}{-0.4in}%%\n\\setlength{\\headsep}{3.7cm}\\setlength{\\topmargin}{-0.8in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{22cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n\\newcommand{\\gender}{}%%\n\\newcommand{\\firstname}{}%%\n\\newcommand{\\lastname}{}%%\n\\renewcommand{\\birthdate}{}%%\n\\newcommand{\\birthcity}{}%%\n\\newcommand{\\birthcountry}{}%%\n\\newcommand{\\il}{}%%\n\\newcommand{\\he}{}%%\n\\renewcommand{\\academicyear}{}%%\n"
+
                                        (if headerextralength=0 then "" else
                                           Format.sprintf "\\addtolength{\\headheight}{%icm}\\addtolength{\\textheight}{-%icm}"
                                             headerextralength

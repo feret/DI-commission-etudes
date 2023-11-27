@@ -4885,49 +4885,49 @@ let heading
       | Some Public_data.Feminin -> "e","\\`ere","ne","Mme.","Mrs","she","elle"
     in
     let () =
-      Remanent_state.log_string state
-        (Format.sprintf "\\newcommand{\\gender}{\\Bilingual{%s}{%s}}%%\n"
-        monsieur mr)
+      Remanent_state.fprintf state
+        "\\renewcommand{\\gender}{\\Bilingual{%s}{%s}}%%\n"
+        mr monsieur
     in
     let () =
-      Remanent_state.log_string state
-        (Format.sprintf "\\newcommand{\\firstname}{%s}%%\n"
-        (Special_char.capitalize (Tools.unsome_string gps_file.prenom)))
+      Remanent_state.fprintf  state
+        "\\renewcommand{\\firstname}{%s}%%\n"
+        (Special_char.capitalize (Tools.unsome_string gps_file.prenom))
     in
     let () =
-      Remanent_state.log_string state
-        (Format.sprintf "\\newcommand{\\lastname}{%s}%%\n"
-        (Special_char.capitalize (Tools.unsome_string gps_file.nom)))
+      Remanent_state.fprintf state
+        "\\renewcommand{\\lastname}{%s}%%\n"
+        (Special_char.capitalize (Tools.unsome_string gps_file.nom))
     in
     let () =
-      Remanent_state.log_string state
-        (Format.sprintf "\\newcommand{\\birthdate}{%s}%%\n"
-        "TODO")
+      Remanent_state.fprintf state
+        "\\renewcommand{\\birthdate}{%s}%%\n"
+        "TODO"
     in
     let () =
-      Remanent_state.log_string state
-        (Format.sprintf "\\newcommand{\\birthplace}{%s}%%\n"
-        "TODO")
+      Remanent_state.fprintf state
+        "\\renewcommand{\\birthcity}{%s}%%\n"
+        "TODO"
     in
     let () =
-      Remanent_state.log_string state
-        (Format.sprintf "\\newcommand{\\birthcountry}{%s}%%\n"
-        "TODO")
+      Remanent_state.fprintf state
+        "\\renewcommand{\\birthcountry}{%s}%%\n"
+        "TODO"
     in
     let () =
-      Remanent_state.log_string state
-        (Format.sprintf "\\newcommand{\\il}{%s}%%\n"
-        il)
+      Remanent_state.fprintf state
+        "\\renewcommand{\\il}{%s}%%\n"
+        il
     in
     let () =
-      Remanent_state.log_string state
-        (Format.sprintf "\\newcommand{\\he}{%s}%%\n"
-        he)
+      Remanent_state.fprintf state
+        "\\renewcommand{\\he}{%s}%%\n"
+        he
     in
     let () =
-      Remanent_state.log_string state
-        (Format.sprintf "\\newcommand{\\academicyear}{%s}%%\n"
-        year)
+      Remanent_state.fprintf state
+        "\\renewcommand{\\academicyear}{%s}%%\n"
+        year
     in
     let () =
       Remanent_state.log_string state ~english:"\\begin{center}\\textbf{Transcript of academic record}\\end{center}"
@@ -4937,8 +4937,8 @@ let heading
       Remanent_state.print_newline state in
     let () =
       Remanent_state.log_string state
-        ~english:"\\textcolor{\blue}{{\\gender} {\\lastname} {\\firstname}}, born on \\textcolor{blue}{%s}, in {\\birthcity} (\\birthcountry)), studied at the \'Ecole normale supérieure (Paris, France) in \\year where \\textcolor{blue}{\\he} attended and passed the following courses: "
-        "\\textcolor{\blue}{{\\gender} {\\lastname} {\\firstname}}, né le \\textcolor{blue}{%s}, à {\\birthcity} (\\birthcountry)), a étudié à l'\'Ecole normale supérieure (Paris, France) en \\year où  \\textcolor{blue}{\\il} a suivi et validé les cours suivants~:"
+        ~english:"\\textcolor{\blue}{{\\gender} {\\lastname} {\\firstname}}, born on \\textcolor{blue}{\\birthdate}, in {\\birthcity} (\\birthcountry)), studied at the \'Ecole normale supérieure (Paris, France) in \\year where \\textcolor{blue}{\\he} attended and passed the following courses: "
+        "\\textcolor{\blue}{{\\gender} {\\lastname} {\\firstname}}, né le \\textcolor{blue}{\\birthdate}, à {\\birthcity} (\\birthcountry)), a étudié à l'\'Ecole normale supérieure (Paris, France) en \\year où  \\textcolor{blue}{\\il} a suivi et validé les cours suivants~:"
     in
      state
 
@@ -6299,6 +6299,751 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
   let () = Remanent_state.print_newline state in
   let () = Remanent_state.print_newline state in
   state,mean,dens,natt, cours_list, stage_list
+
+  let add_mean_diplome_sco state _year mean = state, mean
+
+  let program_sco
+      ~year ~alloc_suffix ~mean ~cours_list ~stage_list ~firstname ~lastname ~promo
+      ~size ~stages ~current_year (*~report ~keep_faillure ~keep_success*)
+      ~dens ~natt ~unvalidated_map
+      (list:(cours) list) state =
+    let state, mean =
+        add_mean_diplome_sco
+          state
+          (try int_of_string year with _ -> 0)
+          mean
+    in
+    let state, key, b =
+      alloc_suffix (Some "",Public_data.DI) state
+    in
+    let () =
+      if b
+      then
+        let () =
+          Remanent_state.fprintf
+            state
+            "\\newcounter{validatedwogradeects%s}%%\n\ \\newcounter{grade%s}%%\n\ \\newcounter{gradedects%s}%%\n\ "
+            key key key
+        in
+        let () =
+          Remanent_state.fprintf
+            state
+            "\\setcounter{validatedwogradeects%s}{0}%%\n\ \\setcounter{grade%s}{0}%%\n\ \\setcounter{gradedects%s}{0}%%\n\ " key key key
+        in
+        ()
+    in
+    let bgcolor=[None;None;None;None;None;None;None] in
+    let () =
+      Remanent_state.fprintf state
+        "\\setcounter{totalrows}{%i}%%%%\n\ "
+        (List.length list)
+    in
+    let state =
+      Remanent_state.open_array
+        __POS__
+        ~bgcolor
+        ~size
+        ~with_lines:true
+        ~title:[["Code"];["Dipl\\^ome"];["Intitul\\'e"];
+                ["Enseignant"];["Semestre"];["Note"];["ECTS"]]
+        ~title_english:[["Code"];["Diploma"];["Course"];
+                ["Teacher"];["Semester"];["Grade"];["ECTS"]]
+        state
+    in
+    let macro = "cours" in
+    let state, monsieur =
+      Remanent_state.bilingual_string
+        ~french:"M."
+        ~english:"Mr"
+        state
+    in
+    let state, madame =
+      Remanent_state.bilingual_string
+        ~french:"Mme"
+        ~english:"Mrs"
+        state
+    in
+    (*let list = Tools.sort fetch p list in*)
+    let state, mean, dens, natt, cours_list, stage_list  =
+      List.fold_left
+        (fun
+          (state, (mean:(bool * float * (Public_data.note option * float option) list * int)
+           StringOptMap.t * (StringOptMap.key * float option * string option * bool option * int)
+           list), dens, natt, cours_list, stage_list)
+          cours ->
+          let () =
+            Remanent_state.open_row ~macro state
+          in
+          let codecours =
+            string_of_stringopt cours.code_cours
+          in
+          let state, compensation =
+            Remanent_state.get_compensation
+              state
+              ~firstname ~lastname ~year ~codecours
+          in
+          let unvalidated =
+              is_unvalidated codecours year unvalidated_map
+          in
+          let () =
+            match
+              compensation
+            with
+            | Some _ ->
+              Remanent_state.print_optional_cell
+                "compensation"
+                state
+            | None ->
+              if unvalidated then
+              Remanent_state.print_optional_cell
+                "unvalidated"
+                state
+              else ()
+          in
+          let () =
+            Remanent_state.print_cell
+              codecours
+              state
+          in
+          let () =
+            Remanent_state.print_cell
+              ""
+              state
+          in
+          let state, f =
+            special_course state cours
+          in
+          let state, libelle, course_entry, stage_opt =
+            match cours.cours_libelle with
+            | None -> state,
+                      None,
+                       Public_data.empty_course_entry, None
+            | Some l ->
+              let course_entry =
+                {
+                  Public_data.empty_course_entry
+                  with
+                    Public_data.gps_entry = l
+                }
+              in
+              if is_stage cours
+              then
+                begin
+                  let internship =
+                    {
+                      Public_data.missing_internship_promotion = promo ;
+                      Public_data.missing_internship_year=year;
+                      Public_data.missing_internship_firstname=firstname;
+                      Public_data.missing_internship_lastname=lastname;
+                      Public_data.missing_internship_intitule=
+                        Tools.unsome_string  cours.cours_libelle ;
+                      Public_data.missing_internship_code_gps=
+                        Tools.unsome_string
+                          cours.code_cours
+                    }
+                  in
+                  let state, stage_opt =
+                    fetch_stage
+                      state
+                      ~internship
+                      cours.commentaire stages
+                  in
+                  match stage_opt with
+                  | None ->
+                    begin
+                      let state, l, l_en =
+                        match
+                          Remanent_state.get_course_name_translation
+                            ~label:l
+                            state
+                        with
+                        | state, (None,None) ->
+                          let state =
+                            Remanent_state.add_missing_course_entry
+                              state
+                              {Public_data.empty_course_entry with
+                               Public_data.gps_entry = l}
+                          in
+                          state, Some l, None
+                        | state, (lib, lib_en) ->
+                          let lib =
+                            match lib with
+                            | None -> Some l
+                            | a -> a
+                          in
+                          let state, lib_en =
+                            let course_entry =
+                              {course_entry
+                               with Public_data.french_entry=lib;
+                                    Public_data.english_entry=lib_en}
+                            in
+                            match lib, lib_en with
+                            | None, None -> state, None
+                            | Some _, Some y ->
+                              let y = String.trim y in
+                              if y = ""
+                              ||
+                              (String.sub y 0 1 = "\"" &&
+                               String.trim (String.sub y 1 ((String.length y)-1))
+                               = "\"")
+                              then
+                                  Remanent_state.add_missing_course_entry
+                                    state
+                                    course_entry, lib
+                              else
+                                let state =
+                                  Remanent_state.add_course_entry_in_report
+                                    Collect_course_entries.unify_course_entry
+                                    __POS__
+                                    course_entry
+                                    state
+                                in
+                                state, lib_en
+                            | None, Some x | Some x, None ->
+                              let state =
+                                Remanent_state.add_missing_course_entry
+                                  state
+                                  course_entry
+                              in
+                              state, Some x
+                          in
+                          state, lib, lib_en
+                      in
+                      let stage_entry =
+                          {
+                            Public_data.activite_annee = year ;Public_data.activite_activite="Stage d'Informatique";
+                            Public_data.activite_activite_fr=Some "Stage d'Informatique";
+  Public_data.activite_activite_en=Some "Internship in Computer Science";
+                            Public_data.activite_intitule=(match l with None -> "" | Some l -> l) ;
+                            Public_data.activite_intitule_fr=l;
+                            Public_data.activite_intitule_en=
+  (match l_en with None -> "" | Some l -> l);
+                            Public_data.activite_code = Tools.unsome_string
+                              cours.code_cours;
+                            Public_data.activite_ects = 0.}
+                      in
+                      let state, libelle =
+                        Remanent_state.bilingual_string
+                          ?english:l_en
+                          ~french:(string_of_stringopt l)
+                          state
+                      in
+                      state, Some libelle, course_entry,
+                      Some stage_entry
+                    end
+                  | Some stage ->
+                    let issue =
+                      match
+                        cours.note
+                      with
+                      | Some Public_data.En_cours
+                      | Some Public_data.Absent
+                      | Some Public_data.Abandon
+                      | Some Public_data.Temporary _
+                      | None ->
+                        begin
+                          match stage.stage_valide with
+                          | None
+                          | Some (Public_data.Abs | Public_data.Bool false) ->
+                          false
+                          | Some (Public_data.Bool true) -> true
+                        end
+                      | Some Public_data.String _
+                      | Some Public_data.Float _
+                      | Some Public_data.Valide_sans_note ->
+                        begin
+                          match stage.stage_valide, stage.stage_accord with
+                          | (None | Some (Public_data.Abs | Public_data.Bool
+                                          false)), _
+                          | _, (None | Some false) ->
+                            true
+                          | Some (Public_data.Bool true), Some true -> false
+                        end
+                    in
+                    let stage_entry =
+                        {
+                          Public_data.activite_annee = year ;Public_data.activite_activite="Stage d'Informatique";
+                          Public_data.activite_activite_fr=Some "Stage d'Informatique";
+                  Public_data.activite_activite_en=Some "Internship in Computer Science";
+                          Public_data.activite_intitule=(match stage.sujet with None -> "" | Some l -> l) ;
+                          Public_data.activite_intitule_fr=stage.sujet;
+                          Public_data.activite_intitule_en="";
+                          Public_data.activite_code = Tools.unsome_string
+                            cours.code_cours;
+                          Public_data.activite_ects =
+                            match stage.stage_credits with None -> 0. | Some f ->f}
+                    in
+
+                    let state =
+                      if issue then
+                        Remanent_state.add_non_validated_internship
+                          state internship
+                      else
+                        state
+                    in
+                    let sujet =
+                      match stage.sujet with
+                      | None -> ""
+                      | Some a ->
+                        if l = ""
+                        then a
+                        else "\\newline \""^a^"\""
+                    in
+                    let state, directeur =
+                      match stage.directeur_de_stage with
+                      | None -> state, ""
+                      | Some a ->
+                        if (Special_char.lowercase
+                              (String.trim a) = "non applicable") then state, ""
+                        else
+                        if (l = "" && sujet="")
+                        then state, a else
+                          let state, directed =
+                            Remanent_state.bilingual_string
+                              ~english:"under the supervision of"
+                              ~french:"dirigé par"
+                              state
+                          in
+                          let state, a =
+                            Remanent_state.bilingual_string
+                              ~english:(Tools.translate_et a)
+                              ~french:a
+                              state
+                          in
+                          state, Format.sprintf
+                            "\\newline %s %s" directed a
+                    in
+                    let state, l, l_en =
+                      match
+                        Remanent_state.get_course_name_translation
+                          ~label:l
+                              state
+                      with
+                      | state, (None,None) ->
+                        let state =
+                          Remanent_state.add_missing_course_entry
+                            state
+                            course_entry
+                        in
+                        state, Some l, None
+                      | state, (lib, lib_en) ->
+                        let lib =
+                          match lib with
+                          | None -> Some l
+                          | a -> a
+                        in
+                        let course_entry =
+                          {course_entry
+                           with Public_data.french_entry=lib;
+                                Public_data.english_entry=lib_en}
+                        in
+                        let state, lib_en =
+                          match lib, lib_en with
+                          | None, None -> state, None
+                          | Some _, Some y ->
+                            if String.trim y = ""
+                            then
+                              Remanent_state.add_missing_course_entry
+                                  state
+                                  course_entry, lib
+                            else
+                              let state =
+                                Remanent_state.add_course_entry_in_report
+                                  Collect_course_entries.unify_course_entry
+                                  __POS__
+                                  course_entry
+                                  state
+                              in
+                              state, lib_en
+                          | None, Some x | Some x, None ->
+                            let state =
+                              Remanent_state.add_missing_course_entry
+                                state
+                                course_entry
+                            in
+                            state, Some x
+                        in
+                        state, lib, lib_en
+                    in
+                    let state, libelle =
+                      Remanent_state.bilingual_string
+                        ?english:l_en
+                        ~french:(string_of_stringopt l)
+                        state
+                    in
+                    state,
+                    Some
+                      (Format.sprintf "%s%s%s" libelle sujet directeur),
+                     course_entry,
+                    Some stage_entry
+                end
+              else state, Some l,course_entry, None
+          in
+          let stage_list =
+            match stage_opt with None -> stage_list | Some st -> st::stage_list
+          in
+          let state, libelle, libelle_en =
+            if is_stage cours then state, libelle, None
+            else
+            if String.trim codecours = ""
+            then
+              if libelle = Some "N/A" then state, libelle, libelle
+              else if libelle = Some "Points de jury" then state, libelle, Some "Jury credits"
+              else
+                let state =
+                  Remanent_state.warn
+                    __POS__
+                    (Format.sprintf
+                       "Incoherent empty CODE GPS with course name %s "
+                       (Tools.unsome_string libelle))
+                    Exit
+                    state
+                in
+                state, libelle, None
+            else
+              match
+                Remanent_state.get_course_name_translation
+                  ~label:(match libelle with Some a -> a | None -> "")
+                  state
+              with
+              | state, (None,None) ->
+                let state =
+                  Remanent_state.add_missing_course_entry
+                    state
+                    course_entry
+                in
+                state, libelle, None
+              | state, (lib, lib_en)  ->
+                let course_entry =
+                  {course_entry
+                   with Public_data.french_entry=lib;
+                        Public_data.english_entry=lib_en}
+                in
+                let state =
+                  match lib, lib_en with
+                  | None, None -> state
+                  | Some _, Some _ ->
+                    Remanent_state.add_course_entry_in_report
+                      Collect_course_entries.unify_course_entry
+                      __POS__
+                      course_entry
+                      state
+                  | None, Some _ | Some _, None ->
+                    Remanent_state.add_missing_course_entry
+                        state
+                        course_entry
+                  in
+                  state, lib, lib_en
+          in
+          let state, libelle =
+            Remanent_state.bilingual_string
+              ?english:libelle_en
+              ~french:(string_of_stringopt libelle)
+              state
+          in
+          let () =
+            Remanent_state.print_cell
+              (f libelle)
+             state
+          in
+          let state, responsable_opt =
+            match cours.code_cours with
+            | Some codegps ->
+              Remanent_state.get_course_exception
+                ~codegps
+                ~year
+                state
+            | None -> state, None
+          in
+          let state, (genre, firstname, lastname) =
+              match responsable_opt with
+            | None ->
+              if match cours.responsable with None -> true | Some x when String.trim x = "" -> true | Some _ -> false
+              then state, (Public_data.Unknown, "", "")
+              else
+                  let a,b,c =
+                      Special_char.split_name
+                          (string_of_stringopt cours.responsable)
+                  in
+                  let state, a  =
+                    match Special_char.lowercase a with
+                    | "m" | "mr" | "monsieur" | "m." | "mr." -> state, Public_data.Masculin
+                    |  "mlle" | "mme" | "mlle." | "mme." | "madame" | "mademoiselle" -> state, Public_data.Feminin
+                    | x -> Remanent_state.warn __POS__ (Format.sprintf "Unknown gender (%s) %s %s" x (match cours.responsable with None -> "none" | Some s -> s) libelle)  Exit state, Public_data.Unknown
+                  in state, (a,b,c)
+
+            | Some a ->
+                       state, (a.Public_data.course_exception_genre,
+                        a.Public_data.course_exception_firstname,
+                        a.Public_data.course_exception_lastname)
+          in
+          let responsable =
+              Format.sprintf "%s %s %s"
+                (match
+                   genre
+                 with
+                 | Public_data.Masculin -> monsieur
+                 | Public_data.Feminin -> madame
+                 | Public_data.Unknown -> "")
+                (Special_char.capitalize firstname)
+                (Special_char.uppercase lastname)
+          in
+          let () =
+            Remanent_state.print_cell
+              responsable
+              state
+          in
+          let () =
+            Remanent_state.print_cell
+              (semester_of_stringopt cours.semestre)
+              state
+          in
+          let state, note_string =
+            match cours.note with
+            | None -> state, ""
+            | Some f -> Notes.to_string __POS__ state f
+          in
+          let () =
+            Remanent_state.print_cell
+              note_string
+              state
+          in
+          let () =
+            Remanent_state.print_cell
+              (Notes.string_of_ects cours.ects)
+              state
+          in
+          let () =
+            Remanent_state.close_row state
+          in
+          let () =
+            Remanent_state.fprintf state "%%\n\ "
+          in
+          let state, mean, dens, natt, cours_list, stage_list =
+            if year > current_year
+            (*|| not ((do_report report || keep_success || keep_faillure)*)
+            then state, mean, dens, natt, cours_list, stage_list
+            else
+                let state, cours_list, natt =
+                  add_dens state year compensation unvalidated cours cours_list natt
+                in
+                  state, mean, dens, natt, cours_list, stage_list
+
+            in
+          state,mean, dens, natt, cours_list, stage_list )
+        (state,mean,dens,natt, cours_list, stage_list)
+        list
+    in
+    let () =
+      Remanent_state.close_array state
+    in
+    let () =
+      Remanent_state.fprintf
+        state
+        "\n\ \n\ \\vspace*{2mm}\n\ \n\ "
+    in
+    let () =
+      Remanent_state.log
+        state
+        "\\addtocounter{validatedwogradeects%s}{\\thevsnects}%%\n\ \\addtocounter{grade%s}{\\thetotal}%%\n\ \\addtocounter{gradedects%s}{\\theects}%%\n\ \\addtocounter{potentialects%s}{\\thepotentialects}" key key key key
+    in
+    let moyenne_value =
+      Format.sprintf
+        "\\thegrade%s/\\thegradedects%s"
+        key
+        key
+    in
+    let state, moyenne =
+      Remanent_state.bilingual_string ~french:"Moyenne :" ~english:"Mean:" state
+    in
+    let state, moyenne_provisoire =
+      Remanent_state.bilingual_string ~french:"Moyenne provisoire :" ~english:"Temporary mean:" state
+    in
+    let state, bien =
+      Remanent_state.bilingual_string
+        ~english:"Distinction: \\textbf{Upper Second-Class Honours}"
+        ~french:"Mention : \\textbf{Bien}"
+        state
+    in
+    let state, assez_bien =
+      Remanent_state.bilingual_string
+        ~french:"Mention : \\textbf{Assez Bien}"
+        ~english:"Distinction: \\textbf{Lower Second-Class Honours}"
+        state
+    in
+    let state, tres_bien =
+      Remanent_state.bilingual_string
+        ~english:"Distinction: \\textbf{First Class Honour}"
+        ~french:"Mention : \\textbf{Très Bien}"
+        state
+    in
+    let no_definitive_ects,
+        not_enough_ects,
+        moyenne,_mention  =
+        let _mean =
+          Format.sprintf
+            "\\numprint{\\fpeval{%s}}"
+            moyenne_value
+        in
+        let no_definitive_ects =
+          Format.sprintf
+            "\\thegradedects%s=0"
+            key
+        in
+        let not_enough_ects =
+          Format.sprintf
+            "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)} < \\fpeval{60*\\factorsquare}"
+            key key key
+        in
+        let definitive =
+          Format.sprintf
+            "\\thepotentialects%s=0"
+            key
+        in
+        let mean_string =
+          Latex_helper.case
+            Latex_helper.ifnum
+            [ no_definitive_ects,"";
+              not_enough_ects,"";
+              definitive,
+              Format.sprintf "%s \\textbf{\\numprint{\\fpeval{\\mean}}}/20 \\hspace*{1cm}%%\n\ " moyenne]
+            ~otherwise:(Format.sprintf "%s \\numprint{\\fpeval{\\mean}}/20 \\hspace*{1cm}%%\n\ " moyenne_provisoire)
+        in
+        let mention =
+            let mention =
+              Latex_helper.case
+                Latex_helper.ifnum
+                [no_definitive_ects,"";
+                 not_enough_ects,"";
+                 definitive,
+                 Latex_helper.case
+                   Latex_helper.ifnum
+                   [
+                     Format.sprintf
+                       "\\fpeval{\\mean<12}  = 1","";
+                     Format.sprintf
+                       "\\fpeval{\\mean<14} = 1",
+                     assez_bien;
+                     Format.sprintf
+                       "\\fpeval{\\mean<16} = 1 ",
+                     bien;
+                   ]
+                   ~otherwise:tres_bien]
+                ~otherwise:""
+            in
+            mention
+            in
+        no_definitive_ects, not_enough_ects,
+        mean_string, mention
+    in
+    let state, potentiellement =
+      Remanent_state.bilingual_string
+        ~english:"potentially"
+        ~french:"potentiellement"
+        state
+    in
+    let state,ects,pects =
+      let
+        this_year_ects_amp =
+        Format.sprintf
+          "\\fpeval{(\\theects+\\thevsnects)}"
+      in
+      let total_ects_amp =
+        Format.sprintf
+          "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)}"
+          key key
+      in
+      let total_ects =
+        Format.sprintf
+          "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)/\\factorsquare}"
+          key key
+      in
+      let state, ects =
+        Remanent_state.bilingual_string
+          ~french:"ECTS "
+          ~english:"ECTS"
+          state
+      in
+      let state, cumulated =
+        Remanent_state.bilingual_string
+          ~french:"(cumulés) "
+          ~english:"(cumulated)"
+          state
+      in
+      let ects_string =
+        Latex_helper.case
+          Latex_helper.ifnum
+          [
+            Format.sprintf "%s=0" total_ects_amp,"";
+            Format.sprintf "%s=%s" this_year_ects_amp
+              total_ects_amp,
+            Format.sprintf "%s: %s" ects total_ects;
+          ]
+          ~otherwise:(Format.sprintf
+                        "%s %s: %s"
+                        ects cumulated total_ects)
+      in
+      let potential_ects_string  =
+        Latex_helper.ifnum
+          ~cond:(Format.sprintf "\\thepotentialects%s=0" key)
+          ~btrue:""
+          ~bfalse:(Format.sprintf "\\hspace*{0.2cm} (%s  {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factorsquare}}} ects)" potentiellement key key key)
+          ()
+      in
+      state, ects_string, potential_ects_string
+    in
+    let lineproportion = 0.45 in
+    let () =
+        let s =
+          Remanent_state.log_to_string
+            ~lineproportion
+            state
+            moyenne
+        in
+        let s =
+          Latex_helper.case
+            Latex_helper.ifnum
+            [ no_definitive_ects,"";
+              not_enough_ects,"";
+            ]
+            ~otherwise:s
+        in
+        let () =
+          Remanent_state.fprintf
+            state
+            "%s"
+            s
+        in
+        ()
+    in
+    let lineproportion = 0.45 in
+    let () =
+      (fun s ->
+         if s = "" then () else
+           Remanent_state.log_string
+             ~lineproportion
+             state
+             s)
+        (
+          if ects = "" then pects
+          else if pects = ""
+          then ects
+          else
+            ects^pects)
+    in
+    let () =
+      Remanent_state.fprintf
+        state
+        "\\npnoround%%\n\ \n\n"
+    in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "\\vfill\n\ " in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.print_newline state in
+    let () = Remanent_state.print_newline state in
+    state,mean,dens,natt, cours_list, stage_list
+
+
 
 let good (a,_) =
   match a with
@@ -8273,7 +9018,6 @@ let state,year = Remanent_state.get_current_academic_year state in
         ~output
         ?language
         ?bilinguage
-        ?repartition
         ?signature
         state gps_file =
       let signature =
@@ -8292,12 +9036,6 @@ let state,year = Remanent_state.get_current_academic_year state in
           state
           Remanent_state.get_is_bilingual
           bilinguage
-      in
-      let state, repartition =
-        Tools.get_option
-          state
-          Remanent_state.get_repartition
-          repartition
       in
       let alloc_suffix =
         let l0 =
@@ -8369,14 +9107,14 @@ let state,year = Remanent_state.get_current_academic_year state in
       | None -> state, None
       | Some out ->
         let mode = Loggers.Latex
-            {Loggers.orientation = Loggers.Landscape ;
+            {Loggers.orientation = Loggers.Normal ;
              Loggers.language =
                (match language with
                | Public_data.French -> Loggers.French
                | Public_data.English -> Loggers.English );
-             Loggers.font = 10 ;
+             Loggers.font = 9 ;
              Loggers.template = Loggers.Transcript_sco ;
-             Loggers.bilinguage =
+            Loggers.bilinguage =
                bilinguage ;
             }
         in
@@ -8393,22 +9131,6 @@ let state,year = Remanent_state.get_current_academic_year state in
           (Tools.unsome_string gps_file.promotion)
         in
         let promo = promo in
-          let state, promo_int =
-          try
-            state, int_of_string promo
-          with
-            _ ->
-            Remanent_state.warn
-              __POS__
-              (Format.sprintf
-                 "Promotion should be an integer %s %s %s"
-                 promo
-                 firstname
-                 lastname)
-              Exit
-              state,
-            0
-        in
         let state, gps_file =
             saturate_bilan_annuel state gps_file
         in
@@ -8422,37 +9144,6 @@ let state,year = Remanent_state.get_current_academic_year state in
             gps_file.situation (state,gps_file.situation)
         in
         let gps_file = {gps_file with situation} in
-        let state, promo_int =
-          Public_data.YearMap.fold
-            (fun year a (state, y') ->
-               if keep_bilan a then
-               let state, y_int =
-                 try
-                   state, int_of_string year
-                 with
-                   _ ->
-                   Remanent_state.warn
-                     __POS__
-                     (Format.sprintf
-                        "Promotion should be an integer %s %s %s"
-                        year
-                        firstname
-                        lastname)
-                  Exit
-                  state,
-                   y'
-               in
-               state, min y' y_int
-              else state, y')
-            gps_file.situation
-            (state, promo_int)
-        in
-        let promo = string_of_int promo_int in
-        let who =
-          Format.sprintf
-            "pour %s %s (%s)"
-            firstname lastname promo
-        in
         let state, additional_courses =
           Remanent_state.get_additional_course
             ~firstname ~lastname
@@ -8517,309 +9208,35 @@ let state,year = Remanent_state.get_current_academic_year state in
           l
         in
         let l = List.rev l_rev in
-        let state,l_rev,_ =
-          List.fold_left
-            (fun (state,l,counter) (y,annee) ->
-               if
-                 (not (lechange_dri annee))
-                 &&
-                 begin
-                   match annee.situation_administrative
-                   with
-                   | None ->
-                     begin
-                       try int_of_string y<=2015
-                       with _ -> false
-                     end
-                     ||
-                     begin
-                       match
-                         annee.code_option
-                       with
-                       | Some "OPT1" -> true
-                       | Some _ | None -> false
-                     end
-                     ||
-                     counter = 0
-                   | Some sit ->
-                     (let ssit = simplify_string sit in
-                       ((ssit = "scolarite a l'ens"
-                        &&
-                        (not
-                           (List.exists
-                              (fun dip ->
-                                 let code = dip.diplome_diplome in
-                                 match code with
-                                 | None -> false
-                                 | Some dip ->
-                                   if String.length dip <5 then false else
-                                    String.sub dip 0 5 = "CST-A")
-                              annee.diplomes))
-    )
-        ||
-
-                        (int_of_string y>=2022 && ssit = "etalement : conge sur l'annee")
-                        &&
-                        not
-                          (List.exists
-                             (fun dip ->
-                                let code = dip.diplome_diplome in
-                                match code with
-                                | None -> false
-                                | Some dip ->
-                                  if String.length dip < 3 then false
-                                  else let sdip = String.sub dip 0 3 in
-                                        (sdip = "CES")
-                                    || (sdip = "CST"))
-                             annee.diplomes))
-                       ||
-                       (List.mem (simplify_string sit)
-                            ["autre cas";"etalement : conge sur le s1";"etalement : conge sur le s2"]
-                        &&
-                        (not
-                           (List.exists
-                              (fun dip ->
-                                 let code = dip.diplome_diplome in
-                                 match code with
-                                 | None -> false
-                                 | Some dip ->
-                                   if String.length dip < 3 then false
-                                   else
-                                      String.sub dip 0 3 = "CES"
-                                  || (if String.length dip < 5 then false else String.sub dip 0 5 = "CST-A"))
-                              annee.diplomes))
-                        &&
-                        (annee.derniere_annee = Some true
-                         || begin
-                           match
-                             annee.code_option
-                           with
-                           | Some "OPT1" -> true
-                           | Some _ | None -> false
-                         end))
-                     )
-                 end
-               then
-                 let counter = counter + 1 in
-                 let nannee = Some counter in
-                 let annee = {annee with nannee} in
-                 state,(y,annee)::l,counter
-               else
-                 state, (y,annee)::l,counter)
-            (state,[],0) l
-        in
-        let gps_file =
-          List.fold_left
-            (fun gps_file (y,annee) ->
-               let situation = gps_file.situation in
-               match
-                 Public_data.YearMap.find_opt y situation
-               with
-               | None -> gps_file
-               | Some bilan ->
-                 let bilan = {bilan with nannee = annee.nannee} in
-                 let situation = Public_data.YearMap.add y bilan situation in
-                 {gps_file with situation})
-            gps_file
-            l_rev
-        in
         let stages =
             gps_file.stages
-        in
-        let state, origine =
-          get_origine who promo gps_file state
         in
         let state, unvalidated =
             warn_on_course_list ~promo ~firstname ~lastname state l (Format.sprintf "%s %s %s" firstname lastname promo)
         in
-        let state, cursus_map, l =
+        let state, l =
           List.fold_left
-            (fun (state, cursus_map, l) (year, situation) ->
+            (fun (state, l) (year, situation) ->
                let state, filtered_classes =
                  filter_class ~firstname ~lastname ~year
                    state unvalidated Public_data.All
                    situation.cours
                in
-               let state, (cursus_map, split_cours) =
-                 List.fold_left
-                   (fun (state,
-                         (cursus_map,
-                          course_map)) elt ->
-                     match elt.code_cours with
-                     | Some code_cours  ->
-                       let state,
-                           (diplome_key,diplome_label,diplome_label_en,
-                            diplome_dpt,diplome_dpt_en,dispense,is_m2)
-                         =
-                         translate_diplome
-                           ~origine ~situation ~firstname
-                           ~lastname ~promo
-                           ~year ~code_cours state
-                           elt.diplome
-                       in
-                       let state, cursus_map =
-                         addfirstlast
-                           state
-                           (diplome_key,diplome_dpt)
-                           dispense
-                           year
-                           cursus_map
-                       in
-                       state,
-                       (
-                         cursus_map,
-                         addmap
-                           (diplome_key,diplome_dpt)
-                           (is_m2,diplome_dpt_en,diplome_label,diplome_label_en,elt) course_map)
-                     | None ->
-                       Remanent_state.warn_dft
-                       __POS__
-                       "The code of a course is missing"
-                       Exit
-                       (cursus_map,course_map)
-                       state
-                )
-                (state, (cursus_map,StringOptMap.empty))
-                filtered_classes
-               in
-               let state, decision_list =
-                 Remanent_state.get_decision_list
-                   ~firstname
-                   ~lastname
-                   ~year
-                   state
-               in
-               let state, cursus_map, split_cours =
-                 List.fold_left
-                   (fun (state, cursus_map,split_cours) decision ->
-                      let diplome_key =
-                        Some (Special_char.lowercase
-                                (String.trim decision.Public_data.decision_program))
-                      in
-                      let diplome_dpt =
-                        decision.Public_data.decision_dpt
-                      in
-                      let state, diplome_dpt =
-                        dpt_of_acro who __POS__ state diplome_dpt origine
-                      in
-                      let state, b =
-                        match diplome_dpt
-                        with
-                        | None -> state, true
-                        | Some diplome_dpt ->
-                          StringOptMap.fold
-                            (fun (key,dpt) _ (state,b) ->
-                               state,
-                               (diplome_key,
-                                diplome_dpt)=(key,dpt) || b
-                            )
-                          split_cours (state,false)
-                      in
-                      if b
-                      then
-                        state, cursus_map, split_cours
-                      else
-                        match diplome_dpt with
-                        | None -> state, cursus_map, split_cours
-                        | Some diplome_dpt ->
-                          let state, cursus_map =
-                            addfirstlast
-                              state
-                              (diplome_key,
-                               diplome_dpt)
-                              false
-                              year
-                              cursus_map
-                          in
-                          let split_cours =
-                            StringOptMap.add
-                              (diplome_key,
-                               diplome_dpt)
-                              [] split_cours
-                          in
-                          state, cursus_map, split_cours
-                   )
-                   (state,cursus_map,split_cours) decision_list
-               in
-
-            state, cursus_map, (year,situation,split_cours)::l)
-            (state, StringOptMap.empty, [])
+              state, (year,situation,filtered_classes)::l)
+            (state,  [])
             l_rev
-        in
-        let print_foot_note string dpt year y state =
-            let dpt' =
-              match dpt, string with
-            | _, (None |  Some "dens") -> "dens"
-            |_, _ -> Public_data.string_of_dpt dpt
-            in
-            state,
-            String.trim y <> "" &&
-            (match StringOptMap.find_opt (string,dpt') cursus_map with
-            | None
-            | Some(_,None) -> false
-            | Some (_,Some y') -> year=y')
         in
         let l =
           match l with
           | [] ->
-            [current_year, empty_bilan_annuel, StringOptMap.empty]
+            [current_year, empty_bilan_annuel, []]
           | _ -> l
-        in
-        let state, l =
-          match repartition with
-          | Public_data.Annee_de_validation_du_cours -> state, l
-          | Public_data.Annee_obtention_du_diplome ->
-            begin
-              let map =
-                List.fold_left
-                  (fun map (year,situation,_) ->
-                     Public_data.YearMap.add year
-                       (year,situation,StringOptMap.empty)
-                       map)
-                  Public_data.YearMap.empty
-                  l
-              in
-              let state, l =
-                List.fold_left
-                  (fun
-                    (state, map)
-                    (year,_,split_cours) ->
-                     StringOptMap.fold
-                       (fun key course (state, map) ->
-                          let state, year =
-                            get_display_year
-                              __POS__ "last year should be defined"
-                              state year key cursus_map
-                          in
-                          add_course
-                            __POS__ "diploma is not defined"
-                            state year key course map
-                       )
-                       split_cours
-                       (state,map))
-                  (state,map)
-                  l
-              in
-              let l =
-                Public_data.YearMap.fold
-                  (fun _ x l -> x::l)
-                  l
-                  []
-              in
-              let l = List.rev l in
-              state, l
-            end
         in
         let state,_mean,_dens,natt, _cours_list, _stage_list =
           List.fold_left
             (fun (state,mean,dens,natt, cours_list, stage_list )
-              (year,situation,split_cours) ->
-               let gpscodelist = situation.gpscodelist in
-               let who =
-                 Format.sprintf "%s in %s" who year
-               in
-
-                  if year > current_year then
+              (year,_situation,split_cours) ->
+               if year > current_year then
                    state,mean,dens,natt,cours_list, stage_list
                else
                  let l =
@@ -8830,56 +9247,15 @@ let state,year = Remanent_state.get_current_academic_year state in
                      (fun total a -> total+.a)
                      0. l
                  in
-                 let state, admission_opt =
-                   let year' = next_year year in
-                   begin
-                     match year' with
-                     | Some year ->
-                       Remanent_state.get_admission
-                         ~firstname
-                         ~lastname
-                         ~year
-                         state
-                     | None ->
-                       let msg =
-                         Format.sprintf
-                           "Illegal year %s for %s (admission)"
-                           year who
-                       in
-                       let state =
-                         Remanent_state.warn
-                           __POS__
-                           msg
-                           Exit
-                           state
-                       in
-                       state, None
-                   end
-                 in
-                 let nprogram =
-                   StringOptMap.cardinal split_cours
-                 in
-                 let _, dens_pos =
-                   StringOptMap.fold
-                     (fun (string,_) _ (i,opt) ->
-                        match string with
-                        | Some "dens" -> (i+1,Some i)
-                        | _ -> (i+1,opt)
-                     )
-                     split_cours
-                     (1,None)
-                 in
                  let size =
                    List.rev_map
                      (fun a -> Some (a/.(sum*.1.12)))
                      (List.rev l)
                  in
-                 (*   let situation' = situation in*)
-                 if StringOptMap.is_empty split_cours
+                 if [] = split_cours
                  then
                    let state =
                      heading_sco
-
                        ~year
                        gps_file state
                    in
@@ -8901,86 +9277,33 @@ let state,year = Remanent_state.get_current_academic_year state in
                    state, mean, dens, natt, cours_list, stage_list
                  else
                    begin
-                     let _, state, mean, dens, natt, cours_list, stage_list  =
-                       StringOptMap.fold
-                         (fun
-                           (string,dpt)  list
-                           (i,state,mean,dens,natt, cours_list,stage_list)
-                           ->
-                             let is_m2 =
-                                  match list with [] -> false
-                                                | (b,_,_,_,_)::_ -> b
-                             in
-                                 let
-                               (state,mean,dens,natt,cours_list,stage_list)
+                     let state, mean, dens, natt, cours_list, stage_list
+
                                =
-                               program
-                                 ~is_m2 ~print_foot_note
-                                 ~origine ~string ~dpt:(Public_data.dpt_of_string dpt) ~year ~who ~gpscodelist
+                               program_sco
+
+                                  ~year
                                  ~alloc_suffix ~mean ~cours_list ~stage_list
-                                 ~firstname ~lastname ~promo ~cursus_map ~size
+                                 ~firstname ~lastname ~promo  ~size
                                  ~stages ~current_year (*~report
                                  ~keep_success ~keep_faillure*)
                                  ~dens
                                  ~natt
                                  ~unvalidated_map:unvalidated
-                                  list state
+                                  split_cours state
                              in
                              let () =
                                Remanent_state.fprintf
                                  state "\n\ \\vfill\n\ \n\ "
                              in
-                             let () =
-                               if
-                                 begin
-                                   match
-                                     dens_pos
-                                   with
-                                   | None -> i = nprogram
-                                   | Some 1 -> true
-                                   | Some p -> i = p-1
-                                 end
-                               then
-                                 match admission_opt with
-                                 | None -> ()
-                                 | Some admission ->
-                                   let lineproportion = 1. in
-                                   let english =
-                                     match admission.Public_data.admission_decision_en with
-                                     | None -> None
-                                     | Some x ->
-                                       Some (Format.sprintf "\\textbf{%s}" x)
-                                   in
-                                   let () =
-                                     Remanent_state.log_string
-                                       ~lineproportion
-                                       ?english
-                                       state
-                                       (Format.sprintf "\\textbf{%s}"
-                                          admission.Public_data.admission_decision)
-                                   in
-                                   let () =
-                                     Remanent_state.fprintf
-                                       state "\n\ \\vfill\n\ \n\ "
-                                   in
-                                   ()
-                             in
-                             (i+1,state,mean,dens,natt,cours_list,stage_list)
-                         )
-                         split_cours
-                         (1,state,mean,dens,natt,cours_list,stage_list)
-                     in
-                     state,mean,dens,natt, cours_list, stage_list
+
+state, mean, dens, natt, cours_list, stage_list
                    end
             )
             (state,mean_init,dens_init,n_att_init, cours_list_init,stage_list_init)
             l
         in
         let _ = natt in
-
-
-
-
         let state = Remanent_state.close_logger state in
         let state =
           Remanent_state.restore_std_logger state old_logger

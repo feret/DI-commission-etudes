@@ -24,7 +24,6 @@ val export_transcript:
     output: string * string ->
     ?language:Public_data.language ->
     ?bilinguage:bool ->
-    ?repartition:Public_data.repartition ->
     ?signature:(string list)->
     Remanent_state.t ->
     gps_file
