@@ -1,6 +1,6 @@
 type orientation = Landscape | Normal
 type language = French | English
-type mode = SAD | PV | Transcript
+type mode = SAD | PV | Transcript | Transcript_sco 
 
 type latex_parameters =
   {

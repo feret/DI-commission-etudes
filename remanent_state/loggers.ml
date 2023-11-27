@@ -1,6 +1,6 @@
 type orientation = Landscape | Normal
 type language = French | English
-type mode = SAD | PV | Transcript
+type mode = SAD | PV | Transcript | Transcript_sco 
 
 type latex_parameters =
   {
@@ -639,11 +639,17 @@ let print_preamble
       | Landscape,_ -> "\\usepackage{lscape}",
                     "\\landscape\n\n\\setlength{\\textwidth}{28.3cm}\n\\setlength{\\hoffset}{-1.84cm}\n\\setlength{\\headsep}{0pt}\n\\setlength{\\topmargin}{0mm}\n\\setlength{\\footskip}{0mm}\n\\setlength{\\oddsidemargin}{0pt}\n\\setlength{\\evensidemargin}{0pt}\n\\setlength{\\voffset}{-2.15cm}\n\\setlength{\\textheight}{19.6cm}\n\\setlength{\\paperwidth}{21cm}\n\\setlength{\\paperheight}{29.7cm}\n\\setlength\\parindent{0pt}\n"
       | Normal,SAD ->
-        Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\usepackage{enumitem}%%\n\\usepackage{titlesec}%%\n\\titlespacing{\\section}{0pc}{1.5pc}{0pc}\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{17.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\setlength\\LTpre{3pt}%%\n\\setlength\\LTpost{0pt}%%\n\\renewcommand{\\headrulewidth}{0.0pt}\\setlength{\\hoffset}{-0.4in}%%\n\\setlength{\\headsep}{3.7cm}\\setlength{\\topmargin}{-0.8in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{22cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n"
+        Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\usepackage{enumitem}%%\n\\usepackage{titlesec}%%\n\\titlespacing{\\section}{0pc}{1.5pc}{0pc}\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{17.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\setlength{\\LTpre}{3pt}%%\n\\setlength{\\LTpost}{0pt}%%\n\\renewcommand{\\headrulewidth}{0.0pt}\\setlength{\\hoffset}{-0.4in}%%\n\\setlength{\\headsep}{3.7cm}\\setlength{\\topmargin}{-0.8in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{22cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n"
                     (if headerextralength=0 then "" else
                        Format.sprintf "\\addtolength{\\headheight}{%icm}\\addtolength{\\textheight}{-%icm}"
                          headerextralength
                          headerextralength),""
+                         | Normal,Transcript_sco ->
+                           Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\usepackage{enumitem}%%\n\\usepackage{titlesec}%%\n\\titlespacing{\\section}{0pc}{1.5pc}{0pc}\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{17.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\setlength{\\LTpre}{3pt}%%\n\\setlength{\\LTpost}{0pt}%%\n\\renewcommand{\\headrulewidth}{0.0pt}\\setlength{\\hoffset}{-0.4in}%%\n\\setlength{\\headsep}{3.7cm}\\setlength{\\topmargin}{-0.8in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{22cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n"
+                                       (if headerextralength=0 then "" else
+                                          Format.sprintf "\\addtolength{\\headheight}{%icm}\\addtolength{\\textheight}{-%icm}"
+                                            headerextralength
+                                            headerextralength),""
        | Normal,(PV | Transcript) ->
                            Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{15.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\setlength{\\topmargin}{-1in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{24.7cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n"
                                        (if headerextralength=0 then "" else

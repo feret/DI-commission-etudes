@@ -18,3 +18,14 @@ val export_transcript:
   Remanent_state.t ->
   gps_file
   -> Remanent_state.t * (string * string) option
+
+
+  val export_transcript_export_scolarite :
+    output: string * string ->
+    ?language:Public_data.language ->
+    ?bilinguage:bool ->
+    ?repartition:Public_data.repartition ->
+    ?signature:(string list)->
+    Remanent_state.t ->
+    gps_file
+    -> Remanent_state.t * (string * string) option
