@@ -639,13 +639,13 @@ let print_preamble
       | Landscape,_ -> "\\usepackage{lscape}",
                     "\\landscape\n\n\\setlength{\\textwidth}{28.3cm}\n\\setlength{\\hoffset}{-1.84cm}\n\\setlength{\\headsep}{0pt}\n\\setlength{\\topmargin}{0mm}\n\\setlength{\\footskip}{0mm}\n\\setlength{\\oddsidemargin}{0pt}\n\\setlength{\\evensidemargin}{0pt}\n\\setlength{\\voffset}{-2.15cm}\n\\setlength{\\textheight}{19.6cm}\n\\setlength{\\paperwidth}{21cm}\n\\setlength{\\paperheight}{29.7cm}\n\\setlength\\parindent{0pt}\n"
       | Normal,SAD ->
-        Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\usepackage{enumitem}%%\n\\usepackage{titlesec}%%\n\\titlespacing{\\section}{0pc}{1.5pc}{0pc}\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{17.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\setlength{\\LTpre}{3pt}%%\n\\setlength{\\LTpost}{0pt}%%\n\\renewcommand{\\headrulewidth}{0.0pt}\\setlength{\\hoffset}{-0.4in}%%\n\\setlength{\\headsep}{3.7cm}\\setlength{\\topmargin}{-0.8in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{22cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n"
+        Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\usepackage{enumitem}%%\n\\usepackage{titlesec}%%\n\\titlespacing{\\section}{0pc}{1.5pc}{0pc}\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{17.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\usepackage{longtable}%%\n\\setlength\\LTpre{3pt}%%\n\\setlength\\LTpost{0pt}%%\n\\renewcommand{\\headrulewidth}{0.0pt}\\setlength{\\hoffset}{-0.4in}%%\n\\setlength{\\headsep}{3.7cm}\\setlength{\\topmargin}{-0.8in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{22cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n"
                     (if headerextralength=0 then "" else
                        Format.sprintf "\\addtolength{\\headheight}{%icm}\\addtolength{\\textheight}{-%icm}"
                          headerextralength
                          headerextralength),""
                          | Normal,Transcript_sco ->
-                           Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\usepackage{enumitem}%%\n\\usepackage{titlesec}%%\n\\titlespacing{\\section}{0pc}{1.5pc}{0pc}\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{17.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\setlength{\\LTpre}{3pt}%%\n\\setlength{\\LTpost}{0pt}%%\n\\renewcommand{\\headrulewidth}{0.0pt}\\setlength{\\hoffset}{-0.4in}%%\n\\setlength{\\headsep}{3.7cm}\\setlength{\\topmargin}{-0.8in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{22cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n\\newcommand{\\gender}{}%%\n\\newcommand{\\firstname}{}%%\n\\newcommand{\\lastname}{}%%\n\\renewcommand{\\birthdate}{}%%\n\\newcommand{\\birthcity}{}%%\n\\newcommand{\\birthcountry}{}%%\n\\newcommand{\\il}{}%%\n\\newcommand{\\he}{}%%\n\\renewcommand{\\academicyear}{}%%\n"
+                           Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\usepackage{enumitem}%%\n\\usepackage{titlesec}%%\n\\titlespacing{\\section}{0pc}{1.5pc}{0pc}\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{17.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\renewcommand{\\headrulewidth}{0.0pt}\\setlength{\\hoffset}{-0.4in}%%\n\\setlength{\\headsep}{3.7cm}\\setlength{\\topmargin}{-0.8in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{22cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n\\newcommand{\\gender}{}%%\n\\newcommand{\\firstname}{}%%\n\\newcommand{\\lastname}{}%%\n\\newcommand{\\birthdate}{}%%\n\\newcommand{\\birthcity}{}%%\n\\newcommand{\\birthcountry}{}%%\n\\newcommand{\\il}{}%%\n\\newcommand{\\he}{}%%\n\\newcommand{\\academicyear}{}%%\n"
 
                                        (if headerextralength=0 then "" else
                                           Format.sprintf "\\addtolength{\\headheight}{%icm}\\addtolength{\\textheight}{-%icm}"
@@ -850,6 +850,85 @@ let () = fprintf logger
 }%%\n\
 %%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
     in
+  let () = fprintf logger
+    "\\newcommand{\\courssco}[4][]{%%\n\
+    \\addtocounter{nrow}{1}%%\n\
+    \\StrSubstitute{#4}{,}{.}[\\res]%%\n\
+    \\StrSubstitute{#3}{,}{.}[\\resects]%%\n\
+    \\myifdecimal{#4}%%\n\
+    {%%\n\
+    \\setcounter{cnote}{\\fpeval{\\res*\\factor}}%%\n\
+    \\ifnum\\fpeval{\\res<10} = 1%%\n\
+    \\IfStrEq{#1}{compensation}%%\n\
+    {\\setcounter{cects}{\\fpeval{\\resects*\\factor}}}%%\n\
+    {\\setcounter{cects}{0}}%%\n\
+    \\else%%\n\
+    \\IfStrEq{#1}{unvalidated}%%\n\
+    {\\setcounter{cects}{0}}%%\n\
+    {\\setcounter{cects}{\\fpeval{\\resects*\\factor}}}%%\n\
+    \\fi%%\n\
+    }%%\n\
+    {%%\n\
+    \\setcounter{cnote}{0}%%\n\
+    \\setcounter{cects}{0}%%\n\
+    }%%\n\
+    %%\n\
+    %%\n\ " in
+    let () =
+        List.iter (fun x ->
+        if Public_data.valide_string  x
+        then fprintf logger
+       "\\IfStrEq{#3}{%s}%%\n\ {\\setcounter{vectsc}{\\fpeval{\\resects*\\factor}}}%%\n\
+        {" x) Public_data.all_notes_string
+    in
+    let () =
+      match Public_data.all_notes_string with
+          | [] -> ()
+          | _::_ -> fprintf
+                      logger "\\setcounter{vectsc}{0}%%\n\ "
+    in
+    let () =
+        List.iter (fun x ->
+        if Public_data.valide_string  x
+        then fprintf logger
+       "}") Public_data.all_notes_string
+    in
+    let () = fprintf logger "%%\n\ " in
+    let () = fprintf logger
+    "\\IfStrEq{#4}{en cours}%%\n\
+    {\\setcounter{pectsa}{\\fpeval{\\resects*\\factor}}}%%\n\
+    {\\setcounter{pectsa}{0}}%%\n\
+     %%\n\
+     \\IfStrEq{#4}{in progress}%%\n\
+     {\\setcounter{pectsb}{\\fpeval{\\resects*\\factor}}}%%\n\
+     {\\setcounter{pectsb}{0}}%%\n\
+      %%\n\
+     \\IfEndWith{#4}{(partiel)}%%\n\
+     {\\setcounter{pectsc}{\\fpeval{\\resects*\\factor}}}%%\n\
+     {\\setcounter{pectsc}{0}}%%\n\
+      %%\n\
+      \\IfEndWith{#4}{(partial)}%%\n\
+      {\\setcounter{pectsd}{\\fpeval{\\resects*\\factor}}}%%\n\
+      {\\setcounter{pectsd}{0}}%%\n\
+       %%\n\
+     \\IfStrEq{#4}{%s}%%\n\
+    {\\setcounter{vectsa}{\\fpeval{\\resects*\\factor}}}%%\n\
+     {\\setcounter{vectsa}{0}}%%\n\
+      %%\n\
+      \\IfStrEq{#4}{%s}%%\n\
+     {\\setcounter{vectsb}{\\fpeval{\\resects*\\factor}}}%%\n\
+      {\\setcounter{vectsb}{0}}%%\n\
+       %%\n\
+    \\addtocounter{total}{\\fpeval{\\thecects*\\thecnote}}%%\n\
+    \\addtocounter{ects}{\\fpeval{\\thecects*\\factor}}%%\n\
+    \\addtocounter{potentialects}{\\fpeval{\\thepectsa*\\factor+\\thepectsb*\\factor+\\thepectsc*\\factor+\\thepectsd*\\factor}}%%\n\
+    %%\n\
+    \\addtocounter{vsnects}{\\fpeval{\\thevectsc*\\factor+\\thevectsa*\\factor+\\thevectsb*\\factor}}%%\n\
+     %%\n\       #2 & #3 &  \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{gray}{\\mynumprint{#4}}}{\\mynumprint{#4}}} & \\mynumprint{#4} & \\mynumprint{#4} \\cr%%\n\
+    }%%\n\
+    %%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
+        in
+
     ()
   | Json | TXT | CSV | XLS | Latex_encapsulated | HTML_encapsulated -> ()
 

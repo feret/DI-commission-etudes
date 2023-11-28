@@ -4886,7 +4886,7 @@ let heading
     in
     let () =
       Remanent_state.fprintf state
-        "\\renewcommand{\\gender}{\\Bilingual{%s}{%s}}%%\n"
+        "\\renewcommand{\\gender}{\\BiLingual{%s}{%s}}%%\n"
         mr monsieur
     in
     let () =
@@ -4937,8 +4937,8 @@ let heading
       Remanent_state.print_newline state in
     let () =
       Remanent_state.log_string state
-        ~english:"\\textcolor{\blue}{{\\gender} {\\lastname} {\\firstname}}, born on \\textcolor{blue}{\\birthdate}, in {\\birthcity} (\\birthcountry)), studied at the \'Ecole normale supérieure (Paris, France) in \\textcolor{blue}{\\academicyear} where \\textcolor{blue}{\\he} attended and passed the following courses: "
-        ("\\textcolor{\blue}{{\\gender} {\\lastname} {\\firstname}}, né"^genre^" le \\textcolor{blue}{\\birthdate}, à {\\birthcity} (\\birthcountry)), a étudié à l'\'Ecole normale supérieure (Paris, France) en \\academicyear où  \\textcolor{blue}{\\il} a suivi et validé les cours suivants~:")
+        ~english:"\\textcolor{blue}{{\\gender} {\\lastname} {\\firstname}}, born on \\textcolor{blue}{\\birthdate}, in \\textcolor{blue}{{\\birthcity} (\\birthcountry)}, studied at the \\'Ecole normale supérieure (Paris, France) in \\textcolor{blue}{\\academicyear} where \\textcolor{blue}{\\he} attended and passed the following courses: "
+        ("\\textcolor{blue}{{\\gender} {\\lastname} {\\firstname}}, né"^genre^" le \\textcolor{blue}{\\birthdate}, à {\\birthcity} (\\birthcountry)), a étudié à l'\\'Ecole normale supérieure (Paris, France) en \\academicyear où  \\textcolor{blue}{\\il} a suivi et validé les cours suivants~:")
     in
      state
 
@@ -6346,11 +6346,11 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
         ~with_lines:true
         ~title:[["Nom du cours"];["ECTS"];["Note sur 20"];
                 ["Note lettre"];["GPA"]]
-        ~title_english:[["Course title"];["Credits awarded"];["Grade out of 20}"];
+        ~title_english:[["Course title"];["Credits awarded"];["Grade out of 20"];
                         ["Letter grade"];["GPA"]]
         state
     in
-    let macro = "cours" in
+    let macro = "courssco" in
     (*let list = Tools.sort fetch p list in*)
     let state, mean, dens, natt, cours_list, stage_list  =
       List.fold_left
