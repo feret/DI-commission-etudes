@@ -194,7 +194,7 @@ let state =
                | None ->
                  state
              in
-             Latex_engine.latex_opt_to_pdf ~rev:true state ~input
+             Latex_engine.latex_opt_to_pdf state ~input
          in
 
          let output =

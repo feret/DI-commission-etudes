@@ -4878,7 +4878,7 @@ let heading
 
       ~year
       gps_file state =
-    let _genre,_er,_ne,monsieur,mr,he,il =
+    let genre,_er,_ne,monsieur,mr,he,il =
       match gps_file.genre with
       | None | Some Public_data.Unknown -> "(e)","er(\\`ere)","(ne)","","","he/she","iel"
       | Some Public_data.Masculin -> "","er","","M.","Mr","he","il"
@@ -4937,8 +4937,8 @@ let heading
       Remanent_state.print_newline state in
     let () =
       Remanent_state.log_string state
-        ~english:"\\textcolor{\blue}{{\\gender} {\\lastname} {\\firstname}}, born on \\textcolor{blue}{\\birthdate}, in {\\birthcity} (\\birthcountry)), studied at the \'Ecole normale supérieure (Paris, France) in \\year where \\textcolor{blue}{\\he} attended and passed the following courses: "
-        "\\textcolor{\blue}{{\\gender} {\\lastname} {\\firstname}}, né le \\textcolor{blue}{\\birthdate}, à {\\birthcity} (\\birthcountry)), a étudié à l'\'Ecole normale supérieure (Paris, France) en \\year où  \\textcolor{blue}{\\il} a suivi et validé les cours suivants~:"
+        ~english:"\\textcolor{\blue}{{\\gender} {\\lastname} {\\firstname}}, born on \\textcolor{blue}{\\birthdate}, in {\\birthcity} (\\birthcountry)), studied at the \'Ecole normale supérieure (Paris, France) in \\textcolor{blue}{\\academicyear} where \\textcolor{blue}{\\he} attended and passed the following courses: "
+        ("\\textcolor{\blue}{{\\gender} {\\lastname} {\\firstname}}, né"^genre^" le \\textcolor{blue}{\\birthdate}, à {\\birthcity} (\\birthcountry)), a étudié à l'\'Ecole normale supérieure (Paris, France) en \\academicyear où  \\textcolor{blue}{\\il} a suivi et validé les cours suivants~:")
     in
      state
 
@@ -6332,7 +6332,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
         in
         ()
     in
-    let bgcolor=[None;None;None;None;None;None;None] in
+    let bgcolor=[None;None;None;None;None;] in
     let () =
       Remanent_state.fprintf state
         "\\setcounter{totalrows}{%i}%%%%\n\ "
@@ -6344,25 +6344,13 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
         ~bgcolor
         ~size
         ~with_lines:true
-        ~title:[["Code"];["Dipl\\^ome"];["Intitul\\'e"];
-                ["Enseignant"];["Semestre"];["Note"];["ECTS"]]
-        ~title_english:[["Code"];["Diploma"];["Course"];
-                ["Teacher"];["Semester"];["Grade"];["ECTS"]]
+        ~title:[["Nom du cours"];["ECTS"];["Note sur 20"];
+                ["Note lettre"];["GPA"]]
+        ~title_english:[["Course title"];["Credits awarded"];["Grade out of 20}"];
+                        ["Letter grade"];["GPA"]]
         state
     in
     let macro = "cours" in
-    let state, monsieur =
-      Remanent_state.bilingual_string
-        ~french:"M."
-        ~english:"Mr"
-        state
-    in
-    let state, madame =
-      Remanent_state.bilingual_string
-        ~french:"Mme"
-        ~english:"Mrs"
-        state
-    in
     (*let list = Tools.sort fetch p list in*)
     let state, mean, dens, natt, cours_list, stage_list  =
       List.fold_left
@@ -6375,7 +6363,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
             Remanent_state.open_row ~macro state
           in
           let codecours =
-            string_of_stringopt cours.code_cours
+              string_of_stringopt cours.code_cours
           in
           let state, compensation =
             Remanent_state.get_compensation
@@ -6399,16 +6387,6 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                 "unvalidated"
                 state
               else ()
-          in
-          let () =
-            Remanent_state.print_cell
-              codecours
-              state
-          in
-          let () =
-            Remanent_state.print_cell
-              ""
-              state
           in
           let state, f =
             special_course state cours
@@ -6746,56 +6724,9 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
               (f libelle)
              state
           in
-          let state, responsable_opt =
-            match cours.code_cours with
-            | Some codegps ->
-              Remanent_state.get_course_exception
-                ~codegps
-                ~year
-                state
-            | None -> state, None
-          in
-          let state, (genre, firstname, lastname) =
-              match responsable_opt with
-            | None ->
-              if match cours.responsable with None -> true | Some x when String.trim x = "" -> true | Some _ -> false
-              then state, (Public_data.Unknown, "", "")
-              else
-                  let a,b,c =
-                      Special_char.split_name
-                          (string_of_stringopt cours.responsable)
-                  in
-                  let state, a  =
-                    match Special_char.lowercase a with
-                    | "m" | "mr" | "monsieur" | "m." | "mr." -> state, Public_data.Masculin
-                    |  "mlle" | "mme" | "mlle." | "mme." | "madame" | "mademoiselle" -> state, Public_data.Feminin
-                    | x -> Remanent_state.warn __POS__ (Format.sprintf "Unknown gender (%s) %s %s" x (match cours.responsable with None -> "none" | Some s -> s) libelle)  Exit state, Public_data.Unknown
-                  in state, (a,b,c)
-
-            | Some a ->
-                       state, (a.Public_data.course_exception_genre,
-                        a.Public_data.course_exception_firstname,
-                        a.Public_data.course_exception_lastname)
-          in
-          let responsable =
-              Format.sprintf "%s %s %s"
-                (match
-                   genre
-                 with
-                 | Public_data.Masculin -> monsieur
-                 | Public_data.Feminin -> madame
-                 | Public_data.Unknown -> "")
-                (Special_char.capitalize firstname)
-                (Special_char.uppercase lastname)
-          in
           let () =
             Remanent_state.print_cell
-              responsable
-              state
-          in
-          let () =
-            Remanent_state.print_cell
-              (semester_of_stringopt cours.semestre)
+              (Notes.string_of_ects cours.ects)
               state
           in
           let state, note_string =
@@ -6809,11 +6740,6 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
               state
           in
           let () =
-            Remanent_state.print_cell
-              (Notes.string_of_ects cours.ects)
-              state
-          in
-          let () =
             Remanent_state.close_row state
           in
           let () =
@@ -6821,7 +6747,6 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
           in
           let state, mean, dens, natt, cours_list, stage_list =
             if year > current_year
-            (*|| not ((do_report report || keep_success || keep_faillure)*)
             then state, mean, dens, natt, cours_list, stage_list
             else
                 let state, cours_list, natt =
@@ -9240,7 +9165,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                    state,mean,dens,natt,cours_list, stage_list
                else
                  let l =
-                   [21.0;11.67;48.33;26.67;7.3;10.00;5.17]
+                   [30.;10.;10.;10.;8.]
                  in
                  let sum =
                    List.fold_left
@@ -9249,7 +9174,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                  in
                  let size =
                    List.rev_map
-                     (fun a -> Some (a/.(sum*.1.12)))
+                     (fun a -> Some (a/.(sum*.1.)))
                      (List.rev l)
                  in
                  if [] = split_cours
