@@ -850,11 +850,7 @@ let () = fprintf logger
 }%%\n\
 %%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
     in
-    let set lettre points =
-      Format.sprintf
-        "\\renewcommand{\\gradeletter}{%s}\\renewcommand{\\res}{%s}"
-        lettre points
-    in
+    let set lettre points = (lettre,points) in
     let f = set "F" "0" in
     let d = set "D" "1.0" in
     let cmoins = set "C-" "1.7" in
@@ -864,54 +860,86 @@ let () = fprintf logger
     let b = set "B" "3.0" in
     let bplus = set "B+" "3.33" in
     let a = set "A" "4" in
-  let pgaempty = set "N/A" "N/A" in
-  
-  let pga =
+  (*let pgaempty = set "N/A" "N/A" in*)
 
-         Latex_helper.case
-           Latex_helper.ifnum
-           [
+    let lettergrade =
+        Format.sprintf
+          "\\newcommand{\\lettergrade}[1]{%s"
+           (Latex_helper.case
+             Latex_helper.ifnum
+             [
 
-            Format.sprintf
-                         "\\fpeval{#4<8}  = 1",f;
+              Format.sprintf
+                           "\\fpeval{#4<8}  = 1",fst f;
 
-            Format.sprintf
-                         "\\fpeval{#4<8.9}  = 1",d;
+              Format.sprintf
+                           "\\fpeval{#4<8.9}  = 1",fst d;
 
-            Format.sprintf
-                         "\\fpeval{#4<10.}  = 1",cmoins;
+              Format.sprintf
+                           "\\fpeval{#4<10.}  = 1",fst cmoins;
 
-            Format.sprintf
-                         "\\fpeval{#4<10.1}  = 1",c;
+              Format.sprintf
+                           "\\fpeval{#4<10.1}  = 1",fst c;
 
-            Format.sprintf
-                          "\\fpeval{#4<10.5}  = 1",cplus;
-            Format.sprintf
-                                       "\\fpeval{#4<11.}  = 1",bmoins;
+              Format.sprintf
+                            "\\fpeval{#4<10.5}  = 1",fst cplus;
+              Format.sprintf
+                                         "\\fpeval{#4<11.}  = 1",fst bmoins;
 
-                          Format.sprintf
-                                       "\\fpeval{#4<12.}  = 1",b;
+                            Format.sprintf
+                                         "\\fpeval{#4<12.}  = 1",fst b;
 
-                          Format.sprintf
-                                        "\\fpeval{#4<14.}  = 1",bplus;
-     ]
-           ~otherwise:a
-    in
+                            Format.sprintf
+                                          "\\fpeval{#4<14.}  = 1",fst bplus;
+       ]
+             ~otherwise:(fst a))
+      in
+      let pga =
+          Format.sprintf
+            "\\newcommand{\\pga}[1]{%s"
+             (Latex_helper.case
+               Latex_helper.ifnum
+               [
 
+                Format.sprintf
+                             "\\fpeval{#4<8}  = 1",snd f;
+
+                Format.sprintf
+                             "\\fpeval{#4<8.9}  = 1",snd d;
+
+                Format.sprintf
+                             "\\fpeval{#4<10.}  = 1",snd cmoins;
+
+                Format.sprintf
+                             "\\fpeval{#4<10.1}  = 1",snd c;
+
+                Format.sprintf
+                              "\\fpeval{#4<10.5}  = 1",snd cplus;
+                Format.sprintf
+                                           "\\fpeval{#4<11.}  = 1",snd bmoins;
+
+                              Format.sprintf
+                                           "\\fpeval{#4<12.}  = 1",snd b;
+
+                              Format.sprintf
+                                            "\\fpeval{#4<14.}  = 1",snd bplus;
+         ]
+               ~otherwise:(snd a))
+        in
   let () = fprintf logger
-    "\\newcommand{\\courssco}[4][]{%%\n\
+    "%s%s\\newcommand{\\courssco}[4][]{%%\n\
     \\addtocounter{nrow}{1}%%\n\
-    \\StrSubstitute{#4}{,}{.}[\\res]%%\n\
+    \\StrSubstitute{\\pga{#4}}{,}{.}[\\res]%%\n\
     \\StrSubstitute{#3}{,}{.}[\\resects]%%\n\
     \\myifdecimal{#4}%%\n\
     {%%\n\
-    %s\\setcounter{cnote}{\\fpeval{\\res*\\factor}}%%\n\
+    \\setcounter{cnote}{\\fpeval{\\res*\\factor}}%%\n\
     \\ifnum\\fpeval{\\res<10} = 1%%\n\
     \\IfStrEq{#1}{compensation}%%\n\
     {\\setcounter{cects}{\\fpeval{\\resects*\\factor}}}%%\n\
     {\\setcounter{cects}{0}}%%\n\
     \\else%%\n\
-    %s\\IfStrEq{#1}{unvalidated}%%\n\
+    \\IfStrEq{#1}{unvalidated}%%\n\
     {\\setcounter{cects}{0}}%%\n\
     {\\setcounter{cects}{\\fpeval{\\resects*\\factor}}}%%\n\
     \\fi%%\n\
@@ -921,7 +949,7 @@ let () = fprintf logger
     \\setcounter{cects}{0}%%\n\
     }%%\n\
     %%\n\
-    %%\n\ " pga pgaempty in
+    %%\n\ " lettergrade pga  in
     let () =
         List.iter (fun x ->
         if Public_data.valide_string  x
@@ -972,7 +1000,7 @@ let () = fprintf logger
     \\addtocounter{potentialects}{\\fpeval{\\thepectsa*\\factor+\\thepectsb*\\factor+\\thepectsc*\\factor+\\thepectsd*\\factor}}%%\n\
     %%\n\
     \\addtocounter{vsnects}{\\fpeval{\\thevectsc*\\factor+\\thevectsa*\\factor+\\thevectsb*\\factor}}%%\n\
-     %%\n\       #2 & #3 &  \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{gray}{\\mynumprint{#4}}}{\\mynumprint{#4}}} & \\mynumprint{\\res} & \\gradeletter \\cr%%\n\
+     %%\n\       #2 & #3 &  \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{gray}{\\mynumprint{#4}}}{\\mynumprint{#4}}} & \\mynumprint{\\pga{#4}} & \\gradeletter{#4} \\cr%%\n\
     }%%\n\
     %%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
         in
