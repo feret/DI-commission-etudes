@@ -4988,6 +4988,72 @@ let foot signature state  =
   in
   state
 
+
+  let foot_sco
+        ~head_gender
+        ~head_firstname
+        ~head_lastname
+        ~head_jobtitle
+
+        ~dpt
+            signature state  =
+        let () =
+            Remanent_state.fprintf state
+              "{\\noindent}I, \\textcolor{\\blue}{%s %s %s}, %s in \\textcolor{\\blue}{%s}, Head of Studies of the Department of \\textcolor{\\blue}{%s}, hereby certify that the translation of the transcripts obtained by \textcolor{{\\gender} {\\firstname} {\\lastname}} is true to the original.\n\n\ "
+              head_gender head_firstname head_lastname head_jobtitle
+              dpt dpt
+        in
+        let () =
+            Remanent_state.fprintf state
+              "\\begin{center}\n\ "
+        in
+        let () =
+          Remanent_state.fprintf
+            state
+            "{\\noindent}\\textcolor{\\blue}{\\today}\\\\%%\n\ "
+        in
+        let state =
+        match signature with
+        | [] -> state
+        | sign_list ->
+        let f x =
+          Printf.sprintf
+            "\\includegraphics[height=2cm]{%s}\\hspace*{5mm}\\mbox{}"
+            x
+        in
+        let state, s =
+          Tools.include_latex_list
+            f
+            state
+            sign_list
+        in
+        let () =
+          Remanent_state.fprintf_verbatim
+            state
+            "%s"
+            s
+        in state in
+        let () =
+          Remanent_state.fprintf
+            state
+            "\\end{center}\\vfill%%\n\ "
+        in
+        let () =
+          Remanent_state.fprintf state
+            "{\\noindent}Deputy head of the academic registrar\n\ "
+        in
+        let () =
+          Remanent_state.fprintf state
+            "{\\noindent}\\textbf{Christophe CARIO}\n\ "
+        in
+        let () =
+          Remanent_state.print_newline state
+        in
+        let () =
+          Remanent_state.breakpage state
+        in
+        state
+
 let program
     ~print_foot_note
     ~origine ~gpscodelist ~string ~dpt ~year ~who ~alloc_suffix ~mean ~cours_list ~stage_list ~firstname ~lastname ~promo ~cursus_map
@@ -6300,19 +6366,12 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
   let () = Remanent_state.print_newline state in
   state,mean,dens,natt, cours_list, stage_list
 
-  let add_mean_diplome_sco state _year mean = state, mean
 
   let program_sco
       ~year ~alloc_suffix ~mean ~cours_list ~stage_list ~firstname ~lastname ~promo
       ~size ~stages ~current_year (*~report ~keep_faillure ~keep_success*)
       ~dens ~natt ~unvalidated_map
       (list:(cours) list) state =
-    let state, mean =
-        add_mean_diplome_sco
-          state
-          (try int_of_string year with _ -> 0)
-          mean
-    in
     let state, key, b =
       alloc_suffix (Some "",Public_data.DI) state
     in
@@ -6387,9 +6446,6 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                 "unvalidated"
                 state
               else ()
-          in
-          let state, f =
-            special_course state cours
           in
           let state, libelle, course_entry, stage_opt =
             match cours.cours_libelle with
@@ -6721,7 +6777,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
           in
           let () =
             Remanent_state.print_cell
-              (f libelle)
+              libelle
              state
           in
           let () =
@@ -9085,6 +9141,27 @@ let state,year = Remanent_state.get_current_academic_year state in
         let state, current_year =
           Remanent_state.get_current_academic_year state
         in
+        let f x =
+          Printf.sprintf
+            "{\\includegraphics[width=5cm]{%s}}\\mbox{}"
+            x
+        in
+        let state, enspsl =
+            Remanent_state.get_ENSPSL_logo_bis state
+        in
+        let enspsl = List.rev_map Special_char.trans_latex_address (List.rev enspsl) in
+        let state, s  =
+          Tools.include_latex_list
+            f
+            state
+            enspsl
+        in
+        let () =
+            Remanent_state.fprintf_verbatim state "\\lhead{%s}" s
+        in
+        let () =
+            Remanent_state.fprintf state "\\lfoot{\\scalebox{0.6}{{\\noindent}\\textbf{\\purple}{ÉCOLE NORMALE SUPÉRIEURE}\\{\\noindent}45 rue d'Ulm - 75230 Paris Cedex 05 - FRANCE\\{\\noindent}Tél.~: +33\\;(0)1\\;44\\;32\\;30\\;00}}"
+        in
         let state, l_rev =
         List.fold_left
           (fun (state, l) (y,annee) ->
@@ -9144,7 +9221,7 @@ let state,year = Remanent_state.get_current_academic_year state in
             (fun (state, l) (year, situation) ->
                let state, filtered_classes =
                  filter_class ~firstname ~lastname ~year
-                   state unvalidated Public_data.All
+                   state unvalidated Public_data.All_but_in_progress
                    situation.cours
                in
               state, (year,situation,filtered_classes)::l)
@@ -9165,7 +9242,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                    state,mean,dens,natt,cours_list, stage_list
                else
                  let l =
-                   [30.;10.;10.;10.;8.]
+                   [30.;5.;5.;5.;3.]
                  in
                  let sum =
                    List.fold_left
@@ -9174,7 +9251,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                  in
                  let size =
                    List.rev_map
-                     (fun a -> Some (a/.(sum*.1.)))
+                     (fun a -> Some (a/.(sum*.1.12)))
                      (List.rev l)
                  in
                  if [] = split_cours
@@ -9202,6 +9279,15 @@ let state,year = Remanent_state.get_current_academic_year state in
                    state, mean, dens, natt, cours_list, stage_list
                  else
                    begin
+                      let state =
+                          heading_sco
+                          ~year
+                          gps_file state
+                      in
+                      let () =
+                        Remanent_state.fprintf
+                          state "\n\ \\vfill\n\ \n\ "
+                     in
                      let state, mean, dens, natt, cours_list, stage_list
 
                                =
@@ -9218,10 +9304,25 @@ let state,year = Remanent_state.get_current_academic_year state in
                                   split_cours state
                              in
                              let () =
-                               Remanent_state.fprintf
+                                Remanent_state.fprintf state
+                                    "\\noindent\\hspace*{-5mm}\\textbf{Cumulative GPA:}\n\n{\\noindent}NB: École normale supérieure is one of the most selective French higher education institutions in science and humanities. Students entering ENS are selected from the upper tier of classes préparatoires and universities and rank in the top 1-5$\\%s$ among French students.\n\n ENS follows the traditional French grading system based on a numbered scale from 0 to 20, 10 being the minimum passing grade. French grades correspond to the following:\\begin{itemize}[$\\bullet$]\\item 18-20, outstanding\\item 16-17.9	very good\\item 14-15.9 good \\item 12-13.9	quite good \\item  10-11.9	fair \\item 00-09.9	fail\\end{itemize}{\\noindent}Typical class average lies between 12 and 14/20 and grades above 16 are seldom awarded." "%"
+                              in
+                              let () =
+                                Remanent_state.fprintf
                                  state "\n\ \\vfill\n\ \n\ "
                              in
 
+                             let state =
+                               foot_sco
+                                  ~head_gender:"Mr"
+                                  ~head_firstname:"Jérôme"
+                                  ~head_lastname:"FERET"
+                                  ~head_jobtitle:"research fellow"
+
+                                  ~dpt:"Computer Sciences"
+                                  signature state
+                             in
+                             let () = Remanent_state.fprintf state "\\pagebreak" in
 state, mean, dens, natt, cours_list, stage_list
                    end
             )

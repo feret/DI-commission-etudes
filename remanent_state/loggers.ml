@@ -850,6 +850,54 @@ let () = fprintf logger
 }%%\n\
 %%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
     in
+    let set lettre points =
+      Format.sprintf
+        "\\renewcommand{\\gradeletter}{%s}\\renewcommand{\\res}{%s}"
+        lettre points
+    in
+    let f = set "F" "0" in
+    let d = set "D" "1.0" in
+    let cmoins = set "C-" "1.7" in
+    let c = set "C" "2.0" in
+    let cplus = set "C+" "2.33" in
+    let bmoins = set "B-" "2.7" in
+    let b = set "B" "3.0" in
+    let bplus = set "B+" "3.33" in
+    let a = set "A" "4" in
+  let pgaempty = set "N/A" "N/A" in
+  
+  let pga =
+
+         Latex_helper.case
+           Latex_helper.ifnum
+           [
+
+            Format.sprintf
+                         "\\fpeval{#4<8}  = 1",f;
+
+            Format.sprintf
+                         "\\fpeval{#4<8.9}  = 1",d;
+
+            Format.sprintf
+                         "\\fpeval{#4<10.}  = 1",cmoins;
+
+            Format.sprintf
+                         "\\fpeval{#4<10.1}  = 1",c;
+
+            Format.sprintf
+                          "\\fpeval{#4<10.5}  = 1",cplus;
+            Format.sprintf
+                                       "\\fpeval{#4<11.}  = 1",bmoins;
+
+                          Format.sprintf
+                                       "\\fpeval{#4<12.}  = 1",b;
+
+                          Format.sprintf
+                                        "\\fpeval{#4<14.}  = 1",bplus;
+     ]
+           ~otherwise:a
+    in
+
   let () = fprintf logger
     "\\newcommand{\\courssco}[4][]{%%\n\
     \\addtocounter{nrow}{1}%%\n\
@@ -857,13 +905,13 @@ let () = fprintf logger
     \\StrSubstitute{#3}{,}{.}[\\resects]%%\n\
     \\myifdecimal{#4}%%\n\
     {%%\n\
-    \\setcounter{cnote}{\\fpeval{\\res*\\factor}}%%\n\
+    %s\\setcounter{cnote}{\\fpeval{\\res*\\factor}}%%\n\
     \\ifnum\\fpeval{\\res<10} = 1%%\n\
     \\IfStrEq{#1}{compensation}%%\n\
     {\\setcounter{cects}{\\fpeval{\\resects*\\factor}}}%%\n\
     {\\setcounter{cects}{0}}%%\n\
     \\else%%\n\
-    \\IfStrEq{#1}{unvalidated}%%\n\
+    %s\\IfStrEq{#1}{unvalidated}%%\n\
     {\\setcounter{cects}{0}}%%\n\
     {\\setcounter{cects}{\\fpeval{\\resects*\\factor}}}%%\n\
     \\fi%%\n\
@@ -873,7 +921,7 @@ let () = fprintf logger
     \\setcounter{cects}{0}%%\n\
     }%%\n\
     %%\n\
-    %%\n\ " in
+    %%\n\ " pga pgaempty in
     let () =
         List.iter (fun x ->
         if Public_data.valide_string  x
@@ -924,7 +972,7 @@ let () = fprintf logger
     \\addtocounter{potentialects}{\\fpeval{\\thepectsa*\\factor+\\thepectsb*\\factor+\\thepectsc*\\factor+\\thepectsd*\\factor}}%%\n\
     %%\n\
     \\addtocounter{vsnects}{\\fpeval{\\thevectsc*\\factor+\\thevectsa*\\factor+\\thevectsb*\\factor}}%%\n\
-     %%\n\       #2 & #3 &  \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{gray}{\\mynumprint{#4}}}{\\mynumprint{#4}}} & \\mynumprint{#4} & \\mynumprint{#4} \\cr%%\n\
+     %%\n\       #2 & #3 &  \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{gray}{\\mynumprint{#4}}}{\\mynumprint{#4}}} & \\mynumprint{\\res} & \\gradeletter \\cr%%\n\
     }%%\n\
     %%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
         in
