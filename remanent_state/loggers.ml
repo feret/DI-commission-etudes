@@ -400,13 +400,18 @@ let print_cell logger s =
         (Format.sprintf "\\makecell{%s}"
            (String.concat "\\\\ " s))
 
-let open_array ?size ?color ?bgcolor ?align ~title logger =
+let open_array ?colortitle ?size ?color ?bgcolor ?align ~title logger =
   match logger.encoding with
     | Latex _ | Latex_encapsulated ->
     let size =
       match size with
       | None -> List.rev_map (fun _ -> None) title
       | Some a -> a
+    in
+    let colortitle =
+      match colortitle with
+      | None -> "white"
+      | Some c -> c
     in
     let color =
       match color with
@@ -528,8 +533,9 @@ let open_array ?size ?color ?bgcolor ?align ~title logger =
           let () =
             fprintf
               logger
-              "%s\\cellcolor{white}{\\makecell{%s}}"
+              "%s\\cellcolor{%s}{\\makecell{%s}}"
               (if is_start then "" else "&")
+              colortitle
               (String.concat "\\\\ " title)
           in
           false)
@@ -744,7 +750,7 @@ let print_preamble
 \\newcommand{\\mynumprint}[1]{%%\n\
 \\StrSubstitute{#1}{,}{.}[\\res]\\myifdecimal{#1}{\\numprint{\\res}}{#1}}%%\n\
 \\newcommand{\\correctnum}[1]%%\n\
-{\\StrSubstitute{#1}{,}{.}[\\res]\\myifdecimal{#1}{\res}{0}}%%\n\
+{\\StrSubstitute{#1}{,}{.}[\\res]\\myifdecimal{#1}{\\res}{0}}%%\n\
 %%\n\
        %%\n\ " orientation.font
       package lang size
@@ -765,14 +771,14 @@ let print_preamble
            in ())
         Color.rgb_list
     in
+    let innerline =
+      match orientation.template with
+        | Transcript -> "\\newcommand{\\innerline}{%%\n\ \\ifnum \\thenrow=\\thetotalrows%%\n\ \\hline%%\n\ \\else\\cline{1-1}\\cline{3-7}\\fi%%\n\ }%%\n\ "
+        | Transcript_sco | SAD | PV -> "\\newcommand{\\innerline{%%\\hline%%\n\ }}"
+    in
     let () =
       fprintf logger
-        "\\newcommand{\\mean}{}%%\n\ \\newcommand{\\comment}[1]{}%%\n\ \\newcommand{\\mandatory}[1]{\\textcolor{darkred}{#1}}%%\n\ \\newcommand{\\countformaths}[1]{\\textcolor{darkorange}{#1}}%%\n\ \\newcommand{\\innerline}{%%\n\
-\\ifnum \\thenrow=\\thetotalrows%%\n\
-\\hline%%\n\
-\\else\\cline{1-1}\\cline{3-7}\\fi%%\n\
-         }%%\n\
-         \\newcommand{\\row}{}\n\
+        "\\newcommand{\\mean}{}%%\n\ \\newcommand{\\comment}[1]{}%%\n\ \\newcommand{\\mandatory}[1]{\\textcolor{darkred}{#1}}%%\n\ \\newcommand{\\countformaths}[1]{\\textcolor{darkorange}{#1}}%%\n\ %s\\newcommand{\\row}{}\n\
 \\newcommand{\\cours}[8][]{%%\n\
 \\addtocounter{nrow}{1}%%\n\
 \\StrSubstitute{#7}{,}{.}[\\res]%%\n\
@@ -795,7 +801,7 @@ let print_preamble
 \\setcounter{cects}{0}%%\n\
 }%%\n\
 %%\n\
-%%\n\ " in
+%%\n\ " innerline in
 let () =
     List.iter (fun x ->
     if Public_data.valide_string  x
@@ -870,21 +876,21 @@ let () = fprintf logger
              [
 
               Format.sprintf
-                           "\\fpeval{#4<8}  = 1",fst f;
+                           "\\fpeval{14<8}  = 1",fst f;
 
               Format.sprintf
-                           "\\fpeval{#4<8.9}  = 1",fst d;
+                           "\\fpeval{#1<8.9}  = 1",fst d;
 
               Format.sprintf
-                           "\\fpeval{#4<10.}  = 1",fst cmoins;
+                           "\\fpeval{#1<10.}  = 1",fst cmoins;
 
               Format.sprintf
-                           "\\fpeval{#4<10.1}  = 1",fst c;
+                           "\\fpeval{#1<10.1}  = 1",fst c;
 
               Format.sprintf
-                            "\\fpeval{#4<10.5}  = 1",fst cplus;
+                            "\\fpeval{#1<10.5}  = 1",fst cplus;
               Format.sprintf
-                                         "\\fpeval{#4<11.}  = 1",fst bmoins;
+                                         "\\fpeval{#1<11.}  = 1",fst bmoins;
 
                             Format.sprintf
                                          "\\fpeval{#4<12.}  = 1",fst b;
@@ -902,38 +908,38 @@ let () = fprintf logger
                [
 
                 Format.sprintf
-                             "\\fpeval{#4<8}  = 1",snd f;
+                             "\\fpeval{#1<8}  = 1",snd f;
 
                 Format.sprintf
-                             "\\fpeval{#4<8.9}  = 1",snd d;
+                             "\\fpeval{#1<8.9}  = 1",snd d;
 
                 Format.sprintf
-                             "\\fpeval{#4<10.}  = 1",snd cmoins;
+                             "\\fpeval{#1<10.}  = 1",snd cmoins;
 
                 Format.sprintf
-                             "\\fpeval{#4<10.1}  = 1",snd c;
+                             "\\fpeval{#1<10.1}  = 1",snd c;
 
                 Format.sprintf
-                              "\\fpeval{#4<10.5}  = 1",snd cplus;
+                              "\\fpeval{#1<10.5}  = 1",snd cplus;
                 Format.sprintf
-                                           "\\fpeval{#4<11.}  = 1",snd bmoins;
+                                           "\\fpeval{#1<11.}  = 1",snd bmoins;
 
                               Format.sprintf
-                                           "\\fpeval{#4<12.}  = 1",snd b;
+                                           "\\fpeval{#1<12.}  = 1",snd b;
 
                               Format.sprintf
-                                            "\\fpeval{#4<14.}  = 1",snd bplus;
+                                            "\\fpeval{#1<14.}  = 1",snd bplus;
          ]
                ~otherwise:(snd a))
         in
   let () = fprintf logger
     "%s%s\\newcommand{\\courssco}[4][]{%%\n\
     \\addtocounter{nrow}{1}%%\n\
-    \\StrSubstitute{\\pga{#4}}{,}{.}[\\res]%%\n\
+    \\StrSubstitute{#4}{,}{.}[\\res]%%\n\
     \\StrSubstitute{#3}{,}{.}[\\resects]%%\n\
     \\myifdecimal{#4}%%\n\
     {%%\n\
-    \\setcounter{cnote}{\\fpeval{\\res*\\factor}}%%\n\
+    \\setcounter{cnote}{\\fpeval{\\pga{\\res}*\\factor}}%%\n\
     \\ifnum\\fpeval{\\res<10} = 1%%\n\
     \\IfStrEq{#1}{compensation}%%\n\
     {\\setcounter{cects}{\\fpeval{\\resects*\\factor}}}%%\n\
@@ -1000,7 +1006,7 @@ let () = fprintf logger
     \\addtocounter{potentialects}{\\fpeval{\\thepectsa*\\factor+\\thepectsb*\\factor+\\thepectsc*\\factor+\\thepectsd*\\factor}}%%\n\
     %%\n\
     \\addtocounter{vsnects}{\\fpeval{\\thevectsc*\\factor+\\thevectsa*\\factor+\\thevectsb*\\factor}}%%\n\
-     %%\n\       #2 & #3 &  \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{gray}{\\mynumprint{#4}}}{\\mynumprint{#4}}} & \\mynumprint{\\pga{#4}} & \\gradeletter{#4} \\cr%%\n\
+     %%\n\       #2 & #3 &  \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{gray}{\\mynumprint{#4}}}{\\mynumprint{#4}}} & \\mynumprint{\\pga{\\res}} & \\gradeletter{\\res} \\cr%%\n\
     }%%\n\
     %%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
         in

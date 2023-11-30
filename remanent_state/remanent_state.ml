@@ -246,7 +246,6 @@ let parameters =
     bilinguage = true ;
     language  = Public_data.French;
     repartition = Public_data.Annee_de_validation_du_cours;
-
   }
 
 let _ = parameters.parameters_repository
@@ -1318,7 +1317,7 @@ let set_std_logger t logger =
   let std_logger = Some logger in
   {t with std_logger}
 
-let open_array pos ?logger ~with_lines ?size ?color ?bgcolor ?align ~title t =
+let open_array pos ?colortitle ?logger ~with_lines ?size ?color ?bgcolor ?align ~title t =
   let t,logger =
     match logger with
     | None ->
@@ -1342,7 +1341,7 @@ let open_array pos ?logger ~with_lines ?size ?color ?bgcolor ?align ~title t =
       in
       t, logger
   in
-  let error = Loggers.open_array ?size ?color ?bgcolor ?align ~title logger in
+  let error = Loggers.open_array ?colortitle ?size ?color ?bgcolor ?align ~title logger in
   if error
   then
     warn
@@ -2746,7 +2745,7 @@ let fold_right2 f l l' a = List.fold_left2
     a
     (List.rev l) (List.rev l')
 
-let open_array pos ?logger ~with_lines ?size ?color ?bgcolor ?align ~title ?title_english t  =
+let open_array pos ?colortitle ?logger ~with_lines ?size ?color ?bgcolor ?align ~title ?title_english t  =
   let t, title  =
     match title_english with
     | None -> t, title
@@ -2772,7 +2771,7 @@ let open_array pos ?logger ~with_lines ?size ?color ?bgcolor ?align ~title ?titl
           Exit
           t, []
   in
-  open_array pos ?logger ~with_lines ?size ?color ?bgcolor ?align ~title t
+  open_array pos ?colortitle ?logger ~with_lines ?size ?color ?bgcolor ?align ~title t
 
 
 let print_cell ?logger ?english french t =

@@ -64,7 +64,7 @@ val log_string:
 
 val open_array:
   (string * int * int * int) ->
-  ?logger:Loggers.t ->
+  ?colortitle:string -> ?logger:Loggers.t ->
   with_lines:bool -> ?size:float option list -> ?color: Color.color option list -> ?bgcolor:Color.color option list -> ?align:char option list -> title:string list list -> ?title_english: string list list -> t -> t
 val close_array: ?logger:Loggers.t -> t -> unit
 val open_row: ?logger:Loggers.t -> ?macro:string -> t -> unit

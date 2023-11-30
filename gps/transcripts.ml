@@ -6400,6 +6400,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
     let state =
       Remanent_state.open_array
         __POS__
+        ~colortitle:"grey"
         ~bgcolor
         ~size
         ~with_lines:true
@@ -9160,7 +9161,10 @@ let state,year = Remanent_state.get_current_academic_year state in
             Remanent_state.fprintf_verbatim state "\\lhead{%s}" s
         in
         let () =
-            Remanent_state.fprintf state "\\lfoot{\\scalebox{0.6}{\\begin{minipage}{6cm}{\\noindent}\\textcolor{purple}{ÉCOLE NORMALE SUPÉRIEURE}\n\n{\\noindent}45 rue d'Ulm - 75230 Paris Cedex 05 - FRANCE\n\n{\\noindent}Tél.~: +33\\;(0)1\\;44\\;32\\;30\\;00\\end{minipage}}}"
+            Remanent_state.fprintf state "\\lfoot{{\\small{\\noindent}\\textcolor{purple}{ÉCOLE NORMALE SUPÉRIEURE}\n\n{\\noindent}45 rue d'Ulm - 75230 Paris Cedex 05 - FRANCE\n\n{\\noindent}Tél.~: +33\\;(0)1\\;44\\;32\\;30\\;00}}"
+        in
+        let () =
+            Remanent_state.fprintf state "\\cfoot{}"
         in
         let state, l_rev =
         List.fold_left
