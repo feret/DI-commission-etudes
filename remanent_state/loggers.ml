@@ -904,7 +904,7 @@ let () = fprintf logger
   let lettergrade = gen "lettergrade" fst in
   let pga = gen
               "pga"
-               (fun (_,x) -> "\\setcounter{cnote}{\\fpeval{"^x"*\\factor}}%%\n\ "^x) in
+               (fun (_,x) -> "\\setcounter{cnote}{\\fpeval{"^x^"*\\factor}}%%\n\ "^x) in
   let () = fprintf logger
     "%s%s\\newcommand{\\courssco}[4][]{%%\n\
     \\addtocounter{nrow}{1}%%\n\
