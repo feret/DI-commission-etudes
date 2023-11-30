@@ -4930,7 +4930,7 @@ let heading
         year
     in
     let () =
-      Remanent_state.log_string state ~english:"\\begin{center}\\Huge\\textbf{Transcript of academic record}\\end{center}"
+      Remanent_state.log_string state ~english:"\\begin{center}\\LARGE\\textbf{Transcript of academic record}\\end{center}"
           "\\begin{center}\\Huge\\textbf{Relevé de notes}\\end{center}"
     in
     let () =
@@ -8973,7 +8973,7 @@ let state,year = Remanent_state.get_current_academic_year state in
             Remanent_state.fprintf_verbatim state "\\lhead{%s}" s
         in
         let () =
-            Remanent_state.fprintf state "\\lfoot{{\\tiny{\\noindent}\\textcolor{purplesco}{ÉCOLE NORMALE SUPÉRIEURE}}\\\\{\\tiny{\\noindent}45 rue d'Ulm - 75230 Paris Cedex 05 - FRANCE}\\\\{\\tiny{\\noindent}Tél.~: +33$\\;$(0)1$\\;$44$\\;$32$\\;$30$\\;$00}}"
+            Remanent_state.fprintf state "\\scriptsize{{\\tiny{\\noindent}\\textcolor{purplesco}{ÉCOLE NORMALE SUPÉRIEURE}}\\\\{\\tiny{\\noindent}45 rue d'Ulm - 75230 Paris Cedex 05 - FRANCE}\\\\{\\tiny{\\noindent}Tél.~: +33$\\;$(0)1$\\;$44$\\;$32$\\;$30$\\;$00}}"
         in
         let () =
             Remanent_state.fprintf state "\\cfoot{}"

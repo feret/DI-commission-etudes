@@ -912,7 +912,6 @@ let () = fprintf logger
     \\StrSubstitute{#4}{,}{.}[\\res]%%\n\
     \\myifdecimal{#4}%%\n\
     {%%\n\
-    \\setcounter{cnote}{\\fpeval{\\pga{#4}*\\factor}}%%\n\
     \\IfStrEq{#1}{unvalidated}%%\n\
     {\\setcounter{cects}{0}}%%\n\
     {\\setcounter{cects}{\\fpeval{\\resects*\\factor}}}%%\n\
