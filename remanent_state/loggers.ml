@@ -869,7 +869,7 @@ let () = fprintf logger
   (*let pgaempty = set "N/A" "N/A" in*)
     let gen name p =
     Format.sprintf
-      "\\newcommand{\\%s}[1]{%s%s}"
+      "\\newcommand{\\%s}[1]{%s\\myifdecimal{\\res}{%s}{\\res}}"
       name
        "\\StrSubstitute{#1}{,}{.}[\\res]%%\n\ "
        (Latex_helper.case
@@ -907,6 +907,7 @@ let () = fprintf logger
     "%s%s\\newcommand{\\courssco}[4][]{%%\n\
     \\addtocounter{nrow}{1}%%\n\
     \\StrSubstitute{#3}{,}{.}[\\resects]%%\n\
+    \\StrSubstitute{#4}{,}{.}[\\res]%%\n\
     \\myifdecimal{#4}%%\n\
     {%%\n\
     \\setcounter{cnote}{\\fpeval{\\pga{#4}*\\factor}}%%\n\
@@ -962,7 +963,7 @@ let () = fprintf logger
     \\addtocounter{ects}{\\fpeval{\\thecects*\\factor}}%%\n\
     %%\n\
     \\addtocounter{vsnects}{\\fpeval{\\thevectsc*\\factor+\\thevectsa*\\factor+\\thevectsb*\\factor}}%%\n\
-     %%\n\       #2 & #3 &  \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{grey}{\\mynumprint{#4}}}{\\mynumprint{#4}}} & \\mynumprint{\\pga{#4}} & \\lettergrade{#4} \\cr%%\n\
+     %%\n\       #2 & #3 &  \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{grey}{\\mynumprint{#4}}}{\\mynumprint{#4}}} & {\\pga{#4}} & \\lettergrade{#4} \\cr%%\n\
     }%%\n\
     %%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
         in
