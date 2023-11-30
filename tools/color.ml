@@ -105,7 +105,7 @@ let color_list =
   [
     grey;
     bluesco;
-    purplesco; 
+    purplesco;
     pink;
     blue;
     green;
@@ -133,6 +133,8 @@ let color_of_string s =
   | "orange" -> Some orange
   | "brown" -> Some brown
   | "grey" -> Some grey
+  | "bluesco" -> Some bluesco
+  | "purplesco" -> Some purplesco
   | _ -> None
 
 let to_string color = color.label

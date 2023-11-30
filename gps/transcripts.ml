@@ -8906,7 +8906,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                (match language with
                | Public_data.French -> Loggers.French
                | Public_data.English -> Loggers.English );
-             Loggers.font = 9 ;
+             Loggers.font = 11 ;
              Loggers.template = Loggers.Transcript_sco ;
             Loggers.bilinguage =
                bilinguage ;
@@ -8973,7 +8973,7 @@ let state,year = Remanent_state.get_current_academic_year state in
             Remanent_state.fprintf_verbatim state "\\lhead{%s}" s
         in
         let () =
-            Remanent_state.fprintf state "\\lfoot{{\\small{\\noindent}\\textcolor{purplesco}{ÉCOLE NORMALE SUPÉRIEURE}}\\\\{\\small{\\noindent}45 rue d'Ulm - 75230 Paris Cedex 05 - FRANCE}\\\\{\\small{\\noindent}Tél.~: +33$\\;$(0)1$\\;$44$\\;$32$\\;$30$\\;$00}}"
+            Remanent_state.fprintf state "\\lfoot{{\\tiny{\\noindent}\\textcolor{purplesco}{ÉCOLE NORMALE SUPÉRIEURE}}\\\\{\\tiny{\\noindent}45 rue d'Ulm - 75230 Paris Cedex 05 - FRANCE}\\\\{\\tiny{\\noindent}Tél.~: +33$\\;$(0)1$\\;$44$\\;$32$\\;$30$\\;$00}}"
         in
         let () =
             Remanent_state.fprintf state "\\cfoot{}"
