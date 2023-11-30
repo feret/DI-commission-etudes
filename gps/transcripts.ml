@@ -4936,6 +4936,8 @@ let heading
     let () =
       Remanent_state.print_newline state in
     let () =
+      Remanent_state.log_string state "\\vspace*{1cm}" in 
+    let () =
       Remanent_state.log_string state
         ~english:"\\textcolor{blue}{{\\gender} {\\lastname} {\\firstname}}, born on \\textcolor{blue}{\\birthdate}, in \\textcolor{blue}{{\\birthcity} (\\birthcountry)}, studied at the \\'Ecole normale supérieure (Paris, France) in \\textcolor{blue}{\\academicyear} where \\textcolor{blue}{\\he} attended and passed the following courses: "
         ("\\textcolor{blue}{{\\gender} {\\lastname} {\\firstname}}, né"^genre^" le \\textcolor{blue}{\\birthdate}, à {\\birthcity} (\\birthcountry)), a étudié à l'\\'Ecole normale supérieure (Paris, France) en \\academicyear où  \\textcolor{blue}{\\il} a suivi et validé les cours suivants~:")
@@ -4999,7 +5001,7 @@ let foot signature state  =
             signature state  =
         let () =
             Remanent_state.fprintf state
-              "{\\noindent}I, \\textcolor{\\blue}{%s %s %s}, %s in \\textcolor{\\blue}{%s}, Head of Studies of the Department of \\textcolor{\\blue}{%s}, hereby certify that the translation of the transcripts obtained by \textcolor{{\\gender} {\\firstname} {\\lastname}} is true to the original.\n\n\ "
+              "{\\noindent}I, \\textcolor{blue}{%s %s %s}, %s in \\textcolor{blue}{%s}, Head of Studies of the Department of \\textcolor{blue}{%s}, hereby certify that the translation of the transcripts obtained by \textcolor{blue}{{\\gender} {\\firstname} {\\lastname}} is true to the original.\n\n\ "
               head_gender head_firstname head_lastname head_jobtitle
               dpt dpt
         in
@@ -5010,7 +5012,7 @@ let foot signature state  =
         let () =
           Remanent_state.fprintf
             state
-            "{\\noindent}\\textcolor{\\blue}{\\today}\\\\%%\n\ "
+            "{\\noindent}\\textcolor{blue}{\\today}\\\\%%\n\ "
         in
         let state =
         match signature with
