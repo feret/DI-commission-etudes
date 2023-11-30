@@ -902,7 +902,9 @@ let () = fprintf logger
          ~otherwise:(p a))
   in
   let lettergrade = gen "lettergrade" fst in
-  let pga = gen "pga" snd in
+  let pga = gen
+              "pga"
+               (fun (_,x) -> "\\setcounter{cnote}{\\fpeval{"^x"*\\factor}}%%\n\ "^x) in
   let () = fprintf logger
     "%s%s\\newcommand{\\courssco}[4][]{%%\n\
     \\addtocounter{nrow}{1}%%\n\
@@ -911,15 +913,9 @@ let () = fprintf logger
     \\myifdecimal{#4}%%\n\
     {%%\n\
     \\setcounter{cnote}{\\fpeval{\\pga{#4}*\\factor}}%%\n\
-    \\ifnum\\fpeval{\\res<10} = 1%%\n\
-    \\IfStrEq{#1}{compensation}%%\n\
-    {\\setcounter{cects}{\\fpeval{\\resects*\\factor}}}%%\n\
-    {\\setcounter{cects}{0}}%%\n\
-    \\else%%\n\
     \\IfStrEq{#1}{unvalidated}%%\n\
     {\\setcounter{cects}{0}}%%\n\
     {\\setcounter{cects}{\\fpeval{\\resects*\\factor}}}%%\n\
-    \\fi%%\n\
     }%%\n\
     %%\n\
     %%\n\ " lettergrade pga  in
