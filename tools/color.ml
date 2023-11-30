@@ -81,7 +81,7 @@ let rgb_list =
     light_orange;dark_orange;
     light_red;dark_red;
     light_duck_blue; dark_duck_blue;
-    black;white;di_green;
+    black;white;di_green;bluesco;purplesco;
     brown
   ]
 
