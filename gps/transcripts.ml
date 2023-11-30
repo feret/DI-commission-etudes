@@ -9072,27 +9072,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                  in
                  if [] = split_cours
                  then
-                   let state =
-                     heading_sco
-                       ~year
-                       gps_file state
-                   in
-                   let () =
-                     Remanent_state.fprintf
-                       state "\n\ \\vfill\n\ \n\ "
-                   in
-                   let state =
-                     foot signature state
-                   in
-                   let () =
-                     Remanent_state.fprintf
-                       state "\n\ \\vfill\n\ \n\ "
-                   in
-                   let () =
-                       Remanent_state.fprintf
-                         state "\\pagebreak\n\ "
-                   in
-                   state, cours_list, stage_list
+                     state, cours_list, stage_list
                  else
                    begin
                       let state =
@@ -9117,7 +9097,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                              in
                              let () =
                                 Remanent_state.fprintf state
-                                    "\\noindent\\hspace*{-5mm}\\textbf{Cumulative GPA: %s}\n\n{\\noindent}NB: École normale supérieure is one of the most selective French higher education institutions in science and humanities. Students entering ENS are selected from the upper tier of classes préparatoires and universities and rank in the top 1-5$\\%s$ among French students.\n\n ENS follows the traditional French grading system based on a numbered scale from 0 to 20, 10 being the minimum passing grade. French grades correspond to the following:\\begin{itemize}\\item[$\\bullet$] 18-20, outstanding\\item 16-17.9	very good\\item[$\\bullet$] 14-15.9 good \\item[$\\bullet$] 12-13.9	quite good \\item[$\\bullet$]  10-11.9	fair \\item[$\\bullet$] 00-09.9	fail\\end{itemize}{\\noindent}Typical class average lies between 12 and 14/20 and grades above 16 are seldom awarded." mean "%"
+                                    "\\noindent\\hspace*{-5mm}\\textbf{Cumulative GPA: \\fpeval{%s}}\n\n{\\noindent}NB: École normale supérieure is one of the most selective French higher education institutions in science and humanities. Students entering ENS are selected from the upper tier of classes préparatoires and universities and rank in the top 1-5$\\%s$ among French students.\n\n ENS follows the traditional French grading system based on a numbered scale from 0 to 20, 10 being the minimum passing grade. French grades correspond to the following:\\begin{itemize}\\item[$\\bullet$] 18-20, outstanding\\item 16-17.9	very good\\item[$\\bullet$] 14-15.9 good \\item[$\\bullet$] 12-13.9	quite good \\item[$\\bullet$]  10-11.9	fair \\item[$\\bullet$] 00-09.9	fail\\end{itemize}{\\noindent}Typical class average lies between 12 and 14/20 and grades above 16 are seldom awarded." mean "%"
                               in
                               let () =
                                 Remanent_state.fprintf
