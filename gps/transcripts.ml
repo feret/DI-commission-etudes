@@ -4936,7 +4936,7 @@ let heading
     let () =
       Remanent_state.print_newline state in
     let () =
-      Remanent_state.log_string state "\\vspace*{1cm}" in 
+      Remanent_state.log_string state "\\vspace*{1cm}" in
     let () =
       Remanent_state.log_string state
         ~english:"\\textcolor{blue}{{\\gender} {\\lastname} {\\firstname}}, born on \\textcolor{blue}{\\birthdate}, in \\textcolor{blue}{{\\birthcity} (\\birthcountry)}, studied at the \\'Ecole normale supérieure (Paris, France) in \\textcolor{blue}{\\academicyear} where \\textcolor{blue}{\\he} attended and passed the following courses: "
@@ -6370,9 +6370,9 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
 
 
   let program_sco
-      ~year ~alloc_suffix ~mean ~cours_list ~stage_list ~firstname ~lastname ~promo
-      ~size ~stages ~current_year (*~report ~keep_faillure ~keep_success*)
-      ~dens ~natt ~unvalidated_map
+      ~year ~alloc_suffix  ~cours_list ~stage_list ~firstname ~lastname ~promo
+      ~size ~stages
+       ~unvalidated_map
       (list:(cours) list) state =
     let state, key, b =
       alloc_suffix (Some "",Public_data.DI) state
@@ -6414,12 +6414,10 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
     in
     let macro = "courssco" in
     (*let list = Tools.sort fetch p list in*)
-    let state, mean, dens, natt, cours_list, stage_list  =
+    let state, cours_list, stage_list  =
       List.fold_left
         (fun
-          (state, (mean:(bool * float * (Public_data.note option * float option) list * int)
-           StringOptMap.t * (StringOptMap.key * float option * string option * bool option * int)
-           list), dens, natt, cours_list, stage_list)
+          (state, cours_list, stage_list)
           cours ->
           let () =
             Remanent_state.open_row ~macro state
@@ -6804,18 +6802,8 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
           let () =
             Remanent_state.fprintf state "%%\n\ "
           in
-          let state, mean, dens, natt, cours_list, stage_list =
-            if year > current_year
-            then state, mean, dens, natt, cours_list, stage_list
-            else
-                let state, cours_list, natt =
-                  add_dens state year compensation unvalidated cours cours_list natt
-                in
-                  state, mean, dens, natt, cours_list, stage_list
-
-            in
-          state,mean, dens, natt, cours_list, stage_list )
-        (state,mean,dens,natt, cours_list, stage_list)
+          state,cours_list, stage_list )
+        (state,cours_list, stage_list)
         list
     in
     let () =
@@ -6829,191 +6817,13 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
     let () =
       Remanent_state.log
         state
-        "\\addtocounter{validatedwogradeects%s}{\\thevsnects}%%\n\ \\addtocounter{grade%s}{\\thetotal}%%\n\ \\addtocounter{gradedects%s}{\\theects}%%\n\ \\addtocounter{potentialects%s}{\\thepotentialects}" key key key key
+        "\\addtocounter{validatedwogradeects%s}{\\thevsnects}%%\n\ \\addtocounter{grade%s}{\\thetotal}%%\n\ \\addtocounter{gradedects%s}{\\theects}%%\n\ "  key key key
     in
     let moyenne_value =
       Format.sprintf
         "\\thegrade%s/\\thegradedects%s"
         key
         key
-    in
-    let state, moyenne =
-      Remanent_state.bilingual_string ~french:"Moyenne :" ~english:"Mean:" state
-    in
-    let state, moyenne_provisoire =
-      Remanent_state.bilingual_string ~french:"Moyenne provisoire :" ~english:"Temporary mean:" state
-    in
-    let state, bien =
-      Remanent_state.bilingual_string
-        ~english:"Distinction: \\textbf{Upper Second-Class Honours}"
-        ~french:"Mention : \\textbf{Bien}"
-        state
-    in
-    let state, assez_bien =
-      Remanent_state.bilingual_string
-        ~french:"Mention : \\textbf{Assez Bien}"
-        ~english:"Distinction: \\textbf{Lower Second-Class Honours}"
-        state
-    in
-    let state, tres_bien =
-      Remanent_state.bilingual_string
-        ~english:"Distinction: \\textbf{First Class Honour}"
-        ~french:"Mention : \\textbf{Très Bien}"
-        state
-    in
-    let no_definitive_ects,
-        not_enough_ects,
-        moyenne,_mention  =
-        let _mean =
-          Format.sprintf
-            "\\numprint{\\fpeval{%s}}"
-            moyenne_value
-        in
-        let no_definitive_ects =
-          Format.sprintf
-            "\\thegradedects%s=0"
-            key
-        in
-        let not_enough_ects =
-          Format.sprintf
-            "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)} < \\fpeval{60*\\factorsquare}"
-            key key key
-        in
-        let definitive =
-          Format.sprintf
-            "\\thepotentialects%s=0"
-            key
-        in
-        let mean_string =
-          Latex_helper.case
-            Latex_helper.ifnum
-            [ no_definitive_ects,"";
-              not_enough_ects,"";
-              definitive,
-              Format.sprintf "%s \\textbf{\\numprint{\\fpeval{\\mean}}}/20 \\hspace*{1cm}%%\n\ " moyenne]
-            ~otherwise:(Format.sprintf "%s \\numprint{\\fpeval{\\mean}}/20 \\hspace*{1cm}%%\n\ " moyenne_provisoire)
-        in
-        let mention =
-            let mention =
-              Latex_helper.case
-                Latex_helper.ifnum
-                [no_definitive_ects,"";
-                 not_enough_ects,"";
-                 definitive,
-                 Latex_helper.case
-                   Latex_helper.ifnum
-                   [
-                     Format.sprintf
-                       "\\fpeval{\\mean<12}  = 1","";
-                     Format.sprintf
-                       "\\fpeval{\\mean<14} = 1",
-                     assez_bien;
-                     Format.sprintf
-                       "\\fpeval{\\mean<16} = 1 ",
-                     bien;
-                   ]
-                   ~otherwise:tres_bien]
-                ~otherwise:""
-            in
-            mention
-            in
-        no_definitive_ects, not_enough_ects,
-        mean_string, mention
-    in
-    let state, potentiellement =
-      Remanent_state.bilingual_string
-        ~english:"potentially"
-        ~french:"potentiellement"
-        state
-    in
-    let state,ects,pects =
-      let
-        this_year_ects_amp =
-        Format.sprintf
-          "\\fpeval{(\\theects+\\thevsnects)}"
-      in
-      let total_ects_amp =
-        Format.sprintf
-          "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)}"
-          key key
-      in
-      let total_ects =
-        Format.sprintf
-          "\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s)/\\factorsquare}"
-          key key
-      in
-      let state, ects =
-        Remanent_state.bilingual_string
-          ~french:"ECTS "
-          ~english:"ECTS"
-          state
-      in
-      let state, cumulated =
-        Remanent_state.bilingual_string
-          ~french:"(cumulés) "
-          ~english:"(cumulated)"
-          state
-      in
-      let ects_string =
-        Latex_helper.case
-          Latex_helper.ifnum
-          [
-            Format.sprintf "%s=0" total_ects_amp,"";
-            Format.sprintf "%s=%s" this_year_ects_amp
-              total_ects_amp,
-            Format.sprintf "%s: %s" ects total_ects;
-          ]
-          ~otherwise:(Format.sprintf
-                        "%s %s: %s"
-                        ects cumulated total_ects)
-      in
-      let potential_ects_string  =
-        Latex_helper.ifnum
-          ~cond:(Format.sprintf "\\thepotentialects%s=0" key)
-          ~btrue:""
-          ~bfalse:(Format.sprintf "\\hspace*{0.2cm} (%s  {{\\fpeval{(\\thegradedects%s+\\thevalidatedwogradeects%s+\\thepotentialects%s)/\\factorsquare}}} ects)" potentiellement key key key)
-          ()
-      in
-      state, ects_string, potential_ects_string
-    in
-    let lineproportion = 0.45 in
-    let () =
-        let s =
-          Remanent_state.log_to_string
-            ~lineproportion
-            state
-            moyenne
-        in
-        let s =
-          Latex_helper.case
-            Latex_helper.ifnum
-            [ no_definitive_ects,"";
-              not_enough_ects,"";
-            ]
-            ~otherwise:s
-        in
-        let () =
-          Remanent_state.fprintf
-            state
-            "%s"
-            s
-        in
-        ()
-    in
-    let lineproportion = 0.45 in
-    let () =
-      (fun s ->
-         if s = "" then () else
-           Remanent_state.log_string
-             ~lineproportion
-             state
-             s)
-        (
-          if ects = "" then pects
-          else if pects = ""
-          then ects
-          else
-            ects^pects)
     in
     let () =
       Remanent_state.fprintf
@@ -7025,7 +6835,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.print_newline state in
-    state,mean,dens,natt, cours_list, stage_list
+    state,moyenne_value,cours_list, stage_list
 
 
 
@@ -9240,13 +9050,13 @@ let state,year = Remanent_state.get_current_academic_year state in
             [current_year, empty_bilan_annuel, []]
           | _ -> l
         in
-        let state,_mean,_dens,natt, _cours_list, _stage_list =
+        let state,_cours_list, _stage_list =
           List.fold_left
-            (fun (state,mean,dens,natt, cours_list, stage_list )
+            (fun (state,cours_list, stage_list)
               (year,_situation,split_cours) ->
-               if year > current_year then
-                   state,mean,dens,natt,cours_list, stage_list
-               else
+                if year > current_year then
+                    state,cours_list, stage_list
+                else
                  let l =
                    [30.;5.;5.;5.;3.]
                  in
@@ -9282,7 +9092,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                        Remanent_state.fprintf
                          state "\\pagebreak\n\ "
                    in
-                   state, mean, dens, natt, cours_list, stage_list
+                   state, cours_list, stage_list
                  else
                    begin
                       let state =
@@ -9294,24 +9104,20 @@ let state,year = Remanent_state.get_current_academic_year state in
                         Remanent_state.fprintf
                           state "\n\ \\vfill\n\ \n\ "
                      in
-                     let state, mean, dens, natt, cours_list, stage_list
+                     let state, mean, cours_list, stage_list
 
                                =
                                program_sco
-
                                   ~year
-                                 ~alloc_suffix ~mean ~cours_list ~stage_list
+                                 ~alloc_suffix  ~cours_list ~stage_list
                                  ~firstname ~lastname ~promo  ~size
-                                 ~stages ~current_year (*~report
-                                 ~keep_success ~keep_faillure*)
-                                 ~dens
-                                 ~natt
+                                 ~stages
                                  ~unvalidated_map:unvalidated
                                   split_cours state
                              in
                              let () =
                                 Remanent_state.fprintf state
-                                    "\\noindent\\hspace*{-5mm}\\textbf{Cumulative GPA:}\n\n{\\noindent}NB: École normale supérieure is one of the most selective French higher education institutions in science and humanities. Students entering ENS are selected from the upper tier of classes préparatoires and universities and rank in the top 1-5$\\%s$ among French students.\n\n ENS follows the traditional French grading system based on a numbered scale from 0 to 20, 10 being the minimum passing grade. French grades correspond to the following:\\begin{itemize}\\item[$\\bullet$] 18-20, outstanding\\item 16-17.9	very good\\item[$\\bullet$] 14-15.9 good \\item[$\\bullet$] 12-13.9	quite good \\item[$\\bullet$]  10-11.9	fair \\item[$\\bullet$] 00-09.9	fail\\end{itemize}{\\noindent}Typical class average lies between 12 and 14/20 and grades above 16 are seldom awarded." "%"
+                                    "\\noindent\\hspace*{-5mm}\\textbf{Cumulative GPA: %s}\n\n{\\noindent}NB: École normale supérieure is one of the most selective French higher education institutions in science and humanities. Students entering ENS are selected from the upper tier of classes préparatoires and universities and rank in the top 1-5$\\%s$ among French students.\n\n ENS follows the traditional French grading system based on a numbered scale from 0 to 20, 10 being the minimum passing grade. French grades correspond to the following:\\begin{itemize}\\item[$\\bullet$] 18-20, outstanding\\item 16-17.9	very good\\item[$\\bullet$] 14-15.9 good \\item[$\\bullet$] 12-13.9	quite good \\item[$\\bullet$]  10-11.9	fair \\item[$\\bullet$] 00-09.9	fail\\end{itemize}{\\noindent}Typical class average lies between 12 and 14/20 and grades above 16 are seldom awarded." mean "%"
                               in
                               let () =
                                 Remanent_state.fprintf
@@ -9328,14 +9134,17 @@ let state,year = Remanent_state.get_current_academic_year state in
                                   ~dpt:"Computer Sciences"
                                   signature state
                              in
+                             let () =
+                               Remanent_state.fprintf
+                                state "\n\ \\vfill\n\ \n\ "
+                             in
                              let () = Remanent_state.fprintf state "\\pagebreak" in
-state, mean, dens, natt, cours_list, stage_list
+                             state, cours_list, stage_list
                    end
             )
-            (state,mean_init,dens_init,n_att_init, cours_list_init,stage_list_init)
+            (state, cours_list_init,stage_list_init)
             l
         in
-        let _ = natt in
         let state = Remanent_state.close_logger state in
         let state =
           Remanent_state.restore_std_logger state old_logger

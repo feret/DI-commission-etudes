@@ -891,13 +891,13 @@ let () = fprintf logger
           Format.sprintf
                         "\\fpeval{\\res<10.5}  = 1",p cplus;
           Format.sprintf
-                                     "\\fpeval{res<11.}  = 1",p bmoins;
+                                     "\\fpeval{\\res<11.}  = 1",p bmoins;
 
                         Format.sprintf
-                                     "\\fpeval{res<12.}  = 1",p b;
+                                     "\\fpeval{\\res<12.}  = 1",p b;
 
                         Format.sprintf
-                                      "\\fpeval{res<14.}  = 1",p bplus;
+                                      "\\fpeval{\\res<14.}  = 1",p bplus;
    ]
          ~otherwise:(p a))
   in
@@ -919,10 +919,6 @@ let () = fprintf logger
     {\\setcounter{cects}{0}}%%\n\
     {\\setcounter{cects}{\\fpeval{\\resects*\\factor}}}%%\n\
     \\fi%%\n\
-    }%%\n\
-    {%%\n\
-    \\setcounter{cnote}{0}%%\n\
-    \\setcounter{cects}{0}%%\n\
     }%%\n\
     %%\n\
     %%\n\ " lettergrade pga  in
@@ -964,10 +960,9 @@ let () = fprintf logger
        %%\n\
     \\addtocounter{total}{\\fpeval{\\thecects*\\thecnote}}%%\n\
     \\addtocounter{ects}{\\fpeval{\\thecects*\\factor}}%%\n\
-    \\addtocounter{potentialects}{\\fpeval{\\thepectsa*\\factor+\\thepectsb*\\factor+\\thepectsc*\\factor+\\thepectsd*\\factor}}%%\n\
     %%\n\
     \\addtocounter{vsnects}{\\fpeval{\\thevectsc*\\factor+\\thevectsa*\\factor+\\thevectsb*\\factor}}%%\n\
-     %%\n\       #2 & #3 &  \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{grey}{\\mynumprint{#4}}}{\\mynumprint{#4}}} & \\mynumprint{\\pga{\\res}} & \\gradeletter{\\res} \\cr%%\n\
+     %%\n\       #2 & #3 &  \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{grey}{\\mynumprint{#4}}}{\\mynumprint{#4}}} & \\mynumprint{\\pga{#4}} & \\lettergrade{#4} \\cr%%\n\
     }%%\n\
     %%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
         in
