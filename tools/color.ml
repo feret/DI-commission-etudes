@@ -66,7 +66,7 @@ let label c = c.name
 let rgb_code c = c.red, c.green, c.blue
 
 let rgb_list =
-  [ light_pink;dark_pink;
+  [ grey;light_pink;dark_pink;
     light_green;dark_green;
     light_blue;dark_blue;
     light_yellow;dark_yellow;
@@ -89,8 +89,10 @@ let pink = build_color ~background:light_pink dark_pink "pink"
 let digreen = build_color ~background:di_green di_green
     "digreen"
 let brown = build_color ~background:brown brown "brown"
+let grey = build_color ~background:grey grey "grey"
 let color_list =
   [
+    grey;
     pink;
     blue;
     green;
@@ -117,6 +119,7 @@ let color_of_string s =
   | "white" | "blanc" -> Some white
   | "orange" -> Some orange
   | "brown" -> Some brown
+  | "grey" -> Some grey 
   | _ -> None
 
 let to_string color = color.label
