@@ -4930,8 +4930,8 @@ let heading
         year
     in
     let () =
-      Remanent_state.log_string state ~english:"\\begin{center}\Huge\\textbf{Transcript of academic record}\\end{center}"
-          "\\begin{center}\Huge\\textbf{Relevé de notes}\\end{center}"
+      Remanent_state.log_string state ~english:"\\begin{center}\\Huge\\textbf{Transcript of academic record}\\end{center}"
+          "\\begin{center}\\Huge\\textbf{Relevé de notes}\\end{center}"
     in
     let () =
       Remanent_state.print_newline state in
