@@ -19,7 +19,9 @@ val duckblue: color
 val pink: color
 val brown: color
 val digreen: color
-val grey: color 
+val grey: color
+val purplesco: color
+val bluesco:color
 
 val rgb_list: rgb list
 val color_list: color list

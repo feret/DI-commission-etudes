@@ -4930,8 +4930,8 @@ let heading
         year
     in
     let () =
-      Remanent_state.log_string state ~english:"\\begin{center}\\textbf{Transcript of academic record}\\end{center}"
-          "\\begin{center}\\textbf{Relevé de notes}\\end{center}"
+      Remanent_state.log_string state ~english:"\\begin{center}\Huge\\textbf{Transcript of academic record}\\end{center}"
+          "\\begin{center}\Huge\\textbf{Relevé de notes}\\end{center}"
     in
     let () =
       Remanent_state.print_newline state in
@@ -4939,8 +4939,8 @@ let heading
       Remanent_state.log_string state "\\vspace*{1cm}" in
     let () =
       Remanent_state.log_string state
-        ~english:"\\textcolor{blue}{{\\gender} {\\lastname} {\\firstname}}, born on \\textcolor{blue}{\\birthdate}, in \\textcolor{blue}{{\\birthcity} (\\birthcountry)}, studied at the \\'Ecole normale supérieure (Paris, France) in \\textcolor{blue}{\\academicyear} where \\textcolor{blue}{\\he} attended and passed the following courses: "
-        ("\\textcolor{blue}{{\\gender} {\\lastname} {\\firstname}}, né"^genre^" le \\textcolor{blue}{\\birthdate}, à {\\birthcity} (\\birthcountry)), a étudié à l'\\'Ecole normale supérieure (Paris, France) en \\academicyear où  \\textcolor{blue}{\\il} a suivi et validé les cours suivants~:")
+        ~english:"\\textcolor{bluesco}{{\\gender} {\\lastname} {\\firstname}}, born on \\textcolor{bluesco}{\\birthdate}, in \\textcolor{bluesco}{{\\birthcity} (\\birthcountry)}, studied at the \\'Ecole normale supérieure (Paris, France) in \\textcolor{bluesco}{\\academicyear} where \\textcolor{bluesco}{\\he} attended and passed the following courses: "
+        ("\\textcolor{bluesco}{{\\gender} {\\lastname} {\\firstname}}, né"^genre^" le \\textcolor{bluesco}{\\birthdate}, à {\\birthcity} (\\birthcountry)), a étudié à l'\\'Ecole normale supérieure (Paris, France) en \\academicyear où  \\textcolor{bluesco}{\\il} a suivi et validé les cours suivants~:")
     in
      state
 
@@ -5001,7 +5001,7 @@ let foot signature state  =
             signature state  =
         let () =
             Remanent_state.fprintf state
-              "{\\noindent}I, \\textcolor{blue}{%s %s %s}, %s in \\textcolor{blue}{%s}, Head of Studies of the Department of \\textcolor{blue}{%s}, hereby certify that the translation of the transcripts obtained by \textcolor{blue}{{\\gender} {\\firstname} {\\lastname}} is true to the original.\n\n\ "
+              "{\\noindent}I, \\textcolor{bluesco}{%s %s %s}, %s in \\textcolor{bluesco}{%s}, Head of Studies of the Department of \\textcolor{bluesco}{%s}, hereby certify that the translation of the transcripts obtained by \textcolor{blue}{{\\gender} {\\firstname} {\\lastname}} is true to the original.\n\n\ "
               head_gender head_firstname head_lastname head_jobtitle
               dpt dpt
         in
@@ -8956,7 +8956,7 @@ let state,year = Remanent_state.get_current_academic_year state in
         in
         let f x =
           Printf.sprintf
-            "{\\includegraphics[width=5cm]{%s}}\\mbox{}"
+            "{\\includegraphics[width=6cm]{%s}}\\mbox{}"
             x
         in
         let state, enspsl =
@@ -8973,7 +8973,7 @@ let state,year = Remanent_state.get_current_academic_year state in
             Remanent_state.fprintf_verbatim state "\\lhead{%s}" s
         in
         let () =
-            Remanent_state.fprintf state "\\lfoot{{\\small{\\noindent}\\textcolor{purple}{ÉCOLE NORMALE SUPÉRIEURE}}\\\\{\\small{\\noindent}45 rue d'Ulm - 75230 Paris Cedex 05 - FRANCE}\\\\{\\small{\\noindent}Tél.~: +33$\\;$(0)1$\\;$44$\\;$32$\\;$30$\\;$00}}"
+            Remanent_state.fprintf state "\\lfoot{{\\small{\\noindent}\\textcolor{purplesco}{ÉCOLE NORMALE SUPÉRIEURE}}\\\\{\\small{\\noindent}45 rue d'Ulm - 75230 Paris Cedex 05 - FRANCE}\\\\{\\small{\\noindent}Tél.~: +33$\\;$(0)1$\\;$44$\\;$32$\\;$30$\\;$00}}"
         in
         let () =
             Remanent_state.fprintf state "\\cfoot{}"
@@ -9097,7 +9097,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                              in
                              let () =
                                 Remanent_state.fprintf state
-                                    "\\noindent\\hspace*{-5mm}\\textbf{Cumulative GPA: \\fpeval{%s}}\n\n{\\noindent}NB: École normale supérieure is one of the most selective French higher education institutions in science and humanities. Students entering ENS are selected from the upper tier of classes préparatoires and universities and rank in the top 1-5$\\%s$ among French students.\n\n ENS follows the traditional French grading system based on a numbered scale from 0 to 20, 10 being the minimum passing grade. French grades correspond to the following:\\begin{itemize}\\item[$\\bullet$] 18-20, outstanding\\item 16-17.9	very good\\item[$\\bullet$] 14-15.9 good \\item[$\\bullet$] 12-13.9	quite good \\item[$\\bullet$]  10-11.9	fair \\item[$\\bullet$] 00-09.9	fail\\end{itemize}{\\noindent}Typical class average lies between 12 and 14/20 and grades above 16 are seldom awarded." mean "%"
+                                    "\\noindent\\hspace*{-5mm}\\textbf{Cumulative GPA: \\fpeval{%s}}\n\n{\\noindent}NB: École normale supérieure is one of the most selective French higher education institutions in science and humanities. Students entering ENS are selected from the upper tier of classes préparatoires and universities and rank in the top 1-5$\\%s$ among French students.\n\n ENS follows the traditional French grading system based on a numbered scale from 0 to 20, 10 being the minimum passing grade. French grades correspond to the following:\\begin{itemize}\\item[$\\bullet$] 18-20, outstanding\\item[$\\bullet$] 16-17.9	very good\\item[$\\bullet$] 14-15.9 good \\item[$\\bullet$] 12-13.9	quite good \\item[$\\bullet$]  10-11.9	fair \\item[$\\bullet$] 00-09.9	fail\\end{itemize}{\\noindent}Typical class average lies between 12 and 14/20 and grades above 16 are seldom awarded." mean "%"
                               in
                               let () =
                                 Remanent_state.fprintf
