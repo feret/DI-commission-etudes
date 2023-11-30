@@ -870,7 +870,7 @@ let () = fprintf logger
 
     let lettergrade =
         Format.sprintf
-          "\\newcommand{\\lettergrade}[1]{%s"
+          "\\newcommand{\\lettergrade}[1]{%s}"
            (Latex_helper.case
              Latex_helper.ifnum
              [
@@ -902,7 +902,7 @@ let () = fprintf logger
       in
       let pga =
           Format.sprintf
-            "\\newcommand{\\pga}[1]{%s"
+            "\\newcommand{\\pga}[1]{%s}"
              (Latex_helper.case
                Latex_helper.ifnum
                [
