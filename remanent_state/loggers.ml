@@ -774,7 +774,7 @@ let print_preamble
     let innerline =
       match orientation.template with
         | Transcript -> "\\newcommand{\\innerline}{%%\n\ \\ifnum \\thenrow=\\thetotalrows%%\n\ \\hline%%\n\ \\else\\cline{1-1}\\cline{3-7}\\fi%%\n\ }%%\n\ "
-        | Transcript_sco | SAD | PV -> "\\newcommand{\\innerline{%%\\hline%%\n\ }}"
+        | Transcript_sco | SAD | PV -> "\\newcommand{\\innerline}{%%\n\ \\hline%%\n\ }"
     in
     let () =
       fprintf logger
@@ -852,7 +852,7 @@ let () = fprintf logger
 \\addtocounter{potentialects}{\\fpeval{\\thepectsa*\\factor+\\thepectsb*\\factor+\\thepectsc*\\factor+\\thepectsd*\\factor}}%%\n\
 %%\n\
 \\addtocounter{vsnects}{\\fpeval{\\thevectsc*\\factor+\\thevectsa*\\factor+\\thevectsb*\\factor}}%%\n\
- %%\n\       #2 & \\ifnum \\thenrow=\\thetotalrows %%\n\ \\multirow{-\\thetotalrows}{\\hsize}{{\\centering #3}}\\fi & \\ifnum \\thetotalrows=1 %%\n\  \\mbox{}\\newline\\newline#4\\newline\\newline\\else\\ifnum \\thetotalrows=2 %%\n\  \\mbox{}\\newline#4\\newline\\else#4\\fi\\fi  & #5 & #6 & \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#7}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{gray}{\\mynumprint{#7}}}{\\mynumprint{#7}}} & \\mynumprint{#8}\\cr%%\n\
+ %%\n\       #2 & \\ifnum \\thenrow=\\thetotalrows %%\n\ \\multirow{-\\thetotalrows}{\\hsize}{{\\centering #3}}\\fi & \\ifnum \\thetotalrows=1 %%\n\  \\mbox{}\\newline\\newline#4\\newline\\newline\\else\\ifnum \\thetotalrows=2 %%\n\  \\mbox{}\\newline#4\\newline\\else#4\\fi\\fi  & #5 & #6 & \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#7}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{grey}{\\mynumprint{#7}}}{\\mynumprint{#7}}} & \\mynumprint{#8}\\cr%%\n\
 }%%\n\
 %%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
     in
@@ -893,10 +893,10 @@ let () = fprintf logger
                                          "\\fpeval{#1<11.}  = 1",fst bmoins;
 
                             Format.sprintf
-                                         "\\fpeval{#4<12.}  = 1",fst b;
+                                         "\\fpeval{#1<12.}  = 1",fst b;
 
                             Format.sprintf
-                                          "\\fpeval{#4<14.}  = 1",fst bplus;
+                                          "\\fpeval{#1<14.}  = 1",fst bplus;
        ]
              ~otherwise:(fst a))
       in
@@ -1006,7 +1006,7 @@ let () = fprintf logger
     \\addtocounter{potentialects}{\\fpeval{\\thepectsa*\\factor+\\thepectsb*\\factor+\\thepectsc*\\factor+\\thepectsd*\\factor}}%%\n\
     %%\n\
     \\addtocounter{vsnects}{\\fpeval{\\thevectsc*\\factor+\\thevectsa*\\factor+\\thevectsb*\\factor}}%%\n\
-     %%\n\       #2 & #3 &  \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{gray}{\\mynumprint{#4}}}{\\mynumprint{#4}}} & \\mynumprint{\\pga{\\res}} & \\gradeletter{\\res} \\cr%%\n\
+     %%\n\       #2 & #3 &  \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{grey}{\\mynumprint{#4}}}{\\mynumprint{#4}}} & \\mynumprint{\\pga{\\res}} & \\gradeletter{\\res} \\cr%%\n\
     }%%\n\
     %%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
         in

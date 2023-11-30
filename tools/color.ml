@@ -32,6 +32,8 @@ let light_green =
   {name="lightgreen";red=204; green=255;blue=204}
 let dark_green =
   {name="darkgreen";red=0;green=128;blue=0}
+let grey  =
+  {name="grey";red=191;green=191;blue=191}
 let light_blue =
   {name="lightblue";red=204; green=255;blue=255}
 let dark_blue =
@@ -114,7 +116,7 @@ let color_of_string s =
   | "black" | "noir" -> Some black
   | "white" | "blanc" -> Some white
   | "orange" -> Some orange
-  | "brown" -> Some brown 
+  | "brown" -> Some brown
   | _ -> None
 
 let to_string color = color.label
