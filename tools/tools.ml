@@ -578,8 +578,13 @@ let get_option state get opt =
   | None -> get state
   | Some x -> state, x
 
-let include_latex_list f state list
+let include_latex_list ?prefix f state list
   =
+  let prefix =
+      match prefix with
+        | None -> ""
+        | Some a -> a
+  in
   let b = Buffer.create 16 in
   let fmt = Format.formatter_of_buffer b in
   let k =
@@ -587,8 +592,8 @@ let include_latex_list f state list
       (fun n x ->
          let () =
            Format.fprintf fmt
-             "\\IfFileExists{%s}%%\n\ {%s}%%\n\ {"
-             x (f x)
+             "\\IfFileExists{%s}%%\n\ {%s%s}%%\n\ {"
+             x prefix (f x)
          in
          n+1)
       0

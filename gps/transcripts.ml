@@ -5009,13 +5009,13 @@ let foot signature state  =
               dpt dpt
         in
         let () =
-            Remanent_state.fprintf state
-              "\\begin{center}\n\ "
-        in
-        let () =
           Remanent_state.fprintf
             state
             "{\\noindent}\\textcolor{bluesco}{\\today}\\\\%%\n\ "
+        in
+        let () =
+            Remanent_state.fprintf state
+              "\\begin{center}\n\ "
         in
         let state =
         match signature with
@@ -5023,11 +5023,12 @@ let foot signature state  =
         | sign_list ->
         let f x =
           Printf.sprintf
-            "\\includegraphics[height=2cm]{%s}\\hspace*{5mm}\\mbox{}"
+            "\\includegraphics[height=2.5cm]{%s}\\hspace*{5mm}\\mbox{}"
             x
         in
         let state, s =
           Tools.include_latex_list
+            ~pref:"\\vspace{-18mm}"
             f
             state
             sign_list
@@ -6819,7 +6820,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
     let () =
       Remanent_state.fprintf
         state
-        "\n\ \n\ \\vspace*{2mm}\n\ \n\ "
+        "\n\ "
     in
     let () =
       Remanent_state.log
@@ -6835,13 +6836,8 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
     let () =
       Remanent_state.fprintf
         state
-        "\\npnoround%%\n\ \n\n"
+        "\\npnoround%%\n\ "
     in
-    let () = Remanent_state.print_newline state in
-    let () = Remanent_state.fprintf state "\\vfill\n\ " in
-    let () = Remanent_state.print_newline state in
-    let () = Remanent_state.print_newline state in
-    let () = Remanent_state.print_newline state in
     state,moyenne_value,cours_list, stage_list
 
 
@@ -9101,12 +9097,9 @@ let state,year = Remanent_state.get_current_academic_year state in
                              in
                              let () =
                                 Remanent_state.fprintf state
-                                    "\\noindent\\hspace*{-5mm}\\textbf{Cumulative GPA: \\fpeval{round(%s,2)}}\n\n{\\noindent}NB: \\textit{École normale supérieure} is one of the most selective French higher education institutions in science and humanities. Students entering ENS are selected from the upper tier of \\textit{classes préparatoires} and universities and rank in the top 1-5$\\%s$ among French students.\n\n{\\noindent}ENS follows the traditional French grading system based on a numbered scale from 0 to 20, 10 being the minimum passing grade. French grades correspond to the following:\\begin{itemize}[noitemsep,topsep=0pt]\\item[$\\bullet$]\\makebox[2cm][l]{18-20}outstanding\\item[$\\bullet$]\\makebox[2cm][l]{16-17.9}very good\\item[$\\bullet$] \\makebox[2cm][l]{14-15.9}good \\item[$\\bullet$]\\makebox[2cm][l]{12-13.9}quite good \\item[$\\bullet$]\\makebox[2cm][l]{10-11.9}fair\\item[$\\bullet$]\\makebox[2cm][l]{00-09.9}fail\\end{itemize}{\\noindent}Typical class average lies between 12 and 14/20 and grades above 16 are seldom awarded." mean "%"
+                                    "\\noindent\\hspace*{-10mm}\\textbf{Cumulative GPA: \\fpeval{round(%s,2)}}\n\n{\\noindent}NB: \\textit{École normale supérieure} is one of the most selective French higher education institutions in science and humanities. Students entering ENS are selected from the upper tier of \\textit{classes préparatoires} and universities and rank in the top 1-5$\\%s$ among French students.\n\n{\\noindent}ENS follows the traditional French grading system based on a numbered scale from 0 to 20, 10 being the minimum passing grade. French grades correspond to the following:\\begin{itemize}[noitemsep,topsep=0pt]\\item[$\\bullet$]\\makebox[2cm][l]{18-20}outstanding\\item[$\\bullet$]\\makebox[2cm][l]{16-17.9}very good\\item[$\\bullet$] \\makebox[2cm][l]{14-15.9}good \\item[$\\bullet$]\\makebox[2cm][l]{12-13.9}quite good \\item[$\\bullet$]\\makebox[2cm][l]{10-11.9}fair\\item[$\\bullet$]\\makebox[2cm][l]{00-09.9}fail\\end{itemize}{\\noindent}Typical class average lies between 12 and 14/20 and grades above 16 are seldom awarded.\\bigkskip" mean "%"
                               in
-                              let () =
-                                Remanent_state.fprintf
-                                 state "\n\ \\vfill\n\ \n\ "
-                             in
+
 
                              let state =
                                foot_sco
@@ -9118,10 +9111,10 @@ let state,year = Remanent_state.get_current_academic_year state in
                                   ~dpt:"Computer Sciences"
                                   signature state
                              in
-                             let () =
+                             (*let () =
                                Remanent_state.fprintf
                                 state "\n\ \\vfill\n\ \n\ "
-                             in
+                             in*)
                              let () = Remanent_state.fprintf state "\\pagebreak" in
                              state, cours_list, stage_list
                    end
