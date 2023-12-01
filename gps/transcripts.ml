@@ -9062,7 +9062,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                     state,cours_list, stage_list
                 else
                  let l =
-                   [30.;5.;5.;4.;3.]
+                   [30.;5.;5.5;4.;3.]
                  in
                  let sum =
                    List.fold_left
@@ -9098,7 +9098,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                              in
                              let () =
                                 Remanent_state.fprintf state
-                                    "\\noindent\\hspace*{-10mm}\\textbf{Cumulative GPA: \\fpeval{round(%s,2)}}\n\n{\\noindent}NB: \\textit{École normale supérieure} is one of the most selective French higher education institutions in science and humanities. Students entering ENS are selected from the upper tier of \\textit{classes préparatoires} and universities and rank in the top 1-5$\\%s$ among French students.\n\n{\\noindent}ENS follows the traditional French grading system based on a numbered scale from 0 to 20, 10 being the minimum passing grade. French grades correspond to the following:\\begin{itemize}[noitemsep,topsep=0pt]\\item[$\\bullet$]\\makebox[2cm][l]{18-20}outstanding\\item[$\\bullet$]\\makebox[2cm][l]{16-17.9}very good\\item[$\\bullet$] \\makebox[2cm][l]{14-15.9}good \\item[$\\bullet$]\\makebox[2cm][l]{12-13.9}quite good \\item[$\\bullet$]\\makebox[2cm][l]{10-11.9}fair\\item[$\\bullet$]\\makebox[2cm][l]{00-09.9}fail\\end{itemize}{\\noindent}Typical class average lies between 12 and 14/20 and grades above 16 are seldom awarded.\\bigskip" mean "%"
+                                    "\\noindent\\hspace*{-10mm}\\textbf{Cumulative GPA: \\fpeval{round(%s,2)}}\n\n{\\noindent}NB: \\textit{\'Ecole normale supérieure} is one of the most selective French higher education institutions in science and humanities. Students entering ENS are selected from the upper tier of \\textit{classes préparatoires} and universities and rank in the top 1-5$\\%s$ among French students.\n\n{\\noindent}ENS follows the traditional French grading system based on a numbered scale from 0 to 20, 10 being the minimum passing grade. French grades correspond to the following:\\begin{itemize}[noitemsep,topsep=0pt]\\item[$\\bullet$]\\makebox[2cm][l]{18-20}outstanding\\item[$\\bullet$]\\makebox[2cm][l]{16-17.9}very good\\item[$\\bullet$] \\makebox[2cm][l]{14-15.9}good \\item[$\\bullet$]\\makebox[2cm][l]{12-13.9}quite good \\item[$\\bullet$]\\makebox[2cm][l]{10-11.9}fair\\item[$\\bullet$]\\makebox[2cm][l]{00-09.9}fail\\end{itemize}{\\noindent}Typical class average lies between 12 and 14/20 and grades above 16 are seldom awarded.\\bigskip" mean "%"
                               in
 
 
