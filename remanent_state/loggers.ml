@@ -926,12 +926,12 @@ let () = fprintf logger
     {\\setcounter{cects}{\\fpeval{\\resects*\\factor}}}%%\n\
     }%%\n\
     %%\n\
-    %%\n\ " lettergrade pga  in
+    %%\n\ {" lettergrade pga  in
     let () =
         List.iter (fun x ->
         if Public_data.valide_string  x
         then fprintf logger
-       "{\\IfStrEq{#3}{%s}%%\n\ {\\setcounter{vectsc}{\\fpeval{\\resects*\\factor}}}%%\n\
+       "\\IfStrEq{#3}{%s}%%\n\ {\\setcounter{vectsc}{\\fpeval{\\resects*\\factor}}}%%\n\
         {" x) Public_data.all_notes_string
     in
     let () =
