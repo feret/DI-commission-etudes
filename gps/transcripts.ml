@@ -4927,7 +4927,7 @@ let heading
     let () =
       Remanent_state.fprintf state
         "\\renewcommand{\\academicyear}{%s}%%\n"
-        year
+        (let i = int_of_string  year in (Format.sprintf "%i-%i" i (i+1))
     in
     let () =
       Remanent_state.log_string state ~english:"\\begin{center}\\LARGE\\textbf{Transcript of academic record}\\bigskip\\end{center}"
