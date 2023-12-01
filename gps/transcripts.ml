@@ -6409,6 +6409,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
     let state =
       Remanent_state.open_array
         __POS__
+        ~align:[Some 'l';Some 'c';Some 'c';Some 'c']
         ~colortitle:"grey"
         ~makecell:false
         ~bgcolor
@@ -9061,7 +9062,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                     state,cours_list, stage_list
                 else
                  let l =
-                   [30.;5.;5.;5.;3.]
+                   [30.;5.;5.5;4.;3.]
                  in
                  let sum =
                    List.fold_left
