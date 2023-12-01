@@ -503,9 +503,9 @@ let open_array ?colortitle ?makecell ?size ?color ?bgcolor ?align ~title logger 
           in
           let align,error =
             match hsize, halign with
-            | Some f, Some 'c' -> Printf.sprintf  "{\\centering}m{%f\\textwidth}" f,error
-            | Some f, Some 'r' -> Printf.sprintf "{\\raggedright}m{%f\\textwidth}" f,error
-            | Some f, Some 'l' -> Printf.sprintf "{\\raggedleft}m{%f\\textwidth}" f,error
+            | Some f, Some 'c' -> Printf.sprintf  "{\\centering}>m{%f\\textwidth}" f,error
+            | Some f, Some 'r' -> Printf.sprintf "{\\raggedright}>m{%f\\textwidth}" f,error
+            | Some f, Some 'l' -> Printf.sprintf "{\\raggedleft}>m{%f\\textwidth}" f,error
             | Some f, None ->
               Printf.sprintf "m{%f\\textwidth}" f,error
             | _, (Some 'c' | None)  -> "c",error
