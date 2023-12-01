@@ -931,7 +931,7 @@ let () = fprintf logger
         List.iter (fun x ->
         if Public_data.valide_string  x
         then fprintf logger
-       "\\IfStrEq{#3}{%s}%%\n\ {\\setcounter{vectsc}{\\fpeval{\\resects*\\factor}}}%%\n\
+       "{\\IfStrEq{#3}{%s}%%\n\ {\\setcounter{vectsc}{\\fpeval{\\resects*\\factor}}}%%\n\
         {" x) Public_data.all_notes_string
     in
     let () =
@@ -946,7 +946,7 @@ let () = fprintf logger
         then fprintf logger
        "}") Public_data.all_notes_string
     in
-    let () = fprintf logger "%%\n\ " in
+    let () = fprintf logger "}%%\n\ " in
     let () = fprintf logger
     "{\\setcounter{pectsa}{0}}%%\n\
      %%\n\
@@ -967,9 +967,10 @@ let () = fprintf logger
     \\addtocounter{ects}{\\fpeval{\\thecects*\\factor}}%%\n\
     %%\n\
     \\addtocounter{vsnects}{\\fpeval{\\thevectsc*\\factor+\\thevectsa*\\factor+\\thevectsb*\\factor}}%%\n\
-     %%\n\       #2 & #3 &  \\IfStrEq{#4}{sans note}{\\IfStrEq{#4}{not graded}{\\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{grey}{\\mynumprint{#4}}}{\\mynumprint{#4}}}}} & {\\pga{#4}} & \\lettergrade{#4} \\cr%%\n\
+     %%\n\       #2 & #3 &  \\IfStrEq{#4}{%s}{sans note}{\\IfStrEq{#4}{%s}{not graded}{\\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{grey}{\\mynumprint{#4}}}{\\mynumprint{#4}}}}} & {\\pga{#4}} & \\lettergrade{#4} \\cr%%\n\
     }%%\n\
     %%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
+Tools.valide_sans_note Tools.valide_sans_note_en
         in
 
     ()
