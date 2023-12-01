@@ -4901,21 +4901,6 @@ let heading
     in
     let () =
       Remanent_state.fprintf state
-        "\\renewcommand{\\birthdate}{%s}%%\n"
-        "TODO"
-    in
-    let () =
-      Remanent_state.fprintf state
-        "\\renewcommand{\\birthcity}{%s}%%\n"
-        "TODO"
-    in
-    let () =
-      Remanent_state.fprintf state
-        "\\renewcommand{\\birthcountry}{%s}%%\n"
-        "TODO"
-    in
-    let () =
-      Remanent_state.fprintf state
         "\\renewcommand{\\il}{%s}%%\n"
         il
     in
