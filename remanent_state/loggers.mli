@@ -49,7 +49,7 @@ val open_circular_buffer: ?mode:encoding -> ?size:int -> unit -> t
 val open_logger_from_formatter: ?headerextralength:int -> ?mode:encoding -> Format.formatter -> t
 val open_logger_from_channel: ?headerextralength:int -> ?mode:encoding -> out_channel -> t
 
-val open_array:  ?colortitle:string -> ?size: float option list -> ?color: Color.color option list -> ?bgcolor: Color.color option list -> ?align: char option list -> title:string list list -> t -> bool
+val open_array:  ?colortitle:string -> ?makecell:bool -> ?size: float option list -> ?color: Color.color option list -> ?bgcolor: Color.color option list -> ?align: char option list -> title:string list list -> t -> bool
 val close_array: t -> unit
 val open_row: ?macro:string -> t -> unit
 val close_row: t -> unit

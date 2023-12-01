@@ -400,13 +400,18 @@ let print_cell logger s =
         (Format.sprintf "\\makecell{%s}"
            (String.concat "\\\\ " s))
 
-let open_array ?colortitle ?size ?color ?bgcolor ?align ~title logger =
+let open_array ?colortitle ?makecell ?size ?color ?bgcolor ?align ~title logger =
   match logger.encoding with
     | Latex _ | Latex_encapsulated ->
     let size =
       match size with
       | None -> List.rev_map (fun _ -> None) title
       | Some a -> a
+    in
+    let makecell =
+      match makecell with
+        | None -> true
+        | Some a -> a
     in
     let colortitle =
       match colortitle with
@@ -498,7 +503,10 @@ let open_array ?colortitle ?size ?color ?bgcolor ?align ~title logger =
           in
           let align,error =
             match hsize, halign with
-            | Some f, _ ->
+            | Some f, Some 'c' -> Printf.sprintf  "{\\centering}m{%f\\textwidth}" f,error
+            | Some f, Some 'r' -> Printf.sprintf "{\\raggedright}m{%f\\textwidth}" f,error
+            | Some f, Some 'l' -> Printf.sprintf "{\\raggedleft}m{%f\\textwidth}" f,error
+            | Some f, None ->
               Printf.sprintf "m{%f\\textwidth}" f,error
             | _, (Some 'c' | None)  -> "c",error
             | None, Some 'r' -> "r",error
@@ -533,9 +541,10 @@ let open_array ?colortitle ?size ?color ?bgcolor ?align ~title logger =
           let () =
             fprintf
               logger
-              "%s\\cellcolor{%s}{\\makecell{%s}}"
+              "%s\\cellcolor{%s}{%s{%s}}"
               (if is_start then "" else "&")
               colortitle
+              (if makecell then "\\makecell" else "")
               (String.concat "\\\\ " title)
           in
           false)
@@ -651,7 +660,7 @@ let print_preamble
                          headerextralength
                          headerextralength),""
                          | Normal,Transcript_sco ->
-                           Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\usepackage{enumitem}%%\n\\usepackage{titlesec}%%\n\\titlespacing{\\section}{0pc}{1.5pc}{0pc}\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{17.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\renewcommand{\\headrulewidth}{0.0pt}\\setlength{\\hoffset}{-0.4in}%%\n\\setlength{\\headsep}{3.7cm}\\setlength{\\topmargin}{-0.8in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{22cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n\\newcommand{\\gender}{}%%\n\\newcommand{\\firstname}{}%%\n\\newcommand{\\lastname}{}%%\n\\newcommand{\\birthdate}{}%%\n\\newcommand{\\birthcity}{}%%\n\\newcommand{\\birthcountry}{}%%\n\\newcommand{\\il}{}%%\n\\newcommand{\\he}{}%%\n\\newcommand{\\academicyear}{}%%\n"
+                           Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\usepackage{enumitem}%%\n\\usepackage{titlesec}%%\n\\titlespacing{\\section}{0pc}{1.5pc}{0pc}\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{17.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\renewcommand{\\headrulewidth}{0.0pt}\\setlength{\\hoffset}{-0.4in}%%\n\\setlength{\\headsep}{2cm}\\setlength{\\topmargin}{-0.8in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{22cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n\\newcommand{\\gender}{}%%\n\\newcommand{\\firstname}{}%%\n\\newcommand{\\lastname}{}%%\n\\newcommand{\\birthdate}{}%%\n\\newcommand{\\birthcity}{}%%\n\\newcommand{\\birthcountry}{}%%\n\\newcommand{\\il}{}%%\n\\newcommand{\\he}{}%%\n\\newcommand{\\academicyear}{}%%\n"
 
                                        (if headerextralength=0 then "" else
                                           Format.sprintf "\\addtolength{\\headheight}{%icm}\\addtolength{\\textheight}{-%icm}"
@@ -802,6 +811,7 @@ let print_preamble
 }%%\n\
 %%\n\
 %%\n\ " innerline in
+let () = fprintf logger "{" in
 let () =
     List.iter (fun x ->
     if Public_data.valide_string  x
@@ -821,7 +831,7 @@ let () =
     then fprintf logger
    "}") Public_data.all_notes_string
 in
-let () = fprintf logger "%%\n\ " in
+let () = fprintf logger "}%%\n\ " in
 let () = fprintf logger
 "\\IfStrEq{#7}{en cours}%%\n\
 {\\setcounter{pectsa}{\\fpeval{\\resects*\\factor}}}%%\n\
@@ -866,10 +876,9 @@ let () = fprintf logger
     let b = set "B" "3.0" in
     let bplus = set "B+" "3.33" in
     let a = set "A" "4" in
-  (*let pgaempty = set "N/A" "N/A" in*)
     let gen name p =
     Format.sprintf
-      "\\newcommand{\\%s}[1]{%s\\myifdecimal{\\res}{%s}{\\res}}"
+      "\\newcommand{\\%s}[1]{%s\\myifdecimal{\\res}{%s}{}}"
       name
        "\\StrSubstitute{#1}{,}{.}[\\res]%%\n\ "
        (Latex_helper.case
