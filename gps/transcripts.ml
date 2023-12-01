@@ -5028,7 +5028,7 @@ let foot signature state  =
         in
         let state, s =
           Tools.include_latex_list
-            ~pref:"\\vspace{-18mm}"
+            ~prefix:"\\vspace{-18mm}"
             f
             state
             sign_list
