@@ -6394,7 +6394,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
     let state =
       Remanent_state.open_array
         __POS__
-        ~align:[None;Some 'c';Some 'c';Some 'c']
+        ~align:[None;Some 'c';Some 'c';Some 'c';Some 'c']
         ~colortitle:"grey"
         ~makecell:false
         ~bgcolor
