@@ -4936,7 +4936,7 @@ let heading
     let () =
       Remanent_state.print_newline state in
     let () =
-      Remanent_state.log_string state "\\vspace*{1cm}" in
+      Remanent_state.log_string state "\\vspace*{0.5cm}" in
       let () =
         Remanent_state.print_newline state in
     let state, s =
@@ -5028,7 +5028,7 @@ let foot signature state  =
         in
         let state, s =
           Tools.include_latex_list
-            ~prefix:"\\vspace{-18mm}"
+            ~prefix:"\\vspace{-10mm}"
             f
             state
             sign_list
@@ -5042,7 +5042,7 @@ let foot signature state  =
         let () =
           Remanent_state.fprintf
             state
-            "\\end{center}\\vfill%%\n\ "
+            "\\end{center}%%\n\ "
         in
         let () =
           Remanent_state.fprintf state
@@ -9097,7 +9097,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                              in
                              let () =
                                 Remanent_state.fprintf state
-                                    "\\noindent\\hspace*{-10mm}\\textbf{Cumulative GPA: \\fpeval{round(%s,2)}}\n\n{\\noindent}NB: \\textit{École normale supérieure} is one of the most selective French higher education institutions in science and humanities. Students entering ENS are selected from the upper tier of \\textit{classes préparatoires} and universities and rank in the top 1-5$\\%s$ among French students.\n\n{\\noindent}ENS follows the traditional French grading system based on a numbered scale from 0 to 20, 10 being the minimum passing grade. French grades correspond to the following:\\begin{itemize}[noitemsep,topsep=0pt]\\item[$\\bullet$]\\makebox[2cm][l]{18-20}outstanding\\item[$\\bullet$]\\makebox[2cm][l]{16-17.9}very good\\item[$\\bullet$] \\makebox[2cm][l]{14-15.9}good \\item[$\\bullet$]\\makebox[2cm][l]{12-13.9}quite good \\item[$\\bullet$]\\makebox[2cm][l]{10-11.9}fair\\item[$\\bullet$]\\makebox[2cm][l]{00-09.9}fail\\end{itemize}{\\noindent}Typical class average lies between 12 and 14/20 and grades above 16 are seldom awarded.\\bigkskip" mean "%"
+                                    "\\noindent\\hspace*{-10mm}\\textbf{Cumulative GPA: \\fpeval{round(%s,2)}}\n\n{\\noindent}NB: \\textit{École normale supérieure} is one of the most selective French higher education institutions in science and humanities. Students entering ENS are selected from the upper tier of \\textit{classes préparatoires} and universities and rank in the top 1-5$\\%s$ among French students.\n\n{\\noindent}ENS follows the traditional French grading system based on a numbered scale from 0 to 20, 10 being the minimum passing grade. French grades correspond to the following:\\begin{itemize}[noitemsep,topsep=0pt]\\item[$\\bullet$]\\makebox[2cm][l]{18-20}outstanding\\item[$\\bullet$]\\makebox[2cm][l]{16-17.9}very good\\item[$\\bullet$] \\makebox[2cm][l]{14-15.9}good \\item[$\\bullet$]\\makebox[2cm][l]{12-13.9}quite good \\item[$\\bullet$]\\makebox[2cm][l]{10-11.9}fair\\item[$\\bullet$]\\makebox[2cm][l]{00-09.9}fail\\end{itemize}{\\noindent}Typical class average lies between 12 and 14/20 and grades above 16 are seldom awarded.\\bigskip" mean "%"
                               in
 
 
