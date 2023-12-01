@@ -5028,7 +5028,7 @@ let foot signature state  =
         in
         let state, s =
           Tools.include_latex_list
-            ~prefix:"\\vspace{-10mm}"
+            ~prefix:"\\vspace{-15mm}"
             f
             state
             sign_list
@@ -5042,7 +5042,7 @@ let foot signature state  =
         let () =
           Remanent_state.fprintf
             state
-            "\\end{center}%%\n\ "
+            "\\end{center}%%\n\ \\vspace*{-1cm}%%\n\ "
         in
         let () =
           Remanent_state.fprintf state
