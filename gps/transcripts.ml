@@ -5003,7 +5003,7 @@ let foot signature state  =
             signature state  =
         let () =
             Remanent_state.fprintf state
-              "{\\noindent}I, \\textcolor{bluesco}{%s %s %s}, %s in \\textcolor{bluesco}{%s}, Head of Studies of the Department of \\textcolor{bluesco}{%s}, hereby certify that the translation of the transcripts obtained by \textcolor{blue}{{\\gender} {\\firstname} {\\lastname}} is true to the original.\n\n\ "
+              "{\\noindent}I, \\textcolor{bluesco}{%s %s %s}, %s in \\textcolor{bluesco}{%s}, Head of Studies of the Department of \\textcolor{bluesco}{%s}, hereby certify that the translation of the transcripts obtained by \\textcolor{bluesco}{{\\gender} {\\firstname} {\\lastname}} is true to the original.\n\n\ "
               head_gender head_firstname head_lastname head_jobtitle
               dpt dpt
         in
@@ -5014,7 +5014,7 @@ let foot signature state  =
         let () =
           Remanent_state.fprintf
             state
-            "{\\noindent}\\textcolor{blue}{\\today}\\\\%%\n\ "
+            "{\\noindent}\\textcolor{bluesco}{\\today}\\\\%%\n\ "
         in
         let state =
         match signature with
@@ -5045,6 +5045,9 @@ let foot signature state  =
         let () =
           Remanent_state.fprintf state
             "{\\noindent}Deputy head of the academic registrar\n\ "
+        in
+        let () =
+          Remanent_state.print_newline state
         in
         let () =
           Remanent_state.fprintf state
@@ -6409,10 +6412,10 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
         ~bgcolor
         ~size
         ~with_lines:true
-        ~title:[["Nom du cours"];["ECTS"];["Note sur 20"];
-                ["Note lettre"];["GPA"]]
-        ~title_english:[["Course title"];["Credits awarded"];["Grade out of 20"];
-                        ["Letter grade"];["GPA"]]
+        ~title:[["\\textbf{Nom du cours}"];["\\textbf{ECTS}"];["\\textbf{Note sur 20}"];
+                ["\\textbf{Note lettre}"];["\\textbf{GPA}"]]
+        ~title_english:[["\\textbf{Course title}"];["\\textbf{Credits awarded}"];["\\textbf{Grade out of 20}"];
+                        ["\\textbf{Letter grade}"];["\\textbf{GPA}"]]
         state
     in
     let macro = "courssco" in

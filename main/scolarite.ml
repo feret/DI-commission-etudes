@@ -172,9 +172,12 @@ let state =
            match gps with
            | None -> state
            | Some gps ->
+           let state, signature =
+             Remanent_state.get_signature state
+           in
              let state, input =
                Transcripts.export_transcript_export_scolarite  ~language:Public_data.English
-                 ~output  state gps
+                 ~output  ~signature state gps
              in
              let state =
                match input

@@ -660,7 +660,7 @@ let print_preamble
                          headerextralength
                          headerextralength),""
                          | Normal,Transcript_sco ->
-                           Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\usepackage{enumitem}%%\n\\usepackage{titlesec}%%\n\\titlespacing{\\section}{0pc}{1.5pc}{0pc}\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{17.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\renewcommand{\\headrulewidth}{0.0pt}\\setlength{\\hoffset}{-0.4in}%%\n\\setlength{\\headsep}{2cm}\\setlength{\\topmargin}{-0.8in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{22cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n\\newcommand{\\gender}{}%%\n\\newcommand{\\firstname}{}%%\n\\newcommand{\\lastname}{}%%\n\\newcommand{\\birthdate}{}%%\n\\newcommand{\\birthcity}{}%%\n\\newcommand{\\birthcountry}{}%%\n\\newcommand{\\il}{}%%\n\\newcommand{\\he}{}%%\n\\newcommand{\\academicyear}{}%%\n"
+                           Format.sprintf "\\usepackage{fancyhdr}%%\n\\usepackage{etoolbox}%%\n\\usepackage{enumitem}%%\n\\usepackage{titlesec}%%\n\\titlespacing{\\section}{0pc}{1.5pc}{0pc}\\fancyfootoffset{1cm}%%\n\\setlength{\\textwidth}{17.85cm}%%\n\\setlength{\\voffset}{0pt}%%\n\\renewcommand{\\headrulewidth}{0.0pt}\\setlength{\\hoffset}{-0.4in}%%\n\\setlength{\\headsep}{2cm}\\setlength{\\topmargin}{-0.8in}%%\n\\setlength{\\oddsidemargin}{0pt}%%\n\\setlength{\\evensidemargin}{0pt}%%\n\\setlength{\\textheight}{24cm}%%\n\\setlength{\\paperwidth}{21cm}%%\n\\setlength{\\paperheight}{29.7cm}%%\n\\makeatletter%%\n\\patchcmd{\\footrule}%%\n{\\if@fancyplain}%%\n{\\color{digreen}\\if@fancyplain}%%\n{}%%\n{}%%\n\\makeatother%s%%\n\\newcommand{\\gender}{}%%\n\\newcommand{\\firstname}{}%%\n\\newcommand{\\lastname}{}%%\n\\newcommand{\\birthdate}{}%%\n\\newcommand{\\birthcity}{}%%\n\\newcommand{\\birthcountry}{}%%\n\\newcommand{\\il}{}%%\n\\newcommand{\\he}{}%%\n\\newcommand{\\academicyear}{}%%\n"
 
                                        (if headerextralength=0 then "" else
                                           Format.sprintf "\\addtolength{\\headheight}{%icm}\\addtolength{\\textheight}{-%icm}"
@@ -967,7 +967,7 @@ let () = fprintf logger
     \\addtocounter{ects}{\\fpeval{\\thecects*\\factor}}%%\n\
     %%\n\
     \\addtocounter{vsnects}{\\fpeval{\\thevectsc*\\factor+\\thevectsa*\\factor+\\thevectsb*\\factor}}%%\n\
-     %%\n\       #2 & #3 &  \\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{grey}{\\mynumprint{#4}}}{\\mynumprint{#4}}} & {\\pga{#4}} & \\lettergrade{#4} \\cr%%\n\
+     %%\n\       #2 & #3 &  \\IfStrEq{#4}{sans note}{\\IfStrEq{#4}{not graded}{\\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{grey}{\\mynumprint{#4}}}{\\mynumprint{#4}}}}} & {\\pga{#4}} & \\lettergrade{#4} \\cr%%\n\
     }%%\n\
     %%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
         in
