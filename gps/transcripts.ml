@@ -4939,11 +4939,12 @@ let heading
       Remanent_state.log_string state "\\vspace*{1cm}" in
       let () =
         Remanent_state.print_newline state in
-    let () =
-      Remanent_state.fprintf state
+    let state, s =
+      Remanent_state.bilingual_string
         ~english:"{\\noindent}\\textcolor{bluesco}{{\\gender} {\\lastname} {\\firstname}}, born on \\textcolor{bluesco}{\\birthdate}, in \\textcolor{bluesco}{{\\birthcity} (\\birthcountry)}, studied at the \\'Ecole normale supérieure (Paris, France) in \\textcolor{bluesco}{\\academicyear} where \\textcolor{bluesco}{\\he} attended and passed the following courses: "
-        ("{\\noindent}\\textcolor{bluesco}{{\\gender} {\\lastname} {\\firstname}}, né"^genre^" le \\textcolor{bluesco}{\\birthdate}, à {\\birthcity} (\\birthcountry)), a étudié à l'\\'Ecole normale supérieure (Paris, France) en \\academicyear où  \\textcolor{bluesco}{\\il} a suivi et validé les cours suivants~:")
+        ~french:("{\\noindent}\\textcolor{bluesco}{{\\gender} {\\lastname} {\\firstname}}, né"^genre^" le \\textcolor{bluesco}{\\birthdate}, à {\\birthcity} (\\birthcountry)), a étudié à l'\\'Ecole normale supérieure (Paris, France) en \\academicyear où  \\textcolor{bluesco}{\\il} a suivi et validé les cours suivants~:") state
     in
+    let () = Remanent_state.fprintf state "%s" s in
      state
 
 
@@ -9086,7 +9087,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                           ~year
                           gps_file state
                       in
-                      
+
                      let state, mean, cours_list, stage_list
 
                                =
