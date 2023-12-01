@@ -6409,7 +6409,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
     let state =
       Remanent_state.open_array
         __POS__
-        ~align:[Some 'l';Some 'c';Some 'c';Some 'c']
+        ~align:[None;Some 'c';Some 'c';Some 'c']
         ~colortitle:"grey"
         ~makecell:false
         ~bgcolor
@@ -8977,7 +8977,7 @@ let state,year = Remanent_state.get_current_academic_year state in
             Remanent_state.fprintf_verbatim state "\\lhead{%s}" s
         in
         let () =
-            Remanent_state.fprintf state "\\lfoot{{\\scriptsize{\\noindent}\\textcolor{purplesco}{ÉCOLE NORMALE SUPÉRIEURE}}\\\\{\\scriptsize{\\noindent}45 rue d'Ulm - 75230 Paris Cedex 05 - FRANCE}\\\\{\\scriptsize{\\noindent}Tél.~: +33$\\;$(0)1$\\;$44$\\;$32$\\;$30$\\;$00}}"
+            Remanent_state.fprintf state "\\lfoot{{\\scriptsize{\\noindent}\\hspace{5mm}\\textcolor{purplesco}{ÉCOLE NORMALE SUPÉRIEURE}}\\\\{\\scriptsize{\\noindent}\\hspace{5mm}45 rue d'Ulm - 75230 Paris Cedex 05 - FRANCE}\\\\{\\scriptsize{\\noindent}\\hspace{5mm}Tél.~: +33$\\;$(0)1$\\;$44$\\;$32$\\;$30$\\;$00}}"
         in
         let () =
             Remanent_state.fprintf state "\\cfoot{}"
@@ -9062,7 +9062,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                     state,cours_list, stage_list
                 else
                  let l =
-                   [30.;5.;5.5;4.;3.]
+                   [30.;5.;5.;4.;3.]
                  in
                  let sum =
                    List.fold_left
