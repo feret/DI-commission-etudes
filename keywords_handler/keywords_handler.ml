@@ -154,6 +154,7 @@ let asso_list =
     Public_data.Inscription_en, ["inscription_en";"registration";"inscription(anglais)";"inscription(english)"];
     Public_data.Inscrit_au_DENS_en, ["inscrit au DENS en"];
     Public_data.Intitule, ["intitulé"];
+    Public_data.Initiales, ["initiales"];
     Public_data.Label, ["label";"libellé(anglais)";"libellé_en"];
     Public_data.LastName, ["nom"];
     Public_data.Lettre, ["lettre"];
@@ -206,6 +207,8 @@ let asso_list =
     Public_data.Stages_et_Sejours_a_l_Etranger,
     ["Stage(s) & Séjour(s) à l'étranger"];
     Public_data.Statut, ["statut"];
+    Public_data.Titre_EN, ["titre(anglais)";"titre(english)";"title"];
+    Public_data.Titre_FR, ["titre(français)";"titre"];
     Public_data.Tuteur, ["tuteur"];
     Public_data.Type_de_Financement,["type de financement"];
     Public_data.Universite,["université";"university"];

@@ -110,6 +110,18 @@ module DptOptExtendedMap: Map_tools.Collect
 module DptExtendedMap: Map_tools.Collect
   with type key = DptMap.key
    and type 'a t = 'a DptMap.t
+   type cost_member =
+     {
+       cost_gender: genre;
+       cost_firstname: string;
+       cost_lastname: string;
+       cost_titre_fr: string;
+       cost_titre_en: string;
+       cost_initials: string;
+   }
+
+val empty_cost_member: cost_member
+
 
 type course_name_translation =
   {
@@ -233,7 +245,7 @@ type cursus =
     inscription: string option;
     inscription_en: string option;
     label_sad: string option;
-    label_sad_en: string option; 
+    label_sad_en: string option;
     entete: string option;
     entete_en: string option;
     pied: string option;
@@ -604,6 +616,7 @@ type keywords =
   | Genre
   | Genre_du_tuteur
   | Grade
+  | Initiales
   | Inscription
   | Inscription_en
   | Inscrit_au_DENS_en
@@ -652,6 +665,8 @@ type keywords =
   | Sujet_EN
   | Stages_et_Sejours_a_l_Etranger
   | Statut
+  | Titre_FR 
+  | Titre_EN
   | Tuteur
   | Type_de_Financement
   | Universite

@@ -4984,7 +4984,7 @@ let foot signature state  =
         ~head_firstname
         ~head_lastname
         ~head_jobtitle
-
+        ~cost_member
         ~dpt
             signature state  =
         let () =
@@ -5029,17 +5029,25 @@ let foot signature state  =
             state
             "\\end{center}%%\n\ \\vspace*{-1cm}%%\n\ "
         in
+        let state,title  =
+            Remanent_state.bilingual_string
+              ~french:(Special_char.capitalize cost_member.Public_data.cost_titre_fr)
+              ~english:(Special_char.capitalize cost_member.Public_data.cost_titre_en)
+              state
+        in
         let () =
           Remanent_state.fprintf state
-            "{\\noindent}Deputy head of the academic registrar\n\ "
+            "{\\noindent}%s\n\ " title
         in
         let () =
           Remanent_state.print_newline state
         in
         let () =
           Remanent_state.fprintf state
-            "{\\noindent}\\textbf{Christophe CARIO}\n\ "
-        in
+            "{\\noindent}\\textbf{%s %s}\n\ "
+            (Special_char.capitalize cost_member.Public_data.cost_firstname)
+            (Special_char.uppercase cost_member.Public_data.cost_lastname)
+in
         let () =
           Remanent_state.print_newline state
         in
@@ -8799,6 +8807,7 @@ let state,year = Remanent_state.get_current_academic_year state in
 
     let export_transcript_export_scolarite
         ~output
+        ~cost_member
         ?language
         ?bilinguage
         ?signature
@@ -9089,6 +9098,7 @@ let state,year = Remanent_state.get_current_academic_year state in
 
                              let state =
                                foot_sco
+                                  ~cost_member 
                                   ~head_gender:"Mr"
                                   ~head_firstname:"Jérôme"
                                   ~head_lastname:"FERET"

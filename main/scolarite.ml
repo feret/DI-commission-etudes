@@ -23,6 +23,8 @@ let state, students_list =
          a.Public_data.promotion= Some target)
       students_list
 let state =
+  Collect_cost.get_cost_members state 
+let state =
   Collect_cours_a_ajouter.get_additional_courses state
 let state =
   Collect_notes_a_modifier.get_updated_grades state
@@ -133,6 +135,7 @@ let state, output_repository_gps =
     ~output_repository
     state
 let state, is_di = Remanent_state.is_main_dpt_di state
+let cost_members = Remanent_state.get_cost_members state
 let state =
   List.fold_left
     (fun state id ->
@@ -163,41 +166,50 @@ let state =
                ~input state
          in
          let output0 = output in
-         let output =
-           (fst output0,
-            (Tools.basename (snd
-                               output0))^".transcript.tex")
-         in
          let state =
-           match gps with
-           | None -> state
-           | Some gps ->
-           let state, signature =
-             Remanent_state.get_signature state
-           in
-             let state, input =
-               Transcripts.export_transcript_export_scolarite  ~language:Public_data.English
-                 ~output  ~signature state gps
-             in
-             let state =
-               match input
-               with
-               | Some (input_rep,file_name) ->
-                 let state,rep  =
-                   Remanent_state.get_student_personnal_repository
-                     ~firstname ~lastname ?promo state
-                 in
-                 let output_rep = Printf.sprintf "%s/" rep in
-                 let file_name = Copy.pdf_file file_name in
-                 let state =
-                   Remanent_state.push_copy
-                     ~input_rep ~output_rep ~file_name state
-                 in
-                 state
-               | None ->
-                 state
-             in
-             Latex_engine.latex_opt_to_pdf state ~input
+           List.fold_left
+            (fun state cost_member ->
+              List.fold_left
+                (fun state (language,key) ->
+              let output =
+                  (fst output0,
+                    (Tools.basename (snd
+                               output0))^".transcript."^key^"."^cost_member.Public_data.cost_initials^".tex")
+              in
+              let state =
+                match gps with
+                  | None -> state
+                  | Some gps ->
+                    let state, signature =
+                      Remanent_state.get_signature state
+                    in
+                    let state, input =
+                        Transcripts.export_transcript_export_scolarite
+                            ~cost_member
+                            ~language
+                            ~output  ~signature state gps
+                    in
+                    let state =
+                      match input
+                      with
+                        | Some (input_rep,file_name) ->
+                            let state,rep  =
+                              Remanent_state.get_student_personnal_repository
+                                ~firstname ~lastname ?promo state
+                            in
+                            let output_rep = Printf.sprintf "%s/" rep in
+                            let file_name = Copy.pdf_file file_name in
+                            let state =
+                              Remanent_state.push_copy
+                                ~input_rep ~output_rep ~file_name state
+                            in
+                            state
+                        | None ->
+                            state
+                    in
+                    Latex_engine.latex_opt_to_pdf state ~input in state)
+                state [Public_data.French,"fr";Public_data.English,"en"])
+            state cost_members
          in
 
          let output =

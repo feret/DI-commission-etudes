@@ -22,6 +22,7 @@ val export_transcript:
 
   val export_transcript_export_scolarite :
     output: string * string ->
+    cost_member: Public_data.cost_member ->
     ?language:Public_data.language ->
     ?bilinguage:bool ->
     ?signature:(string list)->

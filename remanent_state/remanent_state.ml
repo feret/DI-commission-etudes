@@ -12,6 +12,7 @@ type parameters =
     local_repository: string ;
     scholarships_repository: string ;
     diplomation_repository: string ;
+    repository_for_cost_members:  string;
     repository_to_dump_transcripts: string ;
     distant_repository: string ;
     machine_to_access_gps: string ;
@@ -176,6 +177,7 @@ let parameters =
     repository_for_bourses = "bourses";
     repository_for_tuteurs = "tuteurs";
     repository_for_cours = "cours";
+    repository_for_cost_members = "cost";
     repository_for_course_entry = "cours_traduction";
     repository_for_departements = "departements";
     repository_for_cursus = "cursus";
@@ -346,8 +348,8 @@ type data =
     national_diplomas: Public_data.diplome_national list;
     dens: Public_data.dens list;
     dens_candidates: Dens_candidates.t;
-    dens_candidates_suggestion: Public_data.dens_candidate list
-
+    dens_candidates_suggestion: Public_data.dens_candidate list;
+    cost_members: Public_data.cost_member list;
   }
 
 let empty_data =
@@ -397,6 +399,7 @@ let empty_data =
     minors = Minor_candidates.empty;
     majors = Major_candidates.empty;
     dens_candidates_suggestion = [] ;
+    cost_members = [];
   }
 
 type t =
@@ -413,6 +416,12 @@ type t =
     date: string;
     copy_stack:(string*string*string) list;
   }
+
+type pos = string*int*int*int
+
+type 'a unify = (string * int * int * int -> t -> 'a -> 'a -> t * 'a)
+type 'a add = 'a unify -> pos -> 'a -> t -> t
+
 
 let log_mkdir t = t,t.parameters.log_mkdir
 
@@ -974,6 +983,12 @@ let get_departments_list_prefix t =
 let get_departments_list_repository t =
   get_rep_gen get_study get_departments_list_prefix t
 
+let get_cost_members_prefix t =
+    t, t.parameters.repository_for_cost_members
+
+let get_cost_members_repository t =
+  get_rep_gen get_study get_cost_members_prefix t
+
 let get_cursus_list_prefix t =
   t, t.parameters.repository_for_cursus
 
@@ -1442,6 +1457,12 @@ let get_students t = lift_get get_students t
 let set_students students data = {data with students}
 let set_students students t = lift_set set_students students t
 
+let get_cost_members data = data.cost_members
+let get_cost_members t = lift_get get_cost_members t
+let set_cost_members cost_members data = {data with cost_members}
+let set_cost_members cost_members t = lift_set set_cost_members cost_members t
+
+
 let get_dens_candidates data = data.dens_candidates
 let get_dens_candidates t = lift_get get_dens_candidates t
 let set_dens_candidates dens_candidates data = {data with dens_candidates}
@@ -1757,36 +1778,31 @@ let add_gen get set add pos data t =
   in
   set acc t
 
-let add_student _unify =
-  add_gen
-    get_students
-    set_students
-    (fun _ t a b -> t, a::b)
+let add_gen_list get set _unify  =
+  add_gen get set (fun _ t a b -> t, a::b)
 
-let add_dens_candidate unify =
-  add_gen
-    get_dens_candidates
-    set_dens_candidates
-    (Dens_candidates.add_dens_candidate unify)
+let add_gen_unify get set add unify =
+  add_gen get set (add unify)
 
-let add_dens_minor unify =
-    add_gen
-      get_minors
-      set_minors
-        (Minor_candidates.add_minor_candidate unify)
+let add_gen_unify_warn  get set add unify =
+  add_gen get set (add warn unify)
 
-let add_dens_major unify =
-    add_gen
-      get_majors
-      set_majors
-      (Major_candidates.add_major_candidate unify)
+let add_student = add_gen_list get_students set_students
 
+let add_cost_member = add_gen_list get_cost_members set_cost_members
 
-let add_scholarship unify =
-  add_gen
-    get_scholarships
-    set_scholarships
-    (Scholarships.add_scholarship unify)
+let add_dens_candidate =
+    add_gen_unify
+      get_dens_candidates set_dens_candidates Dens_candidates.add_dens_candidate
+
+let add_dens_minor =
+    add_gen_unify get_minors set_minors Minor_candidates.add_minor_candidate
+
+let add_dens_major =
+    add_gen_unify get_majors set_majors Major_candidates.add_major_candidate
+
+let add_scholarship =
+  add_gen_unify get_scholarships set_scholarships Scholarships.add_scholarship
 
 let get_scholarship ~firstname ~lastname ~current_year t =
   let scholarship_list =
@@ -1818,11 +1834,8 @@ let get_scholarship ~firstname ~lastname ~current_year t =
     t, Some a
 
 
-let add_mentoring unify =
-  add_gen
-    get_mentoring
-    set_mentoring
-    (Mentoring.add_mentoring unify)
+let add_mentoring =
+  add_gen_unify get_mentoring set_mentoring Mentoring.add_mentoring
 
 let get_mentoring_list
     ?firstname
@@ -1844,11 +1857,9 @@ let get_mentoring ~firstname ~lastname ~year ?tuteur_gps t =
     | None ->
       t, tuteur_gps
 
-let add_course_exception unify =
-  add_gen
-    get_course_exceptions
-    set_course_exceptions
-    (Course_exceptions.add_course_exception unify)
+let add_course_exception =
+  add_gen_unify
+    get_course_exceptions set_course_exceptions Course_exceptions.add_course_exception
 
 let get_course_exception ~codegps ~year t =
   let course_exception_opt =
@@ -1867,11 +1878,9 @@ let get_course_exception ~codegps ~year t =
       | None -> t, (None,None)
       | Some a -> t, (a.Public_data.french_entry,a.Public_data.english_entry)
 
-let add_course_entry unify =
-  add_gen
-    get_course_entries
-    set_course_entries
-    (Course_name_translation.add_course_entry unify)
+let add_course_entry =
+  add_gen_unify
+    get_course_entries set_course_entries Course_name_translation.add_course_entry
 
 let get_course_entry string  t =
   let course_entry_opt =
@@ -1880,11 +1889,11 @@ let get_course_entry string  t =
   in
   t, course_entry_opt
 
-let add_course_entry_in_report unify =
-  add_gen
+let add_course_entry_in_report =
+  add_gen_unify
     get_course_entries_report
     set_course_entries_report
-    (Course_name_translation.add_course_entry unify)
+    Course_name_translation.add_course_entry
 
 let add_course_entry_in_report unify course t =
   let t =
@@ -1897,11 +1906,8 @@ let get_course_entries_report t =
   let map = get_course_entries_report t in
   t,Course_name_translation.to_list map
 
-let add_cursus unify =
-  add_gen
-    get_cursus
-    set_cursus
-    (Cursus.add_cursus unify)
+let add_cursus =
+  add_gen_unify get_cursus set_cursus Cursus.add_cursus
 
 let get_cursus ?firstname ?lastname ~year ~level ?dpt ~gpscodelist pos t =
     let rec aux l =
@@ -1940,11 +1946,11 @@ let get_cursus ?firstname ?lastname ~year ~level ?dpt ~gpscodelist pos t =
             warn pos msg Exit t,
             None
 
-let add_inscription unify =
-      add_gen
+let add_inscription =
+      add_gen_unify
         get_inscriptions
         set_inscriptions
-        (Inscriptions.add_inscription unify)
+        Inscriptions.add_inscription
 
 let get_inscription ~year ~level ?dpt ~lastname ~firstname t =
   t,
@@ -1974,11 +1980,9 @@ let get_cursus ~year ~level ?dpt ~gpscodelist ?firstname ?lastname pos t =
       let cursus = {cursus with Public_data.cursus_univ} in
       t, Some cursus
 
-let add_dpt unify =
-  add_gen
-    get_dpts
-    set_dpts
-    (Departments.add_dpt unify)
+let add_dpt =
+  add_gen_unify
+    get_dpts set_dpts Departments.add_dpt
 
 let get_dpt ~acronym t =
   let dpt_opt =
@@ -1986,11 +1990,8 @@ let get_dpt ~acronym t =
   in
   t, dpt_opt
 
-let add_program unify =
-  add_gen
-    get_programs
-    set_programs
-    (Programs.add_program unify)
+let add_program =
+  add_gen_unify get_programs set_programs Programs.add_program
 
 let get_program ~code_gps t =
   let program_opt =
@@ -1998,11 +1999,11 @@ let get_program ~code_gps t =
   in
   t, program_opt
 
-let add_dispense unify =
-    add_gen
+let add_dispense =
+    add_gen_unify_warn
       get_dispenses
       set_dispenses
-      (Dispenses.add_dispense warn unify)
+      Dispenses.add_dispense
 
 let get_dispenses
     ?firstname ?lastname
@@ -2022,9 +2023,7 @@ let get_dispenses
 
 let add_additional_course _ =
   add_gen
-    get_additional_course
-    set_additional_course
-    (Cours_a_ajouter.add_additional_course)
+    get_additional_course set_additional_course Cours_a_ajouter.add_additional_course
 
 let get_additional_course
     ~firstname ~lastname
@@ -2034,11 +2033,9 @@ let get_additional_course
     ~firstname ~lastname
     t.data.additional_courses
 
-let add_sorted_course unify =
-    add_gen
-        get_sorted_courses
-        set_sorted_courses
-        (Cours_a_trier.add_sorted_course unify)
+let add_sorted_course =
+    add_gen_unify
+        get_sorted_courses set_sorted_courses Cours_a_trier.add_sorted_course
 
 let get_sorted_courses
       ?firstname ?lastname
@@ -2056,11 +2053,11 @@ let get_sorted_courses
             in
             t, courses_opt
 
-let add_sorted_internship unify =
-    add_gen
+let add_sorted_internship =
+    add_gen_unify
         get_sorted_internships
         set_sorted_internships
-        (Stages_a_trier.add_sorted_internship unify)
+        Stages_a_trier.add_sorted_internship
 
 let get_sorted_internships
       ?firstname ?lastname
@@ -2076,11 +2073,11 @@ let get_sorted_internships
                         in
                         t, internships_opt
 
-let add_note_a_modifier unify =
-  add_gen
+let add_note_a_modifier =
+  add_gen_unify_warn
     get_notes_a_modifier
     set_notes_a_modifier
-    (Notes_a_modifier.add_note_a_modifier warn unify)
+    Notes_a_modifier.add_note_a_modifier
 
 let get_truc_a_modifier
     get

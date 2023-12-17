@@ -15,6 +15,7 @@ type step_kind =
   | Export_transcript of string option
   | Collect_additional_courses
   | Collect_admissions
+  | Collect_cost_members
   | Collect_scholarships
   | Collect_mentoring
   | Collect_minors
@@ -112,6 +113,7 @@ let string_of_step_kind x =
       "Export transcript (%s)"
       x
   | Collect_additional_courses -> "Collect data about not-in-gps courses"
+  | Collect_cost_members -> "Collect data about cost members"
   | Collect_dens_candidates -> "Collect dens candidates"
   | Collect_scholarships -> "Collect data about scholarships"
   | Collect_mentoring -> "Collect data about mentoring"
@@ -223,6 +225,7 @@ let is_dummy step_kind =
   | Patch_gps_file _
   | Build_keywords_automaton
   | Export_transcript _
+  | Collect_cost_members 
   | Collect_additional_courses
   | Collect_scholarships
   | Collect_mentoring

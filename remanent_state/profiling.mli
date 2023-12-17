@@ -15,6 +15,7 @@ type step_kind =
   | Export_transcript of string option
   | Collect_additional_courses
   | Collect_admissions
+  | Collect_cost_members 
   | Collect_scholarships
   | Collect_mentoring
   | Collect_minors
@@ -36,7 +37,7 @@ type step_kind =
   | Collect_sorted_internships
   | Dump_course_entries
   | Dump_courses_to_be_sorted
-  | Dump_internships_to_be_sorted 
+  | Dump_internships_to_be_sorted
   | Dump_missing_course_translation
   | Dump_missing_grades
   | Dump_missing_ects_attributions

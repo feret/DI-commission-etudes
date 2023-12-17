@@ -465,7 +465,7 @@ let empty_cursus =
     cursus_gps = None;
     cursus_univ = None;
     label_sad = None;
-    label_sad_en = None; 
+    label_sad_en = None;
     inscription = None;
     inscription_en = None;
     entete = None;
@@ -977,6 +977,7 @@ type keywords =
   | Genre
   | Genre_du_tuteur
   | Grade
+  | Initiales 
   | Inscription
   | Inscription_en
   | Inscrit_au_DENS_en
@@ -1025,6 +1026,8 @@ type keywords =
   | Sujet_EN
   | Stages_et_Sejours_a_l_Etranger
   | Statut
+  | Titre_FR
+  | Titre_EN
   | Tuteur
   | Type_de_Financement
   | Universite
@@ -1128,7 +1131,25 @@ type 'a commission =
     commission_year: annee;
   }
 
+type cost_member =
+  {
+    cost_gender: genre;
+    cost_firstname: string;
+    cost_lastname: string;
+    cost_titre_fr: string;
+    cost_titre_en: string;
+    cost_initials: string;
+}
 
+let empty_cost_member =
+  {
+  cost_gender = Unknown;
+  cost_firstname = "";
+  cost_lastname = "";
+  cost_titre_fr = "";
+  cost_titre_en = "";
+  cost_initials = "";
+}
 
 let string_of_origin_opt a =
   match a with

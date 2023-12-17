@@ -11,6 +11,7 @@ val warn:
 -> string -> exn  -> t
 -> t
 
+
 val warn_and_log:
   ?logger:Loggers.t
   -> ?backgroundcolor:Sco_tools.Color.color
@@ -220,15 +221,21 @@ val set_std_logger: t -> Loggers.t -> t
 val std_logger: Loggers.t
 val close_logger: ?logger:Loggers.t -> t -> t
 
+val get_cost_members:
+  t -> Public_data.cost_member list
+
+type pos = string*int*int*int
+
+type 'a unify = (string * int * int * int -> t -> 'a -> 'a -> t * 'a)
+type 'a add =
+ 'a unify -> pos -> 'a -> t -> t
+
+val add_cost_member: Public_data.cost_member add
+
 val get_students:
   t -> Public_data.student_id list
 
-val add_student:
-  (string * int * int * int ->
-   t ->
-   Public_data.student_id ->
-   Public_data.student_id -> t * Public_data.student_id) ->
-  (string * int * int * int) -> Public_data.student_id -> t -> t
+val add_student: Public_data.student_id add
 
 val get_dens_candidates_list:
   t -> t * Dens_candidates.t
@@ -264,6 +271,7 @@ val get_sorted_courses:
    ?libelle:string ->
    ?codegps:string -> t -> t * Public_data.cours_a_trier list
 
+val get_cost_members_repository: t -> t * string 
 val get_sorted_internships_list_repository: t -> t * string
 val add_sorted_internship:      (string * int * int * int ->
                 t ->
@@ -277,6 +285,7 @@ val add_sorted_internship:      (string * int * int * int ->
       ?year:string ->
       ?libelle:string ->
      t -> t * Public_data.stage_a_trier list
+
 
 val add_dens_minor:
     (string * int * int * int ->
