@@ -23,7 +23,7 @@ let state, students_list =
          a.Public_data.promotion= Some target)
       students_list
 let state =
-  Collect_cost.get_cost_members state 
+  Collect_cost.get_cost_members state
 let state =
   Collect_cours_a_ajouter.get_additional_courses state
 let state =
@@ -208,7 +208,7 @@ let state =
                             state
                     in
                     Latex_engine.latex_opt_to_pdf state ~input in state)
-                state [Public_data.French,"fr";Public_data.English,"en"])
+                state [(*Public_data.French,"fr";*)Public_data.English,"en"])
             state cost_members
          in
 
