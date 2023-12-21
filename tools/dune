@@ -1,5 +1,5 @@
 (library
   (name sco_tools)
-  (libraries )
+  (libraries lwt core SZXX)
   (flags (:standard -w @a
 )))

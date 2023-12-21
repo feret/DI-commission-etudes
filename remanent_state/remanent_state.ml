@@ -2,10 +2,13 @@ type parameters =
   {
     safe_mode: bool;
     main_dpt: Public_data.main_dpt;
+    home: string;
+    homelist:string list ;
     cloud_synchronization_mode: Public_data.cloud_synchronization_mode ;
     cloud_client: Public_data.cloud_client ;
     cloud_client_options: string ;
     potential_cloud_repositories: string list ;
+    potential_cloud_suffix: string list;
     cloud_support_dynamic_link : bool ;
     pdfgenerator : Public_data.pdf_generator ;
     pdfgenerator_options : string ;
@@ -131,11 +134,15 @@ let parameters =
     cloud_synchronization_mode = Public_data.CommandLine ;
     cloud_client = Public_data.NextCloudCmd ;
     cloud_client_options = "-n --silent" ;
-    potential_cloud_repositories =
+    home = "";
+    homelist =
           [
-            "/users/absint3/feret/Nextcloud";
-            "/Users/feret/Nextcloud"
-          ] ;
+          "/users/absint3/feret/";
+          "/Users/feret/"
+          ];
+    potential_cloud_suffix = ["Nextcloud"];
+    potential_cloud_repositories =
+          [] ;
     cloud_support_dynamic_link = false ;
     pdfgenerator = Public_data.PdfLatex ;
     pdfgenerator_options = "-interaction=nonstopmode";
@@ -213,9 +220,9 @@ let parameters =
     file_retriever_options = "" ;
     gps_access_options = "" ;
     annuaire_access_options = "--no-hsts" ;
-    file_retriever_log_repository = "/users/absint3/feret/tmp" ;
+    file_retriever_log_repository = "tmp" ;
     file_retriever_log_file = "gps_access.log";
-    tmp_annuaire_repository = "/users/absint3/feret/tmp";
+    tmp_annuaire_repository = "tmp";
     include_pictures = true;
     file_retriever_annuaire_html_file = "annuaire.html";
     annuaire_check_certificate = false ;
@@ -224,10 +231,10 @@ let parameters =
     file_retriever_skip = false;
     file_retriever_n_fail = 0;
     file_retriever_max_n_fail = 5;
-    tmp_profiling_repository = "/users/absint3/feret/tmp";
+    tmp_profiling_repository = "tmp";
     profiling_log_file_repository = "profiling_info";
     profiling_log_file = "profiling_info.html";
-    tmp_error_repository = "/users/absint3/feret/tmp";
+    tmp_error_repository = "tmp";
     error_log_repository = "erreurs_internes";
     error_log_file = "error.txt";
     comma_symbol = ',';
@@ -463,7 +470,8 @@ let set_cloud_repository t =
     | head::tail ->
       if check_potential_cloud_repository head
       then
-        {t with cloud_repository = Some head}, head
+        (Format.printf "%s" head;
+        {t with cloud_repository = Some head}, head)
       else
         aux tail
   in
@@ -556,7 +564,7 @@ let get_file_retriever_options ?more_options t =
 
 let get_file_retriever_log_repository t =
   t,
-  t.parameters.file_retriever_log_repository
+  t.parameters.home^t.parameters.file_retriever_log_repository
 
 let get_file_retriever_log_file t =
   t,
@@ -564,7 +572,7 @@ let get_file_retriever_log_file t =
 
 let get_file_retriever_annuaire_tmp_repository t =
   t,
-  t.parameters.tmp_annuaire_repository
+  t.parameters.home^t.parameters.tmp_annuaire_repository
 
 let get_file_retriever_annuaire_html_file t =
   t,
@@ -1130,8 +1138,30 @@ let split_dpt =
     (fun p ->
        List.mem p list_dpt)
 
+let set_home parameters =
+    let l = parameters.homelist in
+    let rec aux parameters l =
+        match l with [] -> failwith "Failed to find a valid home"
+           | h::t ->
+              if try Sys.is_directory h with _ -> false then {parameters with home = h}
+              else aux parameters t
+    in aux parameters l
+
+let add_cloud_replist parameters =
+    let l =
+      List.fold_left
+        (fun l home ->
+          List.fold_left
+            (fun l suffix -> (home^suffix)::l)
+            l (List.rev parameters.potential_cloud_suffix))
+        parameters.potential_cloud_repositories parameters.homelist
+    in
+    {parameters with potential_cloud_repositories=l}
+
 let get_option parameters =
   let l = get_cmd_options () in
+  let parameters = set_home parameters in
+  let parameters = add_cloud_replist parameters in
   let dpt, others = split_dpt l in
   let parameters =
     match dpt with
@@ -1185,7 +1215,7 @@ let init () =
   let parameters =
     get_option_quick parameters
   in
-  let rep = parameters.tmp_error_repository in
+  let rep = parameters.home^parameters.tmp_error_repository in
   let file = parameters.error_log_file  in
   let error_logger =
     let fic = open_out (Printf.sprintf "%s/%s" rep file) in
@@ -1194,7 +1224,7 @@ let init () =
          ~mode:Loggers.TXT
          fic)
   in
-  let rep = parameters.tmp_profiling_repository in
+  let rep = parameters.home^parameters.tmp_profiling_repository in
   let file = parameters.profiling_log_file in
   let profiling_logger =
     let fic = open_out (Printf.sprintf "%s/%s" rep file) in
@@ -1243,11 +1273,11 @@ let copy pos mk cp t tmp_rep main_rep rep file =
 
 let store_errors_and_profiling_info mk cp t =
   let t,main_rep = get_dated_output_repository t in
-  let tmp_rep = t.parameters.tmp_error_repository in
+  let tmp_rep = t.parameters.home^t.parameters.tmp_error_repository in
   let file = t.parameters.error_log_file  in
   let output_rep = t.parameters.error_log_repository in
   let t = copy __POS__ mk cp t tmp_rep main_rep output_rep file in
-  let tmp_rep = t.parameters.tmp_profiling_repository in
+  let tmp_rep = t.parameters.home^t.parameters.tmp_profiling_repository in
   let file = t.parameters.profiling_log_file in
   let output_rep = t.parameters.profiling_log_file_repository in
   let t = copy __POS__ mk cp t tmp_rep main_rep output_rep file in
