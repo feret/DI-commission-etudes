@@ -1,5 +1,5 @@
 (library
   (name sco_tools)
-  (libraries lwt core SZXX)
+  (libraries lwt core SZXX yojson)
   (flags (:standard -w @a
 )))
