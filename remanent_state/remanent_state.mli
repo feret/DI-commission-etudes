@@ -271,7 +271,7 @@ val get_sorted_courses:
    ?libelle:string ->
    ?codegps:string -> t -> t * Public_data.cours_a_trier list
 
-val get_cost_members_repository: t -> t * string 
+val get_cost_members_repository: t -> t * string
 val get_sorted_internships_list_repository: t -> t * string
 val add_sorted_internship:      (string * int * int * int ->
                 t ->

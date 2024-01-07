@@ -644,23 +644,113 @@ let get_repository_to_dump_missing_gen get t =
   | "" -> t, get t
   | _ -> t, Format.sprintf "%s/%s" rep (get t)
 
-let get_repository_to_dump_missing_pictures t =
-  get_repository_to_dump_missing_gen
-    (fun t ->
-       t.parameters.repository_to_dump_missing_pictures)
-    t
 
-let get_repository_to_dump_gps_server_faillures t =
-  get_repository_to_dump_missing_gen
-    (fun t ->
-       t.parameters.repository_to_dump_gps_server_faillures)
-    t
 
-let get_repository_to_dump_non_validated_internships t =
-  get_repository_to_dump_missing_gen
-    (fun t ->
-       t.parameters.repository_to_dump_non_validated_internships)
-    t
+let get_data t = t.data
+let set_data data t = {t with data}
+let lift_get get t = get (get_data t)
+let lift_set set data t =
+    set_data (set data (get_data t)) t
+
+type 'a warning =
+  {
+    warning_prefix: (t -> string)->t->t * string;
+    warning_rep: (t->string);
+    warning_get: data -> 'a;
+    warning_set: 'a -> data -> data;
+  }
+
+let gen get set =
+    let add t elt =
+      let elts = get t in
+      set (elt::elts) t
+    in
+    let get t = t, get t in
+    add, get
+
+let gen_report_warnings warning =
+    let get_repository = warning.warning_prefix warning.warning_rep in
+    let get data = warning.warning_get data in
+    let get t = lift_get get t in
+    let set warnings data = warning.warning_set warnings data in
+    let set warnings t = lift_set set warnings t in
+    let add,get = gen get set in
+    get_repository, add, get
+
+let get_repository_to_dump_missing_pictures,
+    add_missing_picture, get_missing_pictures =
+    gen_report_warnings
+      {
+       warning_prefix = get_repository_to_dump_missing_gen;
+       warning_rep = (fun t -> t.parameters.repository_to_dump_missing_pictures);
+       warning_get = (fun data -> data.missing_pictures);
+       warning_set = (fun missing_pictures data -> {data with missing_pictures});
+      }
+
+let get_repository_to_dump_gps_server_faillures,
+    add_gps_server_faillure, get_gps_server_faillures =
+    gen_report_warnings
+      {
+       warning_prefix = get_repository_to_dump_missing_gen;
+       warning_rep = (fun t -> t.parameters.repository_to_dump_gps_server_faillures);
+       warning_get = (fun data -> data.gps_server_faillures);
+       warning_set = (fun gps_server_faillures data -> {data with gps_server_faillures});
+      }
+
+  let get_repository_to_dump_non_validated_internships,
+      add_non_validated_internship,
+      get_non_validated_internships =
+      gen_report_warnings
+        {
+         warning_prefix = get_repository_to_dump_missing_gen;
+         warning_rep = (fun t -> t.parameters.repository_to_dump_non_validated_internships);
+         warning_get = (fun data -> data.non_validated_internships);
+         warning_set = (fun non_validated_internships data -> {data with non_validated_internships});
+            }
+
+let get_repository_to_dump_ambiguous_internship_descriptions,
+      add_ambiguous_internship_description,
+      get_ambiguous_internship_descriptions =
+      gen_report_warnings
+        {
+          warning_prefix = get_repository_to_dump_missing_gen;
+          warning_rep = (fun t -> t.parameters.repository_to_dump_ambiguous_internship_descriptions);
+          warning_get = (fun data -> data.ambiguous_internship_descriptions);
+          warning_set = (fun ambiguous_internship_descriptions data -> {data with ambiguous_internship_descriptions});
+        }
+
+let get_internships_to_be_sorted_list_repository,
+    add_internship_to_be_sorted,
+    get_internships_to_be_sorted =
+    gen_report_warnings
+      {
+        warning_prefix = get_repository_to_dump_missing_gen;
+        warning_rep = (fun t -> t.parameters.repository_for_internships_to_be_sorted);
+        warning_get = (fun data -> data.internships_to_be_sorted);
+        warning_set = (fun internships_to_be_sorted data -> {data with internships_to_be_sorted});
+                }
+
+let get_repository_to_dump_missing_internship_translations,
+    add_missing_internship_translation,
+    get_missing_internship_translation_list =
+    gen_report_warnings
+      {
+        warning_prefix = get_repository_to_dump_missing_gen;
+        warning_rep = (fun t -> t.parameters.repository_to_dump_missing_internship_translation);
+        warning_get = (fun data -> data.missing_internship_translations);
+        warning_set = (fun missing_internship_translations data -> {data with missing_internship_translations});
+      }
+
+let get_repository_to_dump_missing_internship_descriptions,
+    add_missing_internship_description,
+    get_missing_internship_descriptions =
+    gen_report_warnings
+      {
+        warning_prefix = get_repository_to_dump_missing_gen;
+        warning_rep = (fun t -> t.parameters.repository_to_dump_missing_internship_descriptions);
+        warning_get = (fun data -> data.missing_internship_descriptions);
+        warning_set = (fun missing_internship_descriptions data -> {data with missing_internship_descriptions});
+      }
 
 let get_repository_to_dump_non_accepted_grades t =
   get_repository_to_dump_missing_gen
@@ -707,20 +797,6 @@ let get_courses_to_be_sorted_list_repository t =
            t.parameters.repository_for_courses_to_be_sorted)
         t
 
-let get_internships_to_be_sorted_list_repository t =
-      get_repository_to_dump_missing_gen
-        (fun t ->
-            t.parameters.repository_for_internships_to_be_sorted)
-        t
-
-let get_repository_to_dump_missing_internship_translations t =
-      get_repository_to_dump_missing_gen
-        (fun t ->
-           t.parameters.repository_to_dump_missing_internship_translation
-        )
-        t
-
-
 let get_repository_to_dump_missing_course_entries t =
   get_repository_to_dump_missing_gen
     (fun t ->
@@ -748,12 +824,6 @@ let get_repository_to_dump_missing_mentors t =
        t.parameters.repository_to_dump_missing_mentors)
     t
 
-let get_repository_to_dump_missing_internship_descriptions t =
-  get_repository_to_dump_missing_gen
-    (fun t ->
-       t.parameters.repository_to_dump_missing_internship_descriptions)
-    t
-
 let get_repository_to_dump_missing_ects_attributions t =
   get_repository_to_dump_missing_gen
     (fun t ->
@@ -765,11 +835,6 @@ let get_repository_to_dump_courses_validated_twice t =
         (fun t ->
            t.parameters.repository_to_dump_courses_validated_twice)
         t
-let get_repository_to_dump_ambiguous_internship_descriptions t =
-  get_repository_to_dump_missing_gen
-    (fun t ->
-       t.parameters.repository_to_dump_ambiguous_internship_descriptions)
-    t
 
 let get_repository_to_dump_reports t =
   let t, output =
@@ -1475,13 +1540,6 @@ let close_logger ?logger t =
     t
 
 
-
-let get_data t = t.data
-let set_data data t = {t with data}
-let lift_get get t = get (get_data t)
-let lift_set set data t =
-  set_data (set data (get_data t)) t
-
 let get_students data = data.students
 let get_students t = lift_get get_students t
 let set_students students data = {data with students}
@@ -1623,21 +1681,6 @@ let set_under_average_validated_grades under_average_validated_grades data =
 let set_under_average_validated_grades under_average_validated_grades t =
     lift_set set_under_average_validated_grades under_average_validated_grades t
 
-let get_missing_pictures data = data.missing_pictures
-let get_missing_pictures t = lift_get get_missing_pictures t
-let set_missing_pictures missing_pictures data =
-  {data with missing_pictures}
-let set_missing_pictures missing_pictures t =
-  lift_set set_missing_pictures missing_pictures t
-
-let get_gps_server_faillures data = data.gps_server_faillures
-let get_gps_server_faillures t =
-  lift_get get_gps_server_faillures t
-let set_gps_server_faillures gps_server_faillures data =
-    {data with gps_server_faillures}
-let set_gps_server_faillures gps_server_faillures t =
-    lift_set set_gps_server_faillures gps_server_faillures t
-
 let get_missing_mentors data = data.missing_mentors
 let get_missing_mentors t = lift_get get_missing_mentors t
 let set_missing_mentors missing_mentors data =
@@ -1659,25 +1702,6 @@ let set_courses_validated_twice courses_validated_twice data =
 let set_courses_validated_twice courses_validated_twice t =
     lift_set set_courses_validated_twice courses_validated_twice t
 
-let get_missing_internship_descriptions data =
-  data.missing_internship_descriptions
-let get_missing_internship_descriptions t = lift_get get_missing_internship_descriptions t
-let set_missing_internship_descriptions missing_internship_descriptions data =
-  {data with missing_internship_descriptions}
-let set_missing_internship_descriptions missing_internship_descriptions t =
-  lift_set set_missing_internship_descriptions missing_internship_descriptions t
-
-let get_missing_internship_translations data =
-    data.missing_internship_translations
-let get_missing_internship_translations t =
-    lift_get get_missing_internship_translations t
-let set_missing_internship_translations missing_internship_translations data =
-    {data with missing_internship_translations}
-let set_missing_internship_translations missing_internship_translations t =
-    lift_set set_missing_internship_translations missing_internship_translations t
-
-
-
 let get_missing_course_entries data = data.missing_course_entries
 let get_missing_course_entries t = lift_get get_missing_course_entries t
 let set_missing_course_entries missing_course_entries data =
@@ -1691,22 +1715,6 @@ let set_course_entries_report course_entries_report data =
     {data with course_entries_report}
 let set_course_entries_report course_entries_report t =
     lift_set set_course_entries_report course_entries_report t
-
-let get_non_validated_internships data =
-  data.non_validated_internships
-let get_non_validated_internships t = lift_get get_non_validated_internships t
-let set_non_validated_internships non_validated_internships data =
-  {data with non_validated_internships}
-let set_non_validated_internships non_validated_internships t =
-    lift_set set_non_validated_internships non_validated_internships t
-
-let get_ambiguous_internship_descriptions data =
-    data.ambiguous_internship_descriptions
-let get_ambiguous_internship_descriptions t = lift_get get_ambiguous_internship_descriptions t
-let set_ambiguous_internship_descriptions ambiguous_internship_descriptions data =
-    {data with ambiguous_internship_descriptions}
-let set_ambiguous_internship_descriptions ambiguous_internship_descriptions t =
-  lift_set set_ambiguous_internship_descriptions ambiguous_internship_descriptions t
 
 let get_mentors data =
   data.mentors
@@ -1773,14 +1781,6 @@ let set_sorted_courses sorted_courses data =
     {data with sorted_courses}
 let set_sorted_courses sorted_courses t =
         lift_set set_sorted_courses sorted_courses t
-
-let get_internships_to_be_sorted data = data.internships_to_be_sorted
-let get_internships_to_be_sorted t =
-    lift_get get_internships_to_be_sorted t
-let set_internships_to_be_sorted internships_to_be_sorted data =
-    {data with internships_to_be_sorted}
-let set_internships_to_be_sorted internships_to_be_sorted t =
-    lift_set set_internships_to_be_sorted internships_to_be_sorted t
 
 let get_sorted_internships data = data.sorted_internships
 let get_sorted_internships t =
@@ -2408,19 +2408,6 @@ let list_all_cursus t =
   in
   Format.print_flush ()
 
-let gen get set =
-  let add t elt =
-    let elts = get t in
-    set (elt::elts) t
-  in
-  let get t = t, get t in
-  add, get
-
-let add_missing_picture, get_missing_pictures =
-  gen get_missing_pictures set_missing_pictures
-let add_gps_server_faillure, get_gps_server_faillures =
-  gen get_gps_server_faillures set_gps_server_faillures
-
 let add_missing_grade, get_missing_grades =
   gen get_missing_grades set_missing_grades
 let add_non_accepted_grade, get_non_accepted_grades =
@@ -2439,12 +2426,6 @@ let add_dens_candidate_suggestion, get_dens_candidates_suggestion_list =
 let add_course_to_be_sorted, get_courses_to_be_sorted =
     gen get_courses_to_be_sorted set_courses_to_be_sorted
 
-let add_internship_to_be_sorted, get_internships_to_be_sorted =
-        gen get_internships_to_be_sorted set_internships_to_be_sorted
-
-let add_missing_internship_translation, get_missing_internship_translation_list =
-    gen get_missing_internship_translations set_missing_internship_translations
-
 let add_dens, get_dens =
   gen get_dens set_dens
 let add_national_diploma, get_national_diplomas =
@@ -2462,12 +2443,6 @@ let add_missing_ects_attribution, get_missing_ects_attributions =
   gen get_missing_ects_attributions set_missing_ects_attributions
 let add_courses_validated_twice, get_courses_validated_twice =
   gen get_courses_validated_twice set_courses_validated_twice
-let add_missing_internship_description, get_missing_internship_descriptions =
-  gen get_missing_internship_descriptions set_missing_internship_descriptions
-let add_non_validated_internship, get_non_validated_internships =
-    gen get_non_validated_internships set_non_validated_internships
-let add_ambiguous_internship_description, get_ambiguous_internship_descriptions =
-    gen get_ambiguous_internship_descriptions set_ambiguous_internship_descriptions
 
 let get_ENSPSL_logo t =
   let t, local = get_all_potential_local_repositories t in
