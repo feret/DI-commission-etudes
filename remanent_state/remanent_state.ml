@@ -668,6 +668,8 @@ let gen get set =
     let get t = t, get t in
     add, get
 
+
+(* Warnings *)
 let gen_report_warnings warning =
     let get_repository = warning.warning_prefix warning.warning_rep in
     let get data = warning.warning_get data in
@@ -677,6 +679,7 @@ let gen_report_warnings warning =
     let add,get = gen get set in
     get_repository, add, get
 
+(* Warnings about the pictures that are missing *)
 let get_repository_to_dump_missing_pictures,
     add_missing_picture, get_missing_pictures =
     gen_report_warnings
@@ -687,6 +690,7 @@ let get_repository_to_dump_missing_pictures,
        warning_set = (fun missing_pictures data -> {data with missing_pictures});
       }
 
+(* Warnigns about failure in gps accesses *)
 let get_repository_to_dump_gps_server_faillures,
     add_gps_server_faillure, get_gps_server_faillures =
     gen_report_warnings
@@ -697,27 +701,28 @@ let get_repository_to_dump_gps_server_faillures,
        warning_set = (fun gps_server_faillures data -> {data with gps_server_faillures});
       }
 
-  let get_repository_to_dump_non_validated_internships,
-      add_non_validated_internship,
-      get_non_validated_internships =
-      gen_report_warnings
-        {
-         warning_prefix = get_repository_to_dump_missing_gen;
-         warning_rep = (fun t -> t.parameters.repository_to_dump_non_validated_internships);
-         warning_get = (fun data -> data.non_validated_internships);
-         warning_set = (fun non_validated_internships data -> {data with non_validated_internships});
-            }
+(* Warning about internships *)
+let get_repository_to_dump_non_validated_internships,
+    add_non_validated_internship,
+    get_non_validated_internships =
+    gen_report_warnings
+      {
+       warning_prefix = get_repository_to_dump_missing_gen;
+       warning_rep = (fun t -> t.parameters.repository_to_dump_non_validated_internships);
+       warning_get = (fun data -> data.non_validated_internships);
+       warning_set = (fun non_validated_internships data -> {data with non_validated_internships});
+      }
 
 let get_repository_to_dump_ambiguous_internship_descriptions,
-      add_ambiguous_internship_description,
-      get_ambiguous_internship_descriptions =
-      gen_report_warnings
-        {
-          warning_prefix = get_repository_to_dump_missing_gen;
-          warning_rep = (fun t -> t.parameters.repository_to_dump_ambiguous_internship_descriptions);
-          warning_get = (fun data -> data.ambiguous_internship_descriptions);
-          warning_set = (fun ambiguous_internship_descriptions data -> {data with ambiguous_internship_descriptions});
-        }
+    add_ambiguous_internship_description,
+    get_ambiguous_internship_descriptions =
+    gen_report_warnings
+      {
+        warning_prefix = get_repository_to_dump_missing_gen;
+        warning_rep = (fun t -> t.parameters.repository_to_dump_ambiguous_internship_descriptions);
+        warning_get = (fun data -> data.ambiguous_internship_descriptions);
+        warning_set = (fun ambiguous_internship_descriptions data -> {data with ambiguous_internship_descriptions});
+      }
 
 let get_internships_to_be_sorted_list_repository,
     add_internship_to_be_sorted,
@@ -728,7 +733,7 @@ let get_internships_to_be_sorted_list_repository,
         warning_rep = (fun t -> t.parameters.repository_for_internships_to_be_sorted);
         warning_get = (fun data -> data.internships_to_be_sorted);
         warning_set = (fun internships_to_be_sorted data -> {data with internships_to_be_sorted});
-                }
+      }
 
 let get_repository_to_dump_missing_internship_translations,
     add_missing_internship_translation,
