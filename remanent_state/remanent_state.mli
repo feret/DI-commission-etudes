@@ -720,8 +720,8 @@ val get_repository_to_dump_missing_ects_attributions:
 val get_repository_to_dump_courses_validated_twice:
     t -> t * string
 
-val get_repository_to_dump_missing_course_name_translations:
-  t -> t * string
+(*val get_repository_to_dump_missing_course_name_translations:
+  t -> t * string*)
 
 val get_repository_to_dump_missing_course_entries:
   t -> t * string

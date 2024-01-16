@@ -111,7 +111,6 @@ type parameters =
     repository_to_dump_national_diplomas: string;
     repository_to_dump_dens: string;
     repository_to_dump_mentors: string;
-    repository_to_dump_missing_course_name_translation: string;
     repository_to_dump_missing_minors: string;
     repository_to_dump_missing_majors: string;
     repository_to_dump_missing_internship_translation: string;
@@ -178,7 +177,6 @@ let parameters =
     repository_to_dump_courses_validated_twice = "valides_deux_fois" ;
     repository_to_dump_missing_internship_descriptions = "stages_manquants";
     repository_to_dump_ambiguous_internship_descriptions = "stages_ambigus";
-    repository_to_dump_missing_course_name_translation = "cours_non_traduits_par_code_gps";
     repository_to_dump_missing_course_entries = "cours_non_traduits_par_libelle";
     repository_to_dump_course_entries_report = "cours";
     repository_for_bourses = "bourses";
@@ -644,8 +642,6 @@ let get_repository_to_dump_missing_gen get t =
   | "" -> t, get t
   | _ -> t, Format.sprintf "%s/%s" rep (get t)
 
-
-
 let get_data t = t.data
 let set_data data t = {t with data}
 let lift_get get t = get (get_data t)
@@ -757,89 +753,145 @@ let get_repository_to_dump_missing_internship_descriptions,
         warning_set = (fun missing_internship_descriptions data -> {data with missing_internship_descriptions});
       }
 
-let get_repository_to_dump_non_accepted_grades t =
-  get_repository_to_dump_missing_gen
-    (fun t ->
-       t.parameters.repository_to_dump_non_accepted_grades)
-    t
+(** Warnings about grades *)
+let get_repository_to_dump_missing_grades,
+    add_missing_grade,
+    get_missing_grades =
+    gen_report_warnings
+    {
+      warning_prefix = get_repository_to_dump_missing_gen;
+      warning_rep = (fun t -> t.parameters.repository_to_dump_missing_grades);
+      warning_get = (fun data -> data.missing_grades);
+      warning_set = (fun missing_grades data -> {data with missing_grades});
+    }
 
-let get_repository_to_dump_under_average_validated_grades t =
-  get_repository_to_dump_missing_gen
-    (fun t ->
-       t.parameters.repository_to_dump_under_average_validated_grades)
-    t
+let get_repository_to_dump_non_accepted_grades,
+    add_non_accepted_grade,
+    get_non_accepted_grades =
+    gen_report_warnings
+      {
+        warning_prefix = get_repository_to_dump_missing_gen;
+        warning_rep = (fun t -> t.parameters.repository_to_dump_non_accepted_grades);
+        warning_get = (fun data -> data.non_accepted_grades);
+        warning_set = (fun non_accepted_grades data -> {data with non_accepted_grades});
+      }
 
-let get_repository_to_dump_out_of_schooling_years t =
-  get_repository_to_dump_missing_gen
-    (fun t ->
-       t.parameters.repository_to_dump_out_of_schooling_years)
-    t
+let get_repository_to_dump_under_average_validated_grades,
+    add_under_average_validated_grades,
+    get_under_average_validated_grades =
+  gen_report_warnings
+    {
+      warning_prefix = get_repository_to_dump_missing_gen;
+      warning_rep = (fun t -> t.parameters.repository_to_dump_under_average_validated_grades);
+      warning_get = (fun data -> data.under_average_validated_grades);
+      warning_set = (fun under_average_validated_grades data -> {data with under_average_validated_grades});
+  }
 
-let get_repository_to_dump_missing_grades t =
-  get_repository_to_dump_missing_gen
-    (fun t ->
-       t.parameters.repository_to_dump_missing_grades
-    )
-    t
+  let get_repository_to_dump_missing_ects_attributions,
+      add_missing_ects_attribution,
+      get_missing_ects_attributions =
+    gen_report_warnings
+      {
+        warning_prefix = get_repository_to_dump_missing_gen;
+        warning_rep = (fun t -> t.parameters.repository_to_dump_missing_ects_attributions);
+        warning_get = (fun data -> data.missing_ects_attributions);
+        warning_set = (fun missing_ects_attributions data -> {data with missing_ects_attributions});
+      }
 
-let get_repository_to_dump_missing_course_name_translations t =
-  get_repository_to_dump_missing_gen
-    (fun t ->
-       t.parameters.repository_to_dump_missing_course_name_translation
-    )
-    t
+  let get_repository_to_dump_courses_validated_twice,
+      add_courses_validated_twice,
+      get_courses_validated_twice =
+    gen_report_warnings
+      {
+        warning_prefix = get_repository_to_dump_missing_gen;
+        warning_rep = (fun t -> t.parameters.repository_to_dump_courses_validated_twice);
+        warning_get = (fun data -> data.courses_validated_twice);
+        warning_set = (fun courses_validated_twice data -> {data with courses_validated_twice});
+      }
 
-let get_dens_candidate_suggestion_list_repository t =
-      get_repository_to_dump_missing_gen
-        (fun t ->
-           t.parameters.repository_for_dens_candidate
-        )
-        t
+ (** Warnings about courses *)
 
-let get_courses_to_be_sorted_list_repository t =
-      get_repository_to_dump_missing_gen
-        (fun t ->
-           t.parameters.repository_for_courses_to_be_sorted)
-        t
+ let get_repository_to_dump_missing_course_entries,
+     add_missing_course_entry,
+     get_missing_course_entries =
+   gen_report_warnings
+   {
+     warning_prefix = get_repository_to_dump_missing_gen;
+     warning_rep = (fun t -> t.parameters.repository_to_dump_missing_course_entries);
+     warning_get = (fun data -> data.missing_course_entries);
+     warning_set = (fun missing_course_entries data -> {data with missing_course_entries});
+ }
 
-let get_repository_to_dump_missing_course_entries t =
-  get_repository_to_dump_missing_gen
-    (fun t ->
-       t.parameters.repository_to_dump_missing_course_entries
-    )
-    t
+  (** Warning about DENS *)
+   let get_dens_candidate_suggestion_list_repository,
+         add_dens_candidate_suggestion,
+         get_dens_candidates_suggestion_list =
+         gen_report_warnings
+           {
+             warning_prefix = get_repository_to_dump_missing_gen;
+             warning_rep = (fun t -> t.parameters.repository_for_dens_candidate);
+             warning_get = (fun data -> data.dens_candidates_suggestion);
+             warning_set = (fun dens_candidates_suggestion data -> {data with dens_candidates_suggestion});
+         }
 
-let get_repository_to_dump_missing_minors t =
-    get_repository_to_dump_missing_gen
-        (fun t ->
-           t.parameters.repository_to_dump_missing_minors
-        )
-        t
+  let get_repository_to_dump_missing_minors,
+      add_minor_suggestion,
+      get_minor_suggestion_list =
+           gen_report_warnings
+             {
+               warning_prefix = get_repository_to_dump_missing_gen;
+               warning_rep = (fun t -> t.parameters.repository_to_dump_missing_minors);
+               warning_get = (fun data -> data.minor_suggestion);
+               warning_set = (fun minor_suggestion data -> {data with minor_suggestion});
+             }
 
-        let get_repository_to_dump_missing_majors t =
-            get_repository_to_dump_missing_gen
-                (fun t ->
-                   t.parameters.repository_to_dump_missing_majors
-                )
-                t
 
-let get_repository_to_dump_missing_mentors t =
-  get_repository_to_dump_missing_gen
-    (fun t ->
-       t.parameters.repository_to_dump_missing_mentors)
-    t
+    let get_repository_to_dump_missing_majors,
+        add_major_suggestion,
+        get_major_suggestion_list =
+            gen_report_warnings
+                  {
+                    warning_prefix = get_repository_to_dump_missing_gen;
+                    warning_rep = (fun t -> t.parameters.repository_to_dump_missing_majors);
+                    warning_get = (fun data -> data.major_suggestion);
+                    warning_set = (fun major_suggestion data -> {data with major_suggestion});
+                }
 
-let get_repository_to_dump_missing_ects_attributions t =
-  get_repository_to_dump_missing_gen
-    (fun t ->
-       t.parameters.repository_to_dump_missing_ects_attributions)
-    t
+  let get_courses_to_be_sorted_list_repository,
+      add_course_to_be_sorted,
+      get_courses_to_be_sorted =
+           gen_report_warnings
+                     {
+                       warning_prefix = get_repository_to_dump_missing_gen;
+                       warning_rep = (fun t -> t.parameters.repository_for_courses_to_be_sorted);
+                       warning_get = (fun data -> data.courses_to_be_sorted);
+                       warning_set = (fun courses_to_be_sorted data -> {data with courses_to_be_sorted});
+                   }
 
-let get_repository_to_dump_courses_validated_twice t =
-      get_repository_to_dump_missing_gen
-        (fun t ->
-           t.parameters.repository_to_dump_courses_validated_twice)
-        t
+  (** Other warnings *)
+  let get_repository_to_dump_out_of_schooling_years,
+      add_out_of_schooling_years,
+      get_out_of_schooling_years =
+    gen_report_warnings
+      {
+        warning_prefix = get_repository_to_dump_missing_gen;
+        warning_rep = (fun t -> t.parameters.repository_to_dump_out_of_schooling_years);
+        warning_get = (fun data -> data.out_of_schooling_years);
+        warning_set = (fun out_of_schooling_years data -> {data with out_of_schooling_years});
+    }
+
+  let get_repository_to_dump_missing_mentors,
+      add_missing_mentor,
+      get_missing_mentors =
+      gen_report_warnings
+        {
+          warning_prefix = get_repository_to_dump_missing_gen;
+          warning_rep = (fun t -> t.parameters.repository_to_dump_missing_mentors);
+          warning_get = (fun data -> data.missing_mentors);
+          warning_set = (fun missing_mentors data -> {data with missing_mentors});
+      }
+
+
 
 let get_repository_to_dump_reports t =
   let t, output =
@@ -1574,13 +1626,6 @@ let set_majors majors data = {data with majors}
 let set_majors majors t =
     lift_set set_majors majors t
 
-
-let get_dens_candidates_suggestion data = data.dens_candidates_suggestion
-let get_dens_candidates_suggestion t = lift_get get_dens_candidates_suggestion t
-let set_dens_candidates_suggestion dens_candidates_suggestion data = {data with dens_candidates_suggestion}
-let set_dens_candidates_suggestion dens_candidates_suggestion t =
-    lift_set set_dens_candidates_suggestion dens_candidates_suggestion t
-
 let get_scholarships data = data.scholarships
 let get_scholarships t = lift_get get_scholarships t
 let set_scholarships scholarships data = {data with scholarships}
@@ -1643,77 +1688,6 @@ let set_compensations compensations data =
 let set_compensations compensations t =
   lift_set set_compensations compensations t
 
-let get_missing_grades data = data.missing_grades
-let get_missing_grades t = lift_get get_missing_grades t
-let set_missing_grades missing_grades data =
-  {data with missing_grades}
-let set_missing_grades missing_grades t =
-  lift_set set_missing_grades missing_grades t
-
-let get_minor_suggestions data = data.minor_suggestion
-let get_minor_suggestions t = lift_get get_minor_suggestions t
-let set_minor_suggestions minor_suggestion data =
-    {data with minor_suggestion}
-let set_minor_suggestions minor_suggestions t =
-    lift_set set_minor_suggestions minor_suggestions t
-
-let get_major_suggestions data = data.major_suggestion
-let get_major_suggestions t = lift_get get_major_suggestions t
-let set_major_suggestions major_suggestion data =
-    {data with major_suggestion}
-let set_major_suggestions major_suggestions t =
-    lift_set set_major_suggestions major_suggestions t
-
-
-let get_non_accepted_grades data = data.non_accepted_grades
-let get_non_accepted_grades t = lift_get get_non_accepted_grades t
-let set_non_accepted_grades non_accepted_grades data =
-  {data with non_accepted_grades}
-let set_non_accepted_grades non_accepted_grades t =
-  lift_set set_non_accepted_grades non_accepted_grades t
-
-let get_out_of_schooling_years data = data.out_of_schooling_years
-let get_out_of_schooling_years t = lift_get get_out_of_schooling_years t
-let set_out_of_schooling_years out_of_schooling_years data =
-    {data with out_of_schooling_years}
-let set_out_of_schooling_years out_of_schooling_years t =
-    lift_set set_out_of_schooling_years out_of_schooling_years t
-
-let get_under_average_validated_grades data = data.under_average_validated_grades
-let get_under_average_validated_grades t = lift_get get_under_average_validated_grades t
-let set_under_average_validated_grades under_average_validated_grades data =
-    {data with under_average_validated_grades}
-let set_under_average_validated_grades under_average_validated_grades t =
-    lift_set set_under_average_validated_grades under_average_validated_grades t
-
-let get_missing_mentors data = data.missing_mentors
-let get_missing_mentors t = lift_get get_missing_mentors t
-let set_missing_mentors missing_mentors data =
-  {data with missing_mentors}
-let set_missing_mentors missing_mentors t =
-  lift_set set_missing_mentors missing_mentors t
-
-let get_missing_ects_attributions data = data.missing_ects_attributions
-let get_missing_ects_attributions t = lift_get get_missing_ects_attributions t
-let set_missing_ects_attributions missing_ects_attributions data =
-  {data with missing_ects_attributions}
-let set_missing_ects_attributions missing_ects_attributions t =
-  lift_set set_missing_ects_attributions missing_ects_attributions t
-
-let get_courses_validated_twice data = data.courses_validated_twice
-let get_courses_validated_twice t = lift_get get_courses_validated_twice t
-let set_courses_validated_twice courses_validated_twice data =
-    {data with courses_validated_twice}
-let set_courses_validated_twice courses_validated_twice t =
-    lift_set set_courses_validated_twice courses_validated_twice t
-
-let get_missing_course_entries data = data.missing_course_entries
-let get_missing_course_entries t = lift_get get_missing_course_entries t
-let set_missing_course_entries missing_course_entries data =
-  {data with missing_course_entries}
-let set_missing_course_entries missing_course_entries t =
-  lift_set set_missing_course_entries missing_course_entries t
-
 let get_course_entries_report data = data.course_entries_report
 let get_course_entries_report t = lift_get get_course_entries_report t
 let set_course_entries_report course_entries_report data =
@@ -1770,14 +1744,6 @@ let set_additional_course additional_courses data =
 let set_additional_course additional_courses t =
   lift_set set_additional_course additional_courses t
 
-
-let get_courses_to_be_sorted data = data.courses_to_be_sorted
-let get_courses_to_be_sorted t =
-    lift_get get_courses_to_be_sorted t
-let set_courses_to_be_sorted courses_to_be_sorted data =
-      {data with courses_to_be_sorted}
-let set_courses_to_be_sorted courses_to_be_sorted t =
-    lift_set set_courses_to_be_sorted courses_to_be_sorted t
 
 let get_sorted_courses data = data.sorted_courses
 let get_sorted_courses t =
@@ -2413,24 +2379,6 @@ let list_all_cursus t =
   in
   Format.print_flush ()
 
-let add_missing_grade, get_missing_grades =
-  gen get_missing_grades set_missing_grades
-let add_non_accepted_grade, get_non_accepted_grades =
-  gen get_non_accepted_grades set_non_accepted_grades
-let add_under_average_validated_grades,get_under_average_validated_grades =
-  gen get_under_average_validated_grades set_under_average_validated_grades
-let add_out_of_schooling_years,get_out_of_schooling_years =
-    gen get_out_of_schooling_years set_out_of_schooling_years
-let add_minor_suggestion, get_minor_suggestion_list =
-    gen get_minor_suggestions set_minor_suggestions
-let add_major_suggestion, get_major_suggestion_list =
-    gen get_major_suggestions set_major_suggestions
-let add_dens_candidate_suggestion, get_dens_candidates_suggestion_list =
-    gen get_dens_candidates_suggestion set_dens_candidates_suggestion
-
-let add_course_to_be_sorted, get_courses_to_be_sorted =
-    gen get_courses_to_be_sorted set_courses_to_be_sorted
-
 let add_dens, get_dens =
   gen get_dens set_dens
 let add_national_diploma, get_national_diplomas =
@@ -2439,15 +2387,6 @@ let add_mentor, get_mentors =
   gen get_mentors set_mentors
 let add_mentor t elt =
   add_mentor t elt
-
-let add_missing_course_entry, get_missing_course_entries =
-  gen get_missing_course_entries set_missing_course_entries
-let add_missing_mentor, get_missing_mentors =
-  gen get_missing_mentors set_missing_mentors
-let add_missing_ects_attribution, get_missing_ects_attributions =
-  gen get_missing_ects_attributions set_missing_ects_attributions
-let add_courses_validated_twice, get_courses_validated_twice =
-  gen get_courses_validated_twice set_courses_validated_twice
 
 let get_ENSPSL_logo t =
   let t, local = get_all_potential_local_repositories t in
