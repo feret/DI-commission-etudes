@@ -880,7 +880,7 @@ let get_repository_to_dump_under_average_validated_grades,
         warning_set = (fun out_of_schooling_years data -> {data with out_of_schooling_years});
     }
 
-  let get_repository_to_dump_missing_mentors,
+let get_repository_to_dump_missing_mentors,
       add_missing_mentor,
       get_missing_mentors =
       gen_report_warnings
@@ -892,24 +892,29 @@ let get_repository_to_dump_under_average_validated_grades,
       }
 
 
-
-let get_repository_to_dump_reports t =
+(* reports *)
+let get_repository_to_dump_reports_gen gen  ?output_repository t =
   let t, output =
-    get_dated_output_repository t
+    match output_repository with
+    | None -> get_dated_output_repository t
+    | Some a -> t, a
   in
   match
-    output,
-    t.parameters.repository_to_dump_reports
+    output, gen
   with
   | "","" -> t, ""
   | "",a | a,""-> t, a
   | a,b -> t, Format.sprintf "%s/%s" a b
 
-let get_repository_to_dump_reports_gen get t =
-  let t, rep = get_repository_to_dump_reports t in
+let get_repository_to_dump_reports ?output_repository t =
+    get_repository_to_dump_reports_gen t.parameters.repository_to_dump_reports ?output_repository t
+
+
+let get_repository_to_dump_reports_gen ?output_repository gen t =
+  let t, rep = get_repository_to_dump_reports ?output_repository t in
   match rep with
-  | "" -> t, get t
-  | _ -> t, Format.sprintf "%s/%s" rep (get t)
+  | "" -> t, (gen t)
+  | _ -> t, Format.sprintf "%s/%s" rep (gen t)
 
 let get_repository_to_dump_mentors t =
   get_repository_to_dump_reports_gen
@@ -923,7 +928,6 @@ let get_repository_to_dump_course_entries_report t =
        t.parameters.repository_to_dump_course_entries_report)
     t
 
-
 let get_repository_to_dump_national_diplomas t =
   get_repository_to_dump_reports_gen
     (fun t ->
@@ -936,47 +940,25 @@ let get_repository_to_dump_dens t =
        t.parameters.repository_to_dump_dens)
     t
 
+(** gps files *)
 let get_repository_to_dump_gps_files ?output_repository t =
-  let t, output =
-    match output_repository with
-    | Some rep -> t, rep
-    | None -> get_dated_output_repository t
-  in
-  match
-    output,
-    t.parameters.repository_to_dump_gps_files
-  with
-  | "","" -> t, ""
-  | "",a | a,""-> t, a
-  | a,b -> t, Format.sprintf "%s/%s" a b
+    get_repository_to_dump_reports_gen
+      (fun t -> t.parameters.repository_to_dump_gps_files)
+      ?output_repository t
 
-  let get_repository_to_dump_dens_supplement ?output_repository t =
-    let t, output =
-      match output_repository with
-      | Some rep -> t, rep
-      | None -> get_dated_output_repository t
-    in
-    match
-      output,
-      t.parameters.dens_repository
-    with
-    | "","" -> t, ""
-    | "",a | a,""-> t, a
-    | a,b -> t, Format.sprintf "%s/%s" a b
+(* SAD *)
+let get_repository_to_dump_dens_supplement ?output_repository t =
+    get_repository_to_dump_reports_gen
+      (fun t -> t.parameters.dens_repository)
+      ?output_repository t
 
+(* attestations *)
 let get_repository_to_dump_attestations t =
-  let t, output =
-    get_dated_output_repository t
-  in
-  match
-    output,
-    t.parameters.repository_to_dump_attestations
-  with
-  | "","" -> t, ""
-  | "",a | a,""-> t, a
-  | a,b -> t, Format.sprintf "%s/%s" a b
+    get_repository_to_dump_reports_gen
+      (fun t -> t.parameters.repository_to_dump_attestations)
+      t
 
-
+(* Backup repositories *)
 let get_backup_repository t =
   let t, local = get_local_repository t in
   match local, t.parameters.gps_backup_repository with
@@ -984,29 +966,23 @@ let get_backup_repository t =
   | a,"" | "",a -> t, a
   | a,b -> t, Format.sprintf "%s/%s" a b
 
-let get_repository_for_handmade_gps_files t =
+let get_backup_gen gen_rep t =
   let t, rep =
     get_backup_repository t
   in
   match
     rep,
-    t.parameters.repository_for_handmade_gps_files
+    gen_rep
   with
   | "","" -> t,""
   | "",a | a,"" -> t,a
   | a,b -> t, Format.sprintf "%s/%s" a b
 
+let get_repository_for_handmade_gps_files t =
+    get_backup_gen t.parameters.repository_for_handmade_gps_files t
+
 let get_repository_for_backup_gps_files t =
-  let t, rep =
-    get_backup_repository t
-  in
-  match
-    rep,
-    t.parameters.repository_for_backup_gps_files
-  with
-  | "","" -> t,""
-  | "",a | a,"" -> t,a
-  | a,b -> t, Format.sprintf "%s/%s" a b
+  get_backup_gen t.parameters.repository_for_backup_gps_files t
 
 let get_output_alias_repository t =
   t, t.parameters.output_alias_repository
@@ -1049,7 +1025,7 @@ let get_stage_entry_list_prefix t =
 let get_mineure_entry_list_prefix t =
   t, t.parameters.repository_for_minors
 
-  let get_majeure_entry_list_prefix t =
+let get_majeure_entry_list_prefix t =
     t, t.parameters.repository_for_majors
 
 let get_study t =
@@ -1244,16 +1220,6 @@ let get_cmd_options () =
       aux (k-1) (a.(k)::sol)
   in
   aux (n-1) []
-
-let _get_dpt =
-  List.filter
-    (fun p ->
-       List.mem p list_dpt)
-
-let _get_others =
-  List.filter
-    (fun p ->
-       not (List.mem p list_dpt))
 
 let split_dpt =
   List.partition
