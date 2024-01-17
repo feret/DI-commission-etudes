@@ -214,4 +214,4 @@ let get_sorted_internships
     state
 
 let unify_sorted_internships =
-  Scan_csv_files.unify_gen ~all_fields
+  Scan_gen_files.unify_gen ~all_fields

@@ -54,11 +54,11 @@ let pred_gen_safe p =
   lift_gen_pred_safe
     (fun f s ->
        {
-         Scan_csv_files.check =
+         Scan_gen_files.check =
            (fun state a ->
               let state, rep = f state a in
               state, p rep);
-         Scan_csv_files.label = s
+         Scan_gen_files.label = s
        })
 
 let pred_safe  f s = pred_gen_safe  (fun rep -> rep<>None) f s
@@ -339,4 +339,4 @@ let gender a b = build lift_fgender1 lift_fgender2 a b
 let color a b = build lift_fcolor1 lift_fcolor2 a b
 let main_dpt a b = build lift_fdpt1 lift_fdpt2 a b
 let universite a b = build lift_funiv1 lift_funiv2 a b
-let experience a b = build lift_fexp1 lift_fexp2 a b 
+let experience a b = build lift_fexp1 lift_fexp2 a b

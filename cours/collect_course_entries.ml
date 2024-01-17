@@ -104,4 +104,4 @@ let get_course_entries
     state
 
 let unify_course_entry =
-  Scan_csv_files.unify_gen ~all_fields
+  Scan_gen_files.unify_gen ~all_fields

@@ -15,7 +15,7 @@ let get_list_of_files ~repository ?prefix ?file_name state =
         state, files_list
       | h::t ->
         let _ =
-          Format.printf "Scanning repository : %s @." h 
+          Format.printf "Scanning repository : %s @." h
         in
         let state, to_explore = Safe_sys.readdir __POS__ state h in
         let state, files_list, rep_to_explore =

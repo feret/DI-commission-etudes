@@ -30,12 +30,6 @@ val get_list:
   Remanent_state.t ->
    'a list -> Remanent_state.t * 'a Keywords_handler.preprocessed option * 'a list
 
-type 'record_tmp mandatory_field =
-  {
-    check:(Remanent_state.t -> 'record_tmp -> Remanent_state.t * bool);
-    label: string
-  }
-
 val collect_gen :
   ?debug:bool ->
   ?repository:string ->
@@ -55,11 +49,7 @@ val collect_gen :
       Remanent_state.t -> 'b -> 'b -> Remanent_state.t * 'b) ->
      string * int * int * int ->
      'b -> Remanent_state.t -> Remanent_state.t)  ->
-  mandatory_fields:'a mandatory_field list ->
+  mandatory_fields:'a Scan_gen_files.mandatory_field list ->
   all_fields:('a,'b) Keywords_handler.any_field list ->
   ?event_opt:Sco_remanent_state.Profiling.step_kind ->
   Remanent_state.t -> Remanent_state.t
-
-val unify_gen: string * int * int * int ->
-           all_fields:('a, 'b) Keywords_handler.any_field list ->
-           Remanent_state.t -> 'b -> 'b -> Remanent_state.t * 'b

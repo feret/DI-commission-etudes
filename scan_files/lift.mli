@@ -2,12 +2,12 @@
 val pred_safe:
   ('record -> 'b option) ->
   string ->
-  'record Scan_csv_files.mandatory_field
+  'record Scan_gen_files.mandatory_field
 
 val pred_opt_safe:
     ('record -> 'b option) ->
     string ->
-    'record Scan_csv_files.mandatory_field
+    'record Scan_gen_files.mandatory_field
 
 type ('data,'record_tmp,'record) gen =
   keyword:Public_data.keywords ->
@@ -75,5 +75,5 @@ val float: (float, 'record_tmp, 'record) lift_record
 val gender: (Public_data.genre, 'record_tmp, 'record) lift_record
 val color: (Color.color, 'record_tmp, 'record) lift_record
 val main_dpt: (Public_data.main_dpt, 'record_tmp, 'record) lift_record
-val experience: (Public_data.experience, 'record_tmp, 'record) lift_record 
+val experience: (Public_data.experience, 'record_tmp, 'record) lift_record
 val universite: (Public_data.universite, 'record_tmp, 'record) lift_record

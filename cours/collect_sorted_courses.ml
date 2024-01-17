@@ -170,4 +170,4 @@ let get_sorted_courses
     state
 
 let unify_sorted_courses =
-  Scan_csv_files.unify_gen ~all_fields
+  Scan_gen_files.unify_gen ~all_fields

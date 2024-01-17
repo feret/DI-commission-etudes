@@ -190,14 +190,6 @@ let keywords_list =
       Public_data.PEGASUS_NAISSANCE_PAYS
     ]
 
-
-(*    pegasus_firstname: string option;
-    pegasus_lastname: string option;
-    pegasus_promotion: string option;
-    pegasus_birth_country_fr: string option;
-    pegasus_birth_city_fr: string option;
-    pegasus_produit_de_formation: string option;
-    pegasus_cve:*)
 let mandatory_fields =
       [
         lift_pred (fun a -> a.pegasus_firstname) "the first name of the student";
@@ -315,7 +307,7 @@ let all_fields =
             let state, str = compute_repository state in
             let event = Some (Profiling.Scan_csv_files (str,"")) in
             let state = Remanent_state.open_event_opt event state in
-            let state = Scan_csv_files.collect_gen
+            let state = Scan_xlss_files.collect_gen
               ?repository
               ?prefix
               ?file_name
