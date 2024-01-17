@@ -53,6 +53,36 @@ let open_xlsx xlsx_path =
       Lwt.return data)
 end)
 
+let clean x =
+  let k = String.length x in
+  if k>0 && String.get x 0 = '\"' && String.get x (k-1) = '\"'
+    then String.sub x 1 (k-2)
+    else x
+
+let constructeur_of_string x = Format.sprintf "PEGASUS_%s" x
+let key_of_string x = Format.sprintf "\"%s\"" (Special_char.lowercase (Special_char.lowercase x))
+let key_dcl l =
+  let l = List.hd l in
+  List.iter
+      (fun x ->
+      let x = clean x in
+      Format.printf "    Public_data.%s,[%s]; @." (constructeur_of_string x) (key_of_string x))
+  l
+
+let type_dcl l =
+    let l = List.hd l in
+    List.iter
+            (fun x ->
+            let x  = clean x in
+            Format.printf "| %s  @." (constructeur_of_string x)) l
+
+            let key_list l =
+                let l = List.hd l in
+                List.iter
+                        (fun x ->
+                        let x  = clean x in
+                        Format.printf "  Public_data.%s;  @." (constructeur_of_string x)) l
+
 (*
 let to_string x = Yojson.Basic.to_string x
 let extract xlsx_path env =

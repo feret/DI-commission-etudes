@@ -257,6 +257,33 @@ val add_dens_candidate:
   t -> Public_data.dens_candidate -> Public_data.dens_candidate -> t * Public_data.dens_candidate) ->
   (string * int * int * int) -> Public_data.dens_candidate -> t -> t
 
+val get_status_administratifs_repository: t -> t * string
+
+val add_pegasus_status_administratif:
+    (string * int * int * int ->
+    t -> Public_data.student_pegasus -> Public_data.student_pegasus -> t * Public_data.student_pegasus) ->
+    string * int * int * int -> Public_data.student_pegasus -> t -> t
+
+val get_pegasus_status_administratif:
+    firstname:string ->
+    lastname:string ->
+    year:string -> t -> t * Public_data.student_pegasus list
+
+val get_birth_city_fr:
+    firstname:string ->
+    lastname:string ->
+    year:string -> t -> t * string option
+
+val get_birth_country_fr:
+        firstname:string ->
+        lastname:string ->
+        year:string -> t -> t * string option
+
+val get_cve_number:
+        firstname:string ->
+        lastname:string ->
+        year:string -> t -> t * int option
+
 val get_sorted_courses_list_repository: t -> t * string
 val add_sorted_course:      (string * int * int * int ->
              t ->

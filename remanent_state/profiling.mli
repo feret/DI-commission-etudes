@@ -13,9 +13,10 @@ type step_kind =
   | Patch_gps_file of string option
   | Build_keywords_automaton
   | Export_transcript of string option
+  | Collect_pegasus_data 
   | Collect_additional_courses
   | Collect_admissions
-  | Collect_cost_members 
+  | Collect_cost_members
   | Collect_scholarships
   | Collect_mentoring
   | Collect_minors

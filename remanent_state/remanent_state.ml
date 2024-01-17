@@ -24,6 +24,7 @@ type parameters =
     repository_to_access_gps: string;
     output_repository: string;
     database_repository: string;
+    pegasus_repository: string;
     study_repository:string;
     parameters_repository:string;
     gps_backup_repository:string;
@@ -158,6 +159,7 @@ let parameters =
     repository_to_access_gps = "gps";
     output_repository = "sortie" ;
     database_repository = "base_de_donnees";
+    pegasus_repository = "pegasus";
     study_repository = "etudes";
     parameters_repository = "parametres" ;
     gps_backup_repository = "gps_backup" ;
@@ -309,6 +311,7 @@ let set_phys parameters =
 type data =
   {
     students: Public_data.student_id list ;
+    status_administratifs: Pegasus_administrative_status.t;
     output_alias: (string * string) option ;
     scholarships: Scholarships.t;
     mentoring: Mentoring.t;
@@ -360,6 +363,7 @@ type data =
 let empty_data =
   {
     students = [];
+    status_administratifs = Pegasus_administrative_status.empty;
     scholarships = Scholarships.empty;
     mentoring = Mentoring.empty;
     course_exceptions = Course_exceptions.empty;
@@ -1016,6 +1020,9 @@ let get_rep_gen get_main get_prefix t =
 let get_students_list_prefix t =
   t, "etudiants"
 
+let get_pegasus_status_administratifs_prefix t =
+  t, "status_administratifs"
+
 let get_dens_candidates_list_prefix t =
     t, t.parameters.repository_to_dump_dens_candidate
 
@@ -1041,6 +1048,16 @@ let get_bdd t =
   | "", "" -> t, ""
   | a,"" | "",a -> t, a
   | a,b -> t, Format.sprintf "%s/%s" a b
+
+let get_pegasus t =
+  let t, local = get_local_repository t in
+  match local, t.parameters.pegasus_repository with
+    | "", "" -> t, ""
+    | a,"" | "",a -> t, a
+    | a,b -> t, Format.sprintf "%s/%s" a b
+
+let get_status_administratifs_repository t =
+  get_rep_gen get_pegasus get_pegasus_status_administratifs_prefix t
 
 let get_students_list_repository t =
   get_rep_gen get_bdd get_students_list_prefix t
@@ -1568,6 +1585,11 @@ let get_students t = lift_get get_students t
 let set_students students data = {data with students}
 let set_students students t = lift_set set_students students t
 
+let get_pegasus_status_administratifs data =   data.status_administratifs
+let get_pegasus_status_administratifs t = lift_get get_pegasus_status_administratifs t
+let set_pegasus_status_administratifs status_administratifs data = {data with status_administratifs}
+let set_pegasus_status_administratifs status_administratifs t = lift_set set_pegasus_status_administratifs status_administratifs t
+
 let get_cost_members data = data.cost_members
 let get_cost_members t = lift_get get_cost_members t
 let set_cost_members cost_members data = {data with cost_members}
@@ -1622,10 +1644,9 @@ let set_cursus cursus data = {data with cursus}
 let set_cursus cursus t =
   lift_set set_cursus cursus t
 
-  let get_inscriptions data = data.inscriptions
-  let get_inscriptions t = lift_get get_inscriptions t
-  let set_inscriptions inscriptions data = {data with inscriptions}
-  let set_inscriptions inscriptions t =
+let get_inscriptions data = data.inscriptions
+let get_inscriptions t = lift_get get_inscriptions t
+let set_inscriptions inscriptions data = {data with inscriptions}  let set_inscriptions inscriptions t =
     lift_set set_inscriptions inscriptions  t
 
 let get_dpts data = data.dpts
@@ -1755,6 +1776,53 @@ let add_gen_unify_warn  get set add unify =
   add_gen get set (add warn unify)
 
 let add_student = add_gen_list get_students set_students
+
+let add_pegasus_status_administratif =
+    add_gen_unify
+      get_pegasus_status_administratifs
+      set_pegasus_status_administratifs
+      Pegasus_administrative_status.add_pegasus_administrative_status
+
+let get_pegasus_status_administratif
+      ~firstname
+      ~lastname
+      ~year
+          t =
+        t, Pegasus_administrative_status.get_pegasus_administrative_status  ~year ~firstname ~lastname  (get_pegasus_status_administratifs t)
+
+
+let get_birth_city_fr
+      ~firstname
+      ~lastname
+      ~year t =
+  let t,l = get_pegasus_status_administratif
+              ~firstname ~lastname ~year t in
+  match l with
+      | [] -> warn __POS__ "Student not found in Pegasus" Exit t, None
+      | _::_::_ -> warn __POS__ "Several students found in Pegasus" Exit t, None
+      | [a] -> t, Some a.Public_data.pegasus_birth_city_fr
+
+      let get_birth_country_fr
+            ~firstname
+            ~lastname
+            ~year t =
+        let t,l = get_pegasus_status_administratif
+                    ~firstname ~lastname ~year t in
+        match l with
+            | [] -> warn __POS__ "Student not found in Pegasus" Exit t, None
+            | _::_::_ -> warn __POS__ "Several students found in Pegasus" Exit t, None
+            | [a] -> t, Some a.Public_data.pegasus_birth_country_fr
+
+            let get_cve_number
+                  ~firstname
+                  ~lastname
+                  ~year t =
+              let t,l = get_pegasus_status_administratif
+                          ~firstname ~lastname ~year t in
+              match l with
+                  | [] -> warn __POS__ "Student not found in Pegasus" Exit t, None
+                  | _::_::_ -> warn __POS__ "Several students found in Pegasus" Exit t, None
+                  | [a] -> t, Some a.Public_data.pegasus_cve
 
 let add_cost_member = add_gen_list get_cost_members set_cost_members
 

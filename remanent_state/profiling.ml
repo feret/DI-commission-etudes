@@ -13,6 +13,7 @@ type step_kind =
   | Patch_gps_file of string option
   | Build_keywords_automaton
   | Export_transcript of string option
+  | Collect_pegasus_data
   | Collect_additional_courses
   | Collect_admissions
   | Collect_cost_members
@@ -112,6 +113,7 @@ let string_of_step_kind x =
     Printf.sprintf
       "Export transcript (%s)"
       x
+  | Collect_pegasus_data -> "Collect data from pegasus"
   | Collect_additional_courses -> "Collect data about not-in-gps courses"
   | Collect_cost_members -> "Collect data about cost members"
   | Collect_dens_candidates -> "Collect dens candidates"
@@ -225,7 +227,7 @@ let is_dummy step_kind =
   | Patch_gps_file _
   | Build_keywords_automaton
   | Export_transcript _
-  | Collect_cost_members 
+  | Collect_cost_members
   | Collect_additional_courses
   | Collect_scholarships
   | Collect_mentoring
@@ -246,6 +248,7 @@ let is_dummy step_kind =
   | Collect_course_name_translations
   | Collect_course_entries
   | Collect_sorted_courses
+  | Collect_pegasus_data
   | Dump_missing_grades
   | Dump_missing_ects_attributions
   | Dump_missing_mentors

@@ -2,6 +2,10 @@ module StringSet =
   Set.Make
     (struct type t = string let compare = compare end)
 let state = Remanent_state.init ()
+(*let l = Xls_support.open_xlsx "/Users/feret/Downloads/extraction.xlsx"
+let () = Xls_support.type_dcl l
+let () = Xls_support.key_dcl l
+let () = Xls_support.key_list l*)
 let state =
   Cloud_interaction.safe_synchronize_shared_repository
     state
