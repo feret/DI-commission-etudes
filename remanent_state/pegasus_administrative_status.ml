@@ -127,3 +127,15 @@ let add_pegasus_administrative_status
     {dens_candidates with per_name}
   in
   state, dens_candidates
+
+let dump m =
+  let () = Format.printf "DUMP PEGASUS CONTENT @." in Public_data.LastNameMap.iter
+    (fun x map ->
+        Public_data.FirstNameMap.iter
+          (fun y map ->
+              Public_data.PromoMap.iter
+                (fun z _ ->
+                    Format.printf "%s %s (%s) @." x y z)
+                map
+          ) map
+      ) m.per_name

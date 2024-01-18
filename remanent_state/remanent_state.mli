@@ -269,6 +269,9 @@ val get_pegasus_status_administratif:
     lastname:string ->
     year:string -> t -> t * Public_data.student_pegasus list
 
+val get_all_pegasus_status_administratif:
+    t -> t * Pegasus_administrative_status.t
+
 val get_birth_city_fr:
     firstname:string ->
     lastname:string ->

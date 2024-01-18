@@ -14,3 +14,5 @@ val add_pegasus_administrative_status:
 Public_data.student_pegasus->
 t ->
 'state * t
+
+val dump: t -> unit 

@@ -1789,6 +1789,8 @@ let get_pegasus_status_administratif
           t =
         t, Pegasus_administrative_status.get_pegasus_administrative_status  ~year ~firstname ~lastname  (get_pegasus_status_administratifs t)
 
+let get_all_pegasus_status_administratif t =
+        t, get_pegasus_status_administratifs t 
 
 let get_birth_city_fr
       ~firstname
