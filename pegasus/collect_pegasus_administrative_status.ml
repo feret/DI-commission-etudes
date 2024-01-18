@@ -182,11 +182,11 @@ let mandatory_fields =
         lift_pred (fun a -> a.pegasus_firstname) "the first name of the student";
         lift_pred (fun a -> a.pegasus_lastname) "the last name of the student";
         lift_pred (fun a -> a.pegasus_promotion) "promotion";
-lift_pred (fun a -> a.pegasus_produit_de_formation) "produit_de_formation";
+(*lift_pred (fun a -> a.pegasus_produit_de_formation) "produit_de_formation";
 
         lift_pred (fun a -> a.pegasus_birth_city_fr) "city of birth";
         lift_pred (fun a -> a.pegasus_birth_country_fr) "country of birth";
-        lift_pred (fun a -> a.pegasus_ine) "ine number";
+        lift_pred (fun a -> a.pegasus_ine) "ine number";*)
       ]
 
 let all_fields =

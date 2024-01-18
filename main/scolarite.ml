@@ -27,7 +27,7 @@ let state, students_list =
          a.Public_data.promotion= Some target)
       students_list
 let state =
-  Collect_pegasus_administrative_status.get_pegasus_administrative_data state 
+  Collect_pegasus_administrative_status.get_pegasus_administrative_data state
 let state =
   Collect_cost.get_cost_members state
 let state =

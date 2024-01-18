@@ -66,6 +66,13 @@ let open_xlsx xlsx_path =
             | l::_ ->
             List.iter
             (Format.printf "-> %s @.") l
+  in
+  let () =
+    List.iter
+      (fun x ->
+        match x with _::_::n::p::_ -> Format.printf "%s %s @." n p
+    | _ -> ())
+      l
   in l
 
 
