@@ -897,7 +897,7 @@ let get_repository_to_dump_missing_mentors,
 
 
 (* reports *)
-let get_repository_to_dump_reports_gen gen  ?output_repository t =
+let get_repository_to_dump_reports_gen' gen  ?output_repository t =
   let t, output =
     match output_repository with
     | None -> get_dated_output_repository t
@@ -911,7 +911,7 @@ let get_repository_to_dump_reports_gen gen  ?output_repository t =
   | a,b -> t, Format.sprintf "%s/%s" a b
 
 let get_repository_to_dump_reports ?output_repository t =
-    get_repository_to_dump_reports_gen t.parameters.repository_to_dump_reports ?output_repository t
+    get_repository_to_dump_reports_gen' t.parameters.repository_to_dump_reports ?output_repository t
 
 
 let get_repository_to_dump_reports_gen ?output_repository gen t =
@@ -946,8 +946,7 @@ let get_repository_to_dump_dens t =
 
 (** gps files *)
 let get_repository_to_dump_gps_files ?output_repository t =
-    get_repository_to_dump_reports_gen
-      (fun t -> t.parameters.repository_to_dump_gps_files)
+      get_repository_to_dump_reports_gen' t.parameters.repository_to_dump_gps_files
       ?output_repository t
 
 (* SAD *)
@@ -1813,7 +1812,7 @@ let get_birth_city_fr
             | _::_::_ -> warn __POS__ "Several students found in Pegasus" Exit t, None
             | [a] -> t, Some a.Public_data.pegasus_birth_country_fr
 
-            let get_cve_number
+            let get_ine_number
                   ~firstname
                   ~lastname
                   ~year t =
@@ -1822,7 +1821,7 @@ let get_birth_city_fr
               match l with
                   | [] -> warn __POS__ "Student not found in Pegasus" Exit t, None
                   | _::_::_ -> warn __POS__ "Several students found in Pegasus" Exit t, None
-                  | [a] -> t, Some a.Public_data.pegasus_cve
+                  | [a] -> t, Some a.Public_data.pegasus_ine
 
 let add_cost_member = add_gen_list get_cost_members set_cost_members
 

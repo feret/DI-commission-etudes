@@ -8699,14 +8699,29 @@ let state,year = Remanent_state.get_current_academic_year state in
                   | Some false | None -> false
                     )
           then
-            let dens =
+            let state, dens =
               match dens_in_bdd with
-                | None -> dens
+                | None -> state, dens
                 | Some dens_in_bdd ->
-                  {dens with
+                  let state, ine_opt =
+                      Remanent_state.get_ine_number
+                          ~firstname ~lastname ~year:promo state
+                  in
+                  let state, ine =
+                      match ine_opt with
+                        | Some _ -> state, ine_opt
+                        | None ->
+                              Remanent_state.warn
+                                  __POS__
+                                  (Format.sprintf "Cannot find INE number for student %s %s (%s) in Pegasus database" firstname lastname promo)
+                                  Exit state,
+                                  dens_in_bdd.Public_data.dens_candidate_ine
+                  in
+                  state, {dens with
                           Public_data.dens_diplomation_year = dens_in_bdd.Public_data.dens_candidate_diplomation_year;
                           Public_data.dens_ok = accepte;
-                          Public_data.dens_ine = dens_in_bdd.Public_data.dens_candidate_ine;
+                          Public_data.dens_ine = (*dens_in_bdd.Public_data.dens_candidate_ine*)
+                          ine;
                           Public_data.dens_sad = dens_in_bdd.Public_data.dens_candidate_sad;   }
             in
             let state =
@@ -9099,7 +9114,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                              let state,s  =
 Remanent_state.bilingual_string
 ~french:(Format.sprintf "\\noindent\\hspace*{-10mm}\\textbf{GPA cumulé~: \\fpeval{round(%s,2)}}\\bigskip\n\n{\\noindent}PS~: \\textit{\\'Ecole normale supérieure} est l'une des institutions françaises d'enseignement supérieur en sciences et en humanité les plus séléctives. Les étudiants qui entrent à l'ENS sont séléctionés parmi les meilleures classes préparatoires et universités et sont classés parmi les meilleurs 1-5$\\%s$ étudiants  français.\n\n{\\noindent}ENS suit le système traditionnel de notation français, basé sur des nombres entre 0 et 20, 10 étant la note minimale pour valider un cours. Les notes françaises correspondent à ce qui suit~: \\begin{itemize}[noitemsep,topsep=0pt]\\item[$\\bullet$]\\makebox[2cm][l]{18-20}exceptionnel\\item[$\\bullet$]\\makebox[2cm][l]{16-17.9}très bien\\item[$\\bullet$] \\makebox[2cm][l]{14-15.9}bien  \\item[$\\bullet$]\\makebox[2cm][l]{12-13.9}assez bien  \\item[$\\bullet$]\\makebox[2cm][l]{10-11.9}passable\\item[$\\bullet$]\\makebox[2cm][l]{00-09.9}échec\\end{itemize}{\\noindent}La moyenne d'une classe typique se situe entre 12 et 14/20 et les notes au-dessus de 16 sont rarement données. \\bigskip\n\n " mean "%")
-~english:(Format.sprintf "\\noindent\\hspace*{-10mm}\\textbf{Cumulative GPA: \\fpeval{round(%s,2)}}\\bigskip\n\n{\\noindent}NB: \\textit{\\'Ecole normale supérieure} is one of the most selective French higher education institutions in science and humanities. Students entering ENS are selected from the upper tier of \\textit{classes préparatoires} and universities and ranked in the top 1-5$\\%s$ among French students.\n\n{\\noindent}ENS follows the traditional French grading system based on a numbered scale from 0 to 20, 10 being the minimum passing grade. French grades correspond to the following:\\begin{itemize}[noitemsep,topsep=0pt]\\item[$\\bullet$]\\makebox[2cm][l]{18-20}outstanding\\item[$\\bullet$]\\makebox[2cm][l]{16-17.9}very good\\item[$\\bullet$] \\makebox[2cm][l]{14-15.9}good \\item[$\\bullet$]\\makebox[2cm][l]{12-13.9}quite good \\item[$\\bullet$]\\makebox[2cm][l]{10-11.9}fair\\item[$\\bullet$]\\makebox[2cm][l]{00-09.9}fail\\end{itemize}{\\noindent}Typical class average lies between 12 and 14/20 and grades above 16 are seldom awarded.\\bigskip\n\n " mean "%") state 
+~english:(Format.sprintf "\\noindent\\hspace*{-10mm}\\textbf{Cumulative GPA: \\fpeval{round(%s,2)}}\\bigskip\n\n{\\noindent}NB: \\textit{\\'Ecole normale supérieure} is one of the most selective French higher education institutions in science and humanities. Students entering ENS are selected from the upper tier of \\textit{classes préparatoires} and universities and ranked in the top 1-5$\\%s$ among French students.\n\n{\\noindent}ENS follows the traditional French grading system based on a numbered scale from 0 to 20, 10 being the minimum passing grade. French grades correspond to the following:\\begin{itemize}[noitemsep,topsep=0pt]\\item[$\\bullet$]\\makebox[2cm][l]{18-20}outstanding\\item[$\\bullet$]\\makebox[2cm][l]{16-17.9}very good\\item[$\\bullet$] \\makebox[2cm][l]{14-15.9}good \\item[$\\bullet$]\\makebox[2cm][l]{12-13.9}quite good \\item[$\\bullet$]\\makebox[2cm][l]{10-11.9}fair\\item[$\\bullet$]\\makebox[2cm][l]{00-09.9}fail\\end{itemize}{\\noindent}Typical class average lies between 12 and 14/20 and grades above 16 are seldom awarded.\\bigskip\n\n " mean "%") state
                               in
                               let () = Remanent_state.fprintf state "%s" s in
 

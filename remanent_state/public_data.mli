@@ -28,7 +28,7 @@ type student_pegasus =
     pegasus_birth_country_fr: string;
     pegasus_birth_city_fr: string;
     pegasus_produit_de_formation: string;
-    pegasus_cve: int;
+    pegasus_ine: string;
 }
 
 val empty_student_pegasus: student_pegasus

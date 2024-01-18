@@ -279,10 +279,10 @@ val get_birth_country_fr:
         lastname:string ->
         year:string -> t -> t * string option
 
-val get_cve_number:
+val get_ine_number:
         firstname:string ->
         lastname:string ->
-        year:string -> t -> t * int option
+        year:string -> t -> t * string option
 
 val get_sorted_courses_list_repository: t -> t * string
 val add_sorted_course:      (string * int * int * int ->

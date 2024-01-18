@@ -252,7 +252,7 @@ type student_pegasus =
       pegasus_birth_country_fr: string;
       pegasus_birth_city_fr: string;
       pegasus_produit_de_formation: string;
-      pegasus_cve: int;
+      pegasus_ine: string;
   }
 
 type language = French | English
@@ -274,7 +274,7 @@ let empty_student_pegasus =
         pegasus_birth_country_fr = "";
         pegasus_birth_city_fr = "";
         pegasus_produit_de_formation = "";
-        pegasus_cve=0;
+        pegasus_ine="";
     }
 
 type scholarship =

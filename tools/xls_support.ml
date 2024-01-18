@@ -10,6 +10,12 @@ open SZXX*)
 let ( let* ) = Lwt.Syntax.( let* )
 let ( >|= ) = Lwt.Infix.( >|= )
 
+let clean x =
+  let k = String.length x in
+  if k>0 && String.get x 0 = '\"' && String.get x (k-1) = '\"'
+    then String.sub x 1 (k-2)
+    else x
+
 let feed_string ic =
   SZXX.Zip.String
     (fun () ->
@@ -33,7 +39,7 @@ let feed_string ic =
                   (List.rev_map (fun x ->
                                   match x with `Null -> "" | `Float a when Float.is_integer a ->
                                   string_of_int (int_of_float a)
-                                  | _ -> Yojson.Basic.to_string x) (List.rev all_columns_as_json))::acc_lwt)
+                                  | _ -> clean (Yojson.Basic.to_string x)) (List.rev all_columns_as_json))::acc_lwt)
                 stream []
             in
             (* Bind to/await the `success` promise to catch any error that may have terminated the stream early *)
@@ -53,11 +59,7 @@ let open_xlsx xlsx_path =
       Lwt.return data)
 end)
 
-let clean x =
-  let k = String.length x in
-  if k>0 && String.get x 0 = '\"' && String.get x (k-1) = '\"'
-    then String.sub x 1 (k-2)
-    else x
+
 
 let constructeur_of_string x = Format.sprintf "PEGASUS_%s" x
 let key_of_string x = Format.sprintf "\"%s\"" (Special_char.lowercase (Special_char.lowercase x))

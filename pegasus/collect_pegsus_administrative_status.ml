@@ -6,7 +6,7 @@ pegasus_promotion: string option;
 pegasus_birth_country_fr: string option;
 pegasus_birth_city_fr: string option;
 pegasus_produit_de_formation: string option;
-pegasus_cve: int option}
+pegasus_ine: string option}
 
 let empty_candidate_id =
 {pegasus_firstname=None;
@@ -15,20 +15,9 @@ pegasus_promotion=None;
 pegasus_birth_country_fr=None;
 pegasus_birth_city_fr=None;
 pegasus_produit_de_formation=None;
-pegasus_cve=None;}
+pegasus_ine=None;}
 
 
-    let collect_int suffix pos state =
-      Tools.collect_int
-        (fun msg state ->
-           let msg = msg^suffix in
-           Remanent_state.warn
-             pos
-             msg
-             Exit
-             state
-        )
-        state
 
 let event_opt = Some (Profiling.Collect_pegasus_data)
 let compute_repository = Remanent_state.get_status_administratifs_repository
@@ -36,8 +25,6 @@ let compute_repository = Remanent_state.get_status_administratifs_repository
 let lift_pred = Lift.pred_safe
 let lift_string =
   (Lift.string empty_candidate_id Public_data.empty_student_pegasus).Lift.safe
-let lift_int =
-    (Lift.int empty_candidate_id Public_data.empty_student_pegasus).Lift.safe
 
 let keywords_list =
   [
@@ -185,7 +172,7 @@ let keywords_list =
       Public_data.PEGASUS_PRENOM;
       Public_data.PEGASUS_ENS_PROMO;
       Public_data.PEGASUS_PRODUIT_CODE;
-      Public_data.PEGASUS_CVE_NUMERO;
+      Public_data.PEGASUS_NUMERO_INE;
       Public_data.PEGASUS_NAISSANCE_VILLE;
       Public_data.PEGASUS_NAISSANCE_PAYS
     ]
@@ -199,7 +186,7 @@ lift_pred (fun a -> a.pegasus_produit_de_formation) "produit_de_formation";
 
         lift_pred (fun a -> a.pegasus_birth_city_fr) "city of birth";
         lift_pred (fun a -> a.pegasus_birth_country_fr) "country of birth";
-        lift_pred (fun a -> a.pegasus_cve) "CVE number";
+        lift_pred (fun a -> a.pegasus_ine) "ine number";
       ]
 
 let all_fields =
@@ -265,17 +252,17 @@ let all_fields =
                     ~record_name
                     ~field_name:"country of birth of the student"
                     ~pos:__POS__ ;
-                    lift_int
-                      ~keyword:Public_data.PEGASUS_CVE_NUMERO
-                      ~set_tmp:(collect_int "pegasus" __POS__
-                                  (fun pegasus_cve x ->
-                                        {x with pegasus_cve}))
-                      ~get_tmp:(fun a -> a.pegasus_cve)
-                      ~get:(fun a -> a.Public_data.pegasus_cve)
-                      ~set:(fun pegasus_cve a ->
-                         {a with Public_data.pegasus_cve})
+                    lift_string
+                      ~keyword:Public_data.PEGASUS_NUMERO_INE
+                      ~set_tmp:(Tools.collect_string
+                                  (fun pegasus_ine x ->
+                                        {x with pegasus_ine}))
+                      ~get_tmp:(fun a -> a.pegasus_ine)
+                      ~get:(fun a -> a.Public_data.pegasus_ine)
+                      ~set:(fun pegasus_ine a ->
+                         {a with Public_data.pegasus_ine})
                       ~record_name
-                      ~field_name:"CVE number of the student"
+                      ~field_name:"ine number of the student"
                       ~pos:__POS__ ;
                       lift_string
                         ~keyword:Public_data.PEGASUS_PRODUIT_CODE
@@ -291,7 +278,7 @@ let all_fields =
                         ~pos:__POS__ ;
 (*
 
-              Public_data.PEGASUS_CVE_NUMERO;
+              Public_data.PEGASUS_ine_NUMERO;
               Public_data.PEGASUS_NAISSANCE_VILLE;
               Public_data.PEGASUS_NAISSANCE_PAYS*)
 
