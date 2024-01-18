@@ -70,7 +70,7 @@ let open_xlsx xlsx_path =
   let () =
     List.iter
       (fun x ->
-        match x with _::_::n::p::_ -> Format.printf "%s %s @." n p
+        match x with _::_::n::p::_ -> Format.printf "%s %s (OPEN XLS)@." n p
     | _ -> ())
       l
   in l

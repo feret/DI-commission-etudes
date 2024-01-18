@@ -135,7 +135,7 @@ let dump m =
           (fun y map ->
               Public_data.PromoMap.iter
                 (fun z _ ->
-                    Format.printf "%s %s (%s) @." x y z)
+                    Format.printf "%s %s (%s) (PEGASUS CONTENT) @." x y z)
                 map
           ) map
       ) m.per_name
