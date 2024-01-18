@@ -1,6 +1,4 @@
 let get_csv file state =
-  let state =
-    Remanent_state.warn __POS__ (Format.sprintf "GET XLSS %s" file) Exit state in 
   state, Some (Xls_support.open_xlsx file)
 
 
