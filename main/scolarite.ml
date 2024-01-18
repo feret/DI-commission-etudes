@@ -28,9 +28,9 @@ let state, students_list =
       students_list
 let state =
   Collect_pegasus_administrative_status.get_pegasus_administrative_data state
-let state,m =
+(*let state,m =
   Remanent_state.get_all_pegasus_status_administratif state
-let () = Pegasus_administrative_status.dump m 
+let () = Pegasus_administrative_status.dump m *)
 let state =
   Collect_cost.get_cost_members state
 let state =
