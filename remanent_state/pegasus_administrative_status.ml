@@ -27,9 +27,9 @@ let get_pegasus_administrative_status ~firstname ~lastname ~year dens_candidates
   let () =
     Format.printf "LOOKING FOR %s %s (%s) @." firstname lastname year
   in
-  let () =
+  (*let () =
     Public_data.LastNameMap.iter (fun x _ -> Format.printf " -> %s @." x) dens_candidates.per_name
-  in
+  in*)
   match
     Public_data.LastNameMap.find_opt
       lastname
