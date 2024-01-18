@@ -53,11 +53,21 @@ let open_xlsx xlsx_path =
     | Lwt.Return () -> Format.printf "RETURN"
     | Lwt.Fail _ -> Format.printf "FAIL"
     | Lwt.Sleep  -> Format.printf "SLEEP"*)
- List.rev (    Lwt_main.run begin
+ let l = List.rev (    Lwt_main.run begin
       Lwt.bind (print_rows_as_json xlsx_path)
           (fun data ->
-      Lwt.return data)
-end)
+      Lwt.return data) end)
+  in
+  let () = Format.printf "OPEN XLS %s @." xlsx_path in
+  let () = Format.printf "n_entries %i @." (List.length l -1) in
+  let () = Format.printf "Column: @." in
+  let () =
+    match l with [] -> ()
+            | l::_ ->
+            List.iter
+            (Format.printf "-> %s @.") l
+  in l
+
 
 
 
