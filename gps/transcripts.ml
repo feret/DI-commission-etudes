@@ -4875,7 +4875,6 @@ let heading
   in state, is_l3
 
   let heading_sco
-
       ~year
       gps_file state =
     let genre,_er,_ne,monsieur,mr,he,il =
@@ -4889,6 +4888,34 @@ let heading
         "\\renewcommand{\\birthdate}{\\BiLingual{%s}{%s}}%%\n"
         (Tools.date_to_string_fr (Tools.unsome_string gps_file.date_de_naissance))
         (Tools.date_to_string_en (Tools.unsome_string gps_file.date_de_naissance))
+  in
+  let state =
+    match gps_file.nom, gps_file.prenom, gps_file.promotion with
+    | Some lastname, Some firstname, Some year ->
+  let state, city =
+      Remanent_state.get_birth_city_fr
+        ~firstname ~lastname ~year
+        state
+  in
+  let () =
+    match city with | None -> ()
+                    | Some c -> let c = Special_char.capitalize c in
+    Remanent_state.fprintf state
+      "\\renewcommand{\\birthcity}{\\BiLingual{%s}{%s}}%%\n"
+      c c
+  in
+  let state, country =
+      Remanent_state.get_birth_country_fr
+        ~firstname ~lastname ~year
+        state
+  in
+  let () =
+    match country with | None -> ()
+                    | Some c -> let c = Special_char.capitalize c in
+    Remanent_state.fprintf state
+      "\\renewcommand{\\birthcountry}{\\BiLingual{%s}{%s}}%%\n"
+      c c
+  in state | None, _, _ | _,None,_ | _,_,None -> state
   in
     let () =
       Remanent_state.fprintf state
