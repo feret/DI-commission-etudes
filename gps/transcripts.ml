@@ -4899,7 +4899,7 @@ let heading
   in
   let () =
     match city with | None -> ()
-                    | Some c -> let c = Special_char.capitalize c in
+                    | Some c -> let c = Special_char.capitalize (Special_char.lowercase c) in
     Remanent_state.fprintf state
       "\\renewcommand{\\birthcity}{\\BiLingual{%s}{%s}}%%\n"
       c c
@@ -4911,7 +4911,7 @@ let heading
   in
   let () =
     match country with | None -> ()
-                    | Some c -> let c = Special_char.capitalize c in
+                    | Some c -> let c = Special_char.uppercase c in
     Remanent_state.fprintf state
       "\\renewcommand{\\birthcountry}{\\BiLingual{%s}{%s}}%%\n"
       c c
