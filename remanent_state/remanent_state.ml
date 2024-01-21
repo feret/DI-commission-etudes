@@ -660,6 +660,24 @@ type 'a warning =
     warning_set: 'a -> data -> data;
   }
 
+type report =
+  {
+    report_prefix: (t -> string)->t->t * string;
+    report_rep: t->string;
+    report_get: data -> Course_name_translation.tentry;
+    report_set: Course_name_translation.tentry -> data -> data;
+    report_add: (string * int * int * int ->
+        t ->
+       Public_data.course_entry ->
+       Public_data.course_entry -> t * Public_data.course_entry) ->
+      (string * int * int * int) -> t ->
+      Public_data.course_entry ->
+      Course_name_translation.tentry ->
+        t * Course_name_translation.tentry;
+    report_get_entry: Public_data.course_entry -> string;
+    report_set_entry: Public_data.course_entry -> string -> Public_data.course_entry;
+  }
+
 let gen get set =
     let add t elt =
       let elts = get t in
@@ -679,6 +697,79 @@ let gen_report_warnings warning =
     let add,get = gen get set in
     get_repository, add, get
 
+    (*let get_course_entries_report data = data.course_entries_report
+    let get_course_entries_report t = lift_get get_course_entries_report t
+    let set_course_entries_report course_entries_report data =
+        {data with course_entries_report}
+    let set_course_entries_report course_entries_report t =
+        lift_set set_course_entries_report course_entries_report t
+*)
+
+  let get_error_handler t =
+    t, t.error_log
+
+  let set_error_handler error_log t =
+    {t with error_log}
+
+  let get_std_logger t =
+      get_logger_gen (fun x -> x.std_logger) t
+
+  let warn_dft pos message exn default t =
+    let t,error_handler = get_error_handler t in
+    let t, log = get_std_logger t in
+    let t, prefix = get_prefix t in
+    let t, safe_mode = get_is_in_safe_mode t in
+    let error_handler, output =
+      Exception.warn
+        log prefix ~safe_mode error_handler pos ~message exn default
+    in
+    set_error_handler error_handler t, output
+
+  let warn pos message exn t =
+    fst (warn_dft pos message exn () t)
+
+  let add_gen get set add pos data t =
+    let t, acc =
+        add pos t data (get t)
+    in
+    set acc t
+
+let add_gen_list get set _unify  =
+   add_gen get set (fun _ t a b -> t, a::b)
+
+let add_gen_unify get set add unify =
+   add_gen get set (add unify)
+
+let add_gen_unify_warn get set add unify =
+  add_gen get set (add warn unify)
+
+let simplify s =
+    Special_char.lowercase
+      (Special_char.correct_string_txt
+         (String.trim s))
+
+let gen_report_report report =
+    let get_repository = report.report_prefix report.report_rep in
+    let get t = lift_get report.report_get t in
+    let set data t = lift_set report.report_set data t in
+    let add =
+      add_gen_unify
+        get set
+        report.report_add
+    in
+    let add unify entry t =
+      let t =
+        report.report_set_entry t (simplify (report.report_get_entry t))
+      in
+      add unify entry t
+    in
+    get_repository, get, set, add
+
+(*let get_repository_to_dump_course_entries_report t =
+  get_repository_to_dump_reports_gen
+    (fun t ->
+       t.parameters.repository_to_dump_course_entries_report)
+    t*)
 (* Warnings about the pictures that are missing *)
 let get_repository_to_dump_missing_pictures,
     add_missing_picture, get_missing_pictures =
@@ -926,11 +1017,22 @@ let get_repository_to_dump_mentors t =
        t.parameters.repository_to_dump_mentors)
     t
 
-let get_repository_to_dump_course_entries_report t =
-  get_repository_to_dump_reports_gen
-    (fun t ->
-       t.parameters.repository_to_dump_course_entries_report)
-    t
+let get_repository_to_dump_course_entries_report,
+    get_course_entries_report,
+    _set_course_entries_report,
+    add_course_entry_in_report =
+  gen_report_report
+    {report_prefix = (fun t -> get_repository_to_dump_reports_gen t);
+     report_rep = (fun t ->
+       t.parameters.repository_to_dump_course_entries_report);
+    report_get = (fun data -> data.course_entries_report) ;
+    report_set = (fun course_entries_report data -> {data with course_entries_report} );
+    report_add = Course_name_translation.add_course_entry;
+
+    report_get_entry = (fun entry -> entry.Public_data.gps_entry);
+    report_set_entry = (fun entry gps_entry -> {entry with Public_data.gps_entry}) ;
+
+    }
 
 let get_repository_to_dump_national_diplomas t =
   get_repository_to_dump_reports_gen
@@ -1181,15 +1283,6 @@ let get_modified_grades_list_repository t =
 
 let get_csv_separator t = t, Some ','
 
-let get_std_logger t =
-  get_logger_gen (fun x -> x.std_logger) t
-
-let get_error_handler t =
-  t, t.error_log
-
-let set_error_handler error_log t =
-  {t with error_log}
-
 let get_profiler_logger t =
   get_logger_gen (fun x -> x.profiling_logger) t
 
@@ -1387,19 +1480,7 @@ let store_errors_and_profiling_info mk cp t =
   let t = copy __POS__ mk cp t tmp_rep main_rep output_rep file in
   t
 
-let warn_dft pos message exn default t =
-  let t,error_handler = get_error_handler t in
-  let t, log = get_std_logger t in
-  let t, prefix = get_prefix t in
-  let t, safe_mode = get_is_in_safe_mode t in
-  let error_handler, output =
-    Exception.warn
-      log prefix ~safe_mode error_handler pos ~message exn default
-  in
-  set_error_handler error_handler t, output
 
-let warn pos message exn t =
-  fst (warn_dft pos message exn () t)
 
 
 let which_logger_gen ?logger f t =
@@ -1558,11 +1639,6 @@ type save_logger = Loggers.t option
 let save_std_logger t = t.std_logger
 let restore_std_logger t std_logger = {t with std_logger}
 
-let simplify s =
-  Special_char.lowercase
-    (Special_char.correct_string_txt
-       (String.trim s))
-
 
 let get_comma_symbol t =
   t,t.parameters.comma_symbol
@@ -1674,12 +1750,6 @@ let set_compensations compensations data =
 let set_compensations compensations t =
   lift_set set_compensations compensations t
 
-let get_course_entries_report data = data.course_entries_report
-let get_course_entries_report t = lift_get get_course_entries_report t
-let set_course_entries_report course_entries_report data =
-    {data with course_entries_report}
-let set_course_entries_report course_entries_report t =
-    lift_set set_course_entries_report course_entries_report t
 
 let get_mentors data =
   data.mentors
@@ -1756,23 +1826,6 @@ let set_notes_a_modifier notes_a_modifier data =
 let set_notes_a_modifier notes_a_modifier t =
       lift_set set_notes_a_modifier notes_a_modifier t
 
-let add_gen get set add pos data t =
-  let t, acc =
-    add
-      pos
-      t
-      data (get t)
-  in
-  set acc t
-
-let add_gen_list get set _unify  =
-  add_gen get set (fun _ t a b -> t, a::b)
-
-let add_gen_unify get set add unify =
-  add_gen get set (add unify)
-
-let add_gen_unify_warn  get set add unify =
-  add_gen get set (add warn unify)
 
 let add_student = add_gen_list get_students set_students
 
@@ -1790,7 +1843,7 @@ let get_pegasus_status_administratif
         t, Pegasus_administrative_status.get_pegasus_administrative_status  ~year ~firstname ~lastname  (get_pegasus_status_administratifs t)
 
 let get_all_pegasus_status_administratif t =
-        t, get_pegasus_status_administratifs t 
+        t, get_pegasus_status_administratifs t
 
 let get_birth_city_fr
       ~firstname
@@ -1925,7 +1978,7 @@ let get_course_entry string  t =
   in
   t, course_entry_opt
 
-let add_course_entry_in_report =
+(*let add_course_entry_in_report =
   add_gen_unify
     get_course_entries_report
     set_course_entries_report
@@ -1936,7 +1989,7 @@ let add_course_entry_in_report unify course t =
     {t with Public_data.gps_entry =
               simplify t.Public_data.gps_entry}
   in
-  add_course_entry_in_report unify course t
+  add_course_entry_in_report unify course t*)
 
 let get_course_entries_report t =
   let map = get_course_entries_report t in
