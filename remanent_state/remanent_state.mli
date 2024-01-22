@@ -146,7 +146,85 @@ val get_students_list_repository: t -> t * string
 val get_dens_candidates_list_prefix: t -> t * string
 val get_dens_candidates_list_repository: t -> t * string
 
-val get_dens_candidate_suggestion_list_repository: t -> t * string
+module type Missing_warning =
+  sig
+    type entry
+    val get_repository: t -> t * string
+    val get: t -> t * entry list
+    val add: t -> entry -> t
+  end
+
+(* Warnings about the pictures that are missing *)
+module Missing_pictures: Missing_warning with type entry = Public_data.student
+
+(* Warnings about failure in gps accesses *)
+module Gps_server_faillures:
+        Missing_warning with type entry = Public_data.student
+
+(* Warning about internships *)
+module Ambiguous_internship_descriptions:
+        Missing_warning
+        with type entry = Public_data.missing_internship_description
+
+(* Warning about internships *)
+module Non_validated_internships:
+        Missing_warning
+        with type  entry = Public_data.missing_internship_description
+
+module Internships_to_be_sorted:
+        Missing_warning with type  entry = Public_data.stage_a_trier
+
+module Missing_internship_translations:
+        Missing_warning with type  entry = Public_data.internship
+
+module Missing_internship_descriptions:
+        Missing_warning
+        with type entry = Public_data.missing_internship_description
+
+(** Warnings about grades *)
+module Missing_grades:
+        Missing_warning with type entry = Public_data.missing_grade
+
+module Non_accepted_grades:
+        Missing_warning with type entry = Public_data.missing_grade
+
+module Under_average_validated_grades:
+        Missing_warning with type entry = Public_data.missing_grade
+
+module Missing_ects_attributions:
+        Missing_warning with type entry = Public_data.missing_grade
+
+module Courses_validated_twice:
+        Missing_warning with type entry = Public_data.missing_grade
+
+(** Warnings about courses *)
+module Missing_course_entries:
+        Missing_warning with type entry = Public_data.course_entry
+
+(** Warning about DENS *)
+module Dens_candidate_suggestion:
+        Missing_warning with type entry = Public_data.dens_candidate
+
+module Dens_candidate_missing_minors:
+        Missing_warning with type entry = Public_data.mineure_majeure
+
+module Dens_candidate_missing_majors:
+        Missing_warning with type entry = Public_data.mineure_majeure
+
+module Course_to_be_sorted:
+    Missing_warning with type entry = Public_data.cours_a_trier
+
+  (** Other warnings *)
+module Grade_out_of_schooling_years:
+    Missing_warning with type entry = Public_data.missing_grade
+
+module Missing_mentors:
+    Missing_warning with type entry = Public_data.missing_mentor
+
+module Mentors:
+    Missing_warning with type entry = Public_data.mentor
+
+(*val get_dens_candidate_suggestion_list_repository: t -> t * string*)
 
 (** list of scholarships *)
 val get_scholarships_list_prefix: t -> t * string
@@ -161,9 +239,6 @@ val get_course_exceptions_list_repository: t -> t * string
 
 val get_course_entry_list_prefix: t -> t * string
 val get_course_entry_list_repository: t -> t * string
-
-val get_courses_to_be_sorted_list_repository: t -> t * string
-val get_internships_to_be_sorted_list_repository: t -> t * string
 
 val get_stage_entry_list_prefix: t -> t * string
 val get_stage_entry_list_repository: t -> t * string
@@ -326,14 +401,6 @@ val add_dens_major:
         (string * int * int * int ->
         t -> Public_data.mineure_majeure -> Public_data.mineure_majeure -> t * Public_data.mineure_majeure) ->
         (string * int * int * int) -> Public_data.mineure_majeure -> t -> t
-
-
-val get_dens_candidates_suggestion_list:
-  t -> t * Public_data.dens_candidate list
-
-val add_dens_candidate_suggestion:
-  t -> Public_data.dens_candidate -> t
-
 
 (** scholarships *)
 val get_scholarship:
@@ -565,19 +632,6 @@ val get_dispenses:
   ?firstname:string -> ?lastname:string -> ?year:string -> ?program:string -> ?dpt:string->
   t -> t * Public_data.dispense list
 
-
-val add_course_to_be_sorted:
-  t -> Public_data.cours_a_trier -> t
-
-val get_courses_to_be_sorted:
-  t -> t * Public_data.cours_a_trier list
-
-  val add_internship_to_be_sorted:
-    t -> Public_data.stage_a_trier -> t
-
-  val get_internships_to_be_sorted:
-    t -> t * Public_data.stage_a_trier list
-
   val add_additional_course:
     (string * int * int * int ->
      t ->
@@ -633,23 +687,14 @@ val get_mentors:
 val get_repository_to_dump_mentors:
   t -> t * string
 
+val get_repository_to_dump_dens:
+  t -> t * string
+
 val add_dens:
   t -> Public_data.dens -> t
 
 val get_dens:
   t -> t * Public_data.dens list
-
-val get_repository_to_dump_dens:
-  t -> t * string
-
-val get_repository_to_dump_missing_minors:
-  t -> t * string
-
-  val get_repository_to_dump_missing_majors:
-    t -> t * string
-
-val get_repository_to_dump_missing_internship_translations:
-  t -> t * string
 
 val get_repository_to_dump_dens_supplement:
   ?output_repository:string -> t -> t * string
@@ -663,144 +708,10 @@ val get_national_diplomas:
 val get_repository_to_dump_national_diplomas:
   t -> t * string
 
-val get_repository_to_dump_missing_pictures:
-  t -> t * string
-
-val get_missing_pictures:
-  t -> t * Public_data.student list
-
-val add_missing_picture:
-  t -> Public_data.student -> t
-
-val get_repository_to_dump_under_average_validated_grades:
-    t -> t * string
-
-val get_under_average_validated_grades:
-    t -> t * Public_data.missing_grade list
-
-val add_under_average_validated_grades:
-    t -> Public_data.missing_grade -> t
-
-val get_repository_to_dump_out_of_schooling_years:
-    t -> t * string
-
-val get_out_of_schooling_years:
-    t -> t * Public_data.missing_grade list
-
-val add_out_of_schooling_years:
-    t -> Public_data.missing_grade -> t
-
-val get_repository_to_dump_gps_server_faillures:
-  t -> t * string
-
-val add_gps_server_faillure:
-  t -> Public_data.student -> t
-
-val get_gps_server_faillures:
-  t -> t * Public_data.student list
-
-val add_missing_grade:
-  t -> Public_data.missing_grade -> t
-
-val get_missing_grades:
-  t -> t * Public_data.missing_grade list
-
-val get_repository_to_dump_missing_grades:
-    t -> t * string
-
-val add_non_accepted_grade:
-    t -> Public_data.missing_grade -> t
-
-val get_non_accepted_grades:
-    t -> t * Public_data.missing_grade list
-
-val get_repository_to_dump_non_accepted_grades:
-  t -> t * string
-
-val add_missing_mentor:
-  t -> Public_data.missing_mentor -> t
-
-val get_missing_mentors:
-  t -> t * Public_data.missing_mentor list
-
-val get_repository_to_dump_missing_mentors:
-  t -> t * string
-
-val add_missing_ects_attribution:
-  t -> Public_data.missing_grade -> t
-val get_missing_ects_attributions:
-  t -> t * Public_data.missing_grade list
-
-val add_courses_validated_twice:
-    t -> Public_data.missing_grade -> t
-val get_courses_validated_twice:
-    t -> t * Public_data.missing_grade list
-
-val add_missing_course_entry:
-  t -> Public_data.course_entry -> t
-val get_missing_course_entries:
-  t -> t * Public_data.course_entry list
-
 val get_course_entries_report:
   t -> t * Public_data.course_entry list
 
-val get_repository_to_dump_missing_ects_attributions:
-  t -> t * string
-
-val get_repository_to_dump_courses_validated_twice:
-    t -> t * string
-
-(*val get_repository_to_dump_missing_course_name_translations:
-  t -> t * string*)
-
-val get_repository_to_dump_missing_course_entries:
-  t -> t * string
-
 val get_repository_to_dump_course_entries_report:
-    t -> t * string
-
-val add_missing_internship_description:
-  t -> Public_data.missing_internship_description -> t
-
-val get_missing_internship_descriptions:
-  t -> t * Public_data.missing_internship_description list
-
-val add_missing_internship_translation:
-  t -> Public_data.internship -> t
-val get_missing_internship_translation_list:
-  t -> t * Public_data.internship list
-
-val add_minor_suggestion:
-    t -> Public_data.mineure_majeure -> t
-val get_minor_suggestion_list:
-    t -> t * Public_data.mineure_majeure list
-
-
-val add_major_suggestion:
-     t -> Public_data.mineure_majeure -> t
-val get_major_suggestion_list:
-     t -> t * Public_data.mineure_majeure list
-
-val get_repository_to_dump_non_validated_internships:
-  t -> t * string
-
-val add_non_validated_internship:
-  t -> Public_data.missing_internship_description -> t
-
-val get_non_validated_internships:
-  t -> t * Public_data.missing_internship_description list
-
-
-val get_repository_to_dump_missing_internship_descriptions:
-  t -> t * string
-
-val add_ambiguous_internship_description:
-  t -> Public_data.missing_internship_description -> t
-
-val get_ambiguous_internship_descriptions:
-  t -> t * Public_data.missing_internship_description list
-
-val get_repository_to_dump_ambiguous_internship_descriptions:
     t -> t * string
 
 val get_ENSPSL_logo: t -> t * string list

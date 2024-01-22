@@ -47,7 +47,7 @@ end
 
 module Build
     (I:Gen.Interface
-     with type elt = Public_data.mentor) =
+     with type Missing_entry.entry = Public_data.mentor) =
 struct
 
   let dump_mentor_list
@@ -66,9 +66,9 @@ struct
       Some Profiling.Dump_mentor_list
     in
     let filter = Gen.filter_mentoring_list in
-    let get = I.get in
+    let get = I.Missing_entry.get in
     let default_file_name = I.default_file_name in
-    let get_repository = I.get_repository in
+    let get_repository = I.Missing_entry.get_repository in
     let firstname = studentfirstname in
     let lastname = studentlastname in
     Gen.dump_elts
@@ -543,9 +543,13 @@ struct
 module ReportListMentors =
   Build
     (struct
-      type elt = Public_data.mentor
+      module Missing_entry =
+        struct
+          type entry = Public_data.mentor
+          let get = Remanent_state.get_mentors
+          let get_repository =
+            Remanent_state.get_repository_to_dump_mentors
+          let add a _ =  a
+        end
       let default_file_name = "tuteurs.html"
-      let get = Remanent_state.get_mentors
-      let get_repository =
-        Remanent_state.get_repository_to_dump_mentors
-    end)
+          end)

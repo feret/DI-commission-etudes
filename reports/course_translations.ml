@@ -14,7 +14,7 @@ let string_of_stringopt x =
   | Some x -> x
 
 module Buildtwo
-    (I:Gen.Interface with type elt = Public_data.course_entry) =
+    (I:Gen.Interface with type Missing_entry.entry = Public_data.course_entry) =
 struct
 
 
@@ -41,8 +41,8 @@ struct
     in
     let filter = Gen.filter_course_entry in
     let default_file_name = I.default_file_name in
-    let get_repository = I.get_repository in
-    let get = I.get in
+    let get_repository = I.Missing_entry.get_repository in
+    let get = I.Missing_entry.get in
     Gen.dump_elts
       ?output_repository ?prefix ?file_name ?event_opt
       ~filter ~cmp ~headers ~columns ~get
@@ -67,21 +67,20 @@ end
 module MissingCourseEntries =
   Buildtwo
     (struct
-      type elt = Public_data.course_entry
-
+      module Missing_entry = Remanent_state.Missing_course_entries
       let default_file_name = "course_entries.csv"
-      let get = Remanent_state.get_missing_course_entries
-      let get_repository =
-        Remanent_state.get_repository_to_dump_missing_course_entries
     end)
 
 module CourseEntriesReport =
   Buildtwo
     (struct
-      type elt = Public_data.course_entry
-
       let default_file_name = "course_entries.csv"
+      module Missing_entry =
+      struct
+      type entry = Public_data.course_entry
       let get = Remanent_state.get_course_entries_report
       let get_repository =
         Remanent_state.get_repository_to_dump_course_entries_report
+      let add a _ = a
+      end
     end)

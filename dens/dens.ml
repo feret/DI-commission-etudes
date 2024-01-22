@@ -188,7 +188,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
       let dens = {dens with Public_data.dens_cours_discipline_principale} in
         state, dens
     else if code = xt then
-        let state = Remanent_state.add_course_to_be_sorted
+        let state = Remanent_state.Course_to_be_sorted.add
                           state
                           {Public_data.coursat_nom = lastname;
                            Public_data.coursat_prenom = firstname;
@@ -309,7 +309,7 @@ Tools.unsome_string stage.Public_data.activite_intitule_fr;
                    Public_data.stageat_type=None}
                 in
                 let state =
-                  Remanent_state.add_internship_to_be_sorted state stage_entry
+                  Remanent_state.Internships_to_be_sorted.add state stage_entry
                 in
                 state, dens
               end
@@ -669,7 +669,7 @@ let suggest_mineure dens state =
              Public_data.secondary_diplomation_year = year;
              Public_data.secondary_accepted = accepted}
             in
-            map', Remanent_state.add_minor_suggestion state m
+            map', Remanent_state.Dens_candidate_missing_minors.add state m
         else map', state)
       liste  (map',state)
 in
@@ -685,7 +685,7 @@ Public_data.StringMap.fold
          Public_data.secondary_diplomation_year = year ;
          Public_data.secondary_accepted = elt.Public_data.secondary_accepted}
         in
-        Remanent_state.add_minor_suggestion state m)
+        Remanent_state.Dens_candidate_missing_minors.add state m)
   map' state
 in
 state
@@ -744,7 +744,7 @@ let suggest_majeure dens state =
              Public_data.secondary_diplomation_year = year;
              Public_data.secondary_accepted = accepted}
             in
-            map', Remanent_state.add_major_suggestion state m
+            map', Remanent_state.Dens_candidate_missing_majors.add state m
         else map', state)
       map  (map',state)
 in
@@ -760,7 +760,7 @@ Public_data.DptMap.fold
          Public_data.secondary_diplomation_year = year ;
          Public_data.secondary_accepted = elt.Public_data.secondary_accepted}
         in
-        Remanent_state.add_major_suggestion state m)
+        Remanent_state.Dens_candidate_missing_majors.add state m)
   map' state
 in
 state
@@ -785,7 +785,7 @@ let suggest_candidate dens state =
       Public_data.dens_candidate_sad = dens.Public_data.dens_sad
       }
       in
-      Remanent_state.add_dens_candidate_suggestion state s
+      Remanent_state.Dens_candidate_suggestion.add  state s
     else state
 
 let repeatable state cours extra =

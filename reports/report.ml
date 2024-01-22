@@ -299,7 +299,7 @@ let dump_issues state =
 
 let warn state =
   let state =
-    let state, a = Remanent_state.get_missing_course_entries state in
+    let state, a = Remanent_state.Missing_course_entries.get state in
     match a
     with
     | []-> state
@@ -311,7 +311,7 @@ let warn state =
         state
   in
   let state =
-    match Remanent_state.get_missing_ects_attributions state
+    match Remanent_state.Missing_ects_attributions.get state
     with
     | state, [] -> state
     | state, _::_ ->
@@ -322,7 +322,7 @@ let warn state =
         state
   in
   let state =
-    match Remanent_state.get_courses_validated_twice state
+    match Remanent_state.Courses_validated_twice.get state
     with
     | state, [] -> state
     | state, _::_ ->
@@ -333,7 +333,7 @@ let warn state =
         state
   in
   let state =
-    match Remanent_state.get_missing_grades state
+    match Remanent_state.Missing_grades.get state
     with
     | state, [] -> state
     | state, _::_ ->
@@ -344,7 +344,7 @@ let warn state =
         state
   in
   let state =
-    match Remanent_state.get_non_accepted_grades state
+    match Remanent_state.Non_accepted_grades.get state
     with
     | state, [] -> state
     | state, _::_ ->
@@ -355,7 +355,7 @@ let warn state =
         state
   in
   let state =
-    match Remanent_state.get_under_average_validated_grades state
+    match Remanent_state.Under_average_validated_grades.get state
     with
     | state, [] -> state
     | state, _::_ ->
@@ -366,7 +366,7 @@ let warn state =
         state
   in
   let state =
-    match Remanent_state.get_out_of_schooling_years state
+    match Remanent_state.Grade_out_of_schooling_years.get state
     with
     | state, [] -> state
     | state, _::_ ->
@@ -377,7 +377,7 @@ let warn state =
         state
   in
   let state =
-    match Remanent_state.get_missing_mentors state
+    match Remanent_state.Missing_mentors.get state
     with
     | state, [] -> state
     | state, _::_ ->
@@ -388,7 +388,7 @@ let warn state =
         state
   in
   let state =
-    match Remanent_state.get_missing_internship_descriptions state
+    match Remanent_state.Missing_internship_descriptions.get state
     with
     | state, [] -> state
     | state, _::_ ->
@@ -399,7 +399,7 @@ let warn state =
         state
   in
   let state =
-    match Remanent_state.get_ambiguous_internship_descriptions state
+    match Remanent_state.Ambiguous_internship_descriptions.get state
     with
     | state, [] -> state
     | state, _::_ ->
@@ -410,7 +410,7 @@ let warn state =
         state
   in
   let state =
-    match Remanent_state.get_non_validated_internships state
+    match Remanent_state.Non_validated_internships.get state
     with
     | state, [] -> state
     | state, _::_ ->
@@ -421,7 +421,7 @@ let warn state =
         state
   in
   let state =
-          match Remanent_state.get_missing_pictures state
+          match Remanent_state.Missing_pictures.get state
           with
           | state, [] -> state
           | state, _::_ ->
@@ -432,7 +432,7 @@ let warn state =
               state
   in
   let state =
-    match Remanent_state.get_gps_server_faillures state
+    match Remanent_state.Gps_server_faillures.get state
     with
     | state, [] -> state
     | state, _::_ ->
@@ -443,7 +443,7 @@ let warn state =
         state
   in
   let state =
-    match Remanent_state.get_courses_to_be_sorted state
+    match Remanent_state.Course_to_be_sorted.get state
     with
       | state, [] -> state
       | state, _::_ ->
@@ -454,7 +454,7 @@ let warn state =
         state
   in
   let state =
-    match Remanent_state.get_internships_to_be_sorted state
+    match Remanent_state.Internships_to_be_sorted.get state
     with
       | state, [] -> state
       | state, _::_ ->
@@ -465,7 +465,7 @@ let warn state =
         state
   in
   let state =
-    match Remanent_state.get_minor_suggestion_list state
+    match Remanent_state.Dens_candidate_missing_minors.get state
     with
       | state, [] -> state
       | state, _::_ ->
@@ -476,7 +476,7 @@ let warn state =
         state
   in
   let state =
-    match Remanent_state.get_dens_candidates_suggestion_list state
+    match Remanent_state.Dens_candidate_missing_majors.get state
     with
       | state, [] -> state
       | state, _::_ ->

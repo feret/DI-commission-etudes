@@ -12,7 +12,7 @@ end
 
 module Build
     (I:Gen.Interface
-     with type elt = Public_data.student) =
+     with type Missing_entry.entry = Public_data.student) =
 struct
 
   let dump_student_list
@@ -25,9 +25,9 @@ struct
       Some Profiling.Dump_student_list
     in
     let filter = Gen.filter_student_list in
-    let get = I.get in
+    let get = I.Missing_entry.get in
     let default_file_name = I.default_file_name in
-    let get_repository = I.get_repository in
+    let get_repository = I.Missing_entry.get_repository in
     let firstname = studentfirstname in
     let lastname = studentlastname in
     Gen.dump_elts
@@ -93,24 +93,16 @@ struct
 
   end
 
-
 module ReportGpsServerFaillures =
   Build
     (struct
-      type elt = Public_data.student
+      module Missing_entry = Remanent_state.Gps_server_faillures
       let default_file_name = "échecs_extraction_gps.html"
-      let get = Remanent_state.get_gps_server_faillures
-      let get_repository =
-        Remanent_state.get_repository_to_dump_gps_server_faillures
-
     end)
 
 module ReportMissingPictures =
   Build
     (struct
-      type elt = Public_data.student
+      module Missing_entry = Remanent_state.Missing_pictures
       let default_file_name = "photos_manquantes.html"
-      let get = Remanent_state.get_missing_pictures
-      let get_repository =
-        Remanent_state.get_repository_to_dump_missing_pictures
     end)

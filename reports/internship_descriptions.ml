@@ -14,8 +14,7 @@ sig
 end
 
 module Build
-    (I:Gen.Interface
-     with type elt = Public_data.missing_internship_description) =
+     (I:Gen.Interface with type Missing_entry.entry = Public_data.missing_internship_description) =
   struct
     let dump_missing_internship_descriptions
         ?firstname ?lastname ?codegps ?academicyear ?promo
@@ -24,9 +23,9 @@ module Build
         Some Profiling.Dump_missing_internship_descriptions
       in
       let filter = Gen.filter_internship_description in
-      let get = I.get in
+      let get = I.Missing_entry.get in
       let default_file_name = I.default_file_name in
-      let get_repository = I.get_repository in
+      let get_repository = I.Missing_entry.get_repository in
       Gen.dump_elts
         ?firstname ?lastname ?codegps ?academicyear ?promo
         ?output_repository ?prefix ?file_name ?event_opt
@@ -136,32 +135,20 @@ module Build
 module MissingInternshipDescriptions =
   Build
     (struct
-      type elt = Public_data.missing_internship_description
-
       let default_file_name = "missing_internship_description.html"
-      let get = Remanent_state.get_missing_internship_descriptions
-      let get_repository =
-        Remanent_state.get_repository_to_dump_missing_internship_descriptions
+      module Missing_entry = Remanent_state.Missing_internship_descriptions
     end)
 
 module AmbiguousInternshipDescriptions =
   Build
     (struct
-      type elt = Public_data.missing_internship_description
-
       let default_file_name = "ambiguous_internship_descriptions.html"
-      let get = Remanent_state.get_ambiguous_internship_descriptions
-      let get_repository =
-        Remanent_state.get_repository_to_dump_ambiguous_internship_descriptions
+      module Missing_entry = Remanent_state.Ambiguous_internship_descriptions
     end)
 
 module NonValidatedInternships =
   Build
     (struct
-      type elt = Public_data.missing_internship_description
-
-      let default_file_name = "non_validated_internship.html"
-      let get = Remanent_state.get_non_validated_internships
-      let get_repository =
-        Remanent_state.get_repository_to_dump_non_validated_internships
+      let default_file_name = "non_validated_internships.html"
+      module Missing_entry = Remanent_state.Non_validated_internships
     end)

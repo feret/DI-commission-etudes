@@ -40,8 +40,7 @@ sig
 end
 
 module Build
-    (I:Gen.Interface
-     with type elt = Public_data.diplome_national) =
+     (I:Gen.Interface with type Missing_entry.entry = Public_data.diplome_national) =
 struct
 
   let dump_national_diploma_list
@@ -62,9 +61,9 @@ struct
       Some Profiling.Dump_national_diploma_list
     in
     let filter = Gen.filter_national_diploma in
-    let get = I.get in
+    let get = I.Missing_entry.get in
     let default_file_name = I.default_file_name in
-    let get_repository = I.get_repository in
+    let get_repository = I.Missing_entry.get_repository in
     Gen.dump_elts
       ?commission
       ?firstname ?lastname ?promo ?niveau ?dpt ?universite ?recu ?academicyear
@@ -295,13 +294,16 @@ struct
 module DiplomaReport =
   Build
     (struct
-      type elt = Public_data.diplome_national
 
       let default_file_name = "diploma.html"
-      let get = Remanent_state.get_national_diplomas
-      let get_repository =
-        Remanent_state.get_repository_to_dump_national_diplomas
-    end)
+      module Missing_entry =
+        struct
+          type entry = Public_data.diplome_national
+          let get = Remanent_state.get_national_diplomas
+          let get_repository =
+            Remanent_state.get_repository_to_dump_national_diplomas
+          let add a _ = a
+end end)
 
 let next_year year =
   try

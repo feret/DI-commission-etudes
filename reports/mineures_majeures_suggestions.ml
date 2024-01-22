@@ -8,7 +8,7 @@ end
 
 
 module Build
-    (I:Gen.Interface with type elt = Public_data.mineure_majeure) =
+     (I:Gen.Interface with type Missing_entry.entry = Public_data.mineure_majeure)  =
 struct
 
 
@@ -44,8 +44,8 @@ struct
     in
     let filter = Gen.filter_mineures_majeures in
     let default_file_name = I.default_file_name in
-    let get_repository = I.get_repository in
-    let get = I.get in
+    let get_repository = I.Missing_entry.get_repository in
+    let get = I.Missing_entry.get in
     Gen.dump_elts
       ?output_repository ?prefix ?file_name ?event_opt
       ~filter ~cmp ~headers ~columns ~get
@@ -79,21 +79,13 @@ end
 module SuggestionsMineures =
   Build
     (struct
-      type elt = Public_data.mineure_majeure
-
-      let default_file_name = "suggestions_mineures.csv"
-      let get = Remanent_state.get_minor_suggestion_list
-      let get_repository =
-        Remanent_state.get_repository_to_dump_missing_minors
+        let default_file_name = "suggestions_mineures.csv"
+        module Missing_entry = Remanent_state.Dens_candidate_missing_minors
     end)
 
 module SuggestionsMajeures =
   Build
     (struct
-      type elt = Public_data.mineure_majeure
-
       let default_file_name = "suggestions_doubles_majeures.csv"
-      let get = Remanent_state.get_major_suggestion_list
-      let get_repository =
-        Remanent_state.get_repository_to_dump_missing_majors
+      module Missing_entry = Remanent_state.Dens_candidate_missing_majors
     end)

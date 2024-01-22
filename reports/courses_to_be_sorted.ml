@@ -8,7 +8,7 @@ end
 
 
 module Build
-    (I:Gen.Interface with type elt = Public_data.cours_a_trier) =
+    (I:Gen.Interface with type Missing_entry.entry = Public_data.cours_a_trier) =
 struct
 
 
@@ -44,8 +44,8 @@ struct
     in
     let filter = Gen.filter_coursat in
     let default_file_name = I.default_file_name in
-    let get_repository = I.get_repository in
-    let get = I.get in
+    let get_repository = I.Missing_entry.get_repository in
+    let get = I.Missing_entry.get in
     Gen.dump_elts
       ?output_repository ?prefix ?file_name ?event_opt
       ~filter ~cmp ~headers ~columns ~get
@@ -76,10 +76,6 @@ end
 module CoursesToBeSorted =
   Build
     (struct
-      type elt = Public_data.cours_a_trier
-
+      module Missing_entry = Remanent_state.Course_to_be_sorted
       let default_file_name = "cours_a_trier.csv"
-      let get = Remanent_state.get_courses_to_be_sorted
-      let get_repository =
-        Remanent_state.get_courses_to_be_sorted_list_repository
     end)

@@ -450,7 +450,7 @@ let try_get_student_file
           l
     in
     let state =
-        Remanent_state.add_gps_server_faillure
+        Remanent_state.Gps_server_faillures.add 
           state
           {
             Public_data.student_firstname_report =

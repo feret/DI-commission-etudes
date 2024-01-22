@@ -1344,9 +1344,9 @@ let warn_on_courses ~promo ~firstname ~lastname state m =
                   let state =
                     if cours.validated_under_average
                     then
-                      Remanent_state.add_under_average_validated_grades state dou
+                      Remanent_state.Under_average_validated_grades.add state dou
                     else
-                      Remanent_state.add_courses_validated_twice state dou
+                      Remanent_state.Courses_validated_twice.add state dou
                   in
                   state)
               state x)
@@ -2526,7 +2526,7 @@ let fetch_stage
     match fun_list with
     | [] ->
       let state =
-        Remanent_state.add_ambiguous_internship_description
+        Remanent_state.Ambiguous_internship_descriptions.add
           state
           internship
       in
@@ -2536,7 +2536,7 @@ let fetch_stage
         match filter state stages with
         | state, [] ->
           let state =
-              Remanent_state.add_missing_internship_description
+              Remanent_state.Missing_internship_descriptions.add
                 state internship
           in
           state, None
@@ -5276,7 +5276,7 @@ let program
         List.fold_left
           (fun state elt ->
              let _,_,_,_,cours = elt in
-              Remanent_state.add_missing_ects_attribution
+              Remanent_state.Missing_ects_attributions.add
                state
                {
                  Public_data.missing_grade_promotion =
@@ -5341,7 +5341,7 @@ let program
            | (Some false | None), (Some false | None), _, _
            | _, _, Some true, _ | _, _, _, Some true -> state
            | _, _, (Some false | None), (Some false | None) ->
-             Remanent_state.add_non_accepted_grade
+             Remanent_state.Non_accepted_grades.add
                state
                {
                  Public_data.missing_grade_promotion = promo;
@@ -5506,7 +5506,7 @@ let program
           let dpt_indice =
             string_of_int (fetch (is_m2,dpt_en,diplome,diplome_en,cours))
           in
-          Remanent_state.add_out_of_schooling_years
+          Remanent_state.Grade_out_of_schooling_years.add
             state
             {
               Public_data.missing_grade_promotion =
@@ -5535,7 +5535,7 @@ let program
             let dpt_indice =
               string_of_int (fetch (is_m2,dpt_en,diplome,diplome_en,cours))
             in
-            Remanent_state.add_missing_grade
+            Remanent_state.Missing_grades.add
               state
               {
                 Public_data.missing_grade_promotion =
@@ -5619,7 +5619,7 @@ let program
                       with
                       | state, (None,None) ->
                         let state =
-                          Remanent_state.add_missing_course_entry
+                          Remanent_state.Missing_course_entries.add
                             state
                             {Public_data.empty_course_entry with
                              Public_data.gps_entry = l}
@@ -5647,7 +5647,7 @@ let program
                              String.trim (String.sub y 1 ((String.length y)-1))
                              = "\"")
                             then
-                                Remanent_state.add_missing_course_entry
+                                Remanent_state.Missing_course_entries.add
                                   state
                                   course_entry, lib
                             else
@@ -5661,7 +5661,7 @@ let program
                               state, lib_en
                           | None, Some x | Some x, None ->
                             let state =
-                              Remanent_state.add_missing_course_entry
+                              Remanent_state.Missing_course_entries.add
                                 state
                                 course_entry
                             in
@@ -5736,7 +5736,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
 
                   let state =
                     if issue then
-                      Remanent_state.add_non_validated_internship
+                      Remanent_state.Non_validated_internships.add
                         state internship
                     else
                       state
@@ -5781,7 +5781,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                     with
                     | state, (None,None) ->
                       let state =
-                        Remanent_state.add_missing_course_entry
+                        Remanent_state.Missing_course_entries.add
                           state
                           course_entry
                       in
@@ -5803,7 +5803,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                         | Some _, Some y ->
                           if String.trim y = ""
                           then
-                            Remanent_state.add_missing_course_entry
+                            Remanent_state.Missing_course_entries.add
                                 state
                                 course_entry, lib
                           else
@@ -5817,7 +5817,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                             state, lib_en
                         | None, Some x | Some x, None ->
                           let state =
-                            Remanent_state.add_missing_course_entry
+                            Remanent_state.Missing_course_entries.add
                               state
                               course_entry
                           in
@@ -5868,7 +5868,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
             with
             | state, (None,None) ->
               let state =
-                Remanent_state.add_missing_course_entry
+                Remanent_state.Missing_course_entries.add
                   state
                   course_entry
               in
@@ -5889,7 +5889,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                     course_entry
                     state
                 | None, Some _ | Some _, None ->
-                  Remanent_state.add_missing_course_entry
+                  Remanent_state.Missing_course_entries.add
                       state
                       course_entry
                 in
@@ -6529,7 +6529,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                         with
                         | state, (None,None) ->
                           let state =
-                            Remanent_state.add_missing_course_entry
+                            Remanent_state.Missing_course_entries.add
                               state
                               {Public_data.empty_course_entry with
                                Public_data.gps_entry = l}
@@ -6557,7 +6557,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                                String.trim (String.sub y 1 ((String.length y)-1))
                                = "\"")
                               then
-                                  Remanent_state.add_missing_course_entry
+                                  Remanent_state.Missing_course_entries.add
                                     state
                                     course_entry, lib
                               else
@@ -6571,7 +6571,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                                 state, lib_en
                             | None, Some x | Some x, None ->
                               let state =
-                                Remanent_state.add_missing_course_entry
+                                Remanent_state.Missing_course_entries.add
                                   state
                                   course_entry
                               in
@@ -6646,7 +6646,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
 
                     let state =
                       if issue then
-                        Remanent_state.add_non_validated_internship
+                        Remanent_state.Non_validated_internships.add
                           state internship
                       else
                         state
@@ -6691,7 +6691,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                       with
                       | state, (None,None) ->
                         let state =
-                          Remanent_state.add_missing_course_entry
+                          Remanent_state.Missing_course_entries.add
                             state
                             course_entry
                         in
@@ -6713,7 +6713,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                           | Some _, Some y ->
                             if String.trim y = ""
                             then
-                              Remanent_state.add_missing_course_entry
+                              Remanent_state.Missing_course_entries.add
                                   state
                                   course_entry, lib
                             else
@@ -6727,7 +6727,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                               state, lib_en
                           | None, Some x | Some x, None ->
                             let state =
-                              Remanent_state.add_missing_course_entry
+                              Remanent_state.Missing_course_entries.add
                                 state
                                 course_entry
                             in
@@ -6778,7 +6778,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
               with
               | state, (None,None) ->
                 let state =
-                  Remanent_state.add_missing_course_entry
+                  Remanent_state.Missing_course_entries.add
                     state
                     course_entry
                 in
@@ -6799,7 +6799,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                       course_entry
                       state
                   | None, Some _ | Some _, None ->
-                    Remanent_state.add_missing_course_entry
+                    Remanent_state.Missing_course_entries.add
                         state
                         course_entry
                   in
@@ -7294,7 +7294,7 @@ let export_transcript
       then
         state
       else
-        Remanent_state.add_missing_picture
+        Remanent_state.Missing_pictures.add
           state
           {
             Public_data.student_firstname_report = firstname ;
@@ -7589,7 +7589,7 @@ let export_transcript
              | None ->
                begin
                let state =
-                 Remanent_state.add_missing_mentor
+                 Remanent_state.Missing_mentors.add 
                    state
                    {
                      Public_data.missing_mentor_firstname=firstname;

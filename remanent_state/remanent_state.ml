@@ -652,13 +652,22 @@ let lift_get get t = get (get_data t)
 let lift_set set data t =
     set_data (set data (get_data t)) t
 
-type 'a warning =
+
+module type Interface_missing_warning =
+  sig
+    type entry
+    val prefix: (t -> string)->t->t * string
+    val repository: (t->string)
+    val get: data -> entry list
+    val set: entry list -> data -> data
+  end
+(*type 'a warning =
   {
     warning_prefix: (t -> string)->t->t * string;
     warning_rep: (t->string);
     warning_get: data -> 'a;
     warning_set: 'a -> data -> data;
-  }
+  }*)
 
 type report =
   {
@@ -686,16 +695,21 @@ let gen get set =
     let get t = t, get t in
     add, get
 
+module type Missing_warning =
+  sig
+    type entry
+    val get_repository: t -> t * string
+    val get: t -> t * entry list
+    val add: t -> entry -> t
+  end
 
 (* Warnings *)
-let gen_report_warnings warning =
-    let get_repository = warning.warning_prefix warning.warning_rep in
-    let get data = warning.warning_get data in
-    let get t = lift_get get t in
-    let set warnings data = warning.warning_set warnings data in
-    let set warnings t = lift_set set warnings t in
-    let add,get = gen get set in
-    get_repository, add, get
+module Make_missing_warnings(I:Interface_missing_warning) =
+  (struct
+    type entry = I.entry
+    let get_repository = I.prefix I.repository
+    let add,get = gen (lift_get I.get) (lift_set I.set)
+  end: Missing_warning with type entry = I.entry)
 
     (*let get_course_entries_report data = data.course_entries_report
     let get_course_entries_report t = lift_get get_course_entries_report t
@@ -765,226 +779,215 @@ let gen_report_report report =
     in
     get_repository, get, set, add
 
-(*let get_repository_to_dump_course_entries_report t =
-  get_repository_to_dump_reports_gen
-    (fun t ->
-       t.parameters.repository_to_dump_course_entries_report)
-    t*)
 (* Warnings about the pictures that are missing *)
-let get_repository_to_dump_missing_pictures,
-    add_missing_picture, get_missing_pictures =
-    gen_report_warnings
-      {
-       warning_prefix = get_repository_to_dump_missing_gen;
-       warning_rep = (fun t -> t.parameters.repository_to_dump_missing_pictures);
-       warning_get = (fun data -> data.missing_pictures);
-       warning_set = (fun missing_pictures data -> {data with missing_pictures});
-      }
+module Missing_pictures =
+    Make_missing_warnings
+        (struct
+          type entry = Public_data.student
+          let prefix = get_repository_to_dump_missing_gen
+          let repository t = t.parameters.repository_to_dump_missing_pictures
+          let get data = data.missing_pictures
+          let set missing_pictures data = {data with missing_pictures}
+        end: Interface_missing_warning with type entry = Public_data.student)
 
-(* Warnigns about failure in gps accesses *)
-let get_repository_to_dump_gps_server_faillures,
-    add_gps_server_faillure, get_gps_server_faillures =
-    gen_report_warnings
-      {
-       warning_prefix = get_repository_to_dump_missing_gen;
-       warning_rep = (fun t -> t.parameters.repository_to_dump_gps_server_faillures);
-       warning_get = (fun data -> data.gps_server_faillures);
-       warning_set = (fun gps_server_faillures data -> {data with gps_server_faillures});
-      }
+
+(* Warnings about failure in gps accesses *)
+module Gps_server_faillures =
+  Make_missing_warnings
+      (struct
+        type entry = Public_data.student
+        let prefix = get_repository_to_dump_missing_gen
+        let repository t = t.parameters.repository_to_dump_gps_server_faillures
+        let get data = data.gps_server_faillures
+        let set gps_server_faillures data = {data with gps_server_faillures}
+      end: Interface_missing_warning with type entry = Public_data.student )
 
 (* Warning about internships *)
-let get_repository_to_dump_non_validated_internships,
-    add_non_validated_internship,
-    get_non_validated_internships =
-    gen_report_warnings
-      {
-       warning_prefix = get_repository_to_dump_missing_gen;
-       warning_rep = (fun t -> t.parameters.repository_to_dump_non_validated_internships);
-       warning_get = (fun data -> data.non_validated_internships);
-       warning_set = (fun non_validated_internships data -> {data with non_validated_internships});
-      }
+module Ambiguous_internship_descriptions =
+  Make_missing_warnings
+      (struct
+          type entry = Public_data.missing_internship_description
+          let prefix = get_repository_to_dump_missing_gen
+          let repository t = t.parameters.repository_to_dump_ambiguous_internship_descriptions
+          let get data = data.ambiguous_internship_descriptions
+          let set ambiguous_internship_descriptions data = {data with ambiguous_internship_descriptions}
+        end: Interface_missing_warning
+              with type entry = Public_data.missing_internship_description)
 
-let get_repository_to_dump_ambiguous_internship_descriptions,
-    add_ambiguous_internship_description,
-    get_ambiguous_internship_descriptions =
-    gen_report_warnings
-      {
-        warning_prefix = get_repository_to_dump_missing_gen;
-        warning_rep = (fun t -> t.parameters.repository_to_dump_ambiguous_internship_descriptions);
-        warning_get = (fun data -> data.ambiguous_internship_descriptions);
-        warning_set = (fun ambiguous_internship_descriptions data -> {data with ambiguous_internship_descriptions});
-      }
 
-let get_internships_to_be_sorted_list_repository,
-    add_internship_to_be_sorted,
-    get_internships_to_be_sorted =
-    gen_report_warnings
-      {
-        warning_prefix = get_repository_to_dump_missing_gen;
-        warning_rep = (fun t -> t.parameters.repository_for_internships_to_be_sorted);
-        warning_get = (fun data -> data.internships_to_be_sorted);
-        warning_set = (fun internships_to_be_sorted data -> {data with internships_to_be_sorted});
-      }
+(* Warning about internships *)
+module Non_validated_internships =
+  Make_missing_warnings
+    (struct
+        type entry = Public_data.missing_internship_description
+        let prefix = get_repository_to_dump_missing_gen
+        let repository t = t.parameters.repository_to_dump_non_validated_internships
+        let get data = data.non_validated_internships
+        let set non_validated_internships data = {data with non_validated_internships}
+     end: Interface_missing_warning
+                    with type entry = Public_data.missing_internship_description)
 
-let get_repository_to_dump_missing_internship_translations,
-    add_missing_internship_translation,
-    get_missing_internship_translation_list =
-    gen_report_warnings
-      {
-        warning_prefix = get_repository_to_dump_missing_gen;
-        warning_rep = (fun t -> t.parameters.repository_to_dump_missing_internship_translation);
-        warning_get = (fun data -> data.missing_internship_translations);
-        warning_set = (fun missing_internship_translations data -> {data with missing_internship_translations});
-      }
+module Internships_to_be_sorted =
+  Make_missing_warnings
+      (struct
+          type entry = Public_data.stage_a_trier
+          let prefix = get_repository_to_dump_missing_gen
+          let repository t = t.parameters.repository_for_internships_to_be_sorted
+          let get data = data.internships_to_be_sorted
+          let set internships_to_be_sorted data =
+              {data with internships_to_be_sorted}
+        end: Interface_missing_warning
+              with type entry = Public_data.stage_a_trier)
 
-let get_repository_to_dump_missing_internship_descriptions,
-    add_missing_internship_description,
-    get_missing_internship_descriptions =
-    gen_report_warnings
-      {
-        warning_prefix = get_repository_to_dump_missing_gen;
-        warning_rep = (fun t -> t.parameters.repository_to_dump_missing_internship_descriptions);
-        warning_get = (fun data -> data.missing_internship_descriptions);
-        warning_set = (fun missing_internship_descriptions data -> {data with missing_internship_descriptions});
-      }
+module Missing_internship_translations =
+  Make_missing_warnings
+    (struct
+        type entry = Public_data.internship
+        let prefix = get_repository_to_dump_missing_gen
+        let repository t = t.parameters.repository_to_dump_missing_internship_translation
+        let get data = data.missing_internship_translations
+        let set missing_internship_translations data = {data with missing_internship_translations}
+     end: Interface_missing_warning
+            with type entry = Public_data.internship)
+
+module Missing_internship_descriptions =
+        Make_missing_warnings
+            (struct
+                type entry = Public_data.missing_internship_description
+                let prefix = get_repository_to_dump_missing_gen
+                let repository t = t.parameters.repository_to_dump_missing_internship_descriptions
+                let get data = data.missing_internship_descriptions
+                let set missing_internship_descriptions data = {data with missing_internship_descriptions}
+              end: Interface_missing_warning
+                  with type entry = Public_data.missing_internship_description)
 
 (** Warnings about grades *)
-let get_repository_to_dump_missing_grades,
-    add_missing_grade,
-    get_missing_grades =
-    gen_report_warnings
-    {
-      warning_prefix = get_repository_to_dump_missing_gen;
-      warning_rep = (fun t -> t.parameters.repository_to_dump_missing_grades);
-      warning_get = (fun data -> data.missing_grades);
-      warning_set = (fun missing_grades data -> {data with missing_grades});
-    }
+module Missing_grades =
+  Make_missing_warnings
+      (struct
+          type entry = Public_data.missing_grade
+          let prefix = get_repository_to_dump_missing_gen
+          let repository t = t.parameters.repository_to_dump_missing_grades
+          let get data = data.missing_grades
+          let set missing_grades data = {data with missing_grades}
+        end: Interface_missing_warning
+              with type entry = Public_data.missing_grade)
 
-let get_repository_to_dump_non_accepted_grades,
-    add_non_accepted_grade,
-    get_non_accepted_grades =
-    gen_report_warnings
-      {
-        warning_prefix = get_repository_to_dump_missing_gen;
-        warning_rep = (fun t -> t.parameters.repository_to_dump_non_accepted_grades);
-        warning_get = (fun data -> data.non_accepted_grades);
-        warning_set = (fun non_accepted_grades data -> {data with non_accepted_grades});
-      }
+module Non_accepted_grades =
+  Make_missing_warnings
+    (struct
+        type entry = Public_data.missing_grade
+        let prefix = get_repository_to_dump_missing_gen
+        let repository t = t.parameters.repository_to_dump_non_accepted_grades
+        let get data = data.non_accepted_grades
+        let set non_accepted_grades data = {data with non_accepted_grades}
+    end: Interface_missing_warning with type entry = Public_data.missing_grade)
 
-let get_repository_to_dump_under_average_validated_grades,
-    add_under_average_validated_grades,
-    get_under_average_validated_grades =
-  gen_report_warnings
-    {
-      warning_prefix = get_repository_to_dump_missing_gen;
-      warning_rep = (fun t -> t.parameters.repository_to_dump_under_average_validated_grades);
-      warning_get = (fun data -> data.under_average_validated_grades);
-      warning_set = (fun under_average_validated_grades data -> {data with under_average_validated_grades});
-  }
+module Under_average_validated_grades =
+  Make_missing_warnings
+    (struct
+      type entry = Public_data.missing_grade
+      let prefix = get_repository_to_dump_missing_gen
+      let repository t = t.parameters.repository_to_dump_under_average_validated_grades
+      let get data = data.under_average_validated_grades
+      let set under_average_validated_grades data = {data with under_average_validated_grades}
+    end: Interface_missing_warning with type entry = Public_data.missing_grade)
 
-  let get_repository_to_dump_missing_ects_attributions,
-      add_missing_ects_attribution,
-      get_missing_ects_attributions =
-    gen_report_warnings
-      {
-        warning_prefix = get_repository_to_dump_missing_gen;
-        warning_rep = (fun t -> t.parameters.repository_to_dump_missing_ects_attributions);
-        warning_get = (fun data -> data.missing_ects_attributions);
-        warning_set = (fun missing_ects_attributions data -> {data with missing_ects_attributions});
-      }
+module Missing_ects_attributions =
+  Make_missing_warnings
+    (struct
+        type entry = Public_data.missing_grade
+        let prefix = get_repository_to_dump_missing_gen
+        let repository t = t.parameters.repository_to_dump_missing_ects_attributions
+        let get data = data.missing_ects_attributions
+        let set missing_ects_attributions data = {data with missing_ects_attributions}
+    end: Interface_missing_warning with type entry = Public_data.missing_grade)
 
-  let get_repository_to_dump_courses_validated_twice,
-      add_courses_validated_twice,
-      get_courses_validated_twice =
-    gen_report_warnings
-      {
-        warning_prefix = get_repository_to_dump_missing_gen;
-        warning_rep = (fun t -> t.parameters.repository_to_dump_courses_validated_twice);
-        warning_get = (fun data -> data.courses_validated_twice);
-        warning_set = (fun courses_validated_twice data -> {data with courses_validated_twice});
-      }
+module Courses_validated_twice =
+  Make_missing_warnings
+    (struct
+        type entry = Public_data.missing_grade
+        let prefix = get_repository_to_dump_missing_gen
+        let repository t = t.parameters.repository_to_dump_courses_validated_twice
+        let get data = data.courses_validated_twice
+        let set courses_validated_twice data = {data with courses_validated_twice}
+    end: Interface_missing_warning with type entry = Public_data.missing_grade)
 
- (** Warnings about courses *)
+(** Warnings about courses *)
 
- let get_repository_to_dump_missing_course_entries,
-     add_missing_course_entry,
-     get_missing_course_entries =
-   gen_report_warnings
-   {
-     warning_prefix = get_repository_to_dump_missing_gen;
-     warning_rep = (fun t -> t.parameters.repository_to_dump_missing_course_entries);
-     warning_get = (fun data -> data.missing_course_entries);
-     warning_set = (fun missing_course_entries data -> {data with missing_course_entries});
- }
-
-  (** Warning about DENS *)
-   let get_dens_candidate_suggestion_list_repository,
-         add_dens_candidate_suggestion,
-         get_dens_candidates_suggestion_list =
-         gen_report_warnings
-           {
-             warning_prefix = get_repository_to_dump_missing_gen;
-             warning_rep = (fun t -> t.parameters.repository_for_dens_candidate);
-             warning_get = (fun data -> data.dens_candidates_suggestion);
-             warning_set = (fun dens_candidates_suggestion data -> {data with dens_candidates_suggestion});
-         }
-
-  let get_repository_to_dump_missing_minors,
-      add_minor_suggestion,
-      get_minor_suggestion_list =
-           gen_report_warnings
-             {
-               warning_prefix = get_repository_to_dump_missing_gen;
-               warning_rep = (fun t -> t.parameters.repository_to_dump_missing_minors);
-               warning_get = (fun data -> data.minor_suggestion);
-               warning_set = (fun minor_suggestion data -> {data with minor_suggestion});
-             }
+module Missing_course_entries =
+  Make_missing_warnings
+     (struct
+       type entry = Public_data.course_entry
+       let prefix = get_repository_to_dump_missing_gen
+       let repository t = t.parameters.repository_to_dump_missing_course_entries
+       let get data = data.missing_course_entries
+       let set missing_course_entries data = {data with missing_course_entries}
+      end: Interface_missing_warning with type entry = Public_data.course_entry)
 
 
-    let get_repository_to_dump_missing_majors,
-        add_major_suggestion,
-        get_major_suggestion_list =
-            gen_report_warnings
-                  {
-                    warning_prefix = get_repository_to_dump_missing_gen;
-                    warning_rep = (fun t -> t.parameters.repository_to_dump_missing_majors);
-                    warning_get = (fun data -> data.major_suggestion);
-                    warning_set = (fun major_suggestion data -> {data with major_suggestion});
-                }
+(** Warning about DENS *)
+module Dens_candidate_suggestion =
+  Make_missing_warnings
+    (struct
+      type entry = Public_data.dens_candidate
+      let prefix = get_repository_to_dump_missing_gen
+      let repository t = t.parameters.repository_for_dens_candidate
+      let get data = data.dens_candidates_suggestion
+      let set dens_candidates_suggestion data = {data with dens_candidates_suggestion}
+     end: Interface_missing_warning with type entry = Public_data.dens_candidate)
 
-  let get_courses_to_be_sorted_list_repository,
-      add_course_to_be_sorted,
-      get_courses_to_be_sorted =
-           gen_report_warnings
-                     {
-                       warning_prefix = get_repository_to_dump_missing_gen;
-                       warning_rep = (fun t -> t.parameters.repository_for_courses_to_be_sorted);
-                       warning_get = (fun data -> data.courses_to_be_sorted);
-                       warning_set = (fun courses_to_be_sorted data -> {data with courses_to_be_sorted});
-                   }
+module Dens_candidate_missing_minors =
+  Make_missing_warnings
+    (struct
+      type entry = Public_data.mineure_majeure
+      let prefix = get_repository_to_dump_missing_gen
+      let repository t = t.parameters.repository_to_dump_missing_minors
+      let get data = data.minor_suggestion
+      let set minor_suggestion data = {data with minor_suggestion}
+    end: Interface_missing_warning with type entry = Public_data.mineure_majeure)
 
-  (** Other warnings *)
-  let get_repository_to_dump_out_of_schooling_years,
-      add_out_of_schooling_years,
-      get_out_of_schooling_years =
-    gen_report_warnings
-      {
-        warning_prefix = get_repository_to_dump_missing_gen;
-        warning_rep = (fun t -> t.parameters.repository_to_dump_out_of_schooling_years);
-        warning_get = (fun data -> data.out_of_schooling_years);
-        warning_set = (fun out_of_schooling_years data -> {data with out_of_schooling_years});
-    }
+module Dens_candidate_missing_majors =
+  Make_missing_warnings
+    (struct
+      type entry = Public_data.mineure_majeure
+      let prefix = get_repository_to_dump_missing_gen
+      let repository t = t.parameters.repository_to_dump_missing_majors
+      let get data = data.major_suggestion
+      let set major_suggestion data = {data with major_suggestion}
+     end: Interface_missing_warning with type entry = Public_data.mineure_majeure)
 
-let get_repository_to_dump_missing_mentors,
-      add_missing_mentor,
-      get_missing_mentors =
-      gen_report_warnings
-        {
-          warning_prefix = get_repository_to_dump_missing_gen;
-          warning_rep = (fun t -> t.parameters.repository_to_dump_missing_mentors);
-          warning_get = (fun data -> data.missing_mentors);
-          warning_set = (fun missing_mentors data -> {data with missing_mentors});
-      }
+module Course_to_be_sorted =
+  Make_missing_warnings
+    (struct
+      type entry = Public_data.cours_a_trier
+      let prefix = get_repository_to_dump_missing_gen
+      let repository t = t.parameters.repository_for_courses_to_be_sorted
+      let get data = data.courses_to_be_sorted
+      let set courses_to_be_sorted data = {data with courses_to_be_sorted}
+    end: Interface_missing_warning with type entry = Public_data.cours_a_trier)
+
+(** Other warnings *)
+module Grade_out_of_schooling_years =
+  Make_missing_warnings
+    (struct
+      type entry = Public_data.missing_grade
+      let prefix = get_repository_to_dump_missing_gen
+      let repository t = t.parameters.repository_to_dump_out_of_schooling_years
+      let get data = data.out_of_schooling_years
+      let set out_of_schooling_years data = {data with out_of_schooling_years}
+     end: Interface_missing_warning with type entry = Public_data.missing_grade)
+
+module Missing_mentors =
+  Make_missing_warnings
+    (struct
+      type entry = Public_data.missing_mentor
+      let prefix = get_repository_to_dump_missing_gen
+      let repository t = t.parameters.repository_to_dump_missing_mentors
+      let get data = data.missing_mentors
+      let set missing_mentors data = {data with missing_mentors}
+     end: Interface_missing_warning with type entry = Public_data.missing_mentor)
+
 
 
 (* reports *)
@@ -1757,6 +1760,8 @@ let get_mentors t = lift_get get_mentors t
 let set_mentors mentors data = {data with mentors}
 let set_mentors mentors t = lift_set set_mentors mentors t
 
+
+
 let get_national_diplomas data =
   data.national_diplomas
 let get_national_diplomas t = lift_get get_national_diplomas t
@@ -2475,6 +2480,14 @@ let add_mentor, get_mentors =
   gen get_mentors set_mentors
 let add_mentor t elt =
   add_mentor t elt
+
+module Mentors =
+    struct
+      type entry = Public_data.mentor
+      let get_repository = get_repository_to_dump_mentors 
+      let get = get_mentors
+      let add = add_mentor
+    end
 
 let get_ENSPSL_logo t =
   let t, local = get_all_potential_local_repositories t in

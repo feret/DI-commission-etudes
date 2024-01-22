@@ -20,8 +20,8 @@ sig
 end
 
 module Build
-    (I:Gen.Interface with type elt = Public_data.missing_grade) =
-  struct
+     (I:Gen.Interface with type Missing_entry.entry = Public_data.missing_grade) =
+    struct
 
     let dump_missing_grades
         ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername
@@ -33,8 +33,8 @@ module Build
       in
       let filter = Gen.filter_grade in
       let default_file_name = I.default_file_name in
-      let get_repository = I.get_repository in
-      let get = I.get in
+      let get_repository = I.Missing_entry.get_repository in
+      let get = I.Missing_entry.get in
       Gen.dump_elts
         ?dpt_gps_code ?firstname ?lastname ?codegps ?teachername
         ?academicyear ?promo
@@ -436,12 +436,8 @@ end
 module MissingGrades =
   Build
     (struct
-      type elt = Public_data.missing_grade
-
+      module Missing_entry = Remanent_state.Missing_grades
       let default_file_name = "missing_grade.html"
-      let get = Remanent_state.get_missing_grades
-      let get_repository =
-        Remanent_state.get_repository_to_dump_missing_grades
     end)
 
 
@@ -449,54 +445,34 @@ module MissingGrades =
 module NonAcceptedGrades =
   Build
     (struct
-      type elt = Public_data.missing_grade
-
-      let default_file_name = "non_accedpted_grades.html"
-      let get = Remanent_state.get_non_accepted_grades
-      let get_repository =
-        Remanent_state.get_repository_to_dump_non_accepted_grades
+      module Missing_entry = Remanent_state.Non_accepted_grades
+      let default_file_name = "non_accepted_grades.html"
     end)
 
 module MissingECTSAttributions =
   Build
     (struct
-      type elt = Public_data.missing_grade
-
+      module Missing_entry = Remanent_state.Missing_ects_attributions
       let default_file_name = "missing_ects_attributions.html"
-      let get = Remanent_state.get_missing_ects_attributions
-      let get_repository =
-        Remanent_state.get_repository_to_dump_missing_ects_attributions
     end)
 
 module Underaveragevalidated =
   Build
     (struct
-      type elt = Public_data.missing_grade
-
-      let default_file_name = "cours_sous_la_moyenne_valide.html"
-      let get = Remanent_state.get_under_average_validated_grades
-      let get_repository =
-            Remanent_state.get_repository_to_dump_under_average_validated_grades
+      module Missing_entry = Remanent_state.Under_average_validated_grades
+       let default_file_name = "cours_sous_la_moyenne_valide.html"
      end)
 
 module Validated_twice =
    Build
     (struct
-           type elt = Public_data.missing_grade
-
-           let default_file_name = "cours_en_double.html"
-           let get = Remanent_state.get_courses_validated_twice
-           let get_repository =
-                 Remanent_state.get_repository_to_dump_courses_validated_twice
-          end)
+          module Missing_entry = Remanent_state.Courses_validated_twice
+          let default_file_name = "cours_en_double.html"
+    end)
 
 module Outofschoolingyears =
    Build
     (struct
-         type elt = Public_data.missing_grade
-
+         module Missing_entry = Remanent_state.Grade_out_of_schooling_years
          let default_file_name = "cours_en_hors_scolarite.html"
-         let get = Remanent_state.get_out_of_schooling_years
-         let get_repository =
-              Remanent_state.get_repository_to_dump_out_of_schooling_years
       end)

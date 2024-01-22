@@ -127,8 +127,6 @@ val filter_stageat:
 
 module type Interface =
 sig
-  type elt
+  module Missing_entry: Remanent_state.Missing_warning
   val default_file_name: string
-  val get:(Remanent_state.t -> Remanent_state.t * elt list)
-  val get_repository:(Remanent_state.t -> Remanent_state.t * string)
 end

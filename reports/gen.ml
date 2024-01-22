@@ -533,9 +533,7 @@ let filter
     (state,[]) (List.rev list)
 
 module type Interface =
-sig
-  type elt
-  val default_file_name: string
-  val get:(Remanent_state.t -> Remanent_state.t * elt list)
-  val get_repository:(Remanent_state.t -> Remanent_state.t * string)
-end
+  sig
+    module Missing_entry : Remanent_state.Missing_warning
+    val default_file_name: string
+  end

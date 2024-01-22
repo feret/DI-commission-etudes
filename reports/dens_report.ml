@@ -42,8 +42,7 @@ sig
 end
 
 module Build
-    (I:Gen.Interface
-     with type elt = Public_data.dens) =
+     (I:Gen.Interface with type Missing_entry.entry = Public_data.dens) =
 struct
 
 let dump_dens
@@ -60,9 +59,9 @@ let dump_dens
       Some Profiling.Dump_dens_result
     in
     let filter = Gen.filter_dens ?nb_inscription_list in
-    let get = I.get in
+    let get = I.Missing_entry.get in
     let default_file_name = I.default_file_name in
-    let get_repository = I.get_repository in
+    let get_repository = I.Missing_entry.get_repository in
     Gen.dump_elts
       ?firstname ?lastname ?ninscription ?promo
       ?headpage ?footpage ?footcolor
@@ -164,7 +163,7 @@ let dump_dens
       | Public_data.ENS | Public_data.PHYS | Public_data.CHIMIE
       | Public_data.IBENS | Public_data.DMA | Public_data.GEOSCIENCES
       | Public_data.ECO | Public_data.DRI | Public_data.ARTS
-      | Public_data.LILA | Public_data.DEC 
+      | Public_data.LILA | Public_data.DEC
         ->
         [prenom_etudiant;nom_etudiant;promotion;inscriptions; total ]
       | Public_data.DI ->
@@ -274,11 +273,14 @@ let dump_dens
 module DensReport =
   Build
     (struct
-      type elt = Public_data.dens
-
       let default_file_name = "dens.html"
-      let get = Remanent_state.get_dens
-      let get_repository =
-        Remanent_state.get_repository_to_dump_dens
 
-    end)
+      module Missing_entry =
+        struct
+          type entry = Public_data.dens
+          let get = Remanent_state.get_dens
+          let get_repository =
+            Remanent_state.get_repository_to_dump_dens
+          let add a _ = a
+
+    end end)

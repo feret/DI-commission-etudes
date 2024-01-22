@@ -8,8 +8,9 @@ end
 
 
 module Build
-    (I:Gen.Interface with type elt = Public_data.stage_a_trier) =
-struct
+    (I:Gen.Interface with type Missing_entry.entry = Public_data.stage_a_trier)
+   =
+  struct
 
 
   let headers =
@@ -47,8 +48,8 @@ struct
     in
     let filter = Gen.filter_stageat in
     let default_file_name = I.default_file_name in
-    let get_repository = I.get_repository in
-    let get = I.get in
+    let get_repository = I.Missing_entry.get_repository in
+    let get = I.Missing_entry.get in
     Gen.dump_elts
       ?output_repository ?prefix ?file_name ?event_opt
       ~filter ~cmp ~headers ~columns ~get
@@ -79,10 +80,6 @@ end
 module InternshipsToBeSorted =
   Build
     (struct
-      type elt = Public_data.stage_a_trier
-
       let default_file_name = "stages_a_trier.csv"
-      let get = Remanent_state.get_internships_to_be_sorted
-      let get_repository =
-        Remanent_state.get_internships_to_be_sorted_list_repository
+      module Missing_entry = Remanent_state.Internships_to_be_sorted
     end)

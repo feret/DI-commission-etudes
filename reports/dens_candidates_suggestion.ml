@@ -8,8 +8,8 @@ end
 
 
 module Build
-    (I:Gen.Interface with type elt = Public_data.dens_candidate) =
-struct
+   (I:Gen.Interface with type Missing_entry.entry = Public_data.dens_candidate) =
+  struct
 
 
   let headers =
@@ -56,8 +56,8 @@ struct
     in
     let filter = Gen.filter_dens_candidate in
     let default_file_name = I.default_file_name in
-    let get_repository = I.get_repository in
-    let get = I.get in
+    let get_repository = I.Missing_entry.get_repository in
+    let get = I.Missing_entry.get in
     Gen.dump_elts
       ?output_repository ?prefix ?file_name ?event_opt
       ~filter ~cmp ~headers ~columns ~get
@@ -90,10 +90,7 @@ end
 module SuggestionsDensCandidates =
   Build
     (struct
-      type elt = Public_data.dens_candidate
-
       let default_file_name = "suggestions_dens_candidates.csv"
-      let get = Remanent_state.get_dens_candidates_suggestion_list
-      let get_repository =
-        Remanent_state.get_dens_candidate_suggestion_list_repository
+      module Missing_entry =
+        Remanent_state.Dens_candidate_suggestion
     end)
