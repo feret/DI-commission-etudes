@@ -846,7 +846,9 @@ let collect_bool suffix pos state =
         state
 
 let event_opt = Some (Profiling.Collect_dens_candidates)
-let compute_repository = Remanent_state.get_dens_candidates_list_repository
+let compute_repository =
+Remanent_state.Collector_dens_candidate.get_repository
+(* Remanent_state.get_dens_candidates_list_repository*)
 
 let lift_pred = Lift.pred_safe
 let lift_string =
@@ -1013,7 +1015,7 @@ let get_dens_candidates
       ~keywords_of_interest
       ~keywords_list
       ~init_state:empty_candidate_id
-      ~empty_elt:Public_data.empty_dens_candidate            ~add_elt:Remanent_state.add_dens_candidate
+      ~empty_elt:Public_data.empty_dens_candidate            ~add_elt:Remanent_state.Collector_dens_candidate.add
       ~mandatory_fields
       ~all_fields
       ?event_opt

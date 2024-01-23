@@ -52,7 +52,7 @@ let keywords_of_interest =
   ]
 
 let compute_repository =
-  Remanent_state.get_sorted_internships_list_repository
+  Remanent_state.Collector_stages_tries.get_repository
 
 let event_opt = Some Profiling.Collect_sorted_internships
 
@@ -207,7 +207,7 @@ let get_sorted_internships
     ~keywords_list
     ~init_state:empty_at
     ~empty_elt:Public_data.empty_stage_a_trier
-    ~add_elt:Remanent_state.add_sorted_internship
+    ~add_elt:Remanent_state.Collector_stages_tries.add
     ~mandatory_fields
     ~all_fields
     ?event_opt

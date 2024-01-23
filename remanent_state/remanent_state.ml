@@ -700,6 +700,19 @@ module type Interface_collector_without_unification =
     val set: entry list -> data -> data
   end
 
+type 'a unification = (string * int * int * int) -> t -> 'a -> 'a -> t * 'a
+
+module type Interface_collector_with_unification =
+  sig
+    type entry
+    type collector
+    val prefix: (t -> string)->t->t * string
+    val repository: (t->string)
+    val get: data -> collector
+    val set: collector -> data -> data
+    val add: entry unification -> (string * int * int * int) -> t -> entry ->  collector -> t * collector
+  end
+
 type report =
   {
     report_prefix: (t -> string)->t->t * string;
@@ -728,6 +741,17 @@ module type Collector =
     val add: t -> entry -> t
   end
 
+module type Collector_with_unification =
+  sig
+    type entry
+    type collector
+    val get_repository: t -> t * string
+    val get: t -> t * collector
+    val add: entry unification ->
+             (string * int * int * int) ->
+             entry -> t -> t
+  end
+
 (* Warnings *)
 module Make_list_collector(I:Interface_collector_without_unification) =
   (struct
@@ -744,6 +768,23 @@ module Make_list_collector(I:Interface_collector_without_unification) =
       store t collector
   end: Collector with type entry = I.entry
       and type collector = I.entry list )
+
+
+module Make_collector_with_unification(I:Interface_collector_with_unification) =
+  (struct
+    type entry = I.entry
+    type collector = I.collector
+
+    let get_repository = I.prefix I.repository
+    (*let add a b = I.add a b*)
+    let get t = t,lift_get I.get t
+    let store a b = lift_set I.set b a
+    let add pos unify entry t  =
+      let t, collector = get t in
+      let t, collector  = I.add pos unify t entry collector in
+      store t collector
+  end: Collector_with_unification with type entry = I.entry
+      and type collector = I.collector )
 
   let get_error_handler t =
     t, t.error_log
@@ -821,7 +862,7 @@ module Student_ids =
       (struct
         type entry = Public_data.student_id
         let prefix t = get_repository_bdd_gen t
-        let repository _t = "etudiants" 
+        let repository _t = "etudiants"
         let get data = data.students
         let set students data = {data with students}
 
@@ -972,6 +1013,20 @@ module Dens_candidate_suggestion =
       let get data = data.dens_candidates_suggestion
       let set dens_candidates_suggestion data = {data with dens_candidates_suggestion}
      end: Interface_collector_without_unification with type entry = Public_data.dens_candidate)
+
+module Collector_dens_candidate =
+  Make_collector_with_unification
+    (struct
+      type entry = Public_data.dens_candidate
+      type collector = Dens_candidates.t
+
+      let prefix = get_repository_bdd_gen
+      let repository t = t.parameters.repository_to_dump_dens_candidate
+
+      let get data = data.dens_candidates
+      let set dens_candidates data = {data with dens_candidates}
+      let add = Dens_candidates.add_dens_candidate
+    end)
 
 module Dens_candidate_missing_minors =
   Make_list_collector
@@ -1147,9 +1202,20 @@ let get_rep_gen get_main get_prefix t =
 let get_pegasus_status_administratifs_prefix t =
   t, "status_administratifs"
 
-let get_dens_candidates_list_prefix t =
-    t, t.parameters.repository_to_dump_dens_candidate
+module Collector_stages_tries =
+  Make_collector_with_unification
+    (struct
+      type entry = Public_data.stage_a_trier
+      type collector = Stages_a_trier.t
 
+      let prefix = get_repository_bdd_gen
+      let repository t =  t.parameters.repository_for_sorted_internships
+      let get data =  data.sorted_internships
+      let set sorted_internships data = {data with sorted_internships}
+      let add = Stages_a_trier.add_sorted_internship
+    end: Interface_collector_with_unification
+    with type entry = Public_data.stage_a_trier
+    and type collector = Stages_a_trier.t )
 let get_stage_entry_list_prefix t =
   t, t.parameters.repository_for_internship_entry
 
@@ -1184,9 +1250,6 @@ let get_mineure_entry_list_repository t =
 
 let get_majeure_entry_list_repository t =
   get_rep_gen get_bdd get_majeure_entry_list_prefix t
-
-let get_dens_candidates_list_repository t =
-    get_rep_gen get_bdd get_dens_candidates_list_prefix t
 
 let get_scholarships_list_prefix t =
   t, t.parameters.repository_for_bourses
@@ -1284,10 +1347,6 @@ let get_sorted_courses_list_prefix t =
 let get_sorted_courses_list_repository t =
       get_rep_gen get_bdd get_sorted_courses_list_prefix t
 
-let get_sorted_internships_list_prefix t =
-      t, t.parameters.repository_for_sorted_internships
-let get_sorted_internships_list_repository t =
-      get_rep_gen get_bdd get_sorted_internships_list_prefix t
 
 let get_modified_grades_list_prefix t =
   t, t.parameters.repository_for_grades_to_modify
@@ -1677,13 +1736,6 @@ let get_cost_members t = lift_get get_cost_members t
 let set_cost_members cost_members data = {data with cost_members}
 let set_cost_members cost_members t = lift_set set_cost_members cost_members t
 
-
-let get_dens_candidates data = data.dens_candidates
-let get_dens_candidates t = lift_get get_dens_candidates t
-let set_dens_candidates dens_candidates data = {data with dens_candidates}
-let set_dens_candidates dens_candidates t =
-  lift_set set_dens_candidates dens_candidates t
-
 let get_minors data = data.minors
 let get_minors t = lift_get get_minors t
 let set_minors minors data = {data with minors}
@@ -1795,15 +1847,6 @@ let set_sorted_courses sorted_courses data =
 let set_sorted_courses sorted_courses t =
         lift_set set_sorted_courses sorted_courses t
 
-let get_sorted_internships data = data.sorted_internships
-let get_sorted_internships t =
-    lift_get get_sorted_internships t
-let set_sorted_internships sorted_internships data =
-    {data with sorted_internships}
-let set_sorted_internships sorted_internships t =
-    lift_set set_sorted_internships sorted_internships t
-
-
 let get_notes_a_modifier data = data.notes_a_modifier
 let get_notes_a_modifier t =
   lift_get get_notes_a_modifier t
@@ -1862,10 +1905,6 @@ let get_birth_city_fr
                   | [a] -> t, Some a.Public_data.pegasus_ine
 
 let add_cost_member = add_gen_list get_cost_members set_cost_members
-
-let add_dens_candidate =
-    add_gen_unify
-      get_dens_candidates set_dens_candidates Dens_candidates.add_dens_candidate
 
 let add_dens_minor =
     add_gen_unify get_minors set_minors Minor_candidates.add_minor_candidate
@@ -2124,12 +2163,6 @@ let get_sorted_courses
                 t.data.sorted_courses
             in
             t, courses_opt
-
-let add_sorted_internship =
-    add_gen_unify
-        get_sorted_internships
-        set_sorted_internships
-        Stages_a_trier.add_sorted_internship
 
 let get_sorted_internships
       ?firstname ?lastname
@@ -2802,5 +2835,4 @@ let log_string
   in
   fprintf ?logger t "%s" s
 
-let get_dens_candidates_list t = t, t.data.dens_candidates
 let get_diplomation_year t = t, t.parameters.diplomation_year

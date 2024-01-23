@@ -141,8 +141,8 @@ val get_csv_separator: t -> t * char option
 
 (** list of students *)
 
-val get_dens_candidates_list_prefix: t -> t * string
-val get_dens_candidates_list_repository: t -> t * string
+(*val get_dens_candidates_list_prefix: t -> t * string
+val get_dens_candidates_list_repository: t -> t * string*)
 
 module type Collector =
   sig
@@ -150,9 +150,21 @@ module type Collector =
     type collector
     val get_repository: t -> t * string
     val get: t -> t * collector
-    (*val add: entry -> collector -> collector*)
-    (*val store: collector -> t -> t*)
     val add: t -> entry -> t
+  end
+
+type 'a unification = (string * int * int * int) -> t -> 'a -> 'a -> t * 'a
+
+
+module type Collector_with_unification =
+  sig
+    type entry
+    type collector
+    val get_repository: t -> t * string
+    val get: t -> t * collector
+    val add: entry unification ->
+             (string * int * int * int) ->
+             entry -> t -> t
   end
 
 (* Warnings about the pictures that are missing *)
@@ -261,6 +273,12 @@ module Collector_dens_diplomas: Collector
         with type entry = Public_data.dens
         and type collector = Public_data.dens list
 
+module Collector_dens_candidate: Collector_with_unification with type entry = Public_data.dens_candidate and type collector = Dens_candidates.t
+
+module Collector_stages_tries:
+Collector_with_unification with type entry =  Public_data.stage_a_trier
+and type collector = Stages_a_trier.t
+
 (** list of scholarships *)
 val get_scholarships_list_prefix: t -> t * string
 val get_scholarships_list_repository: t -> t * string
@@ -341,8 +359,8 @@ type 'a add = 'a unify -> pos -> 'a -> t -> t
 
 val add_cost_member: Public_data.cost_member add
 
-val get_dens_candidates_list:
-  t -> t * Dens_candidates.t
+(*val get_dens_candidates_list:
+  t -> t * Dens_candidates.t*)
 
 val get_dens_candidate:
   firstname:string -> lastname:string -> year:string ->
@@ -356,10 +374,10 @@ val get_major_candidates:
   firstname:string -> lastname:string -> year:string ->
   t -> t * Public_data.mineure_majeure list
 
-val add_dens_candidate:
+(*val add_dens_candidate:
   (string * int * int * int ->
   t -> Public_data.dens_candidate -> Public_data.dens_candidate -> t * Public_data.dens_candidate) ->
-  (string * int * int * int) -> Public_data.dens_candidate -> t -> t
+  (string * int * int * int) -> Public_data.dens_candidate -> t -> t*)
 
 val get_status_administratifs_repository: t -> t * string
 
@@ -406,12 +424,12 @@ val get_sorted_courses:
    ?codegps:string -> t -> t * Public_data.cours_a_trier list
 
 val get_cost_members_repository: t -> t * string
-val get_sorted_internships_list_repository: t -> t * string
+(*val get_sorted_internships_list_repository: t -> t * string
 val add_sorted_internship:      (string * int * int * int ->
                 t ->
                 Public_data.stage_a_trier ->
                 Public_data.stage_a_trier -> t * Public_data.stage_a_trier) ->
-               string * int * int * int -> Public_data.stage_a_trier -> t -> t
+               string * int * int * int -> Public_data.stage_a_trier -> t -> t*)
 
    val get_sorted_internships:
       ?firstname:string ->
