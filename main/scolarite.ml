@@ -11,8 +11,8 @@ let state =
     state
 let state =
   Get_gps_files.get_students_list state
-let students_list =
-  Remanent_state.get_students state
+let state, students_list =
+  Remanent_state.Student_ids.get state
 let state, students_list =
   match
     Remanent_state.get_target state
@@ -387,19 +387,6 @@ let state =
                      ~number_of_diploma_per_page:1
                      ~signature ~output state gps
                  in
-                 (*let state =
-                   match input with
-                   | None -> state
-                   | Some (input_rep,file_name) ->
-                     let file_name = Copy.pdf_file file_name in
-                     let state,rep  =
-                       Remanent_state.get_student_personnal_repository
-                         ~firstname ~lastname ?promo state
-                     in
-                     let output_rep = Printf.sprintf "%s/" rep in
-                     Remanent_state.push_copy
-                       ~input_rep ~output_rep ~file_name state
-                 in*)
                  Latex_engine.latex_opt_to_pdf
                    ~rev:true state ~input
              in
@@ -420,19 +407,6 @@ let state =
                       ~number_of_diploma_per_page:1
                      ~language:Public_data.English ~signature ~output state gps
                  in
-                (* let state =
-                   match input with
-                   | None -> state
-                   | Some (input_rep,file_name) ->
-                     let file_name = Copy.pdf_file file_name in
-                     let state,rep  =
-                       Remanent_state.get_student_personnal_repository
-                         ~firstname ~lastname ?promo state
-                     in
-                     let output_rep = Printf.sprintf "%s/" rep in
-                     Remanent_state.push_copy
-                       ~input_rep ~output_rep ~file_name state
-                 in*)
                  Latex_engine.latex_opt_to_pdf
                    ~rev:true state ~input
              in
@@ -470,7 +444,7 @@ let years =
          StringSet.add promo set)
     StringSet.empty students_list
 let state, output_repository_dens =
-      Remanent_state.Collector_dens_diplomas.get_repository 
+      Remanent_state.Collector_dens_diplomas.get_repository
         state
 let state = Sad.dump_sad ~repository:output_repository_dens state
 let title =

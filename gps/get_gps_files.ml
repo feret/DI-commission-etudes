@@ -450,7 +450,7 @@ let try_get_student_file
           l
     in
     let state =
-        Remanent_state.Gps_server_faillures.add 
+        Remanent_state.Gps_server_faillures.add
           state
           {
             Public_data.student_firstname_report =
@@ -852,7 +852,7 @@ let all_fields =
   ]
 
 let compute_repository =
-  Remanent_state.get_students_list_repository
+  Remanent_state.Student_ids.get_repository
 
 let get_students_list
     ?repository
@@ -877,7 +877,7 @@ let get_students_list
     ~keywords_list
     ~init_state:empty_student
     ~empty_elt:Public_data.empty_student_id
-    ~add_elt:Remanent_state.add_student
+    ~add_elt:(fun _ _ a b -> Remanent_state.Student_ids.add b a)
     ~mandatory_fields
     ~all_fields
     ?event_opt

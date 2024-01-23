@@ -140,8 +140,6 @@ val get_include_pictures: t -> t * bool
 val get_csv_separator: t -> t * char option
 
 (** list of students *)
-val get_students_list_prefix: t -> t * string
-val get_students_list_repository: t -> t * string
 
 val get_dens_candidates_list_prefix: t -> t * string
 val get_dens_candidates_list_repository: t -> t * string
@@ -196,6 +194,10 @@ module Missing_grades:
         with type entry = Public_data.missing_grade
         and type collector = Public_data.missing_grade list
 
+module Student_ids:
+        Collector
+        with type entry = Public_data.student_id
+        and type collector = Public_data.student_id list
 module Non_accepted_grades:
         Collector
         with type entry = Public_data.missing_grade
@@ -338,11 +340,6 @@ type 'a unify = (string * int * int * int -> t -> 'a -> 'a -> t * 'a)
 type 'a add = 'a unify -> pos -> 'a -> t -> t
 
 val add_cost_member: Public_data.cost_member add
-
-val get_students:
-  t -> Public_data.student_id list
-
-val add_student: Public_data.student_id add
 
 val get_dens_candidates_list:
   t -> t * Dens_candidates.t

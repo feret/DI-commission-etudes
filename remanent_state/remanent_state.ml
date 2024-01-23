@@ -646,6 +646,20 @@ let get_repository_to_dump_missing_gen get t =
   | "" -> t, get t
   | _ -> t, Format.sprintf "%s/%s" rep (get t)
 
+  let get_bdd t =
+      let t, local = get_local_repository t in
+      match local, t.parameters.database_repository with
+      | "", "" -> t, ""
+      | a,"" | "",a -> t, a
+      | a,b -> t, Format.sprintf "%s/%s" a b
+
+
+  let get_repository_bdd_gen get t =
+    let t, rep = get_bdd t in
+    match rep with
+    | "" -> t, get t
+    | _ -> t, Format.sprintf "%s/%s" rep (get t)
+
   let get_repository_to_dump_reports_gen' gen  ?output_repository t =
     let t, output =
       match output_repository with
@@ -658,6 +672,7 @@ let get_repository_to_dump_missing_gen get t =
     | "","" -> t, ""
     | "",a | a,""-> t, a
     | a,b -> t, Format.sprintf "%s/%s" a b
+
 
 let get_repository_to_dump_reports ?output_repository t =
     get_repository_to_dump_reports_gen'
@@ -685,14 +700,6 @@ module type Interface_collector_without_unification =
     val set: entry list -> data -> data
   end
 
-(*type 'a warning =
-  {
-    warning_prefix: (t -> string)->t->t * string;
-    warning_rep: (t->string);
-    warning_get: data -> 'a;
-    warning_set: 'a -> data -> data;
-  }*)
-
 type report =
   {
     report_prefix: (t -> string)->t->t * string;
@@ -718,8 +725,6 @@ module type Collector =
     type collector
     val get_repository: t -> t * string
     val get: t -> t * collector
-    (*val add: entry -> collector -> collector*)
-    (*val store: collector -> t -> t*)
     val add: t -> entry -> t
   end
 
@@ -737,15 +742,8 @@ module Make_list_collector(I:Interface_collector_without_unification) =
       let t, collector = get t in
       let collector = add a collector in
       store t collector
-  end: Collector with type entry = I.entry and type collector = I.entry list )
-
-    (*let get_course_entries_report data = data.course_entries_report
-    let get_course_entries_report t = lift_get get_course_entries_report t
-    let set_course_entries_report course_entries_report data =
-        {data with course_entries_report}
-    let set_course_entries_report course_entries_report t =
-        lift_set set_course_entries_report course_entries_report t
-*)
+  end: Collector with type entry = I.entry
+      and type collector = I.entry list )
 
   let get_error_handler t =
     t, t.error_log
@@ -818,6 +816,16 @@ module Missing_pictures =
           let set missing_pictures data = {data with missing_pictures}
         end: Interface_collector_without_unification with type entry = Public_data.student)
 
+module Student_ids =
+   Make_list_collector
+      (struct
+        type entry = Public_data.student_id
+        let prefix t = get_repository_bdd_gen t
+        let repository _t = "etudiants" 
+        let get data = data.students
+        let set students data = {data with students}
+
+      end: Interface_collector_without_unification with type entry = Public_data.student_id)
 
 (* Warnings about failure in gps accesses *)
 module Gps_server_faillures =
@@ -1136,9 +1144,6 @@ let get_rep_gen get_main get_prefix t =
   let t, repository = get_prefix t in
   t, Printf.sprintf "%s/%s" main repository
 
-let get_students_list_prefix t =
-  t, "etudiants"
-
 let get_pegasus_status_administratifs_prefix t =
   t, "status_administratifs"
 
@@ -1161,13 +1166,6 @@ let get_study t =
   | a,"" | "",a -> t, a
   | a,b -> t, Format.sprintf "%s/%s" a b
 
-let get_bdd t =
-  let t, local = get_local_repository t in
-  match local, t.parameters.database_repository with
-  | "", "" -> t, ""
-  | a,"" | "",a -> t, a
-  | a,b -> t, Format.sprintf "%s/%s" a b
-
 let get_pegasus t =
   let t, local = get_local_repository t in
   match local, t.parameters.pegasus_repository with
@@ -1177,9 +1175,6 @@ let get_pegasus t =
 
 let get_status_administratifs_repository t =
   get_rep_gen get_pegasus get_pegasus_status_administratifs_prefix t
-
-let get_students_list_repository t =
-  get_rep_gen get_bdd get_students_list_prefix t
 
 let get_stage_entry_list_repository t =
   get_rep_gen get_bdd get_stage_entry_list_prefix t
@@ -1672,12 +1667,6 @@ let close_logger ?logger t =
   else
     t
 
-
-let get_students data = data.students
-let get_students t = lift_get get_students t
-let set_students students data = {data with students}
-let set_students students t = lift_set set_students students t
-
 let get_pegasus_status_administratifs data =   data.status_administratifs
 let get_pegasus_status_administratifs t = lift_get get_pegasus_status_administratifs t
 let set_pegasus_status_administratifs status_administratifs data = {data with status_administratifs}
@@ -1822,9 +1811,6 @@ let set_notes_a_modifier notes_a_modifier data =
   {data with notes_a_modifier}
 let set_notes_a_modifier notes_a_modifier t =
       lift_set set_notes_a_modifier notes_a_modifier t
-
-
-let add_student = add_gen_list get_students set_students
 
 let add_pegasus_status_administratif =
     add_gen_unify
@@ -2489,7 +2475,7 @@ let get_ENSPSL_logo t =
         (List.rev local)
 
 let get_promo ~firstname ~lastname t =
-  let list = get_students t in
+  let t, list = Student_ids.get t in
   let firstname = simplify firstname in
   let lastname = simplify lastname in
   let list =
