@@ -146,85 +146,111 @@ val get_students_list_repository: t -> t * string
 val get_dens_candidates_list_prefix: t -> t * string
 val get_dens_candidates_list_repository: t -> t * string
 
-module type Missing_warning =
+module type Collector =
   sig
     type entry
+    type collector
     val get_repository: t -> t * string
-    val get: t -> t * entry list
+    val get: t -> t * collector
+    (*val add: entry -> collector -> collector*)
+    (*val store: collector -> t -> t*)
     val add: t -> entry -> t
   end
 
 (* Warnings about the pictures that are missing *)
-module Missing_pictures: Missing_warning with type entry = Public_data.student
+module Missing_pictures: Collector
+      with type entry = Public_data.student
+      and type collector = Public_data.student list
 
 (* Warnings about failure in gps accesses *)
-module Gps_server_faillures:
-        Missing_warning with type entry = Public_data.student
+module Gps_server_faillures: Collector
+    with type entry = Public_data.student
+    and type collector = Public_data.student list
 
 (* Warning about internships *)
-module Ambiguous_internship_descriptions:
-        Missing_warning
+module Ambiguous_internship_descriptions: Collector
         with type entry = Public_data.missing_internship_description
+        and type collector = Public_data.missing_internship_description list
 
 (* Warning about internships *)
-module Non_validated_internships:
-        Missing_warning
-        with type  entry = Public_data.missing_internship_description
+module Non_validated_internships: Collector
+        with type entry = Public_data.missing_internship_description
+        and type collector = Public_data.missing_internship_description list
 
-module Internships_to_be_sorted:
-        Missing_warning with type  entry = Public_data.stage_a_trier
+module Internships_to_be_sorted: Collector
+        with type  entry = Public_data.stage_a_trier
+        and type collector = Public_data.stage_a_trier list
 
-module Missing_internship_translations:
-        Missing_warning with type  entry = Public_data.internship
+module Missing_internship_translations: Collector
+       with type  entry = Public_data.internship
+       and type collector = Public_data.internship list
 
 module Missing_internship_descriptions:
-        Missing_warning
+        Collector
         with type entry = Public_data.missing_internship_description
+        and type collector = Public_data.missing_internship_description list
 
 (** Warnings about grades *)
 module Missing_grades:
-        Missing_warning with type entry = Public_data.missing_grade
+        Collector
+        with type entry = Public_data.missing_grade
+        and type collector = Public_data.missing_grade list
 
 module Non_accepted_grades:
-        Missing_warning with type entry = Public_data.missing_grade
+        Collector
+        with type entry = Public_data.missing_grade
+        and type collector = Public_data.missing_grade list
 
 module Under_average_validated_grades:
-        Missing_warning with type entry = Public_data.missing_grade
+        Collector
+        with type entry = Public_data.missing_grade
+        and type collector = Public_data.missing_grade list
 
 module Missing_ects_attributions:
-        Missing_warning with type entry = Public_data.missing_grade
+        Collector
+        with type entry = Public_data.missing_grade
+        and type collector = Public_data.missing_grade list
 
 module Courses_validated_twice:
-        Missing_warning with type entry = Public_data.missing_grade
+        Collector
+        with type entry = Public_data.missing_grade
+        and type collector = Public_data.missing_grade list
 
 (** Warnings about courses *)
-module Missing_course_entries:
-        Missing_warning with type entry = Public_data.course_entry
+module Missing_course_entries: Collector
+        with type entry = Public_data.course_entry
+        and type collector = Public_data.course_entry list
 
 (** Warning about DENS *)
-module Dens_candidate_suggestion:
-        Missing_warning with type entry = Public_data.dens_candidate
+module Dens_candidate_suggestion: Collector
+        with type entry = Public_data.dens_candidate
+        and type collector = Public_data.dens_candidate list
 
-module Dens_candidate_missing_minors:
-        Missing_warning with type entry = Public_data.mineure_majeure
+module Dens_candidate_missing_minors: Collector
+        with type entry = Public_data.mineure_majeure
+        and type collector = Public_data.mineure_majeure list
 
-module Dens_candidate_missing_majors:
-        Missing_warning with type entry = Public_data.mineure_majeure
+module Dens_candidate_missing_majors: Collector
+        with type entry = Public_data.mineure_majeure
+        and type collector = Public_data.mineure_majeure list
 
-module Course_to_be_sorted:
-    Missing_warning with type entry = Public_data.cours_a_trier
+module Course_to_be_sorted: Collector
+        with type entry = Public_data.cours_a_trier
+        and type collector = Public_data.cours_a_trier list
 
   (** Other warnings *)
-module Grade_out_of_schooling_years:
-    Missing_warning with type entry = Public_data.missing_grade
+module Grade_out_of_schooling_years: Collector
+        with type entry = Public_data.missing_grade
+        and type collector = Public_data.missing_grade list
 
-module Missing_mentors:
-    Missing_warning with type entry = Public_data.missing_mentor
+module Missing_mentors: Collector
+        with type entry = Public_data.missing_mentor
+        and type collector = Public_data.missing_mentor list
 
-module Mentors:
-    Missing_warning with type entry = Public_data.mentor
+module Mentors: Collector
+        with type entry = Public_data.mentor
+        and type collector = Public_data.mentor list
 
-(*val get_dens_candidate_suggestion_list_repository: t -> t * string*)
 
 (** list of scholarships *)
 val get_scholarships_list_prefix: t -> t * string
@@ -302,8 +328,7 @@ val get_cost_members:
 type pos = string*int*int*int
 
 type 'a unify = (string * int * int * int -> t -> 'a -> 'a -> t * 'a)
-type 'a add =
- 'a unify -> pos -> 'a -> t -> t
+type 'a add = 'a unify -> pos -> 'a -> t -> t
 
 val add_cost_member: Public_data.cost_member add
 

@@ -12,7 +12,9 @@ end
 
 module Build
     (I:Gen.Interface
-     with type Missing_entry.entry = Public_data.student) =
+     with type Missing_entry.entry = Public_data.student
+      and type Missing_entry.collector = Public_data.student list)
+    =
 struct
 
   let dump_student_list

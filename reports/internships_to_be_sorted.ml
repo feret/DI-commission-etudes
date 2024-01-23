@@ -8,7 +8,9 @@ end
 
 
 module Build
-    (I:Gen.Interface with type Missing_entry.entry = Public_data.stage_a_trier)
+(I:Gen.Interface
+  with type Missing_entry.entry = Public_data.stage_a_trier
+  and type Missing_entry.collector = Public_data.stage_a_trier list)
    =
   struct
 

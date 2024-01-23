@@ -14,7 +14,9 @@ let string_of_stringopt x =
   | Some x -> x
 
 module Buildtwo
-    (I:Gen.Interface with type Missing_entry.entry = Public_data.course_entry) =
+    (I:Gen.Interface
+      with type Missing_entry.entry = Public_data.course_entry
+      and type Missing_entry.collector = Public_data.course_entry list) =
 struct
 
 
@@ -78,6 +80,7 @@ module CourseEntriesReport =
       module Missing_entry =
       struct
       type entry = Public_data.course_entry
+      type collector = entry list
       let get = Remanent_state.get_course_entries_report
       let get_repository =
         Remanent_state.get_repository_to_dump_course_entries_report

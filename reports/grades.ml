@@ -20,7 +20,10 @@ sig
 end
 
 module Build
-     (I:Gen.Interface with type Missing_entry.entry = Public_data.missing_grade) =
+(I:Gen.Interface
+  with type Missing_entry.entry = Public_data.missing_grade
+  and type Missing_entry.collector = Public_data.missing_grade list)
+  =
     struct
 
     let dump_missing_grades

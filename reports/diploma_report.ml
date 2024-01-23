@@ -40,7 +40,10 @@ sig
 end
 
 module Build
-     (I:Gen.Interface with type Missing_entry.entry = Public_data.diplome_national) =
+  (I:Gen.Interface
+    with type Missing_entry.entry = Public_data.diplome_national
+    and type Missing_entry.collector = Public_data.diplome_national list)
+=
 struct
 
   let dump_national_diploma_list
@@ -299,6 +302,7 @@ module DiplomaReport =
       module Missing_entry =
         struct
           type entry = Public_data.diplome_national
+          type collector = Public_data.diplome_national list 
           let get = Remanent_state.get_national_diplomas
           let get_repository =
             Remanent_state.get_repository_to_dump_national_diplomas

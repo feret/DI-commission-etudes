@@ -8,7 +8,10 @@ end
 
 
 module Build
-   (I:Gen.Interface with type Missing_entry.entry = Public_data.dens_candidate) =
+  (I:Gen.Interface
+  with type Missing_entry.entry = Public_data.dens_candidate
+  and type Missing_entry.collector = Public_data.dens_candidate list)
+  =
   struct
 
 

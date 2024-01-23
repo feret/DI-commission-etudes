@@ -24,4 +24,4 @@ module MissingECTSAttributions: ReportGrades
 module NonAcceptedGrades: ReportGrades
 module Validated_twice: ReportGrades
 module Underaveragevalidated: ReportGrades
-module Outofschoolingyears: ReportGrades 
+module Outofschoolingyears: ReportGrades

@@ -127,6 +127,6 @@ val filter_stageat:
 
 module type Interface =
 sig
-  module Missing_entry: Remanent_state.Missing_warning
+  module Missing_entry: Remanent_state.Collector
   val default_file_name: string
 end

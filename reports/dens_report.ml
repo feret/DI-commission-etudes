@@ -42,10 +42,12 @@ sig
 end
 
 module Build
-     (I:Gen.Interface with type Missing_entry.entry = Public_data.dens) =
-struct
+  (I:Gen.Interface
+      with type Missing_entry.entry = Public_data.dens
+      and type Missing_entry.collector = Public_data.dens list) =
+  struct
 
-let dump_dens
+  let dump_dens
     ?firstname
     ?lastname
     ?promo
@@ -278,6 +280,7 @@ module DensReport =
       module Missing_entry =
         struct
           type entry = Public_data.dens
+          type collector = Public_data.dens list 
           let get = Remanent_state.get_dens
           let get_repository =
             Remanent_state.get_repository_to_dump_dens

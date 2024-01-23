@@ -8,9 +8,11 @@ end
 
 
 module Build
-     (I:Gen.Interface with type Missing_entry.entry = Public_data.mineure_majeure)  =
-struct
-
+  (I:Gen.Interface
+    with type Missing_entry.entry = Public_data.mineure_majeure
+    and type Missing_entry.collector = Public_data.mineure_majeure list)
+  =
+    struct
 
   let headers =
     []

@@ -652,8 +652,7 @@ let lift_get get t = get (get_data t)
 let lift_set set data t =
     set_data (set data (get_data t)) t
 
-
-module type Interface_missing_warning =
+module type Interface_collector_without_unification =
   sig
     type entry
     val prefix: (t -> string)->t->t * string
@@ -661,6 +660,7 @@ module type Interface_missing_warning =
     val get: data -> entry list
     val set: entry list -> data -> data
   end
+
 (*type 'a warning =
   {
     warning_prefix: (t -> string)->t->t * string;
@@ -687,29 +687,33 @@ type report =
     report_set_entry: Public_data.course_entry -> string -> Public_data.course_entry;
   }
 
-let gen get set =
-    let add t elt =
-      let elts = get t in
-      set (elt::elts) t
-    in
-    let get t = t, get t in
-    add, get
 
-module type Missing_warning =
+module type Collector =
   sig
     type entry
+    type collector
     val get_repository: t -> t * string
-    val get: t -> t * entry list
+    val get: t -> t * collector
+    (*val add: entry -> collector -> collector*)
+    (*val store: collector -> t -> t*)
     val add: t -> entry -> t
   end
 
 (* Warnings *)
-module Make_missing_warnings(I:Interface_missing_warning) =
+module Make_list_collector(I:Interface_collector_without_unification) =
   (struct
     type entry = I.entry
+    type collector = I.entry list
+
     let get_repository = I.prefix I.repository
-    let add,get = gen (lift_get I.get) (lift_set I.set)
-  end: Missing_warning with type entry = I.entry)
+    let add a b = a::b
+    let get t = t,lift_get I.get t
+    let store a b = lift_set I.set b a
+    let add t a  =
+      let t, collector = get t in
+      let collector = add a collector in
+      store t collector
+  end: Collector with type entry = I.entry and type collector = I.entry list )
 
     (*let get_course_entries_report data = data.course_entries_report
     let get_course_entries_report t = lift_get get_course_entries_report t
@@ -781,54 +785,54 @@ let gen_report_report report =
 
 (* Warnings about the pictures that are missing *)
 module Missing_pictures =
-    Make_missing_warnings
+    Make_list_collector
         (struct
           type entry = Public_data.student
           let prefix = get_repository_to_dump_missing_gen
           let repository t = t.parameters.repository_to_dump_missing_pictures
           let get data = data.missing_pictures
           let set missing_pictures data = {data with missing_pictures}
-        end: Interface_missing_warning with type entry = Public_data.student)
+        end: Interface_collector_without_unification with type entry = Public_data.student)
 
 
 (* Warnings about failure in gps accesses *)
 module Gps_server_faillures =
-  Make_missing_warnings
+  Make_list_collector
       (struct
         type entry = Public_data.student
         let prefix = get_repository_to_dump_missing_gen
         let repository t = t.parameters.repository_to_dump_gps_server_faillures
         let get data = data.gps_server_faillures
         let set gps_server_faillures data = {data with gps_server_faillures}
-      end: Interface_missing_warning with type entry = Public_data.student )
+      end: Interface_collector_without_unification with type entry = Public_data.student )
 
 (* Warning about internships *)
 module Ambiguous_internship_descriptions =
-  Make_missing_warnings
+  Make_list_collector
       (struct
           type entry = Public_data.missing_internship_description
           let prefix = get_repository_to_dump_missing_gen
           let repository t = t.parameters.repository_to_dump_ambiguous_internship_descriptions
           let get data = data.ambiguous_internship_descriptions
           let set ambiguous_internship_descriptions data = {data with ambiguous_internship_descriptions}
-        end: Interface_missing_warning
+        end: Interface_collector_without_unification
               with type entry = Public_data.missing_internship_description)
 
 
 (* Warning about internships *)
 module Non_validated_internships =
-  Make_missing_warnings
+  Make_list_collector
     (struct
         type entry = Public_data.missing_internship_description
         let prefix = get_repository_to_dump_missing_gen
         let repository t = t.parameters.repository_to_dump_non_validated_internships
         let get data = data.non_validated_internships
         let set non_validated_internships data = {data with non_validated_internships}
-     end: Interface_missing_warning
+     end: Interface_collector_without_unification
                     with type entry = Public_data.missing_internship_description)
 
 module Internships_to_be_sorted =
-  Make_missing_warnings
+  Make_list_collector
       (struct
           type entry = Public_data.stage_a_trier
           let prefix = get_repository_to_dump_missing_gen
@@ -836,157 +840,157 @@ module Internships_to_be_sorted =
           let get data = data.internships_to_be_sorted
           let set internships_to_be_sorted data =
               {data with internships_to_be_sorted}
-        end: Interface_missing_warning
+        end: Interface_collector_without_unification
               with type entry = Public_data.stage_a_trier)
 
 module Missing_internship_translations =
-  Make_missing_warnings
+  Make_list_collector
     (struct
         type entry = Public_data.internship
         let prefix = get_repository_to_dump_missing_gen
         let repository t = t.parameters.repository_to_dump_missing_internship_translation
         let get data = data.missing_internship_translations
         let set missing_internship_translations data = {data with missing_internship_translations}
-     end: Interface_missing_warning
+     end: Interface_collector_without_unification
             with type entry = Public_data.internship)
 
 module Missing_internship_descriptions =
-        Make_missing_warnings
+        Make_list_collector
             (struct
                 type entry = Public_data.missing_internship_description
                 let prefix = get_repository_to_dump_missing_gen
                 let repository t = t.parameters.repository_to_dump_missing_internship_descriptions
                 let get data = data.missing_internship_descriptions
                 let set missing_internship_descriptions data = {data with missing_internship_descriptions}
-              end: Interface_missing_warning
+              end: Interface_collector_without_unification
                   with type entry = Public_data.missing_internship_description)
 
 (** Warnings about grades *)
 module Missing_grades =
-  Make_missing_warnings
+  Make_list_collector
       (struct
           type entry = Public_data.missing_grade
           let prefix = get_repository_to_dump_missing_gen
           let repository t = t.parameters.repository_to_dump_missing_grades
           let get data = data.missing_grades
           let set missing_grades data = {data with missing_grades}
-        end: Interface_missing_warning
+        end: Interface_collector_without_unification
               with type entry = Public_data.missing_grade)
 
 module Non_accepted_grades =
-  Make_missing_warnings
+  Make_list_collector
     (struct
         type entry = Public_data.missing_grade
         let prefix = get_repository_to_dump_missing_gen
         let repository t = t.parameters.repository_to_dump_non_accepted_grades
         let get data = data.non_accepted_grades
         let set non_accepted_grades data = {data with non_accepted_grades}
-    end: Interface_missing_warning with type entry = Public_data.missing_grade)
+    end: Interface_collector_without_unification with type entry = Public_data.missing_grade)
 
 module Under_average_validated_grades =
-  Make_missing_warnings
+  Make_list_collector
     (struct
       type entry = Public_data.missing_grade
       let prefix = get_repository_to_dump_missing_gen
       let repository t = t.parameters.repository_to_dump_under_average_validated_grades
       let get data = data.under_average_validated_grades
       let set under_average_validated_grades data = {data with under_average_validated_grades}
-    end: Interface_missing_warning with type entry = Public_data.missing_grade)
+    end: Interface_collector_without_unification with type entry = Public_data.missing_grade)
 
 module Missing_ects_attributions =
-  Make_missing_warnings
+  Make_list_collector
     (struct
         type entry = Public_data.missing_grade
         let prefix = get_repository_to_dump_missing_gen
         let repository t = t.parameters.repository_to_dump_missing_ects_attributions
         let get data = data.missing_ects_attributions
         let set missing_ects_attributions data = {data with missing_ects_attributions}
-    end: Interface_missing_warning with type entry = Public_data.missing_grade)
+    end: Interface_collector_without_unification with type entry = Public_data.missing_grade)
 
 module Courses_validated_twice =
-  Make_missing_warnings
+  Make_list_collector
     (struct
         type entry = Public_data.missing_grade
         let prefix = get_repository_to_dump_missing_gen
         let repository t = t.parameters.repository_to_dump_courses_validated_twice
         let get data = data.courses_validated_twice
         let set courses_validated_twice data = {data with courses_validated_twice}
-    end: Interface_missing_warning with type entry = Public_data.missing_grade)
+    end: Interface_collector_without_unification with type entry = Public_data.missing_grade)
 
 (** Warnings about courses *)
 
 module Missing_course_entries =
-  Make_missing_warnings
+  Make_list_collector
      (struct
        type entry = Public_data.course_entry
        let prefix = get_repository_to_dump_missing_gen
        let repository t = t.parameters.repository_to_dump_missing_course_entries
        let get data = data.missing_course_entries
        let set missing_course_entries data = {data with missing_course_entries}
-      end: Interface_missing_warning with type entry = Public_data.course_entry)
+      end: Interface_collector_without_unification with type entry = Public_data.course_entry)
 
 
 (** Warning about DENS *)
 module Dens_candidate_suggestion =
-  Make_missing_warnings
+  Make_list_collector
     (struct
       type entry = Public_data.dens_candidate
       let prefix = get_repository_to_dump_missing_gen
       let repository t = t.parameters.repository_for_dens_candidate
       let get data = data.dens_candidates_suggestion
       let set dens_candidates_suggestion data = {data with dens_candidates_suggestion}
-     end: Interface_missing_warning with type entry = Public_data.dens_candidate)
+     end: Interface_collector_without_unification with type entry = Public_data.dens_candidate)
 
 module Dens_candidate_missing_minors =
-  Make_missing_warnings
+  Make_list_collector
     (struct
       type entry = Public_data.mineure_majeure
       let prefix = get_repository_to_dump_missing_gen
       let repository t = t.parameters.repository_to_dump_missing_minors
       let get data = data.minor_suggestion
       let set minor_suggestion data = {data with minor_suggestion}
-    end: Interface_missing_warning with type entry = Public_data.mineure_majeure)
+    end: Interface_collector_without_unification with type entry = Public_data.mineure_majeure)
 
 module Dens_candidate_missing_majors =
-  Make_missing_warnings
+  Make_list_collector
     (struct
       type entry = Public_data.mineure_majeure
       let prefix = get_repository_to_dump_missing_gen
       let repository t = t.parameters.repository_to_dump_missing_majors
       let get data = data.major_suggestion
       let set major_suggestion data = {data with major_suggestion}
-     end: Interface_missing_warning with type entry = Public_data.mineure_majeure)
+     end: Interface_collector_without_unification with type entry = Public_data.mineure_majeure)
 
 module Course_to_be_sorted =
-  Make_missing_warnings
+  Make_list_collector
     (struct
       type entry = Public_data.cours_a_trier
       let prefix = get_repository_to_dump_missing_gen
       let repository t = t.parameters.repository_for_courses_to_be_sorted
       let get data = data.courses_to_be_sorted
       let set courses_to_be_sorted data = {data with courses_to_be_sorted}
-    end: Interface_missing_warning with type entry = Public_data.cours_a_trier)
+    end: Interface_collector_without_unification with type entry = Public_data.cours_a_trier)
 
 (** Other warnings *)
 module Grade_out_of_schooling_years =
-  Make_missing_warnings
+  Make_list_collector
     (struct
       type entry = Public_data.missing_grade
       let prefix = get_repository_to_dump_missing_gen
       let repository t = t.parameters.repository_to_dump_out_of_schooling_years
       let get data = data.out_of_schooling_years
       let set out_of_schooling_years data = {data with out_of_schooling_years}
-     end: Interface_missing_warning with type entry = Public_data.missing_grade)
+     end: Interface_collector_without_unification with type entry = Public_data.missing_grade)
 
 module Missing_mentors =
-  Make_missing_warnings
+  Make_list_collector
     (struct
       type entry = Public_data.missing_mentor
       let prefix = get_repository_to_dump_missing_gen
       let repository t = t.parameters.repository_to_dump_missing_mentors
       let get data = data.missing_mentors
       let set missing_mentors data = {data with missing_mentors}
-     end: Interface_missing_warning with type entry = Public_data.missing_mentor)
+     end: Interface_collector_without_unification with type entry = Public_data.missing_mentor)
 
 
 
@@ -2472,6 +2476,13 @@ let list_all_cursus t =
   in
   Format.print_flush ()
 
+let gen get set =
+      let add t elt =
+      let elts = get t in
+      set (elt::elts) t
+    in
+    let get t = t, get t in
+    add, get
 let add_dens, get_dens =
   gen get_dens set_dens
 let add_national_diploma, get_national_diplomas =
@@ -2484,7 +2495,8 @@ let add_mentor t elt =
 module Mentors =
     struct
       type entry = Public_data.mentor
-      let get_repository = get_repository_to_dump_mentors 
+      type collector = Public_data.mentor list 
+      let get_repository = get_repository_to_dump_mentors
       let get = get_mentors
       let add = add_mentor
     end

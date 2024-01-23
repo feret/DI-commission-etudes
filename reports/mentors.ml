@@ -14,8 +14,9 @@ sig
 end
 
 module Build
-    (I:Gen.Interface
-     with type Missing_entry.entry = Public_data.missing_mentor) =
+  (I:Gen.Interface
+    with type Missing_entry.entry = Public_data.missing_mentor
+    and type Missing_entry.collector = Public_data.missing_mentor list) =
 struct
 
   let dump_missing_mentors
