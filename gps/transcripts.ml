@@ -7589,7 +7589,7 @@ let export_transcript
              | None ->
                begin
                let state =
-                 Remanent_state.Missing_mentors.add 
+                 Remanent_state.Missing_mentors.add
                    state
                    {
                      Public_data.missing_mentor_firstname=firstname;
@@ -7657,7 +7657,7 @@ let export_transcript
                      need_a_mentor gps_file)
                  then
                    let state =
-                     Remanent_state.add_mentor
+                     Remanent_state.Collector_mentors.add
                        state
                        {Public_data.mentor_attribution_year =
                           tuteur.Public_data.annee_academique;
@@ -7840,7 +7840,7 @@ let export_transcript
                          state, ""
                      | Some a -> state, a
                    in
-                   Remanent_state.add_mentor
+                   Remanent_state.Collector_mentors.add
                       state
                       {Public_data.mentor_attribution_year =
                          tuteur.Public_data.annee_academique;
@@ -8447,7 +8447,7 @@ let export_transcript
               then
                 match com_year with
                        | Some com_year when com_year = current_year ->
-                      Remanent_state.add_national_diploma state dpl,
+                      Remanent_state.Collector_national_diplomas.add state dpl,
                       m2_list, dip_autre_list
                       | None  | Some _ ->
                           state,m2_list, dip_autre_list
@@ -8752,7 +8752,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                           Public_data.dens_sad = dens_in_bdd.Public_data.dens_candidate_sad;   }
             in
             let state =
-              Remanent_state.add_dens
+              Remanent_state.Collector_dens_diplomas.add
                     state
                     dens
             in
@@ -8808,7 +8808,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                tuteur.Public_data.annee_academique =
                current_year
              then
-               Remanent_state.add_mentor
+               Remanent_state.Collector_mentors.add
                  state
                  {Public_data.mentor_attribution_year =
                     tuteur.Public_data.annee_academique;

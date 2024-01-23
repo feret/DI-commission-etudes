@@ -646,6 +646,30 @@ let get_repository_to_dump_missing_gen get t =
   | "" -> t, get t
   | _ -> t, Format.sprintf "%s/%s" rep (get t)
 
+  let get_repository_to_dump_reports_gen' gen  ?output_repository t =
+    let t, output =
+      match output_repository with
+      | None -> get_dated_output_repository t
+      | Some a -> t, a
+    in
+    match
+      output, gen
+    with
+    | "","" -> t, ""
+    | "",a | a,""-> t, a
+    | a,b -> t, Format.sprintf "%s/%s" a b
+
+let get_repository_to_dump_reports ?output_repository t =
+    get_repository_to_dump_reports_gen'
+          t.parameters.repository_to_dump_reports ?output_repository t
+
+
+let get_repository_to_dump_reports_gen ?output_repository gen t =
+    let t, rep = get_repository_to_dump_reports ?output_repository t in
+    match rep with
+    | "" -> t, (gen t)
+    | _ -> t, Format.sprintf "%s/%s" rep (gen t)
+
 let get_data t = t.data
 let set_data data t = {t with data}
 let lift_get get t = get (get_data t)
@@ -976,7 +1000,7 @@ module Grade_out_of_schooling_years =
   Make_list_collector
     (struct
       type entry = Public_data.missing_grade
-      let prefix = get_repository_to_dump_missing_gen
+      let prefix t = get_repository_to_dump_missing_gen t
       let repository t = t.parameters.repository_to_dump_out_of_schooling_years
       let get data = data.out_of_schooling_years
       let set out_of_schooling_years data = {data with out_of_schooling_years}
@@ -992,38 +1016,37 @@ module Missing_mentors =
       let set missing_mentors data = {data with missing_mentors}
      end: Interface_collector_without_unification with type entry = Public_data.missing_mentor)
 
+module Collector_dens_diplomas =
+  Make_list_collector
+  (struct
+    type entry = Public_data.dens
+    let prefix t = get_repository_to_dump_reports_gen t
+    let repository t = t.parameters.repository_to_dump_dens
+    let get data = data.dens
+    let set dens data = {data with dens}
+   end: Interface_collector_without_unification with type entry = Public_data.dens)
 
+module Collector_national_diplomas =
+     Make_list_collector
+     (struct
+       type entry = Public_data.diplome_national
+       let prefix t = get_repository_to_dump_reports_gen t
+       let repository t = t.parameters.repository_to_dump_national_diplomas
+       let get data = data.national_diplomas
+       let set national_diplomas data = {data with national_diplomas}
+      end: Interface_collector_without_unification with type entry = Public_data.diplome_national)
+
+module Collector_mentors =
+    Make_list_collector
+      (struct
+        type entry = Public_data.mentor
+        let prefix t = get_repository_to_dump_reports_gen t
+        let repository t = t.parameters.repository_to_dump_mentors
+        let get data = data.mentors
+        let set mentors data = {data with mentors}
+      end: Interface_collector_without_unification with type entry = Public_data.mentor)
 
 (* reports *)
-let get_repository_to_dump_reports_gen' gen  ?output_repository t =
-  let t, output =
-    match output_repository with
-    | None -> get_dated_output_repository t
-    | Some a -> t, a
-  in
-  match
-    output, gen
-  with
-  | "","" -> t, ""
-  | "",a | a,""-> t, a
-  | a,b -> t, Format.sprintf "%s/%s" a b
-
-let get_repository_to_dump_reports ?output_repository t =
-    get_repository_to_dump_reports_gen' t.parameters.repository_to_dump_reports ?output_repository t
-
-
-let get_repository_to_dump_reports_gen ?output_repository gen t =
-  let t, rep = get_repository_to_dump_reports ?output_repository t in
-  match rep with
-  | "" -> t, (gen t)
-  | _ -> t, Format.sprintf "%s/%s" rep (gen t)
-
-let get_repository_to_dump_mentors t =
-  get_repository_to_dump_reports_gen
-    (fun t ->
-       t.parameters.repository_to_dump_mentors)
-    t
-
 let get_repository_to_dump_course_entries_report,
     get_course_entries_report,
     _set_course_entries_report,
@@ -1040,18 +1063,6 @@ let get_repository_to_dump_course_entries_report,
     report_set_entry = (fun entry gps_entry -> {entry with Public_data.gps_entry}) ;
 
     }
-
-let get_repository_to_dump_national_diplomas t =
-  get_repository_to_dump_reports_gen
-    (fun t ->
-       t.parameters.repository_to_dump_national_diplomas)
-    t
-
-let get_repository_to_dump_dens t =
-  get_repository_to_dump_reports_gen
-    (fun t ->
-       t.parameters.repository_to_dump_dens)
-    t
 
 (** gps files *)
 let get_repository_to_dump_gps_files ?output_repository t =
@@ -1757,29 +1768,6 @@ let set_compensations compensations data =
 let set_compensations compensations t =
   lift_set set_compensations compensations t
 
-
-let get_mentors data =
-  data.mentors
-let get_mentors t = lift_get get_mentors t
-let set_mentors mentors data = {data with mentors}
-let set_mentors mentors t = lift_set set_mentors mentors t
-
-
-
-let get_national_diplomas data =
-  data.national_diplomas
-let get_national_diplomas t = lift_get get_national_diplomas t
-let set_national_diplomas national_diplomas data =
-      {data with national_diplomas}
-let set_national_diplomas national_diplomas t =
-  lift_set set_national_diplomas national_diplomas t
-
-let get_dens data = data.dens
-let get_dens t = lift_get get_dens t
-let set_dens dens data = {data with dens}
-let set_dens dens t = lift_set set_dens dens t
-
-
 let get_decisions data = data.decisions
 let get_decisions t = lift_get get_decisions t
 let set_decisions decisions data =
@@ -2475,31 +2463,6 @@ let list_all_cursus t =
       t.data.cursus
   in
   Format.print_flush ()
-
-let gen get set =
-      let add t elt =
-      let elts = get t in
-      set (elt::elts) t
-    in
-    let get t = t, get t in
-    add, get
-let add_dens, get_dens =
-  gen get_dens set_dens
-let add_national_diploma, get_national_diplomas =
-  gen get_national_diplomas set_national_diplomas
-let add_mentor, get_mentors =
-  gen get_mentors set_mentors
-let add_mentor t elt =
-  add_mentor t elt
-
-module Mentors =
-    struct
-      type entry = Public_data.mentor
-      type collector = Public_data.mentor list 
-      let get_repository = get_repository_to_dump_mentors
-      let get = get_mentors
-      let add = add_mentor
-    end
 
 let get_ENSPSL_logo t =
   let t, local = get_all_potential_local_repositories t in

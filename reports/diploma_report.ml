@@ -299,15 +299,8 @@ module DiplomaReport =
     (struct
 
       let default_file_name = "diploma.html"
-      module Missing_entry =
-        struct
-          type entry = Public_data.diplome_national
-          type collector = Public_data.diplome_national list 
-          let get = Remanent_state.get_national_diplomas
-          let get_repository =
-            Remanent_state.get_repository_to_dump_national_diplomas
-          let add a _ = a
-end end)
+      module Missing_entry = Remanent_state.Collector_national_diplomas
+    end)
 
 let next_year year =
   try
@@ -698,7 +691,7 @@ let dump_attestations
     ?prefix
     state =
   let state, diplome_list =
-    Remanent_state.get_national_diplomas state
+    Remanent_state.Collector_national_diplomas.get state
   in
   let state, diplome_list =
     Gen.filter

@@ -73,7 +73,7 @@ let state =
            students_list
        then state
        else
-       Remanent_state.add_mentor
+       Remanent_state.Collector_mentors.add
          state
          {Public_data.mentor_attribution_year =
             elt.Public_data.annee_academique ;
@@ -470,7 +470,7 @@ let years =
          StringSet.add promo set)
     StringSet.empty students_list
 let state, output_repository_dens =
-      Remanent_state.get_repository_to_dump_dens
+      Remanent_state.Collector_dens_diplomas.get_repository 
         state
 let state = Sad.dump_sad ~repository:output_repository_dens state
 let title =

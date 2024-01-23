@@ -247,10 +247,17 @@ module Missing_mentors: Collector
         with type entry = Public_data.missing_mentor
         and type collector = Public_data.missing_mentor list
 
-module Mentors: Collector
+module Collector_mentors: Collector
         with type entry = Public_data.mentor
         and type collector = Public_data.mentor list
 
+module Collector_national_diplomas: Collector
+        with type entry = Public_data.diplome_national
+        and type collector = Public_data.diplome_national list
+
+module Collector_dens_diplomas: Collector
+        with type entry = Public_data.dens
+        and type collector = Public_data.dens list
 
 (** list of scholarships *)
 val get_scholarships_list_prefix: t -> t * string
@@ -703,35 +710,8 @@ val get_picture_potential_locations:
 val get_target:
   t -> t * string option
 
-val add_mentor:
-  t -> Public_data.mentor -> t
-
-val get_mentors:
-  t -> t * Public_data.mentor list
-
-val get_repository_to_dump_mentors:
-  t -> t * string
-
-val get_repository_to_dump_dens:
-  t -> t * string
-
-val add_dens:
-  t -> Public_data.dens -> t
-
-val get_dens:
-  t -> t * Public_data.dens list
-
 val get_repository_to_dump_dens_supplement:
   ?output_repository:string -> t -> t * string
-
-val add_national_diploma:
-  t -> Public_data.diplome_national -> t
-
-val get_national_diplomas:
-  t -> t * Public_data.diplome_national list
-
-val get_repository_to_dump_national_diplomas:
-  t -> t * string
 
 val get_course_entries_report:
   t -> t * Public_data.course_entry list

@@ -49,7 +49,7 @@ module Build
 (I:Gen.Interface
   with type Missing_entry.entry = Public_data.mentor
   and type Missing_entry.collector = Public_data.mentor list)
-= 
+=
 struct
 
   let dump_mentor_list
@@ -545,14 +545,6 @@ struct
 module ReportListMentors =
   Build
     (struct
-      module Missing_entry =
-        struct
-          type entry = Public_data.mentor
-          type collector = Public_data.mentor list
-          let get = Remanent_state.get_mentors
-          let get_repository =
-            Remanent_state.get_repository_to_dump_mentors
-          let add a _ =  a
-        end
+      module Missing_entry = Remanent_state.Collector_mentors
       let default_file_name = "tuteurs.html"
-          end)
+     end)

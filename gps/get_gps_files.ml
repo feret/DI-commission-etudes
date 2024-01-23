@@ -417,7 +417,7 @@ let try_get_student_file
                     =
                     s elt.Public_data.nom_de_l_etudiant
              then
-             Remanent_state.add_mentor
+             Remanent_state.Collector_mentors.add
                state
                {Public_data.mentor_attribution_year =
                   elt.Public_data.annee_academique ;

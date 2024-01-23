@@ -277,13 +277,5 @@ module DensReport =
     (struct
       let default_file_name = "dens.html"
 
-      module Missing_entry =
-        struct
-          type entry = Public_data.dens
-          type collector = Public_data.dens list 
-          let get = Remanent_state.get_dens
-          let get_repository =
-            Remanent_state.get_repository_to_dump_dens
-          let add a _ = a
-
-    end end)
+      module Missing_entry = Remanent_state.Collector_dens_diplomas
+    end)

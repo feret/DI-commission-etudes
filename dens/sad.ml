@@ -550,7 +550,7 @@ let dump_one_sad ~repository ?firstname ?lastname ?language ?bilingual dens stat
       state
 
 let dump_sad ~repository?firstname ?lastname ?language ?bilingual state =
-  let state, dens_list = Remanent_state.get_dens state in
+  let state, dens_list = Remanent_state.Collector_dens_diplomas.get state in
     List.fold_right
       (dump_one_sad ~repository ?language ?bilingual ?firstname ?lastname)
       dens_list state
