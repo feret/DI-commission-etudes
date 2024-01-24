@@ -291,6 +291,9 @@ module Collector_minor_candidate: Collector_with_search_by_students with type en
 
 module Collector_major_candidate: Collector_with_search_by_students with type entry = Public_data.mineure_majeure and type collector = Major_candidates.t
 
+module Collector_administrative_status:
+   Collector_with_search_by_students with type entry = Public_data.student_pegasus and type collector = Pegasus_administrative_status.t
+
 module Collector_stages_tries:
 Collector_with_unification with type entry =  Public_data.stage_a_trier
 and type collector = Stages_a_trier.t
@@ -308,11 +311,6 @@ val get_course_exceptions_list_repository: t -> t * string
 
 val get_course_entry_list_prefix: t -> t * string
 val get_course_entry_list_repository: t -> t * string
-
-(*val get_mineure_entry_list_prefix: t -> t * string
-val get_mineure_entry_list_repository: t -> t * string
-val get_majeure_entry_list_prefix: t -> t * string
-val get_majeure_entry_list_repository: t -> t * string*)
 
 val get_departments_list_prefix: t -> t * string
 val get_departments_list_repository: t -> t * string
@@ -371,21 +369,6 @@ type 'a unify = (string * int * int * int -> t -> 'a -> 'a -> t * 'a)
 type 'a add = 'a unify -> pos -> 'a -> t -> t
 
 val add_cost_member: Public_data.cost_member add
-
-val get_status_administratifs_repository: t -> t * string
-
-val add_pegasus_status_administratif:
-    (string * int * int * int ->
-    t -> Public_data.student_pegasus -> Public_data.student_pegasus -> t * Public_data.student_pegasus) ->
-    string * int * int * int -> Public_data.student_pegasus -> t -> t
-
-val get_pegasus_status_administratif:
-    firstname:string ->
-    lastname:string ->
-    year:string -> t -> t * Public_data.student_pegasus list
-
-val get_all_pegasus_status_administratif:
-    t -> t * Pegasus_administrative_status.t
 
 val get_birth_city_fr:
     firstname:string ->

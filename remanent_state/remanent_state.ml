@@ -97,6 +97,7 @@ type parameters =
     repository_for_sorted_internships: string;
     repository_for_grades_to_modify: string;
     repository_for_inscriptions: string;
+    repository_for_pegasus_administrative_status: string;
     repository_to_dump_missing_pictures: string;
     repository_to_dump_non_accepted_grades: string;
     repository_to_dump_non_validated_internships: string;
@@ -245,8 +246,10 @@ let parameters =
     repository_to_dump_missing_majors = "majeures" ;
     repository_to_dump_missing_internship_translation = "stages" ;
     repository_to_dump_dens_candidate = "dens_candidates" ;
+    repository_for_pegasus_administrative_status = "status_administratifs" ;
     current_academic_year = "2023";
     commissions_repository = "commissions_des_etudes";
+
     commission = None ;
     target = None ;
     signature = "feret+tampon.pdf";
@@ -1286,9 +1289,6 @@ let get_rep_gen get_main get_prefix t =
   let t, repository = get_prefix t in
   t, Printf.sprintf "%s/%s" main repository
 
-let get_pegasus_status_administratifs_prefix t =
-  t, "status_administratifs"
-
 module Collector_stages_tries =
   Make_collector_with_unification
     (struct
@@ -1318,9 +1318,28 @@ let get_pegasus t =
     | a,"" | "",a -> t, a
     | a,b -> t, Format.sprintf "%s/%s" a b
 
+let get_pegasus_gen get t =
+  let t, rep = get_pegasus t in
+  match rep with
+  | "" -> t, get t
+  | _ -> t, Format.sprintf "%s/%s" rep (get t)
 
-let get_status_administratifs_repository t =
-  get_rep_gen get_pegasus get_pegasus_status_administratifs_prefix t
+module Collector_administrative_status =
+  Make_collector_with_search_by_students
+    (struct
+      type entry = Public_data.student_pegasus
+      type collector = Pegasus_administrative_status.t
+
+      let prefix = get_pegasus_gen
+      let repository t = t.parameters.repository_for_pegasus_administrative_status
+      let get data =  data.status_administratifs
+      let set status_administratifs data = {data with status_administratifs}
+      let add = Pegasus_administrative_status.add_pegasus_administrative_status
+      let find_list = Pegasus_administrative_status.get_pegasus_administrative_status
+
+    end: Interface_collector_with_search_by_students
+    with type entry = Public_data.student_pegasus
+    and type collector = Pegasus_administrative_status.t )
 
 let get_scholarships_list_prefix t =
   t, t.parameters.repository_for_bourses
@@ -1797,10 +1816,6 @@ let close_logger ?logger t =
   else
     t
 
-let get_pegasus_status_administratifs data =   data.status_administratifs
-let get_pegasus_status_administratifs t = lift_get get_pegasus_status_administratifs t
-let set_pegasus_status_administratifs status_administratifs data = {data with status_administratifs}
-let set_pegasus_status_administratifs status_administratifs t = lift_set set_pegasus_status_administratifs status_administratifs t
 
 let get_cost_members data = data.cost_members
 let get_cost_members t = lift_get get_cost_members t
@@ -1914,7 +1929,7 @@ let set_notes_a_modifier notes_a_modifier data =
 let set_notes_a_modifier notes_a_modifier t =
       lift_set set_notes_a_modifier notes_a_modifier t
 
-let add_pegasus_status_administratif =
+(*let add_pegasus_status_administratif =
     add_gen_unify
       get_pegasus_status_administratifs
       set_pegasus_status_administratifs
@@ -1925,43 +1940,40 @@ let get_pegasus_status_administratif
       ~lastname
       ~year
           t =
-        t, Pegasus_administrative_status.get_pegasus_administrative_status  ~year ~firstname ~lastname  (get_pegasus_status_administratifs t)
-
+        t, Pegasus_administrative_status.get_pegasus_administrative_status  ~year ~firstname ~lastname  (Collectorget_pegasus_status_administratifs t)*)
+(*
 let get_all_pegasus_status_administratif t =
-        t, get_pegasus_status_administratifs t
+        t, get_pegasus_status_administratifs t*)
 
 let get_birth_city_fr
       ~firstname
       ~lastname
       ~year t =
-  let t,l = get_pegasus_status_administratif
+  let t,l = Collector_administrative_status.find_opt
               ~firstname ~lastname ~year t in
   match l with
-      | [] -> warn __POS__ "Student not found in Pegasus" Exit t, None
-      | _::_::_ -> warn __POS__ "Several students found in Pegasus" Exit t, None
-      | [a] -> t, Some a.Public_data.pegasus_birth_city_fr
+      | None -> warn __POS__ "Student not found/or multiple students found in Pegasus" Exit t, None
+      | Some a -> t, Some a.Public_data.pegasus_birth_city_fr
 
-      let get_birth_country_fr
-            ~firstname
-            ~lastname
-            ~year t =
-        let t,l = get_pegasus_status_administratif
-                    ~firstname ~lastname ~year t in
-        match l with
-            | [] -> warn __POS__ "Student not found in Pegasus" Exit t, None
-            | _::_::_ -> warn __POS__ "Several students found in Pegasus" Exit t, None
-            | [a] -> t, Some a.Public_data.pegasus_birth_country_fr
+let get_birth_country_fr
+      ~firstname
+      ~lastname
+      ~year t =
+  let t,l = Collector_administrative_status.find_opt
+              ~firstname ~lastname ~year t in
+  match l with
+      | None -> warn __POS__ "Student not found/or multiple students found in Pegasus" Exit t, None
+      | Some a -> t, Some a.Public_data.pegasus_birth_country_fr
 
-            let get_ine_number
-                  ~firstname
-                  ~lastname
-                  ~year t =
-              let t,l = get_pegasus_status_administratif
-                          ~firstname ~lastname ~year t in
-              match l with
-                  | [] -> warn __POS__ "Student not found in Pegasus" Exit t, None
-                  | _::_::_ -> warn __POS__ "Several students found in Pegasus" Exit t, None
-                  | [a] -> t, Some a.Public_data.pegasus_ine
+let get_ine_number
+      ~firstname
+      ~lastname
+      ~year t =
+    let t,l = Collector_administrative_status.find_opt
+                ~firstname ~lastname ~year t in
+    match l with
+      | None -> warn __POS__ "Student not found/or multiple students found in Pegasus" Exit t, None
+      | Some a -> t, Some a.Public_data.pegasus_ine
 
 let add_cost_member = add_gen_list get_cost_members set_cost_members
 

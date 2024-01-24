@@ -20,7 +20,7 @@ pegasus_ine=None;}
 
 
 let event_opt = Some (Profiling.Collect_pegasus_data)
-let compute_repository = Remanent_state.get_status_administratifs_repository
+let compute_repository = Remanent_state.Collector_administrative_status.get_repository
 
 let lift_pred = Lift.pred_safe
 let lift_string =
@@ -304,7 +304,7 @@ let all_fields =
               ~keywords_of_interest
               ~keywords_list
               ~init_state:empty_candidate_id
-              ~empty_elt:Public_data.empty_student_pegasus ~add_elt:Remanent_state.add_pegasus_status_administratif
+              ~empty_elt:Public_data.empty_student_pegasus ~add_elt:Remanent_state.Collector_administrative_status.add
               ~mandatory_fields
               ~all_fields
               ?event_opt
