@@ -8709,7 +8709,7 @@ let state,year = Remanent_state.get_current_academic_year state in
   in
   let state = Dens.dump_dens dens state in
   let state, dens_in_bdd =
-      Remanent_state.get_dens_candidate ~firstname ~lastname ~year:dens.Public_data.dens_diplomation_year state in
+      Remanent_state.Collector_dens_candidate.find_opt ~firstname ~lastname ~year:dens.Public_data.dens_diplomation_year state in
   let accepte =
       match dens_in_bdd with None -> None
                           |  Some dens_in_bdd -> dens_in_bdd.Public_data.dens_candidate_ok

@@ -454,6 +454,29 @@ let get_prefix t = t, t.prefix
 let get_cloud_synchronization_mode t =
   t, t.parameters.cloud_synchronization_mode
 
+  let get_error_handler t =
+    t, t.error_log
+
+  let set_error_handler error_log t =
+    {t with error_log}
+
+  let get_std_logger t =
+      get_logger_gen (fun x -> x.std_logger) t
+
+  let warn_dft pos message exn default t =
+    let t,error_handler = get_error_handler t in
+    let t, log = get_std_logger t in
+    let t, prefix = get_prefix t in
+    let t, safe_mode = get_is_in_safe_mode t in
+    let error_handler, output =
+      Exception.warn
+        log prefix ~safe_mode error_handler pos ~message exn default
+    in
+    set_error_handler error_handler t, output
+
+  let warn pos message exn t =
+    fst (warn_dft pos message exn () t)
+
 
 let get_cloud_client t =
   t, t.parameters.cloud_client
@@ -713,6 +736,13 @@ module type Interface_collector_with_unification =
     val add: entry unification -> (string * int * int * int) -> t -> entry ->  collector -> t * collector
   end
 
+module type Interface_collector_with_search_by_students =
+    sig
+      include Interface_collector_with_unification
+      val find_list: firstname:string ->     lastname:string -> year:string ->
+        collector -> entry list
+    end
+
 type report =
   {
     report_prefix: (t -> string)->t->t * string;
@@ -752,6 +782,22 @@ module type Collector_with_unification =
              entry -> t -> t
   end
 
+  module type Collector_with_search_by_students =
+      sig
+        type entry
+        type collector
+        val get_repository: t -> t * string
+        val get: t -> t * collector
+        val add: entry unification ->
+                 (string * int * int * int) ->
+                 entry -> t -> t
+        val find_opt: firstname:string ->     lastname:string -> year:string ->
+          t -> t * entry option
+        val find_list: firstname:string ->     lastname:string -> year:string ->
+            t -> t * entry list
+      end
+
+
 (* Warnings *)
 module Make_list_collector(I:Interface_collector_without_unification) =
   (struct
@@ -786,28 +832,40 @@ module Make_collector_with_unification(I:Interface_collector_with_unification) =
   end: Collector_with_unification with type entry = I.entry
       and type collector = I.collector )
 
-  let get_error_handler t =
-    t, t.error_log
+  module Make_collector_with_search_by_students(I:Interface_collector_with_search_by_students) =
+        (struct
+          type entry = I.entry
+          type collector = I.collector
 
-  let set_error_handler error_log t =
-    {t with error_log}
+          let get_repository = I.prefix I.repository
+          (*let add a b = I.add a b*)
+          let get t = t,lift_get I.get t
+          let store a b = lift_set I.set b a
+          let add pos unify entry t  =
+            let t, collector = get t in
+            let t, collector  = I.add pos unify t entry collector in
+            store t collector
 
-  let get_std_logger t =
-      get_logger_gen (fun x -> x.std_logger) t
+          let find_list ~firstname ~lastname ~year t =
+              let t, collector = get t in
+              t, I.find_list ~firstname ~lastname ~year collector
 
-  let warn_dft pos message exn default t =
-    let t,error_handler = get_error_handler t in
-    let t, log = get_std_logger t in
-    let t, prefix = get_prefix t in
-    let t, safe_mode = get_is_in_safe_mode t in
-    let error_handler, output =
-      Exception.warn
-        log prefix ~safe_mode error_handler pos ~message exn default
-    in
-    set_error_handler error_handler t, output
+          let find_opt ~firstname ~lastname ~year t =
+            match
+             find_list ~firstname ~lastname ~year t
+            with
+            | t, [] -> t, None
+            | t, [a] -> t, Some a
+            | t, _::_::_ ->
+                      warn
+                        __POS__
+                        "Several dens candidates for the same year and the same student"
+                        Exit
+                        t,
+                      None
+        end: Collector_with_search_by_students with type entry = I.entry
+            and type collector = I.collector )
 
-  let warn pos message exn t =
-    fst (warn_dft pos message exn () t)
 
   let add_gen get set add pos data t =
     let t, acc =
@@ -1009,24 +1067,55 @@ module Dens_candidate_suggestion =
     (struct
       type entry = Public_data.dens_candidate
       let prefix = get_repository_to_dump_missing_gen
-      let repository t = t.parameters.repository_for_dens_candidate
+      let repository t = t.parameters.repository_to_dump_dens_candidate
       let get data = data.dens_candidates_suggestion
       let set dens_candidates_suggestion data = {data with dens_candidates_suggestion}
      end: Interface_collector_without_unification with type entry = Public_data.dens_candidate)
 
 module Collector_dens_candidate =
-  Make_collector_with_unification
+  Make_collector_with_search_by_students
     (struct
       type entry = Public_data.dens_candidate
       type collector = Dens_candidates.t
 
       let prefix = get_repository_bdd_gen
-      let repository t = t.parameters.repository_to_dump_dens_candidate
+      let repository t = t.parameters.repository_for_dens_candidate
 
       let get data = data.dens_candidates
       let set dens_candidates data = {data with dens_candidates}
       let add = Dens_candidates.add_dens_candidate
+      let find_list = Dens_candidates.get_dens_candidate
     end)
+
+module Collector_minor_candidate =
+  Make_collector_with_search_by_students
+      (struct
+        type entry = Public_data.mineure_majeure
+          type collector = Minor_candidates.t
+
+          let prefix = get_repository_bdd_gen
+          let repository t = t.parameters.repository_for_minors
+
+          let get data = data.minors
+          let set minors data = {data with minors}
+          let add = Minor_candidates.add_minor_candidate
+          let find_list ~firstname ~lastname ~year c = Minor_candidates.get_minor_candidate ~firstname ~lastname ~year c
+        end)
+
+module Collector_major_candidate =
+  Make_collector_with_search_by_students
+      (struct
+        type entry = Public_data.mineure_majeure
+        type collector = Major_candidates.t
+
+        let prefix = get_repository_bdd_gen
+        let repository t = t.parameters.repository_for_majors
+
+        let get data = data.majors
+        let set majors data = {data with majors}
+        let add = Major_candidates.add_major_candidate
+        let find_list ~firstname ~lastname ~year c = Major_candidates.get_major_candidate ~firstname ~lastname ~year c
+      end)
 
 module Dens_candidate_missing_minors =
   Make_list_collector
@@ -1736,18 +1825,6 @@ let get_cost_members t = lift_get get_cost_members t
 let set_cost_members cost_members data = {data with cost_members}
 let set_cost_members cost_members t = lift_set set_cost_members cost_members t
 
-let get_minors data = data.minors
-let get_minors t = lift_get get_minors t
-let set_minors minors data = {data with minors}
-let set_minors minors t =
-  lift_set set_minors minors t
-
-let get_majors data = data.majors
-let get_majors t = lift_get get_majors t
-let set_majors majors data = {data with majors}
-let set_majors majors t =
-    lift_set set_majors majors t
-
 let get_scholarships data = data.scholarships
 let get_scholarships t = lift_get get_scholarships t
 let set_scholarships scholarships data = {data with scholarships}
@@ -1905,12 +1982,6 @@ let get_birth_city_fr
                   | [a] -> t, Some a.Public_data.pegasus_ine
 
 let add_cost_member = add_gen_list get_cost_members set_cost_members
-
-let add_dens_minor =
-    add_gen_unify get_minors set_minors Minor_candidates.add_minor_candidate
-
-let add_dens_major =
-    add_gen_unify get_majors set_majors Major_candidates.add_major_candidate
 
 let add_scholarship =
   add_gen_unify get_scholarships set_scholarships Scholarships.add_scholarship
@@ -2250,37 +2321,6 @@ let get_decision_list
     ?year
     ?program ?dpt
     t.data.decisions
-
-let get_dens_candidate
-    ~firstname ~lastname ~year t =
-  match
-    Dens_candidates.get_dens_candidate
-              ~firstname ~lastname ~year
-              t.data.dens_candidates
-  with
-  | [] -> t, None
-  | [a] -> t, Some a
-  | _::_::_ ->
-            warn
-              __POS__
-              "Several dens candidates for the same year and the same student"
-              Exit
-              t,
-            None
-
-
-let get_minor_candidates
-      ~firstname ~lastname ~year t =
-      t, Minor_candidates.get_minor_candidate
-          ~firstname ~lastname ~year
-          t.data.minors
-
-let get_major_candidates
-      ~firstname ~lastname ~year t =
-      t, Major_candidates.get_major_candidate
-        ~firstname ~lastname ~year
-        t.data.majors
-
 
 let add_admission unify =
   add_gen

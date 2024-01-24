@@ -388,7 +388,7 @@ let collect_mineure dens state =
     let lastname = dens.Public_data.dens_lastname in
     let year = dens.Public_data.dens_diplomation_year in
     let state, minors_list =
-      Remanent_state.get_minor_candidates
+      Remanent_state.Collector_minor_candidate.find_list
         ~firstname ~lastname ~year
         state
     in
@@ -621,7 +621,7 @@ let suggest_mineure dens state =
   let lastname = dens.Public_data.dens_lastname in
   let year = dens.Public_data.dens_diplomation_year in
   let state, minors_list =
-      Remanent_state.get_minor_candidates
+      Remanent_state.Collector_minor_candidate.find_list
         ~firstname ~lastname ~year
         state
   in
@@ -710,7 +710,7 @@ let suggest_majeure dens state =
   let lastname = dens.Public_data.dens_lastname in
   let year = dens.Public_data.dens_diplomation_year in
   let state, majors_list =
-      Remanent_state.get_major_candidates
+      Remanent_state.Collector_major_candidate.find_list
         ~firstname ~lastname ~year
         state
   in
@@ -1185,7 +1185,7 @@ let get_dens_candidates
           ~keywords_of_interest
           ~keywords_list
           ~init_state:empty_secondary_id
-          ~empty_elt:Public_data.empty_mineure_majeure   ~add_elt:Remanent_state.add_dens_minor
+          ~empty_elt:Public_data.empty_mineure_majeure   ~add_elt:Remanent_state.Collector_minor_candidate.add
           ~mandatory_fields
           ~all_fields
           ?event_opt
@@ -1294,7 +1294,7 @@ let get_dens_candidates
               ~keywords_of_interest
               ~keywords_list
               ~init_state:empty_secondary_id
-              ~empty_elt:Public_data.empty_mineure_majeure   ~add_elt:Remanent_state.add_dens_major
+              ~empty_elt:Public_data.empty_mineure_majeure   ~add_elt:Remanent_state.Collector_major_candidate.add 
               ~mandatory_fields
               ~all_fields
               ?event_opt
