@@ -309,13 +309,10 @@ val get_course_exceptions_list_repository: t -> t * string
 val get_course_entry_list_prefix: t -> t * string
 val get_course_entry_list_repository: t -> t * string
 
-val get_stage_entry_list_prefix: t -> t * string
-val get_stage_entry_list_repository: t -> t * string
-
-val get_mineure_entry_list_prefix: t -> t * string
+(*val get_mineure_entry_list_prefix: t -> t * string
 val get_mineure_entry_list_repository: t -> t * string
 val get_majeure_entry_list_prefix: t -> t * string
-val get_majeure_entry_list_repository: t -> t * string
+val get_majeure_entry_list_repository: t -> t * string*)
 
 val get_departments_list_prefix: t -> t * string
 val get_departments_list_repository: t -> t * string

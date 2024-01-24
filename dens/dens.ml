@@ -1046,7 +1046,7 @@ let get_dens_candidates
     }
 
     let event_opt = Some (Profiling.Collect_minors)
-    let compute_repository = Remanent_state.get_mineure_entry_list_repository
+    let compute_repository =   Remanent_state.Collector_minor_candidate.get_repository
 
 
     let keywords_list =
@@ -1195,7 +1195,8 @@ let get_dens_candidates
         state
 
         let event_opt = Some (Profiling.Collect_majors)
-        let compute_repository = Remanent_state.get_majeure_entry_list_repository
+        let compute_repository =
+          Remanent_state.Collector_major_candidate.get_repository  
 
         let all_fields =
             let record_name = "dens major candidate" in
@@ -1294,7 +1295,7 @@ let get_dens_candidates
               ~keywords_of_interest
               ~keywords_list
               ~init_state:empty_secondary_id
-              ~empty_elt:Public_data.empty_mineure_majeure   ~add_elt:Remanent_state.Collector_major_candidate.add 
+              ~empty_elt:Public_data.empty_mineure_majeure   ~add_elt:Remanent_state.Collector_major_candidate.add
               ~mandatory_fields
               ~all_fields
               ?event_opt

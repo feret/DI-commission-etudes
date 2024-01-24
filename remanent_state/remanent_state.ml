@@ -79,7 +79,6 @@ type parameters =
     repository_for_tuteurs: string;
     repository_for_cours: string;
     repository_for_course_entry: string;
-    repository_for_internship_entry: string;
     repository_for_minors: string;
     repository_for_majors: string;
     repository_for_dens_candidate: string;
@@ -240,7 +239,6 @@ let parameters =
     comma_symbol = ',';
     dens_repository = "diplomation";
     diplomation_year = Some "2023" ;
-    repository_for_internship_entry = "stages" ;
     repository_for_minors = "mineures" ;
       repository_for_majors = "majeures" ;
     repository_for_dens_candidate = "dens_candidates" ; repository_to_dump_missing_minors = "mineures" ;
@@ -1305,14 +1303,6 @@ module Collector_stages_tries =
     end: Interface_collector_with_unification
     with type entry = Public_data.stage_a_trier
     and type collector = Stages_a_trier.t )
-let get_stage_entry_list_prefix t =
-  t, t.parameters.repository_for_internship_entry
-
-let get_mineure_entry_list_prefix t =
-  t, t.parameters.repository_for_minors
-
-let get_majeure_entry_list_prefix t =
-    t, t.parameters.repository_for_majors
 
 let get_study t =
   let t, local = get_local_repository t in
@@ -1328,17 +1318,9 @@ let get_pegasus t =
     | a,"" | "",a -> t, a
     | a,b -> t, Format.sprintf "%s/%s" a b
 
+
 let get_status_administratifs_repository t =
   get_rep_gen get_pegasus get_pegasus_status_administratifs_prefix t
-
-let get_stage_entry_list_repository t =
-  get_rep_gen get_bdd get_stage_entry_list_prefix t
-
-let get_mineure_entry_list_repository t =
-  get_rep_gen get_bdd get_mineure_entry_list_prefix t
-
-let get_majeure_entry_list_repository t =
-  get_rep_gen get_bdd get_majeure_entry_list_prefix t
 
 let get_scholarships_list_prefix t =
   t, t.parameters.repository_for_bourses
