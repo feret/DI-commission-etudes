@@ -744,6 +744,13 @@ module type Interface_collector_with_search_by_students =
         collector -> entry list
     end
 
+module type Interface_collector_with_search_by_students_wo_year =
+    sig
+      include Interface_collector_with_unification
+      val find_list: firstname:string -> lastname:string ->
+            collector -> entry list
+    end
+
 type report =
   {
     report_prefix: (t -> string)->t->t * string;
@@ -798,6 +805,21 @@ module type Collector_with_unification =
             t -> t * entry list
       end
 
+      module type Collector_with_search_by_students_wo_year =
+          sig
+            type entry
+            type collector
+            val get_repository: t -> t * string
+            val get: t -> t * collector
+            val add: entry unification ->
+                     (string * int * int * int) ->
+                     entry -> t -> t
+            val find_opt: firstname:string ->     lastname:string  ->
+              t -> t * entry option
+            val find_list: firstname:string ->     lastname:string ->
+                t -> t * entry list
+          end
+
 
 (* Warnings *)
 module Make_list_collector(I:Interface_collector_without_unification) =
@@ -835,17 +857,7 @@ module Make_collector_with_unification(I:Interface_collector_with_unification) =
 
   module Make_collector_with_search_by_students(I:Interface_collector_with_search_by_students) =
         (struct
-          type entry = I.entry
-          type collector = I.collector
-
-          let get_repository = I.prefix I.repository
-          (*let add a b = I.add a b*)
-          let get t = t,lift_get I.get t
-          let store a b = lift_set I.set b a
-          let add pos unify entry t  =
-            let t, collector = get t in
-            let t, collector  = I.add pos unify t entry collector in
-            store t collector
+          include Make_collector_with_unification(I)
 
           let find_list ~firstname ~lastname ~year t =
               let t, collector = get t in
@@ -867,6 +879,30 @@ module Make_collector_with_unification(I:Interface_collector_with_unification) =
         end: Collector_with_search_by_students with type entry = I.entry
             and type collector = I.collector )
 
+
+module Make_collector_with_search_by_students_wo_year(I:Interface_collector_with_search_by_students_wo_year) =
+  (struct
+    include Make_collector_with_unification(I)
+
+    let find_list ~firstname ~lastname t =
+        let t, collector = get t in
+        t, I.find_list ~firstname ~lastname collector
+
+    let find_opt ~firstname ~lastname  t =
+        match
+          find_list ~firstname ~lastname t
+        with
+        | t, [] -> t, None
+        | t, [a] -> t, Some a
+        | t, _::_::_ ->
+          warn
+            __POS__
+            "Several dens candidates for the same year and the same student"
+            Exit
+            t,
+            None
+  end: Collector_with_search_by_students_wo_year with type entry = I.entry
+                      and type collector = I.collector )
 
   let add_gen get set add pos data t =
     let t, acc =
@@ -1311,6 +1347,12 @@ let get_study t =
   | a,"" | "",a -> t, a
   | a,b -> t, Format.sprintf "%s/%s" a b
 
+let _get_study_gen get t =
+  let t, rep = get_study t in
+  match rep with
+  | "" -> t, get t
+  | _ -> t, Format.sprintf "%s/%s" rep (get t)
+
 let get_pegasus t =
   let t, local = get_local_repository t in
   match local, t.parameters.pegasus_repository with
@@ -1341,13 +1383,22 @@ module Collector_administrative_status =
     with type entry = Public_data.student_pegasus
     and type collector = Pegasus_administrative_status.t )
 
-let get_scholarships_list_prefix t =
-  t, t.parameters.repository_for_bourses
+module Collector_scholarships =
+  Make_collector_with_search_by_students_wo_year
+    (struct
+      type entry = Public_data.scholarship
+      type collector = Scholarships.t
 
-let get_scholarships_list_repository t =
-  get_rep_gen get_bdd get_scholarships_list_prefix t
+      let prefix = get_repository_bdd_gen
+      let repository t = t.parameters.repository_for_bourses
+      let get data =  data.scholarships
+      let set scholarships data = {data with scholarships}
+      let add = Scholarships.add_scholarship
+      let find_list = Scholarships.get_scholarship
 
-
+    end: Interface_collector_with_search_by_students_wo_year
+    with type entry = Public_data.scholarship
+    and type collector = Scholarships.t )
 
 let get_monitoring_list_prefix t =
     t, t.parameters.repository_for_tuteurs

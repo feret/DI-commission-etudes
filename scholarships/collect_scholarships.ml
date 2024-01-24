@@ -126,7 +126,7 @@ let all_fields =
   ]
 
 let compute_repository =
-  Remanent_state.get_scholarships_list_repository
+  Remanent_state.Collector_scholarships.get_repository
 
 let get_scholarships
     ?repository

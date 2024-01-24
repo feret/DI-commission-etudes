@@ -166,17 +166,20 @@ module type Collector_with_unification =
 
 module type Collector_with_search_by_students =
     sig
-      type entry
-      type collector
-      val get_repository: t -> t * string
-      val get: t -> t * collector
-      val add: entry unification ->
-               (string * int * int * int) ->
-               entry -> t -> t
+      include Collector_with_unification
       val find_opt: firstname:string ->     lastname:string -> year:string ->
         t -> t * entry option
       val find_list: firstname:string ->     lastname:string -> year:string ->
           t -> t * entry list
+    end
+
+module type Collector_with_search_by_students_wo_year =
+    sig
+      include Collector_with_unification
+      val find_opt: firstname:string ->     lastname:string  ->
+        t -> t * entry option
+      val find_list: firstname:string ->     lastname:string ->
+              t -> t * entry list
     end
 
 (* Warnings about the pictures that are missing *)
@@ -298,9 +301,11 @@ module Collector_stages_tries:
 Collector_with_unification with type entry =  Public_data.stage_a_trier
 and type collector = Stages_a_trier.t
 
-(** list of scholarships *)
-val get_scholarships_list_prefix: t -> t * string
-val get_scholarships_list_repository: t -> t * string
+module Collector_scholarships:
+  Collector_with_search_by_students_wo_year
+  with type entry = Public_data.scholarship
+  and type collector = Scholarships.t
+
 
 (** list of mentoring *)
 val get_monitoring_list_prefix: t -> t * string
