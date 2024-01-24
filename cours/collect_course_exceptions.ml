@@ -41,7 +41,7 @@ let keywords_of_interest =
   ]
 
 let compute_repository =
-  Remanent_state.get_course_exceptions_list_repository
+  Remanent_state.Collector_course_exceptions.get_repository
 
 let event_opt = Some Profiling.Collect_course_exceptions
 
@@ -181,7 +181,7 @@ let get_course_exceptions
     ~keywords_list
     ~init_state:empty_course_exception
     ~empty_elt:Public_data.empty_course_exception
-    ~add_elt:Remanent_state.add_course_exception
+    ~add_elt:Remanent_state.Collector_course_exceptions.add
     ~mandatory_fields
     ~all_fields
     ?event_opt

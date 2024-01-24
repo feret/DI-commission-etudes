@@ -36,7 +36,7 @@ let keywords_of_interest =
   ]
 
 let event_opt = Some (Profiling.Collect_departement)
-let compute_repository = Remanent_state.get_departments_list_repository
+let compute_repository = Remanent_state.Collector_departements.get_repository
 
 let lift_pred = Lift.pred_safe
 let lift_pred_opt = Lift.pred_opt_safe
@@ -196,7 +196,7 @@ let get_dpt
     ~keywords_list
     ~init_state:empty_dpt
     ~empty_elt:Public_data.empty_dpt
-    ~add_elt:Remanent_state.add_dpt
+    ~add_elt:Remanent_state.Collector_departements.add 
     ~mandatory_fields
     ~all_fields
     ?event_opt

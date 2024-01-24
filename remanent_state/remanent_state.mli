@@ -306,19 +306,33 @@ module Collector_scholarships:
   with type entry = Public_data.scholarship
   and type collector = Scholarships.t
 
+module Collector_course_exceptions:
+  Collector_with_unification
+  with type entry = Public_data.course_exception
+  and type collector = Course_exceptions.t
+
+val get_course_exception:
+  codegps:string ->
+  year:Public_data.annee ->
+  t -> t * Public_data.course_exception option
+
+module Collector_departements:
+  Collector_with_unification
+  with type entry = Public_data.dpt
+  and type collector = Departments.t
+
+val get_dpt:
+    acronym:string ->
+    t ->
+    t * Public_data.dpt option
 
 (** list of mentoring *)
 val get_monitoring_list_prefix: t -> t * string
 val get_monitoring_list_repository: t -> t * string
 
-val get_course_exceptions_list_prefix: t -> t * string
-val get_course_exceptions_list_repository: t -> t * string
 
 val get_course_entry_list_prefix: t -> t * string
 val get_course_entry_list_repository: t -> t * string
-
-val get_departments_list_prefix: t -> t * string
-val get_departments_list_repository: t -> t * string
 
 val get_programs_list_prefix: t -> t * string
 val get_programs_list_repository: t -> t * string
@@ -458,27 +472,13 @@ val get_mentoring_list:
   t ->
   t * Public_data.tutorat list
 
-val get_course_exception:
-  codegps:string ->
-  year:Public_data.annee ->
-  t ->
-  t * Public_data.course_exception option
 
-val add_course_exception:
-  (string * int * int * int ->
-   t ->
-   Public_data.course_exception ->
-   Public_data.course_exception-> t * Public_data.course_exception) ->
-  (string * int * int * int) ->
-  Public_data.course_exception ->
-  t -> t
-
-  val get_course_name_translation:
+val get_course_name_translation:
    label:string ->
    t ->
    t * (string option * string option)
 
-  val get_course_entry:
+val get_course_entry:
       string ->
       t ->
       t * Public_data.course_entry option
@@ -501,21 +501,8 @@ val add_course_entry_in_report:
   Public_data.course_entry ->
     t -> t
 
-val add_dpt:
-  (string * int * int * int ->
-   t ->
-   Public_data.dpt ->
-   Public_data.dpt -> t * Public_data.dpt) ->
 
-  (string * int * int * int) ->
-  Public_data.dpt ->
-  t ->
-  t
 
-val get_dpt:
-  acronym:string ->
-  t ->
-  t * Public_data.dpt option
 
 val add_program:
   (string * int * int * int ->

@@ -1347,7 +1347,7 @@ let get_study t =
   | a,"" | "",a -> t, a
   | a,b -> t, Format.sprintf "%s/%s" a b
 
-let _get_study_gen get t =
+let get_study_gen get t =
   let t, rep = get_study t in
   match rep with
   | "" -> t, get t
@@ -1400,29 +1400,58 @@ module Collector_scholarships =
     with type entry = Public_data.scholarship
     and type collector = Scholarships.t )
 
+module Collector_course_exceptions =
+  Make_collector_with_unification
+    (struct
+      type entry = Public_data.course_exception
+      type collector = Course_exceptions.t
+
+      let prefix = get_repository_bdd_gen
+      let repository t = t.parameters.repository_for_cours
+      let get data =  data.course_exceptions
+      let set course_exceptions data = {data with course_exceptions}
+      let add = Course_exceptions.add_course_exception
+
+    end: Interface_collector_with_unification
+    with type entry = Public_data.course_exception
+    and type collector = Course_exceptions.t )
+
+let get_course_exception ~codegps ~year t =
+    let t, collector = Collector_course_exceptions.get t in
+    let course_exception_opt =
+        Course_exceptions.get_course_exception
+          ~codegps ~year
+          collector
+    in
+    t, course_exception_opt
+
+module Collector_departements =
+  Make_collector_with_unification
+    (struct
+      type entry = Public_data.dpt
+      type collector = Departments.t
+      let prefix = get_study_gen
+      let repository t = t.parameters.repository_for_departements
+      let get data = data.dpts
+      let set dpts data = {data with dpts}
+      let add = Departments.add_dpt
+     end:Interface_collector_with_unification
+    with type entry = Public_data.dpt and type collector = Departments.t)
+
+let get_dpt ~acronym t = t, Departments.get_dpt ~acronym t.data.dpts
+
+
 let get_monitoring_list_prefix t =
     t, t.parameters.repository_for_tuteurs
 
 let get_monitoring_list_repository t =
   get_rep_gen get_bdd get_monitoring_list_prefix t
 
-let get_course_exceptions_list_prefix t =
-      t, t.parameters.repository_for_cours
-
-let get_course_exceptions_list_repository t =
-  get_rep_gen get_bdd get_course_exceptions_list_prefix t
-
 let get_course_entry_list_prefix t =
           t, t.parameters.repository_for_course_entry
 
 let get_course_entry_list_repository t =
   get_rep_gen get_bdd get_course_entry_list_prefix t
-
-let get_departments_list_prefix t =
-       t, t.parameters.repository_for_departements
-
-let get_departments_list_repository t =
-  get_rep_gen get_study get_departments_list_prefix t
 
 let get_cost_members_prefix t =
     t, t.parameters.repository_for_cost_members
@@ -1885,12 +1914,6 @@ let set_mentoring mentoring data = {data with mentoring}
 let set_mentoring mentoring t =
   lift_set set_mentoring mentoring t
 
-let get_course_exceptions data = data.course_exceptions
-let get_course_exceptions t = lift_get get_course_exceptions t
-let set_course_exceptions course_exceptions data = {data with course_exceptions}
-let set_course_exceptions course_exceptions t =
-  lift_set set_course_exceptions course_exceptions t
-
 let get_course_entries data = data.course_entries
 let get_course_entries t = lift_get get_course_entries t
 let set_course_entries course_entries data = {data with course_entries}
@@ -1907,12 +1930,6 @@ let get_inscriptions data = data.inscriptions
 let get_inscriptions t = lift_get get_inscriptions t
 let set_inscriptions inscriptions data = {data with inscriptions}  let set_inscriptions inscriptions t =
     lift_set set_inscriptions inscriptions  t
-
-let get_dpts data = data.dpts
-let get_dpts t = lift_get get_dpts t
-let set_dpts dpts data = {data with dpts}
-let set_dpts dpts t =
-  lift_set set_dpts dpts t
 
 let get_programs data = data.programs
 let get_programs t = lift_get get_programs t
@@ -1979,22 +1996,6 @@ let set_notes_a_modifier notes_a_modifier data =
   {data with notes_a_modifier}
 let set_notes_a_modifier notes_a_modifier t =
       lift_set set_notes_a_modifier notes_a_modifier t
-
-(*let add_pegasus_status_administratif =
-    add_gen_unify
-      get_pegasus_status_administratifs
-      set_pegasus_status_administratifs
-      Pegasus_administrative_status.add_pegasus_administrative_status
-
-let get_pegasus_status_administratif
-      ~firstname
-      ~lastname
-      ~year
-          t =
-        t, Pegasus_administrative_status.get_pegasus_administrative_status  ~year ~firstname ~lastname  (Collectorget_pegasus_status_administratifs t)*)
-(*
-let get_all_pegasus_status_administratif t =
-        t, get_pegasus_status_administratifs t*)
 
 let get_birth_city_fr
       ~firstname
@@ -2083,18 +2084,6 @@ let get_mentoring ~firstname ~lastname ~year ?tuteur_gps t =
       t, Some a
     | None ->
       t, tuteur_gps
-
-let add_course_exception =
-  add_gen_unify
-    get_course_exceptions set_course_exceptions Course_exceptions.add_course_exception
-
-let get_course_exception ~codegps ~year t =
-  let course_exception_opt =
-    Course_exceptions.get_course_exception
-      ~codegps ~year
-      (get_course_exceptions t)
-  in
-  t, course_exception_opt
 
   let get_course_name_translation ~label t =
     let label = simplify label in
@@ -2207,15 +2196,6 @@ let get_cursus ~year ~level ?dpt ~gpscodelist ?firstname ?lastname pos t =
       let cursus = {cursus with Public_data.cursus_univ} in
       t, Some cursus
 
-let add_dpt =
-  add_gen_unify
-    get_dpts set_dpts Departments.add_dpt
-
-let get_dpt ~acronym t =
-  let dpt_opt =
-    Departments.get_dpt ~acronym t.data.dpts
-  in
-  t, dpt_opt
 
 let add_program =
   add_gen_unify get_programs set_programs Programs.add_program
