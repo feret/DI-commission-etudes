@@ -740,7 +740,7 @@ module type Interface_collector_with_unification =
 module type Interface_collector_with_search_by_students =
     sig
       include Interface_collector_with_unification
-      val find_list: firstname:string ->     lastname:string -> year:string ->
+      val find_list: firstname:string -> lastname:string -> year:string ->
         collector -> entry list
     end
 
@@ -750,6 +750,15 @@ module type Interface_collector_with_search_by_students_wo_year =
       val find_list: firstname:string -> lastname:string ->
             collector -> entry list
     end
+
+module type Interface_translation =
+   sig
+      include Interface_collector_with_unification
+      val find_opt: string -> collector -> entry option
+      val get_french: entry -> string option
+      val get_english: entry -> string option
+      (*val label: entry -> string*)
+  end
 
 type report =
   {
@@ -819,6 +828,11 @@ module type Collector_with_unification =
             val find_list: firstname:string ->     lastname:string ->
                 t -> t * entry list
           end
+
+module type Translations =
+    sig
+      val get_translation: string -> t -> t * (string option * string option)
+    end
 
 
 (* Warnings *)
@@ -904,6 +918,29 @@ module Make_collector_with_search_by_students_wo_year(I:Interface_collector_with
   end: Collector_with_search_by_students_wo_year with type entry = I.entry
                       and type collector = I.collector )
 
+let simplify s =
+    Special_char.lowercase (Special_char.correct_string_txt (String.trim s))
+
+module Make_collector_translation(I:Interface_translation)  =
+          (struct
+            include Make_collector_with_unification(I)
+
+            let find_opt string t =
+              let t, collector = get t in
+              t, I.find_opt string collector
+
+
+          let get_translation label t =
+            let label = simplify label in
+            match
+              find_opt label t
+            with
+              | t, None -> t, (None,None)
+              | t, Some a -> t,  (I.get_french a,I.get_english a)
+
+          end: Translations)
+
+
   let add_gen get set add pos data t =
     let t, acc =
         add pos t data (get t)
@@ -918,11 +955,6 @@ let add_gen_unify get set add unify =
 
 let add_gen_unify_warn get set add unify =
   add_gen get set (add warn unify)
-
-let simplify s =
-    Special_char.lowercase
-      (Special_char.correct_string_txt
-         (String.trim s))
 
 let gen_report_report report =
     let get_repository = report.report_prefix report.report_rep in
@@ -2085,38 +2117,37 @@ let get_mentoring ~firstname ~lastname ~year ?tuteur_gps t =
     | None ->
       t, tuteur_gps
 
-  let get_course_name_translation ~label t =
-    let label = simplify label in
-    let course_entry_opt =
-        Course_name_translation.get_course_entry label (get_course_entries t)
-    in
-    match course_entry_opt with
-      | None -> t, (None,None)
-      | Some a -> t, (a.Public_data.french_entry,a.Public_data.english_entry)
+module Translate_courses =
+    Make_collector_translation
+      (struct
+          type entry = Public_data.course_entry
+          type collector = Course_name_translation.tentry
+          let prefix t = get_repository_to_dump_reports_gen t
+          let repository t =
+             t.parameters.repository_to_dump_course_entries_report
+          let get data = data.course_entries_report
+          let set course_entries_report data =
+                {data with course_entries_report}
+          let add = Course_name_translation.add_course_entry
+          let find_opt = Course_name_translation.get_course_entry
+          let get_french a = a.Public_data.french_entry
+          let get_english a = a.Public_data.english_entry
+       end:Interface_translation
+        with type entry = Public_data.course_entry
+        and type collector = Course_name_translation.tentry)
+
+
+      let get_course_entry string  t =
+        let course_entry_opt =
+          Course_name_translation.get_course_entry string
+            (get_course_entries t)
+        in
+        t, course_entry_opt
 
 let add_course_entry =
   add_gen_unify
     get_course_entries set_course_entries Course_name_translation.add_course_entry
 
-let get_course_entry string  t =
-  let course_entry_opt =
-    Course_name_translation.get_course_entry string
-      (get_course_entries t)
-  in
-  t, course_entry_opt
-
-(*let add_course_entry_in_report =
-  add_gen_unify
-    get_course_entries_report
-    set_course_entries_report
-    Course_name_translation.add_course_entry
-
-let add_course_entry_in_report unify course t =
-  let t =
-    {t with Public_data.gps_entry =
-              simplify t.Public_data.gps_entry}
-  in
-  add_course_entry_in_report unify course t*)
 
 let get_course_entries_report t =
   let map = get_course_entries_report t in

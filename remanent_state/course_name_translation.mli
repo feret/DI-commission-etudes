@@ -20,4 +20,4 @@ val add_course_entry:
   ((string * int * int * int) -> 'state -> Public_data.course_entry -> Public_data.course_entry -> 'state * Public_data.course_entry) ->
   (string * int * int * int) -> 'state -> Public_data.course_entry -> tentry -> 'state * tentry
 
-val to_list: tentry -> Public_data.course_entry list 
+val to_list: tentry -> Public_data.course_entry list

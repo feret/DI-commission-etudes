@@ -167,9 +167,9 @@ module type Collector_with_unification =
 module type Collector_with_search_by_students =
     sig
       include Collector_with_unification
-      val find_opt: firstname:string ->     lastname:string -> year:string ->
+      val find_opt: firstname:string -> lastname:string -> year:string ->
         t -> t * entry option
-      val find_list: firstname:string ->     lastname:string -> year:string ->
+      val find_list: firstname:string -> lastname:string -> year:string ->
           t -> t * entry list
     end
 
@@ -180,6 +180,11 @@ module type Collector_with_search_by_students_wo_year =
         t -> t * entry option
       val find_list: firstname:string ->     lastname:string ->
               t -> t * entry list
+    end
+
+module type Translations =
+    sig
+      val get_translation: string -> t -> t * (string option * string option)
     end
 
 (* Warnings about the pictures that are missing *)
@@ -310,6 +315,9 @@ module Collector_course_exceptions:
   Collector_with_unification
   with type entry = Public_data.course_exception
   and type collector = Course_exceptions.t
+
+module Translate_courses: Translations
+
 
 val get_course_exception:
   codegps:string ->
@@ -471,12 +479,6 @@ val get_mentoring_list:
   ?year:Public_data.annee ->
   t ->
   t * Public_data.tutorat list
-
-
-val get_course_name_translation:
-   label:string ->
-   t ->
-   t * (string option * string option)
 
 val get_course_entry:
       string ->

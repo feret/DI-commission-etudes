@@ -5613,9 +5613,8 @@ let program
                   begin
                     let state, l, l_en =
                       match
-                        Remanent_state.get_course_name_translation
-                          ~label:l
-                          state
+                        Remanent_state.Translate_courses.get_translation
+                          l state
                       with
                       | state, (None,None) ->
                         let state =
@@ -5775,9 +5774,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                   in
                   let state, l, l_en =
                     match
-                      Remanent_state.get_course_name_translation
-                        ~label:l
-                            state
+                      Remanent_state.Translate_courses.get_translation l state
                     with
                     | state, (None,None) ->
                       let state =
@@ -5862,8 +5859,8 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
               state, libelle, None
           else
             match
-              Remanent_state.get_course_name_translation
-                ~label:(match libelle with Some a -> a | None -> "")
+              Remanent_state.Translate_courses.get_translation
+                (match libelle with Some a -> a | None -> "")
                 state
             with
             | state, (None,None) ->
@@ -6523,9 +6520,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                     begin
                       let state, l, l_en =
                         match
-                          Remanent_state.get_course_name_translation
-                            ~label:l
-                            state
+                          Remanent_state.Translate_courses.get_translation l state
                         with
                         | state, (None,None) ->
                           let state =
@@ -6685,9 +6680,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                     in
                     let state, l, l_en =
                       match
-                        Remanent_state.get_course_name_translation
-                          ~label:l
-                              state
+                        Remanent_state.Translate_courses.get_translation l state
                       with
                       | state, (None,None) ->
                         let state =
@@ -6772,8 +6765,8 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                 state, libelle, None
             else
               match
-                Remanent_state.get_course_name_translation
-                  ~label:(match libelle with Some a -> a | None -> "")
+                Remanent_state.Translate_courses.get_translation
+                  (match libelle with Some a -> a | None -> "")
                   state
               with
               | state, (None,None) ->

@@ -243,8 +243,8 @@ let dump_course_gen label is_empty fold fold_state _iter acc state =
         (fun elt state  ->
             let state, l, _l_en =
               match
-                Remanent_state.get_course_name_translation
-                  ~label:elt.Public_data.supplement_intitule
+                Remanent_state.Translate_courses.get_translation
+                  elt.Public_data.supplement_intitule
                   state
               with
               | state, (None,None) ->
