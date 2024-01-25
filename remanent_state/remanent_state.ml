@@ -831,6 +831,7 @@ module type Collector_with_unification =
 
 module type Translations =
     sig
+      include Collector_with_unification
       val get_translation: string -> t -> t * (string option * string option)
     end
 
@@ -938,7 +939,7 @@ module Make_collector_translation(I:Interface_translation)  =
               | t, None -> t, (None,None)
               | t, Some a -> t,  (I.get_french a,I.get_english a)
 
-          end: Translations)
+          end: Translations with type entry = I.entry)
 
 
   let add_gen get set add pos data t =
@@ -1479,12 +1480,6 @@ let get_monitoring_list_prefix t =
 let get_monitoring_list_repository t =
   get_rep_gen get_bdd get_monitoring_list_prefix t
 
-let get_course_entry_list_prefix t =
-          t, t.parameters.repository_for_course_entry
-
-let get_course_entry_list_repository t =
-  get_rep_gen get_bdd get_course_entry_list_prefix t
-
 let get_cost_members_prefix t =
     t, t.parameters.repository_for_cost_members
 
@@ -1946,12 +1941,6 @@ let set_mentoring mentoring data = {data with mentoring}
 let set_mentoring mentoring t =
   lift_set set_mentoring mentoring t
 
-let get_course_entries data = data.course_entries
-let get_course_entries t = lift_get get_course_entries t
-let set_course_entries course_entries data = {data with course_entries}
-let set_course_entries course_entries t =
-        lift_set set_course_entries course_entries t
-
 let get_cursus data = data.cursus
 let get_cursus t = lift_get get_cursus t
 let set_cursus cursus data = {data with cursus}
@@ -2124,10 +2113,9 @@ module Translate_courses =
           type collector = Course_name_translation.tentry
           let prefix t = get_repository_to_dump_reports_gen t
           let repository t =
-             t.parameters.repository_to_dump_course_entries_report
-          let get data = data.course_entries_report
-          let set course_entries_report data =
-                {data with course_entries_report}
+             t.parameters.repository_for_course_entry
+          let get data = data.course_entries
+          let set course_entries data = {data with course_entries}
           let add = Course_name_translation.add_course_entry
           let find_opt = Course_name_translation.get_course_entry
           let get_french a = a.Public_data.french_entry
@@ -2136,17 +2124,6 @@ module Translate_courses =
         with type entry = Public_data.course_entry
         and type collector = Course_name_translation.tentry)
 
-
-      let get_course_entry string  t =
-        let course_entry_opt =
-          Course_name_translation.get_course_entry string
-            (get_course_entries t)
-        in
-        t, course_entry_opt
-
-let add_course_entry =
-  add_gen_unify
-    get_course_entries set_course_entries Course_name_translation.add_course_entry
 
 
 let get_course_entries_report t =

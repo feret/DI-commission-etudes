@@ -184,6 +184,7 @@ module type Collector_with_search_by_students_wo_year =
 
 module type Translations =
     sig
+      include Collector_with_unification
       val get_translation: string -> t -> t * (string option * string option)
     end
 
@@ -317,6 +318,7 @@ module Collector_course_exceptions:
   and type collector = Course_exceptions.t
 
 module Translate_courses: Translations
+  with type entry = Public_data.course_entry 
 
 
 val get_course_exception:
@@ -337,10 +339,6 @@ val get_dpt:
 (** list of mentoring *)
 val get_monitoring_list_prefix: t -> t * string
 val get_monitoring_list_repository: t -> t * string
-
-
-val get_course_entry_list_prefix: t -> t * string
-val get_course_entry_list_repository: t -> t * string
 
 val get_programs_list_prefix: t -> t * string
 val get_programs_list_repository: t -> t * string
@@ -479,20 +477,6 @@ val get_mentoring_list:
   ?year:Public_data.annee ->
   t ->
   t * Public_data.tutorat list
-
-val get_course_entry:
-      string ->
-      t ->
-      t * Public_data.course_entry option
-
-val add_course_entry:
-  (string * int * int * int ->
-   t ->
-   Public_data.course_entry ->
-   Public_data.course_entry-> t * Public_data.course_entry) ->
-  (string * int * int * int) ->
-  Public_data.course_entry ->
-  t -> t
 
 val add_course_entry_in_report:
   (string * int * int * int ->
