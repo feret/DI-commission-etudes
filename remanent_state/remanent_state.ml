@@ -1358,6 +1358,12 @@ let get_rep_gen get_main get_prefix t =
   let t, repository = get_prefix t in
   t, Printf.sprintf "%s/%s" main repository
 
+  let get_course_entry_list_prefix t =
+                t, t.parameters.repository_for_course_entry
+
+  let get_course_entry_list_repository t =
+      get_rep_gen get_bdd get_course_entry_list_prefix t
+
 module Collector_stages_tries =
   Make_collector_with_unification
     (struct

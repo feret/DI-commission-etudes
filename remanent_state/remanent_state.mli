@@ -136,7 +136,10 @@ val get_rel_url_prefix_for_photos: t -> t * string
 val get_correct_rel_url_prefix_for_photos: t -> t * string
 val get_include_pictures: t -> t * bool
 
+val get_course_entry_list_repository: t -> t * string
+
 (** CSV *)
+
 val get_csv_separator: t -> t * char option
 
 (** list of students *)
@@ -318,7 +321,7 @@ module Collector_course_exceptions:
   and type collector = Course_exceptions.t
 
 module Translate_courses: Translations
-  with type entry = Public_data.course_entry 
+  with type entry = Public_data.course_entry
 
 
 val get_course_exception:

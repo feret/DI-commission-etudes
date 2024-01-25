@@ -29,7 +29,7 @@ let keywords_of_interest =
     Public_data.Entree_GPS ;
   ]
 
-let compute_repository = Remanent_state.Translate_courses.get_repository
+let compute_repository = Remanent_state.get_course_entry_list_repository
 let event_opt = Some Profiling.Collect_course_entries
 
 let lift_pred = Lift.pred_safe
