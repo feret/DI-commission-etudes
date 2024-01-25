@@ -120,7 +120,6 @@ let add_course_entry
     course_entry course_entries
   =
   let label = course_entry.Public_data.gps_entry in
-  let () = Format.printf "%s" label in 
   let course_entry_opt' =
     get_course_entry label course_entries
   in
