@@ -187,10 +187,11 @@ module type Collector_with_search_by_students_wo_year =
 
     module type Translations =
         sig
-          include Collector_with_unification
-          module Report: Collector_with_unification
+          module Collector:Collector_with_unification
+          module Report:Collector_with_unification
+          module Missing: Collector with type collector = Collector.entry list 
           val get_translation: string -> t -> t * (string option * string option)
-          val get_report: t -> t * entry list
+          val get_report: t -> t * Collector.entry list
         end
 
 (* Warnings about the pictures that are missing *)
@@ -257,9 +258,9 @@ module Courses_validated_twice:
         and type collector = Public_data.missing_grade list
 
 (** Warnings about courses *)
-module Missing_course_entries: Collector
+(*module Missing_course_entries: Collector
         with type entry = Public_data.course_entry
-        and type collector = Public_data.course_entry list
+        and type collector = Public_data.course_entry list*)
 
 (** Warning about DENS *)
 module Dens_candidate_suggestion: Collector
@@ -323,9 +324,10 @@ module Collector_course_exceptions:
   and type collector = Course_exceptions.t
 
 module Translate_courses: Translations
-  with type entry = Public_data.course_entry
-  and type Report.entry = Public_data.course_entry 
-
+  with type Collector.entry = Public_data.course_entry
+  and type Report.entry  = Public_data.course_entry
+  and type Missing.entry = Public_data.course_entry
+  (*and type Missing.collector = Public_data.course_entry list*)
 
 val get_course_exception:
   codegps:string ->

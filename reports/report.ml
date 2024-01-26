@@ -299,7 +299,7 @@ let dump_issues state =
 
 let warn state =
   let state =
-    let state, a = Remanent_state.Missing_course_entries.get state in
+    let state, a = Remanent_state.Translate_courses.get_report state in
     match a
     with
     | []-> state

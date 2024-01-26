@@ -95,7 +95,7 @@ let get_course_entries
     ~keywords_list
     ~init_state:empty_course_entry
     ~empty_elt:Public_data.empty_course_entry
-    ~add_elt:Remanent_state.Translate_courses.add
+    ~add_elt:Remanent_state.Translate_courses.Collector.add
     ~mandatory_fields
     ~all_fields
     ?event_opt

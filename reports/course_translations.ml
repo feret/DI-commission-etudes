@@ -69,7 +69,7 @@ end
 module MissingCourseEntries =
   Buildtwo
     (struct
-      module Missing_entry = Remanent_state.Missing_course_entries
+      module Missing_entry = Remanent_state.Translate_courses.Missing
       let default_file_name = "course_entries.csv"
     end)
 
@@ -79,11 +79,11 @@ module CourseEntriesReport =
       let default_file_name = "course_entries.csv"
       module Missing_entry =
       struct
-      type entry = Public_data.course_entry
-      type collector = entry list
-      let get = Remanent_state.Translate_courses.get_report
-      let get_repository =
-        Remanent_state.Translate_courses.Report.get_repository
-      let add a _ = a
+       type entry = Public_data.course_entry
+       type collector = entry list
+       let get = Remanent_state.Translate_courses.get_report
+       let get_repository =
+         Remanent_state.Translate_courses.Report.get_repository
+       let add a _ = a
       end
     end)

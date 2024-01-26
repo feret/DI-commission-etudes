@@ -763,6 +763,9 @@ module type Interface_translation =
       module Report: Interface_collector_with_unification
              with type entry = entry
 
+      module Missing: Interface_collector_without_unification
+             with type entry = entry
+
       val report_to_list: Report.collector -> entry list
       (*val label: entry -> string*)
   end
@@ -819,10 +822,12 @@ module type Collector_with_unification =
 
 module type Translations =
     sig
-      include Collector_with_unification
+      module Collector: Collector_with_unification
       module Report: Collector_with_unification
+      module Missing: Collector with type collector = Collector.entry list 
+
       val get_translation: string -> t -> t * (string option * string option)
-      val get_report: t -> t * entry list
+      val get_report: t -> t * Collector.entry list
     end
 
 
@@ -915,11 +920,14 @@ let simplify s =
 module Make_collector_translation(I:Interface_translation)  =
           (struct
             module Collector = Make_collector_with_unification(I.Collector)
-            include Collector
-            module Report = (Make_collector_with_unification(I.Report): Collector_with_unification with type entry = I.Report.entry and type collector = I.Report.collector)
+            (*include Collector*)
+            module Report = (Make_collector_with_unification(I.Report): Collector_with_unification with type entry = I.Report.entry and
+            type collector = I.Report.collector)
+            module Missing = (Make_list_collector(I.Missing): Collector with type entry = I.Missing.entry and type collector = I.Missing.entry list)
+
 
             let find_opt string t =
-              let t, collector = get t in
+              let t, collector = Collector.get t in
               t, I.find_opt string collector
 
 
@@ -935,7 +943,11 @@ module Make_collector_translation(I:Interface_translation)  =
            let get_report t =
               let t, collector = Report.get t in
               t, I.report_to_list collector
-          end: Translations with type entry = I.entry and type Report.entry = I.entry)
+          end: Translations
+            with type Collector.entry = I.entry
+             and type Report.entry = I.entry
+             and type Missing.entry = I.entry
+             and type Missing.collector = I.entry list )
 
 
   let add_gen get set add pos data t =
@@ -1096,19 +1108,6 @@ module Courses_validated_twice =
         let get data = data.courses_validated_twice
         let set courses_validated_twice data = {data with courses_validated_twice}
     end: Interface_collector_without_unification with type entry = Public_data.missing_grade)
-
-(** Warnings about courses *)
-
-module Missing_course_entries =
-  Make_list_collector
-     (struct
-       type entry = Public_data.course_entry
-       let prefix = get_repository_to_dump_missing_gen
-       let repository t = t.parameters.repository_to_dump_missing_course_entries
-       let get data = data.missing_course_entries
-       let set missing_course_entries data = {data with missing_course_entries}
-      end: Interface_collector_without_unification with type entry = Public_data.course_entry)
-
 
 (** Warning about DENS *)
 module Dens_candidate_suggestion =
@@ -2119,6 +2118,15 @@ module Translate_courses =
               let add = Course_name_translation.add_course_entry;
           end)
 
+          module Missing =
+          (struct
+              type entry = Public_data.course_entry
+              let prefix t = get_repository_to_dump_missing_gen t
+              let repository t = t.parameters.repository_to_dump_missing_course_entries
+              let get data = data.missing_course_entries
+              let set missing_course_entries data = {data with missing_course_entries}
+          end)
+
           let report_to_list = Course_name_translation.to_list
           let find_opt = Course_name_translation.get_course_entry
           let get_french a = a.Public_data.french_entry
@@ -2126,7 +2134,8 @@ module Translate_courses =
        end:Interface_translation
         with type entry = Public_data.course_entry
         and type Collector.collector = Course_name_translation.tentry
-        and type Report.entry = Public_data.course_entry)
+        and type Report.entry = Public_data.course_entry
+        )
 
 
 
