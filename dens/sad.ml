@@ -244,6 +244,7 @@ let dump_course_gen label is_empty fold fold_state _iter acc state =
             let state, l, _l_en =
               match
                 Remanent_state.Translate_courses.get_translation
+                  Collect_course_entries.unify_course_entry __POS__ 
                   elt.Public_data.supplement_intitule
                   state
               with

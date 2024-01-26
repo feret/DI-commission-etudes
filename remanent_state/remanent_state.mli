@@ -189,8 +189,8 @@ module type Collector_with_search_by_students_wo_year =
         sig
           module Collector:Collector_with_unification
           module Report:Collector_with_unification
-          module Missing: Collector with type collector = Collector.entry list 
-          val get_translation: string -> t -> t * (string option * string option)
+          module Missing: Collector with type collector = Collector.entry list
+          val get_translation: Collector.entry unification -> (string * int * int * int) -> string -> t -> t * (string option * string option)
           val get_report: t -> t * Collector.entry list
         end
 

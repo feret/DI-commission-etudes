@@ -5573,19 +5573,10 @@ let program
         let state, f =
           special_course state cours
         in
-        let state, libelle, course_entry, stage_opt =
+        let state, libelle, stage_opt =
           match cours.cours_libelle with
-          | None -> state,
-                    None,
-                     Public_data.empty_course_entry, None
+          | None -> state,None,None
           | Some l ->
-            let course_entry =
-              {
-                Public_data.empty_course_entry
-                with
-                  Public_data.gps_entry = l
-              }
-            in
             if is_stage cours
             then
               begin
@@ -5611,83 +5602,31 @@ let program
                 match stage_opt with
                 | None ->
                   begin
-                    let state, l, l_en =
-                      match
+                    let state, (lib, lib_en) =
                         Remanent_state.Translate_courses.get_translation
+                          Collect_course_entries.unify_course_entry __POS__
                           l state
-                      with
-                      | state, (None,None) ->
-                        let state =
-                          Remanent_state.Translate_courses.Missing.add
-                            state
-                            {Public_data.empty_course_entry with
-                             Public_data.gps_entry = l}
-                        in
-                        state, Some l, None
-                      | state, (lib, lib_en) ->
-                        let lib =
-                          match lib with
-                          | None -> Some l
-                          | a -> a
-                        in
-                        let state, lib_en =
-                          let course_entry =
-                            {course_entry
-                             with Public_data.french_entry=lib;
-                                  Public_data.english_entry=lib_en}
-                          in
-                          match lib, lib_en with
-                          | None, None -> state, None
-                          | Some _, Some y ->
-                            let y = String.trim y in
-                            if y = ""
-                            ||
-                            (String.sub y 0 1 = "\"" &&
-                             String.trim (String.sub y 1 ((String.length y)-1))
-                             = "\"")
-                            then
-                                Remanent_state.Translate_courses.Missing.add
-                                  state
-                                  course_entry, lib
-                            else
-                              let state =
-                                Remanent_state.Translate_courses.Report.add       Collect_course_entries.unify_course_entry
-                                  __POS__
-                                  course_entry
-                                  state
-                              in
-                              state, lib_en
-                          | None, Some x | Some x, None ->
-                            let state =
-                              Remanent_state.Translate_courses.Missing.add
-                                state
-                                course_entry
-                            in
-                            state, Some x
-                        in
-                        state, lib, lib_en
                     in
                     let stage_entry =
                         {
                           Public_data.activite_annee = year ;Public_data.activite_activite="Stage d'Informatique";
                           Public_data.activite_activite_fr=Some "Stage d'Informatique";
 Public_data.activite_activite_en=Some "Internship in Computer Science";
-                          Public_data.activite_intitule=(match l with None -> "" | Some l -> l) ;
-                          Public_data.activite_intitule_fr=l;
+                          Public_data.activite_intitule=(match lib with None -> "" | Some l -> l) ;
+                          Public_data.activite_intitule_fr=lib;
                           Public_data.activite_intitule_en=
-(match l_en with None -> "" | Some l -> l);
+(match lib_en with None -> "" | Some l -> l);
                           Public_data.activite_code = Tools.unsome_string
                             cours.code_cours;
                           Public_data.activite_ects = 0.}
                     in
                     let state, libelle =
                       Remanent_state.bilingual_string
-                        ?english:l_en
-                        ~french:(string_of_stringopt l)
+                        ?english:lib_en
+                        ~french:(string_of_stringopt lib)
                         state
                     in
-                    state, Some libelle, course_entry,
-                    Some stage_entry
+                    state, Some libelle, Some stage_entry
                   end
                 | Some stage ->
                   let issue =
@@ -5771,55 +5710,11 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                         state, Format.sprintf
                           "\\newline %s %s" directed a
                   in
-                  let state, l, l_en =
-                    match
-                      Remanent_state.Translate_courses.get_translation l state
-                    with
-                    | state, (None,None) ->
-                      let state =
-                        Remanent_state.Translate_courses.Missing.add
-                          state
-                          course_entry
-                      in
-                      state, Some l, None
-                    | state, (lib, lib_en) ->
-                      let lib =
-                        match lib with
-                        | None -> Some l
-                        | a -> a
-                      in
-                      let course_entry =
-                        {course_entry
-                         with Public_data.french_entry=lib;
-                              Public_data.english_entry=lib_en}
-                      in
-                      let state, lib_en =
-                        match lib, lib_en with
-                        | None, None -> state, None
-                        | Some _, Some y ->
-                          if String.trim y = ""
-                          then
-                            Remanent_state.Translate_courses.Missing.add
-                                state
-                                course_entry, lib
-                          else
-                            let state =
-                              Remanent_state.Translate_courses.Report.add
-                                Collect_course_entries.unify_course_entry
-                                __POS__
-                                course_entry
-                                state
-                            in
-                            state, lib_en
-                        | None, Some x | Some x, None ->
-                          let state =
-                            Remanent_state.Translate_courses.Missing.add
-                              state
-                              course_entry
-                          in
-                          state, Some x
-                      in
-                      state, lib, lib_en
+                  let state, (l, l_en) =
+                      Remanent_state.Translate_courses.get_translation
+                      Collect_course_entries.unify_course_entry __POS__
+                      l state
+
                   in
                   let state, libelle =
                     Remanent_state.bilingual_string
@@ -5830,10 +5725,9 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                   state,
                   Some
                     (Format.sprintf "%s%s%s" libelle sujet directeur),
-                   course_entry,
                   Some stage_entry
               end
-            else state, Some l,course_entry, None
+            else state, Some l,None
         in
         let stage_list =
           match stage_opt with None -> stage_list | Some st -> st::stage_list
@@ -5857,39 +5751,12 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
               in
               state, libelle, None
           else
-            match
+            let a, (b,c) =
               Remanent_state.Translate_courses.get_translation
+                Collect_course_entries.unify_course_entry __POS__
                 (match libelle with Some a -> a | None -> "")
                 state
-            with
-            | state, (None,None) ->
-              let state =
-                Remanent_state.Translate_courses.Missing.add
-                  state
-                  course_entry
-              in
-              state, libelle, None
-            | state, (lib, lib_en)  ->
-              let course_entry =
-                {course_entry
-                 with Public_data.french_entry=lib;
-                      Public_data.english_entry=lib_en}
-              in
-              let state =
-                match lib, lib_en with
-                | None, None -> state
-                | Some _, Some _ ->
-                  Remanent_state.Translate_courses.Report.add
-                    Collect_course_entries.unify_course_entry
-                    __POS__
-                    course_entry
-                    state
-                | None, Some _ | Some _, None ->
-                  Remanent_state.Translate_courses.Missing.add
-                      state
-                      course_entry
-                in
-                state, lib, lib_en
+            in a, b, c
         in
         let state, libelle =
           Remanent_state.bilingual_string
@@ -6479,19 +6346,10 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                 state
               else ()
           in
-          let state, libelle, course_entry, stage_opt =
+          let state, libelle, stage_opt =
             match cours.cours_libelle with
-            | None -> state,
-                      None,
-                       Public_data.empty_course_entry, None
+            | None -> state,None,None
             | Some l ->
-              let course_entry =
-                {
-                  Public_data.empty_course_entry
-                  with
-                    Public_data.gps_entry = l
-                }
-              in
               if is_stage cours
               then
                 begin
@@ -6517,61 +6375,10 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                   match stage_opt with
                   | None ->
                     begin
-                      let state, l, l_en =
-                        match
-                          Remanent_state.Translate_courses.get_translation l state
-                        with
-                        | state, (None,None) ->
-                          let state =
-                            Remanent_state.Translate_courses.Missing.add
-                              state
-                              {Public_data.empty_course_entry with
-                               Public_data.gps_entry = l}
-                          in
-                          state, Some l, None
-                        | state, (lib, lib_en) ->
-                          let lib =
-                            match lib with
-                            | None -> Some l
-                            | a -> a
-                          in
-                          let state, lib_en =
-                            let course_entry =
-                              {course_entry
-                               with Public_data.french_entry=lib;
-                                    Public_data.english_entry=lib_en}
-                            in
-                            match lib, lib_en with
-                            | None, None -> state, None
-                            | Some _, Some y ->
-                              let y = String.trim y in
-                              if y = ""
-                              ||
-                              (String.sub y 0 1 = "\"" &&
-                               String.trim (String.sub y 1 ((String.length y)-1))
-                               = "\"")
-                              then
-                                  Remanent_state.Translate_courses.Missing.add
-                                    state
-                                    course_entry, lib
-                              else
-                                let state =
-                                  Remanent_state.Translate_courses.Report.add
-                                    Collect_course_entries.unify_course_entry
-                                    __POS__
-                                    course_entry
-                                    state
-                                in
-                                state, lib_en
-                            | None, Some x | Some x, None ->
-                              let state =
-                                Remanent_state.Translate_courses.Missing.add
-                                  state
-                                  course_entry
-                              in
-                              state, Some x
-                          in
-                          state, lib, lib_en
+                      let state, (l, l_en) =
+                          Remanent_state.Translate_courses.get_translation
+                            Collect_course_entries.unify_course_entry __POS__
+                            l state
                       in
                       let stage_entry =
                           {
@@ -6592,8 +6399,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                           ~french:(string_of_stringopt l)
                           state
                       in
-                      state, Some libelle, course_entry,
-                      Some stage_entry
+                      state, Some libelle, Some stage_entry
                     end
                   | Some stage ->
                     let issue =
@@ -6677,55 +6483,10 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                           state, Format.sprintf
                             "\\newline %s %s" directed a
                     in
-                    let state, l, l_en =
-                      match
-                        Remanent_state.Translate_courses.get_translation l state
-                      with
-                      | state, (None,None) ->
-                        let state =
-                          Remanent_state.Translate_courses.Missing.add
-                            state
-                            course_entry
-                        in
-                        state, Some l, None
-                      | state, (lib, lib_en) ->
-                        let lib =
-                          match lib with
-                          | None -> Some l
-                          | a -> a
-                        in
-                        let course_entry =
-                          {course_entry
-                           with Public_data.french_entry=lib;
-                                Public_data.english_entry=lib_en}
-                        in
-                        let state, lib_en =
-                          match lib, lib_en with
-                          | None, None -> state, None
-                          | Some _, Some y ->
-                            if String.trim y = ""
-                            then
-                              Remanent_state.Translate_courses.Missing.add
-                                  state
-                                  course_entry, lib
-                            else
-                              let state =
-                                Remanent_state.Translate_courses.Report.add
-                                  Collect_course_entries.unify_course_entry
-                                  __POS__
-                                  course_entry
-                                  state
-                              in
-                              state, lib_en
-                          | None, Some x | Some x, None ->
-                            let state =
-                              Remanent_state.Translate_courses.Missing.add
-                                state
-                                course_entry
-                            in
-                            state, Some x
-                        in
-                        state, lib, lib_en
+                    let state, (l, l_en) =
+                        Remanent_state.Translate_courses.get_translation
+                            Collect_course_entries.unify_course_entry __POS__
+                            l state
                     in
                     let state, libelle =
                       Remanent_state.bilingual_string
@@ -6734,12 +6495,10 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                         state
                     in
                     state,
-                    Some
-                      (Format.sprintf "%s%s%s" libelle sujet directeur),
-                     course_entry,
+                    Some (Format.sprintf "%s%s%s" libelle sujet directeur),
                     Some stage_entry
                 end
-              else state, Some l,course_entry, None
+              else state, Some l, None
           in
           let stage_list =
             match stage_opt with None -> stage_list | Some st -> st::stage_list
@@ -6763,39 +6522,12 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                 in
                 state, libelle, None
             else
-              match
+              let a, (b,c) =
                 Remanent_state.Translate_courses.get_translation
+                  Collect_course_entries.unify_course_entry __POS__
                   (match libelle with Some a -> a | None -> "")
                   state
-              with
-              | state, (None,None) ->
-                let state =
-                  Remanent_state.Translate_courses.Missing.add
-                    state
-                    course_entry
-                in
-                state, libelle, None
-              | state, (lib, lib_en)  ->
-                let course_entry =
-                  {course_entry
-                   with Public_data.french_entry=lib;
-                        Public_data.english_entry=lib_en}
-                in
-                let state =
-                  match lib, lib_en with
-                  | None, None -> state
-                  | Some _, Some _ ->
-                    Remanent_state.Translate_courses.Report.add
-                      Collect_course_entries.unify_course_entry
-                      __POS__
-                      course_entry
-                      state
-                  | None, Some _ | Some _, None ->
-                    Remanent_state.Translate_courses.Missing.add
-                        state
-                        course_entry
-                  in
-                  state, lib, lib_en
+              in a, b, c
           in
           let state, libelle =
             Remanent_state.bilingual_string

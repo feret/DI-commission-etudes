@@ -1,6 +1,6 @@
 (library
   (name sco_dens)
-  (libraries csv sco_latex_engine sco_remanent_state sco_tools sco_keywords_handler sco_scan_files sco_datastructures sco_copy)
+  (libraries csv sco_latex_engine sco_remanent_state sco_tools sco_keywords_handler sco_scan_files sco_datastructures sco_copy sco_get_courses)
   (flags (:standard -w @a
     -open Sco_latex_engine
     -open Sco_remanent_state
@@ -9,4 +9,5 @@
     -open Sco_scan_files
     -open Sco_datastructures
     -open Sco_copy
+    -open Sco_get_courses
 )))

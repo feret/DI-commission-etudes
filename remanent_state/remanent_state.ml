@@ -754,6 +754,7 @@ module type Interface_collector_with_search_by_students_wo_year =
 module type Interface_translation =
    sig
       type entry
+      val build_empty: string -> entry
       module Collector: Interface_collector_with_unification
              with type entry = entry
       val find_opt: string -> Collector.collector -> entry option
@@ -824,9 +825,9 @@ module type Translations =
     sig
       module Collector: Collector_with_unification
       module Report: Collector_with_unification
-      module Missing: Collector with type collector = Collector.entry list 
+      module Missing: Collector with type collector = Collector.entry list
 
-      val get_translation: string -> t -> t * (string option * string option)
+      val get_translation: Collector.entry unification -> (string * int * int * int) -> string -> t -> t * (string option * string option)
       val get_report: t -> t * Collector.entry list
     end
 
@@ -930,15 +931,37 @@ module Make_collector_translation(I:Interface_translation)  =
               let t, collector = Collector.get t in
               t, I.find_opt string collector
 
+          let not_empty string =
+            not (string = "" || (String.sub string 0 1 = "\"" &&
+             String.trim (String.sub string 1 ((String.length string)-1))
+             = "\""))
 
-          let get_translation label t =
+          let get_translation unify pos label t =
             let label = simplify label in
-            match
-              find_opt label t
-            with
-              | t, None -> t, (None,None)
-              | t, Some a -> t,  (I.get_french a,I.get_english a)
-
+            let t, a_opt = find_opt label t in
+            let l_fr_opt, l_en_opt =
+              match
+                a_opt
+              with
+                | None -> None,None
+                | Some a -> I.get_french a, I.get_english a
+            in
+            let t =
+              match l_fr_opt, l_en_opt, a_opt with
+                | Some x, Some y, Some a  when not_empty x && not_empty y ->
+                       Report.add unify pos a t
+                | _ -> Missing.add t (I.build_empty label)
+            in
+            let l_fr_opt =
+                match l_fr_opt
+                with None -> Some label
+                  | _ -> l_fr_opt 
+            in
+            let l_en_opt =
+                match l_en_opt
+                with None -> l_fr_opt | _ -> l_en_opt
+            in
+            t, (l_fr_opt, l_en_opt)
 
            let get_report t =
               let t, collector = Report.get t in
@@ -2094,7 +2117,7 @@ module Translate_courses =
     Make_collector_translation
       (struct
           type entry = Public_data.course_entry
-
+          let build_empty gps_entry = {Public_data.empty_course_entry with Public_data.gps_entry}
           module Collector =
             (struct
                 type entry = Public_data.course_entry
