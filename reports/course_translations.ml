@@ -81,9 +81,9 @@ module CourseEntriesReport =
       struct
       type entry = Public_data.course_entry
       type collector = entry list
-      let get = Remanent_state.get_course_entries_report
+      let get = Remanent_state.Translate_courses.get_report
       let get_repository =
-        Remanent_state.get_repository_to_dump_course_entries_report
+        Remanent_state.Translate_courses.Report.get_repository
       let add a _ = a
       end
     end)

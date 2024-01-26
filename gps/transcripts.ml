@@ -5651,8 +5651,7 @@ let program
                                   course_entry, lib
                             else
                               let state =
-                                Remanent_state.add_course_entry_in_report
-                                  Collect_course_entries.unify_course_entry
+                                Remanent_state.Translate_courses.Report.add       Collect_course_entries.unify_course_entry
                                   __POS__
                                   course_entry
                                   state
@@ -5805,7 +5804,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                                 course_entry, lib
                           else
                             let state =
-                              Remanent_state.add_course_entry_in_report
+                              Remanent_state.Translate_courses.Report.add
                                 Collect_course_entries.unify_course_entry
                                 __POS__
                                 course_entry
@@ -5880,7 +5879,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                 match lib, lib_en with
                 | None, None -> state
                 | Some _, Some _ ->
-                  Remanent_state.add_course_entry_in_report
+                  Remanent_state.Translate_courses.Report.add
                     Collect_course_entries.unify_course_entry
                     __POS__
                     course_entry
@@ -6557,7 +6556,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                                     course_entry, lib
                               else
                                 let state =
-                                  Remanent_state.add_course_entry_in_report
+                                  Remanent_state.Translate_courses.Report.add
                                     Collect_course_entries.unify_course_entry
                                     __POS__
                                     course_entry
@@ -6711,7 +6710,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                                   course_entry, lib
                             else
                               let state =
-                                Remanent_state.add_course_entry_in_report
+                                Remanent_state.Translate_courses.Report.add
                                   Collect_course_entries.unify_course_entry
                                   __POS__
                                   course_entry
@@ -6786,7 +6785,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                   match lib, lib_en with
                   | None, None -> state
                   | Some _, Some _ ->
-                    Remanent_state.add_course_entry_in_report
+                    Remanent_state.Translate_courses.Report.add
                       Collect_course_entries.unify_course_entry
                       __POS__
                       course_entry

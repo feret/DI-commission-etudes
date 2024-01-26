@@ -753,31 +753,19 @@ module type Interface_collector_with_search_by_students_wo_year =
 
 module type Interface_translation =
    sig
-      include Interface_collector_with_unification
-      val find_opt: string -> collector -> entry option
+      type entry
+      module Collector: Interface_collector_with_unification
+             with type entry = entry
+      val find_opt: string -> Collector.collector -> entry option
       val get_french: entry -> string option
       val get_english: entry -> string option
+
+      module Report: Interface_collector_with_unification
+             with type entry = entry
+
+      val report_to_list: Report.collector -> entry list
       (*val label: entry -> string*)
   end
-
-type report =
-  {
-    report_prefix: (t -> string)->t->t * string;
-    report_rep: t->string;
-    report_get: data -> Course_name_translation.tentry;
-    report_set: Course_name_translation.tentry -> data -> data;
-    report_add: (string * int * int * int ->
-        t ->
-       Public_data.course_entry ->
-       Public_data.course_entry -> t * Public_data.course_entry) ->
-      (string * int * int * int) -> t ->
-      Public_data.course_entry ->
-      Course_name_translation.tentry ->
-        t * Course_name_translation.tentry;
-    report_get_entry: Public_data.course_entry -> string;
-    report_set_entry: Public_data.course_entry -> string -> Public_data.course_entry;
-  }
-
 
 module type Collector =
   sig
@@ -832,7 +820,9 @@ module type Collector_with_unification =
 module type Translations =
     sig
       include Collector_with_unification
+      module Report: Collector_with_unification
       val get_translation: string -> t -> t * (string option * string option)
+      val get_report: t -> t * entry list
     end
 
 
@@ -924,7 +914,9 @@ let simplify s =
 
 module Make_collector_translation(I:Interface_translation)  =
           (struct
-            include Make_collector_with_unification(I)
+            module Collector = Make_collector_with_unification(I.Collector)
+            include Collector
+            module Report = (Make_collector_with_unification(I.Report): Collector_with_unification with type entry = I.Report.entry and type collector = I.Report.collector)
 
             let find_opt string t =
               let t, collector = get t in
@@ -939,7 +931,11 @@ module Make_collector_translation(I:Interface_translation)  =
               | t, None -> t, (None,None)
               | t, Some a -> t,  (I.get_french a,I.get_english a)
 
-          end: Translations with type entry = I.entry)
+
+           let get_report t =
+              let t, collector = Report.get t in
+              t, I.report_to_list collector
+          end: Translations with type entry = I.entry and type Report.entry = I.entry)
 
 
   let add_gen get set add pos data t =
@@ -956,23 +952,6 @@ let add_gen_unify get set add unify =
 
 let add_gen_unify_warn get set add unify =
   add_gen get set (add warn unify)
-
-let gen_report_report report =
-    let get_repository = report.report_prefix report.report_rep in
-    let get t = lift_get report.report_get t in
-    let set data t = lift_set report.report_set data t in
-    let add =
-      add_gen_unify
-        get set
-        report.report_add
-    in
-    let add unify entry t =
-      let t =
-        report.report_set_entry t (simplify (report.report_get_entry t))
-      in
-      add unify entry t
-    in
-    get_repository, get, set, add
 
 (* Warnings about the pictures that are missing *)
 module Missing_pictures =
@@ -1269,7 +1248,7 @@ module Collector_mentors =
       end: Interface_collector_without_unification with type entry = Public_data.mentor)
 
 (* reports *)
-let get_repository_to_dump_course_entries_report,
+(*let get_repository_to_dump_course_entries_report,
     get_course_entries_report,
     _set_course_entries_report,
     add_course_entry_in_report =
@@ -1284,7 +1263,7 @@ let get_repository_to_dump_course_entries_report,
     report_get_entry = (fun entry -> entry.Public_data.gps_entry);
     report_set_entry = (fun entry gps_entry -> {entry with Public_data.gps_entry}) ;
 
-    }
+    }*)
 
 (** gps files *)
 let get_repository_to_dump_gps_files ?output_repository t =
@@ -2116,25 +2095,44 @@ module Translate_courses =
     Make_collector_translation
       (struct
           type entry = Public_data.course_entry
-          type collector = Course_name_translation.tentry
-          let prefix t = get_repository_to_dump_reports_gen t
-          let repository t =
-             t.parameters.repository_for_course_entry
-          let get data = data.course_entries
-          let set course_entries data = {data with course_entries}
-          let add = Course_name_translation.add_course_entry
+
+          module Collector =
+            (struct
+                type entry = Public_data.course_entry
+                type collector = Course_name_translation.tentry
+                let prefix t = get_repository_to_dump_reports_gen t
+                let repository t =
+                   t.parameters.repository_for_course_entry
+                let get data = data.course_entries
+                let set course_entries data = {data with course_entries}
+                let add = Course_name_translation.add_course_entry
+            end)
+
+          module Report =
+          (struct
+              type entry = Public_data.course_entry
+              type collector = Course_name_translation.tentry
+              let prefix t = get_repository_to_dump_reports_gen t
+              let repository t = t.parameters.repository_to_dump_course_entries_report
+              let get data = data.course_entries_report
+              let set course_entries_report data = {data with course_entries_report}
+              let add = Course_name_translation.add_course_entry;
+          end)
+
+          let report_to_list = Course_name_translation.to_list
           let find_opt = Course_name_translation.get_course_entry
           let get_french a = a.Public_data.french_entry
           let get_english a = a.Public_data.english_entry
        end:Interface_translation
         with type entry = Public_data.course_entry
-        and type collector = Course_name_translation.tentry)
+        and type Collector.collector = Course_name_translation.tentry
+        and type Report.entry = Public_data.course_entry)
 
 
 
-let get_course_entries_report t =
+(*let get_course_entries_report t =
   let map = get_course_entries_report t in
-  t,Course_name_translation.to_list map
+  t,Course_name_translation.to_list map*)
 
 let add_cursus =
   add_gen_unify get_cursus set_cursus Cursus.add_cursus

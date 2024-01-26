@@ -185,11 +185,13 @@ module type Collector_with_search_by_students_wo_year =
               t -> t * entry list
     end
 
-module type Translations =
-    sig
-      include Collector_with_unification
-      val get_translation: string -> t -> t * (string option * string option)
-    end
+    module type Translations =
+        sig
+          include Collector_with_unification
+          module Report: Collector_with_unification
+          val get_translation: string -> t -> t * (string option * string option)
+          val get_report: t -> t * entry list
+        end
 
 (* Warnings about the pictures that are missing *)
 module Missing_pictures: Collector
@@ -322,6 +324,7 @@ module Collector_course_exceptions:
 
 module Translate_courses: Translations
   with type entry = Public_data.course_entry
+  and type Report.entry = Public_data.course_entry 
 
 
 val get_course_exception:
@@ -480,18 +483,6 @@ val get_mentoring_list:
   ?year:Public_data.annee ->
   t ->
   t * Public_data.tutorat list
-
-val add_course_entry_in_report:
-  (string * int * int * int ->
-   t ->
-   Public_data.course_entry ->
-   Public_data.course_entry-> t * Public_data.course_entry) ->
-  (string * int * int * int) ->
-  Public_data.course_entry ->
-    t -> t
-
-
-
 
 val add_program:
   (string * int * int * int ->
@@ -667,12 +658,6 @@ val get_target:
 
 val get_repository_to_dump_dens_supplement:
   ?output_repository:string -> t -> t * string
-
-val get_course_entries_report:
-  t -> t * Public_data.course_entry list
-
-val get_repository_to_dump_course_entries_report:
-    t -> t * string
 
 val get_ENSPSL_logo: t -> t * string list
 val get_ENSPSL_logo_bis: t -> t * string list
