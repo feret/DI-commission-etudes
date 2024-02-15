@@ -6859,7 +6859,7 @@ let export_transcript
                Public_data.coursaj_code=Some "XT 000000";
                Public_data.coursaj_libelle="STAGE";
                Public_data.coursaj_dpt=None;
-               Public_data.coursaj_level="1";
+               Public_data.coursaj_level="dens";
                Public_data.coursaj_note=None;
                Public_data.coursaj_ects=0.;
                Public_data.coursaj_annee="2023";
