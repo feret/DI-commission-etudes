@@ -2546,8 +2546,11 @@ let fetch_stage
   in
   aux
     state
-    [filter_stage_year year ;filter_stage_cvt commentaires ;filter_stage_id commentaires]
+    [filter_stage_year year;filter_stage_cvt commentaires ;filter_stage_id commentaires]
     stages
+
+let extra_stages state stages =
+    filter_stage_year "2023" stages state
 
 let lgen _grade gps dpt acro d =
     List.exists
@@ -7044,6 +7047,27 @@ let export_transcript
     in
     let stages =
         gps_file.stages
+    in
+    let state, stages_2023 = extra_stages stages state in
+    let state, gps_file =
+      List.fold_left
+        (fun (state, gps_file) _course ->
+           let cours =
+             {
+               Public_data.coursaj_nom=lastname;
+               Public_data.coursaj_prenom=firstname;
+               Public_data.coursaj_code=Some "XT 000000";
+               Public_data.coursaj_libelle="STAGE";
+               Public_data.coursaj_dpt=None;
+               Public_data.coursaj_level="1";
+               Public_data.coursaj_note=None;
+               Public_data.coursaj_ects=0.;
+               Public_data.coursaj_annee="2023";
+             }
+            in
+           add_extra_course state cours gps_file)
+        (state, gps_file)
+        stages_2023
     in
     let state, origine =
       get_origine who promo gps_file state
