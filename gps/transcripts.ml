@@ -1538,6 +1538,60 @@ let add_extra_course state cours_a_ajouter gps_file =
        bilan gps_file.situation
   }
 
+
+  let add_extra_course_2023 state cours_a_ajouter gps_file =
+    let situation = gps_file.situation in
+    let bilan =
+      match
+        Public_data.YearMap.find_opt
+          cours_a_ajouter.Public_data.coursaj_annee
+          situation
+      with
+      | None -> empty_bilan_annuel
+      | Some b -> b
+    in
+    let elt =
+      {
+        semestre = None ;
+        code_cours =
+          begin
+            match cours_a_ajouter.Public_data.coursaj_code with
+            | None -> Some " "
+            | a -> a
+          end;
+        responsable = None ;
+        cours_libelle = Some (String.trim (cours_a_ajouter.Public_data.coursaj_libelle));
+        cours_etablissement = None ;
+        duree = None ;
+        ects = Some cours_a_ajouter.Public_data.coursaj_ects;
+        diplome = Some cours_a_ajouter.Public_data.coursaj_level ;
+        contrat = None ;
+        accord = Some true ;
+        note =
+          (match cours_a_ajouter.Public_data.coursaj_note
+          with
+          | Some f ->
+            Some (Public_data.Float f)
+          | None ->
+            Some (Public_data.En_cours)) ;
+          lettre = None;
+        commentaire = [];
+        extra = true;
+        inconsistency = None;
+        valide_dans_gps = None;
+        cours_annee = Some cours_a_ajouter.Public_data.coursaj_annee ;
+        validated_under_average = false;
+      }
+    in
+    let bilan = {bilan with cours = elt::bilan.cours} in
+    state,
+    {gps_file with
+     situation =
+       Public_data.YearMap.add
+         cours_a_ajouter.Public_data.coursaj_annee
+         bilan gps_file.situation
+    }
+
 let store_stage pos ~who state current_file current_file' output=
   let _ = pos, who in
   let stage = current_file'.stage in
@@ -2550,13 +2604,6 @@ let fetch_stage
     stages
 
 let extra_stages state stages =
-    let state = Remanent_state.warn __POS__ "Extra-stages" Exit state in
-    let state = Remanent_state.warn __POS__ (Format.sprintf "Nombre: %i" (List.length stages)) Exit state in
-    let state =
-      List.fold_left
-          (fun (state:Remanent_state.t) (s:stage) -> Remanent_state.warn __POS__ (match s.date_debut with None -> "None" | Some d -> string_of_int d.an) Exit state)
-          state stages
-    in
     filter_stage_year "2023" state stages
 
 let lgen _grade gps dpt acro d =
@@ -6860,12 +6907,12 @@ let export_transcript
                Public_data.coursaj_libelle="STAGE";
                Public_data.coursaj_dpt=None;
                Public_data.coursaj_level="dens";
-               Public_data.coursaj_note=None;
+               Public_data.coursaj_note= None;
                Public_data.coursaj_ects=0.;
                Public_data.coursaj_annee="2023";
              }
             in
-           add_extra_course state cours gps_file)
+           add_extra_course_2023 state cours gps_file)
         (state, gps_file)
         stages_2023
     in
