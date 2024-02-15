@@ -2550,7 +2550,14 @@ let fetch_stage
     stages
 
 let extra_stages state stages =
-    filter_stage_year "2023" stages state
+    let state = Remanent_state.warn __POS__ "Extra-stages" Exit state in
+    let state = Remanent_state.warn __POS__ (Format.sprintf "Nombre: %i" (List.length stages)) Exit state in
+    let state =
+      List.fold_left
+          (fun (state:Remanent_state.t) (s:stage) -> Remanent_state.warn __POS__ (match s.date_debut with None -> "None" | Some d -> string_of_int d.an) Exit state)
+          state stages
+    in
+    filter_stage_year "2023" state stages
 
 let lgen _grade gps dpt acro d =
     List.exists
@@ -7048,7 +7055,7 @@ let export_transcript
     let stages =
         gps_file.stages
     in
-    let state, stages_2023 = extra_stages stages state in
+    let state, stages_2023 = extra_stages state stages in
     let state, gps_file =
       List.fold_left
         (fun (state, gps_file) _course ->
