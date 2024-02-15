@@ -6845,6 +6845,30 @@ let export_transcript
         (state, gps_file)
         additional_courses
     in
+    let stages =
+        gps_file.stages
+    in
+    let state, stages_2023 = extra_stages state stages in
+    let state, gps_file =
+      List.fold_left
+        (fun (state, gps_file) _course ->
+           let cours =
+             {
+               Public_data.coursaj_nom=lastname;
+               Public_data.coursaj_prenom=firstname;
+               Public_data.coursaj_code=Some "XT 000000";
+               Public_data.coursaj_libelle="STAGE";
+               Public_data.coursaj_dpt=None;
+               Public_data.coursaj_level="1";
+               Public_data.coursaj_note=None;
+               Public_data.coursaj_ects=0.;
+               Public_data.coursaj_annee="2023";
+             }
+            in
+           add_extra_course state cours gps_file)
+        (state, gps_file)
+        stages_2023
+    in
     let l = Public_data.YearMap.bindings gps_file.situation in
     let state, current_year =
       Remanent_state.get_current_academic_year state
@@ -7051,30 +7075,6 @@ let export_transcript
         )
         (state,[])
         (List.rev picture_list)
-    in
-    let stages =
-        gps_file.stages
-    in
-    let state, stages_2023 = extra_stages state stages in
-    let state, gps_file =
-      List.fold_left
-        (fun (state, gps_file) _course ->
-           let cours =
-             {
-               Public_data.coursaj_nom=lastname;
-               Public_data.coursaj_prenom=firstname;
-               Public_data.coursaj_code=Some "XT 000000";
-               Public_data.coursaj_libelle="STAGE";
-               Public_data.coursaj_dpt=None;
-               Public_data.coursaj_level="1";
-               Public_data.coursaj_note=None;
-               Public_data.coursaj_ects=0.;
-               Public_data.coursaj_annee="2023";
-             }
-            in
-           add_extra_course state cours gps_file)
-        (state, gps_file)
-        stages_2023
     in
     let state, origine =
       get_origine who promo gps_file state
