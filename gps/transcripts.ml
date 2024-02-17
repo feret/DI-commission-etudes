@@ -6672,6 +6672,55 @@ let build_gpscodelist ~year ~firstname ~lastname  situation state =
     let gpscodelist = fill_gpscodelist ~year ~firstname ~lastname gpscodelist situation state in
     state, {situation with gpscodelist}
 
+let add_pegasus_entries ~firstname ~lastname ~year state gps_file =
+    let state, l = Remanent_state.Collector_pedagogical_registrations.find_list ~firstname ~lastname ~year state in
+    let state, gps_file =
+      List.fold_left
+        (fun (state, gps_file) course ->
+          let situation = gps_file.situation in
+          let bilan =
+            match
+              Public_data.YearMap.find_opt
+                course.Public_data.pe_year
+                situation
+            with
+            | None -> empty_bilan_annuel
+            | Some b -> b
+          in
+          let elt =
+            {
+              semestre = None ;
+              code_cours = Some course.Public_data.pe_code ;
+              responsable = None ;
+              cours_libelle = Some (String.trim (course.Public_data.pe_libelle));
+              cours_etablissement = None ;
+              duree = None ;
+              ects = course.Public_data.pe_ects;
+              diplome = None ;
+              contrat = None ;
+              accord = Some true ;
+              note =Some Public_data.En_cours ; (* TO DO *)
+              lettre = None;
+              commentaire = [];
+              extra = true;
+              inconsistency = None;
+              valide_dans_gps = None;
+              cours_annee = Some course.Public_data.pe_year ;
+              validated_under_average = false;
+            }
+          in
+          let bilan = {bilan with cours = elt::bilan.cours} in
+          state,
+          {gps_file with
+           situation =
+             Public_data.YearMap.add
+               course.Public_data.pe_year
+               bilan gps_file.situation
+          })
+    (state,gps_file) l
+    in state, gps_file
+
+
 let export_transcript
     ~output
     ?language
@@ -6918,6 +6967,9 @@ let export_transcript
            add_extra_course_2023 state cours gps_file)
         (state, gps_file)
         stages_2023
+    in
+    let state, gps_file =
+        add_pegasus_entries ~firstname ~lastname ~year:promo state gps_file
     in
     let l = Public_data.YearMap.bindings gps_file.situation in
     let state, current_year =

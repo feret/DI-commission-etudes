@@ -57,7 +57,7 @@ let add_pegasus_pedagocial_registrations
   let lastname = dens_candidate.Public_data.pe_lastname in
   let year = dens_candidate.Public_data.pe_promotion in
   (*let () = Format.printf "%s %s (%s) (ADD PEGAGUS)" firstname lastname year in*)
-  let dens_candidate_list = get_pegasus_pedagocial_registrations ~firstname ~lastname ~year  dens_candidates in
+  let dens_candidate_list = get_pegasus_pedagocial_registrations ~firstname ~lastname  ~year  dens_candidates in
   let dens_candidate_list = dens_candidate::dens_candidate_list in
   let dens_candidates =
     let promo = year in

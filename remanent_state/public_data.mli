@@ -39,10 +39,12 @@ type pedagogical_entry_pegasus =
     pe_lastname: string;
     pe_promotion: string;
     pe_year: string;
-    pe_ects: float;
+    pe_ects: float option ;
     pe_libelle: string;
     pe_code: string;
-    pe_tutor: string;
+    pe_tutor_firstname: string;
+    pe_tutor_lastname: string;
+
     pe_student_number: string;
     pe_ine: string
 }

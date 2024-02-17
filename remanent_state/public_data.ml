@@ -283,10 +283,11 @@ type pedagogical_entry_pegasus =
         pe_lastname: string;
         pe_promotion: string;
         pe_year: string;
-        pe_ects: float;
+        pe_ects: float option;
         pe_libelle: string;
         pe_code: string;
-        pe_tutor: string;
+        pe_tutor_firstname: string;
+        pe_tutor_lastname: string;
         pe_student_number: string;
         pe_ine: string
     }
@@ -297,10 +298,11 @@ let empty_pedagogical_entry =
         pe_lastname = "";
         pe_promotion = "";
         pe_year = "";
-        pe_ects = 0.;
+        pe_ects = None ;
         pe_libelle = "";
         pe_code = "";
-        pe_tutor = "";
+        pe_tutor_firstname = "";
+        pe_tutor_lastname = "";
         pe_student_number = "";
         pe_ine = "";
     }
