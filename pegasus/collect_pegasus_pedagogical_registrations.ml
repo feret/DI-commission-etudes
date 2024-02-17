@@ -81,6 +81,7 @@ let get_pegasus_pedagogical_registrations
                     let csv =
                        Xls_support.open_xlsx file
                     in
+                    let () = Format.printf "NROWS: %i @." (List.length csv) in 
                     let () =
                           List.iter
                             (fun row ->
