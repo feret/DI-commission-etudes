@@ -33,6 +33,22 @@ type student_pegasus =
 
 val empty_student_pegasus: student_pegasus
 
+type pedagogical_entry_pegasus =
+  {
+    pe_firstname: string;
+    pe_lastname: string;
+    pe_promotion: string;
+    pe_year: string;
+    pe_ects: float;
+    pe_libelle: string;
+    pe_code: string;
+    pe_tutor: string;
+    pe_student_number: string;
+    pe_ine: string
+}
+
+val empty_pedagogical_entry: pedagogical_entry_pegasus
+
 type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA | DEC
 type universite =  | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud | UPNord | USPN | UDauphine
 type experience = Recherche | Internationale | Ouverture | Hors_Dens

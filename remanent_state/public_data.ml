@@ -277,6 +277,33 @@ let empty_student_pegasus =
         pegasus_ine="";
     }
 
+type pedagogical_entry_pegasus =
+      {
+        pe_firstname: string;
+        pe_lastname: string;
+        pe_promotion: string;
+        pe_year: string;
+        pe_ects: float;
+        pe_libelle: string;
+        pe_code: string;
+        pe_tutor: string;
+        pe_student_number: string;
+        pe_ine: string
+    }
+
+let empty_pedagogical_entry =
+      {
+        pe_firstname = "";
+        pe_lastname = "";
+        pe_promotion = "";
+        pe_year = "";
+        pe_ects = 0.;
+        pe_libelle = "";
+        pe_code = "";
+        pe_tutor = "";
+        pe_student_number = "";
+        pe_ine = "";
+    }
 type scholarship =
   {
     organism: string;

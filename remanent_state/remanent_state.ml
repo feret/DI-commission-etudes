@@ -98,6 +98,7 @@ type parameters =
     repository_for_grades_to_modify: string;
     repository_for_inscriptions: string;
     repository_for_pegasus_administrative_status: string;
+    repository_for_pegasus_pedagogical_inscriptions: string;
     repository_to_dump_missing_pictures: string;
     repository_to_dump_non_accepted_grades: string;
     repository_to_dump_non_validated_internships: string;
@@ -247,6 +248,7 @@ let parameters =
     repository_to_dump_missing_internship_translation = "stages" ;
     repository_to_dump_dens_candidate = "dens_candidates" ;
     repository_for_pegasus_administrative_status = "status_administratifs" ;
+    repository_for_pegasus_pedagogical_inscriptions = "programmes_pedagogiques" ;
     current_academic_year = "2023";
     commissions_repository = "commissions_des_etudes";
 
@@ -313,6 +315,7 @@ type data =
   {
     students: Public_data.student_id list ;
     status_administratifs: Pegasus_administrative_status.t;
+    pedagogical_inscriptions: Pegasus_pedagogical_registrations.t;
     output_alias: (string * string) option ;
     scholarships: Scholarships.t;
     mentoring: Mentoring.t;
@@ -365,6 +368,7 @@ let empty_data =
   {
     students = [];
     status_administratifs = Pegasus_administrative_status.empty;
+    pedagogical_inscriptions = Pegasus_pedagogical_registrations.empty ;
     scholarships = Scholarships.empty;
     mentoring = Mentoring.empty;
     course_exceptions = Course_exceptions.empty;
@@ -955,7 +959,7 @@ module Make_collector_translation(I:Interface_translation)  =
             let l_fr_opt =
                 match l_fr_opt
                 with None -> Some label
-                  | _ -> l_fr_opt 
+                  | _ -> l_fr_opt
             in
             let l_en_opt =
                 match l_en_opt
@@ -1405,6 +1409,24 @@ let get_pegasus_gen get t =
   match rep with
   | "" -> t, get t
   | _ -> t, Format.sprintf "%s/%s" rep (get t)
+
+  module Collector_pedagogical_registrations  =
+    Make_collector_with_search_by_students
+      (struct
+        type entry = Public_data.pedagogical_entry_pegasus
+        type collector = Pegasus_pedagogical_registrations.t
+
+        let prefix = get_pegasus_gen
+        let repository t = t.parameters.repository_for_pegasus_pedagogical_inscriptions
+        let get data =  data.pedagogical_inscriptions
+        let set pedagogical_inscriptions data = {data with pedagogical_inscriptions}
+        let add = Pegasus_pedagogical_registrations.add_pegasus_pedagocial_registrations
+        let find_list = Pegasus_pedagogical_registrations.get_pegasus_pedagocial_registrations
+
+      end: Interface_collector_with_search_by_students
+      with type entry = Public_data.pedagogical_entry_pegasus
+      and type collector = Pegasus_pedagogical_registrations.t )
+
 
 module Collector_administrative_status =
   Make_collector_with_search_by_students
