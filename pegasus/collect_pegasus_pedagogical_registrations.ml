@@ -186,14 +186,19 @@ let get_pegasus_pedagogical_registrations
                             let entry, state =
                               begin
                                 match h with
-                                | ""::"LEARNING AGREEMENT"::_ -> entry, state
+                                | ""::"LEARNING AGREEMENT"::_ ->
+                                    let () = Format.printf "LEARNING AGREEMENT @." in
+                                    entry, state
                                 | ""::""::academic::_ ->
+                                      let () = Format.printf "ACADEMIC %s @." academic in
                                       update_year academic entry state
                                 | ""::diploma::""::""::""::""::""::_ ->
+                                       let () = Format.printf "DIPLOMA %s @."  diploma in
                                        entry, update_diploma diploma entry state
                                 | ""::course::""::""::ects::_ ->
+                                      let () = Format.printf "COURSE %s @." course in
                                       entry,  update_course course ects entry state
-                                | bloc::_ -> update_student bloc entry state
+                                | bloc::_ -> let () = Format.printf "BLOC %s @." bloc in update_student bloc entry state
                                 | [] -> entry, state
         end
                           in
