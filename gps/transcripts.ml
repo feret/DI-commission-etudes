@@ -4514,8 +4514,12 @@ let heading
   in
   let state, inscriptions, inscriptions_en, inscriptions_short, inscriptions_en_short, is_l3 =
     match nationaux_opt,nationaux_en_opt with
-    | Some x,Some y -> state, x::dens_opt, y::dens_en_opt, x::dens_opt, y::dens_en_opt, true
+    | Some x,Some y ->
+      let () = Format.printf "4518: %s %s %s %s @." lastname year x y in
+      state, x::dens_opt, y::dens_en_opt, x::dens_opt, y::dens_en_opt, true
     | Some x,None | None, Some x ->
+      let () = Format.printf "4521: %s %s %s @." lastname year x  in
+
       let state =
         Remanent_state.warn
           __POS__
@@ -4525,6 +4529,7 @@ let heading
       in
       state, x::dens_opt, x::dens_en_opt, x::dens_opt, x::dens_en_opt, true
     | None, None ->
+    let () = Format.printf "4532: %s %s @." lastname year  in
       if lpoly situation
       then
         state, "Bachelor de l'X"::dens_opt, "X Bachelor"::dens_en_opt, "Bachelor de l'X"::dens_opt, "X Bachelor"::dens_en_opt, true
@@ -4541,7 +4546,7 @@ let heading
             | None | Some "dens" | Some "autre" ->
               state, inscriptions, inscriptions_en, inscriptions_short, inscriptions_en_short, is_l3
             | Some string ->
-              let () = Format.printf "%s %s %s %s @." lastname year string dpt in 
+              let () = Format.printf "%s %s %s %s @." lastname year string dpt in
               if Special_char.lowercase lastname = "hubrecht"
               && year = "2019"
               && string = "L3"
