@@ -4536,32 +4536,36 @@ let heading
     let state =
     Remanent_state.warn __POS__ (Format.sprintf "4537: %s %s @." lastname year ) Exit state in
 
-    let () = Format.printf "4532: %s %s @." lastname year  in
       if lpoly situation
       then
-      let () = Format.printf "4542: %s %s @." lastname year  in
+      let state =
+      Remanent_state.warn __POS__ (Format.sprintf "4542: %s %s @." lastname year ) Exit state in
 
         state, "Bachelor de l'X"::dens_opt, "X Bachelor"::dens_en_opt, "Bachelor de l'X"::dens_opt, "X Bachelor"::dens_en_opt, true
       else if
         lpe origine
         || lerasmus origine
       then
-      let () = Format.printf "4549: %s %s @." lastname year  in
-
+      let state =
+      Remanent_state.warn __POS__ (Format.sprintf "4549: %s %s @." lastname year ) Exit state in
         state, dens_opt, dens_en_opt, dens_opt, dens_en_opt, false
       else
-      let () = Format.printf "4553: %s %s @." lastname year  in
+      let state =
+      Remanent_state.warn __POS__ (Format.sprintf "4553: %s %s @." lastname year ) Exit state in
 
         StringOptMap.fold
           (fun (string_opt,dpt) _
             (state,inscriptions,inscriptions_en, inscriptions_short, inscriptions_en_short, is_l3) ->
             match string_opt with
             | None | Some "dens" | Some "autre" ->
-            let () = Format.printf "4560: %s %s @." lastname year  in
+            let state =
+            Remanent_state.warn __POS__ (Format.sprintf "4562: %s %s @." lastname year ) Exit state in
+
 
               state, inscriptions, inscriptions_en, inscriptions_short, inscriptions_en_short, is_l3
             | Some string ->
-              let () = Format.printf "%s %s %s %s @." lastname year string dpt in
+            let state =
+            Remanent_state.warn __POS__ (Format.sprintf "%s %s %s %s @." lastname year string dpt) in
               if Special_char.lowercase lastname = "hubrecht"
               && year = "2019"
               && string = "L3"
