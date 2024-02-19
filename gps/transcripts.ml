@@ -1578,7 +1578,7 @@ let add_extra_course state cours_a_ajouter gps_file =
           | None ->
             Some (Public_data.En_cours)) ;
           lettre = None;
-        commentaire = [];
+        commentaire = (match cours_a_ajouter.Public_data.coursaj_comment with None -> [] | Some a -> [a]);
         extra = true;
         inconsistency = None;
         valide_dans_gps = None;
