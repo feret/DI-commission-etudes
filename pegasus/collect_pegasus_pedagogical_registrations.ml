@@ -70,14 +70,20 @@ let update_student bloc entry state =
           match l with
           | "Student:"::t ->
              let t, lastname, firstname = fetch_name t in
+             let () = Format.printf "%s %s @." lastname firstname in
              aux t {entry with lastname = Some lastname; firstname = Some firstname}
           | "Student"::"number:"::n::t ->
+              let () = Format.printf "%s@." n in
+
              aux t {entry with student_number = Some n; promotion = Some (String.sub n 0 4)}
           | "INE"::"number:"::n::t ->
+            let () = Format.printf "%s@." n in
+
              aux t {entry with ine = Some n}
           | "Tutor"::t ->
           let t, tutor_lastname, tutor_firstname = fetch_name t in
-             aux t {entry with tutor_lastname = Some tutor_lastname ; tutor_firstname = Some tutor_firstname}
+          let () = Format.printf "%s %s @." tutor_lastname tutor_firstname in
+          aux t {entry with tutor_lastname = Some tutor_lastname ; tutor_firstname = Some tutor_firstname}
           | _ -> entry
     in
     let entry = aux l entry in
