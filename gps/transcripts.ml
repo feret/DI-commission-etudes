@@ -6962,7 +6962,7 @@ let export_transcript
     let state, stages_2023 = extra_stages state stages in
     let state, gps_file,_ =
       List.fold_left
-        (fun (state, gps_file, n) _course ->
+        (fun (state, gps_file, n) course ->
            let cours =
              {
                Public_data.coursaj_nom=lastname;
@@ -6972,7 +6972,7 @@ let export_transcript
                Public_data.coursaj_dpt=None;
                Public_data.coursaj_level="dens";
                Public_data.coursaj_note= None;
-               Public_data.coursaj_ects=0.;
+               Public_data.coursaj_ects=(match course.stage_credits with None -> 0. | Some f -> f);
                Public_data.coursaj_annee="2023";
                Public_data.coursaj_comment=Some (Format.sprintf "id %i" n)
              }
