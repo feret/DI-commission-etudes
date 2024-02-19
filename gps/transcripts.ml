@@ -4513,12 +4513,16 @@ let heading
     | None -> state, [], []
   in
   let state, inscriptions, inscriptions_en, inscriptions_short, inscriptions_en_short, is_l3 =
+    let state =
+      Remanent_state.warn __POS__ "4517" Exit state in
     match nationaux_opt,nationaux_en_opt with
     | Some x,Some y ->
-      let () = Format.printf "4518: %s %s %s %s @." lastname year x y in
+      let state =
+      Remanent_state.warn __POS__ (Format.sprintf "4521: %s %s %s %s @." lastname year x y) Exit state in
       state, x::dens_opt, y::dens_en_opt, x::dens_opt, y::dens_en_opt, true
     | Some x,None | None, Some x ->
-      let () = Format.printf "4521: %s %s %s @." lastname year x  in
+    let state =
+    Remanent_state.warn __POS__ (Format.sprintf "4521: %s %s %s @." lastname year x ) Exit state in
 
       let state =
         Remanent_state.warn
@@ -4529,6 +4533,9 @@ let heading
       in
       state, x::dens_opt, x::dens_en_opt, x::dens_opt, x::dens_en_opt, true
     | None, None ->
+    let state =
+    Remanent_state.warn __POS__ (Format.sprintf "4537: %s %s @." lastname year ) Exit state in 
+
     let () = Format.printf "4532: %s %s @." lastname year  in
       if lpoly situation
       then
