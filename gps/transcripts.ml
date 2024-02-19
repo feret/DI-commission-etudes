@@ -4541,6 +4541,7 @@ let heading
             | None | Some "dens" | Some "autre" ->
               state, inscriptions, inscriptions_en, inscriptions_short, inscriptions_en_short, is_l3
             | Some string ->
+              let () = Format.printf "%s %s %s %s @." lastname year string dpt in 
               if Special_char.lowercase lastname = "hubrecht"
               && year = "2019"
               && string = "L3"
