@@ -432,6 +432,7 @@ type cours_a_ajouter =
     coursaj_note:float option;
     coursaj_ects:float;
     coursaj_annee:annee;
+    coursaj_comment:string option;
   }
 
 let empty_cours_a_ajouter =
@@ -444,7 +445,8 @@ let empty_cours_a_ajouter =
     coursaj_level="";
     coursaj_note=None;
     coursaj_ects=0.;
-    coursaj_annee=""
+    coursaj_annee="";
+    coursaj_comment=None;
   }
 
 type note_a_modifier =

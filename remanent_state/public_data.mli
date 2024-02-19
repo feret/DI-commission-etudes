@@ -194,6 +194,7 @@ type cours_a_ajouter =
     coursaj_note:float option;
     coursaj_ects:float;
     coursaj_annee:annee;
+    coursaj_comment:string option; 
   }
 
 val empty_cours_a_ajouter:cours_a_ajouter

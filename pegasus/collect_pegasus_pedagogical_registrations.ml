@@ -83,8 +83,16 @@ let update_year year entry state =
   match l with "Academic"::"year"::y::_ -> {entry with year = Some y}, state
       | _ -> entry, state
 
+let add unify pos c state =
+    let state =
+      Remanent_state.warn pos (Format.sprintf "%s %s %s @." c.Public_data.pe_firstname
+      c.Public_data.pe_lastname
+      c.Public_data.pe_promotion)
+      Exit state
+    in Remanent_state.Collector_pedagogical_registrations.add unify pos c state
+
 let convert entry =
-{
+  {
   Public_data.pe_firstname = Tools.unsome_string entry.firstname;
   Public_data.pe_lastname = Tools.unsome_string entry.lastname;
   Public_data.pe_promotion = Tools.unsome_string entry.promotion;
@@ -105,7 +113,7 @@ let update_diploma diploma entry (state:Remanent_state.t) =
     | [] -> "",""
   in
   let code, libelle = Some code, Some libelle in
-  Remanent_state.Collector_pedagogical_registrations.add
+  add
         (fun _ state a _ -> state,a) __POS__
         (convert {entry with libelle ; code }) state
 
@@ -118,7 +126,7 @@ let update_course course ects entry (state:Remanent_state.t) =
     in
     let ects = float_of_string ects in
     let code, libelle, ects = Some code, Some libelle, Some ects in
-    Remanent_state.Collector_pedagogical_registrations.add
+    add
                 (fun _ state a _ -> state,a) __POS__
                 (convert {entry with libelle ; ects ; code }) state
 

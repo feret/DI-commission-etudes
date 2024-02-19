@@ -6960,9 +6960,9 @@ let export_transcript
         gps_file.stages
     in
     let state, stages_2023 = extra_stages state stages in
-    let state, gps_file =
+    let state, gps_file,_ =
       List.fold_left
-        (fun (state, gps_file) _course ->
+        (fun (state, gps_file, n) _course ->
            let cours =
              {
                Public_data.coursaj_nom=lastname;
@@ -6974,10 +6974,11 @@ let export_transcript
                Public_data.coursaj_note= None;
                Public_data.coursaj_ects=0.;
                Public_data.coursaj_annee="2023";
+               Public_data.coursaj_comment=Some (Format.sprintf "id %i" n)
              }
             in
-           add_extra_course_2023 state cours gps_file)
-        (state, gps_file)
+           let state, gps_file = add_extra_course_2023 state cours gps_file in  state, gps_file, n+1)
+        (state, gps_file,1)
         stages_2023
     in
     let state, gps_file =
