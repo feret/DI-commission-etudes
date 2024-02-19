@@ -4541,6 +4541,13 @@ let heading
             | None | Some "dens" | Some "autre" ->
               state, inscriptions, inscriptions_en, inscriptions_short, inscriptions_en_short, is_l3
             | Some string ->
+              if Special_char.lowercase lastname = "hubrecht"
+              && year = "2019"
+              && string = "L3"
+              && Special_char.lowercase dpt = "di"
+              then
+                state, inscriptions, inscriptions_en, inscriptions_short, inscriptions_en_short, is_l3
+              else
               match
                 StringOptMap.find_opt
                   (string_opt,dpt)
