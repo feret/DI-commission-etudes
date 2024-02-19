@@ -35,17 +35,17 @@ let _ = empty_pegasus_entry.ine, empty_pegasus_entry.student_number, empty_pegas
 (*Student: CARENINI Gaia Student number: 2022n00416 INE number: 203191976DF Tutor: SENELLART Pierre*)
 
 let decompose_name l =
-  let rec aux l firstname lastname =
+  let rec aux l lastname =
     match l with
-      | [] -> List.rev lastname, List.rev firstname
+      | [] -> List.rev lastname, l
       | h::t ->
         if Special_char.uppercase h = h
         then
-          aux t firstname (h::lastname)
+          aux t  (h::lastname)
         else
-          List.rev lastname, firstname
+          List.rev lastname, l
  in
- let firstname, lastname = aux l [] [] in
+ let firstname, lastname = aux l [] in
  let firstname = String.concat " " firstname in
  let lastname = String.concat " " lastname in
  lastname, firstname
