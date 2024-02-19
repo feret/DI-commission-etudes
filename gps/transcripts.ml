@@ -4565,7 +4565,7 @@ let heading
               state, inscriptions, inscriptions_en, inscriptions_short, inscriptions_en_short, is_l3
             | Some string ->
             let state =
-            Remanent_state.warn __POS__ (Format.sprintf "%s %s %s %s @." lastname year string dpt) in
+            Remanent_state.warn __POS__ (Format.sprintf "%s %s %s %s @." lastname year string dpt) Exit state in
               if Special_char.lowercase lastname = "hubrecht"
               && year = "2019"
               && string = "L3"
