@@ -6700,7 +6700,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
     let state, gps_file =
       List.fold_left
         (fun (state, gps_file) course ->
-          let libelle = String.trim (course.Public_data.pe_libelle) in
+          let code = String.trim (course.Public_data.pe_code) in
           match kind libelle with
           | Inscription -> state, gps_file (* TO DO *)
           | RdV -> state, gps_file (* TO DO *)
@@ -6718,9 +6718,9 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           let elt =
             {
               semestre = None ;
-              code_cours = Some course.Public_data.pe_code ;
+              code_cours = Some code ;
               responsable = None ;
-              cours_libelle = Some libelle ;
+              cours_libelle = Some (String.trim (course.Public_data.pe_libelle)) ;
               cours_etablissement = None ;
               duree = None ;
               ects = course.Public_data.pe_ects;
