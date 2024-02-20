@@ -49,6 +49,20 @@ let get_pegasus_pedagocial_registrations ~firstname ~lastname ~year dens_candida
         with None -> []
           | Some a -> a
 
+
+
+          let dump m =
+            let () = Format.printf "DUMP PEGASUS CONTENT @." in Public_data.LastNameMap.iter
+              (fun x map ->
+                  Public_data.FirstNameMap.iter
+                    (fun y map ->
+                        Public_data.PromoMap.iter
+                          (fun z _ ->
+                              Format.printf "%s %s (%s) (PEGASUS CONTENT) @." x y z)
+                          map
+                    ) map
+                ) m.per_name
+
 let add_pegasus_pedagocial_registrations
     unify pos state
     dens_candidate dens_candidates =
@@ -124,16 +138,5 @@ let add_pegasus_pedagocial_registrations
     in
     {dens_candidates with per_name}
   in
+  let () = dump dens_candidates in 
   state, dens_candidates
-
-let dump m =
-  let () = Format.printf "DUMP PEGASUS CONTENT @." in Public_data.LastNameMap.iter
-    (fun x map ->
-        Public_data.FirstNameMap.iter
-          (fun y map ->
-              Public_data.PromoMap.iter
-                (fun z _ ->
-                    Format.printf "%s %s (%s) (PEGASUS CONTENT) @." x y z)
-                map
-          ) map
-      ) m.per_name
