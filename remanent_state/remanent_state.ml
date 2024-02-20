@@ -758,7 +758,7 @@ module type Interface_collector_with_search_by_students_wo_year =
 module type Interface_translation =
    sig
       type entry
-      val build_empty: string -> entry
+      val build: ?fr:string -> ?en:string -> string -> entry
       module Collector: Interface_collector_with_unification
              with type entry = entry
       val find_opt: string -> Collector.collector -> entry option
@@ -950,11 +950,21 @@ module Make_collector_translation(I:Interface_translation)  =
                 | None -> None,None
                 | Some a -> I.get_french a, I.get_english a
             in
-            let t =
+            let t, l_fr_opt, l_en_opt =
               match l_fr_opt, l_en_opt, a_opt with
                 | Some x, Some y, Some a  when not_empty x && not_empty y ->
-                       Report.add unify pos a t
-                | _ -> Missing.add t (I.build_empty label)
+                       Report.add unify pos a t, l_fr_opt, l_en_opt
+                | _ ->
+                begin
+                  let l = String.split_on_char '&' label in
+                  match l with
+                      | [l_fr;l_en] ->
+                        let fr = Some l_fr in
+                        let en = Some l_en in
+                        Missing.add t (I.build ?fr ?en label),
+                        fr, en
+                      | _ -> Missing.add t (I.build label), None, None
+                end
             in
             let l_fr_opt =
                 match l_fr_opt
@@ -2139,7 +2149,12 @@ module Translate_courses =
     Make_collector_translation
       (struct
           type entry = Public_data.course_entry
-          let build_empty gps_entry = {Public_data.empty_course_entry with Public_data.gps_entry}
+          let build ?fr ?en gps_entry =
+              let french_entry = fr in
+              let english_entry = en in
+              {Public_data.gps_entry ;
+                     Public_data.french_entry ;
+                     Public_data.english_entry}
           module Collector =
             (struct
                 type entry = Public_data.course_entry

@@ -6684,11 +6684,27 @@ let build_gpscodelist ~year ~firstname ~lastname  situation state =
     let gpscodelist = fill_gpscodelist ~year ~firstname ~lastname gpscodelist situation state in
     state, {situation with gpscodelist}
 
+type kind = Inscription | RdV | Course
+let kind libelle =
+  if String.length libelle > 6 && String.sub libelle 0 7 = "UNDRVTU" then RdV
+  else
+    if String.length libelle > 2 then
+    match String.sub libelle 0 3 with
+      | "AND" | "UND" -> Inscription
+      | _ -> Course
+    else
+      Course
+
 let add_pegasus_entries ~firstname ~lastname state gps_file =
     let state, l = Remanent_state.Collector_pedagogical_registrations.find_list ~firstname ~lastname state in
     let state, gps_file =
       List.fold_left
         (fun (state, gps_file) course ->
+          let libelle = String.trim (course.Public_data.pe_libelle) in
+          match kind libelle with
+          | Inscription -> state, gps_file (* TO DO *)
+          | RdV -> state, gps_file (* TO DO *)
+          | Course ->
           let situation = gps_file.situation in
           let bilan =
             match
@@ -6704,7 +6720,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
               semestre = None ;
               code_cours = Some course.Public_data.pe_code ;
               responsable = None ;
-              cours_libelle = Some (String.trim (course.Public_data.pe_libelle));
+              cours_libelle = Some libelle ;
               cours_etablissement = None ;
               duree = None ;
               ects = course.Public_data.pe_ects;
