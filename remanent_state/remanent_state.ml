@@ -1411,7 +1411,7 @@ let get_pegasus_gen get t =
   | _ -> t, Format.sprintf "%s/%s" rep (get t)
 
   module Collector_pedagogical_registrations  =
-    Make_collector_with_search_by_students
+    Make_collector_with_search_by_students_wo_year
       (struct
         type entry = Public_data.pedagogical_entry_pegasus
         type collector = Pegasus_pedagogical_registrations.t
@@ -1423,7 +1423,7 @@ let get_pegasus_gen get t =
         let add = Pegasus_pedagogical_registrations.add_pegasus_pedagocial_registrations
         let find_list = Pegasus_pedagogical_registrations.get_pegasus_pedagocial_registrations
 
-      end: Interface_collector_with_search_by_students
+      end: Interface_collector_with_search_by_students_wo_year
       with type entry = Public_data.pedagogical_entry_pegasus
       and type collector = Pegasus_pedagogical_registrations.t )
 

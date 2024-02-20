@@ -281,7 +281,6 @@ type pedagogical_entry_pegasus =
       {
         pe_firstname: string;
         pe_lastname: string;
-        pe_promotion: string;
         pe_year: string;
         pe_ects: float option;
         pe_libelle: string;
@@ -296,7 +295,6 @@ let empty_pedagogical_entry =
       {
         pe_firstname = "";
         pe_lastname = "";
-        pe_promotion = "";
         pe_year = "";
         pe_ects = None ;
         pe_libelle = "";

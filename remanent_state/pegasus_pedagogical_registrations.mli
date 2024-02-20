@@ -3,7 +3,7 @@ val empty: t
 val get_pegasus_pedagocial_registrations:
   firstname:string ->
   lastname:string ->
-  year:string -> t -> Public_data.pedagogical_entry_pegasus list
+   t -> Public_data.pedagogical_entry_pegasus list
 
 val add_pegasus_pedagocial_registrations:
 ((string * int * int * int) ->

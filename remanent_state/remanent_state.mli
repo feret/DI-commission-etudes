@@ -310,7 +310,7 @@ module Collector_administrative_status:
    Collector_with_search_by_students with type entry = Public_data.student_pegasus and type collector = Pegasus_administrative_status.t
 
 module Collector_pedagogical_registrations:
-      Collector_with_search_by_students with type entry = Public_data.pedagogical_entry_pegasus and type collector = Pegasus_pedagogical_registrations.t
+      Collector_with_search_by_students_wo_year with type entry = Public_data.pedagogical_entry_pegasus and type collector = Pegasus_pedagogical_registrations.t
 
 module Collector_stages_tries:
 Collector_with_unification with type entry =  Public_data.stage_a_trier

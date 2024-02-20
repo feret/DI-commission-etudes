@@ -37,7 +37,6 @@ type pedagogical_entry_pegasus =
   {
     pe_firstname: string;
     pe_lastname: string;
-    pe_promotion: string;
     pe_year: string;
     pe_ects: float option ;
     pe_libelle: string;
@@ -194,7 +193,7 @@ type cours_a_ajouter =
     coursaj_note:float option;
     coursaj_ects:float;
     coursaj_annee:annee;
-    coursaj_comment:string option; 
+    coursaj_comment:string option;
   }
 
 val empty_cours_a_ajouter:cours_a_ajouter

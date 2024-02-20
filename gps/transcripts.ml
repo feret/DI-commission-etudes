@@ -6684,8 +6684,8 @@ let build_gpscodelist ~year ~firstname ~lastname  situation state =
     let gpscodelist = fill_gpscodelist ~year ~firstname ~lastname gpscodelist situation state in
     state, {situation with gpscodelist}
 
-let add_pegasus_entries ~firstname ~lastname ~year state gps_file =
-    let state, l = Remanent_state.Collector_pedagogical_registrations.find_list ~firstname ~lastname ~year state in
+let add_pegasus_entries ~firstname ~lastname state gps_file =
+    let state, l = Remanent_state.Collector_pedagogical_registrations.find_list ~firstname ~lastname state in
     let state, gps_file =
       List.fold_left
         (fun (state, gps_file) course ->
@@ -6982,7 +6982,7 @@ let export_transcript
         stages_2023
     in
     let state, gps_file =
-        add_pegasus_entries ~firstname ~lastname ~year:promo state gps_file
+        add_pegasus_entries ~firstname ~lastname  state gps_file
     in
     let l = Public_data.YearMap.bindings gps_file.situation in
     let state, current_year =

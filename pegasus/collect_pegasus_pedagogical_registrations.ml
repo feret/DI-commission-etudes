@@ -3,7 +3,6 @@ type pegasus_entry =
 {
   firstname: string option;
   lastname: string option;
-  promotion: string option;
   year: string option;
   ects: float option;
   libelle: string option;
@@ -18,7 +17,6 @@ let empty_pegasus_entry =
 {
   firstname=None;
   lastname=None;
-  promotion=None;
   year=None;
   ects=None;
   libelle=None;
@@ -67,7 +65,7 @@ let update_student bloc entry state =
              let t, lastname, firstname = fetch_name t in
              aux t {entry with lastname = Some lastname; firstname = Some firstname}
           | "Student"::"number:"::n::t ->
-             aux t {entry with student_number = Some n; promotion = Some (String.sub n 0 4)}
+             aux t {entry with student_number = Some n}
           | "INE"::"number:"::n::t ->
              aux t {entry with ine = Some n}
           | "Tutor"::t ->
@@ -85,9 +83,8 @@ let update_year year entry state =
 
 let add unify pos c state =
     let state =
-      Remanent_state.warn pos (Format.sprintf "%s %s %s" c.Public_data.pe_firstname
-      c.Public_data.pe_lastname
-      c.Public_data.pe_promotion)
+      Remanent_state.warn pos (Format.sprintf "%s %s" c.Public_data.pe_firstname
+      c.Public_data.pe_lastname)
       Exit state
     in Remanent_state.Collector_pedagogical_registrations.add unify pos c state
 
@@ -95,7 +92,6 @@ let convert entry state =
   state, {
   Public_data.pe_firstname = Tools.unsome_string entry.firstname;
   Public_data.pe_lastname = Tools.unsome_string entry.lastname;
-  Public_data.pe_promotion = Tools.unsome_string entry.promotion;
   Public_data.pe_year = Tools.unsome_string entry.year;
   Public_data.pe_ects = entry.ects ;
   Public_data.pe_libelle = Tools.unsome_string entry.libelle;
@@ -111,9 +107,8 @@ let convert entry state =
     let state =
       Remanent_state.warn
         __POS__
-        (Format.sprintf "%s %s (%s) %s %s" entry.Public_data.pe_firstname
+        (Format.sprintf "%s %s %s %s" entry.Public_data.pe_firstname
                         entry.Public_data.pe_lastname
-                        entry.Public_data.pe_promotion
                         entry.Public_data.pe_code
                         entry.Public_data.pe_libelle)
         Exit state in
