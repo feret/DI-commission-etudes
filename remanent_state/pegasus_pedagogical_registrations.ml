@@ -28,26 +28,17 @@ let get_pegasus_pedagocial_registrations ~firstname ~lastname  dens_candidates =
     | None -> []
     | Some a -> a
   in
-  let () =
-    Format.printf "LOOKING FOR %s %s %i @." firstname lastname  (List.length l)
-  in
   l
-  (*let () =
-    Public_data.LastNameMap.iter (fun x _ -> Format.printf " -> %s @." x) dens_candidates.per_name
-  in*)
 
 
-          let dump m =
-            let () = Format.printf "DUMP PEGASUS CONTENT @." in Public_data.LastNameMap.iter
-              (fun x map ->
-                  Public_data.FirstNameMap.iter
-                    (fun y map ->
-
-                              let () = Format.printf "%s %s (PEGASUS CONTENT) %i @." x y (List.length map) in ())
-
-
-                     map
-                ) m
+  let dump m =
+    let () = Format.printf "DUMP PEGASUS CONTENT @." in Public_data.LastNameMap.iter
+        (fun x map ->
+            Public_data.FirstNameMap.iter
+                (fun y map ->
+                    let () = Format.printf "%s %s (PEGASUS CONTENT) %i @." x y (List.length map) in ())
+                map
+         ) m
 
 let add_pegasus_pedagocial_registrations
     unify pos state
