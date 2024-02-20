@@ -1211,6 +1211,10 @@ let store_cours  =
 
     let is_stage cours =
       begin
+        cours.code_cours = Some "UNEXPA-39"
+      end
+      ||
+      begin
         match cours.code_cours with
         | None -> false
         | Some a ->

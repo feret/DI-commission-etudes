@@ -131,7 +131,7 @@ let update_course course ects entry (state:Remanent_state.t) =
     let code, libelle =
        let l = String.split_on_char ' ' course in
        match l with
-        | h::t -> h, String.concat " "  t
+        | h::"-"::t | h::t -> h, String.concat " "  t
         | [] -> "",""
     in
     let ects = float_of_string ects in
