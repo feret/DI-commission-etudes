@@ -85,14 +85,14 @@ let update_year year entry state =
 
 let add unify pos c state =
     let state =
-      Remanent_state.warn pos (Format.sprintf "%s %s %s @." c.Public_data.pe_firstname
+      Remanent_state.warn pos (Format.sprintf "%s %s %s" c.Public_data.pe_firstname
       c.Public_data.pe_lastname
       c.Public_data.pe_promotion)
       Exit state
     in Remanent_state.Collector_pedagogical_registrations.add unify pos c state
 
-let convert entry =
-  {
+let convert entry state =
+  state, {
   Public_data.pe_firstname = Tools.unsome_string entry.firstname;
   Public_data.pe_lastname = Tools.unsome_string entry.lastname;
   Public_data.pe_promotion = Tools.unsome_string entry.promotion;
@@ -105,6 +105,20 @@ let convert entry =
   Public_data.pe_student_number = Tools.unsome_string entry.student_number;
   Public_data.pe_ine = Tools.unsome_string entry.ine;
 }
+
+let convert entry state =
+    let state, entry = convert entry state in
+    let state =
+      Remanent_state.warn
+        __POS__
+        (Format.sprintf "%s %s (%s) %s %s" entry.Public_data.pe_firstname
+                        entry.Public_data.pe_lastname
+                        entry.Public_data.pe_promotion
+                        entry.Public_data.pe_code
+                        entry.Public_data.pe_libelle)
+        Exit state in
+    state, entry
+
 let update_diploma diploma entry (state:Remanent_state.t) =
   let code, libelle =
     let l = String.split_on_char ' ' diploma in
@@ -113,9 +127,10 @@ let update_diploma diploma entry (state:Remanent_state.t) =
     | [] -> "",""
   in
   let code, libelle = Some code, Some libelle in
+  let state, entry = convert {entry with libelle ; code } state in
   add
         (fun _ state a _ -> state,a) __POS__
-        (convert {entry with libelle ; code }) state
+        entry state
 
 let update_course course ects entry (state:Remanent_state.t) =
     let code, libelle =
@@ -126,9 +141,10 @@ let update_course course ects entry (state:Remanent_state.t) =
     in
     let ects = float_of_string ects in
     let code, libelle, ects = Some code, Some libelle, Some ects in
+    let state, entry = convert {entry with libelle ; ects ; code } state in
     add
                 (fun _ state a _ -> state,a) __POS__
-                (convert {entry with libelle ; ects ; code }) state
+                entry state
 
 let event_opt = Some (Profiling.Collect_pegasus_pedagogical_registrations)
 let compute_repository = Remanent_state.Collector_pedagogical_registrations.get_repository
@@ -190,18 +206,14 @@ let get_pegasus_pedagogical_registrations
                               begin
                                 match h with
                                 | ""::"LEARNING AGREEMENT"::_ ->
-                                    let () = Format.printf "LEARNING AGREEMENT @." in
                                     entry, state
                                 | ""::""::academic::_ ->
-                                      let () = Format.printf "ACADEMIC %s @." academic in
                                       update_year academic entry state
                                 | ""::diploma::""::""::""::""::""::_ ->
-                                       let () = Format.printf "DIPLOMA %s @."  diploma in
                                        entry, update_diploma diploma entry state
                                 | ""::course::""::""::ects::_ ->
-                                      let () = Format.printf "COURSE %s @." course in
                                       entry,  update_course course ects entry state
-                                | bloc::_ -> let () = Format.printf "BLOC %s @." bloc in update_student bloc entry state
+                                | bloc::_ ->  update_student bloc entry state
                                 | [] -> entry, state
         end
                           in
