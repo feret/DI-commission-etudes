@@ -57,8 +57,9 @@ let get_pegasus_pedagocial_registrations ~firstname ~lastname ~year dens_candida
                   Public_data.FirstNameMap.iter
                     (fun y map ->
                         Public_data.PromoMap.iter
-                          (fun z _ ->
-                              Format.printf "%s %s (%s) (PEGASUS CONTENT) @." x y z)
+                          (fun z t ->
+                              let () = Format.printf "%s %s (%s) (PEGASUS CONTENT) %i @." x y z (List.length t) in ())
+
                           map
                     ) map
                 ) m.per_name
@@ -138,5 +139,5 @@ let add_pegasus_pedagocial_registrations
     in
     {dens_candidates with per_name}
   in
-  let () = dump dens_candidates in 
+  let () = dump dens_candidates in
   state, dens_candidates
