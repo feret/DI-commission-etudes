@@ -29,6 +29,7 @@ let get_pegasus_pedagocial_registrations ~firstname ~lastname ~year dens_candida
   (*let () =
     Public_data.LastNameMap.iter (fun x _ -> Format.printf " -> %s @." x) dens_candidates.per_name
   in*)
+  let l =
   match
     Public_data.LastNameMap.find_opt
       lastname
@@ -48,7 +49,14 @@ let get_pegasus_pedagocial_registrations ~firstname ~lastname ~year dens_candida
             year a
         with None -> []
           | Some a -> a
-
+  in
+  let () =
+    Format.printf "LOOKING FOR %s %s (%s) %i @." firstname lastname year (List.length l)
+  in
+  l
+  (*let () =
+    Public_data.LastNameMap.iter (fun x _ -> Format.printf " -> %s @." x) dens_candidates.per_name
+  in*)
 
 
           let dump m =
@@ -139,5 +147,4 @@ let add_pegasus_pedagocial_registrations
     in
     {dens_candidates with per_name}
   in
-  let () = dump dens_candidates in
   state, dens_candidates
