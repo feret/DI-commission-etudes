@@ -1546,7 +1546,7 @@ let add_extra_course state cours_a_ajouter gps_file =
   }
 
 
-  let add_extra_course_2023 state cours_a_ajouter gps_file =
+  (*let add_extra_course_2023 state cours_a_ajouter gps_file =
     let situation = gps_file.situation in
     let bilan =
       match
@@ -1597,7 +1597,7 @@ let add_extra_course state cours_a_ajouter gps_file =
        Public_data.YearMap.add
          cours_a_ajouter.Public_data.coursaj_annee
          bilan gps_file.situation
-    }
+    }*)
 
 let store_stage pos ~who state current_file current_file' output=
   let _ = pos, who in
@@ -2586,12 +2586,11 @@ let fetch_stage
   let rec aux state fun_list stages =
     match fun_list with
     | [] ->
-      let state =
-        Remanent_state.Ambiguous_internship_descriptions.add
-          state
-          internship
-      in
-      state, (Some (List.hd stages))
+      (if List.length stages > 1 then
+          Remanent_state.Ambiguous_internship_descriptions.add
+            state
+            internship
+      else state), stages
     | filter::tail ->
       begin
         match filter state stages with
@@ -2600,8 +2599,8 @@ let fetch_stage
               Remanent_state.Missing_internship_descriptions.add
                 state internship
           in
-          state, None
-        | state, [a] -> state, Some a
+          state, []
+        | state, [a] -> state, [a]
         | state, list -> aux state tail list
       end
   in
@@ -2610,8 +2609,8 @@ let fetch_stage
     [filter_stage_year year;filter_stage_cvt commentaires ;filter_stage_id commentaires]
     stages
 
-let extra_stages state stages =
-    filter_stage_year "2023" state stages
+(*let extra_stages state stages =
+    filter_stage_year "2023" state stages*)
 
 let lgen _grade gps dpt acro d =
     List.exists
@@ -5649,9 +5648,9 @@ let program
         let state, f =
           special_course state cours
         in
-        let state, libelle, stage_opt =
+        let state, libelle_stage_opt_list =
           match cours.cours_libelle with
-          | None -> state,None,None
+          | None -> state,[None,None]
           | Some l ->
             if is_stage cours
             then
@@ -5676,7 +5675,7 @@ let program
                     cours.commentaire stages
                 in
                 match stage_opt with
-                | None ->
+                | [] ->
                   begin
                     let state, (lib, lib_en) =
                         Remanent_state.Translate_courses.get_translation
@@ -5702,9 +5701,11 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                         ~french:(string_of_stringopt lib)
                         state
                     in
-                    state, Some libelle, Some stage_entry
+                    state, [Some libelle, Some stage_entry]
                   end
-                | Some stage ->
+                | stage_list ->
+                  List.fold_left
+                      (fun (state, acc) stage ->
                   let issue =
                     match
                       cours.note
@@ -5799,22 +5800,31 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                       state
                   in
                   state,
-                  Some
+                  (Some
                     (Format.sprintf "%s%s%s" libelle sujet directeur),
-                  Some stage_entry
+                  Some stage_entry)::acc) (state,[]) stage_list
               end
-            else state, Some l,None
+            else state, [Some l,None]
         in
         let stage_list =
-          match stage_opt with None -> stage_list | Some st -> st::stage_list
+          List.fold_left
+            (fun stage_list (_,stage_opt) ->
+            match stage_opt with None -> stage_list | Some st -> st::stage_list)
+            stage_list libelle_stage_opt_list
         in
-        let state, libelle, libelle_en =
-          if is_stage cours then state, libelle, None
-          else
-          if String.trim codecours = ""
-          then
-            if libelle = Some "N/A" then state, libelle, libelle
-            else if libelle = Some "Points de jury" then state, libelle, Some "Jury credits"
+        let state,mean, dens, natt, cours_list, stage_list  =
+          List.fold_left
+            (fun (state,mean, dens, natt, cours_list, stage_list) (libelle,_stage_opt) ->
+            let state, libelle, libelle_en =
+            if is_stage cours then
+              if cours.code_cours = Some "UNEXPA-39"
+              then state, Some "Stage", None
+              else state, libelle, None
+            else
+            if String.trim codecours = ""
+            then
+              if libelle = Some "N/A" then state, libelle, libelle
+              else if libelle = Some "Points de jury" then state, libelle, Some "Jury credits"
             else
               let state =
                 Remanent_state.warn
@@ -5945,7 +5955,11 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                 mean dens
               in state, mean, dens, natt, cours_list, stage_list
         in
-        state,mean, dens, natt, cours_list, stage_list )
+        state,mean, dens, natt, cours_list, stage_list)
+        (state,mean, dens, natt, cours_list, stage_list)
+        libelle_stage_opt_list in
+      (state,mean, dens, natt, cours_list, stage_list)  )
+
       (state,mean,dens,natt, cours_list, stage_list)
       list
   in
@@ -6422,9 +6436,9 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                 state
               else ()
           in
-          let state, libelle, stage_opt =
+          let state, libelle_stage_opt_list =
             match cours.cours_libelle with
-            | None -> state,None,None
+            | None -> state,[None,None]
             | Some l ->
               if is_stage cours
               then
@@ -6449,7 +6463,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                       cours.commentaire stages
                   in
                   match stage_opt with
-                  | None ->
+                  | [] ->
                     begin
                       let state, (l, l_en) =
                           Remanent_state.Translate_courses.get_translation
@@ -6475,9 +6489,12 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                           ~french:(string_of_stringopt l)
                           state
                       in
-                      state, Some libelle, Some stage_entry
+                      state, [Some libelle, Some stage_entry]
                     end
-                  | Some stage ->
+                  | stage_list ->
+                    List.fold_left
+                      (fun (state, acc) stage ->
+
                     let issue =
                       match
                         cours.note
@@ -6571,14 +6588,23 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                         state
                     in
                     state,
-                    Some (Format.sprintf "%s%s%s" libelle sujet directeur),
-                    Some stage_entry
+                    (Some (Format.sprintf "%s%s%s" libelle sujet directeur),
+                    Some stage_entry)::acc)
+                    (state, []) stage_list
                 end
-              else state, Some l, None
+              else state, [Some l, None]
           in
           let stage_list =
-            match stage_opt with None -> stage_list | Some st -> st::stage_list
+            List.fold_left (fun stage_list (_,stage_opt) ->
+            match stage_opt with None -> stage_list | Some st -> st::stage_list)
+            stage_list libelle_stage_opt_list
           in
+          let
+            state,cours_list, stage_list
+          =
+            List.fold_left (fun (state,cours_list, stage_list ) (libelle,_stage_opt) ->
+
+
           let state, libelle, libelle_en =
             if is_stage cours then state, libelle, None
             else
@@ -6638,6 +6664,8 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
             Remanent_state.fprintf state "%%\n\ "
           in
           state,cours_list, stage_list )
+          (state, cours_list, stage_list) libelle_stage_opt_list in
+        state,cours_list, stage_list )
         (state,cours_list, stage_list)
         list
     in
@@ -6979,8 +7007,8 @@ let export_transcript
     let stages =
         gps_file.stages
     in
-    let state, stages_2023 = extra_stages state stages in
-    let state, gps_file,_ =
+    (*let state, stages_2023 = extra_stages state stages in*)
+  (*  let state, gps_file,_ =
       List.fold_left
         (fun (state, gps_file, n) course ->
            let cours =
@@ -7000,7 +7028,7 @@ let export_transcript
            let state, gps_file = add_extra_course_2023 state cours gps_file in  state, gps_file, n+1)
         (state, gps_file,1)
         stages_2023
-    in
+    in*)
     let state, gps_file =
         add_pegasus_entries ~firstname ~lastname  state gps_file
     in
