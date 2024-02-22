@@ -5798,9 +5798,9 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
             (fun (state,mean, dens, natt, cours_list, stage_list) (libelle,_stage_opt) ->
             let state, libelle, libelle_en =
             if is_stage cours then
-              if cours.code_cours = Some "UNEXPA-39"
-              then state, Some "Stage", None
-              else state, libelle, None
+              (*if cours.code_cours = Some "UNEXPA-39"
+              then*) state, libelle, None
+              (*else state, libelle, None*)
             else
             if String.trim codecours = ""
             then
@@ -5828,7 +5828,6 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
         let () =
           Remanent_state.open_row ~macro state
         in
-
         let () =
           Remanent_state.print_cell
             codecours
