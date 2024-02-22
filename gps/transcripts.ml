@@ -5545,9 +5545,6 @@ let program
          StringOptMap.t * (StringOptMap.key * float option * string option * bool option * int)
          list), dens, natt, cours_list, stage_list)
         (is_m2,dpt_en,(diplome:string),diplome_en,cours) ->
-        let () =
-          Remanent_state.open_row ~macro state
-        in
         let codecours =
           string_of_stringopt cours.code_cours
         in
@@ -5828,6 +5825,10 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                 state
             in a, b, c
         in
+        let () =
+          Remanent_state.open_row ~macro state
+        in
+
         let () =
           Remanent_state.print_cell
             codecours
