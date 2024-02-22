@@ -5629,22 +5629,6 @@ let program
           else
             state
         in
-        let () =
-          Remanent_state.print_cell
-            codecours
-            state
-        in
-        let state, diplome =
-          Remanent_state.bilingual_string
-            ~english:diplome_en
-            ~french:diplome
-            state
-        in
-        let () =
-          Remanent_state.print_cell
-            diplome
-            state
-        in
         let state, f =
           special_course state cours
         in
@@ -5843,6 +5827,22 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                 (match libelle with Some a -> a | None -> "")
                 state
             in a, b, c
+        in
+        let () =
+          Remanent_state.print_cell
+            codecours
+            state
+        in
+        let state, diplome =
+          Remanent_state.bilingual_string
+            ~english:diplome_en
+            ~french:diplome
+            state
+        in
+        let () =
+          Remanent_state.print_cell
+            diplome
+            state
         in
         let state, libelle =
           Remanent_state.bilingual_string
