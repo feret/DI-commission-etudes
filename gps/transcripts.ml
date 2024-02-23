@@ -5768,6 +5768,12 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                         state, Format.sprintf
                           "\\newline %s %s" directed a
                   in
+                  let l =
+                      if cours.code_cours = Some "UNEXPA-39"
+                    then "Stage"
+                    else l
+                  in
+
                   let state, (l, l_en) =
                       Remanent_state.Translate_courses.get_translation
                       Collect_course_entries.unify_course_entry __POS__
