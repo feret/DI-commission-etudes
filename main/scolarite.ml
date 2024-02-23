@@ -32,10 +32,10 @@ let state =
   Collect_pegasus_pedagogical_registrations.get_pegasus_pedagogical_registrations state
 (*let state =
   Collect_pegasus_courses.get_pegasus_courses state *)
-let csv = Xls_support.open_xlsx "/users/absint3/feret/Nextcloud/di/suivi_pedagogique/pegasus/cours-dens.xlsx"
+let csv = Xls_support.open_xlsx "/users/absint3/feret/Nextcloud/di/suivi_pedagogique/pegasus/cours/cours-dens.xlsx"
 let () = Xls_support.key_dcl csv
 let () = Xls_support.key_list csv
-let () = Xls_support.type_dcl csv 
+let () = Xls_support.type_dcl csv
 let state =
   Collect_cost.get_cost_members state
 let state =
