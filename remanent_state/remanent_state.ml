@@ -1451,7 +1451,11 @@ module Collector_course_pegasus =
           let repository t = t.parameters.repository_for_pegasus_courses
           let get data = data.pedagogical_courses
           let set pedagogical_courses data = {data with pedagogical_courses}
-          let add = Pegasus_courses.add_pegasus_course
+          let add unify pos state course courses =
+          let code = course.Public_data.pegasus_helisa in
+          let year = course.Public_data.pegasus_session in
+          let state = warn __POS__ (Format.sprintf "PEGASUS ADD (%s) (%s)" code year) Exit state in
+          Pegasus_courses.add_pegasus_course unify pos state course courses
 
       end: Interface_collector_with_unification
       with type entry = Public_data.course_pegasus

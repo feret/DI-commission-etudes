@@ -3,7 +3,7 @@ val empty: t
 val get_pegasus_course:
   code:string ->
   year:string ->
-   t -> Public_data.course_pegasus option 
+   t -> Public_data.course_pegasus option
 
 val add_pegasus_course:
 ((string * int * int * int) ->
