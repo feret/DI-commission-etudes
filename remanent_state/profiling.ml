@@ -13,6 +13,7 @@ type step_kind =
   | Patch_gps_file of string option
   | Build_keywords_automaton
   | Export_transcript of string option
+  | Collect_pegasus_courses
   | Collect_pegasus_data
   | Collect_pegasus_pedagogical_registrations
   | Collect_additional_courses
@@ -114,6 +115,7 @@ let string_of_step_kind x =
     Printf.sprintf
       "Export transcript (%s)"
       x
+  | Collect_pegasus_courses -> "Collect courses list from Helisa"
   | Collect_pegasus_data -> "Collect data from pegasus"
   | Collect_pegasus_pedagogical_registrations -> "Collect pedagical registrations from pegasus"
   | Collect_additional_courses -> "Collect data about not-in-gps courses"
@@ -250,6 +252,7 @@ let is_dummy step_kind =
   | Collect_course_name_translations
   | Collect_course_entries
   | Collect_sorted_courses
+  | Collect_pegasus_courses
   | Collect_pegasus_data
   | Collect_pegasus_pedagogical_registrations
   | Dump_missing_grades
@@ -408,37 +411,6 @@ let init_log_info () =
     step_time = time;
     current_task = [];
   }
-
-(*
-  let log_info_to_json log_info =
-    `Assoc
-      [
-        "global_time", `Float log_info.global_time ;
-        "step_time", `Float log_info.step_time;
-      ]
-
-  let log_info_of_json x =
-    let init = init_log_info () in
-    match x with
-    | `Assoc l when List.length l = 2 ->
-           begin
-             try
-               {init with
-                global_time =
-                  Yojson.Basic.Util.to_float
-                    (List.assoc "global_time" l);
-                step_time =
-                  Yojson.Basic.Util.to_float
-                     (List.assoc "step_time" l);
-               }
-             with
-             | Not_found ->
-               raise
-                 (Yojson.Basic.Util.Type_error ("Not a correct log_info",x))
-           end
-         | x -> raise
-                  (Yojson.Basic.Util.Type_error ("Not a correct log_info",x))
-*)
 
 let reset_log log =
   let time = Sys.time () in

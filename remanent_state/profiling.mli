@@ -13,6 +13,7 @@ type step_kind =
   | Patch_gps_file of string option
   | Build_keywords_automaton
   | Export_transcript of string option
+  | Collect_pegasus_courses 
   | Collect_pegasus_data
   | Collect_pegasus_pedagogical_registrations
   | Collect_additional_courses

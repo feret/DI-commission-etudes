@@ -6,11 +6,14 @@ type pegasus_entry =
   year: string option;
   ects: float option;
   libelle: string option;
-  code: string option;
+  code_helisa: string option;
+  code_gps: string option;
   tutor_firstname: string option;
   tutor_lastname: string option;
   student_number: string option;
-  ine: string option
+  ine: string option;
+  libelle_gps: string option ;
+  teachers: (string * string) list ;
 }
 
 let empty_pegasus_entry =
@@ -20,11 +23,14 @@ let empty_pegasus_entry =
   year=None;
   ects=None;
   libelle=None;
-  code=None;
+  code_helisa=None;
+  code_gps=None;
   tutor_firstname=None;
   tutor_lastname=None;
   student_number=None;
   ine=None;
+  libelle_gps = None;
+  teachers = [];
 }
 
 let decompose_name l =
@@ -94,12 +100,20 @@ let convert entry state =
   Public_data.pe_lastname = Tools.unsome_string entry.lastname;
   Public_data.pe_year = Tools.unsome_string entry.year;
   Public_data.pe_ects = entry.ects ;
-  Public_data.pe_libelle = Tools.unsome_string entry.libelle;
-  Public_data.pe_code = Tools.unsome_string entry.code;
+  Public_data.pe_libelle =
+    begin
+      match entry.libelle_gps with
+        | None -> Tools.unsome_string entry.libelle
+        | Some x -> x
+    end;
+  Public_data.pe_code_helisa = Tools.unsome_string entry.code_helisa;
+  Public_data.pe_code_gps = entry.code_gps;
+
   Public_data.pe_tutor_firstname = Tools.unsome_string entry.tutor_firstname;
   Public_data.pe_tutor_lastname = Tools.unsome_string entry.tutor_lastname;
   Public_data.pe_student_number = Tools.unsome_string entry.student_number;
   Public_data.pe_ine = Tools.unsome_string entry.ine;
+  Public_data.pe_teachers = entry.teachers;
 }
 
 let convert entry state =
@@ -109,7 +123,7 @@ let convert entry state =
         __POS__
         (Format.sprintf "%s %s %s %s" entry.Public_data.pe_firstname
                         entry.Public_data.pe_lastname
-                        entry.Public_data.pe_code
+                        entry.Public_data.pe_code_helisa
                         entry.Public_data.pe_libelle)
         Exit state in
     state, entry
@@ -121,23 +135,74 @@ let update_diploma diploma entry (state:Remanent_state.t) =
     | h::t -> h, String.concat " " t
     | [] -> "",""
   in
-  let code, libelle = Some code, Some libelle in
-  let state, entry = convert {entry with libelle ; code } state in
+  let code_gps = entry.code_gps in
+  let code_helisa, libelle = Some code, Some libelle in
+  let state, entry = convert {entry with libelle ; code_helisa ; code_gps } state in
   add
         (fun _ state a _ -> state,a) __POS__
         entry state
 
+let get_teachers entry =
+  let list = entry.Public_data.pegasus_profs in
+  match list with None -> []
+    | Some list ->
+  let n = String.length list in
+  let rec split deb k acc =
+      if k=n then ((String.sub list deb (k-deb+1))::acc) else
+      if (k+1<n && String.sub list k 2 = "et") then
+         split (k+2) (k+2) ((String.sub list deb (k-deb+1))::acc)
+      else if
+         (k+2<n && String.sub list k 3 = "and") then
+         split (k+3) (k+3) ((String.sub list deb (k-deb+1))::acc)
+      else split deb (k+1) acc
+  in
+  let l = split 0 0 [] in
+    List.rev_map
+      (fun a -> decompose_name (String.split_on_char ' ' a))
+      l
+
+
 let update_course course ects entry (state:Remanent_state.t) =
-    let code, libelle =
+    let codehelisa, libelle =
        let l = String.split_on_char ' ' course in
        match l with
         | h::"-"::t | h::t -> h, String.concat " "  t
         | [] -> "",""
     in
+    let state, year =
+        match entry.year with
+          | None ->
+              Remanent_state.warn
+                  __POS__
+                  "Year is missing"
+                  Exit
+                  state, ""
+          | Some y -> state, y
+    in
     let ects = float_of_string ects in
-    let code, libelle, ects = Some code, Some libelle, Some ects in
-    let state, entry = convert {entry with libelle ; ects ; code } state in
-    add
+    let code_helisa, libelle, ects = Some codehelisa, Some libelle, Some ects in
+    let state, pegasus_entry =
+        Remanent_state.get_course_in_pegasus ~codehelisa ~year state
+    in
+    match pegasus_entry with
+      | None ->
+        let state =
+          Remanent_state.warn
+          __POS__
+          "Pegasus entry is missing"
+          Exit
+          state
+        in
+        let state, entry = convert {entry with libelle ; ects ; code_helisa } state in
+          add
+                (fun _ state a _ -> state,a) __POS__
+                entry state
+      | Some pegasus_entry ->
+        let teachers = get_teachers pegasus_entry in
+        let code_gps = pegasus_entry.Public_data.pegasus_codegps in
+        let libelle_gps = Some pegasus_entry.Public_data.pegasus_libelle in
+        let state, entry = convert {entry with libelle ; ects ; code_helisa ; code_gps ; teachers ;  libelle_gps } state in
+          add
                 (fun _ state a _ -> state,a) __POS__
                 entry state
 

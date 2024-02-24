@@ -456,6 +456,7 @@ type cours =
     semestre: string option;
     code_cours: string option;
     responsable: string option;
+    enseignants: (string * string) list option;
     cours_libelle: string option;
     cours_etablissement: string option;
     duree: float option;
@@ -539,6 +540,7 @@ let empty_cours =
     semestre = None ;
     code_cours = None ;
     responsable = None ;
+    enseignants = None ;
     cours_libelle = None ;
     cours_etablissement = None ;
     duree = None ;
@@ -1510,6 +1512,7 @@ let add_extra_course state cours_a_ajouter gps_file =
           | a -> a
         end;
       responsable = None ;
+      enseignants = None ;
       cours_libelle = Some (String.trim (cours_a_ajouter.Public_data.coursaj_libelle));
       cours_etablissement = None ;
       duree = None ;
@@ -5903,6 +5906,30 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
               (Special_char.capitalize firstname)
               (Special_char.uppercase lastname)
         in
+        let concat op l =
+          let rec aux l acc =
+            match l with
+              | [] -> ""
+              | [last] -> Format.sprintf "%s%s%s" (String.concat ", " (List.rev acc)) op last
+              | h::t -> aux t (h::acc)
+          in aux l []
+        in
+        let enseignants, enseignants_en =
+          match
+            cours.enseignants
+          with
+          | None -> None, None
+          | Some enseignants ->
+            Some (concat " et " (List.rev_map (fun (a,b) -> Format.sprintf "%s %s" a b) enseignants)),
+            Some (concat ", and " (List.rev_map (fun (a,b) -> Format.sprintf "%s %s" a b) enseignants))
+        in
+        let state, responsable =
+            match enseignants, enseignants_en with
+              | None, _ -> state, responsable
+              | Some x,None  -> state, x
+              | Some french, Some english ->
+              Remanent_state.bilingual_string ~french ~english state
+        in
         let () =
           Remanent_state.print_cell
             responsable
@@ -6738,7 +6765,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
     let state, gps_file =
       List.fold_left
         (fun (state, gps_file) course ->
-          let code = String.trim (course.Public_data.pe_code) in
+          let code = String.trim (course.Public_data.pe_code_helisa) in
           match kind code with
           | Inscription -> state, gps_file (* TO DO *)
           | RdV -> state, gps_file (* TO DO *)
@@ -6756,9 +6783,19 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           let elt =
             {
               semestre = None ;
-              code_cours = Some code ;
+              code_cours =
+                begin
+                  match course.Public_data.pe_code_gps
+                  with
+                    | None -> Some code
+                    | Some x -> Some x
+                end;
               responsable = None ;
-              cours_libelle = Some (String.trim (course.Public_data.pe_libelle)) ;
+              enseignants = Some course.Public_data.pe_teachers ;
+              cours_libelle =
+                begin
+                  Some (String.trim (course.Public_data.pe_libelle))
+                end;
               cours_etablissement = None ;
               duree = None ;
               ects = course.Public_data.pe_ects;

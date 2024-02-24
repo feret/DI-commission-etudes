@@ -312,6 +312,9 @@ module Collector_administrative_status:
 module Collector_pedagogical_registrations:
       Collector_with_search_by_students_wo_year with type entry = Public_data.pedagogical_entry_pegasus and type collector = Pegasus_pedagogical_registrations.t
 
+module Collector_course_pegasus:
+      Collector_with_unification with type entry = Public_data.course_pegasus and type collector = Pegasus_courses.t
+
 module Collector_stages_tries:
 Collector_with_unification with type entry =  Public_data.stage_a_trier
 and type collector = Stages_a_trier.t
@@ -331,6 +334,11 @@ module Translate_courses: Translations
   and type Report.entry  = Public_data.course_entry
   and type Missing.entry = Public_data.course_entry
   (*and type Missing.collector = Public_data.course_entry list*)
+
+val get_course_in_pegasus:
+  codehelisa: string ->
+  year:Public_data.annee ->
+  t -> t * Public_data.course_pegasus option
 
 val get_course_exception:
   codegps:string ->

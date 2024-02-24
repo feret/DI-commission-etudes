@@ -255,6 +255,26 @@ type student_pegasus =
       pegasus_ine: string;
   }
 
+type course_pegasus =
+    {
+      pegasus_helisa: string ;
+      pegasus_libelle: string ;
+      pegasus_libelle_en: string option;
+      pegasus_profs: string option;
+      pegasus_codegps: string option;
+      pegasus_session:string
+  }
+
+let empty_course_pegasus =
+{
+  pegasus_helisa = "" ;
+  pegasus_libelle = "" ;
+  pegasus_libelle_en = None ;
+  pegasus_profs = None ;
+  pegasus_codegps = None ;
+  pegasus_session = "" ;
+}
+
 type language = French | English
 type repartition = Annee_de_validation_du_cours | Annee_obtention_du_diplome
 
@@ -284,11 +304,14 @@ type pedagogical_entry_pegasus =
         pe_year: string;
         pe_ects: float option;
         pe_libelle: string;
-        pe_code: string;
+        pe_code_helisa: string;
+        pe_code_gps: string option; 
         pe_tutor_firstname: string;
         pe_tutor_lastname: string;
+        pe_teachers: (string * string) list ;
         pe_student_number: string;
-        pe_ine: string
+        pe_ine: string;
+
     }
 
 let empty_pedagogical_entry =
@@ -298,11 +321,14 @@ let empty_pedagogical_entry =
         pe_year = "";
         pe_ects = None ;
         pe_libelle = "";
-        pe_code = "";
+        pe_code_helisa = "";
+        pe_code_gps = None;
+
         pe_tutor_firstname = "";
         pe_tutor_lastname = "";
         pe_student_number = "";
         pe_ine = "";
+        pe_teachers = [];
     }
 type scholarship =
   {
@@ -1084,6 +1110,58 @@ type keywords =
   | Universite
   | Valide
   | Ignore
+  | PEGASUS_Code_Produit_Helisa
+  | PEGASUS_Libelle
+  | PEGASUS_Libelle_Anglais
+  | PEGASUS_Type_de_produit
+  | PEGASUS_Domaine
+  | PEGASUS_Nature_du_produit
+  | PEGASUS_Niveau
+  | PEGASUS_Nature_de_l_activite
+  | PEGASUS_Resp_Adm
+  | PEGASUS_Unite
+  | PEGASUS_TVA
+  | PEGASUS_Prestation
+  | PEGASUS_Session
+  | PEGASUS_Nb_Maxi_Inscrits
+  | PEGASUS_Etat
+  | PEGASUS_Lieu
+  | PEGASUS_Date_Session
+  | PEGASUS_Date_Fin_Session
+  | PEGASUS_NB_INSCRITS_ACTIFS
+  | PEGASUS_NB_INSCRITS_CLOTURES
+  | PEGASUS_PED_NOM
+  | PEGASUS_PED_PRENOM
+  | PEGASUS_PED_EMAIL
+  | PEGASUS_RES_NOM
+  | PEGASUS_RES_PRENOM
+  | PEGASUS_RES_SOCIETE
+  | PEGASUS_SE_DEROULER_DANS_SOCIETE
+  | PEGASUS_COMPTE_COMPTABLE
+  | PEGASUS_CO_PRODUIT_EDT_COULEUR_DU_PRODUIT
+  | PEGASUS_CO_PRODUIT_ID_PAIEMENT_EN_LIGNE
+  | PEGASUS_CO_PRODUIT_EMARGER_COURS_MUTUALISE
+  | PEGASUS_CO_PRODUIT_ENS_CE_ETAB_NOM
+  | PEGASUS_CO_PRODUIT_ENS_CE_ETAB_VILLE
+  | PEGASUS_CO_PRODUIT_ENS_CE_ETAB_DEPARTEMENT
+  | PEGASUS_CO_PRODUIT_ENS_CE_INTITULE
+  | PEGASUS_CO_PRODUIT_ENS_CE_ENSEIGNANT
+  | PEGASUS_CO_PRODUIT_ENS_CE_EMAIL_RDD_01
+  | PEGASUS_CO_PRODUIT_ENS_CE_EMAIL_RDD_02
+  | PEGASUS_CO_PRODUIT_ENS_CE_EMAIL_GESTIONNAIRE
+  | PEGASUS_CO_PRODUIT_ENS_EMAIL_RDD_01
+  | PEGASUS_CO_PRODUIT_ENS_EMAIL_RDD_02
+  | PEGASUS_CO_PRODUIT_ID_GIROFLE
+  | PEGASUS_CO_PRODUIT_ID_PRODUIT_SF
+  | PEGASUS_CO_PRODUIT_ID_PRODUIT_SF_02
+  | PEGASUS_CO_PRODUIT_LANGUE_ENSEIGNEMENT
+  | PEGASUS_CO_ANNEE_EDT_VISIBLE_SUR_PORTAIL_JUSQUE
+  | PEGASUS_CO_ANNEE_EDT_VISIBLE_SUR_WEBPROF_JUSQUE
+  | PEGASUS_CO_ANNEE_STATUT_ACCES_DECISIONS_JURY
+  | PEGASUS_CO_ANNEE_EMARGER_FORMATION_OUVERTE
+  | PEGASUS_CO_ANNEE_EMARGER_ENSEIGNEMENT_FERME
+  | PEGASUS_CO_ANNEE_AUTORISATION_EDITION_BULLETIN
+  | PEGASUS_CO_ANNEE_AFFICHE_CLASSEMENT_EDITION
   | PEGASUS_GENRE
   | PEGASUS_CODE_SEXE
   | PEGASUS_NOM

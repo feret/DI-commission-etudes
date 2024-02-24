@@ -99,6 +99,7 @@ type parameters =
     repository_for_inscriptions: string;
     repository_for_pegasus_administrative_status: string;
     repository_for_pegasus_pedagogical_inscriptions: string;
+    repository_for_pegasus_courses: string;
     repository_to_dump_missing_pictures: string;
     repository_to_dump_non_accepted_grades: string;
     repository_to_dump_non_validated_internships: string;
@@ -249,6 +250,7 @@ let parameters =
     repository_to_dump_dens_candidate = "dens_candidates" ;
     repository_for_pegasus_administrative_status = "status_administratifs" ;
     repository_for_pegasus_pedagogical_inscriptions = "programmes_pedagogiques" ;
+    repository_for_pegasus_courses = "courses";
     current_academic_year = "2023";
     commissions_repository = "commissions_des_etudes";
 
@@ -316,6 +318,7 @@ type data =
     students: Public_data.student_id list ;
     status_administratifs: Pegasus_administrative_status.t;
     pedagogical_inscriptions: Pegasus_pedagogical_registrations.t;
+    pedagogical_courses: Pegasus_courses.t ;
     output_alias: (string * string) option ;
     scholarships: Scholarships.t;
     mentoring: Mentoring.t;
@@ -369,6 +372,7 @@ let empty_data =
     students = [];
     status_administratifs = Pegasus_administrative_status.empty;
     pedagogical_inscriptions = Pegasus_pedagogical_registrations.empty ;
+    pedagogical_courses = Pegasus_courses.empty ;
     scholarships = Scholarships.empty;
     mentoring = Mentoring.empty;
     course_exceptions = Course_exceptions.empty;
@@ -1437,6 +1441,21 @@ let get_pegasus_gen get t =
       with type entry = Public_data.pedagogical_entry_pegasus
       and type collector = Pegasus_pedagogical_registrations.t )
 
+module Collector_course_pegasus =
+    Make_collector_with_unification
+      (struct
+          type entry = Public_data.course_pegasus
+          type collector = Pegasus_courses.t
+
+          let prefix = get_pegasus_gen
+          let repository t = t.parameters.repository_for_pegasus_courses
+          let get data = data.pedagogical_courses
+          let set pedagogical_courses data = {data with pedagogical_courses}
+          let add = Pegasus_courses.add_pegasus_course
+
+      end: Interface_collector_with_unification
+      with type entry = Public_data.course_pegasus
+        and type collector = Pegasus_courses.t)
 
 module Collector_administrative_status =
   Make_collector_with_search_by_students
@@ -1487,6 +1506,14 @@ module Collector_course_exceptions =
     end: Interface_collector_with_unification
     with type entry = Public_data.course_exception
     and type collector = Course_exceptions.t )
+
+let get_course_in_pegasus ~codehelisa ~year t =
+    let t, collector = Collector_course_pegasus.get t in
+    let course_opt =
+          Pegasus_courses.get_pegasus_course
+            ~code:codehelisa ~year collector
+    in
+    t, course_opt
 
 let get_course_exception ~codegps ~year t =
     let t, collector = Collector_course_exceptions.get t in
