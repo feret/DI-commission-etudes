@@ -116,17 +116,6 @@ let convert entry state =
   Public_data.pe_teachers = entry.teachers;
 }
 
-let convert entry state =
-    let state, entry = convert entry state in
-    let state =
-      Remanent_state.warn
-        __POS__
-        (Format.sprintf "%s %s %s %s" entry.Public_data.pe_firstname
-                        entry.Public_data.pe_lastname
-                        entry.Public_data.pe_code_helisa
-                        entry.Public_data.pe_libelle)
-        Exit state in
-    state, entry
 
 let update_diploma diploma entry (state:Remanent_state.t) =
   let code, libelle =
@@ -189,7 +178,7 @@ let update_course course ects entry (state:Remanent_state.t) =
         let state =
           Remanent_state.warn
           __POS__
-          "Pegasus entry is missing"
+          (Format.sprintf "Pegasus entry is missing %s %s" codehelisa year)
           Exit
           state
         in
