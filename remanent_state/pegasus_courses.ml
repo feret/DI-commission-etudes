@@ -26,6 +26,13 @@ let add_pegasus_course
     course courses =
   let code = course.Public_data.pegasus_helisa in
   let year = course.Public_data.pegasus_session in
+  let state =
+    Remanent_state.warn
+      __POS__
+      (Format.sprintf "COURSE PEGASUS %s %s" code year)
+      Exit
+      state
+  in 
   let course' = get_pegasus_course ~code ~year  courses  in
   let state, course =
     match course' with
