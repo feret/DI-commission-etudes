@@ -37,7 +37,7 @@ let add_pegasus_course
     let old_year =
       match
         Public_data.YearMap.find_opt
-          code
+          year
           courses
       with
       | Some map -> map
