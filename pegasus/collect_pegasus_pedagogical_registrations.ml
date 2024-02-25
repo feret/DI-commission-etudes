@@ -137,7 +137,7 @@ let get_teachers entry =
     | Some list ->
   let n = String.length list in
   let rec split deb k acc =
-      if k=n then ((String.sub list deb (k-deb+1))::acc) else
+      if k=n then ((String.sub list deb (k-deb))::acc) else
       if (k+1<n && String.sub list k 2 = "et") then
          split (k+2) (k+2) ((String.sub list deb (k-deb+1))::acc)
       else if
