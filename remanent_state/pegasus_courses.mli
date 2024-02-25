@@ -1,4 +1,7 @@
-type t
+type t=
+      Public_data.course_pegasus
+        Public_data.CodeMap.t
+          Public_data.YearMap.t
 val empty: t
 val get_pegasus_course:
   code:string ->

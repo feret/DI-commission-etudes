@@ -1463,6 +1463,15 @@ module Collector_course_pegasus =
           in
           let course = {course with Public_data.pegasus_year} in
           let state = warn __POS__ (Format.sprintf "PEGASUS ADD (%s) (%s)" code pegasus_year) Exit state in
+          (*let state =
+                else Public_data.YearMap.fold
+            (fun x map state ->
+                Public_data.CodeMap.fold
+                  (fun y _ state ->
+                      warn __POS__ (Format.sprintf "PEGASUS COURSE YEAR(%s) CODE(%s) @." x y) Exit
+                  ) map
+              ) m.per_name courses
+          in*)
           Pegasus_courses.add_pegasus_course unify pos state course courses
 
       end: Interface_collector_with_unification
@@ -1520,7 +1529,16 @@ module Collector_course_exceptions =
     and type collector = Course_exceptions.t )
 
 let get_course_in_pegasus ~codehelisa ~year t =
-    let t, collector = Collector_course_pegasus.get t in
+    let t, (collector:Pegasus_courses.t) = Collector_course_pegasus.get t in
+    let t =
+      Public_data.YearMap.fold
+        (fun x map t ->
+            Public_data.CodeMap.fold
+              (fun y _ t ->
+                  warn __POS__ (Format.sprintf "PEGASUS COURSE YEAR(%s) CODE(%s) @." x y) Exit t
+            ) map t
+        ) collector t
+    in
     let course_opt =
           Pegasus_courses.get_pegasus_course
             ~code:codehelisa ~year collector
