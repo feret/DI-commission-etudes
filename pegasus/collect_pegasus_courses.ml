@@ -22,7 +22,7 @@ pegasus_session = None;
 
 
 let event_opt = Some (Profiling.Collect_pegasus_courses)
-let compute_repository = Remanent_state.Collector_administrative_status.get_repository
+let compute_repository = Remanent_state.Collector_course_pegasus.get_repository
 
 let lift_pred = Lift.pred_safe
 let lift_string =
