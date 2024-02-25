@@ -250,7 +250,7 @@ let parameters =
     repository_to_dump_dens_candidate = "dens_candidates" ;
     repository_for_pegasus_administrative_status = "status_administratifs" ;
     repository_for_pegasus_pedagogical_inscriptions = "programmes_pedagogiques" ;
-    repository_for_pegasus_courses = "courses";
+    repository_for_pegasus_courses = "cours";
     current_academic_year = "2023";
     commissions_repository = "commissions_des_etudes";
 
