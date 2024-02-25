@@ -1529,6 +1529,7 @@ module Collector_course_exceptions =
     and type collector = Course_exceptions.t )
 
 let get_course_in_pegasus ~codehelisa ~year t =
+    let code = Special_char.lowercase codehelisa in
     let t, (collector:Pegasus_courses.t) = Collector_course_pegasus.get t in
     let t =
       Public_data.YearMap.fold
@@ -1541,7 +1542,7 @@ let get_course_in_pegasus ~codehelisa ~year t =
     in
     let course_opt =
           Pegasus_courses.get_pegasus_course
-            ~code:codehelisa ~year collector
+            ~code ~year collector
     in
     t, course_opt
 
