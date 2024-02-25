@@ -1453,8 +1453,16 @@ module Collector_course_pegasus =
           let set pedagogical_courses data = {data with pedagogical_courses}
           let add unify pos state course courses =
           let code = course.Public_data.pegasus_helisa in
-          let year = course.Public_data.pegasus_session in
-          let state = warn __POS__ (Format.sprintf "PEGASUS ADD (%s) (%s)" code year) Exit state in
+          let state, pegasus_year =
+            let session = course.Public_data.pegasus_session in
+            if String.length session > 3 then
+            state, String.sub session 0 4 else
+            warn
+              __POS__ (Format.sprintf "Bad session number %s" session)
+              Exit state, session
+          in
+          let course = {course with Public_data.pegasus_year} in
+          let state = warn __POS__ (Format.sprintf "PEGASUS ADD (%s) (%s)" code pegasus_year) Exit state in
           Pegasus_courses.add_pegasus_course unify pos state course courses
 
       end: Interface_collector_with_unification

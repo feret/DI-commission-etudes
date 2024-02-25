@@ -25,7 +25,7 @@ let add_pegasus_course
     unify pos state
     course courses =
   let code = course.Public_data.pegasus_helisa in
-  let year = course.Public_data.pegasus_session in
+  let year = course.Public_data.pegasus_year in
   let course' = get_pegasus_course ~code ~year  courses  in
   let state, course =
     match course' with

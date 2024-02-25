@@ -38,7 +38,8 @@ type course_pegasus =
     pegasus_libelle_en: string option;
     pegasus_profs: string option;
     pegasus_codegps: string option;
-    pegasus_session:string
+    pegasus_session:string;
+    pegasus_year:string; 
 }
 
 val empty_course_pegasus: course_pegasus

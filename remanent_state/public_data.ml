@@ -262,7 +262,8 @@ type course_pegasus =
       pegasus_libelle_en: string option;
       pegasus_profs: string option;
       pegasus_codegps: string option;
-      pegasus_session:string
+      pegasus_session:string;
+      pegasus_year:string;
   }
 
 let empty_course_pegasus =
@@ -273,6 +274,7 @@ let empty_course_pegasus =
   pegasus_profs = None ;
   pegasus_codegps = None ;
   pegasus_session = "" ;
+  pegasus_year = ""; 
 }
 
 type language = French | English
@@ -305,7 +307,7 @@ type pedagogical_entry_pegasus =
         pe_ects: float option;
         pe_libelle: string;
         pe_code_helisa: string;
-        pe_code_gps: string option; 
+        pe_code_gps: string option;
         pe_tutor_firstname: string;
         pe_tutor_lastname: string;
         pe_teachers: (string * string) list ;
