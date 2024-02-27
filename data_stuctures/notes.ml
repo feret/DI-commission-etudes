@@ -272,7 +272,7 @@ let comparable a b =
 
 let string_of_ects f_opt =
   match f_opt with
-  | None -> ""
+  | None -> "0"
   | Some f ->
     if float_of_int (int_of_float f) = f
     then

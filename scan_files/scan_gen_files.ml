@@ -187,17 +187,17 @@ let get_list_from_a_file
       | [x]::t when Tools.space_only x ->
         array_mode state header_key header t current_file output
       | h::t ->
-        let rec aux state l =
+        let (*rec*) aux state l =
           match l with
           | [] -> state, false
-          | h::q ->
+          | h::_q ->
             let state, b =
               is_keyword __POS__ state h
             in
             if b then
               state, true
             else
-              aux state q
+              (*aux state q*) state, false
         in
         let state, b = aux state h in
         if b
