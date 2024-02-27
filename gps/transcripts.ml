@@ -2536,6 +2536,7 @@ let state, automaton  =
 in
 let state, list =
   Scan_csv_files.get_list_from_a_file
+    ~strict:true 
     automaton
     empty_remanent
     state
@@ -3060,6 +3061,74 @@ let is_phys_course code_cours _year =
 let is_di_course code_cours _year =
   Tools.substring "INFO" code_cours
 
+let dispatch_m2 check_dpt origine situation code_cours year state
+=
+if mpri situation then
+  state, (Some "MPRI","M2 du MPRI","M2 MPRI",dpt_info,dpt_info_en,false,true)
+else if mva situation then
+  state, (Some "MVA","M2 du MVA","M2 MVA",dpt_info,dpt_info_en,false,true)
+else if iasd situation then
+  state, (Some "IASD","M2 IASD","M2 IASD",dpt_info,dpt_info_en,false,true)
+else if mash situation then
+  state, (Some "MASH","M2 MASH","M2 MASH", dpt_maths,dpt_maths_en,false,true)
+else if msesi situation then
+  state, (Some "SESI","M1 SESI","M1 SESI", dpt_info,dpt_info_en,false,false)
+else if msesi2 situation then
+    state, (Some "SESI2","M2 SESI","M2 SESI", dpt_info,dpt_info_en,false,true)
+else if agregmaths situation then
+  state, (Some "AGMATHSU","Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation", dpt_maths, dpt_maths_en,false,false )
+else if agreginfo situation then
+        state, (Some "AGREGINFOUPC","Formation à l'agrégation d'Informatique","Formation to Computer Science Aggregation", dpt_info, dpt_info_en,false,false )
+else if mint situation then
+  state, (Some "Interaction", "M2 Interaction", "M2 Interaction",dpt_info,dpt_info_en,false,true)
+else if mfondsu situation then
+  state, (Some "MathFondSu", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false,true)
+else if mfondupc situation then
+  state, (Some "MathFondUPC", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false,true)
+else if mfondps situation then
+  state, (Some "MathFondPantheonSor", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false,true)
+else if mlmfi situation then
+  state, (Some "LMFI", "M2 LMFI", "M2 LMFI", dpt_info, dpt_info_en,false,true)
+else if mrandom situation then
+  state, (Some "ALEA", "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness", dpt_maths, dpt_maths_en,false,true)
+else if mprobalea situation then
+  state, (Some "PROBALEA", "M2 Probabilités et Modèles Aléatoires", "M2 Probabilities and Random models", dpt_maths, dpt_maths_en,false,true)
+else if marianageo situation then
+  state, (Some "MARIANAGEO", "M2 Arithmétique Analyse et Géométrie","M2 Analysis, Number Theory and Geometry",dpt_maths, dpt_maths_en,false,true)
+else if manamodsimorsay situation then
+  state, (Some "MODSIMORSAY", "M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation",dpt_maths, dpt_maths_en,false,true)
+else if manamodsimversailles situation then
+  state, (Some "MODSIMVERSAILLES", "M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation",dpt_maths, dpt_maths_en,false,true)
+else if mprobaalea situation then
+  state, (Some "PROB", "M2 Probabilités et Modèles Aléatoires", "M2 Mathematics Probability and Random Models",dpt_maths, dpt_maths_en,false,true)
+else if mprobfinsu situation then
+  state, (Some "MPROBFINSU", "M2 Probabilités et Finance", "M2 Probability and Finance",dpt_maths,dpt_maths_en,false,true)
+else if mprobfinpantheon situation then
+  state, (Some "MPROBFINPANTHEON", "M2 Probabilités et Finance", "M2 Probability and Finance",dpt_maths,dpt_maths_en,false,true)
+else if mformens situation then
+  state, (Some "MFORMENS", "M2 Formation à l'Enseignement Supérieur en Mathématiques","M2 Formation to Higher Eduction in Mathematics",dpt_maths,dpt_maths_en,false,true)
+else if mappsu situation then
+  state, (Some "M-APP", "M2 Mathematiques et applications ","M2 Mathematics and applications",dpt_maths,dpt_maths_en,false,true)
+else if mape situation then
+  state, (Some "MAPE", "M1 Analyse politique et économique","M1 Political and economical analysis",dpt_maths,dpt_maths_en,false,false)
+else if mste situation then
+  state, (Some "MSTE", "M1 Sciences de la Vie, de la Terre et de l'Univers","M1 Life, Earth, and Universe Sciences",dpt_geosciences,dpt_geosciences_en,false,false)
+else if mmod situation then
+  state, (Some "MMOD", "M2 Mathématiques de la modelisation", "M2 Mathematics of Modeling",dpt_maths, dpt_maths_en,false,true)
+else if mphys situation then
+  state, (Some "MPHYS","M2 Physique","M2 Physics",dpt_phys, dpt_phys_en,false,true)
+else if mimalis situation then
+  state, (Some "IMALIS","M2 IMALIS","M2 IMALIS",dpt_bio,dpt_bio_en,false,true)
+else if mphylo situation then
+  state, (Some "PHILOSorbonne","M2 Phylo (SU)", "M2 Phylo (SU)", dpt_phyl,dpt_phyl_en, false, true)
+else
+if mmaths situation then
+  state, (Some "M","M1 de mathématiques","M1 in Mathematics", dpt_maths,dpt_maths_en,false,false)
+else
+  check_dpt __POS__ state origine
+    "M" "M1" "M1" code_cours year
+    situation false
+
 let translate_diplome
     ~situation ~firstname ~lastname ~year ~code_cours
     ~origine ~promo
@@ -3313,72 +3382,8 @@ let translate_diplome
               situation is_m2
 
     end
-  | Some "M" ->
-    if mpri situation then
-      state, (Some "MPRI","M2 du MPRI","M2 MPRI",dpt_info,dpt_info_en,false,true)
-    else if mva situation then
-      state, (Some "MVA","M2 du MVA","M2 MVA",dpt_info,dpt_info_en,false,true)
-    else if iasd situation then
-      state, (Some "IASD","M2 IASD","M2 IASD",dpt_info,dpt_info_en,false,true)
-    else if mash situation then
-      state, (Some "MASH","M2 MASH","M2 MASH", dpt_maths,dpt_maths_en,false,true)
-    else if msesi situation then
-      state, (Some "SESI","M1 SESI","M1 SESI", dpt_info,dpt_info_en,false,false)
-    else if msesi2 situation then
-        state, (Some "SESI2","M2 SESI","M2 SESI", dpt_info,dpt_info_en,false,true)
-    else if agregmaths situation then
-      state, (Some "AGMATHSU","Formation à l'agrégation de Mathématiques","Formation to Mathematics Aggregation", dpt_maths, dpt_maths_en,false,false )
-    else if agreginfo situation then
-            state, (Some "AGREGINFOUPC","Formation à l'agrégation d'Informatique","Formation to Computer Science Aggregation", dpt_info, dpt_info_en,false,false )
-    else if mint situation then
-      state, (Some "Interaction", "M2 Interaction", "M2 Interaction",dpt_info,dpt_info_en,false,true)
-    else if mfondsu situation then
-      state, (Some "MathFondSu", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false,true)
-    else if mfondupc situation then
-      state, (Some "MathFondUPC", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false,true)
-    else if mfondps situation then
-      state, (Some "MathFondPantheonSor", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false,true)
-    else if mlmfi situation then
-      state, (Some "LMFI", "M2 LMFI", "M2 LMFI", dpt_info, dpt_info_en,false,true)
-    else if mrandom situation then
-      state, (Some "ALEA", "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness", dpt_maths, dpt_maths_en,false,true)
-    else if mprobalea situation then
-      state, (Some "PROBALEA", "M2 Probabilités et Modèles Aléatoires", "M2 Probabilities and Random models", dpt_maths, dpt_maths_en,false,true)
-    else if marianageo situation then
-      state, (Some "MARIANAGEO", "M2 Arithmétique Analyse et Géométrie","M2 Analysis, Number Theory and Geometry",dpt_maths, dpt_maths_en,false,true)
-    else if manamodsimorsay situation then
-      state, (Some "MODSIMORSAY", "M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation",dpt_maths, dpt_maths_en,false,true)
-    else if manamodsimversailles situation then
-      state, (Some "MODSIMVERSAILLES", "M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation",dpt_maths, dpt_maths_en,false,true)
-    else if mprobaalea situation then
-      state, (Some "PROB", "M2 Probabilités et Modèles Aléatoires", "M2 Mathematics Probability and Random Models",dpt_maths, dpt_maths_en,false,true)
-    else if mprobfinsu situation then
-      state, (Some "MPROBFINSU", "M2 Probabilités et Finance", "M2 Probability and Finance",dpt_maths,dpt_maths_en,false,true)
-    else if mprobfinpantheon situation then
-      state, (Some "MPROBFINPANTHEON", "M2 Probabilités et Finance", "M2 Probability and Finance",dpt_maths,dpt_maths_en,false,true)
-    else if mformens situation then
-      state, (Some "MFORMENS", "M2 Formation à l'Enseignement Supérieur en Mathématiques","M2 Formation to Higher Eduction in Mathematics",dpt_maths,dpt_maths_en,false,true)
-    else if mappsu situation then
-      state, (Some "M-APP", "M2 Mathematiques et applications ","M2 Mathematics and applications",dpt_maths,dpt_maths_en,false,true)
-    else if mape situation then
-      state, (Some "MAPE", "M1 Analyse politique et économique","M1 Political and economical analysis",dpt_maths,dpt_maths_en,false,false)
-    else if mste situation then
-      state, (Some "MSTE", "M1 Sciences de la Vie, de la Terre et de l'Univers","M1 Life, Earth, and Universe Sciences",dpt_geosciences,dpt_geosciences_en,false,false)
-  else if mmod situation then
-      state, (Some "MMOD", "M2 Mathématiques de la modelisation", "M2 Mathematics of Modeling",dpt_maths, dpt_maths_en,false,true)
-    else if mphys situation then
-      state, (Some "MPHYS","M2 Physique","M2 Physics",dpt_phys, dpt_phys_en,false,true)
-    else if mimalis situation then
-      state, (Some "IMALIS","M2 IMALIS","M2 IMALIS",dpt_bio,dpt_bio_en,false,true)
-    else if mphylo situation then
-      state, (Some "PHILOSorbonne","M2 Phylo (SU)", "M2 Phylo (SU)", dpt_phyl,dpt_phyl_en, false, true)
-    else
-    if mmaths situation then
-      state, (Some "M","M1 de mathématiques","M1 in Mathematics", dpt_maths,dpt_maths_en,false,false)
-    else
-      check_dpt __POS__ state origine
-        "M" "M1" "M1" code_cours year
-        situation false
+  | Some "M" -> dispatch_m2 check_dpt origine situation code_cours year state
+
   | Some ("PRAGR" | "pragr") ->
       (*if agregmathsu situation
       then
@@ -3411,6 +3416,9 @@ let translate_diplome
       x x x code_cours year
       situation false
   | None ->
+    if (int_of_string year) > 2022
+    then dispatch_m2 check_dpt origine situation code_cours year state
+    else
     let state, (_,b,b_en,c,c_en,d,is_m2) =
       check_dpt __POS__ state origine "" "" "" code_cours year situation false
     in

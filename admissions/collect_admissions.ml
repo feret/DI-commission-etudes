@@ -114,6 +114,7 @@ let get_admissions
     state
   =
   Scan_csv_files.collect_gen
+    ~strict:true 
     ?repository
     ?prefix
     ?file_name

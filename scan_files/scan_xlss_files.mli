@@ -1,10 +1,12 @@
 val get_list_from_a_file:
+  strict:bool ->
   'a Keywords_handler.preprocessed  ->
   'a ->
   Remanent_state.t -> string * string -> 'a list -> Remanent_state.t * 'a list
 
 val get_list:
   ?debug:bool ->
+  strict:bool ->
   repository:string ->
   ?prefix:string ->
   ?file_name:string ->
@@ -32,6 +34,7 @@ val get_list:
 
 val collect_gen :
   ?debug:bool ->
+  strict:bool -> 
   ?repository:string ->
   ?prefix:string ->
   ?file_name:string ->

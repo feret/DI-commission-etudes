@@ -5,6 +5,7 @@ type 'a mandatory_field =
   }
 
 let get_list_from_a_file
+    ~strict
     get_csv
     automaton
     empty
@@ -187,19 +188,21 @@ let get_list_from_a_file
       | [x]::t when Tools.space_only x ->
         array_mode state header_key header t current_file output
       | h::t ->
-        let (*rec*) aux state l =
+
+        let rec aux state l =
           match l with
           | [] -> state, false
-          | h::_q ->
+          | h::q ->
             let state, b =
               is_keyword __POS__ state h
             in
             if b then
               state, true
-            else
-              (*aux state q*) state, false
+            else  aux state q
         in
-        let state, b = aux state h in
+        let state, b =
+            if not strict then state, false
+            else aux state h in
         if b
         then
           let state, current_file, output =
@@ -238,6 +241,7 @@ let get_list_from_a_file
     scan state [] csv None false empty false output
 
 let get_list
+    ~strict
     ~get_csv ?debug
     ~repository ?prefix ?file_name ?automaton
     ~keywords_list ~all_fields ~fun_default ~keywords_of_interest
@@ -286,6 +290,7 @@ let get_list
            in
            let state, output =
               get_list_from_a_file
+                  ~strict
                   get_csv
                   automaton
                   init_state
@@ -347,6 +352,7 @@ let unify_gen
 
 let collect_gen
     ?debug
+    ~strict
     ?repository
     ?prefix
     ?file_name
@@ -461,7 +467,7 @@ let collect_gen
   in
 
   let state, _automaton, list =
-    get_list ~get_csv ?debug
+    get_list ~get_csv ~strict ?debug
       ~keywords_of_interest ~all_fields:all_fields_short ~keywords_list
       ~fun_default
       ~at_end_of_array_line ~at_end_of_array ~at_end_of_file ~flush

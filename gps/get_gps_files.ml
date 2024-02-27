@@ -868,6 +868,7 @@ let get_students_list
       Some (fun y -> match y.promotion with None -> true | Some y -> x = y)
   in
   Scan_csv_files.collect_gen
+    ~strict:true 
     ?repository
     ?prefix
     ?file_name

@@ -26,13 +26,14 @@ let get_csv file state =
     state, Some csv
 
 let get_list_from_a_file
+    ~strict
     automaton
     empty
     state  (rep,file) output =
-  Scan_gen_files.get_list_from_a_file
+  Scan_gen_files.get_list_from_a_file ~strict
       get_csv automaton empty state (rep,file) output
 
-let get_list ?debug
+let get_list ?debug ~strict
     ~repository ?prefix ?file_name ?automaton
     ~keywords_list ~all_fields ~fun_default ~keywords_of_interest
     ~at_end_of_array ~at_end_of_file ~at_end_of_array_line ~flush
@@ -80,6 +81,7 @@ let get_list ?debug
            in
            let state, output =
               Scan_gen_files.get_list_from_a_file
+                  ~strict
                   get_csv
                   automaton
                   init_state
@@ -92,6 +94,7 @@ let get_list ?debug
 
 let collect_gen
     ?debug
+    ~strict
     ?repository
     ?prefix
     ?file_name
@@ -109,6 +112,7 @@ let collect_gen
     state
   =
   Scan_gen_files.collect_gen
+      ~strict
       ~get_csv
       ?debug
       ?repository

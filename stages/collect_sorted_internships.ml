@@ -197,6 +197,7 @@ let get_sorted_internships
     state
   =
   Scan_csv_files.collect_gen
+    ~strict:true 
     ~debug
     ?repository
     ?prefix

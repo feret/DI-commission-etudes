@@ -1007,6 +1007,7 @@ let get_dens_candidates
     let event = Some (Profiling.Scan_csv_files (str,"")) in
     let state = Remanent_state.open_event_opt event state in
     let state = Scan_csv_files.collect_gen
+      ~strict:true
       ?repository
       ?prefix
       ?file_name
@@ -1177,6 +1178,7 @@ let get_dens_candidates
         let event = Some (Profiling.Scan_csv_files (str,"")) in
         let state = Remanent_state.open_event_opt event state in
         let state = Scan_csv_files.collect_gen
+          ~strict:true
           ?repository
           ?prefix
           ?file_name
@@ -1196,7 +1198,7 @@ let get_dens_candidates
 
         let event_opt = Some (Profiling.Collect_majors)
         let compute_repository =
-          Remanent_state.Collector_major_candidate.get_repository  
+          Remanent_state.Collector_major_candidate.get_repository
 
         let all_fields =
             let record_name = "dens major candidate" in
@@ -1287,6 +1289,7 @@ let get_dens_candidates
             let event = Some (Profiling.Scan_csv_files (str,"")) in
             let state = Remanent_state.open_event_opt event state in
             let state = Scan_csv_files.collect_gen
+              ~strict:true 
               ?repository
               ?prefix
               ?file_name

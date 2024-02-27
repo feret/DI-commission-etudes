@@ -187,6 +187,7 @@ let get_dpt
     state
   =
   Scan_csv_files.collect_gen
+    ~strict:true 
     ?repository
     ?prefix
     ?file_name
@@ -196,7 +197,7 @@ let get_dpt
     ~keywords_list
     ~init_state:empty_dpt
     ~empty_elt:Public_data.empty_dpt
-    ~add_elt:Remanent_state.Collector_departements.add 
+    ~add_elt:Remanent_state.Collector_departements.add
     ~mandatory_fields
     ~all_fields
     ?event_opt
@@ -325,6 +326,7 @@ let get_programs
     state
   =
   Scan_csv_files.collect_gen
+    ~strict:true
     ?repository
     ?prefix
     ?file_name
@@ -646,6 +648,7 @@ let get_cursus
     state
   =
   Scan_csv_files.collect_gen
+    ~strict:true
     ?repository
     ?prefix
     ?file_name
@@ -828,6 +831,7 @@ let get_cursus_exceptions
     state
   =
   Scan_csv_files.collect_gen
+    ~strict:true
     ?repository
     ?prefix
     ?file_name

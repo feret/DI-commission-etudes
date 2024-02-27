@@ -1,10 +1,12 @@
 val get_list_from_a_file:
+  strict:bool ->
   (string -> Remanent_state.t -> Remanent_state.t * string list list option) ->
   'a Keywords_handler.preprocessed  ->
   'a ->
   Remanent_state.t -> string * string -> 'a list -> Remanent_state.t * 'a list
 
 val get_list:
+  strict:bool ->
   get_csv:(string -> Remanent_state.t -> Remanent_state.t * string list list option) ->
   ?debug:bool ->
   repository:string ->
@@ -40,6 +42,7 @@ type 'record_tmp mandatory_field =
 
 val collect_gen :
   ?debug:bool ->
+  strict:bool -> 
   ?repository:string ->
   ?prefix:string ->
   ?file_name:string ->
