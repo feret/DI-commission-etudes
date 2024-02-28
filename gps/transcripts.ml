@@ -6782,7 +6782,7 @@ let build_gpscodelist ~year ~firstname ~lastname  situation state =
     state, {situation with gpscodelist}
 
 
-type kind = Inscription | RdV | Course
+type kind = Inscription | RdV | Course | Annee
 let kind libelle =
   if String.length libelle > 6 && String.sub libelle 0 7 = "UNDRVTU" then RdV
   else
@@ -6790,7 +6790,8 @@ let kind libelle =
     else
     if String.length libelle > 2 then
     match String.sub libelle 0 3 with
-      | "AND" | "UND" -> Inscription
+      | "AND" -> Annee 
+      | "UND" -> Inscription
       | _ -> Course
     else
       Course
@@ -6835,7 +6836,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             }
 
             end
-          | RdV -> state, gps_file (* TO DO *)
+          | RdV | Annee-> state, gps_file (* TO DO *)
           | Course ->
           let situation = gps_file.situation in
           let bilan =
