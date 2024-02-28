@@ -659,6 +659,16 @@ let empty_stage =
     periode_de_financement = None;
     organisme_de_financement = None;
   }
+
+type inscription_helisa =
+    | L3_PSL
+    | L3_HPSL
+    | M1_PSL
+    | M1_HPSL
+    | M2_PSL
+    | M2_HPSL
+    | Autre
+
 type bilan_annuel =
        {
          annee: Public_data.annee option;
@@ -674,6 +684,7 @@ type bilan_annuel =
          option: string option;
          nannee: int option;
          gpscodelist: string list ;
+         inscription_helisa: inscription_helisa list;
        }
 
 let keep_bilan b =
@@ -736,7 +747,8 @@ let empty_bilan_annuel =
     code_option = None;
     option=None;
     nannee=None;
-    gpscodelist=[]
+    gpscodelist=[];
+    inscription_helisa=[];
   }
 
 type gps_file =
@@ -2536,7 +2548,7 @@ let state, automaton  =
 in
 let state, list =
   Scan_csv_files.get_list_from_a_file
-    ~strict:true 
+    ~strict:true
     automaton
     empty_remanent
     state
@@ -3061,7 +3073,7 @@ let is_phys_course code_cours _year =
 let is_di_course code_cours _year =
   Tools.substring "INFO" code_cours
 
-let dispatch_m2 check_dpt origine situation code_cours year state
+let dispatch_m check_dpt origine situation code_cours year state
 =
 if mpri situation then
   state, (Some "MPRI","M2 du MPRI","M2 MPRI",dpt_info,dpt_info_en,false,true)
@@ -3128,6 +3140,101 @@ else
   check_dpt __POS__ state origine
     "M" "M1" "M1" code_cours year
     situation false
+
+let dispatch_l ~firstname ~lastname check_dpt  origine situation code_cours year state =
+  begin
+    let is_m2 = false in
+    if lpoly situation
+    then
+      check_dpt __POS__ state origine "L"
+        "Bachelor de l'École Polytechnique"
+        "École Polytechnique Bachelor"
+        code_cours year
+        situation is_m2
+    else if lerasmus origine || lpe origine || lechange_dri situation
+    then
+      check_dpt __POS__ state origine "L"
+        "Année d'échange"
+        "Exchange year"
+        code_cours year
+        situation is_m2
+    else if lmathphys situation
+    then
+      if is_dma_course code_cours year
+      then state, (Some "L","L3 de mathématiques","Bachelor in Mathematics", dpt_maths,dpt_maths_en,false,is_m2)
+      else
+        state,
+        (Some "L","L3 de physique","Bachelor in Physics",dpt_phys,dpt_phys_en,false,is_m2)
+    else if lphysgeos situation
+    then if is_phys_course code_cours year
+         then
+          state,
+          (Some "L","L3 de physique","Bachelor in Physics",dpt_phys,dpt_phys_en,false,is_m2)
+         else
+          state,
+          (Some "L","L3 de Sciences de la Terre","Bachelor in Earth Sciences",dpt_geosciences,dpt_geosciences_en,false,is_m2)
+    else if linfo situation && lmath ~year ~firstname ~lastname situation state
+    then if is_dma_course code_cours year
+         then
+          state,
+          (Some "L","L3 de mathématiques","Bachelor in Mathematics",dpt_maths,dpt_maths_en,false,is_m2)
+         else
+          state,
+          (Some "L","L3 d'informatique","Bachelor in Computer Science",dpt_info,dpt_info_en,false,is_m2)
+    else if leco situation
+         then
+          state,
+          (Some "L","L3 d'économie","Bachelor in Economy",dpt_eco,dpt_eco_en,false,is_m2)
+         else if larts situation then
+          state,
+          (Some "L","L3 d'arts","Bachelor in Arts",dpt_arts,dpt_arts_en,false,is_m2)
+         else if llila situation then
+          state,
+          (Some "L","L3 en littératures et langage","Bachelor in Litteratures and Languages",dpt_lila,dpt_lila_en,false,is_m2)
+         else if ldec situation then
+          state,
+          (Some "L","L3 de sciences cognitives","Bachelor in Cognitive Sciences",dpt_dec,dpt_dec_en,false,is_m2)
+         else if lbio situation then
+          state,
+          (Some "L","L3 de biologie","Bachelor in Biology",dpt_ibens,dpt_ibens_en,false,is_m2)
+         else if lchimie situation then
+          state,
+          (Some "L","L3 de chimie","Bachelor in Chemistry",dpt_chimie,dpt_chimie_en,false,is_m2)
+         else if lgsc situation then
+          state,
+          (Some "L","L3 de Sciences de la Terre","Bachelor in Earth Sciences",dpt_geosciences,dpt_geosciences_en,false,is_m2)
+         else if ldec situation then
+          state,
+          (Some "L","L3 de sciences cognitives","Bachelor in Cognitive Sciences",dpt_ibens,dpt_ibens_en,false,is_m2)
+         else
+          check_dpt __POS__ state origine
+            "L" "L3" "Bachelor" code_cours year
+            situation is_m2
+end
+
+let dispatch check_dpt  ~firstname ~lastname origine situation code_cours year state =
+    match situation.inscription_helisa with
+      | [] ->
+      let state =
+        Remanent_state.warn __POS__ "No option checked for national diploma in student gates"
+           Exit state
+      in
+      let state, (_,b,b_en,c,c_en,d,is_m2) =
+        check_dpt __POS__ state origine "" "" "" code_cours year situation false
+      in
+      state, (None,b,b_en,c,c_en,d,is_m2)
+      | _::_::_  ->
+      let state =
+        Remanent_state.warn __POS__ "Several options checked for national diploma in student gates"
+           Exit state
+      in
+      let state, (_,b,b_en,c,c_en,d,is_m2) =
+        check_dpt __POS__ state origine "" "" "" code_cours year situation false
+      in
+      state, (None,b,b_en,c,c_en,d,is_m2)
+      | [L3_PSL] | [L3_HPSL] -> dispatch_l ~firstname ~lastname check_dpt  origine situation code_cours year state
+      | [M1_PSL] | [M1_HPSL] | [M2_PSL] | [M2_HPSL] -> dispatch_m check_dpt  origine situation code_cours year state
+      | [Autre] -> state, (Some ("DENS"), "DENS", "DENS", "DENS", "DENS", false, false)
 
 let translate_diplome
     ~situation ~firstname ~lastname ~year ~code_cours
@@ -3301,88 +3408,8 @@ let translate_diplome
         state, (Some diplome,label,label_en,dpt,dpt_en,false,is_m2)
   in
   match diplome with
-  | Some "L" ->
-    begin
-      let is_m2 = false in
-      if lpoly situation
-      then
-        check_dpt __POS__ state origine "L"
-          "Bachelor de l'École Polytechnique"
-          "École Polytechnique Bachelor"
-          code_cours year
-          situation is_m2
-      else
-      if lerasmus origine || lpe origine || lechange_dri situation
-      then
-        check_dpt __POS__ state origine "L"
-          "Année d'échange"
-          "Exchange year"
-          code_cours year
-          situation is_m2
-      else
-      if lmathphys situation
-      then
-        if is_dma_course code_cours year
-        then
-          state,
-          (Some "L","L3 de mathématiques","Bachelor in Mathematics", dpt_maths,dpt_maths_en,false,is_m2)
-        else
-          state,
-          (Some "L","L3 de physique","Bachelor in Physics",dpt_phys,dpt_phys_en,false,is_m2)
-      else
-      if lphysgeos situation
-      then if is_phys_course code_cours year
-          then
-          state,
-          (Some "L","L3 de physique","Bachelor in Physics",dpt_phys,dpt_phys_en,false,is_m2)
-          else
-          state,
-          (Some "L","L3 de Sciences de la Terre","Bachelor in Earth Sciences",dpt_geosciences,dpt_geosciences_en,false,is_m2)
-      else
-      if linfo situation && lmath ~year ~firstname ~lastname situation state
-      then
-        if is_dma_course code_cours year
-        then
-          state,
-          (Some "L","L3 de mathématiques","Bachelor in Mathematics",dpt_maths,dpt_maths_en,false,is_m2)
-        else
-          state,
-          (Some "L","L3 d'informatique","Bachelor in Computer Science",dpt_info,dpt_info_en,false,is_m2)
-      else
-      if leco situation then
-        state,
-        (Some "L","L3 d'économie","Bachelor in Economy",dpt_eco,dpt_eco_en,false,is_m2)
-      else
-      if larts situation then
-        state,
-        (Some "L","L3 d'arts","Bachelor in Arts",dpt_arts,dpt_arts_en,false,is_m2)
-      else
-      if llila situation then
-        state,
-        (Some "L","L3 en littératures et langage","Bachelor in Litteratures and Languages",dpt_lila,dpt_lila_en,false,is_m2)
-      else if ldec situation
-      then
-        state,
-        (Some "L","L3 de sciences cognitives","Bachelor in Cognitive Sciences",dpt_dec,dpt_dec_en,false,is_m2)
-      else if lbio situation then
-        state,
-        (Some "L","L3 de biologie","Bachelor in Biology",dpt_ibens,dpt_ibens_en,false,is_m2)
-      else if lchimie situation then
-        state,
-        (Some "L","L3 de chimie","Bachelor in Chemistry",dpt_chimie,dpt_chimie_en,false,is_m2)
-      else if lgsc situation then
-      state,
-      (Some "L","L3 de Sciences de la Terre","Bachelor in Earth Sciences",dpt_geosciences,dpt_geosciences_en,false,is_m2)
-      else if ldec situation then
-        state,
-        (Some "L","L3 de sciences cognitives","Bachelor in Cognitive Sciences",dpt_ibens,dpt_ibens_en,false,is_m2)
-      else
-        check_dpt __POS__ state origine
-              "L" "L3" "Bachelor" code_cours year
-              situation is_m2
-
-    end
-  | Some "M" -> dispatch_m2 check_dpt origine situation code_cours year state
+  | Some "L" -> dispatch_l ~firstname ~lastname check_dpt origine situation code_cours year state
+  | Some "M" -> dispatch_m check_dpt origine situation code_cours year state
 
   | Some ("PRAGR" | "pragr") ->
       (*if agregmathsu situation
@@ -3417,7 +3444,7 @@ let translate_diplome
       situation false
   | None ->
     if (int_of_string year) > 2022
-    then dispatch_m2 check_dpt origine situation code_cours year state
+    then dispatch ~firstname ~lastname  check_dpt origine situation code_cours year state
     else
     let state, (_,b,b_en,c,c_en,d,is_m2) =
       check_dpt __POS__ state origine "" "" "" code_cours year situation false
@@ -6757,6 +6784,7 @@ let build_gpscodelist ~year ~firstname ~lastname  situation state =
     let gpscodelist = fill_gpscodelist ~year ~firstname ~lastname gpscodelist situation state in
     state, {situation with gpscodelist}
 
+
 type kind = Inscription | RdV | Course
 let kind libelle =
   if String.length libelle > 6 && String.sub libelle 0 7 = "UNDRVTU" then RdV
@@ -6777,7 +6805,39 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
         (fun (state, gps_file) course ->
           let code = String.trim (course.Public_data.pe_code_helisa) in
           match kind code with
-          | Inscription -> state, gps_file (* TO DO *)
+          | Inscription ->
+            begin
+            let situation = gps_file.situation in
+            let bilan =
+              match
+                Public_data.YearMap.find_opt
+                  course.Public_data.pe_year
+                  situation
+              with
+              | None -> empty_bilan_annuel
+              | Some b -> b
+            in
+            let state, elt =
+              match code with
+                | "UNDDIPE-M1" -> state, M1_PSL
+                | "UNDDIPH-M1" -> state, M1_HPSL
+                | "UNDDIPE-M2" -> state, M2_PSL
+                | "UNDDIPH-M2" -> state, M2_HPSL
+                | "UNDDIPE-L" -> state, L3_PSL
+                | "UNDDIPH-L" -> state, L3_HPSL
+                | "UNDDIPL-NA" -> state, Autre
+                | _ ->  Remanent_state.warn __POS__ "Invalid code for helisa registration" Exit state, Autre
+            in
+            let bilan = {bilan with inscription_helisa = elt::bilan.inscription_helisa} in
+            state,
+            {gps_file with
+             situation =
+               Public_data.YearMap.add
+                 course.Public_data.pe_year
+                 bilan gps_file.situation
+            }
+
+            end
           | RdV -> state, gps_file (* TO DO *)
           | Course ->
           let situation = gps_file.situation in
