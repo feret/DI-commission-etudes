@@ -5473,10 +5473,54 @@ let program
       state list
   in
   let bgcolor=[None;color;None;None;None;None;None] in
+  let list = Tools.sort fetch p list in
+  let state, length   =
+    List.fold_left
+      (fun
+        (state, length)
+        (_,_,_,_,cours) ->
+        let state, libelle_stage_opt_list =
+          match cours.cours_libelle with
+          | None -> state,1
+          | Some _ ->
+            if is_stage cours
+            then
+              begin
+                let internship =
+                  {
+                    Public_data.missing_internship_promotion = promo ;
+                    Public_data.missing_internship_year=year;
+                    Public_data.missing_internship_firstname=firstname;
+                    Public_data.missing_internship_lastname=lastname;
+                    Public_data.missing_internship_intitule=
+                      Tools.unsome_string  cours.cours_libelle ;
+                    Public_data.missing_internship_code_gps=
+                      Tools.unsome_string
+                        cours.code_cours
+                  }
+                in
+                let state, stage_opt =
+                  fetch_stage
+                    state
+                    ~internship
+                    cours.commentaire stages
+                in
+                match stage_opt with
+                | [] -> state, 1
+                | stage_list -> state, List.length stage_list
+                end
+            else state, 1
+        in
+        let length = length + libelle_stage_opt_list in
+        (state,length))
+
+      (state,0)
+      list
+  in
   let () =
     Remanent_state.fprintf state
       "\\setcounter{totalrows}{%i}%%%%\n\ "
-      (List.length list)
+      length
   in
   let dpt' =
     match dpt, string with
@@ -5572,7 +5616,6 @@ let program
       ~english:"Mrs"
       state
   in
-  let list = Tools.sort fetch p list in
   let state, mean, dens, natt, cours_list, stage_list  =
     List.fold_left
       (fun
@@ -5583,30 +5626,7 @@ let program
         let codecours =
           string_of_stringopt cours.code_cours
         in
-        let state, compensation =
-          Remanent_state.get_compensation
-            state
-            ~firstname ~lastname ~year ~codecours
-        in
-        let unvalidated =
-            is_unvalidated codecours year unvalidated_map
-        in
-        let () =
-          match
-            compensation
-          with
-          | Some _ ->
-            Remanent_state.print_optional_cell
-              "compensation"
-              state
-          | None ->
-            if unvalidated then
-            Remanent_state.print_optional_cell
-              "unvalidated"
-              state
-            else ()
-        in
-        let state =
+          let state =
           if int_of_string year < int_of_string promo
           then
           let dpt = fetch_code (is_m2,dpt_en,diplome,diplome_en,cours) in
@@ -5868,6 +5888,29 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
         in
         let () =
           Remanent_state.open_row ~macro state
+        in
+        let state, compensation =
+          Remanent_state.get_compensation
+            state
+            ~firstname ~lastname ~year ~codecours
+        in
+        let unvalidated =
+            is_unvalidated codecours year unvalidated_map
+        in
+        let () =
+          match
+            compensation
+          with
+          | Some _ ->
+            Remanent_state.print_optional_cell
+              "compensation"
+              state
+          | None ->
+            if unvalidated then
+            Remanent_state.print_optional_cell
+              "unvalidated"
+              state
+            else ()
         in
         let () =
           Remanent_state.print_cell
@@ -6790,7 +6833,7 @@ let kind libelle =
     else
     if String.length libelle > 2 then
     match String.sub libelle 0 3 with
-      | "AND" -> Annee 
+      | "AND" -> Annee
       | "UND" -> Inscription
       | _ -> Course
     else
