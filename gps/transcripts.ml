@@ -3228,6 +3228,13 @@ let dispatch check_dpt  ~firstname ~lastname origine situation code_cours year s
         Remanent_state.warn __POS__ "Several options checked for national diploma in student gates"
            Exit state
       in
+      let state =
+        List.fold_left
+          (fun state entry ->
+              Remanent_state.warn __POS__ (Format.sprintf "%s" (match entry with L3_PSL -> "L3_PSL"
+              | L3_HPSL -> "L3_HPSL" | M1_PSL -> "M1_PSL" | M1_HPSL -> "M1_HPSL" | M2_PSL -> "M2_PSL" | M2_HPSL -> "M2_HPSL" | Autre -> "Autre"))
+              Exit state) state situation.inscription_helisa
+      in
       let state, (_,b,b_en,c,c_en,d,is_m2) =
         check_dpt __POS__ state origine "" "" "" code_cours year situation false
       in
