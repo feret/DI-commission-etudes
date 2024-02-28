@@ -88,11 +88,7 @@ let update_year year entry state =
       | _ -> entry, state
 
 let add unify pos c state =
-    let state =
-      Remanent_state.warn pos (Format.sprintf "%s %s" c.Public_data.pe_firstname
-      c.Public_data.pe_lastname)
-      Exit state
-    in Remanent_state.Collector_pedagogical_registrations.add unify pos c state
+   Remanent_state.Collector_pedagogical_registrations.add unify pos c state
 
 let convert entry state =
   state, {
@@ -219,7 +215,7 @@ let get_pegasus_pedagogical_registrations
             let event = Some (Profiling.Scan_csv_files (repository,"")) in
             let state = Remanent_state.open_event_opt event state in
             let state, files_list =
-                Scan_repository.get_list_of_files 
+                Scan_repository.get_list_of_files
                   ~repository ?prefix ?file_name state
             in
             let state =

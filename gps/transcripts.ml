@@ -4568,9 +4568,6 @@ let heading
       in
       state, x::dens_opt, x::dens_en_opt, x::dens_opt, x::dens_en_opt, true
     | None, None ->
-    let state =
-    Remanent_state.warn __POS__ (Format.sprintf "4537: %s %s @." lastname year ) Exit state in
-
       if lpoly situation
       then
         state, "Bachelor de l'X"::dens_opt, "X Bachelor"::dens_en_opt, "Bachelor de l'X"::dens_opt, "X Bachelor"::dens_en_opt, true
@@ -6826,7 +6823,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                 | "UNDDIPE-L" -> state, L3_PSL
                 | "UNDDIPH-L" -> state, L3_HPSL
                 | "UNDDIPL-NA" -> state, Autre
-                | _ ->  Remanent_state.warn __POS__ "Invalid code for helisa registration" Exit state, Autre
+                | _ ->  Remanent_state.warn __POS__ (Format.sprintf "Invalid code for helisa registration %s" code)  Exit state, Autre
             in
             let bilan = {bilan with inscription_helisa = elt::bilan.inscription_helisa} in
             state,
