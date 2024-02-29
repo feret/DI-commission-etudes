@@ -42,9 +42,17 @@ let dpt_arts = "arts"
 let dpt_lila = "litteratures et langage"
 let dpt_ibens = dpt_bio
 
+
 let dpt_dec = "etudes cognitives"
 let dpt_eco = "economie"
 let dpt_dri = "relations internationales"
+
+let translate_dpt_helisa x =
+  match x with
+  | "UNDDSECDEC" -> Some dpt_dec
+  | "UNDDSECDMA" -> Some dpt_maths
+  | "UNDDSECINFO" -> Some dpt_info
+  | _ -> None
 
 let dpt_maths_en = "mathematics"
 let dpt_info_en = "computer science"
@@ -59,6 +67,7 @@ let dpt_ibens_en = dpt_bio_en
 
 let dpt_dec_en = "cognitive sciences"
 let dpt_eco_en = "economics"
+
 
 
 let dpt_eco_gps_name = dpt_eco
@@ -3232,7 +3241,7 @@ let dispatch check_dpt  ~firstname ~lastname origine situation code_cours year s
         List.fold_left
           (fun state entry ->
               Remanent_state.warn __POS__ (Format.sprintf "%s" (match entry with L3_PSL -> "L3_PSL"
-              | L3_HPSL -> "L3_HPSL" | M1_PSL -> "M1_PSL" | M1_HPSL -> "M1_HPSL" | M2_PSL -> "M2_PSL" | M2_HPSL -> "M2_HPSL" | Autre -> "Autre"))
+              | L3_HPSL -> "L3_HPSL" | M1_PSL -> "M1_PSL" | M1_HPSL -> "M1_HPSL" | M2_PSL -> "M2_PSL" | M2_HPSL -> "M2_HPSL" | Autre -> "Autre" ))
               Exit state) state situation.inscription_helisa
       in
       let state, (_,b,b_en,c,c_en,d,is_m2) =
@@ -6832,9 +6841,14 @@ let build_gpscodelist ~year ~firstname ~lastname  situation state =
     state, {situation with gpscodelist}
 
 
-type kind = Inscription | RdV | Course | Annee
+type kind = Inscription | RdV | Course | Annee | Secondary
+
+
 let kind libelle =
   if String.length libelle > 6 && String.sub libelle 0 7 = "UNDRVTU" then RdV
+  else
+  if String.length libelle > 6 && String.sub libelle 0 7 = "UNDDSECDEC" then
+Secondary
   else
     if String.length libelle > 3 && String.sub libelle 0 4 = "ANM2" then Annee
     else
@@ -6900,6 +6914,28 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             | Some b -> b
           in
               let bilan = {bilan with inscription_au_DENS = Some true} in
+          state,
+          {gps_file with
+           situation =
+             Public_data.YearMap.add
+               course.Public_data.pe_year
+               bilan gps_file.situation
+          }
+
+          end
+          | Secondary->
+          begin
+          let situation = gps_file.situation in
+          let bilan =
+            match
+              Public_data.YearMap.find_opt
+                course.Public_data.pe_year
+                situation
+            with
+            | None -> empty_bilan_annuel
+            | Some b -> b
+          in
+              let bilan = {bilan with departement_secondaire = translate_dpt_helisa code} in
           state,
           {gps_file with
            situation =
