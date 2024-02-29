@@ -6886,7 +6886,30 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             }
 
             end
-          | RdV | Annee-> state, gps_file (* TO DO *)
+          | RdV -> state, gps_file
+          | Annee->
+          begin
+          let situation = gps_file.situation in
+          let bilan =
+            match
+              Public_data.YearMap.find_opt
+                course.Public_data.pe_year
+                situation
+            with
+            | None -> empty_bilan_annuel
+            | Some b -> b
+          in
+              let bilan = {bilan with inscription_au_DENS = Some true} in
+          state,
+          {gps_file with
+           situation =
+             Public_data.YearMap.add
+               course.Public_data.pe_year
+               bilan gps_file.situation
+          }
+
+          end
+
           | Course ->
           let situation = gps_file.situation in
           let bilan =
