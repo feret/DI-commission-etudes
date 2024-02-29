@@ -6847,7 +6847,7 @@ type kind = Inscription | RdV | Course | Annee | Secondary
 let kind libelle =
   if String.length libelle > 6 && String.sub libelle 0 7 = "UNDRVTU" then RdV
   else
-  if String.length libelle > 6 && String.sub libelle 0 7 = "UNDDSECDEC" then
+  if String.length libelle > 6 && String.sub libelle 0 7 = "UNDDSEC" then
 Secondary
   else
     if String.length libelle > 3 && String.sub libelle 0 4 = "ANM2" then Annee
