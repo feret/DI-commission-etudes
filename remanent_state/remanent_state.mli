@@ -315,6 +315,13 @@ module Collector_pedagogical_registrations:
 module Collector_course_pegasus:
       Collector_with_unification with type entry = Public_data.course_pegasus and type collector = Pegasus_courses.t
 
+module Collector_pegasus_notes:
+      Collector_with_unification with type entry = Public_data.note_pegasus and type collector = Pegasus_notes.t
+
+module Collector_pegasus_validations:
+      Collector_with_unification with type entry = Public_data.note_pegasus and type collector = Pegasus_notes.t
+
+
 module Collector_stages_tries:
 Collector_with_unification with type entry =  Public_data.stage_a_trier
 and type collector = Stages_a_trier.t
@@ -339,6 +346,13 @@ val get_course_in_pegasus:
   codehelisa: string ->
   year:Public_data.annee ->
   t -> t * Public_data.course_pegasus option
+
+  val get_grade_in_pegasus:
+    codehelisa: string ->
+    year:Public_data.annee ->
+    firstname:string ->
+    lastname:string ->
+    t -> t * Public_data.note_pegasus option
 
 val get_course_exception:
   codegps:string ->

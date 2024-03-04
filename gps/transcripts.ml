@@ -6957,6 +6957,34 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             | None -> empty_bilan_annuel
             | Some b -> b
           in
+          let state, grade =
+            Remanent_state.get_grade_in_pegasus
+              ~firstname ~lastname ~codehelisa:code ~year:course.Public_data.pe_year state
+          in
+          let state, note, validation =
+              match grade with
+              | None -> state, Some Public_data.En_cours, None
+              | Some g ->
+                  begin match g.Public_data.pegasus_note, g.Public_data.pegasus_validation
+                  with
+                    | None, Some (Public_data.VA | Public_data.VAJU | Public_data.VACO)  ->
+                        state, Some Public_data.Valide_sans_note,
+                               Some (Public_data.Bool true)
+                    | None, Some (Public_data.NV | Public_data.NVJU)  ->
+                       state, Some Public_data.Absent, Some (Public_data.Bool false)
+                    | None, None ->  state, None, None
+                    | Some x, Some (Public_data.VA | Public_data.VAJU | Public_data.VACO) ->
+                          let state, note = Notes.of_string __POS__ state x (Some (Public_data.Bool true)) in
+                          state, note, Some (Public_data.Bool true)
+                    | Some x, Some _ ->
+                           let state, note = Notes.of_string __POS__ state x (Some (Public_data.Bool false)) in
+                           state, note, Some (Public_data.Bool false)
+                    | Some x , None ->
+                           let state, note = Notes.of_string __POS__ state x (Some (Public_data.Bool true)) in
+                           state, note, None
+                end
+          in
+
           let elt =
             {
               semestre = None ;
@@ -6979,12 +7007,12 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
               diplome = None ;
               contrat = None ;
               accord = Some true ;
-              note =Some Public_data.En_cours ; (* TO DO *)
+              note = note ;
               lettre = None;
               commentaire = [];
               extra = true;
               inconsistency = None;
-              valide_dans_gps = None;
+              valide_dans_gps = validation;
               cours_annee = Some course.Public_data.pe_year ;
               validated_under_average = false;
             }

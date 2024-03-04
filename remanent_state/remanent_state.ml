@@ -100,6 +100,8 @@ type parameters =
     repository_for_pegasus_administrative_status: string;
     repository_for_pegasus_pedagogical_inscriptions: string;
     repository_for_pegasus_courses: string;
+    repository_for_pegasus_notes: string;
+    repository_for_pegasus_validations: string;
     repository_to_dump_missing_pictures: string;
     repository_to_dump_non_accepted_grades: string;
     repository_to_dump_non_validated_internships: string;
@@ -250,6 +252,8 @@ let parameters =
     repository_to_dump_dens_candidate = "dens_candidates" ;
     repository_for_pegasus_administrative_status = "status_administratifs" ;
     repository_for_pegasus_pedagogical_inscriptions = "programmes_pedagogiques" ;
+    repository_for_pegasus_notes = "notes" ;
+    repository_for_pegasus_validations = "validations" ;
     repository_for_pegasus_courses = "cours";
     current_academic_year = "2023";
     commissions_repository = "commissions_des_etudes";
@@ -318,6 +322,7 @@ type data =
     students: Public_data.student_id list ;
     status_administratifs: Pegasus_administrative_status.t;
     pedagogical_inscriptions: Pegasus_pedagogical_registrations.t;
+    pegasus_notes: Pegasus_notes.t;
     pedagogical_courses: Pegasus_courses.t ;
     output_alias: (string * string) option ;
     scholarships: Scholarships.t;
@@ -373,6 +378,7 @@ let empty_data =
     status_administratifs = Pegasus_administrative_status.empty;
     pedagogical_inscriptions = Pegasus_pedagogical_registrations.empty ;
     pedagogical_courses = Pegasus_courses.empty ;
+    pegasus_notes = Pegasus_notes.empty ;
     scholarships = Scholarships.empty;
     mentoring = Mentoring.empty;
     course_exceptions = Course_exceptions.empty;
@@ -1441,6 +1447,38 @@ let get_pegasus_gen get t =
       with type entry = Public_data.pedagogical_entry_pegasus
       and type collector = Pegasus_pedagogical_registrations.t )
 
+  module Collector_pegasus_notes  =
+        Make_collector_with_unification
+        (struct
+
+            type entry = Public_data.note_pegasus
+            type collector = Pegasus_notes.t
+
+            let prefix = get_pegasus_gen
+            let repository t = t.parameters.repository_for_pegasus_notes
+            let get data =  data.pegasus_notes
+            let set pegasus_notes data = {data with pegasus_notes}
+            let add = Pegasus_notes.add_pegasus_note
+          end: Interface_collector_with_unification
+          with type entry = Public_data.note_pegasus
+          and type collector = Pegasus_notes.t )
+
+module Collector_pegasus_validations  =
+                Make_collector_with_unification
+                  (struct
+                    type entry = Public_data.note_pegasus
+                    type collector = Pegasus_notes.t
+
+                    let prefix = get_pegasus_gen
+                    let repository t = t.parameters.repository_for_pegasus_validations
+                    let get data =  data.pegasus_notes
+                    let set pegasus_notes data = {data with pegasus_notes}
+                    let add = Pegasus_notes.add_pegasus_note
+
+                  end: Interface_collector_with_unification
+                  with type entry = Public_data.note_pegasus
+                  and type collector = Pegasus_notes.t )
+
 module Collector_course_pegasus =
     Make_collector_with_unification
       (struct
@@ -1452,16 +1490,16 @@ module Collector_course_pegasus =
           let get data = data.pedagogical_courses
           let set pedagogical_courses data = {data with pedagogical_courses}
           let add unify pos state course courses =
-          let state, pegasus_year =
-            let session = course.Public_data.pegasus_session in
-            if String.length session > 3 then
-            state, String.sub session 0 4 else
-            warn
-              __POS__ (Format.sprintf "Bad session number %s" session)
-              Exit state, session
-          in
-          let course = {course with Public_data.pegasus_year} in
-          Pegasus_courses.add_pegasus_course unify pos state course courses
+            let state, pegasus_year =
+              let session = course.Public_data.pegasus_session in
+              if String.length session > 3 then
+              state, String.sub session 0 4 else
+              warn
+                __POS__ (Format.sprintf "Bad session number %s" session)
+                Exit state, session
+            in
+            let course = {course with Public_data.pegasus_year} in
+            Pegasus_courses.add_pegasus_course unify pos state course courses
 
       end: Interface_collector_with_unification
       with type entry = Public_data.course_pegasus
@@ -1525,6 +1563,17 @@ let get_course_in_pegasus ~codehelisa ~year t =
             ~code ~year collector
     in
     t, course_opt
+
+let get_grade_in_pegasus ~codehelisa ~year ~firstname ~lastname t =
+    let code = Special_char.lowercase codehelisa in
+    let firstname = Special_char.lowercase firstname in
+    let lastname = Special_char.lowercase lastname in
+    let t, collector = Collector_pegasus_notes.get t in
+    let note =
+          Pegasus_notes.get_pegasus_note
+              ~code ~year ~firstname ~lastname collector
+    in
+    t, note
 
 let get_course_exception ~codegps ~year t =
     let t, collector = Collector_course_exceptions.get t in

@@ -16,6 +16,8 @@ type step_kind =
   | Collect_pegasus_courses 
   | Collect_pegasus_data
   | Collect_pegasus_pedagogical_registrations
+  | Collect_pegasus_notes
+  | Collect_pegasus_validations
   | Collect_additional_courses
   | Collect_admissions
   | Collect_cost_members

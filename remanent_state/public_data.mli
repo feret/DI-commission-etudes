@@ -39,9 +39,24 @@ type course_pegasus =
     pegasus_profs: string option;
     pegasus_codegps: string option;
     pegasus_session:string;
-    pegasus_year:string; 
+    pegasus_year:string;
 }
 
+type helisa_val = NV | VA | NVJU | VACO | VAJU
+
+val get_validation: string -> helisa_val option
+type note_pegasus =
+   {
+    pegasus_note_annee: string ;
+    pegasus_note_firstname: string;
+    pegasus_note_lastname: string;
+    pegasus_note: string option;
+    pegasus_validation: helisa_val option;
+    pegasus_note_produit: string;
+    pegasus_note_code_helisa: string
+}
+
+val empty_note_pegasus: note_pegasus
 val empty_course_pegasus: course_pegasus
 val empty_student_pegasus: student_pegasus
 

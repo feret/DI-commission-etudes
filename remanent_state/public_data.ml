@@ -274,9 +274,41 @@ let empty_course_pegasus =
   pegasus_profs = None ;
   pegasus_codegps = None ;
   pegasus_session = "" ;
-  pegasus_year = ""; 
+  pegasus_year = "";
 }
 
+type helisa_val = NV | VA | NVJU | VACO | VAJU
+
+let get_validation x =
+  match String.lowercase_ascii (String.trim x) with
+    | "nv" -> Some NV
+    | "va" -> Some VA
+    | "nvju" -> Some NVJU
+    | "vaco" -> Some VACO
+    | "vaju" -> Some VAJU
+    | _ -> None
+
+type note_pegasus =
+   {
+    pegasus_note_annee: string ;
+    pegasus_note_firstname: string;
+    pegasus_note_lastname: string;
+    pegasus_note: string option;
+    pegasus_validation: helisa_val option;
+    pegasus_note_produit: string;
+    pegasus_note_code_helisa: string;
+}
+
+let empty_note_pegasus =
+{
+ pegasus_note_annee = "";
+ pegasus_note_firstname = "";
+ pegasus_note_lastname = "";
+ pegasus_note = None;
+ pegasus_validation = None;
+ pegasus_note_produit = "";
+ pegasus_note_code_helisa= "";
+}
 type language = French | English
 type repartition = Annee_de_validation_du_cours | Annee_obtention_du_diplome
 

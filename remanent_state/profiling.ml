@@ -16,6 +16,8 @@ type step_kind =
   | Collect_pegasus_courses
   | Collect_pegasus_data
   | Collect_pegasus_pedagogical_registrations
+  | Collect_pegasus_notes
+  | Collect_pegasus_validations
   | Collect_additional_courses
   | Collect_admissions
   | Collect_cost_members
@@ -118,6 +120,8 @@ let string_of_step_kind x =
   | Collect_pegasus_courses -> "Collect courses list from Helisa"
   | Collect_pegasus_data -> "Collect data from pegasus"
   | Collect_pegasus_pedagogical_registrations -> "Collect pedagical registrations from pegasus"
+  | Collect_pegasus_notes -> "Collect grades from Helisa"
+  | Collect_pegasus_validations -> "Collect validations from Helisa"
   | Collect_additional_courses -> "Collect data about not-in-gps courses"
   | Collect_cost_members -> "Collect data about cost members"
   | Collect_dens_candidates -> "Collect dens candidates"
@@ -255,6 +259,8 @@ let is_dummy step_kind =
   | Collect_pegasus_courses
   | Collect_pegasus_data
   | Collect_pegasus_pedagogical_registrations
+  | Collect_pegasus_notes
+  | Collect_pegasus_validations
   | Dump_missing_grades
   | Dump_missing_ects_attributions
   | Dump_missing_mentors

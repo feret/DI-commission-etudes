@@ -29,6 +29,10 @@ let state, students_list =
 let state =
   Collect_pegasus_courses.get_pegasus_courses state
 let state =
+    Collect_pegasus_notes.get_pegasus_notes state
+let state =
+    Collect_pegasus_notes.get_pegasus_validations state
+let state =
   Collect_pegasus_administrative_status.get_pegasus_administrative_data state
 let state =
   Collect_pegasus_pedagogical_registrations.get_pegasus_pedagogical_registrations state
