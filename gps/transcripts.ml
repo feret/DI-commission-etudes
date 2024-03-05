@@ -1796,6 +1796,7 @@ let empty_remanent =
             inscription_au_DENS = None;
             cours = [];
             code_option = None;
+            diplomes = []; 
             option=None;
             nannee=None;
             gpscodelist=[]}
@@ -2713,7 +2714,7 @@ let lmath ~year ~firstname ~lastname d state =
     let state =
       Remanent_state.warn
           __POS__
-          (Format.sprintf "%s %s %s %s" (match d.annee with Some i -> i | None -> "-1") dpt_maths_gps_name
+          (Format.sprintf "%s %s %s" (match d.annee with Some i -> i | None -> "-1")
           (match d.departement_principal with None -> "" | Some i -> i) (match d.departement_secondaire with None -> "" | Some i -> i))
           Exit state in
 
