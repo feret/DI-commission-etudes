@@ -40,6 +40,7 @@ let update_product produit entry state =
 let state = Remanent_state.warn __POS__ (Format.sprintf "PRODUCT -> %s " produit) Exit state in
 
         let code_helisa = split produit in
+let state = Remanent_state.warn __POS__ (Format.sprintf "CODE HELISA -> %s " code_helisa) Exit state in
         let produit = Some produit in
         let code_helisa = Some code_helisa in
         state, {entry with code_helisa ; produit }
@@ -87,6 +88,20 @@ let convert entry state =
     Public_data.pegasus_validation = validation ;
     Public_data.pegasus_note_code_helisa = Tools.unsome_string entry.code_helisa ;
     Public_data.pegasus_note_produit = split (Tools.unsome_string entry.produit)}
+
+let convert entry state =
+    let state, elt = convert entry state in
+    let state =
+        Remanent_state.warn __POS__
+          (Format.sprintf "CONVERT NOTE: %s %s %s %s %s %s %s"
+                elt.Public_data.pegasus_note_annee
+elt.Public_data.pegasus_note_firstname
+elt.Public_data.pegasus_note_lastname
+(match elt.Public_data.pegasus_note with None -> "None" | Some x -> x)
+(match elt.Public_data.pegasus_validation with None -> "None" | Some _ -> "Some")
+elt.Public_data.pegasus_note_code_helisa
+elt.Public_data.pegasus_note_produit
+) Exit state in state, elt
 
 let unify pos state a b  =
     let state, b1 =
