@@ -7283,6 +7283,9 @@ let export_transcript
         0
     in
     let state, gps_file =
+        add_pegasus_entries ~firstname ~lastname  state gps_file
+    in
+    let state, gps_file =
         saturate_bilan_annuel state gps_file
     in
 (*    let state, situation =
@@ -7363,9 +7366,9 @@ let export_transcript
         (state, gps_file,1)
         stages_2023
     in*)
-    let state, gps_file =
+    (*let state, gps_file =
         add_pegasus_entries ~firstname ~lastname  state gps_file
-    in
+    in*)
     let state, situation =
          Public_data.YearMap.fold
            (fun year situation (state,map) ->
