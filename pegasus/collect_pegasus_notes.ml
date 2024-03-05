@@ -220,6 +220,16 @@ let get
                           in
                           scan t entry state
                     in
+                    let state =
+                      List.fold_left
+                          (fun state row ->
+                              let state = List.fold_left
+                                  (fun state elt ->
+                                      Remanent_state.warn __POS__ (Format.sprintf "%s," elt) Exit state)
+                                  state row in
+                              Remanent_state.warn __POS__ "ENDLINE" Exit state)
+                          state csv
+                    in
                     let state = scan csv empty_pegasus_entry state in
                     let state = Remanent_state.close_event_opt event state in
                      state
