@@ -7285,6 +7285,10 @@ let export_transcript
     let state, gps_file =
         saturate_bilan_annuel state gps_file
     in
+    let state, gps_file =
+        add_pegasus_entries ~firstname ~lastname  state gps_file
+    in
+
     let state, situation =
       Public_data.YearMap.fold
         (fun year situation (state,map) ->
@@ -7378,9 +7382,9 @@ let export_transcript
         (state, gps_file,1)
         stages_2023
     in*)
-    let state, gps_file =
+    (*let state, gps_file =
         add_pegasus_entries ~firstname ~lastname  state gps_file
-    in
+    in*)
     let l = Public_data.YearMap.bindings gps_file.situation in
     let state, current_year =
       Remanent_state.get_current_academic_year state
