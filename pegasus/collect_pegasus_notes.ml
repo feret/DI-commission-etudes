@@ -37,12 +37,15 @@ let split a =
     else a
 
 let update_product produit entry state =
+let state = Remanent_state.warn __POS__ (Format.sprintf "PRODUCT -> %s " produit) Exit state in
+
         let code_helisa = split produit in
         let produit = Some produit in
         let code_helisa = Some code_helisa in
         state, {entry with code_helisa ; produit }
 
 let update_controle a b entry state =
+  let state = Remanent_state.warn __POS__ (Format.sprintf "CONTROLE -> %s,%s " a b) Exit state in
   try
     state, {entry with control = Some (int_of_string a,b)}
   with
@@ -50,6 +53,7 @@ let update_controle a b entry state =
 
 
 let update_n_etu n entry state =
+  let state = Remanent_state.warn __POS__ (Format.sprintf "N ETU -> %s " n) Exit state in
   try
     state, {entry with nombre_etudiants = Some (int_of_string n)}
   with
@@ -134,6 +138,7 @@ let unify pos state a b  =
 
     let update_note _titre nom prenom _id
     _ref_externe note entry state  =
+        let state = Remanent_state.warn __POS__ (Format.sprintf "NOTE -> %s %s %s %s %s %s" _titre nom prenom _id _ref_externe note) Exit state in
         let state, entry = convert {entry with note = Some note ; firstname = Some prenom ; lastname = Some nom } state
         in
         Remanent_state.Collector_pegasus_notes.add unify __POS__ entry state
