@@ -6884,7 +6884,7 @@ let build_gpscodelist ~year ~firstname ~lastname  situation state =
     let state =
       Remanent_state.warn
         __POS__
-        (Format.sprintf "%s" (match situation.departement_principal with
+        (Format.sprintf "DPT: %s" (match situation.departement_principal with
   | None -> "None" | Some x -> x))
         Exit state in
     let gpscodelist =
@@ -6973,6 +6973,11 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           | Annee_dpt->
           begin
           let state, departement_principal = dpt_of_code state code in
+          let state =
+            Remanent_state.warn
+              __POS__ (Format.sprintf "ANNEE DPT %s" (match departement_principal with None -> "NONE" | Some s -> s))
+              Exit state
+          in 
           let situation = gps_file.situation in
           let bilan =
             match
