@@ -37,16 +37,13 @@ let split a =
     else a,""
 
 let update_product produit entry state =
-    let state = Remanent_state.warn __POS__ (Format.sprintf "PRODUCT -> %s " produit) Exit state in
-    let year, code_helisa = split produit in
-let state = Remanent_state.warn __POS__ (Format.sprintf "CODE HELISA -> %s " code_helisa) Exit state in
-      let year = Some year in
+     let year, code_helisa = split produit in
+     let year = Some year in
         let produit = Some produit in
         let code_helisa = Some code_helisa in
         state, {entry with code_helisa ; produit ; year}
 
 let update_controle a b entry state =
-  let state = Remanent_state.warn __POS__ (Format.sprintf "CONTROLE -> %s,%s " a b) Exit state in
   try
     state, {entry with control = Some (int_of_string a,b)}
   with
@@ -54,7 +51,6 @@ let update_controle a b entry state =
 
 
 let update_n_etu n entry state =
-  let state = Remanent_state.warn __POS__ (Format.sprintf "N ETU -> %s " n) Exit state in
   try
     state, {entry with nombre_etudiants = Some (int_of_string n)}
   with
@@ -88,20 +84,6 @@ let convert entry state =
     Public_data.pegasus_validation = validation ;
     Public_data.pegasus_note_code_helisa = Tools.unsome_string entry.code_helisa ;
     Public_data.pegasus_note_produit = Tools.unsome_string entry.produit; }
-
-let convert entry state =
-    let state, elt = convert entry state in
-    let state =
-        Remanent_state.warn __POS__
-          (Format.sprintf "CONVERT NOTE: %s %s %s %s %s %s %s"
-                elt.Public_data.pegasus_note_annee
-elt.Public_data.pegasus_note_firstname
-elt.Public_data.pegasus_note_lastname
-(match elt.Public_data.pegasus_note with None -> "None" | Some x -> x)
-(match elt.Public_data.pegasus_validation with None -> "None" | Some _ -> "Some")
-elt.Public_data.pegasus_note_code_helisa
-elt.Public_data.pegasus_note_produit
-) Exit state in state, elt
 
 let unify pos state a b  =
     let state, b1 =
@@ -153,7 +135,6 @@ let unify pos state a b  =
 
     let update_note _titre nom prenom _id
     _ref_externe note entry state  =
-        let state = Remanent_state.warn __POS__ (Format.sprintf "NOTE -> %s %s %s %s %s %s" _titre nom prenom _id _ref_externe note) Exit state in
         let state, entry = convert {entry with note = Some note ; firstname = Some prenom ; lastname = Some nom } state
         in
         Remanent_state.Collector_pegasus_notes.add unify __POS__ entry state
@@ -234,16 +215,6 @@ let get
                             end
                           in
                           scan t entry state
-                    in
-                    let state =
-                      List.fold_left
-                          (fun state row ->
-                              let state = List.fold_left
-                                  (fun state elt ->
-                                      Remanent_state.warn __POS__ (Format.sprintf "%s," elt) Exit state)
-                                  state row in
-                              Remanent_state.warn __POS__ "ENDLINE" Exit state)
-                          state csv
                     in
                     let state = scan csv empty_pegasus_entry state in
                     let state = Remanent_state.close_event_opt event state in
