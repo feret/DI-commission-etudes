@@ -2696,6 +2696,26 @@ let lmath ~year ~firstname ~lastname d state =
             __POS__
             (Format.sprintf "LMATH %s %s %s %s" year firstname lastname (if output then "TRUE" else "FALSE"))
             Exit state in
+      let b= lgen "licence" ["gps2274";"gps3017";"gps2262"] dpt_maths_gps_name (Some "DMA") d in
+      let (state:Remanent_state.t) = Remanent_state.warn __POS__ (Format.sprintf "%s" (if b then "TRUE" else "FALSE")) Exit state in
+     let state =
+        List.fold_left
+                (fun (state:Remanent_state.t) cours ->
+          match cours.code_cours with | None -> state | Some code_gps ->
+              let b = code_mandatory_course_DI_maths year code_gps
+                &&
+                match Remanent_state.get_cursus_exception
+                        ~firstname ~lastname ~year ~code_gps state
+                with
+                | _, None -> false
+                | _, Some x ->
+                  let level = x.Public_data.class_level in
+                  let acronym = x.Public_data.class_dpt in
+                  level = "L" && acronym = "DMA"
+              in
+              let state = Remanent_state.warn __POS__
+        (Format.sprintf "%s %s" (if b then "TRUE" else "FALSE") code_gps)
+        Exit state in state      )  state  d.cours in
     state, output
 
 let linfo d =
