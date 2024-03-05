@@ -7288,9 +7288,24 @@ let export_transcript
     let state, situation =
       Public_data.YearMap.fold
         (fun year situation (state,map) ->
+            let state =
+              List.fold_left (fun state c ->
+                  Remanent_state.warn
+                __POS__
+                (Format.sprintf "%s -> %s" year c) Exit state)
+              state situation.gpscodelist
+            in
             let state, situation =
               build_gpscodelist ~year ~firstname ~lastname situation state
             in
+            let state =
+              List.fold_left (fun state c ->
+                  Remanent_state.warn
+                __POS__
+                (Format.sprintf "%s -> %s" year c) Exit state)
+              state situation.gpscodelist
+            in
+
             state, Public_data.YearMap.add year situation map)
         gps_file.situation (state,gps_file.situation)
     in
