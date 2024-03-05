@@ -2704,6 +2704,12 @@ let lmath ~year ~firstname ~lastname d state =
             state )
         state d.diplomes
     in
+    let state =   List.fold_left
+        (fun state diplome ->
+            Remanent_state.warn __POS__ (Format.sprintf "GPS %s" diplome)  Exit
+            state )
+        state ["gps2274";"gps3017";"gps2262"]
+    in
     let state =
       Remanent_state.warn
           __POS__
