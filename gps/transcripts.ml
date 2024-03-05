@@ -7285,7 +7285,7 @@ let export_transcript
     let state, gps_file =
         saturate_bilan_annuel state gps_file
     in
-    let state, situation =
+(*    let state, situation =
       Public_data.YearMap.fold
         (fun year situation (state,map) ->
             let state, situation =
@@ -7294,7 +7294,7 @@ let export_transcript
             state, Public_data.YearMap.add year situation map)
         gps_file.situation (state,gps_file.situation)
     in
-    let gps_file = {gps_file with situation} in
+    let gps_file = {gps_file with situation} in*)
     let state, promo_int =
       Public_data.YearMap.fold
         (fun year a (state, y') ->
@@ -7366,6 +7366,16 @@ let export_transcript
     let state, gps_file =
         add_pegasus_entries ~firstname ~lastname  state gps_file
     in
+    let state, situation =
+         Public_data.YearMap.fold
+           (fun year situation (state,map) ->
+               let state, situation =
+                 build_gpscodelist ~year ~firstname ~lastname situation state
+               in
+               state, Public_data.YearMap.add year situation map)
+           gps_file.situation (state,gps_file.situation)
+       in
+       let gps_file = {gps_file with situation} in
     let l = Public_data.YearMap.bindings gps_file.situation in
     let state, current_year =
       Remanent_state.get_current_academic_year state
