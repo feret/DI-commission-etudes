@@ -6850,7 +6850,8 @@ let kind libelle =
   if String.length libelle > 6 && String.sub libelle 0 7 = "UNDDSEC" then
 Secondary
   else
-    if String.length libelle > 3 && String.sub libelle 0 4 = "ANM2" then Annee
+    if String.length libelle > 3 &&
+        (let s = String.sub libelle 0 4 in s = "ANM2" || s = "ANM1") then Annee
     else
     if String.length libelle > 2 then
     match String.sub libelle 0 3 with
@@ -6859,6 +6860,15 @@ Secondary
       | _ -> Course
     else
       Course
+
+let dpt_of_code state x =
+    match x with
+      | "ANDINF1" | "ANDINF2" | "ANDINF3" -> state, Some dpt_info
+      | _ ->
+        Remanent_state.warn
+            __POS__
+            (Format.sprintf "Unknown dpt code (%s)" x)
+            Exit state, None
 
 let add_pegasus_entries ~firstname ~lastname state gps_file =
     let state, l = Remanent_state.Collector_pedagogical_registrations.find_list ~firstname ~lastname state in
@@ -6903,6 +6913,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           | RdV -> state, gps_file
           | Annee->
           begin
+          let state, departement_principal = dpt_of_code state code in
           let situation = gps_file.situation in
           let bilan =
             match
@@ -6913,7 +6924,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             | None -> empty_bilan_annuel
             | Some b -> b
           in
-              let bilan = {bilan with inscription_au_DENS = Some true} in
+              let bilan = {bilan with inscription_au_DENS = Some true ; departement_principal} in
           state,
           {gps_file with
            situation =
