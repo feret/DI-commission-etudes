@@ -6977,7 +6977,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             Remanent_state.warn
               __POS__ (Format.sprintf "ANNEE DPT %s" (match departement_principal with None -> "NONE" | Some s -> s))
               Exit state
-          in 
+          in
           let situation = gps_file.situation in
           let bilan =
             match
@@ -7299,7 +7299,14 @@ let export_transcript
     let state, gps_file =
         add_pegasus_entries ~firstname ~lastname  state gps_file
     in
-
+    let state =
+      Public_data.YearMap.fold
+          (fun year situation state ->
+              Remanent_state.warn
+                __POS__ (Format.sprintf "%s -> %s" year (match situation.departement_principal with None -> "None" | Some s -> s))
+                Exit state)
+          gps_file.situation state
+    in
     let state, situation =
       Public_data.YearMap.fold
         (fun year situation (state,map) ->
