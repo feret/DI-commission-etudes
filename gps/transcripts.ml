@@ -6841,7 +6841,7 @@ let build_gpscodelist ~year ~firstname ~lastname  situation state =
     state, {situation with gpscodelist}
 
 
-type kind = Inscription | RdV | Course | Annee | Secondary
+type kind = Inscription | RdV | Course | Annee | Annee_dpt | Secondary
 
 
 let kind libelle =
@@ -6855,7 +6855,7 @@ Secondary
     else
     if String.length libelle > 2 then
     match String.sub libelle 0 3 with
-      | "AND" -> Annee
+      | "AND" -> Annee_dpt
       | "UND" -> Inscription
       | _ -> Course
     else
@@ -6911,7 +6911,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
 
             end
           | RdV -> state, gps_file
-          | Annee->
+          | Annee_dpt->
           begin
           let state, departement_principal = dpt_of_code state code in
           let situation = gps_file.situation in
@@ -6925,6 +6925,28 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             | Some b -> b
           in
               let bilan = {bilan with inscription_au_DENS = Some true ; departement_principal} in
+          state,
+          {gps_file with
+           situation =
+             Public_data.YearMap.add
+               course.Public_data.pe_year
+               bilan gps_file.situation
+          }
+
+          end
+          | Annee->
+          begin
+          let situation = gps_file.situation in
+          let bilan =
+            match
+              Public_data.YearMap.find_opt
+                course.Public_data.pe_year
+                situation
+            with
+            | None -> empty_bilan_annuel
+            | Some b -> b
+          in
+              let bilan = {bilan with inscription_au_DENS = Some true } in
           state,
           {gps_file with
            situation =
