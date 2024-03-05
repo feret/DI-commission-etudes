@@ -6881,6 +6881,12 @@ let good (a,_) =
     List.mem a ["l";"m"]
 
 let build_gpscodelist ~year ~firstname ~lastname  situation state =
+    let state =
+      Remanent_state.warn
+        __POS__
+        (Format.sprintf "%s" (match situation.departement_principal with
+  | None -> "None" | Some x -> x))
+        Exit state in
     let gpscodelist =
       List.fold_left
        (fun acc diplome ->
