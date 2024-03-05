@@ -33,17 +33,17 @@ let _ = empty_pegasus_entry.control , empty_pegasus_entry.nombre_etudiants, empt
 let split a =
     if String.length a > 2 then
       let i = (String.length a -2)/2 in
-      String.sub a 2 i
-    else a
+      "20"^(String.sub a 0 2), String.sub a 2 i
+    else a,""
 
 let update_product produit entry state =
-let state = Remanent_state.warn __POS__ (Format.sprintf "PRODUCT -> %s " produit) Exit state in
-
-        let code_helisa = split produit in
+    let state = Remanent_state.warn __POS__ (Format.sprintf "PRODUCT -> %s " produit) Exit state in
+    let year, code_helisa = split produit in
 let state = Remanent_state.warn __POS__ (Format.sprintf "CODE HELISA -> %s " code_helisa) Exit state in
+      let year = Some year in
         let produit = Some produit in
         let code_helisa = Some code_helisa in
-        state, {entry with code_helisa ; produit }
+        state, {entry with code_helisa ; produit ; year}
 
 let update_controle a b entry state =
   let state = Remanent_state.warn __POS__ (Format.sprintf "CONTROLE -> %s,%s " a b) Exit state in
@@ -87,7 +87,7 @@ let convert entry state =
     Public_data.pegasus_note = entry.note ;
     Public_data.pegasus_validation = validation ;
     Public_data.pegasus_note_code_helisa = Tools.unsome_string entry.code_helisa ;
-    Public_data.pegasus_note_produit = split (Tools.unsome_string entry.produit)}
+    Public_data.pegasus_note_produit = Tools.unsome_string entry.produit; }
 
 let convert entry state =
     let state, elt = convert entry state in
