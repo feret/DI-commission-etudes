@@ -1796,7 +1796,7 @@ let empty_remanent =
             inscription_au_DENS = None;
             cours = [];
             code_option = None;
-            diplomes = []; 
+            diplomes = [];
             option=None;
             nannee=None;
             gpscodelist=[]}
@@ -2690,55 +2690,6 @@ match cours.code_cours with | None -> false | Some code_gps ->
         level = "L" && acronym = "DMA"
         )    d.cours
 
-let lmath ~year ~firstname ~lastname d state =
-    let output = lmath ~year ~firstname ~lastname d state in
-    let state =
-        Remanent_state.warn
-            __POS__
-            (Format.sprintf "LMATH %s %s %s %s" year firstname lastname (if output then "TRUE" else "FALSE"))
-            Exit state in
-      let b= lgen "licence" ["gps2274";"gps3017";"gps2262"] dpt_maths_gps_name (Some "DMA") d in
-    let state =   List.fold_left
-        (fun state diplome ->
-            Remanent_state.warn __POS__ (Format.sprintf "GPS %s"
-(match diplome.diplome_diplome with None -> "" | Some x -> x)) Exit
-            state )
-        state d.diplomes
-    in
-    let state =   List.fold_left
-        (fun state diplome ->
-            Remanent_state.warn __POS__ (Format.sprintf "GPS %s" diplome)  Exit
-            state )
-        state ["gps2274";"gps3017";"gps2262"]
-    in
-    let state =
-      Remanent_state.warn
-          __POS__
-          (Format.sprintf "%s %s %s" (match d.annee with Some i -> i | None -> "-1")
-          (match d.departement_principal with None -> "" | Some i -> i) (match d.departement_secondaire with None -> "" | Some i -> i))
-          Exit state in
-
-      let (state:Remanent_state.t) = Remanent_state.warn __POS__ (Format.sprintf "%s" (if b then "TRUE" else "FALSE")) Exit state in
-     let state =
-        List.fold_left
-                (fun (state:Remanent_state.t) cours ->
-          match cours.code_cours with | None -> state | Some code_gps ->
-              let b = code_mandatory_course_DI_maths year code_gps
-                &&
-                match Remanent_state.get_cursus_exception
-                        ~firstname ~lastname ~year ~code_gps state
-                with
-                | _, None -> false
-                | _, Some x ->
-                  let level = x.Public_data.class_level in
-                  let acronym = x.Public_data.class_dpt in
-                  level = "L" && acronym = "DMA"
-              in
-              let state = Remanent_state.warn __POS__
-        (Format.sprintf "%s %s" (if b then "TRUE" else "FALSE") code_gps)
-        Exit state in state      )  state  d.cours in
-    state, output
-
 let linfo d =
   lgen "licence" ["gps2291"] dpt_info_gps_name None d
 let leco d =
@@ -2933,7 +2884,7 @@ let fill_gpscodelist ~year ~firstname ~lastname list situation state =
   if lmathphys situation then
     state, List.rev ("gps1672"::"gps3017"::(List.rev list))
   else
-  let state, lmath = lmath ~year ~firstname ~lastname situation state in
+  let lmath = lmath ~year ~firstname ~lastname situation state in
   if lmath && linfo situation then
     state, List.rev ("gps2291"::"gps2274"::(List.rev list))
   else
@@ -3203,7 +3154,7 @@ else
 
 let dispatch_l ~firstname ~lastname check_dpt  origine situation code_cours year state =
   begin
-    let state, lmath = lmath ~year ~firstname ~lastname situation state in
+    let lmath = lmath ~year ~firstname ~lastname situation state in
     let is_m2 = false in
     if lpoly situation
     then
@@ -4351,7 +4302,7 @@ let heading
           in
           let state, suffix_fr, suffix_en, nationaux_opt, nationaux_en_opt
             =
-let state, lmath = lmath ~year ~firstname ~lastname situation state in
+let lmath = lmath ~year ~firstname ~lastname situation state in
             if
               lmath
               &&
@@ -4572,7 +4523,7 @@ let state, lmath = lmath ~year ~firstname ~lastname situation state in
         | Some _ -> state, ["Diplôme de l'ENS"], ["ENS diploma"]
         | _ ->
           let state, cursus_opt =
-let state, lmath = lmath ~year ~firstname ~lastname situation state in
+let lmath = lmath ~year ~firstname ~lastname situation state in
             if lmath
             || lmathphys situation
             then
@@ -6882,13 +6833,7 @@ let good (a,_) =
     List.mem a ["l";"m"]
 
 let build_gpscodelist ~year ~firstname ~lastname  situation state =
-    let state =
-      Remanent_state.warn
-        __POS__
-        (Format.sprintf "DPT: %s" (match situation.departement_principal with
-  | None -> "None" | Some x -> x))
-        Exit state in
-    let gpscodelist =
+      let gpscodelist =
       List.fold_left
        (fun acc diplome ->
           match diplome.diplome_diplome
@@ -6974,12 +6919,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           | Annee_dpt->
           begin
           let state, departement_principal = dpt_of_code state code in
-          let state =
-            Remanent_state.warn
-              __POS__ (Format.sprintf "ANNEE DPT %s" (match departement_principal with None -> "NONE" | Some s -> s))
-              Exit state
-          in
-          let situation = gps_file.situation in
+              let situation = gps_file.situation in
           let bilan =
             match
               Public_data.YearMap.find_opt
@@ -7300,35 +7240,12 @@ let export_transcript
     let state, gps_file =
         add_pegasus_entries ~firstname ~lastname  state gps_file
     in
-    let state =
-      Public_data.YearMap.fold
-          (fun year situation state ->
-              Remanent_state.warn
-                __POS__ (Format.sprintf "%s -> %s" year (match situation.departement_principal with None -> "None" | Some s -> s))
-                Exit state)
-          gps_file.situation state
-    in
     let state, situation =
       Public_data.YearMap.fold
         (fun year situation (state,map) ->
-            let state =
-              List.fold_left (fun state c ->
-                  Remanent_state.warn
-                __POS__
-                (Format.sprintf "%s -> %s" year c) Exit state)
-              state situation.gpscodelist
-            in
             let state, situation =
               build_gpscodelist ~year ~firstname ~lastname situation state
             in
-            let state =
-              List.fold_left (fun state c ->
-                  Remanent_state.warn
-                __POS__
-                (Format.sprintf "%s -> %s" year c) Exit state)
-              state situation.gpscodelist
-            in
-
             state, Public_data.YearMap.add year situation map)
         gps_file.situation (state,gps_file.situation)
     in
@@ -8592,7 +8509,7 @@ let export_transcript
                                match fst key with
                                 | None -> state, ""
                                 | Some "l" ->
-                                  let state, lmath = lmath ~year ~firstname ~lastname situation state in
+                                  let lmath = lmath ~year ~firstname ~lastname situation state in
                                   if
                                     lmath  && linfo situation
                                   then state, "L3_mathinfo"
