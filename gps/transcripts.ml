@@ -2689,6 +2689,15 @@ match cours.code_cours with | None -> false | Some code_gps ->
         level = "L" && acronym = "DMA"
         )    d.cours
 
+let lmath ~year ~firstname ~lastname d state =
+    let output = lmath ~year ~firstname ~lastname d state in
+    let state =
+        Remanent_state.warn
+            __POS__
+            (Format.sprintf "LMATH %s %s %s %s" year firstname lastname (if output then "TRUE" else "FALSE"))
+            Exit state in
+    state, output
+
 let linfo d =
   lgen "licence" ["gps2291"] dpt_info_gps_name None d
 let leco d =
@@ -2881,12 +2890,13 @@ int_of_string i >=2 | None -> false)
 
 let fill_gpscodelist ~year ~firstname ~lastname list situation state =
   if lmathphys situation then
-    List.rev ("gps1672"::"gps3017"::(List.rev list))
+    state, List.rev ("gps1672"::"gps3017"::(List.rev list))
   else
-  if lmath ~year ~firstname ~lastname situation state && linfo situation then
-    List.rev ("gps2291"::"gps2274"::(List.rev list))
+  let state, lmath = lmath ~year ~firstname ~lastname situation state in
+  if lmath && linfo situation then
+    state, List.rev ("gps2291"::"gps2274"::(List.rev list))
   else
-    list
+    state, list
 
 let mpri = gen_master "M-MPRI" ["gps62263";"gps78782"] "INFO-M2-MPRI200-S2"
 let mva = gen_master "M-MVA" ["gps2228"] "INFO-M2-MVASTAGE-S2"
@@ -3152,6 +3162,7 @@ else
 
 let dispatch_l ~firstname ~lastname check_dpt  origine situation code_cours year state =
   begin
+    let state, lmath = lmath ~year ~firstname ~lastname situation state in
     let is_m2 = false in
     if lpoly situation
     then
@@ -3182,7 +3193,7 @@ let dispatch_l ~firstname ~lastname check_dpt  origine situation code_cours year
          else
           state,
           (Some "L","L3 de Sciences de la Terre","Bachelor in Earth Sciences",dpt_geosciences,dpt_geosciences_en,false,is_m2)
-    else if linfo situation && lmath ~year ~firstname ~lastname situation state
+    else if linfo situation && lmath
     then if is_dma_course code_cours year
          then
           state,
@@ -4299,8 +4310,9 @@ let heading
           in
           let state, suffix_fr, suffix_en, nationaux_opt, nationaux_en_opt
             =
+let state, lmath = lmath ~year ~firstname ~lastname situation state in
             if
-              lmath ~year ~firstname ~lastname situation state
+              lmath
               &&
               linfo situation
               &&
@@ -4519,7 +4531,8 @@ let heading
         | Some _ -> state, ["Diplôme de l'ENS"], ["ENS diploma"]
         | _ ->
           let state, cursus_opt =
-            if lmath ~year ~firstname ~lastname situation state
+let state, lmath = lmath ~year ~firstname ~lastname situation state in
+            if lmath
             || lmathphys situation
             then
               Remanent_state.get_cursus
@@ -6837,7 +6850,7 @@ let build_gpscodelist ~year ~firstname ~lastname  situation state =
           | Some a -> a::acc)
        [] situation.diplomes
     in
-    let gpscodelist = fill_gpscodelist ~year ~firstname ~lastname gpscodelist situation state in
+    let state, gpscodelist = fill_gpscodelist ~year ~firstname ~lastname gpscodelist situation state in
     state, {situation with gpscodelist}
 
 
@@ -8501,8 +8514,9 @@ let export_transcript
                                match fst key with
                                 | None -> state, ""
                                 | Some "l" ->
+                                  let state, lmath = lmath ~year ~firstname ~lastname situation state in
                                   if
-                                    lmath ~year:current_year ~firstname ~lastname situation state && linfo situation
+                                    lmath  && linfo situation
                                   then state, "L3_mathinfo"
                                   else if lmathphys situation
                                   then state, "L3_mathphys"
