@@ -2697,6 +2697,20 @@ let lmath ~year ~firstname ~lastname d state =
             (Format.sprintf "LMATH %s %s %s %s" year firstname lastname (if output then "TRUE" else "FALSE"))
             Exit state in
       let b= lgen "licence" ["gps2274";"gps3017";"gps2262"] dpt_maths_gps_name (Some "DMA") d in
+    let state =   List.fold_left
+        (fun state diplome ->
+            Remanent_state.warn __POS__ (Format.sprintf "GPS %s"
+(match diplome.diplome_diplome with None -> "" | Some x -> x)) Exit
+            state )
+        state d.diplomes
+    in
+    let state =
+      Remanent_state.warn
+          __POS__
+          (Format.sprintf "%s %s %s %s" (match d.annee with Some i -> i | None -> "-1") dpt_maths_gps_name
+          (match d.departement_principal with None -> "" | Some i -> i) (match d.departement_secondaire with None -> "" | Some i -> i))
+          Exit state in
+
       let (state:Remanent_state.t) = Remanent_state.warn __POS__ (Format.sprintf "%s" (if b then "TRUE" else "FALSE")) Exit state in
      let state =
         List.fold_left
