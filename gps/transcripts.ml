@@ -6869,6 +6869,8 @@ Secondary
 let dpt_of_code state x =
     match x with
       | "ANDINF1" | "ANDINF2" | "ANDINF3" -> state, Some dpt_info
+      | "ANDDMA1" | "ANDDMA2" | "ANDDMA3" -> state, Some dpt_maths
+      | "ANDCHI1" | "ANDCHI2" | "ANDCHI3" -> state, Some dpt_chimie
       | _ ->
         Remanent_state.warn
             __POS__
