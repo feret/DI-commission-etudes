@@ -664,20 +664,6 @@ let modelist_di_false_true =
 let modelist_di_false_false =
   modelist_di_gen false false
 
-
-  let modelist_helisa_gen b1 b2 =
-    add_to_list b1 b2 Preempt
-      (add_to_list b1 b2 Backup [])
-
-  let modelist_helisa_true_true =
-    modelist_helisa_gen true true
-  let modelist_helisa_true_false =
-    modelist_helisa_gen true false
-  let modelist_helisa_false_true =
-    modelist_helisa_gen false true
-  let modelist_helisa_false_false =
-    modelist_helisa_gen false false
-
 let modelist_dma_gen b1 b2 =
   add_to_list b1 b2 Preempt
     (add_to_list b1 b2 (GPS (Some Maths))
@@ -775,21 +761,7 @@ let get_student_file
   let firstname = student_id.Public_data.firstname in
   let lastname = student_id.Public_data.lastname in
   let state, main_dpt = Remanent_state.get_main_dpt state in
-  let promotion = student_id.Public_data.promotion in
-  let helisa =
-      try   match promotion with Some promotion -> int_of_string promotion > 2022
-      | None -> false with _ -> false
-  in
-
-  let modelist =
-    if helisa then
-    match Special_char.remove_simple_quote (Special_char.remove_acute firstname) = firstname,
-          Special_char.remove_simple_quote (Special_char.remove_acute lastname) = lastname
-    with  true, true -> modelist_helisa_true_true
-      | true, false -> modelist_helisa_true_false
-      | false, false -> modelist_helisa_false_false
-      | false, true -> modelist_helisa_false_true
-    else
+let modelist =
     match modelist with
     | Some modelist -> modelist
     | None ->
