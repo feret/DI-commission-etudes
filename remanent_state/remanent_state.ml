@@ -2151,7 +2151,8 @@ let get_gen pos fetch
   let t,l = Collector_administrative_status.find_opt
                     ~firstname ~lastname ~year t in
         match l with
-            | None -> warn pos "Student not found/or multiple students found in Pegasus" Exit t, None
+            | None -> warn pos
+    (Format.sprintf "Student not found/or multiple students found in Pegasus (%s/%s/%s)" firstname lastname year) Exit t, None
             | Some a -> t, Some (fetch a)
 let get_origine = get_gen __POS__ (fun a -> a.Public_data.pegasus_origin)
 let get_gender = get_gen __POS__ (fun a -> a.Public_data.pegasus_gender)

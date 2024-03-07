@@ -6855,13 +6855,14 @@ let kind libelle =
   if String.length libelle > 6 && String.sub libelle 0 7 = "UNDDSEC" then
 Secondary
   else
+  if String.length libelle > 6 && String.sub libelle 0 6 = "UNDDIP" then Inscription
+  else
     if String.length libelle > 3 &&
         (let s = String.sub libelle 0 4 in s = "ANM2" || s = "ANM1") then Annee
     else
     if String.length libelle > 2 then
     match String.sub libelle 0 3 with
       | "AND" -> Annee_dpt
-      | "UND" -> Inscription
       | _ -> Course
     else
       Course
