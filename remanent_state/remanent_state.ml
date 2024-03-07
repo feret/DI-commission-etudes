@@ -2144,35 +2144,21 @@ let set_notes_a_modifier notes_a_modifier data =
 let set_notes_a_modifier notes_a_modifier t =
       lift_set set_notes_a_modifier notes_a_modifier t
 
-let get_birth_city_fr
+let get_gen pos fetch
       ~firstname
       ~lastname
-      ~year t =
+      ~year  t =
   let t,l = Collector_administrative_status.find_opt
-              ~firstname ~lastname ~year t in
-  match l with
-      | None -> warn __POS__ "Student not found/or multiple students found in Pegasus" Exit t, None
-      | Some a -> t, Some a.Public_data.pegasus_birth_city_fr
-
-let get_birth_country_fr
-      ~firstname
-      ~lastname
-      ~year t =
-  let t,l = Collector_administrative_status.find_opt
-              ~firstname ~lastname ~year t in
-  match l with
-      | None -> warn __POS__ "Student not found/or multiple students found in Pegasus" Exit t, None
-      | Some a -> t, Some a.Public_data.pegasus_birth_country_fr
-
-let get_ine_number
-      ~firstname
-      ~lastname
-      ~year t =
-    let t,l = Collector_administrative_status.find_opt
-                ~firstname ~lastname ~year t in
-    match l with
-      | None -> warn __POS__ "Student not found/or multiple students found in Pegasus" Exit t, None
-      | Some a -> t, Some a.Public_data.pegasus_ine
+                    ~firstname ~lastname ~year t in
+        match l with
+            | None -> warn pos "Student not found/or multiple students found in Pegasus" Exit t, None
+            | Some a -> t, Some (fetch a)
+let get_origine = get_gen __POS__ (fun a -> a.Public_data.pegasus_origin)
+let get_gender = get_gen __POS__ (fun a -> a.Public_data.pegasus_gender)
+let get_birth_date = get_gen __POS__ (fun a -> a.Public_data.pegasus_birthdate)
+let get_birth_city_fr = get_gen __POS__ (fun a -> a.Public_data.pegasus_birth_city_fr)
+let get_birth_country_fr = get_gen __POS__ (fun a -> a.Public_data.pegasus_birth_country_fr)
+let get_ine_number = get_gen __POS__ (fun a -> a.Public_data.pegasus_ine)
 
 let add_cost_member = add_gen_list get_cost_members set_cost_members
 

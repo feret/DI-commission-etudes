@@ -248,7 +248,10 @@ type student_pegasus =
     {
       pegasus_firstname: string;
       pegasus_lastname: string;
+      pegasus_gender: string;
       pegasus_promotion: string;
+      pegasus_origin: string;
+      pegasus_birthdate: string;
       pegasus_birth_country_fr: string;
       pegasus_birth_city_fr: string;
       pegasus_produit_de_formation: string;
@@ -324,7 +327,10 @@ let empty_student_pegasus =
       {
         pegasus_firstname = "";
         pegasus_lastname = "";
+        pegasus_gender = "";
         pegasus_promotion = "";
+        pegasus_origin = "";
+        pegasus_birthdate = "";
         pegasus_birth_country_fr = "";
         pegasus_birth_city_fr = "";
         pegasus_produit_de_formation = "";

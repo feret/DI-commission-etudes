@@ -6,7 +6,10 @@ pegasus_promotion: string option;
 pegasus_birth_country_fr: string option;
 pegasus_birth_city_fr: string option;
 pegasus_produit_de_formation: string option;
-pegasus_ine: string option}
+pegasus_ine: string option;
+pegasus_origin: string option;
+pegasus_birthdate: string option;
+pegasus_gender: string option;}
 
 let empty_candidate_id =
 {pegasus_firstname=None;
@@ -15,7 +18,10 @@ pegasus_promotion=None;
 pegasus_birth_country_fr=None;
 pegasus_birth_city_fr=None;
 pegasus_produit_de_formation=None;
-pegasus_ine=None;}
+pegasus_ine=None;
+pegasus_origin=None;
+pegasus_birthdate=None;
+pegasus_gender=None;}
 
 
 
@@ -171,10 +177,13 @@ let keywords_list =
       Public_data.PEGASUS_NOM;
       Public_data.PEGASUS_PRENOM;
       Public_data.PEGASUS_ENS_PROMO;
+      Public_data.PEGASUS_GENRE;
+      Public_data.PEGASUS_NAISSANCE_DATE;
       Public_data.PEGASUS_PRODUIT_CODE;
       Public_data.PEGASUS_NUMERO_INE;
       Public_data.PEGASUS_NAISSANCE_VILLE;
-      Public_data.PEGASUS_NAISSANCE_PAYS
+      Public_data.PEGASUS_NAISSANCE_PAYS;
+      Public_data.PEGASUS_ENS_CONCOURS;
     ]
 
 let mandatory_fields =
@@ -192,6 +201,43 @@ let mandatory_fields =
 let all_fields =
     let record_name = "dens candidate" in
         [
+        lift_string
+          ~keyword:Public_data.PEGASUS_ENS_CONCOURS
+          ~set_tmp:(Tools.collect_string
+                      (fun pegasus_origin x ->
+                            {x with pegasus_origin}))
+          ~get_tmp:(fun a -> a.pegasus_origin)
+          ~get:(fun a -> a.Public_data.pegasus_origin)
+          ~set:(fun pegasus_origin a ->
+             {a with Public_data.pegasus_origin})
+          ~record_name
+          ~field_name:"Entry track of the student"
+          ~pos:__POS__ ;
+          lift_string
+            ~keyword:Public_data.PEGASUS_GENRE
+            ~set_tmp:(Tools.collect_string
+                        (fun pegasus_gender x ->
+                              {x with pegasus_gender}))
+            ~get_tmp:(fun a -> a.pegasus_gender)
+            ~get:(fun a -> a.Public_data.pegasus_gender)
+            ~set:(fun pegasus_gender a ->
+               {a with Public_data.pegasus_gender})
+            ~record_name
+            ~field_name:"gender of the student"
+            ~pos:__POS__ ;
+            lift_string
+              ~keyword:Public_data.PEGASUS_NAISSANCE_DATE
+              ~set_tmp:(Tools.collect_string
+                          (fun pegasus_birthdate x ->
+                                {x with pegasus_birthdate}))
+              ~get_tmp:(fun a -> a.pegasus_birthdate)
+              ~get:(fun a -> a.Public_data.pegasus_birthdate)
+              ~set:(fun pegasus_birthdate a ->
+                 {a with Public_data.pegasus_birthdate})
+              ~record_name
+              ~field_name:"birth date of the student"
+              ~pos:__POS__ ;
+
           lift_string
             ~keyword:Public_data.PEGASUS_PRENOM
             ~set_tmp:(Tools.collect_string
@@ -296,7 +342,7 @@ let all_fields =
             let state = Remanent_state.open_event_opt event state in
             let state = Scan_xlss_files.collect_gen
               (* ~debug:true *)
-              ~strict:false 
+              ~strict:false
               ?repository
               ?prefix
               ?file_name

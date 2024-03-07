@@ -428,6 +428,23 @@ type 'a add = 'a unify -> pos -> 'a -> t -> t
 
 val add_cost_member: Public_data.cost_member add
 
+
+val get_gender:
+    firstname:string ->
+    lastname:string ->
+    year:string -> t -> t * string option
+
+
+val get_origine:
+    firstname:string ->
+    lastname:string ->
+    year:string -> t -> t * string option
+
+val get_birth_date:
+    firstname:string ->
+    lastname:string ->
+    year:string -> t -> t * string option
+
 val get_birth_city_fr:
     firstname:string ->
     lastname:string ->

@@ -24,7 +24,10 @@ type student_pegasus =
   {
     pegasus_firstname: string;
     pegasus_lastname: string;
+    pegasus_gender: string;
     pegasus_promotion: string;
+    pegasus_origin: string;
+    pegasus_birthdate: string; 
     pegasus_birth_country_fr: string;
     pegasus_birth_city_fr: string;
     pegasus_produit_de_formation: string;

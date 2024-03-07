@@ -260,11 +260,37 @@ let get_student_file_gen
               ~extension:".gps.csv"
               student_id ?prefix ?output_repository ?output_file_name state
         in
+        let state, origine =
+            Remanent_state.get_origine ~firstname:student_id.Public_data.firstname
+            ~lastname:student_id.Public_data.lastname
+            ~year:(Tools.unsome_string student_id.Public_data.promotion)
+            state
+        in
+        let state, genre =
+            Remanent_state.get_gender ~firstname:student_id.Public_data.firstname
+            ~lastname:student_id.Public_data.lastname
+            ~year:(Tools.unsome_string student_id.Public_data.promotion)
+            state
+        in
+        let state, date_de_naissance=
+            Remanent_state.get_birth_date ~firstname:student_id.Public_data.firstname
+            ~lastname:student_id.Public_data.lastname
+            ~year:(Tools.unsome_string student_id.Public_data.promotion)
+            state
+        in
+        let date_de_naissance = Tools.unsome_string date_de_naissance in
+        let origine = Tools.unsome_string origine in
+        let genre = Tools.unsome_string genre in
+        let status = "TO DO" in
         let csv =
           [
             ["Prénom";student_id.Public_data.firstname];
             ["Nom";student_id.Public_data.lastname];
-            ["Année";Tools.unsome_string student_id.Public_data.promotion]
+            ["Genre";genre];
+            ["Date de naissance";date_de_naissance];
+            ["Promotion";Tools.unsome_string student_id.Public_data.promotion];
+            ["Origine";origine];
+            ["Status";status]
           ]
         in
         let file = output_file_name in

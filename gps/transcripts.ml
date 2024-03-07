@@ -6902,8 +6902,8 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                 | "UNDDIPH-M1" -> state, M1_HPSL
                 | "UNDDIPE-M2" -> state, M2_PSL
                 | "UNDDIPH-M2" -> state, M2_HPSL
-                | "UNDDIPE-L" -> state, L3_PSL
-                | "UNDDIPH-L" -> state, L3_HPSL
+                | "UNDDIPE-L3" -> state, L3_PSL
+                | "UNDDIPH-L3" -> state, L3_HPSL
                 | "UNDDIPL-NA" -> state, Autre
                 | _ ->  Remanent_state.warn __POS__ (Format.sprintf "Invalid code for helisa registration %s" code)  Exit state, Autre
             in
