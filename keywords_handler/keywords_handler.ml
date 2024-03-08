@@ -397,9 +397,11 @@ let asso_list =
     Public_data.PEGASUS_ENS_PROMO,["ens_promo"];
     Public_data.PEGASUS_ENS_STATUT_NORMALIEN,["ens_statut_normalien"];
     Public_data.PEGASUS_ENS_CONCOURS,["ens_concours"];
+    Public_data.PEGASUS_FP_NOMBRE_DE_CRETITS_MAXIMUN,["fp_nombre_de_credits_maximum"];
     Public_data.PEGASUS_FP_RI_ETAT_DOSSIER,["fp_ri_etat_dossier"];
     Public_data.PEGASUS_FP_RI_STATUT_PAIEMENT,["fp_ri_statut_paiement"];
     Public_data.PEGASUS_FP_RI_STATUT_UPLOAD_DOC,["fp_ri_statut_upload_doc"];
+    Public_data.PEGASUS_GROUPES_CAMPAGNE,["groupes_campagne"]
 
 ]
 

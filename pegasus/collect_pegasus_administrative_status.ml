@@ -169,6 +169,8 @@ let keywords_list =
     Public_data.PEGASUS_FP_RI_ETAT_DOSSIER;
     Public_data.PEGASUS_FP_RI_STATUT_PAIEMENT;
     Public_data.PEGASUS_FP_RI_STATUT_UPLOAD_DOC;
+    Public_data.PEGASUS_FP_NOMBRE_DE_CRETITS_MAXIMUN;
+    Public_data.PEGASUS_GROUPES_CAMPAGNE;
 
   ]
 

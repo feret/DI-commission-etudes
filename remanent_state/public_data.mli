@@ -27,7 +27,7 @@ type student_pegasus =
     pegasus_gender: string;
     pegasus_promotion: string;
     pegasus_origin: string;
-    pegasus_birthdate: string; 
+    pegasus_birthdate: string;
     pegasus_birth_country_fr: string;
     pegasus_birth_city_fr: string;
     pegasus_produit_de_formation: string;
@@ -918,10 +918,11 @@ type keywords =
   | PEGASUS_ENS_PROMO
   | PEGASUS_ENS_STATUT_NORMALIEN
   | PEGASUS_ENS_CONCOURS
+  | PEGASUS_FP_NOMBRE_DE_CRETITS_MAXIMUN
   | PEGASUS_FP_RI_ETAT_DOSSIER
   | PEGASUS_FP_RI_STATUT_PAIEMENT
   | PEGASUS_FP_RI_STATUT_UPLOAD_DOC
-
+  | PEGASUS_GROUPES_CAMPAGNE
 
 type remove_non_valided_classes =
   | All
