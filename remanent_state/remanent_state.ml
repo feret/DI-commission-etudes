@@ -2148,6 +2148,8 @@ let get_gen pos fetch
       ~firstname
       ~lastname
       ~year  t =
+  let firstname = simplify firstname in
+  let lastname = simplify lastname in 
   let t,l = Collector_administrative_status.find_opt
                     ~firstname ~lastname ~year t in
         match l with
