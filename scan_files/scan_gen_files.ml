@@ -65,6 +65,8 @@ let get_list_from_a_file
                       else
                         is_keyword __POS__ state h
                     in
+                    let state = Remanent_state.warn __POS__  (Format.sprintf  "%s: %s" h (if b then "TRUE" else "FALSE"))
+                    Exit state in
                     if b then
                       aux state q
                     else
