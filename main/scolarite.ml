@@ -224,7 +224,7 @@ let state =
                             state
                     in
                     Latex_engine.latex_opt_to_pdf state ~input in state)
-                state [(*Public_data.French,"fr";*)Public_data.English,"en"])
+                state [Public_data.French,"fr";Public_data.English,"en"])
             state cost_members
          in
 
