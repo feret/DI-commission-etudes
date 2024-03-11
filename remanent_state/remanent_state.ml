@@ -2149,7 +2149,7 @@ let get_gen pos fetch
       ~lastname
       ~year  t =
   let firstname = simplify firstname in
-  let lastname = simplify lastname in 
+  let lastname = simplify lastname in
   let t,l = Collector_administrative_status.find_opt
                     ~firstname ~lastname ~year t in
         match l with
@@ -3010,6 +3010,7 @@ let fold_right2 f l l' a = List.fold_left2
 
 let open_array pos ?colortitle ?makecell ?logger ~with_lines ?size ?color ?bgcolor ?align ~title ?title_english t  =
   let t, title  =
+    if List.length title = (match title_english with None -> -1 | Some l -> List.length l) then
     match title_english with
     | None -> t, title
     | Some a ->
@@ -3033,6 +3034,10 @@ let open_array pos ?colortitle ?makecell ?logger ~with_lines ?size ?color ?bgcol
           "Incompatible arguments (english / french must have the same length)"
           Exit
           t, []
+    else
+    let t, lang = get_language t in
+    match lang, title_english  with Public_data.French,_ | _, None -> t, title
+                | Public_data.English, Some title_english -> t, title_english
   in
   open_array pos ?colortitle ?makecell ?logger ~with_lines ?size ?color ?bgcolor ?align ~title t
 
