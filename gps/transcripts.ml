@@ -5034,7 +5034,7 @@ let lmath = lmath ~year ~firstname ~lastname situation state in
     let state, s =
       Remanent_state.bilingual_string
         ~english:"{\\noindent}\\textcolor{bluesco}{{\\gender} {\\lastname} {\\firstname}}, born on \\textcolor{bluesco}{\\birthdate}, in \\textcolor{bluesco}{{\\birthcity} (\\birthcountry)}, studied at the \\'Ecole normale supérieure (Paris, France) in \\textcolor{bluesco}{\\academicyear} where \\textcolor{bluesco}{\\he} attended and passed the following courses: "
-        ~french:("{\\noindent}\\textcolor{bluesco}{{\\gender} {\\lastname} {\\firstname}}, né"^genre^" le \\textcolor{bluesco}{\\birthdate}, à {\\birthcity} (\\birthcountry)), a étudié à l'\\'Ecole normale supérieure (Paris, France) en \\academicyear où  \\textcolor{bluesco}{\\il} a suivi et validé les cours suivants~:") state
+        ~french:("{\\noindent}\\textcolor{bluesco}{{\\gender} {\\lastname} {\\firstname}}, né"^genre^" le \\textcolor{bluesco}{\\birthdate}, à \\textcolor{bluesco}{\\birthcity (\\birthcountry)}, a étudié à l'\\'Ecole normale supérieure (Paris, France) en \\textcolor{bluesco}{\\academicyear} où  \\textcolor{bluesco}{\\il} a suivi et validé les cours suivants~:") state
     in
     let () = Remanent_state.fprintf state "%s" s in
      state
@@ -5144,7 +5144,7 @@ let foot signature state  =
           Remanent_state.fprintf
             state
             "\\end{center}%%\n\ \\vspace*{-1cm}%%\n\ "
-        in state | state, Public_data.French -> state 
+        in state | state, Public_data.French -> state
         in
         let state,title  =
             Remanent_state.bilingual_string
@@ -6442,6 +6442,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
       ~size ~stages
        ~unvalidated_map
       (list:(cours) list) state =
+    let (size_fr, size_en) = size in
     let state, key, b =
       alloc_suffix (Some "",Public_data.DI) state
     in
@@ -6461,7 +6462,15 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
         in
         ()
     in
-    let bgcolor=[None;None;None;None;None;] in
+    let bgcolor_en = [None;None;None;None;None;] in
+    let bgcolor_fr = [None;None;None] in
+    let align_en = [None;Some 'c';Some 'c';Some 'c';Some 'c'] in
+    let align_fr = [None;Some 'c';Some 'c'] in
+    let state,size,bgcolor,align,macro=
+      match Remanent_state.get_language state with
+        | state, Public_data.French -> state, size_fr, bgcolor_fr, align_fr,   "coursscofr"
+        | state, Public_data.English -> state, size_en, bgcolor_en, align_en, "coursscoen"
+    in
     let () =
       Remanent_state.fprintf state
         "\\setcounter{totalrows}{%i}%%%%\n\ "
@@ -6470,19 +6479,17 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
     let state =
       Remanent_state.open_array
         __POS__
-        ~align:[None;Some 'c';Some 'c';Some 'c';Some 'c']
+        ~align
         ~colortitle:"grey"
         ~makecell:false
         ~bgcolor
         ~size
         ~with_lines:true
-        ~title:[["\\textbf{Nom du cours}"];["\\textbf{ECTS}"];["\\textbf{Note sur 20}"];
-                ["\\textbf{Note lettre}"];["\\textbf{GPA}"]]
+        ~title:[["\\textbf{Nom du cours}"];["\\textbf{ECTS}"];["\\textbf{Note sur 20}"]]
         ~title_english:[["\\textbf{Course title}"];["\\textbf{Credits awarded}"];["\\textbf{Grade out of 20}"];
                         ["\\textbf{Letter grade}"];["\\textbf{GPA}"]]
         state
     in
-    let macro = "courssco" in
     (*let list = Tools.sort fetch p list in*)
     let state, cours_list, stage_list  =
       List.fold_left
@@ -9245,19 +9252,33 @@ let state,year = Remanent_state.get_current_academic_year state in
                 if year > current_year then
                     state,cours_list, stage_list
                 else
-                 let l =
+                 let l_en =
                    [30.;5.;5.5;4.;3.]
                  in
                  let sum =
                    List.fold_left
                      (fun total a -> total+.a)
-                     0. l
+                     0. l_en
                  in
-                 let size =
+                 let size_en =
                    List.rev_map
                      (fun a -> Some (a/.(sum*.1.12)))
-                     (List.rev l)
+                     (List.rev l_en)
                  in
+                 let l_fr =
+                   [30.;5.;5.5]
+                 in
+                 let sum =
+                   List.fold_left
+                     (fun total a -> total+.a)
+                     0. l_fr
+                 in
+                 let size_fr =
+                   List.rev_map
+                     (fun a -> Some (a/.(sum*.1.12)))
+                     (List.rev l_fr)
+                 in
+                 let size = size_fr, size_en in
                  if [] = split_cours
                  then
                      state, cours_list, stage_list
@@ -9282,7 +9303,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                              in
                              let state,s  =
 Remanent_state.bilingual_string
-~french:(Format.sprintf "\\noindent\\hspace*{-10mm}\\textbf{GPA cumulé~: \\fpeval{round(%s,2)}}\\bigskip\n\n{\\noindent}PS~: \\textit{\\'Ecole normale supérieure} est l'une des institutions françaises d'enseignement supérieur en sciences et en humanité les plus séléctives. Les étudiants qui entrent à l'ENS sont séléctionés parmi les meilleures classes préparatoires et universités et sont classés parmi les meilleurs 1-5$\\%s$ étudiants  français.\n\n{\\noindent}ENS suit le système traditionnel de notation français, basé sur des nombres entre 0 et 20, 10 étant la note minimale pour valider un cours. Les notes françaises correspondent à ce qui suit~: \\begin{itemize}[noitemsep,topsep=0pt]\\item[$\\bullet$]\\makebox[2cm][l]{18-20}exceptionnel\\item[$\\bullet$]\\makebox[2cm][l]{16-17.9}très bien\\item[$\\bullet$] \\makebox[2cm][l]{14-15.9}bien  \\item[$\\bullet$]\\makebox[2cm][l]{12-13.9}assez bien  \\item[$\\bullet$]\\makebox[2cm][l]{10-11.9}passable\\item[$\\bullet$]\\makebox[2cm][l]{00-09.9}échec\\end{itemize}{\\noindent}La moyenne d'une classe typique se situe entre 12 et 14/20 et les notes au-dessus de 16 sont rarement données. \\bigskip\n\n " mean "%")
+~french:(Format.sprintf "\\noindent\\hspace*{-10mm}\\textbf{GPA cumulé~: \\fpeval{round(%s,2)}}\\bigskip\n\n{\\noindent}PS~: L'\\textit{\\'Ecole normale supérieure} est l'une des institutions françaises d'enseignement supérieur en sciences et en humanité les plus séléctives. Les étudiants qui entrent à l'ENS sont séléctionés parmi les meilleures classes préparatoires et universités et sont classés parmi les meilleurs 1-5$\\%s$ étudiants  français.\n\n{\\noindent}L'ENS suit le système traditionnel de notation français, basé sur des nombres entre 0 et 20, 10 étant la note minimale pour valider un cours. Les notes françaises correspondent à ce qui suit~: \\begin{itemize}[noitemsep,topsep=0pt]\\item[$\\bullet$]\\makebox[2cm][l]{18-20}exceptionnel\\item[$\\bullet$]\\makebox[2cm][l]{16-17.9}très bien\\item[$\\bullet$] \\makebox[2cm][l]{14-15.9}bien  \\item[$\\bullet$]\\makebox[2cm][l]{12-13.9}assez bien  \\item[$\\bullet$]\\makebox[2cm][l]{10-11.9}passable\\item[$\\bullet$]\\makebox[2cm][l]{00-09.9}échec\\end{itemize}{\\noindent}La moyenne d'une classe typique se situe entre 12 et 14/20 et les notes au-dessus de 16 sont rarement données. \\bigskip\n\n " mean "%")
 ~english:(Format.sprintf "\\noindent\\hspace*{-10mm}\\textbf{Cumulative GPA: \\fpeval{round(%s,2)}}\\bigskip\n\n{\\noindent}NB: \\textit{\\'Ecole normale supérieure} is one of the most selective French higher education institutions in science and humanities. Students entering ENS are selected from the upper tier of \\textit{classes préparatoires} and universities and ranked in the top 1-5$\\%s$ among French students.\n\n{\\noindent}ENS follows the traditional French grading system based on a numbered scale from 0 to 20, 10 being the minimum passing grade. French grades correspond to the following:\\begin{itemize}[noitemsep,topsep=0pt]\\item[$\\bullet$]\\makebox[2cm][l]{18-20}outstanding\\item[$\\bullet$]\\makebox[2cm][l]{16-17.9}very good\\item[$\\bullet$] \\makebox[2cm][l]{14-15.9}good \\item[$\\bullet$]\\makebox[2cm][l]{12-13.9}quite good \\item[$\\bullet$]\\makebox[2cm][l]{10-11.9}fair\\item[$\\bullet$]\\makebox[2cm][l]{00-09.9}fail\\end{itemize}{\\noindent}Typical class average lies between 12 and 14/20 and grades above 16 are seldom awarded.\\bigskip\n\n " mean "%") state
                               in
                               let () = Remanent_state.fprintf state "%s" s in

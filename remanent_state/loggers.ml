@@ -920,7 +920,7 @@ let () = fprintf logger
               "pga"
                (fun (_,x) -> "\\setcounter{cnote}{\\fpeval{"^x^"*\\factor}}%%\n\ "^x) in
   let () = fprintf logger
-    "%s%s\\newcommand{\\courssco}[4][]{%%\n\
+    "%s%s\\newcommand{\\coursscoen}[4][]{%%\n\
     \\addtocounter{nrow}{1}%%\n\
     \\StrSubstitute{#3}{,}{.}[\\resects]%%\n\
     \\StrSubstitute{#4}{,}{.}[\\res]%%\n\
@@ -977,6 +977,64 @@ let () = fprintf logger
     %%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
 Tools.valide_sans_note Tools.valide_sans_note_en
         in
+      let () =   fprintf logger
+          "\\newcommand{\\coursscofr}[4][]{%%\n\
+          \\addtocounter{nrow}{1}%%\n\
+          \\StrSubstitute{#3}{,}{.}[\\resects]%%\n\
+          \\StrSubstitute{#4}{,}{.}[\\res]%%\n\
+          \\myifdecimal{#4}%%\n\
+          {%%\n\
+          \\IfStrEq{#1}{unvalidated}%%\n\
+          {\\setcounter{cects}{0}}%%\n\
+          {\\setcounter{cects}{\\fpeval{\\resects*\\factor}}}%%\n\
+          }%%\n\
+          %%\n\
+          %%\n\ {" in
+          let () =
+              List.iter (fun x ->
+              if Public_data.valide_string  x
+              then fprintf logger
+             "\\IfStrEq{#3}{%s}%%\n\ {\\setcounter{vectsc}{\\fpeval{\\resects*\\factor}}}%%\n\
+              {" x) Public_data.all_notes_string
+          in
+          let () =
+            match Public_data.all_notes_string with
+                | [] -> ()
+                | _::_ -> fprintf
+                            logger "\\setcounter{vectsc}{0}%%\n\ "
+          in
+          let () =
+              List.iter (fun x ->
+              if Public_data.valide_string  x
+              then fprintf logger
+             "}") Public_data.all_notes_string
+          in
+          let () = fprintf logger "}%%\n\ " in
+          let () = fprintf logger
+          "{\\setcounter{pectsa}{0}}%%\n\
+           %%\n\
+           {\\setcounter{pectsb}{0}}%%\n\
+            %%\n\
+           {\\setcounter{pectsc}{0}}%%\n\
+            {\\setcounter{pectsd}{0}}%%\n\
+             %%\n\
+           \\IfStrEq{#4}{%s}%%\n\
+          {\\setcounter{vectsa}{\\fpeval{\\resects*\\factor}}}%%\n\
+           {\\setcounter{vectsa}{0}}%%\n\
+            %%\n\
+            \\IfStrEq{#4}{%s}%%\n\
+           {\\setcounter{vectsb}{\\fpeval{\\resects*\\factor}}}%%\n\
+            {\\setcounter{vectsb}{0}}%%\n\
+             %%\n\
+          \\addtocounter{total}{\\fpeval{\\thecects*\\thecnote}}%%\n\
+          \\addtocounter{ects}{\\fpeval{\\thecects*\\factor}}%%\n\
+          %%\n\
+          \\addtocounter{vsnects}{\\fpeval{\\thevectsc*\\factor+\\thevectsa*\\factor+\\thevectsb*\\factor}}%%\n\
+           %%\n\       #2 & #3 &  \\IfStrEq{#4}{%s}{sans note}{\\IfStrEq{#4}{%s}{not graded}{\\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{grey}{\\mynumprint{#4}}}{\\mynumprint{#4}}}}}  \\cr%%\n\
+          }%%\n\
+          %%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
+        Tools.valide_sans_note Tools.valide_sans_note_en
+              in
 
     ()
   | Json | TXT | CSV | XLS | Latex_encapsulated | HTML_encapsulated -> ()
