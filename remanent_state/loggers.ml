@@ -636,6 +636,11 @@ let close_logger logger =
     | Json | TXT | CSV | XLS | HTML_encapsulated | Latex_encapsulated -> ()
   in
   let () = flush_logger logger in
+  let () =
+    match logger.channel_opt with
+      | Some c -> close_out c
+      | None -> ()
+  in
   ()
 
 let print_preamble
