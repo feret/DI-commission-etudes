@@ -5094,13 +5094,22 @@ let foot signature state  =
         ~cost_member
         ~dpt
             signature state  =
-        let () =
-            Remanent_state.fprintf state
+        let english =
+            Format.sprintf
               "{\\noindent}I, \\textcolor{bluesco}{%s %s %s}, %s in \\textcolor{bluesco}{%s}, Head of Studies of the Department of \\textcolor{bluesco}{%s}, hereby certify that the translation of the transcripts obtained by \\textcolor{bluesco}{{\\gender} {\\firstname} {\\lastname}} is true to the original.\n\n\ "
               head_gender head_firstname head_lastname head_jobtitle
               dpt dpt
         in
-        let () =
+        let french = "" in
+        let state, s =
+          Remanent_state.bilingual_string
+            ~english
+            ~french state
+        in
+        let () = Remanent_state.fprintf state "%s" s in
+        let state =
+          match Remanent_state.get_language state with
+            | state, Public_data.English  -> let () =
           Remanent_state.fprintf
             state
             "{\\noindent}\\textcolor{bluesco}{\\today}\\\\%%\n\ "
@@ -5135,6 +5144,7 @@ let foot signature state  =
           Remanent_state.fprintf
             state
             "\\end{center}%%\n\ \\vspace*{-1cm}%%\n\ "
+        in state | state, Public_data.French -> state 
         in
         let state,title  =
             Remanent_state.bilingual_string
