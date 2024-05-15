@@ -132,8 +132,10 @@ let dump m =
         Public_data.FirstNameMap.iter
           (fun y map ->
               Public_data.PromoMap.iter
-                (fun z _ ->
-                    Format.printf "%s %s (%s) (PEGASUS CONTENT) @." x y z)
+                (fun z l ->
+                    List.iter (fun asso  -> let c = asso.Public_data.pegasus_birth_country_fr in
+                    let v = asso.Public_data.pegasus_birth_city_fr in
+                    Format.printf "%s %s (%s) %s %s (PEGASUS CONTENT) @." x y z v c ) l)
                 map
           ) map
       ) m.per_name
