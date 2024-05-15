@@ -5093,7 +5093,7 @@ let foot signature state  =
         ~head_jobtitle
         ~cost_member
         ~dpt
-            signature state  =
+            language signature state  =
         let english =
             Format.sprintf
               "{\\noindent}I, \\textcolor{bluesco}{%s %s %s}, %s in \\textcolor{bluesco}{%s}, Head of Studies of the Department of \\textcolor{bluesco}{%s}, hereby certify that the translation of the transcripts obtained by \\textcolor{bluesco}{{\\gender} {\\firstname} {\\lastname}} is true to the original.\n\n\ "
@@ -5108,8 +5108,8 @@ let foot signature state  =
         in
         let () = Remanent_state.fprintf state "%s" s in
         let state =
-          match Remanent_state.get_language state with
-            | state, Public_data.English  -> let () =
+          match language with
+            | Public_data.English  -> let () =
           Remanent_state.fprintf
             state
             "{\\noindent}\\textcolor{bluesco}{\\today}\\\\%%\n\ "
@@ -5144,7 +5144,7 @@ let foot signature state  =
           Remanent_state.fprintf
             state
             "\\end{center}%%\n\ \\vspace*{-1cm}%%\n\ "
-        in state | state, Public_data.French -> state
+        in state | Public_data.French -> state
         in
         let state,title  =
             Remanent_state.bilingual_string
@@ -6440,7 +6440,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
   let program_sco
       ~year ~alloc_suffix  ~cours_list ~stage_list ~firstname ~lastname ~promo
       ~size ~stages
-       ~unvalidated_map
+       ~unvalidated_map ~language
       (list:(cours) list) state =
     let (size_fr, size_en) = size in
     let state, key, b =
@@ -6467,9 +6467,9 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
     let align_en = [None;Some 'c';Some 'c';Some 'c';Some 'c'] in
     let align_fr = [None;Some 'c';Some 'c'] in
     let state,size,bgcolor,align,macro=
-      match Remanent_state.get_language state with
-        | state, Public_data.French -> state, size_fr, bgcolor_fr, align_fr,   "coursscofr"
-        | state, Public_data.English -> state, size_en, bgcolor_en, align_en, "coursscoen"
+      match language with
+        | Public_data.French -> state, size_fr, bgcolor_fr, align_fr,   "coursscofr"
+        | Public_data.English -> state, size_en, bgcolor_en, align_en, "coursscoen"
     in
     let () =
       Remanent_state.fprintf state
@@ -9298,7 +9298,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                                  ~alloc_suffix  ~cours_list ~stage_list
                                  ~firstname ~lastname ~promo  ~size
                                  ~stages
-                                 ~unvalidated_map:unvalidated
+                                 ~unvalidated_map:unvalidated ~language
                                   split_cours state
                              in
                              let state,s  =
@@ -9317,7 +9317,7 @@ Remanent_state.bilingual_string
                                   ~head_jobtitle:"research fellow"
 
                                   ~dpt:"Computer Sciences"
-                                  signature state
+                                  language signature state
                              in
                              (*let () =
                                Remanent_state.fprintf
