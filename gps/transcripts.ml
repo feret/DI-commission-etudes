@@ -6466,10 +6466,13 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
     let bgcolor_fr = [None;None;None] in
     let align_en = [None;Some 'c';Some 'c';Some 'c';Some 'c'] in
     let align_fr = [None;Some 'c';Some 'c'] in
-    let state,size,bgcolor,align,macro=
+    let title_fr = [["\\textbf{Nom du cours}"];["\\textbf{ECTS}"];["\\textbf{Note sur 20}"]] in
+    let title_en = [["\\textbf{Course title}"];["\\textbf{Credits awarded}"];["\\textbf{Grade out of 20}"];
+                    ["\\textbf{Letter grade}"];["\\textbf{GPA}"]] in
+    let state,size,bgcolor,align,macro,title =
       match language with
-        | Public_data.French -> state, size_fr, bgcolor_fr, align_fr,   "coursscofr"
-        | Public_data.English -> state, size_en, bgcolor_en, align_en, "coursscoen"
+        | Public_data.French -> state, size_fr, bgcolor_fr, align_fr,   "coursscofr", title_fr
+        | Public_data.English -> state, size_en, bgcolor_en, align_en, "coursscoen", title_en
     in
     let () =
       Remanent_state.fprintf state
@@ -6485,9 +6488,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
         ~bgcolor
         ~size
         ~with_lines:true
-        ~title:[["\\textbf{Nom du cours}"];["\\textbf{ECTS}"];["\\textbf{Note sur 20}"]]
-        ~title_english:[["\\textbf{Course title}"];["\\textbf{Credits awarded}"];["\\textbf{Grade out of 20}"];
-                        ["\\textbf{Letter grade}"];["\\textbf{GPA}"]]
+        ~title
         state
     in
     (*let list = Tools.sort fetch p list in*)
@@ -9315,7 +9316,6 @@ Remanent_state.bilingual_string
                                   ~head_firstname:"Jérôme"
                                   ~head_lastname:"FERET"
                                   ~head_jobtitle:"research fellow"
-
                                   ~dpt:"Computer Sciences"
                                   language signature state
                              in
