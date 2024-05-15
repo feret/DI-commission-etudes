@@ -2150,12 +2150,19 @@ let get_gen pos fetch
       ~year  t =
   let firstname = simplify firstname in
   let lastname = simplify lastname in
-  let t,l = Collector_administrative_status.find_opt
+  let t,l = Collector_administrative_status.find_list
                     ~firstname ~lastname ~year t in
         match l with
-            | None -> warn pos
+            | [] -> warn pos
     (Format.sprintf "Student not found/or multiple students found in Pegasus (%s/%s/%s)" firstname lastname year) Exit t, None
-            | Some a -> t, Some (fetch a)
+            | h::q ->
+    let rep = fetch h in
+    if List.for_all (fun elt -> fetch elt = rep) q
+    then t, Some rep
+    else
+    warn pos
+      (Format.sprintf "Student not found/or multiple students found in Pegasus (%s/%s/%s)" firstname lastname year) Exit t, None
+
 let get_origine = get_gen __POS__ (fun a -> a.Public_data.pegasus_origin)
 let get_gender = get_gen __POS__ (fun a -> a.Public_data.pegasus_gender)
 let get_birth_date = get_gen __POS__ (fun a -> a.Public_data.pegasus_birthdate)
