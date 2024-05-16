@@ -1,22 +1,20 @@
 let get_csv file state =
-  let () = Format.printf "GET CSV: %s @ " file in
   let ext = Tools.extension file in
-  let () = Format.printf "Extension: %s @ " ext in
   match ext with
     | "xlsx" -> state, Some (Xls_support.open_xlsx file)
     | "xls" ->
         begin
             let state, log_repository =
                   Remanent_state.get_file_retriever_log_repository state
-              in
+            in
             let command = Format.sprintf "libreoffice --invisible --convert-to xlsx %s --outdir %s" file log_repository
-        in
-        let state = Safe_sys.command __POS__ state command in
-        let _,basename = Tools.split_rep_filename file in
-        let file = Format.sprintf "%s/%sx" log_repository basename in
-        let output = Some (Xls_support.open_xlsx file) in
-      (*  let state = Safe_sys.rm __POS__ state file in*)
-        state, output
+            in
+            let state = Safe_sys.command __POS__ state command in
+            let _,basename = Tools.split_rep_filename file in
+            let file = Format.sprintf "%s/%sx" log_repository basename in
+            let output = Some (Xls_support.open_xlsx file) in
+            let state = Safe_sys.rm __POS__ state file in
+            state, output
         end
     | _ -> state, None
 
