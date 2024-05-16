@@ -1,5 +1,5 @@
 let get_csv file state =
-  let () = Format.printf "GET CSV: %s @ " file in 
+  let () = Format.printf "GET CSV: %s @ " file in
   let ext = Tools.extension file in
   let () = Format.printf "Extension: %s @ " ext in
   match ext with
@@ -13,7 +13,7 @@ let get_csv file state =
         in
         let state = Safe_sys.command __POS__ state command in
         let _,basename = Tools.split_rep_filename file in
-        let file = Format.sprintf "%s/%s.xlsx" log_repository basename in
+        let file = Format.sprintf "%s/%sx" log_repository basename in
         let output = Some (Xls_support.open_xlsx file) in
       (*  let state = Safe_sys.rm __POS__ state file in*)
         state, output
