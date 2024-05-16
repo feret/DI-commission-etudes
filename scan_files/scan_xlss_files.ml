@@ -13,8 +13,8 @@ let get_csv file state =
         let _,basename = Tools.split_rep_filename file in
         let file = Format.sprintf "%s/%s.xlsx" log_repository basename in
         let output = Some (Xls_support.open_xlsx file) in
-        let state = Safe_sys.rm __POS__ state file in
-        state, output
+      (*  let state = Safe_sys.rm __POS__ state file in
+        state, output*)
         end
     | _ -> state, None
 
