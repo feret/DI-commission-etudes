@@ -11,12 +11,12 @@ let get_csv file state =
         in
         let state = Safe_sys.command __POS__ state command in
         let _,basename = Tools.split_rep_filename file in
-        let file = Format.sprintf "%s/%s" log_repository basename in
+        let file = Format.sprintf "%s/%s.xlsx" log_repository basename in
         let output = Some (Xls_support.open_xlsx file) in
         let state = Safe_sys.rm __POS__ state file in
         state, output
         end
-    | _ -> state, None 
+    | _ -> state, None
 
 
 let get_list_from_a_file
