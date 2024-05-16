@@ -171,7 +171,7 @@ let get
                     let state = Remanent_state.open_event_opt event state in
                     let _ =
                       Format.printf
-                        "Scanning file : %s %s @." (fst file) (snd file)
+                        "Scanning file: %s %s @." (fst file) (snd file)
                     in
                     let _ =
                       Format.print_newline ()
@@ -186,9 +186,14 @@ let get
                       else
                         Printf.sprintf "%s/%s" (fst file) (snd file)
                     in
-                    let csv =
-                       Xls_support.open_xlsx file
+                    let state,csv_opt =
+                       Scan_xlss_files.get_csv file state
                     in
+                    let csv =
+                        match csv_opt with
+                          | None -> []
+                          | Some l -> l
+                    in 
                     let rec scan list entry (state:Remanent_state.t) =
                       match list with
                           | [] -> state

@@ -1,3 +1,6 @@
+val get_csv: string ->
+          Remanent_state.t -> Remanent_state.t * string list list option
+
 val get_list_from_a_file:
   strict:bool ->
   'a Keywords_handler.preprocessed  ->
@@ -34,7 +37,7 @@ val get_list:
 
 val collect_gen :
   ?debug:bool ->
-  strict:bool -> 
+  strict:bool ->
   ?repository:string ->
   ?prefix:string ->
   ?file_name:string ->
