@@ -280,7 +280,7 @@ let get_list
            let state = Remanent_state.open_event_opt event state in
            let _ =
              Format.printf
-               "Scanning file : %s %s @." (fst file) (snd file)
+               "Scanning file: %s %s @." (fst file) (snd file)
            in
            let _ =
              Format.print_newline ()

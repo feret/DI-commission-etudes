@@ -1,4 +1,5 @@
 let get_csv file state =
+  let () = Format.printf "GET CSV: %s @ " file in 
   let ext = Tools.extension file in
   let () = Format.printf "Extension: %s @ " ext in
   match ext with
@@ -66,7 +67,7 @@ let get_list ?debug ~strict
            let state = Remanent_state.open_event_opt event state in
            let _ =
              Format.printf
-               "Scanning file : %s %s @." (fst file) (snd file)
+               "Scanning file: %s %s @." (fst file) (snd file)
            in
            let _ =
              Format.print_newline ()
