@@ -133,10 +133,16 @@ let unify pos state a b  =
   else
     state, b
 
-    let update_note _titre nom prenom _id
+
+let update_note _titre nom prenom _id
     _ref_externe note entry state  =
         let state, entry = convert {entry with note = Some note ; firstname = Some prenom ; lastname = Some nom } state
         in
+        let () = Format.printf "%s %s %s %s"
+        (entry.Public_data.pegasus_note_firstname)
+        (entry.Public_data.pegasus_note_lastname)
+        (entry.Public_data.pegasus_note_produit)
+        (Tools.unsome_string entry.Public_data.pegasus_note) in
         Remanent_state.Collector_pegasus_notes.add unify __POS__ entry state
 
 
@@ -193,7 +199,7 @@ let get
                         match csv_opt with
                           | None -> []
                           | Some l -> l
-                    in 
+                    in
                     let rec scan list entry (state:Remanent_state.t) =
                       match list with
                           | [] -> state
