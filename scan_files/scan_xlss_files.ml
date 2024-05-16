@@ -1,5 +1,6 @@
 let get_csv file state =
   let ext = Tools.extension file in
+  let () = Format.printf "Extension: %s @ " ext in
   match ext with
     | "xlsx" -> state, Some (Xls_support.open_xlsx file)
     | "xls" ->
