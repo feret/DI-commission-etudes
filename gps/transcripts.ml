@@ -1,3 +1,10 @@
+let int_of_string pos s =
+  try int_of_string s with
+    | error ->
+    let (a,b,c,d) = pos in
+    let () = Format.printf "%s %i %i %i -> %s @." a b c d s in
+    raise error
+
 module StringOptMap =
   Map_tools.MakeSimplified
     (
@@ -166,7 +173,7 @@ let gen_year f pos msg state a_opt b_opt =
     try
       state,
       Some (string_of_int
-              (f (int_of_string a) (int_of_string b)))
+              (f (int_of_string __POS__ a) (int_of_string __POS__ b)))
     with
     | _ ->
       Remanent_state.warn
@@ -910,7 +917,7 @@ let _get a b c =
       [d;m;y] ->
       begin
         try
-          let d,m,y = int_of_string d,int_of_string m,int_of_string y in
+          let d,m,y = int_of_string __POS__ d,int_of_string __POS__ m,int_of_string __POS__ y in
           state,
           Some {jour=d;mois=m;an=y}
         with
@@ -942,7 +949,7 @@ let _get a b c =
 
 let filter_stage_year year state stages =
   try
-    let year = int_of_string year in
+    let year = int_of_string __POS__ year in
     state, List.filter
       (fun stage ->
          match stage.date_debut with
@@ -1542,7 +1549,7 @@ let add_extra_course state cours_a_ajouter gps_file =
       contrat = None ;
       accord = Some true ;
       note =
-        if int_of_string (cours_a_ajouter.Public_data.coursaj_annee) > 2022
+        if int_of_string __POS__ (cours_a_ajouter.Public_data.coursaj_annee) > 2022
         then Some Public_data.En_cours
         else
         (match cours_a_ajouter.Public_data.coursaj_note
@@ -2610,7 +2617,7 @@ Tools.substring x (match cours.code_cours with None -> "" | Some x -> x)&& cours
     end
 
 let code_mandatory_course_DI_maths year code_cours =
-  let i = int_of_string year in
+  let i = int_of_string __POS__ year in
   if i <= 2015 then code_cours = "INFO-L3-MIIMC-S2"
     else if i <= 2018 then code_cours = "INFO-L3-THEOIC-S2"
     else if i <= 2021 then code_cours = "INFO-L3-APPREN-S2"
@@ -2790,7 +2797,7 @@ let gen_master
   List.exists
     (fun diplome ->
        (match (Tools.map_opt String.trim diplome.niveau) with Some i ->
-int_of_string i >=2 | None -> false)
+int_of_string __POS__ i >=2 | None -> false)
        &&
        ((Tools.map_opt String.trim diplome.diplome_diplome)=Some diplome'
        ||
@@ -2809,7 +2816,7 @@ int_of_string i >=2 | None -> false)
       List.exists
         (fun diplome ->
            (match (Tools.map_opt String.trim diplome.niveau) with Some i ->
-    int_of_string i =1 | None -> false)
+    int_of_string __POS__ i =1 | None -> false)
            &&
            ((Tools.map_opt String.trim diplome.diplome_diplome)=Some diplome'
            ||
@@ -3405,7 +3412,7 @@ let translate_diplome
       x x x code_cours year
       situation false
   | None ->
-    if (int_of_string year) > 2022
+    if (int_of_string __POS__ year) > 2022
     then dispatch ~firstname ~lastname  check_dpt origine situation code_cours year state
     else
     let state, (_,b,b_en,c,c_en,d,is_m2) =
@@ -3600,7 +3607,7 @@ let get_concours_en origin state =
 
 let next_year i =
   try
-    Some (string_of_int (1+int_of_string i))
+    Some (string_of_int (1+int_of_string __POS__ i))
   with
   | _ -> None
 
@@ -3741,7 +3748,7 @@ let add_mean_ok is_m2 state key course course_list year map dens =
     | Some a -> a
   in
   let year_int =
-    try int_of_string year with _ -> 0
+    try int_of_string __POS__ year with _ -> 0
   in
   let map =
     StringOptMap.add key
@@ -4132,7 +4139,7 @@ let heading
     | None | Some false ->
       let state, annee_int =
         try
-          state, int_of_string year
+          state, int_of_string __POS__ year
         with
           | _ ->
             let msg =
@@ -4435,7 +4442,7 @@ let lmath = lmath ~year ~firstname ~lastname situation state in
             else
               let state, (string,string_en) =
               match situation.departement_principal with
-                | None when annee_int<int_of_string promo -> state, ("", "")
+                | None when annee_int<int_of_string __POS__ promo -> state, ("", "")
                 | None | Some _ ->
                 translate_dpt ~firstname ~lastname ~year:annee_int state
                   situation.departement_principal
@@ -4601,14 +4608,14 @@ let lmath = lmath ~year ~firstname ~lastname situation state in
                       match debut with
                       | None -> false
                       | Some debut ->
-                        int_of_string debut <=
-                        int_of_string year
+                        int_of_string __POS__ debut <=
+                        int_of_string __POS__ year
                     end
                     &&
                     match fin with
                     | None -> false
                     | Some fin ->
-                      int_of_string year <= int_of_string
+                      int_of_string __POS__ year <= int_of_string __POS__
                         fin
                     && year >= promo
                   then
@@ -5019,7 +5026,7 @@ let lmath = lmath ~year ~firstname ~lastname situation state in
     let () =
       Remanent_state.fprintf state
         "\\renewcommand{\\academicyear}{%s}%%\n"
-        (let i = int_of_string  year in (Format.sprintf "%i-%i" i (i+1)))
+        (let i = int_of_string __POS__  year in (Format.sprintf "%i-%i" i (i+1)))
     in
     let () =
       Remanent_state.log_string state ~english:"\\begin{center}\\LARGE\\textbf{Transcript of academic record}\\medskip\\end{center}"
@@ -5331,7 +5338,7 @@ let program
         moyenne_opt
         mention_opt
         validated_opt
-        (try int_of_string year with _ -> 0)
+        (try int_of_string __POS__ year with _ -> 0)
         mean
 
   in
@@ -5601,7 +5608,7 @@ let program
           string_of_stringopt cours.code_cours
         in
           let state =
-          if int_of_string year < int_of_string promo
+          if int_of_string __POS__ year < int_of_string __POS__ promo
           then
           let dpt = fetch_code (is_m2,dpt_en,diplome,diplome_en,cours) in
           let dpt_indice =
@@ -6845,7 +6852,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
       List.fold_left
         (fun (state, gps_file) course ->
           let code = String.trim (course.Public_data.pe_code_helisa) in
-          let () = Format.printf "ADD PEGASUS ENTRIES %s %s %s @." firstname lastname code in  
+          let () = Format.printf "ADD PEGASUS %s %s %s @." firstname lastname code in
           match kind code with
           | Inscription ->
             begin
@@ -7185,7 +7192,7 @@ let export_transcript
     let promo = promo in
       let state, promo_int =
       try
-        state, int_of_string promo
+        state, int_of_string __POS__ promo
       with
         _ ->
         Remanent_state.warn
@@ -7221,7 +7228,7 @@ let export_transcript
            if keep_bilan a then
            let state, y_int =
              try
-               state, int_of_string year
+               state, int_of_string __POS__ year
              with
                _ ->
                Remanent_state.warn
@@ -7324,7 +7331,7 @@ let export_transcript
                with
                | None ->
                  begin
-                   try int_of_string y<=2015
+                   try int_of_string __POS__ y<=2015
                    with _ -> false
                  end
                  ||
@@ -7354,7 +7361,7 @@ let export_transcript
 )
     ||
 
-                    (int_of_string y>=2022 && ssit = "etalement : conge sur l'annee")
+                    (int_of_string __POS__ y>=2022 && ssit = "etalement : conge sur l'annee")
                     &&
                     not
                       (List.exists
