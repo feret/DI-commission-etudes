@@ -1,8 +1,10 @@
 let int_of_string pos s =
-  try int_of_string s with
+  if s = "" then 2023
+  else
+    try int_of_string s with
     | error ->
     let (a,b,c,d) = pos in
-    let () = Format.printf "%s %i %i %i -> %s @." a b c d s in
+    let () = Format.printf "%s %i %i %i -> (%s) @." a b c d s in
     raise error
 
 module StringOptMap =
