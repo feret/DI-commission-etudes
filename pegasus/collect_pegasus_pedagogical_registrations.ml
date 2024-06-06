@@ -66,6 +66,8 @@ let fetch_name l =
 let update_student bloc entry state =
     let () = Format.printf "UPDATE STUDENT %s @." bloc in
     let l = String.split_on_char ' ' bloc in
+    let l = List.rev_map (String.split_on_char '\n') (List.rev l) in
+    let l = List.flatten l in 
     let rec aux l entry =
           match l with
           | "Student:"::t ->
@@ -246,7 +248,7 @@ let get_pegasus_pedagogical_registrations
                         Printf.sprintf "%s/%s" (fst file) (snd file)
                     in
                     let state, csv_opt =
-                        Scan_xlss_files.get_csv file state 
+                        Scan_xlss_files.get_csv file state
                     in
                     let csv =
                         match csv_opt with
