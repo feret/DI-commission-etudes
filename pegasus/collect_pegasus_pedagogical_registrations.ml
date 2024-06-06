@@ -64,6 +64,7 @@ let fetch_name l =
   tail, lastname, firstname
 
 let update_student bloc entry state =
+    let () = Format.printf "UPDATE STUDENT %s @." bloc in
     let l = String.split_on_char ' ' bloc in
     let rec aux l entry =
           match l with
@@ -83,11 +84,13 @@ let update_student bloc entry state =
     entry, state
 
 let update_year year entry state =
+  let () = Format.printf "UPDATE YEAR %s @." year in
   let l = String.split_on_char ' ' year in
   match l with "Academic"::"year"::y::_ -> {entry with year = Some y}, state
       | _ -> entry, state
 
 let add unify pos c state =
+   let () = Format.printf "UPDATE ADD @." in
    Remanent_state.Collector_pedagogical_registrations.add unify pos c state
 
 let convert entry state =
@@ -114,6 +117,7 @@ let convert entry state =
 
 
 let update_diploma diploma entry (state:Remanent_state.t) =
+  let () = Format.printf "UPDATE DIPLOMA %s @." diploma in
   let code, libelle =
     let l = String.split_on_char ' ' diploma in
     match l with
@@ -148,6 +152,7 @@ let get_teachers entry =
 
 
 let update_course course ects entry (state:Remanent_state.t) =
+  let () = Format.printf "UPDATE COURSE %s %s @." course ects in
     let codehelisa, libelle =
        let l = String.split_on_char ' ' course in
        match l with
