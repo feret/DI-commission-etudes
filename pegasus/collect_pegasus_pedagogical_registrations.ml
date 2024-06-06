@@ -67,7 +67,8 @@ let update_student bloc entry state =
     let () = Format.printf "UPDATE STUDENT %s @." bloc in
     let l = String.split_on_char ' ' bloc in
     let l = List.rev_map (String.split_on_char '\n') (List.rev l) in
-    let l = List.flatten l in 
+    let l = List.flatten l in
+    let () = List.iter (Format.printf "ENTRY %s @.") l in 
     let rec aux l entry =
           match l with
           | "Student:"::t ->

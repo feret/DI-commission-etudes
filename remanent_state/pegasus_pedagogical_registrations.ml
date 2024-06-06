@@ -28,12 +28,12 @@ let get_pegasus_pedagocial_registrations ~firstname ~lastname  dens_candidates =
     | None -> []
     | Some a -> a
   in
-  let () = Format.printf "PEGASUS FIND LIST %s %s %i @." firstname lastname (List.length l) in 
+  let () = Format.printf "PEGASUS FIND LIST %s %s %i @." firstname lastname (List.length l) in
   l
 
 
   let dump m =
-    let () = Format.printf "DUMP PEGASUS CONTENT @." in Public_data.LastNameMap.iter
+    let () = Format.printf "DUMP PEGASUS PEDAGOGICAL REG @." in Public_data.LastNameMap.iter
         (fun x map ->
             Public_data.FirstNameMap.iter
                 (fun y map ->
