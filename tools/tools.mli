@@ -147,3 +147,5 @@ val date_to_string_en:
   string -> string
 
 val translate_et: string -> string
+
+val split_on_backslash_n: string -> string list 

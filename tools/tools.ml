@@ -714,3 +714,21 @@ let translate_et a =
             (List.rev l)
   in
   String.concat " " l
+
+let split_on_backslash_n s =
+  let n = String.length s in
+  let rec aux d k state acc =
+      let e = d+k-1 in
+      if e >= n then
+         (d,k-1)::acc
+      else
+        let c = Char.code (String.get s e) in
+        match c with
+          | 92 -> aux d (k+1) true acc
+          | 110 when state -> aux (e+1) 0 false ((d,k-2)::acc)
+          | _ -> aux d (k+1) false acc
+  in
+  let l = aux 0 1 false [] in
+  List.fold_left
+      (fun acc (d,k) -> (String.sub s d k )::acc)
+      [] l
