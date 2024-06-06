@@ -6845,6 +6845,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
       List.fold_left
         (fun (state, gps_file) course ->
           let code = String.trim (course.Public_data.pe_code_helisa) in
+          let () = Format.printf "%s %s %s @." firstname lastname code in  
           match kind code with
           | Inscription ->
             begin
