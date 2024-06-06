@@ -246,8 +246,9 @@ let get_pegasus_pedagogical_registrations
                         Printf.sprintf "%s/%s" (fst file) (snd file)
                     in
                     let csv =
-                       Xls_support.open_xlsx file
+                        Scan_xlss_files.get_csv file
                     in
+                    let () = Format.printf "CSV %s %i@." file (List.length csv) in
                     let rec scan list entry (state:Remanent_state.t) =
                       match list with
                           | [] -> state
