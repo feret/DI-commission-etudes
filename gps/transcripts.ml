@@ -6863,7 +6863,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
       List.fold_left
         (fun (state, gps_file) course ->
           let code = String.trim (course.Public_data.pe_code_helisa) in
-          let () = Format.printf "ADD PEGASUS %s %s %s @." firstname lastname code in
+          let () = Format.printf "ADD PEGASUS %s %s %s YEAR(%s)@." firstname lastname code course.Publuc_data.pe_year in
           match kind code with
           | Inscription ->
             begin
