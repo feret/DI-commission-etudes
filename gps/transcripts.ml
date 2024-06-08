@@ -1,11 +1,14 @@
-let int_of_string pos s =
-  if s = "" then 2023
+let safe_int_of_string pos s =
+  if s = "" then
+    let () = Format.printf "%s %i %i %i -> (%s) @." a b c d s in 2023
   else
     try int_of_string s with
     | error ->
     let (a,b,c,d) = pos in
     let () = Format.printf "%s %i %i %i -> (%s) @." a b c d s in
     raise error
+
+let int_of_string _ s = int_of_string s
 
 module StringOptMap =
   Map_tools.MakeSimplified
