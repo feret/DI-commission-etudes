@@ -1,7 +1,7 @@
 let safe_int_of_string pos s =
   if s = "" then
   let (a,b,c,d) = pos in
-    let () = Format.printf "%s %i %i %i -> (%s) @." a b c d s in 2023
+    let () = Format.printf "SAFE_INT_OF_STRING %s %i %i %i -> (%s) @." a b c d s in 2023
   else
     try int_of_string s with
     | error ->
@@ -2841,6 +2841,7 @@ let fill_gpscodelist ~year ~firstname ~lastname list situation state =
   if lmathphys situation then
     state, List.rev ("gps1672"::"gps3017"::(List.rev list))
   else
+  let _ = safe_int_of_string __POS__ year in
   let lmath = lmath ~year ~firstname ~lastname situation state in
   if lmath && linfo situation then
     state, List.rev ("gps2291"::"gps2274"::(List.rev list))
@@ -3111,6 +3112,7 @@ else
 
 let dispatch_l ~firstname ~lastname check_dpt  origine situation code_cours year state =
   begin
+    let _ = safe_int_of_string __POS__ year in
     let lmath = lmath ~year ~firstname ~lastname situation state in
     let is_m2 = false in
     if lpoly situation
@@ -4259,7 +4261,8 @@ let heading
           in
           let state, suffix_fr, suffix_en, nationaux_opt, nationaux_en_opt
             =
-let lmath = lmath ~year ~firstname ~lastname situation state in
+            let _ = safe_int_of_string __POS__ year in
+            let lmath = lmath ~year ~firstname ~lastname situation state in
             if
               lmath
               &&
@@ -4480,7 +4483,8 @@ let lmath = lmath ~year ~firstname ~lastname situation state in
         | Some _ -> state, ["Diplôme de l'ENS"], ["ENS diploma"]
         | _ ->
           let state, cursus_opt =
-let lmath = lmath ~year ~firstname ~lastname situation state in
+            let _ = safe_int_of_string __POS__ year in
+            let lmath = lmath ~year ~firstname ~lastname situation state in
             if lmath
             || lmathphys situation
             then
@@ -8463,6 +8467,7 @@ let export_transcript
                                match fst key with
                                 | None -> state, ""
                                 | Some "l" ->
+                                  let _ = safe_int_of_string __POS__ year in
                                   let lmath = lmath ~year ~firstname ~lastname situation state in
                                   if
                                     lmath  && linfo situation
