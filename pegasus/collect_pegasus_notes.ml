@@ -155,11 +155,12 @@ let update_note _titre nom prenom _id
     _ref_externe note entry state  =
         let state, entry = convert {entry with note = Some note ; firstname = Some prenom ; lastname = Some nom } state
         in
-        let () = Format.printf "%s %s %s %s @ "
+        let () = Format.printf "UPDATE NOTE %s %s %s %s %s @. "
         (entry.Public_data.pegasus_note_firstname)
         (entry.Public_data.pegasus_note_lastname)
         (entry.Public_data.pegasus_note_code_helisa)
-        (Tools.unsome_string entry.Public_data.pegasus_note) in
+        (Tools.unsome_string entry.Public_data.pegasus_note)
+        entry.Public_data.pegasus_note_annee in
         Remanent_state.Collector_pegasus_notes.add unify __POS__ entry state
 
 
