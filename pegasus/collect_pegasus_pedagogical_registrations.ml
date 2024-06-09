@@ -66,7 +66,7 @@ let fetch_name l =
 let update_student bloc entry state =
     let () = Format.printf "UPDATE STUDENT %s @." bloc in
     let l = String.split_on_char ' ' bloc in
-    let l = List.rev_map (String.split_on_char '\n') l in
+    let l = List.rev_map (String.split_on_char '\n') (List.rev l) in
     let l = List.flatten l in
   (*  let l = List.rev_map (Tools.split_on_backslash_n) l in
     let l = List.flatten l in*)
@@ -93,7 +93,7 @@ let update_student bloc entry state =
 let update_year year entry state =
   let () = Format.printf "UPDATE YEAR -%s- @." year in
   let l = String.split_on_char ' ' year in
-  let l = List.filter (fun x -> x<>"") l in 
+  let l = List.filter (fun x -> x<>"") l in
   match l with "Academic"::"year"::y::_ ->
   let () = Format.printf "UPDATE YEAR %s -> %s @." year y
   in  {entry with year = Some y}, state
