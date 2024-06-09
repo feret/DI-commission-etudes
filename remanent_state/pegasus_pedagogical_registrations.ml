@@ -28,7 +28,6 @@ let get_pegasus_pedagocial_registrations ~firstname ~lastname  dens_candidates =
     | None -> []
     | Some a -> a
   in
-  let () = Format.printf "PEGASUS FIND LIST %s %s %i @." firstname lastname (List.length l) in
   l
 
 

@@ -64,15 +64,9 @@ let fetch_name l =
   tail, lastname, firstname
 
 let update_student bloc entry state =
-    let () = Format.printf "UPDATE STUDENT %s @." bloc in
     let l = String.split_on_char ' ' bloc in
     let l = List.rev_map (String.split_on_char '\n') (List.rev l) in
     let l = List.flatten l in
-  (*  let l = List.rev_map (Tools.split_on_backslash_n) l in
-    let l = List.flatten l in*)
-    let () = List.iter (fun s -> Format.printf "ENTRY %s @." s;
-                String.iter (fun c -> Format.printf "%i," (Char.code c)) s;
-                Format.printf "@.") l in
     let rec aux l entry =
           match l with
           | "Student:"::t ->
@@ -91,17 +85,13 @@ let update_student bloc entry state =
     entry, state
 
 let update_year year entry state =
-  let () = Format.printf "UPDATE YEAR -%s- @." year in
   let l = String.split_on_char ' ' year in
   let l = List.filter (fun x -> x<>"") l in
-  match l with "Academic"::"year"::y::_ ->
-  let () = Format.printf "UPDATE YEAR %s -> %s @." year y
-  in  {entry with year = Some y}, state
+  match l with "Academic"::"year"::y::_ -> {entry with year = Some y}, state
       | _ -> entry, state
 
 
 let add unify pos c state =
-   let () = Format.printf "UPDATE ADD PEDAGOGICAL REGISTRATION %s %s %s (%s) @." c.Public_data.pe_lastname c.Public_data.pe_firstname c.Public_data.pe_libelle c.Public_data.pe_year   in
    Remanent_state.Collector_pedagogical_registrations.add unify pos c state
 
 let convert entry state =
@@ -128,7 +118,6 @@ let convert entry state =
 
 
 let update_diploma diploma entry (state:Remanent_state.t) =
-  let () = Format.printf "UPDATE DIPLOMA %s @." diploma in
   let code, libelle =
     let l = String.split_on_char ' ' diploma in
     match l with
@@ -163,7 +152,6 @@ let get_teachers entry =
 
 
 let update_course course ects entry (state:Remanent_state.t) =
-  let () = Format.printf "UPDATE COURSE %s %s @." course ects in
     let codehelisa, libelle =
        let l = String.split_on_char ' ' course in
        match l with
@@ -264,7 +252,6 @@ let get_pegasus_pedagogical_registrations
                           | None -> []
                           | Some l -> l
                     in
-                    let () = Format.printf "CSV %s %i@." file (List.length csv) in
                     let rec scan list entry (state:Remanent_state.t) =
                       match list with
                           | [] -> state
