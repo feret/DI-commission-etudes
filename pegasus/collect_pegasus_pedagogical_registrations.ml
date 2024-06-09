@@ -91,9 +91,11 @@ let update_student bloc entry state =
     entry, state
 
 let update_year year entry state =
-  let () = Format.printf "UPDATE YEAR %s @." year in
+  let () = Format.printf "UPDATE YEAR -%s- @." year in
   let l = String.split_on_char ' ' year in
-  match l with "Academic"::"year"::y::_ -> {entry with year = Some y}, state
+  match l with "Academic"::"year"::y::_ ->
+  let () = Format.printf "UPDATE YEAR %s -> %s @." year y
+  in  {entry with year = Some y}, state
       | _ -> entry, state
 
 
