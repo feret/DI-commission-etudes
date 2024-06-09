@@ -732,3 +732,7 @@ let split_on_backslash_n s =
   List.fold_left
       (fun acc (d,k) -> (String.sub s d k )::acc)
       [] l
+
+let replace_backslash_n_with_spaces s =
+  let l = split_on_backslash_n s in
+  String.concat " " l 

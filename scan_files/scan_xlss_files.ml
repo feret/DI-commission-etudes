@@ -12,9 +12,15 @@ let get_csv file state =
             let state = Safe_sys.command __POS__ state command in
             let _,basename = Tools.split_rep_filename file in
             let file = Format.sprintf "%s/%sx" log_repository basename in
-            let output = Some (Xls_support.open_xlsx file) in
+            let output = Xls_support.open_xlsx file in
+            let output =
+              List.rev_map
+                  (fun l ->
+                    List.rev_map
+                        Tools.replace_backslash_n_with_spaces (List.rev l)) (List.rev output)
+            in
             let state = Safe_sys.rm __POS__ state file in
-            state, output
+            state, Some output
         end
     | _ -> state, None
 
