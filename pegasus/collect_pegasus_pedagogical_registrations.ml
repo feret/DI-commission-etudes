@@ -93,6 +93,7 @@ let update_student bloc entry state =
 let update_year year entry state =
   let () = Format.printf "UPDATE YEAR -%s- @." year in
   let l = String.split_on_char ' ' year in
+  let l = List.filter (fun x -> x<>"") l in 
   match l with "Academic"::"year"::y::_ ->
   let () = Format.printf "UPDATE YEAR %s -> %s @." year y
   in  {entry with year = Some y}, state
@@ -100,7 +101,7 @@ let update_year year entry state =
 
 
 let add unify pos c state =
-   let () = Format.printf "UPDATE ADD PEDAGOGICAL REGISTRATION %s %s %s %s @." c.Public_data.pe_lastname c.Public_data.pe_firstname c.Public_data.pe_libelle c.Public_data.pe_year   in
+   let () = Format.printf "UPDATE ADD PEDAGOGICAL REGISTRATION %s %s %s (%s) @." c.Public_data.pe_lastname c.Public_data.pe_firstname c.Public_data.pe_libelle c.Public_data.pe_year   in
    Remanent_state.Collector_pedagogical_registrations.add unify pos c state
 
 let convert entry state =
