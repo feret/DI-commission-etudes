@@ -68,8 +68,8 @@ let update_student bloc entry state =
     let l = String.split_on_char ' ' bloc in
     let l = List.rev_map (String.split_on_char '\n') l in
     let l = List.flatten l in
-    let l = List.rev_map (Tools.split_on_backslash_n) l in
-    let l = List.flatten l in
+  (*  let l = List.rev_map (Tools.split_on_backslash_n) l in
+    let l = List.flatten l in*)
     let () = List.iter (fun s -> Format.printf "ENTRY %s @." s;
                 String.iter (fun c -> Format.printf "%i," (Char.code c)) s;
                 Format.printf "@.") l in
@@ -96,8 +96,9 @@ let update_year year entry state =
   match l with "Academic"::"year"::y::_ -> {entry with year = Some y}, state
       | _ -> entry, state
 
+
 let add unify pos c state =
-   let () = Format.printf "UPDATE ADD @." in
+   let () = Format.printf "UPDATE ADD PEDAGOGICAL REGISTRATION %s %s %s %s @." c.Public_data.pe_lastname c.Public_data.pe_firstname c.Public_data.pe_libelle c.Public_data.pe_year   in
    Remanent_state.Collector_pedagogical_registrations.add unify pos c state
 
 let convert entry state =
