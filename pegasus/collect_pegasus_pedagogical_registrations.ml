@@ -168,10 +168,11 @@ let update_course course ects entry (state:Remanent_state.t) =
                   state, ""
           | Some y -> state, y
     in
-    let ects =
-      try float_of_string ects with
+    let state, ects =
+      try state, float_of_string ects with
       _ -> let l = String.split_on_char '+' ects in
-      try List.fold_left (fun b a -> (float_of_string a)+.b) 0. l with _ -> 0.
+      try state, List.fold_left (fun b a -> (float_of_string a)+.b) 0. l with _ ->
+      Remanent_state.warn __POS__ (Format.sprintf "float_of_string %s" ects) Exit state, 0.
     in
     let code_helisa, libelle, ects = Some codehelisa, Some libelle, Some ects in
     let state, pegasus_entry =
