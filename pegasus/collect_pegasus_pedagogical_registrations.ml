@@ -287,7 +287,30 @@ let get_pegasus_pedagogical_registrations
                           in
                           scan t entry state
                     in
-                    let state = scan csv empty_pegasus_entry state in
+                    let scan2 list state =
+                        let split l =
+                          let rec aux todo current acc =
+                                match todo with
+                                  | [] -> List.rev ((List.rev current)::acc)
+                                  | h::t ->
+                                    begin
+                                    match h with ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_) ->
+                                        aux t [h] ((List.rev current)::acc)
+                                            | _ -> aux t (h::current) acc
+                                    end
+                          in
+                         aux l [] []
+                        in
+                        let l = split list in
+                        let () = Format.printf "RECAPITULATIFS :%i @." (List.length l) in
+                        state
+                    in
+                    let state =
+                      match csv with
+                        (""::"LEARNING AGREEMENT"::_)::_->  scan csv empty_pegasus_entry state
+                        | ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_)::_ -> scan2 csv state
+                        | _ -> state 
+                    in
                     let state = Remanent_state.close_event_opt event state in
                      state
 
