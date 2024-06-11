@@ -261,8 +261,8 @@ let get_pegasus_pedagogical_registrations
                     let () =
                         List.iter
                           (fun l ->
-                              List.iter (Printf.printf "%s|") l;
-                              Printf.printf "@.")
+                              List.iter (Format.printf "%s|") l;
+                              Format.printf "@.")
                           csv
                     in
                     let () = Format.printf "END CONTENT" in
