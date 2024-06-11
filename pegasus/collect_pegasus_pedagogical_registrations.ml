@@ -200,6 +200,56 @@ let update_course course ects entry (state:Remanent_state.t) =
                 (fun _ state a _ -> state,a) __POS__
                 entry state
 
+
+                let update_course'  sem libelle teacher ects entry state  =
+                    let _ = teacher,sem in
+                    let state, year =
+                        match entry.year with
+                          | None ->
+                              Remanent_state.warn
+                                  __POS__
+                                  "Year is missing"
+                                  Exit
+                                  state, ""
+                          | Some y -> state, y
+                    in
+                    let state, ects =
+                      try state, Some (float_of_string ects) with
+                      _ -> let l = String.split_on_char '+' ects in
+                      try state, Some (List.fold_left (fun b a -> (float_of_string a)+.b) 0. l) with _ ->
+                      Remanent_state.warn __POS__ (Format.sprintf "float_of_string %s" ects) Exit state, None
+                    in
+                    let state, pegasus_entry =
+                        Remanent_state.get_course_in_pegasus_by_libelle ~libelle ~year state
+                    in
+                    match pegasus_entry with
+                      | None ->
+                        let state =
+                          Remanent_state.warn
+                          __POS__
+                          (Format.sprintf "Pegasus entry is missing %s %s" libelle year)
+                          Exit
+                          state
+                        in
+                        let libelle = Some libelle in
+                        let code_helisa = None in
+                        let state, entry = convert {entry with libelle ; ects ; code_helisa } state in
+                          add
+                                (fun _ state a _ -> state,a) __POS__
+                                entry state
+                      | Some pegasus_entry ->
+                        let teachers = get_teachers pegasus_entry in
+                        let code_gps = pegasus_entry.Public_data.pegasus_codegps in
+                        let libelle_gps = Some pegasus_entry.Public_data.pegasus_libelle in
+                        let code_helisa =
+                        Some pegasus_entry.Public_data.pegasus_helisa in
+                        let libelle = Some libelle in
+
+                        let state, entry = convert {entry with libelle ; ects ; code_helisa ; code_gps ; teachers ;  libelle_gps } state in
+                          add
+                                (fun _ state a _ -> state,a) __POS__
+                                entry state
+
 let event_opt = Some (Profiling.Collect_pegasus_pedagogical_registrations)
 let compute_repository = Remanent_state.Collector_pedagogical_registrations.get_repository
 
@@ -301,15 +351,35 @@ let get_pegasus_pedagogical_registrations
                           in
                          aux l [] []
                         in
+                        let convert_line line entry state =
+                            match line with
+                              | sem::""::libelle::""::""::""::""::teacher::""::""::ects::_ -> update_course' sem libelle teacher ects entry state
+                              | _ -> state
+                        in
+                        let convert_recap recapitulatif state =
+                            let entry = empty_pegasus_entry in
+                            match recapitulatif with
+                            | ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_)::(year::_)::(bloc::_)::_::_::(""::""::""::diploma::_)::tail ->
+                            let _ = year, bloc, diploma in
+                            let state =
+                                List.fold_left
+                                  (fun state line ->
+                                      convert_line line entry state)
+                                  state tail
+                            in state
+                            | _ -> state 
+                        in
                         let l = split list in
                         let () = Format.printf "RECAPITULATIFS :%i @." (List.length l) in
+                        let state = List.fold_left (fun state recapitulatif ->
+                            convert_recap recapitulatif state) state l in
                         state
                     in
                     let state =
                       match csv with
                         (""::"LEARNING AGREEMENT"::_)::_->  scan csv empty_pegasus_entry state
                         | ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_)::_ -> scan2 csv state
-                        | _ -> state 
+                        | _ -> state
                     in
                     let state = Remanent_state.close_event_opt event state in
                      state

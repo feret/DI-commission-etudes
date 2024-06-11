@@ -1,10 +1,13 @@
 type t =
-      Public_data.course_pegasus
+    {per_code:  Public_data.course_pegasus
         Public_data.CodeMap.t
-          Public_data.YearMap.t
+          Public_data.YearMap.t ;
+     per_libelle: Public_data.course_pegasus
+         Public_data.StringMap.t
+           Public_data.YearMap.t }
 
 let empty =
-      Public_data.YearMap.empty
+      {per_code = Public_data.YearMap.empty ; per_libelle = Public_data.YearMap.empty}
 
 let get_pegasus_course ~code ~year  courses =
   let code =
@@ -13,7 +16,7 @@ let get_pegasus_course ~code ~year  courses =
   match
     Public_data.YearMap.find_opt
       year
-      courses
+      courses.per_code
   with
   | None -> None
   | Some a ->
@@ -21,10 +24,26 @@ let get_pegasus_course ~code ~year  courses =
         code
         a
 
+let get_pegasus_course_by_libelle ~libelle ~year  courses =
+    let libelle =
+        String.lowercase_ascii libelle
+    in
+    match
+        Public_data.YearMap.find_opt
+            year
+            courses.per_libelle
+    with
+          | None -> None
+          | Some a ->
+              Public_data.StringMap.find_opt
+                libelle
+                a
+
 let add_pegasus_course
     unify pos state
     course courses =
   let code = course.Public_data.pegasus_helisa in
+  let libelle = course.Public_data.pegasus_libelle in
   let year = course.Public_data.pegasus_year in
   let course' = get_pegasus_course ~code ~year  courses  in
   let state, course =
@@ -38,12 +57,23 @@ let add_pegasus_course
       match
         Public_data.YearMap.find_opt
           year
-          courses
+          courses.per_code
       with
       | Some map -> map
       | None -> Public_data.CodeMap.empty
     in
-    Public_data.YearMap.add year
-      (Public_data.CodeMap.add code course old_year) courses
+    let old_year' =
+      match
+        Public_data.YearMap.find_opt
+          year
+          courses.per_libelle
+      with
+      | Some map -> map
+      | None -> Public_data.StringMap.empty
+    in
+    {per_code = Public_data.YearMap.add year
+      (Public_data.CodeMap.add code course old_year) courses.per_code ;
+     per_libelle = Public_data.YearMap.add year
+      (Public_data.StringMap.add libelle course old_year') courses.per_libelle ;}
   in
   state, courses

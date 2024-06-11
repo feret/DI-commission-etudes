@@ -347,7 +347,12 @@ val get_course_in_pegasus:
   year:Public_data.annee ->
   t -> t * Public_data.course_pegasus option
 
-  val get_grade_in_pegasus:
+val get_course_in_pegasus_by_libelle:
+    libelle: string ->
+    year:Public_data.annee ->
+    t -> t * Public_data.course_pegasus option
+
+val get_grade_in_pegasus:
     codehelisa: string ->
     year:Public_data.annee ->
     firstname:string ->
