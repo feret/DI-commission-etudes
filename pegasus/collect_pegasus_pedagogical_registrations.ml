@@ -160,6 +160,26 @@ let update_diploma diploma entry (state:Remanent_state.t) =
         (fun _ state a _ -> state,a) __POS__
         entry state
 
+  let update_diploma' diploma entry (state:Remanent_state.t) =
+      let libelle = diploma in
+      let code =
+          match libelle with
+          | "Diplôme de M1 suivi à l'ENS-PSL" -> "UNDDIPE-M1"
+          | "Diplôme de M1 suivi en dehors de l'ENS-PSL" -> "UNDDIPH-M1"
+          | "Diplôme de L3 suivi à l'ENS-PSL" -> "UNDDIPE-L3"
+          | "Diplôme de L3 suivi en dehors de l'ENS-PSL" -> "UNDDIPH-L3"
+          | "Diplôme de M2 suivi à l'ENS-PSL" -> "UNDDIPE-M2"
+          | "Diplôme de M2 suivi en dehors de l'ENS-PSL" -> "UNDDIPH-M2"
+          | _ -> "UNDDIPL-NA" 
+          in
+          let code_gps = entry.code_gps in
+          let code_helisa, libelle = Some code, Some libelle in
+          let state, entry = convert {entry with libelle ; code_helisa ; code_gps } state in
+          add
+                (fun _ state a _ -> state,a) __POS__
+                entry state
+
+
 let get_teachers entry =
   let list = entry.Public_data.pegasus_profs in
   match list with None -> []
@@ -393,7 +413,7 @@ let get_pegasus_pedagogical_registrations
                             | ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_)::(year::_)::(bloc::_)::_::_::(""::""::""::diploma::_)::tail ->
                             let entry, state = update_year year entry state in
                             let entry, state  = update_bloc' bloc entry state in
-                            let state = update_diploma diploma entry state in
+                            let state = update_diploma' diploma entry state in
                             let state =
                                 List.fold_left
                                   (fun state line ->
