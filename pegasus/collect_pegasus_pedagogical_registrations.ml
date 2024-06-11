@@ -115,6 +115,9 @@ let update_year year entry state =
 
 
 let add unify pos c state =
+   let ()  = Format.printf "ADD PEDAGOGICAL ENTRY @." in
+   let () = Format.printf "PRENOM: %s NOM: %s LIBELLE:%s @." c.Public_data.pe_firstname c.Public_data.pe_lastname c.Public_data.pe_libelle 
+  in
    Remanent_state.Collector_pedagogical_registrations.add unify pos c state
 
 let convert entry state =
