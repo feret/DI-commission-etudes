@@ -168,7 +168,11 @@ let update_course course ects entry (state:Remanent_state.t) =
                   state, ""
           | Some y -> state, y
     in
-    let ects = float_of_string ects in
+    let ects =
+      try float_of_string ects with
+      _ -> let l = String.split_on_char '+' ects in
+      try List.fold_left (fun b a -> (float_of_string a)+.b) 0. l with _ -> 0.
+    in
     let code_helisa, libelle, ects = Some codehelisa, Some libelle, Some ects in
     let state, pegasus_entry =
         Remanent_state.get_course_in_pegasus ~codehelisa ~year state
