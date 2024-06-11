@@ -359,7 +359,7 @@ let get_pegasus_pedagogical_registrations
                                 | ""::diploma::""::""::""::""::""::_ ->
                                        entry, update_diploma diploma entry state
                                 | ""::course::""::""::ects::_ ->
-                                      if course = "" then entry, state else 
+                                      if course = "" then entry, state else
                                       entry,  update_course course ects entry state
                                 | bloc::_ ->  update_student bloc entry state
                                 | [] -> entry, state
@@ -383,7 +383,8 @@ let get_pegasus_pedagogical_registrations
                         in
                         let convert_line line entry state =
                             match line with
-                              | sem::""::libelle::""::""::""::""::teacher::""::""::ects::_ -> update_course' sem libelle teacher ects entry state
+                              | sem::""::libelle::""::""::""::""::teacher::""::""::ects::_ ->   if libelle = "" then state else
+                                update_course' sem libelle teacher ects entry state
                               | _ -> state
                         in
                         let convert_recap recapitulatif state =
