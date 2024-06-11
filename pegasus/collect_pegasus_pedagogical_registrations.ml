@@ -84,11 +84,34 @@ let update_student bloc entry state =
     let entry = aux l entry in
     entry, state
 
+    let update_bloc' bloc entry state =
+        let l = String.split_on_char ' ' bloc in
+        let l = List.rev_map (String.split_on_char '\n') (List.rev l) in
+        let l = List.flatten l in
+        let t, lastname, firstname = fetch_name l in
+        let entry = {entry with lastname = Some lastname ; firstname = Some firstname} in
+        let entry, t = match t with
+          | [] -> entry,t
+          | n::tail ->{entry with student_number = Some n },tail
+        in
+        let rec aux t =
+        match t with
+          | ":"::tail -> tail
+          | _::tail -> aux tail
+          | [] -> []
+        in
+        let _, tutor_lastname, tutor_firstname = fetch_name (aux t) in
+        {entry with tutor_lastname = Some tutor_lastname ; tutor_firstname = Some tutor_firstname}, state
+
+
+
+
 let update_year year entry state =
   let l = String.split_on_char ' ' year in
   let l = List.filter (fun x -> x<>"") l in
-  match l with "Academic"::"year"::y::_ -> {entry with year = Some y}, state
-      | _ -> entry, state
+  match l with "Academic"::"year"::y::_
+    | "Année"::"universitaire"::y::_ -> {entry with year = Some y}, state
+    | _ -> entry, state
 
 
 let add unify pos c state =
@@ -360,14 +383,17 @@ let get_pegasus_pedagogical_registrations
                             let entry = empty_pegasus_entry in
                             match recapitulatif with
                             | ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_)::(year::_)::(bloc::_)::_::_::(""::""::""::diploma::_)::tail ->
-                            let _ = year, bloc, diploma in
+                            let entry, state = update_year year entry state in
+                            let entry, state   = update_bloc' bloc entry state in
+                            let state = update_diploma bloc entry state in
+                            let _ = bloc, diploma in
                             let state =
                                 List.fold_left
                                   (fun state line ->
                                       convert_line line entry state)
                                   state tail
                             in state
-                            | _ -> state 
+                            | _ -> state
                         in
                         let l = split list in
                         let () = Format.printf "RECAPITULATIFS :%i @." (List.length l) in
