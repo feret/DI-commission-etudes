@@ -257,6 +257,15 @@ let get_pegasus_pedagogical_registrations
                           | None -> []
                           | Some l -> l
                     in
+                    let () = Format.printf "CSV CONTENT" in
+                    let () =
+                        List.iter
+                          (fun l ->
+                              List.iter (Printf.printf "%s|") l;
+                              Printf.printf "@.")
+                          csv
+                    in
+                    let () = Format.printf "END CONTENT" in
                     let rec scan list entry (state:Remanent_state.t) =
                       match list with
                           | [] -> state
