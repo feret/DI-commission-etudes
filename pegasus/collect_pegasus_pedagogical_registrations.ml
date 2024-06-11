@@ -392,9 +392,8 @@ let get_pegasus_pedagogical_registrations
                             match recapitulatif with
                             | ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_)::(year::_)::(bloc::_)::_::_::(""::""::""::diploma::_)::tail ->
                             let entry, state = update_year year entry state in
-                            let entry, state   = update_bloc' bloc entry state in
-                            let state = update_diploma bloc entry state in
-                            let _ = bloc, diploma in
+                            let entry, state  = update_bloc' bloc entry state in
+                            let state = update_diploma diploma entry state in
                             let state =
                                 List.fold_left
                                   (fun state line ->
