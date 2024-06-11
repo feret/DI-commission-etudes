@@ -359,6 +359,7 @@ let get_pegasus_pedagogical_registrations
                                 | ""::diploma::""::""::""::""::""::_ ->
                                        entry, update_diploma diploma entry state
                                 | ""::course::""::""::ects::_ ->
+                                      if course = "" then entry, state else 
                                       entry,  update_course course ects entry state
                                 | bloc::_ ->  update_student bloc entry state
                                 | [] -> entry, state
