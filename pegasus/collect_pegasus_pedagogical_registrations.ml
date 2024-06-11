@@ -56,6 +56,9 @@ let rec fetch_name l acc =
     | "INE"::"number:"::_
     | "Tutor:"::_
     | [] -> List.rev acc, l
+    | x::_ when String.length x > 0 && (let c =Char.code (String.get x 0) in
+  47 < c && c < 58) -> List.rev acc, l
+
     | h::t -> fetch_name t (h::acc)
 
 let fetch_name l =
@@ -116,7 +119,7 @@ let update_year year entry state =
 
 let add unify pos c state =
    let ()  = Format.printf "ADD PEDAGOGICAL ENTRY @." in
-   let () = Format.printf "PRENOM: %s NOM: %s LIBELLE:%s @." c.Public_data.pe_firstname c.Public_data.pe_lastname c.Public_data.pe_libelle 
+   let () = Format.printf "PRENOM: %s NOM: %s LIBELLE:%s @." c.Public_data.pe_firstname c.Public_data.pe_lastname c.Public_data.pe_libelle
   in
    Remanent_state.Collector_pedagogical_registrations.add unify pos c state
 
