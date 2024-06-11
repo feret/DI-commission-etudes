@@ -118,9 +118,6 @@ let update_year year entry state =
 
 
 let add unify pos c state =
-   let ()  = Format.printf "ADD PEDAGOGICAL ENTRY @." in
-   let () = Format.printf "PRENOM: %s NOM: %s LIBELLE:%s @." c.Public_data.pe_firstname c.Public_data.pe_lastname c.Public_data.pe_libelle
-  in
    Remanent_state.Collector_pedagogical_registrations.add unify pos c state
 
 let convert entry state =
@@ -170,7 +167,7 @@ let update_diploma diploma entry (state:Remanent_state.t) =
           | "Diplôme de L3 suivi en dehors de l'ENS-PSL" -> "UNDDIPH-L3"
           | "Diplôme de M2 suivi à l'ENS-PSL" -> "UNDDIPE-M2"
           | "Diplôme de M2 suivi en dehors de l'ENS-PSL" -> "UNDDIPH-M2"
-          | _ -> "UNDDIPL-NA" 
+          | _ -> "UNDDIPL-NA"
           in
           let code_gps = entry.code_gps in
           let code_helisa, libelle = Some code, Some libelle in
@@ -356,16 +353,7 @@ let get_pegasus_pedagogical_registrations
                           | None -> []
                           | Some l -> l
                     in
-                    let () = Format.printf "CSV CONTENT" in
-                    let () =
-                        List.iter
-                          (fun l ->
-                              List.iter (Format.printf "%s|") l;
-                              Format.printf "@.")
-                          csv
-                    in
-                    let () = Format.printf "END CONTENT" in
-                    let rec scan list entry (state:Remanent_state.t) =
+                      let rec scan list entry (state:Remanent_state.t) =
                       match list with
                           | [] -> state
                           | h::t ->
