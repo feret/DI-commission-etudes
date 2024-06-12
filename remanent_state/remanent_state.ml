@@ -127,6 +127,7 @@ type parameters =
     bilinguage: bool;
     language: Public_data.language;
     repartition: Public_data.repartition;
+    add_grades_without_registration: bool ;
   }
 
 
@@ -264,6 +265,7 @@ let parameters =
     bilinguage = true ;
     language  = Public_data.French;
     repartition = Public_data.Annee_de_validation_du_cours;
+    add_grades_without_registration = true  ;
   }
 
 let _ = parameters.parameters_repository
@@ -1581,6 +1583,16 @@ let get_grade_in_pegasus ~codehelisa ~year ~firstname ~lastname t =
     let note =
           Pegasus_notes.get_pegasus_note
               ~code ~year ~firstname ~lastname collector
+    in
+    t, note
+
+let get_grades_in_pegasus ~firstname ~lastname t =
+    let firstname = Special_char.lowercase firstname in
+    let lastname = Special_char.lowercase lastname in
+    let t, collector = Collector_pegasus_notes.get t in
+    let note =
+        Pegasus_notes.get_pegasus_notes
+          ~firstname ~lastname collector
     in
     t, note
 
@@ -3079,3 +3091,4 @@ let log_string
   fprintf ?logger t "%s" s
 
 let get_diplomation_year t = t, t.parameters.diplomation_year
+let do_we_consider_grades_without_registration t = t, t.parameters.add_grades_without_registration

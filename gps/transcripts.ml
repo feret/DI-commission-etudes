@@ -3408,12 +3408,21 @@ let translate_diplome
       situation false
   | None ->
     if (int_of_string year) > 2022
-    then dispatch ~firstname ~lastname  check_dpt origine situation code_cours year state
+    then
+      begin
+        let state,b = Remanent_state.do_we_consider_grades_without_registration state in
+        if b then
+          state, (Some ("DENS"), "DENS", "DENS", "DENS", "DENS", false, false)
+        else
+          begin
+          dispatch ~firstname ~lastname  check_dpt origine situation code_cours year state
+          end
+      end
     else
-    let state, (_,b,b_en,c,c_en,d,is_m2) =
-      check_dpt __POS__ state origine "" "" "" code_cours year situation false
-    in
-    state, (None,b,b_en,c,c_en,d,is_m2)
+      let state, (_,b,b_en,c,c_en,d,is_m2) =
+          check_dpt __POS__ state origine "" "" "" code_cours year situation false
+      in
+      state, (None,b,b_en,c,c_en,d,is_m2)
 
 
 
@@ -6990,7 +6999,9 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                            state, note, None
                 end
           in
-
+          let state, b =
+              Remanent_state.do_we_consider_grades_without_registration state
+          in
           let elt =
             {
               semestre = None ;
@@ -7010,7 +7021,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
               cours_etablissement = None ;
               duree = None ;
               ects = course.Public_data.pe_ects;
-              diplome = None ;
+              diplome = (if b then Some "dens" else None);
               contrat = None ;
               accord = Some true ;
               note = note ;
@@ -7032,7 +7043,100 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                bilan gps_file.situation
           })
     (state,gps_file) l
-    in state, gps_file
+    in
+    let state, b = Remanent_state.do_we_consider_grades_without_registration state in
+    if not b then
+        state, gps_file
+    else
+      let state, l' = Remanent_state.get_grades_in_pegasus ~firstname ~lastname state in
+      List.fold_left
+        (fun (state, gps_file) grade ->
+          let situation = gps_file.situation in
+          let codehelisa = grade.Public_data.pegasus_note_code_helisa in
+          let year = grade.Public_data.pegasus_note_annee in
+          let bilan =
+            match
+              Public_data.YearMap.find_opt
+                year
+                situation
+            with
+            | None -> empty_bilan_annuel
+            | Some b -> b
+          in
+          (* TO DO -> check not in registration *)
+          let state, note, validation =
+                  begin match grade.Public_data.pegasus_note, grade.Public_data.pegasus_validation
+                  with
+                    | None, Some (Public_data.VA | Public_data.VAJU | Public_data.VACO)  ->
+                        state, Some Public_data.Valide_sans_note,
+                               Some (Public_data.Bool true)
+                    | None, Some (Public_data.NV | Public_data.NVJU)  ->
+                       state, Some Public_data.Absent, Some (Public_data.Bool false)
+                    | None, None ->  state, None, None
+                    | Some x, Some (Public_data.VA | Public_data.VAJU | Public_data.VACO) ->
+                          let state, note = Notes.of_string __POS__ state x (Some (Public_data.Bool true)) in
+                          state, note, Some (Public_data.Bool true)
+                    | Some x, Some _ ->
+                           let state, note = Notes.of_string __POS__ state x (Some (Public_data.Bool false)) in
+                           state, note, Some (Public_data.Bool false)
+                    | Some x , None ->
+                           let state, note = Notes.of_string __POS__ state x (Some (Public_data.Bool true)) in
+                           state, note, None
+                end
+          in
+          let state, course_opt = Remanent_state.get_course_in_pegasus ~codehelisa ~year state in
+          match course_opt with
+          | None ->
+            Remanent_state.warn __POS__ "Course not found in helisa database" Exit state, gps_file
+          | Some course ->
+            let elt =
+              {
+                semestre = None ;
+                code_cours =
+                  begin
+
+            (*      pegasus_helisa = "" ;
+                  pegasus_libelle = "" ;
+                  pegasus_libelle_en = None ;
+                  pegasus_profs = None ;
+                  pegasus_session = "" ;
+                  pegasus_year = "";*)
+                    match course.Public_data.pegasus_codegps
+                    with
+                      | None -> Some codehelisa
+                      | Some x -> Some x
+                  end;
+                responsable = None ;
+                enseignants = Some (Tools.get_teachers course.Public_data.pegasus_profs)  ;
+                cours_libelle =
+                  begin
+                    Some (String.trim (course.Public_data.pegasus_libelle))
+                  end;
+                cours_etablissement = None ;
+                duree = None ;
+                ects = None (* TO DO *);
+                diplome = None ;
+                contrat = None ;
+                accord = Some true ;
+                note = note ;
+                lettre = None;
+                commentaire = [];
+                extra = true;
+                inconsistency = None;
+                valide_dans_gps = validation;
+                cours_annee = Some year ;
+                validated_under_average = false;
+            }
+          in
+          let bilan = {bilan with cours = elt::bilan.cours} in
+          state,
+          {gps_file with
+           situation =
+             Public_data.YearMap.add
+               year 
+               bilan gps_file.situation
+          })
+    (state,gps_file) l'
 
 
 let export_transcript

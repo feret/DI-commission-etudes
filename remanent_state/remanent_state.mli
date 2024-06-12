@@ -359,6 +359,11 @@ val get_grade_in_pegasus:
     lastname:string ->
     t -> t * Public_data.note_pegasus option
 
+val get_grades_in_pegasus:
+    firstname:string ->
+    lastname:string ->
+    t -> t * Public_data.note_pegasus list
+
 val get_course_exception:
   codegps:string ->
   year:Public_data.annee ->
@@ -764,3 +769,4 @@ val empty_copy:
 val get_diplomation_year: t -> t * string option
 val get_is_bilingual: t -> t * bool
 val bilingual_string: ?english:string -> french:string -> t -> t * string
+val do_we_consider_grades_without_registration: t -> t * bool

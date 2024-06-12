@@ -33,22 +33,6 @@ let empty_pegasus_entry =
   teachers = [];
 }
 
-let decompose_name l =
-  let rec aux l lastname =
-    match l with
-      | [] -> List.rev lastname, l
-      | h::t ->
-        if Special_char.uppercase h = h
-        then
-          aux t  (h::lastname)
-        else
-          List.rev lastname, l
- in
- let lastname, firstname = aux l [] in
- let firstname = String.concat " " firstname in
- let lastname = String.concat " " lastname in
- lastname, firstname
-
 let rec fetch_name l acc =
   match l with
     | "Student:"::_
@@ -63,7 +47,7 @@ let rec fetch_name l acc =
 
 let fetch_name l =
   let name, tail = fetch_name l [] in
-  let lastname, firstname = decompose_name name in
+  let lastname, firstname = Tools.decompose_name name in
   tail, lastname, firstname
 
 let update_student bloc entry state =
@@ -177,24 +161,7 @@ let update_diploma diploma entry (state:Remanent_state.t) =
                 entry state
 
 
-let get_teachers entry =
-  let list = entry.Public_data.pegasus_profs in
-  match list with None -> []
-    | Some list ->
-  let n = String.length list in
-  let rec split deb k acc =
-      if k=n then ((String.sub list deb (k-deb))::acc) else
-      if (k+1<n && String.sub list k 2 = "et") then
-         split (k+2) (k+2) ((String.sub list deb (k-deb+1))::acc)
-      else if
-         (k+2<n && String.sub list k 3 = "and") then
-         split (k+3) (k+3) ((String.sub list deb (k-deb+1))::acc)
-      else split deb (k+1) acc
-  in
-  let l = split 0 0 [] in
-    List.rev_map
-      (fun a -> decompose_name (String.split_on_char ' ' a))
-      l
+let get_teachers entry = Tools.get_teachers entry.Public_data.pegasus_profs
 
 
 let update_course course ects entry (state:Remanent_state.t) =

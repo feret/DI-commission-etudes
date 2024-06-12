@@ -1,12 +1,20 @@
 type t =
-    Public_data.note_pegasus
-      Public_data.FirstNameMap.t
-        Public_data.LastNameMap.t
-          Public_data.CodeMap.t
-            Public_data.YearMap.t
+    {by_code:
+      Public_data.note_pegasus
+        Public_data.FirstNameMap.t
+          Public_data.LastNameMap.t
+            Public_data.CodeMap.t
+              Public_data.YearMap.t;
+      by_student:
+      Public_data.note_pegasus
+        Public_data.CodeMap.t
+          Public_data.FirstNameMap.t
+            Public_data.LastNameMap.t}
 
 let empty =
-      Public_data.YearMap.empty
+      {by_code = Public_data.YearMap.empty ;
+       by_student = Public_data.LastNameMap.empty}
+
 
 let get_pegasus_note ~code ~year ~firstname ~lastname notes =
   let code =
@@ -21,7 +29,7 @@ let get_pegasus_note ~code ~year ~firstname ~lastname notes =
   match
     Public_data.YearMap.find_opt
       year
-      notes
+      notes.by_code
   with
   | None -> None
   | Some a ->
@@ -46,6 +54,27 @@ let get_pegasus_note ~code ~year ~firstname ~lastname notes =
              end
       end
 
+let get_pegasus_notes ~firstname ~lastname notes =
+    let firstname =
+        String.lowercase_ascii firstname
+    in
+    let lastname =
+        String.lowercase_ascii lastname
+    in
+    match
+      Public_data.LastNameMap.find_opt lastname notes.by_student
+    with
+     | None -> []
+     | Some a ->
+            begin
+              match
+                Public_data.FirstNameMap.find_opt firstname a
+              with
+                | None -> []
+                | Some l -> Public_data.CodeMap.fold (fun _ x acc -> x::acc) l []
+            end
+
+
 let add_pegasus_note
     unify pos state
     note notes =
@@ -60,12 +89,12 @@ let add_pegasus_note
     | Some note' ->
         unify pos state note note'
   in
-  let notes =
+  let by_code =
     let old_year =
       match
         Public_data.YearMap.find_opt
           year
-          notes
+          notes.by_code
       with
       | Some map -> map
       | None -> Public_data.CodeMap.empty
@@ -93,6 +122,31 @@ let add_pegasus_note
         (Public_data.LastNameMap.add lastname
             (Public_data.FirstNameMap.add firstname note old_last)
             old_code)
-      old_year) notes
+      old_year) notes.by_code
   in
-  state, notes
+  let by_student =
+    let old_last =
+      match
+        Public_data.LastNameMap.find_opt
+          lastname
+          notes.by_student
+      with
+        | Some map -> map
+        | None -> Public_data.FirstNameMap.empty
+    in
+    let old_first =
+      match
+        Public_data.FirstNameMap.find_opt
+          firstname
+          old_last
+      with
+        | Some map -> map
+        | None -> Public_data.CodeMap.empty
+    in
+    Public_data.LastNameMap.add lastname
+          (Public_data.FirstNameMap.add firstname
+            (Public_data.CodeMap.add code note old_first)
+            old_last)
+      notes.by_student
+  in
+  state, {by_code; by_student}
