@@ -19,6 +19,26 @@ module StringMap =
     )
 
 
+    module StringSet =
+      Map_tools.MakeSetSimplified
+        (
+        struct
+          module Ord   =
+            (
+            struct
+              type t = string
+              let compare = compare
+
+            end
+            )
+
+          let simplify s =
+            Special_char.lowercase
+              (Special_char.correct_string_txt
+                 (String.trim s))
+        end
+        )
+
 module StringOptMap =
   Map_tools.MakeSimplified
     (
@@ -1360,6 +1380,7 @@ Map.Make
     let compare = compare
   end)
 module CodeMap = StringMap
+module CodeSet = StringSet
 module CodeOptMap =
 Map.Make
   (struct

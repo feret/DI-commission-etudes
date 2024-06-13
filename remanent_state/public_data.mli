@@ -116,6 +116,7 @@ module DptMap: Map.S with type key = main_dpt
 module DptOptMap : Map.S with type key = main_dpt option
 module CodeMap : Map.S with type key = string
 module CodeOptMap : Map.S with type key = string option
+module CodeSet : Set.S with type elt = string 
 module PromoMap : Map.S with type key = string
 module FinanceurMap : Map.S with type key = string
 module FirstNameMap : Map.S with type key = string

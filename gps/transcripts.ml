@@ -6852,11 +6852,25 @@ let dpt_of_code state x =
             (Format.sprintf "Unknown dpt code (%s)" x)
             Exit state, None
 
+let blacklist = Public_data.YearMap.empty
+let add ~year ~codehelisa blacklist =
+    let old_set =
+      match Public_data.YearMap.find_opt year blacklist with
+        | None -> Public_data.CodeSet.empty
+        | Some set -> set
+    in
+    Public_data.YearMap.add year (Public_data.CodeSet.add codehelisa old_set) blacklist
+
+let check ~year ~codehelisa blacklist =
+  match Public_data.YearMap.find_opt year blacklist with
+    | None -> false
+    | Some set -> Public_data.CodeSet.mem codehelisa set
+
 let add_pegasus_entries ~firstname ~lastname state gps_file =
     let state, l = Remanent_state.Collector_pedagogical_registrations.find_list ~firstname ~lastname state in
-    let state, gps_file =
+    let state, gps_file, blacklist =
       List.fold_left
-        (fun (state, gps_file) course ->
+        (fun (state, gps_file,blacklist) course ->
           let code = String.trim (course.Public_data.pe_code_helisa) in
           match kind code with
           | Inscription ->
@@ -6889,10 +6903,10 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                Public_data.YearMap.add
                  course.Public_data.pe_year
                  bilan gps_file.situation
-            }
+            }, blacklist
 
             end
-          | RdV -> state, gps_file
+          | RdV -> state, gps_file, blacklist
           | Annee_dpt->
           begin
           let state, departement_principal = dpt_of_code state code in
@@ -6913,7 +6927,8 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
              Public_data.YearMap.add
                course.Public_data.pe_year
                bilan gps_file.situation
-          }
+          },
+          blacklist
 
           end
           | Annee->
@@ -6935,7 +6950,8 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
              Public_data.YearMap.add
                course.Public_data.pe_year
                bilan gps_file.situation
-          }
+          },
+          blacklist
 
           end
           | Secondary->
@@ -6957,7 +6973,8 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
              Public_data.YearMap.add
                course.Public_data.pe_year
                bilan gps_file.situation
-          }
+          },
+          blacklist
 
           end
 
@@ -7035,14 +7052,15 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             }
           in
           let bilan = {bilan with cours = elt::bilan.cours} in
+          let blacklist = add ~year:course.Public_data.pe_year ~codehelisa:code blacklist in
           state,
           {gps_file with
            situation =
              Public_data.YearMap.add
                course.Public_data.pe_year
                bilan gps_file.situation
-          })
-    (state,gps_file) l
+          },blacklist)
+    (state,gps_file,blacklist) l
     in
     let state, b = Remanent_state.do_we_consider_grades_without_registration state in
     if not b then
@@ -7063,7 +7081,9 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             | None -> empty_bilan_annuel
             | Some b -> b
           in
-          (* TO DO -> check not in registration *)
+          if check ~year ~codehelisa blacklist
+          then state, gps_file
+          else
           let state, note, validation =
                   begin match grade.Public_data.pegasus_note, grade.Public_data.pegasus_validation
                   with
@@ -7094,13 +7114,6 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                 semestre = None ;
                 code_cours =
                   begin
-
-            (*      pegasus_helisa = "" ;
-                  pegasus_libelle = "" ;
-                  pegasus_libelle_en = None ;
-                  pegasus_profs = None ;
-                  pegasus_session = "" ;
-                  pegasus_year = "";*)
                     match course.Public_data.pegasus_codegps
                     with
                       | None -> Some codehelisa
@@ -7133,7 +7146,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           {gps_file with
            situation =
              Public_data.YearMap.add
-               year 
+               year
                bilan gps_file.situation
           })
     (state,gps_file) l'

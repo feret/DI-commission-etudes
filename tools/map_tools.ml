@@ -34,6 +34,19 @@ struct
 
 end
 
+module MakeSetSimplified (O:OrdSimplified) =
+struct
+  module S = Set.Make (O.Ord)
+  include S
+
+  let gen f key =
+    f (O.simplify key)
+
+  let add key map = gen add key map
+  let mem key map = gen mem key map
+  let remove key map = gen remove key map
+end
+
 module Collect (M:Map.S) =
   (struct
     type key = M.key
