@@ -128,6 +128,7 @@ type parameters =
     language: Public_data.language;
     repartition: Public_data.repartition;
     add_grades_without_registration: bool ;
+    load_gps_data: bool ;
   }
 
 
@@ -266,6 +267,7 @@ let parameters =
     language  = Public_data.French;
     repartition = Public_data.Annee_de_validation_du_cours;
     add_grades_without_registration = true  ;
+    load_gps_data = false ;
   }
 
 let _ = parameters.parameters_repository
@@ -3092,3 +3094,4 @@ let log_string
 
 let get_diplomation_year t = t, t.parameters.diplomation_year
 let do_we_consider_grades_without_registration t = t, t.parameters.add_grades_without_registration
+let do_we_load_gps_data t = t,t.parameters.load_gps_data
