@@ -153,3 +153,5 @@ val replace_backslash_n_with_spaces: string -> string
 
 val decompose_name: string list -> string * string
 val get_teachers: string option -> (string * string) list
+
+val simplify_spaces: string -> string 

@@ -770,3 +770,8 @@ let get_teachers list =
       List.rev_map
         (fun a -> decompose_name (String.split_on_char ' ' a))
         l
+
+let simplify_spaces s =
+  let l = String.split_on_char ' ' s in
+  let l = List.filter (fun x -> x<>"") l in
+  String.concat " " l

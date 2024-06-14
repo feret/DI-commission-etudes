@@ -232,10 +232,21 @@ let update_course course ects entry (state:Remanent_state.t) =
                       try state, Some (List.fold_left (fun b a -> (float_of_string a)+.b) 0. l) with _ ->
                       Remanent_state.warn __POS__ (Format.sprintf "float_of_string %s" ects) Exit state, None
                     in
-                    let state, pegasus_entry =
-                        Remanent_state.get_course_in_pegasus_by_libelle ~libelle ~year state
+                    let state, pegasus_entry_opt, libelle =
+                        begin
+                          let state, pegasus_entry_opt =
+                              Remanent_state.get_course_in_pegasus_by_libelle ~libelle ~year state
+                          in
+                          match pegasus_entry_opt with
+                            | Some _ -> state, pegasus_entry_opt, libelle
+                            | None ->
+                              let libelle = Tools.simplify_spaces libelle in
+                              let state, pegasus_entry_opt =
+                                  Remanent_state.get_course_in_pegasus_by_libelle ~libelle ~year state
+                              in state, pegasus_entry_opt, libelle
+                        end
                     in
-                    match pegasus_entry with
+                    match pegasus_entry_opt with
                       | None ->
                         let state =
                           Remanent_state.warn
