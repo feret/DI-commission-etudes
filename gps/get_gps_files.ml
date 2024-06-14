@@ -451,7 +451,10 @@ let try_get_student_file
     match mode.access_type with
     | GPS dpt ->
       let state, b = Remanent_state.do_we_load_gps_data state in
-      if b then
+      let promotion = student_id.Public_data.promotion in
+      let promotion = Tools.unsome_string promotion in
+      let promotion = try int_of_string promotion with _ -> 0 in 
+      if b || promotion >= 2023 then
       get_student_file_gen
         ~f_firstname ~f_lastname ?dpt student_id
         ?file_retriever ?command_line_options ?machine ?port
@@ -459,7 +462,7 @@ let try_get_student_file
         ?checkoutperiod
         ?output_file_name ?log_file ?log_repository
         ?user_name ?password state
-      else state, None 
+      else state, None
     | Backup ->
       let backup_rep =
         Remanent_state.get_repository_for_backup_gps_files
