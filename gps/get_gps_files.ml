@@ -278,43 +278,14 @@ let get_student_file_gen
             ~year:(Tools.unsome_string student_id.Public_data.promotion)
             state
         in
-        let state, code_produit =
-            Remanent_state.get_produit_code
-            ~firstname:student_id.Public_data.firstname
-            ~lastname:student_id.Public_data.lastname
-            ~year:(Tools.unsome_string student_id.Public_data.promotion)
-            state
-        in
-        let main_dpt =
-            match code_produit with
-            | None -> let () = Format.printf "%s %s (NONE)" firstname lastname in ""
-            | Some s ->
-            let () = Format.printf "%s %s (%s)" firstname lastname s in
-            let n = String.length s in
-            if n = 0 then ""
-            else
-            match String.sub s 0 (n-1) with
-              | "ANDART" -> ""
-              | "ANDBIO" -> "BIOLOGIE"
-              | "ANDCHI" -> "CHIMIE"
-              | "ANDDEC" -> ""
-              | "ANDDMA" -> "MATHÉMATIQUES"
-              | "ANDDSA" -> ""
-              | "ANDDSS" -> ""
-              | "ANDECO" -> "ÉCONOMIE"
-              | "ANDGEO" -> "GÉOGRAPHIE"
-              | "ANDGSC" -> "GEOSCIENCES"
-              | "ANDHIS" -> "HISTOIRE"
-              | "ANDINF" ->   let () = Format.printf "%s %s (INFORMATIQUE)" firstname lastname in "INFORMATIQUE"
-              | "ANDLIT" -> "LITTÉRATURE"
-              | "ANDPHI" -> "PHILOSOPHIE"
-              | "ANDPHY" -> "PHYSIQUE"
-              | _ -> ""
-        in
         let date_de_naissance = Tools.unsome_string date_de_naissance in
         let origine = Tools.unsome_string origine in
         let genre = Tools.unsome_string genre in
-        let status = "TO DO" in
+        let status =
+          match origine with
+            | "MPI" -> "Elève"
+            | _ -> "TO DO"
+        in
         let csv =
           [
             ["Prénom";student_id.Public_data.firstname];
@@ -324,13 +295,7 @@ let get_student_file_gen
             ["Promotion";Tools.unsome_string student_id.Public_data.promotion];
             ["Origine";origine];
             ["Status";status];
-            ["Situation"];
-            ["Année";"Situation";"Pgm études";"Derniere année	"];
-						[promotion;"Scolarité à l'ENS ";"O"];
-            ["Département(s)"];
-            ["Année";"Principal";"Secondaire"];
-            [promotion;main_dpt;""]
-          ]
+                  ]
         in
         let file = output_file_name in
         let file =
