@@ -129,6 +129,7 @@ type parameters =
     repartition: Public_data.repartition;
     add_grades_without_registration: bool ;
     load_gps_data: bool ;
+    log_pegasus_entries: bool ;
   }
 
 
@@ -268,6 +269,7 @@ let parameters =
     repartition = Public_data.Annee_de_validation_du_cours;
     add_grades_without_registration = true  ;
     load_gps_data = false ;
+    log_pegasus_entries = true;
   }
 
 let _ = parameters.parameters_repository
@@ -3095,3 +3097,4 @@ let log_string
 let get_diplomation_year t = t, t.parameters.diplomation_year
 let do_we_consider_grades_without_registration t = t, t.parameters.add_grades_without_registration
 let do_we_load_gps_data t = t,t.parameters.load_gps_data
+let do_we_log_pegasus_entries t  = t,t.parameters.log_pegasus_entries

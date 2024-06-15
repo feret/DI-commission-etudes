@@ -770,4 +770,5 @@ val get_diplomation_year: t -> t * string option
 val get_is_bilingual: t -> t * bool
 val bilingual_string: ?english:string -> french:string -> t -> t * string
 val do_we_consider_grades_without_registration: t -> t * bool
-val do_we_load_gps_data: t -> t * bool 
+val do_we_load_gps_data: t -> t * bool
+val do_we_log_pegasus_entries: t -> t * bool
