@@ -2194,6 +2194,7 @@ let get_birth_date = get_gen __POS__ (fun a -> a.Public_data.pegasus_birthdate)
 let get_birth_city_fr = get_gen __POS__ (fun a -> a.Public_data.pegasus_birth_city_fr)
 let get_birth_country_fr = get_gen __POS__ (fun a -> a.Public_data.pegasus_birth_country_fr)
 let get_ine_number = get_gen __POS__ (fun a -> a.Public_data.pegasus_ine)
+let get_produit_code = get_gen __POS__ (fun a -> a.Public_data.pegasus_produit_de_formation)
 
 let add_cost_member = add_gen_list get_cost_members set_cost_members
 

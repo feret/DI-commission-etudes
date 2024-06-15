@@ -470,6 +470,11 @@ val get_ine_number:
         lastname:string ->
         year:string -> t -> t * string option
 
+val get_produit_code:
+        firstname:string ->
+        lastname:string ->
+        year:string -> t -> t * string option
+
 val get_sorted_courses_list_repository: t -> t * string
 val add_sorted_course:      (string * int * int * int ->
              t ->

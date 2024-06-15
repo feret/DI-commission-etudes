@@ -278,6 +278,38 @@ let get_student_file_gen
             ~year:(Tools.unsome_string student_id.Public_data.promotion)
             state
         in
+        let state, code_produit =
+            Remanent_state.get_produit_code
+            ~firstname:student_id.Public_data.firstname
+            ~lastname:student_id.Public_data.lastname
+            ~year:(Tools.unsome_string student_id.Public_data.promotion)
+            state
+        in
+        let main_dpt =
+            match code_produit with
+            | None -> ""
+            | Some s ->
+            let n = String.length s in
+            if n = 0 then ""
+            else
+            match String.sub s 0 (n-1) with
+              | "ANDART" -> ""
+              | "ANDBIO" -> "BIOLOGIE"
+              | "ANDCHI" -> "CHIMIE"
+              | "ANDDEC" -> ""
+              | "ANDDMA" -> "MATHÉMATIQUES"
+              | "ANDDSA" -> ""
+              | "ANDDSS" -> ""
+              | "ANDECO" -> "ÉCONOMIE"
+              | "ANDGEO" -> "GÉOGRAPHIE"
+              | "ANDGSC" -> "GEOSCIENCES"
+              | "ANDHIS" -> "HISTOIRE"
+              | "ANDINF" -> "INFORMATIQUE"
+              | "ANDLIT" -> "LITTÉRATURE"
+              | "ANDPHI" -> "PHILOSOPHIE"
+              | "ANDPHY" -> "PHYSIQUE"
+              | _ -> "" 
+        in
         let date_de_naissance = Tools.unsome_string date_de_naissance in
         let origine = Tools.unsome_string origine in
         let genre = Tools.unsome_string genre in
@@ -290,7 +322,10 @@ let get_student_file_gen
             ["Date de naissance";date_de_naissance];
             ["Promotion";Tools.unsome_string student_id.Public_data.promotion];
             ["Origine";origine];
-            ["Status";status]
+            ["Status";status];
+            ["Département(s)"];
+            ["Année";"Principal";"Secondaire"];
+            [promotion;main_dpt;""]
           ]
         in
         let file = output_file_name in
@@ -453,7 +488,7 @@ let try_get_student_file
       let state, b = Remanent_state.do_we_load_gps_data state in
       let promotion = student_id.Public_data.promotion in
       let promotion = Tools.unsome_string promotion in
-      let promotion = try int_of_string promotion with _ -> 0 in 
+      let promotion = try int_of_string promotion with _ -> 0 in
       if b || promotion >= 2023 then
       get_student_file_gen
         ~f_firstname ~f_lastname ?dpt student_id
