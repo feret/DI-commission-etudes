@@ -305,7 +305,7 @@ let get_student_file_gen
               | "ANDGEO" -> "GÉOGRAPHIE"
               | "ANDGSC" -> "GEOSCIENCES"
               | "ANDHIS" -> "HISTOIRE"
-              | "ANDINF" -> "INFORMATIQUE"
+              | "ANDINF" ->   let () = Format.printf "%s %s (INFORMATIQUE)" firstname lastname s in "INFORMATIQUE"
               | "ANDLIT" -> "LITTÉRATURE"
               | "ANDPHI" -> "PHILOSOPHIE"
               | "ANDPHY" -> "PHYSIQUE"
