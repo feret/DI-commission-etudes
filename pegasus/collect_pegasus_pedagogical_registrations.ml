@@ -376,13 +376,16 @@ let get_pegasus_pedagogical_registrations
                         let convert_recap recapitulatif state =
                             let entry = empty_pegasus_entry in
                             match recapitulatif with
-                            | ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_)::(year::_)::(bloc::_)::_::_::(""::""::""::diploma::_)::tail ->
+                            | ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_)::(year::_)::(bloc::_)::_::_::tail
+ ->
                             let entry, state = update_year year entry state in
                             let entry, state  = update_bloc' bloc entry state in
-                            let state = update_diploma' diploma entry state in
                             let state =
                                 List.fold_left
                                   (fun state line ->
+                                      match line with
+                                        | (""::""::""::diploma::_) -> update_diploma' diploma entry state
+                                        | _ ->
                                       convert_line line entry state)
                                   state tail
                             in state
