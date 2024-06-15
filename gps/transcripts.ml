@@ -3410,10 +3410,10 @@ let translate_diplome
     if (int_of_string year) > 2022
     then
       begin
-        let state,b = Remanent_state.do_we_consider_grades_without_registration state in
-        if b then
+        (*let state,b = Remanent_state.do_we_consider_grades_without_registration state in*)
+        (*if b then
           state, (Some ("DENS"), "DENS", "DENS", "DENS", "DENS", false, false)
-        else
+        else*)
           begin
           dispatch ~firstname ~lastname  check_dpt origine situation code_cours year state
           end
@@ -6866,6 +6866,57 @@ let check ~year ~codehelisa blacklist =
     | None -> false
     | Some set -> Public_data.CodeSet.mem codehelisa set
 
+let ects_6 =
+  [
+    "DMA-L3-GL3-S1";
+    "DMA-L3-GL1-S1";
+    "PHYS-L3-A05-S1";
+  ]
+let ects_9 =
+  [
+    "PHYS-L3-A01-S1";
+    "PHYS-L3-B03-S2";
+    "PHYS-L3-B09-S2";
+    "PHYS-L3-B10-S2";
+    "PHYS-L3-B12-S2";
+    "PHYS-L3-B19-S2";
+    ]
+
+let ects_12 =
+    [
+    "DMA-L3-A01-S1";
+    "DMA-L3-A02-S1";
+    "DMA-L3-A03-S1";
+    "DMA-L3-A04-S2";
+    "DMA-L3-A05-S2";
+    "DMA-L3-A06-S2";
+    "DMA-L3-M01-S2";
+    "DMA-L3-M03-S2";
+    "DMA-M1-B01-S1";
+    "DMA-M1-B03-S1";
+    "DMA-M1-B05-S2";
+    "DMA-M1-B06-S2";
+    "DMA-M1-C04-S2";
+]
+
+let ects_24 =
+  [
+    "PHYS-L3-B11-S2";
+]
+let code_map = Public_data.CodeMap.empty
+let fill l ects map =
+    List.fold_left (fun map x -> Public_data.CodeMap.add x ects map) map l
+
+let code_map = fill ects_6 6. code_map
+let code_map = fill ects_9 9. code_map
+let code_map = fill ects_12 12. code_map
+let code_map = fill ects_24 24. code_map
+let ects_of_code_cours code_cours =
+    match code_cours with
+    | None -> Some 0.
+    | Some code ->
+      Public_data.CodeMap.find_opt code code_map
+
 let add_pegasus_entries ~firstname ~lastname state gps_file =
     let state, l = Remanent_state.Collector_pedagogical_registrations.find_list ~firstname ~lastname state in
     let state, gps_file, blacklist =
@@ -7109,16 +7160,17 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           | None ->
             Remanent_state.warn __POS__ "Course not found in helisa database" Exit state, gps_file
           | Some course ->
+            let code_cours =
+              match course.Public_data.pegasus_codegps
+              with
+              | None -> Some codehelisa
+              | Some x -> Some x
+            in
+            let ects = ects_of_code_cours code_cours in
             let elt =
               {
                 semestre = None ;
-                code_cours =
-                  begin
-                    match course.Public_data.pegasus_codegps
-                    with
-                      | None -> Some codehelisa
-                      | Some x -> Some x
-                  end;
+                code_cours ;
                 responsable = None ;
                 enseignants = Some (Tools.get_teachers course.Public_data.pegasus_profs)  ;
                 cours_libelle =
@@ -7127,7 +7179,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                   end;
                 cours_etablissement = None ;
                 duree = None ;
-                ects = None (* TO DO *);
+                ects ;
                 diplome = None ;
                 contrat = None ;
                 accord = Some true ;
