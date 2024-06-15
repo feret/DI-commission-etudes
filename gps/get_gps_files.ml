@@ -305,7 +305,7 @@ let get_student_file_gen
               | "ANDGEO" -> "GÉOGRAPHIE"
               | "ANDGSC" -> "GEOSCIENCES"
               | "ANDHIS" -> "HISTOIRE"
-              | "ANDINF" ->   let () = Format.printf "%s %s (INFORMATIQUE)" firstname lastname s in "INFORMATIQUE"
+              | "ANDINF" ->   let () = Format.printf "%s %s (INFORMATIQUE)" firstname lastname in "INFORMATIQUE"
               | "ANDLIT" -> "LITTÉRATURE"
               | "ANDPHI" -> "PHILOSOPHIE"
               | "ANDPHY" -> "PHYSIQUE"
@@ -324,6 +324,9 @@ let get_student_file_gen
             ["Promotion";Tools.unsome_string student_id.Public_data.promotion];
             ["Origine";origine];
             ["Status";status];
+            ["Situation"];
+            ["Année";"Situation";"Pgm études";"Derniere année	"];
+						[promotion;"Scolarité à l'ENS ";"O"];
             ["Département(s)"];
             ["Année";"Principal";"Secondaire"];
             [promotion;main_dpt;""]
