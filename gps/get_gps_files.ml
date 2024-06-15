@@ -287,8 +287,9 @@ let get_student_file_gen
         in
         let main_dpt =
             match code_produit with
-            | None -> ""
+            | None -> let () = Format.printf "%s %s (NONE)" firstname lastname in ""
             | Some s ->
+            let () = Format.printf "%s %s (%s)" firstname lastname s in
             let n = String.length s in
             if n = 0 then ""
             else
@@ -308,7 +309,7 @@ let get_student_file_gen
               | "ANDLIT" -> "LITTÉRATURE"
               | "ANDPHI" -> "PHILOSOPHIE"
               | "ANDPHY" -> "PHYSIQUE"
-              | _ -> "" 
+              | _ -> ""
         in
         let date_de_naissance = Tools.unsome_string date_de_naissance in
         let origine = Tools.unsome_string origine in
