@@ -7113,6 +7113,31 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           },blacklist)
     (state,gps_file,blacklist) l
     in
+    let situation = gps_file.situation in
+    let state, situation =
+      Public_data.YearMap.fold
+        (fun year data (state,situation) ->
+            match data.departement_principal with
+              | Some _ -> state, situation
+              | None ->
+              begin
+                let state, main_dpt =
+                    Remanent_state.get_produit_code
+                      ~firstname ~lastname ~year state
+                in
+                let state, departement_principal =
+                  match main_dpt with
+                    | None -> state, None
+                    | Some x ->
+                        dpt_of_code state x
+
+                in
+
+                state, Public_data.YearMap.add year {data with departement_principal} situation end)
+       situation
+       (state, situation)
+    in
+    let gps_file = {gps_file with situation} in
     let state, b = Remanent_state.do_we_consider_grades_without_registration state in
     if not b then
         state, gps_file
