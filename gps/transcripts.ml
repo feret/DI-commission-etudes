@@ -3098,10 +3098,6 @@ else
 
 let dispatch_l ~firstname ~lastname check_dpt  origine situation code_cours year state =
   begin
-    let state = Remanent_state.warn
-        __POS__ (Format.sprintf "DISPATCH_L %s %s %s" firstname lastname code_cours)
-        Exit state
-    in
     let lmath = lmath ~year ~firstname ~lastname situation state in
     let is_m2 = false in
     if lpoly situation
@@ -3173,10 +3169,6 @@ let dispatch_l ~firstname ~lastname check_dpt  origine situation code_cours year
 end
 
 let dispatch check_dpt  ~firstname ~lastname origine situation code_cours year state =
-    let state = Remanent_state.warn
-      __POS__ (Format.sprintf "DISPATCH %s %s %s" firstname lastname code_cours)
-      Exit state
-    in
     match situation.inscription_helisa with
       | [] ->
       let state =
@@ -3322,10 +3314,6 @@ let translate_diplome
       state, (Some diplome,label,label_en,"","",false,false)
     | Some dpt, _  ->
       let dpt = Special_char.lowercase dpt in
-      let state = Remanent_state.warn
-        __POS__ (Format.sprintf "CHECK DPT %s %s %s %s" firstname lastname code_cours dpt)
-        Exit state
-      in
       let dpt,dpt_en =
         if dpt = "mathématiques et applications"
         then

@@ -143,6 +143,12 @@ let update_diploma diploma entry (state:Remanent_state.t) =
 
   let update_diploma' diploma entry (state:Remanent_state.t) =
       let libelle = diploma in
+      match libelle with
+      | "Département de physique"
+      | "Département de mathématiques et applications"
+      | "Département de sciences sociales"
+      | "Département d'informatique" -> state  (* TODO DPT DECONDAIRE *)
+      | _ ->
       let state, code =
           match libelle with
           | "Diplôme de M1 suivi à l'ENS-PSL" -> state, "UNDDIPE-M1"
@@ -153,6 +159,10 @@ let update_diploma diploma entry (state:Remanent_state.t) =
           | "Diplôme de M2 suivi à l'ENS-PSL" -> state, "UNDDIPE-M2"
           | "Diplôme de M2 suivi en dehors de l'ENS-PSL" -> state, "UNDDIPH-M2"
           | "Aucun diplôme national" ->  state, "UNDDIPL-NA"
+          | "Département de physique"
+          | "Département de mathématiques et applications"
+          | "Département de sciences sociales"
+          | "Département d'informatique"
           | _ ->
           Remanent_state.warn __POS__ (Format.sprintf "UPDATE_DIPLOMA' %s %s (%s) @." (Tools.unsome_string entry.firstname) (Tools.unsome_string entry.lastname) libelle) Exit state, "UNDDIPL-NA"
           in
