@@ -143,15 +143,16 @@ let update_diploma diploma entry (state:Remanent_state.t) =
 
   let update_diploma' diploma entry (state:Remanent_state.t) =
       let libelle = diploma in
-      let code =
+      let state, code =
           match libelle with
-          | "Diplôme de M1 suivi à l'ENS-PSL" -> "UNDDIPE-M1"
-          | "Diplôme de M1 suivi en dehors de l'ENS-PSL" -> "UNDDIPH-M1"
-          | "Diplôme de L3 suivi à l'ENS-PSL" -> "UNDDIPE-L3"
-          | "Diplôme de L3 suivi en dehors de l'ENS-PSL" -> "UNDDIPH-L3"
-          | "Diplôme de M2 suivi à l'ENS-PSL" -> "UNDDIPE-M2"
-          | "Diplôme de M2 suivi en dehors de l'ENS-PSL" -> "UNDDIPH-M2"
-          | _ -> "UNDDIPL-NA"
+          | "Diplôme de M1 suivi à l'ENS-PSL" -> state, "UNDDIPE-M1"
+          | "Diplôme de M1 suivi en dehors de l'ENS-PSL" -> state, "UNDDIPH-M1"
+          | "Diplôme de L3 suivi à l'ENS-PSL" -> state, "UNDDIPE-L3"
+          | "Diplôme de L3 suivi en dehors de l'ENS-PSL" -> state, "UNDDIPH-L3"
+          | "Diplôme de M2 suivi à l'ENS-PSL" -> state, "UNDDIPE-M2"
+          | "Diplôme de M2 suivi en dehors de l'ENS-PSL" -> state, "UNDDIPH-M2"
+          | _ ->
+          Remanent_state.warn __POS__ (Format.sprintf "UPDATE_DIPLOMA' (%s) @." libelle) Exit state, "UNDDIPL-NA"
           in
           let code_gps = entry.code_gps in
           let code_helisa, libelle = Some code, Some libelle in
