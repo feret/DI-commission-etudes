@@ -152,7 +152,7 @@ let update_diploma diploma entry (state:Remanent_state.t) =
           | "Diplôme de M2 suivi à l'ENS-PSL" -> state, "UNDDIPE-M2"
           | "Diplôme de M2 suivi en dehors de l'ENS-PSL" -> state, "UNDDIPH-M2"
           | _ ->
-          Remanent_state.warn __POS__ (Format.sprintf "UPDATE_DIPLOMA' %s %s (%s) @." entry.firstname entry.lastname libelle) Exit state, "UNDDIPL-NA"
+          Remanent_state.warn __POS__ (Format.sprintf "UPDATE_DIPLOMA' %s %s (%s) @." (Tools.unsome_string entry.firstname) (Tools.unsome_string entry.lastname) libelle) Exit state, "UNDDIPL-NA"
           in
           let code_gps = entry.code_gps in
           let code_helisa, libelle = Some code, Some libelle in
