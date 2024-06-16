@@ -424,10 +424,11 @@ let get_pegasus_pedagogical_registrations
                                 | ("Choix du département secondaire"::_)::tail
                                   -> let state, tail = aux_snd tail state in
                                      aux tail state
-                                | ("Diplôme suivi pendant l’année universitaire en cours"::_)::tail ->
+                                | ("Diplôme suivi pendant l'année universitaire en cours"::_)::tail | ("Diplôme suivi  pendant l'année universitaire en cours"::_)::tail ->
                                   let state,tail = aux_diploma tail state in
                                   aux tail state
                                 | line::tail ->
+                                    let state = Remanent_state.warn __POS__ (Format.sprintf "line (%s)" line) Exit state in 
                                     let state = convert_line line entry state in
                                     aux tail state
                             in aux tail state
