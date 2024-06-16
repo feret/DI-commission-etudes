@@ -6881,7 +6881,9 @@ let ects_6 =
     "PHYS-L3-A05-S1";
   ]
 let ects_9 =
-  [ "INFO-L3-LAPROCO-S1";
+  [
+    "INFO-L3-ALGOPRO-S1";
+    "INFO-L3-LAPROCO-S1";
     "INFO-L3-LAFORMCC-S1";
     "INFO-L3-SYSDIG-S1";
     "INFO-L3-SYSRES-S2";
@@ -6979,7 +6981,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           | Annee_dpt->
           begin
           let state, departement_principal = dpt_of_code state code in
-              let situation = gps_file.situation in
+          let situation = gps_file.situation in
           let bilan =
             match
               Public_data.YearMap.find_opt
