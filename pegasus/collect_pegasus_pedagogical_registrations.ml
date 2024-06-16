@@ -428,7 +428,7 @@ let get_pegasus_pedagogical_registrations
                                   let state,tail = aux_diploma tail state in
                                   aux tail state
                                 | line::tail ->
-                                    let state = Remanent_state.warn __POS__ (Format.sprintf "line (%s)" line) Exit state in 
+                                    let state = Remanent_state.warn __POS__ (Format.sprintf "line (%s)" (List.hd line)) Exit state in 
                                     let state = convert_line line entry state in
                                     aux tail state
                             in aux tail state
