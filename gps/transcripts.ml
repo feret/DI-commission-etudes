@@ -6884,13 +6884,21 @@ let ects_6 =
     "PHYS-L3-A05-S1";
   ]
 let ects_9 =
-  [
+  [ "INFO-L3-LAPROCO-S1";
+    "INFO-L3-LAFORMCC-S1";
+    "INFO-L3-SYSDIG-S1";
+    "INFO-L3-SYSRES-S2";
     "PHYS-L3-A01-S1";
     "PHYS-L3-B03-S2";
     "PHYS-L3-B09-S2";
     "PHYS-L3-B10-S2";
     "PHYS-L3-B12-S2";
     "PHYS-L3-B19-S2";
+    "UNINF2-007";
+    "UNINF2-008";
+    "UNINF2-013";
+    "UNINF2-015";
+
     ]
 
 let ects_12 =
@@ -6908,6 +6916,8 @@ let ects_12 =
     "DMA-M1-B05-S2";
     "DMA-M1-B06-S2";
     "DMA-M1-C04-S2";
+    "INFO-M1-MPRI113-S2";
+    "INFO-L3-STAGE-S2";
 ]
 
 let ects_24 =
