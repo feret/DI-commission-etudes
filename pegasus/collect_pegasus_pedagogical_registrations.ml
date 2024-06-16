@@ -407,10 +407,6 @@ let get_pegasus_pedagogical_registrations
                             let rec aux_diploma tail state =
                               match tail with [] -> state, []
                                             | (""::""::""::diploma::_)::tail when diploma <> "" ->
-                                            let state =
-                                                Remanent_state.warn __POS__
-                                                    (Format.sprintf "AUX DIPLOMA %s %s (%s)" (Tools.unsome_string entry.firstname) (Tools.unsome_string entry.lastname) diploma)
-                                                    Exit state in
                                             let state = update_diploma' diploma entry state in
                                             aux_diploma tail state
                                             | _ -> state, tail
@@ -418,10 +414,6 @@ let get_pegasus_pedagogical_registrations
                             let rec aux_snd tail state =
                               match tail with [] -> state, []
                                             | (""::""::""::dpt::_)::tail when dpt <> "" ->
-                                            let state =
-                                                Remanent_state.warn __POS__
-                                                    (Format.sprintf "AUX SND %s %s (%s)" (Tools.unsome_string entry.firstname) (Tools.unsome_string entry.lastname) dpt)
-                                                    Exit state in
                                             let state = update_snd dpt entry state in
                                             aux_snd tail state
                                             | _ -> state, tail
@@ -431,17 +423,14 @@ let get_pegasus_pedagogical_registrations
                                 | [] -> state
                                 | ("Choix du département secondaire"::_)::tail
                                   ->
-                                    let state = Remanent_state.warn __POS__ (Format.sprintf "Choix du département secondaire %s %s" (Tools.unsome_string entry.firstname) (Tools.unsome_string entry.lastname)) Exit state in
-                                    let state, tail = aux_snd tail state in
-                                     aux tail state
+                                  let state, tail = aux_snd tail state in
+                                  aux tail state
                                 | ("Diplôme suivi  pendant l’année universitaire en cours"::_)::tail  ->
-                                    let state = Remanent_state.warn __POS__ (Format.sprintf "Diplôme %s %s" (Tools.unsome_string entry.firstname) (Tools.unsome_string entry.lastname)) Exit state in
                                   let state,tail = aux_diploma tail state in
                                   aux tail state
                                 | line::tail ->
-                                    let state = Remanent_state.warn __POS__ (Format.sprintf "line %s %s (%s)" (Tools.unsome_string entry.firstname) (Tools.unsome_string entry.lastname) (List.hd line)) Exit state in
-                                    let state = convert_line line entry state in
-                                    aux tail state
+                                  let state = convert_line line entry state in
+                                  aux tail state
                             in aux tail state
                           | _ -> state
                         in
