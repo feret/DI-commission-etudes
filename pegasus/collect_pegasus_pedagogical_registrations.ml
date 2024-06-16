@@ -141,14 +141,30 @@ let update_diploma diploma entry (state:Remanent_state.t) =
         (fun _ state a _ -> state,a) __POS__
         entry state
 
+  let update_snd dpt entry state =
+    let snd x = Format.sprintf "UNDDSEC%s" x in
+    let state, code =
+    match dpt with
+    | "Département de physique" -> state, snd "PHYS"
+    | "Département de mathématiques et applications" -> state, snd "DMA"
+    | "Département de sciences sociales" -> state, snd "DSS"
+    | "Département d'informatique" -> state, snd "INFO"
+    | "Département de chimie" -> state, snd "CHIMIE"
+    | "Département de géosciences" -> state, snd "GEOSCIENCES"
+    | "Département de biologie" -> state, snd "IBENS"
+    | "Département d'économie" -> state, snd "ECO"
+    | "Département des arts" -> state, snd "ART"
+    | _ ->
+      Remanent_state.warn __POS__ (Format.sprintf "UPDATE_SND' %s %s (%s) @." (Tools.unsome_string entry.firstname) (Tools.unsome_string entry.lastname) dpt) Exit state, "SND-NA"
+  in
+  let code_helisa, libelle = Some code, Some dpt in
+  let state, entry = convert {entry with libelle ; code_helisa } state in
+  add
+        (fun _ state a _ -> state,a) __POS__
+        entry state
+
   let update_diploma' diploma entry (state:Remanent_state.t) =
       let libelle = diploma in
-      match libelle with
-      | "Département de physique"
-      | "Département de mathématiques et applications"
-      | "Département de sciences sociales"
-      | "Département d'informatique" -> state  (* TODO DPT DECONDAIRE *)
-      | _ ->
       let state, code =
           match libelle with
           | "Diplôme de M1 suivi à l'ENS-PSL" -> state, "UNDDIPE-M1"
@@ -159,16 +175,11 @@ let update_diploma diploma entry (state:Remanent_state.t) =
           | "Diplôme de M2 suivi à l'ENS-PSL" -> state, "UNDDIPE-M2"
           | "Diplôme de M2 suivi en dehors de l'ENS-PSL" -> state, "UNDDIPH-M2"
           | "Aucun diplôme national" ->  state, "UNDDIPL-NA"
-          | "Département de physique"
-          | "Département de mathématiques et applications"
-          | "Département de sciences sociales"
-          | "Département d'informatique"
-          | _ ->
+            | _ ->
           Remanent_state.warn __POS__ (Format.sprintf "UPDATE_DIPLOMA' %s %s (%s) @." (Tools.unsome_string entry.firstname) (Tools.unsome_string entry.lastname) libelle) Exit state, "UNDDIPL-NA"
           in
-          let code_gps = entry.code_gps in
           let code_helisa, libelle = Some code, Some libelle in
-          let state, entry = convert {entry with libelle ; code_helisa ; code_gps } state in
+          let state, entry = convert {entry with libelle ; code_helisa  } state in
           add
                 (fun _ state a _ -> state,a) __POS__
                 entry state
@@ -393,16 +404,34 @@ let get_pegasus_pedagogical_registrations
  ->
                             let entry, state = update_year year entry state in
                             let entry, state  = update_bloc' bloc entry state in
-                            let state =
-                                List.fold_left
-                                  (fun state line ->
-                                      match line with
-                                        | (""::""::""::diploma::_) when diploma <> "" -> update_diploma' diploma entry state
-                                        | _ ->
-                                      convert_line line entry state)
-                                  state tail
-                            in state
-                            | _ -> state
+                            let rec aux_diploma tail state =
+                              match tail with [] -> state, []
+                                            | (""::""::""::diploma::_)::tail when diploma <> "" ->
+                                            let state = update_diploma' diploma entry state in
+                                            aux_diploma tail state
+                                            | _ -> state, tail
+                            in
+                            let rec aux_snd tail state =
+                              match tail with [] -> state, []
+                                            | (""::""::""::dpt::_)::tail when dpt <> "" ->
+                                            let state = update_snd dpt entry state in
+                                            aux_snd tail state
+                                            | _ -> state, tail
+                            in
+                            let rec aux tail state =
+                              match tail with
+                                | [] -> state
+                                | ("Choix du département secondaire"::_)::tail
+                                  -> let state, tail = aux_snd tail state in
+                                     aux tail state
+                                | ("Diplôme suivi  pendant l’année universitaire en cours"::_)::tail ->
+                                  let state,tail = aux_diploma tail state in
+                                  aux tail state
+                                | line::tail ->
+                                    let state = convert_line line entry state in
+                                    aux tail state
+                            in aux tail state
+                          | _ -> state 
                         in
                         let l = split list in
                         let () = Format.printf "RECAPITULATIFS :%i @." (List.length l) in

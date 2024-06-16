@@ -33,6 +33,7 @@ module StringOptMap =
 
 let dpt_maths = "mathematiques"
 let dpt_info = "informatique"
+let dpt_sciences_sociales = "sciences sociales"
 let dpt_chimie = "chimie"
 let dpt_geosciences = "geosciences"
 let dpt_phys = "physique"
@@ -47,12 +48,6 @@ let dpt_dec = "etudes cognitives"
 let dpt_eco = "economie"
 let dpt_dri = "relations internationales"
 
-let translate_dpt_helisa x =
-  match x with
-  | "UNDDSECDEC" -> Some dpt_dec
-  | "UNDDSECDMA" -> Some dpt_maths
-  | "UNDDSECINFO" -> Some dpt_info
-  | _ -> None
 
 let dpt_maths_en = "mathematics"
 let dpt_info_en = "computer science"
@@ -6851,6 +6846,20 @@ let dpt_of_code state x =
             (Format.sprintf "Unknown dpt code (%s)" x)
             Exit state, None
 
+let dpt_of_snd state x =
+  match x with
+    | "UNDDSEC-DMA" -> state, Some dpt_maths
+    | "UNDDSEC-DSS" -> state, Some dpt_sciences_sociales
+    | "UNDDSEC-DI" -> state, Some dpt_info
+    | "UNDDSEC-CHIMIE" -> state, Some dpt_chimie
+    | "UNDDSEC-GEOSCIENCES" -> state, Some dpt_geosciences
+    | "UNDDSEC-IBENS" -> state, Some dpt_bio
+    | "UNDDSEC-ECO" -> state, Some dpt_eco
+    | "UNDDSEC-ART" -> state, Some dpt_arts
+    | _ ->
+      Remanent_state.warn
+        __POS__ (Format.sprintf "Unknown dpt code (%s)" x) Exit state, None
+
 let blacklist = Public_data.YearMap.empty
 let add ~year ~codehelisa blacklist =
     let old_set =
@@ -7026,7 +7035,10 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             | None -> empty_bilan_annuel
             | Some b -> b
           in
-              let bilan = {bilan with departement_secondaire = translate_dpt_helisa code} in
+          let state, departement_secondaire =
+              dpt_of_snd state code
+          in
+              let bilan = {bilan with departement_secondaire } in
           state,
           {gps_file with
            situation =
