@@ -385,7 +385,7 @@ let get_pegasus_pedagogical_registrations
                                 List.fold_left
                                   (fun state line ->
                                       match line with
-                                        | (""::""::""::diploma::_) -> update_diploma' diploma entry state
+                                        | (""::""::""::diploma::_) when diploma <> "" -> update_diploma' diploma entry state
                                         | _ ->
                                       convert_line line entry state)
                                   state tail
