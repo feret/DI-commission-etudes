@@ -7312,6 +7312,18 @@ let deal_with_l3_m1_dma ~year ~situation filtered_classes state =
                     in
                     split state t l3 m1 autre
             in
+            let is_phys c =
+                match c.code_cours with
+                  | None -> false
+                  | Some x -> (String.length x > 3) && String.sub x 0 4 = "PHYS"
+            in
+            let is_info c =
+                match c.code_cours with
+                  | None -> false
+                  | Some x -> (String.length x > 3) && String.sub x 0 4 = "INFO"
+            in
+            if List.exists (fun c -> is_info c || is_phys c) filtered_classes then state, filtered_classes
+            else
             let state, l3, m1, autre = split state (List.rev filtered_classes) [] [] []
             in
             let etcs =
