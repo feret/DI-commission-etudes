@@ -7298,9 +7298,10 @@ let deal_with_l3_m1_dma ~year ~situation filtered_classes state =
                 | [] -> state, l3, m1, autre
                 | h::t ->
                   let state, l3, m1, autre =
-                    match h.code_cours with
-                      | None -> state, l3, m1, h::autre
-                      | Some s ->
+                    match h.diploma, h.code_cours with
+                      | Some _, _ -> state, l3, m1, h::autre
+                      | _, None -> state, l3, m1, h::autre
+                      | _, Some s ->
                           if String.length s < 6 then state, l3, m1, h::autre
                           else if String.sub s 0 6 = "DMA-L3"
                                then state,h::l3,m1,autre
