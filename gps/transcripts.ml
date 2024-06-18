@@ -6928,6 +6928,7 @@ let ects_12 =
     "DMA-M1-C04-S2";
     "DMA-M1-C09-S2";
     "DMA-M1-D02-S2";
+    "DMA-M1-GT2-S1";
     "DMA-M1-GT4-S1";
     "DMA-M1-GT8-S1";
     "INFO-M1-MPRI113-S2";
@@ -7266,6 +7267,85 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                bilan gps_file.situation
           })
     (state,gps_file) l'
+
+let deal_with_l3_m1_dma ~year ~situation filtered_classes state =
+    if int_of_string year < 2022 then state, filtered_classes
+    else
+    match situation.inscription_helisa with
+        | [] ->
+          let state =
+            Remanent_state.warn __POS__ "No option checked for national diploma in student gates"
+            Exit state
+          in
+          state, filtered_classes
+        | _::_::_  ->
+          let state =
+            Remanent_state.warn __POS__ "Several options checked for national diploma in student gates"
+            Exit state
+          in
+          let state =
+            List.fold_left
+              (fun state entry ->
+                  Remanent_state.warn __POS__ (Format.sprintf "%s" (match entry with L3_PSL -> "L3_PSL"
+                  | L3_HPSL -> "L3_HPSL" | M1_PSL -> "M1_PSL" | M1_HPSL -> "M1_HPSL" | M2_PSL -> "M2_PSL" | M2_HPSL -> "M2_HPSL" | Autre -> "Autre" ))
+                  Exit state) state situation.inscription_helisa
+          in state, filtered_classes
+        | [M1_PSL] | [M1_HPSL] | [M2_PSL] | [M2_HPSL] | [Autre] -> state, filtered_classes
+        | [L3_PSL] | [L3_HPSL] ->
+          begin
+            let rec split state l l3 m1 autre =
+              match l with
+                | [] -> state, l3, m1, autre
+                | h::t ->
+                  let state, l3, m1, autre =
+                    match h.code_cours with
+                      | None -> state, l3, m1, h::autre
+                      | Some s ->
+                          if String.length s < 6 then state, l3, m1, h::autre
+                          else if String.sub s 0 6 = "DMA-L3"
+                               then state,h::l3,m1,autre
+                               else if String.sub s 0 6 = "DMA-M1"
+                               then state,l3,h::m1, autre
+                               else state,l3,m1,autre
+                    in
+                    split state t l3 m1 autre
+            in
+            let state, l3, m1, autre = split state (List.rev filtered_classes) [] [] []
+            in
+            let etcs =
+              List.fold_left (fun ects c ->
+                                match c.ects with None -> ects | Some ects' -> ects +. ects') 0. l3
+            in
+            let p a b =
+              match a.note,b.note with
+                | Some (Public_data.Float a)  , Some (Public_data.Float b) -> a> b
+                | Some (Public_data.Float _),_  -> true
+                |  _, Some (Public_data.Float _) -> false
+                | (None | Some (Public_data.String _ | Public_data.Absent|Public_data.En_cours|Public_data.Abandon|Public_data.Valide_sans_note|Public_data.Temporary _)),
+(None | Some (Public_data.String _ | Public_data.Absent|Public_data.En_cours|Public_data.Abandon|Public_data.Valide_sans_note|Public_data.Temporary _))
+                    -> true
+
+            in
+            let state, l3, m1 =
+              if etcs >= 60. then state, l3, m1
+              else
+                let rec search list best others =
+                  match list with [] -> best, others
+                            | h::t -> if p h best then search t h (best::t)
+                                                  else search t best (h::t)
+                in
+                match l3 with [] -> state, l3, m1
+                              | h::t ->
+                        let m1elt,l3 = search t h [] in
+                        state, l3, m1elt::m1
+            in
+            let m1 =
+              List.rev_map
+                  (fun x -> {x with diplome=(Some "M")}) (List.rev m1)
+            in
+            state, List.concat [l3;m1;autre]
+
+          end
 
 
 let export_transcript
@@ -7717,6 +7797,9 @@ let export_transcript
              filter_class ~firstname ~lastname ~year
                state unvalidated remove_non_valided_classes
                situation.cours
+           in
+           let state, filtered_classes =
+              deal_with_l3_m1_dma ~year ~situation filtered_classes state
            in
            let state, (cursus_map, split_cours) =
              List.fold_left
