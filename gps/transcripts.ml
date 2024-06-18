@@ -7322,8 +7322,11 @@ let deal_with_l3_m1_dma ~year ~situation filtered_classes state =
                   | None -> false
                   | Some x -> (String.length x > 3) && String.sub x 0 4 = "INFO"
             in
+            let is_lm c =
+                c.diplome = None
+            in
             let double_cursus =
-              List.exists (fun c -> is_info c || is_phys c) filtered_classes
+              List.exists (fun c -> is_lm c && (is_info c || is_phys c)) filtered_classes
             in
             let state, l3, m1, autre = split state (List.rev filtered_classes) [] [] []
             in
