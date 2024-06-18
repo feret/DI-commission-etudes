@@ -7336,10 +7336,10 @@ let deal_with_l3_m1_dma ~year ~situation filtered_classes state =
                             | h::t -> if p h best then search t h (best::others)
                                                   else search t best (h::others)
                 in
-                match l3 with [] -> state, l3, m1
+                match m1 with [] -> state, l3, m1
                               | h::t ->
-                        let m1elt,l3 = search t h [] in
-                        state, l3, m1elt::m1
+                        let m1elt,m1 = search t h [] in
+                        state, m1elt::l3, m1
             in
             let m1 =
               List.rev_map
