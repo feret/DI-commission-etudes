@@ -6917,6 +6917,7 @@ let ects_12 =
     "DMA-L3-M01-S2";
     "DMA-L3-M03-S2";
     "DMA-M1-B01-S1";
+    "DMA-M1-B02-S1";
     "DMA-M1-B02-S2";
     "DMA-M1-B03-S1";
     "DMA-M1-B04-S1";
@@ -7332,8 +7333,8 @@ let deal_with_l3_m1_dma ~year ~situation filtered_classes state =
               else
                 let rec search list best others =
                   match list with [] -> best, others
-                            | h::t -> if p h best then search t h (best::t)
-                                                  else search t best (h::t)
+                            | h::t -> if p h best then search t h (best::others)
+                                                  else search t best (h::others)
                 in
                 match l3 with [] -> state, l3, m1
                               | h::t ->
