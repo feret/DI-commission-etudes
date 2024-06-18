@@ -7269,6 +7269,28 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           })
     (state,gps_file) l'
 
+let dump state l3 m1 autre =
+    let state = Remanent_state.warn __POS__ "DUMP @." Exit state in
+    let state =
+      List.fold_left
+        (fun state i ->
+          Remanent_state.warn __POS__ (Format.sprintf "DUMP L3 %s @." (Tools.unsome_string i.code_cours)) Exit state)
+        state l3
+    in
+    let state =
+      List.fold_left
+        (fun state i ->
+          Remanent_state.warn __POS__ (Format.sprintf "DUMP M1 %s @." (Tools.unsome_string i.code_cours)) Exit state)
+        state m1
+    in
+    let state =
+      List.fold_left
+        (fun state i ->
+          Remanent_state.warn __POS__ (Format.sprintf "DUMP AUTRE %s @." (Tools.unsome_string i.code_cours)) Exit state)
+        state autre
+    in
+    state
+
 let deal_with_l3_m1_dma ~year ~situation filtered_classes state =
     if int_of_string year < 2022 then state, filtered_classes
     else
@@ -7330,6 +7352,7 @@ let deal_with_l3_m1_dma ~year ~situation filtered_classes state =
             in
             let state, l3, m1, autre = split state (List.rev filtered_classes) [] [] []
             in
+            let state = dump state l3 m1 autre in
             let etcs =
               List.fold_left (fun ects c ->
                                 match c.ects with None -> ects | Some ects' -> ects +. ects') 0. l3
@@ -7357,6 +7380,7 @@ let deal_with_l3_m1_dma ~year ~situation filtered_classes state =
                         let m1elt,m1 = search t h [] in
                         state, m1elt::l3, m1
             in
+            let state = dump state l3 m1 autre in
             let m1 =
               List.rev_map
                   (fun x -> {x with diplome=(Some "M")}) (List.rev m1)
