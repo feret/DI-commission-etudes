@@ -7322,8 +7322,9 @@ let deal_with_l3_m1_dma ~year ~situation filtered_classes state =
                   | None -> false
                   | Some x -> (String.length x > 3) && String.sub x 0 4 = "INFO"
             in
-            if List.exists (fun c -> is_info c || is_phys c) filtered_classes then state, filtered_classes
-            else
+            let double_cursus =
+              List.exists (fun c -> is_info c || is_phys c) filtered_classes
+            in
             let state, l3, m1, autre = split state (List.rev filtered_classes) [] [] []
             in
             let etcs =
@@ -7341,7 +7342,7 @@ let deal_with_l3_m1_dma ~year ~situation filtered_classes state =
 
             in
             let state, l3, m1 =
-              if etcs >= 60. then state, l3, m1
+              if etcs >= 60. || double_cursus then state, l3, m1
               else
                 let rec search list best others =
                   match list with [] -> best, others
