@@ -406,14 +406,14 @@ let get_pegasus_pedagogical_registrations
                             let entry, state  = update_bloc' bloc entry state in
                             let rec aux_diploma tail state =
                               match tail with [] -> state, []
-                                            | (""::""::""::diploma::_)::tail when diploma <> "" ->
+                                            | (""::""::diploma::_)::tail when diploma <> "" ->
                                             let state = update_diploma' diploma entry state in
                                             aux_diploma tail state
                                             | _ -> state, tail
                             in
                             let rec aux_snd tail state =
                               match tail with [] -> state, []
-                                            | (""::""::""::dpt::_)::tail when dpt <> "" ->
+                                            | (""::""::dpt::_)::tail when dpt <> "" ->
                                             let state = update_snd dpt entry state in
                                             aux_snd tail state
                                             | _ -> state, tail
