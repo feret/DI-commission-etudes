@@ -3310,7 +3310,7 @@ let translate_diplome
     | Some dpt, _  ->
       let dpt = Special_char.lowercase dpt in
       let dpt,dpt_en =
-        if dpt = "mathématiques et applications"
+        if dpt = "mathématiques et applications" || dpt = "mathematiques et applications"
         then
           "mathématiques","mathematics"
         else
@@ -6839,7 +6839,7 @@ let dpt_of_code state x =
     match x with
       | "ANDINF1" | "ANDINF2" | "ANDINF3" -> state, Some dpt_info_gps_name
       | "ANDDMA1" | "ANDDMA2" | "ANDDMA3" -> state, Some dpt_maths_gps_name
-      | "ANDCHI1" | "ANDCHI2" | "ANDCHI3" -> state, Some dpt_chimie_gps_name 
+      | "ANDCHI1" | "ANDCHI2" | "ANDCHI3" -> state, Some dpt_chimie_gps_name
       | _ ->
         Remanent_state.warn
             __POS__
@@ -6848,11 +6848,11 @@ let dpt_of_code state x =
 
 let dpt_of_snd state x =
   match x with
-    | "UNDDSEC-DMA" -> state, Some dpt_maths
+    | "UNDDSEC-DMA" -> state, Some dpt_maths_gps_name
     | "UNDDSEC-DSS" -> state, Some dpt_sciences_sociales
-    | "UNDDSEC-DI" -> state, Some dpt_info
-    | "UNDDSEC-CHIMIE" -> state, Some dpt_chimie
-    | "UNDDSEC-GEOSCIENCES" -> state, Some dpt_geosciences
+    | "UNDDSEC-DI" -> state, Some dpt_info_gps_name
+    | "UNDDSEC-CHIMIE" -> state, Some dpt_chimie_gps_name
+    | "UNDDSEC-GEOSCIENCES" -> state, Some dpt_geosciences_gps_name
     | "UNDDSEC-IBENS" -> state, Some dpt_bio
     | "UNDDSEC-ECO" -> state, Some dpt_eco
     | "UNDDSEC-ART" -> state, Some dpt_arts
