@@ -7307,7 +7307,7 @@ let deal_with_l3_m1_dma ~year ~situation filtered_classes state =
                                then state,h::l3,m1,autre
                                else if String.sub s 0 6 = "DMA-M1"
                                then state,l3,h::m1, autre
-                               else state,l3,m1,autre
+                               else state,l3,m1,h::autre
                     in
                     split state t l3 m1 autre
             in
