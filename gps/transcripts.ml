@@ -7298,7 +7298,7 @@ let deal_with_l3_m1_dma ~year ~situation filtered_classes state =
                 | [] -> state, l3, m1, autre
                 | h::t ->
                   let state, l3, m1, autre =
-                    match h.diploma, h.code_cours with
+                    match h.diplome, h.code_cours with
                       | Some _, _ -> state, l3, m1, h::autre
                       | _, None -> state, l3, m1, h::autre
                       | _, Some s ->
