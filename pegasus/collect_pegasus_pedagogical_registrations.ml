@@ -393,7 +393,9 @@ let get_pegasus_pedagogical_registrations
                         in
                         let convert_line line entry state =
                             match line with
-                              | sem::""::libelle::""::""::""::""::teacher::""::""::ects::_ ->   if libelle = "" then state else
+                              | sem::""::libelle::""::""::""::""::teacher::""::""::ects::_
+                              |
+                              sem::libelle::teacher::ects::_  ->   if libelle = "" then state else
                                 update_course' sem libelle teacher ects entry state
                               | _ -> state
                         in
