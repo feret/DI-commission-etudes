@@ -6877,8 +6877,13 @@ let check ~year ~codehelisa blacklist =
 let ects_6 =
   [
     "DMA-L3-GL3-S1";
+  "DMA-L3-GL2-S1";
     "DMA-L3-GL1-S1";
-    "PHYS-L3-A05-S1";
+    "DMA-M1-E01-S1";
+    "DMA-M1-D12cours-S2";
+    "DMA-M1-D12GT-S2";
+"PHYS-L3-A05-S1";
+
   ]
 let ects_9 =
   [
@@ -6908,13 +6913,23 @@ let ects_12 =
     "DMA-L3-A04-S2";
     "DMA-L3-A05-S2";
     "DMA-L3-A06-S2";
+    "DMA-L3-D02-S2";
     "DMA-L3-M01-S2";
     "DMA-L3-M03-S2";
     "DMA-M1-B01-S1";
+    "DMA-M1-B02-S2";
     "DMA-M1-B03-S1";
+    "DMA-M1-B04-S1";
     "DMA-M1-B05-S2";
     "DMA-M1-B06-S2";
+    "DMA-M1-C01-S1";
+    "DMA-M1-C02-S1";
+    "DMA-M1-C03-S1";
     "DMA-M1-C04-S2";
+    "DMA-M1-C09-S2";
+    "DMA-M1-D02-S2";
+    "DMA-M1-GT4-S1";
+    "DMA-M1-GT8-S1";
     "INFO-M1-MPRI113-S2";
     "INFO-L3-STAGE-S2";
 ]
@@ -6922,6 +6937,7 @@ let ects_12 =
 let ects_24 =
   [
     "PHYS-L3-B11-S2";
+    "DMA-AA-stage4-A";
 ]
 let code_map = Public_data.CodeMap.empty
 let fill l ects map =
