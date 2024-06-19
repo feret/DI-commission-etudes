@@ -7197,7 +7197,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
       let state, l' = Remanent_state.get_grades_in_pegasus ~firstname ~lastname state in
       let l' =
         if
-          List.mem (String.lowercase_ascii firstname)
+          List.mem (String.lowercase_ascii lastname)
             ["flamant";"maret";"parcollet";"sabatin";"seroux";"spriano"]
         then
             let elt =
