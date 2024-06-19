@@ -6931,8 +6931,9 @@ let ects_12 =
     "DMA-M1-D02-S2";
     "DMA-M1-GT2-S1";
     "DMA-M1-GT4-S1";
+    "DMA-M1-GT5-S1"; 
     "DMA-M1-GT8-S1";
-    "DMA-M1-GT9-S1"; 
+    "DMA-M1-GT9-S1";
     "INFO-M1-MPRI113-S2";
     "INFO-L3-STAGE-S2";
 ]
@@ -7326,6 +7327,7 @@ let deal_with_l3_m1_dma ~year ~situation filtered_classes state =
                       | Some _, _ -> state, l3, m1, h::autre
                       | _, None -> state, l3, m1, h::autre
                       | _, Some s ->
+                          if s = "DMA-L3-A06-S2" then state, l3, h::m1, h::autre  else
                           if String.length s < 6 then state, l3, m1, h::autre
                           else if String.sub s 0 6 = "DMA-L3"
                                then state,h::l3,m1,autre
