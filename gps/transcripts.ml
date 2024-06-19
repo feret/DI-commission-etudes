@@ -6932,6 +6932,7 @@ let ects_12 =
     "DMA-M1-GT2-S1";
     "DMA-M1-GT4-S1";
     "DMA-M1-GT8-S1";
+    "DMA-M1-GT9-S1"; 
     "INFO-M1-MPRI113-S2";
     "INFO-L3-STAGE-S2";
 ]
