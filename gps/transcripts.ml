@@ -6931,7 +6931,7 @@ let ects_12 =
     "DMA-M1-D02-S2";
     "DMA-M1-GT2-S1";
     "DMA-M1-GT4-S1";
-    "DMA-M1-GT5-S1"; 
+    "DMA-M1-GT5-S1";
     "DMA-M1-GT8-S1";
     "DMA-M1-GT9-S1";
     "INFO-M1-MPRI113-S2";
@@ -7089,7 +7089,15 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           in
           let state, note, validation =
               match grade with
-              | None -> state, Some Public_data.En_cours, None
+              | None ->
+                  begin
+                    match course.Public_data.pe_code_gps
+                    with
+                    | None -> state, Some Public_data.En_cours, None
+                    | Some "DMA-M1-GT3-S1" ->
+                        state, Some Public_data.Valide_sans_note, Some (Public_data.Bool true)
+                    | Some _ -> state, Some Public_data.En_cours, None
+                  end
               | Some g ->
                   begin match g.Public_data.pegasus_note, g.Public_data.pegasus_validation
                   with
