@@ -7094,7 +7094,8 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                     match course.Public_data.pe_code_gps
                     with
                     | None -> state, Some Public_data.En_cours, None
-                    | Some "DMA-M1-GT3-S1" ->
+                    | Some "DMA-M1-GT3-S1"
+                       ->
                         state, Some Public_data.Valide_sans_note, Some (Public_data.Bool true)
                     | Some _ -> state, Some Public_data.En_cours, None
                   end
@@ -7194,6 +7195,24 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
         state, gps_file
     else
       let state, l' = Remanent_state.get_grades_in_pegasus ~firstname ~lastname state in
+      let l' =
+        if
+          List.mem (String.lowercase_ascii firstname)
+            ["flamant";"maret";"parcollet";"sabatin";"seroux";"spriano"]
+        then
+            let elt =
+            {
+            Public_data.pegasus_note_annee = "2023" ;
+            Public_data.pegasus_note_firstname = firstname;
+            Public_data.pegasus_note_lastname = lastname;
+            Public_data.pegasus_note = None ;
+            Public_data.pegasus_validation = Some (Public_data.VA);
+            Public_data.pegasus_note_produit = "";
+            Public_data.pegasus_note_code_helisa = "UNDMA1-024"}
+            in
+            elt::l'
+        else l'
+      in
       List.fold_left
         (fun (state, gps_file) grade ->
           let situation = gps_file.situation in
