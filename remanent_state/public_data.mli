@@ -524,7 +524,10 @@ type origin =
   | Nes
   | EchErasm
   | Info
+  | Infompi
+  | Infomp 
   | Mpi
+  | Mpimp
   | Pc
   | PensionnaireEtranger
   | Psi

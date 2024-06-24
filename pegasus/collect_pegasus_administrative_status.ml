@@ -333,6 +333,14 @@ let all_fields =
 
                     ]
 
+        let p a =
+            match a.pegasus_produit_de_formation with
+                | None -> false
+                | Some x ->
+                if String.length x > 6 then
+                  not (String.sub x 0 6 = "ANDHDR")
+                else true
+
         let get_pegasus_administrative_data
             ?repository
             ?prefix
@@ -346,6 +354,7 @@ let all_fields =
               (* ~debug:true *)
               ~strict:false
               ?repository
+              ~p
               ?prefix
               ?file_name
               ~compute_repository

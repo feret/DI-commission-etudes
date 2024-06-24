@@ -950,7 +950,10 @@ let all_notes_string =
     | Nes
     | EchErasm
     | Info
+    | Infompi
+    | Infomp
     | Mpi
+    | Mpimp
     | Pc
     | PensionnaireEtranger
     | Psi
@@ -1499,6 +1502,9 @@ let string_of_origin_opt a =
   | Some DensBio -> "concours universitaire de biologie"
   | Some DensPhys -> "concours universitaire de physique"
   | Some Nes -> "concours normalien étudiant Sciences"
+  | Some Infomp -> "CPGE Informatique (MP)"
+  | Some Infompi -> "CPGE Informatique (MPI)Info-MPI"
+  | Some Mpimp -> "CPGE Math-Physique-Info / Math-Physique"
 
 let string_of_statut_opt a =
   match a with

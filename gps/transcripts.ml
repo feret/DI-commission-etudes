@@ -383,6 +383,9 @@ let string_of_origin_short_opt a =
   | Some Public_data.M_MPRI -> "MPRI"
   | Some Public_data.AL -> "Khâgne"
   | Some Public_data.BCPST -> "BCPST"
+  | Some Public_data.Infomp -> "Info-MP"
+  | Some Public_data.Infompi -> "Info-MPI"
+  | Some Public_data.Mpimp -> "MPI-MP"
 
   let english_string_of_origin_short_opt a =
     match a with
@@ -407,6 +410,9 @@ let string_of_origin_short_opt a =
     | Some Public_data.M_MPRI -> "MPRI"
     | Some Public_data.AL -> "Humanities"
     | Some Public_data.BCPST -> "Bio-Chem-Phys-Geo"
+    | Some Public_data.Infomp -> "Info-MP"
+    | Some Public_data.Infompi -> "Info-MPI"
+    | Some Public_data.Mpimp -> "MPI-MP"
 
 let log_origine
     state (label, string_opt) =
@@ -1997,11 +2003,14 @@ let origines =
     Public_data.EchErasm,["e-echerasm"];
     Public_data.Info,["info"];
     Public_data.Mpi,["mpi"];
+    Public_data.Mpimp,["c-mpimp"];
+    Public_data.Infompi,["c-infompi"];
+    Public_data.Infomp,["c-infomp"];
     Public_data.BCPST,["bcpst"];
     Public_data.PensionnaireEtranger,["e-pe"];
     Public_data.Pc,["pc"];
     Public_data.Psi,["psi"];
-    Public_data.Sis,["sis"];
+    Public_data.Sis,["sis";"si-s"];
     Public_data.M_MPRI,["m-mpri"];
     Public_data.ED386,["ed-386"]
   ]
@@ -2659,6 +2668,9 @@ let lerasmus origine =
       | Public_data.AL
       | Public_data.DensDEC
       | Public_data.Info
+      | Public_data.Infomp
+      | Public_data.Infompi
+      | Public_data.Mpimp
       | Public_data.Mpi
       | Public_data.BCPST
       | Public_data.Pc
@@ -2689,6 +2701,9 @@ let lpe origine =
       | Public_data.DensDEC
       | Public_data.EchErasm
       | Public_data.Info
+      | Public_data.Infomp
+      | Public_data.Infompi
+      | Public_data.Mpimp
       | Public_data.Mpi
       | Public_data.BCPST
       | Public_data.Pc
@@ -3233,7 +3248,7 @@ let translate_diplome
           | "muspn" -> state, "M2 Mathématiques", "M2 Mathematics",true
           | "lmfi" -> state,"M2 LMFI", "M2 LMFI",true
           | "marianageo" -> state, "M2 Arithmétique Analyse et Géométrie","M2 Analysis, Number Theory and Geometry",true
-          | "malea" | "alea" -> state, "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness",true
+        | "m-alea"  | "malea" | "alea" -> state, "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness",true
           | "modsimorsay" | "modsimversailles" -> state,"M2 Mathématiques Analyse Modélisation Simulation", "M2 Mathematics Analysis Modeling Simulation",true
           | "prob" -> state,"M2 Probabilités et Modèles Aléatoires", "M2 Mathematics Probability and Random Models",true
           | "mmathgeneric" -> state,"M2 Mathématiques ?","M2 Mathematics ?",true
@@ -3808,7 +3823,11 @@ let get_origine who promo gps_file state =
       | Public_data.Nes
       |Public_data.EchErasm
       |Public_data.Info
+      | Public_data.Infomp
+      | Public_data.Infompi
       |Public_data.Mpi
+      |Public_data.Mpimp
+
       |Public_data.BCPST
       |Public_data.Pc
       |Public_data.PensionnaireEtranger
@@ -3875,6 +3894,9 @@ let is_elligble_for_funding origine gps_file state =
           | Public_data.ED386
           | Public_data.Info
           | Public_data.Mpi
+          | Public_data.Mpimp
+          | Public_data.Infomp
+          | Public_data.Infompi
           | Public_data.BCPST
           | Public_data.Pc
           | Public_data.Psi
@@ -4058,6 +4080,9 @@ let heading
             genre,"Student","",""
         | Some Public_data.Info
         | Some Public_data.Mpi
+        | Some Public_data.Mpimp
+        | Some Public_data.Infomp
+        | Some Public_data.Infompi
         | Some Public_data.BCPST
         | Some Public_data.Pc
         | Some Public_data.Psi
@@ -7300,7 +7325,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           })
     (state,gps_file) l'
 
-let dump state l3 m1 autre =
+let _dump state l3 m1 autre =
     let state = Remanent_state.warn __POS__ "DUMP @." Exit state in
     let state =
       List.fold_left
@@ -7322,10 +7347,87 @@ let dump state l3 m1 autre =
     in
     state
 
+let is_dip_L3 x = x=L3_PSL || x=L3_HPSL
+let is_dip_M1 x = x=M1_PSL || x=M1_HPSL
+let is_dip_M2 x = x=M2_PSL || x=M2_HPSL
+
 let deal_with_l3_m1_dma ~year ~situation filtered_classes state =
+    let do_l3 filtered_classes state =
+      let rec split state l l3 m1 autre =
+        match l with
+          | [] -> state, l3, m1, autre
+          | h::t ->
+            let state, l3, m1, autre =
+              match h.diplome, h.code_cours with
+                | Some _, _ -> state, l3, m1, h::autre
+                | _, None -> state, l3, m1, h::autre
+                | _, Some s ->
+                    if s = "DMA-L3-A06-S2" then state, l3, h::m1, autre  else
+                    if String.length s < 6 then state, l3, m1, h::autre
+                    else if String.sub s 0 6 = "DMA-L3"
+                         then state,h::l3,m1,autre
+                         else if String.sub s 0 6 = "DMA-M1"
+                         then state,l3,h::m1, autre
+                         else state,l3,m1,h::autre
+              in
+              split state t l3 m1 autre
+      in
+      let is_phys c =
+          match c.code_cours with
+            | None -> false
+            | Some x -> (String.length x > 3) && String.sub x 0 4 = "PHYS"
+      in
+      let is_info c =
+          match c.code_cours with
+            | None -> false
+            | Some x -> (String.length x > 3) && String.sub x 0 4 = "INFO"
+      in
+      let is_lm c =
+          c.diplome = None
+      in
+      let double_cursus =
+        List.exists (fun c -> is_lm c && (is_info c || is_phys c)) filtered_classes
+      in
+      let state, l3, m1, autre = split state (List.rev filtered_classes) [] [] []
+      in
+      let etcs =
+        List.fold_left (fun ects c ->
+                          match c.ects with None -> ects | Some ects' -> ects +. ects') 0. l3
+      in
+      let p a b =
+        match a.note,b.note with
+          | Some (Public_data.Float a)  , Some (Public_data.Float b) -> a> b
+          | Some (Public_data.Float _),_  -> true
+          |  _, Some (Public_data.Float _) -> false
+          | (None | Some (Public_data.String _ | Public_data.Absent|Public_data.En_cours|Public_data.Abandon|Public_data.Valide_sans_note|Public_data.Temporary _)),
+  (None | Some (Public_data.String _ | Public_data.Absent|Public_data.En_cours|Public_data.Abandon|Public_data.Valide_sans_note|Public_data.Temporary _))
+              -> true
+
+      in
+      let state, l3, m1 =
+        if etcs >= 60. || double_cursus then state, l3, m1
+        else
+          let rec search list best others =
+            match list with [] -> best, others
+                      | h::t -> if p h best then search t h (best::others)
+                                            else search t best (h::others)
+          in
+          match m1 with [] -> state, l3, m1
+                        | h::t ->
+                  let m1elt,m1 = search t h [] in
+                  state, m1elt::l3, m1
+      in
+      let m1 =
+        List.rev_map
+            (fun x -> {x with diplome=(Some "M")}) (List.rev m1)
+      in
+      state, List.concat [l3;m1;autre]
+    in
+
+
     if int_of_string year < 2022 then state, filtered_classes
     else
-    match situation.inscription_helisa with
+      match situation.inscription_helisa with
         | [] ->
           let state =
             Remanent_state.warn __POS__ "No option checked for national diploma in student gates"
@@ -7343,83 +7445,16 @@ let deal_with_l3_m1_dma ~year ~situation filtered_classes state =
                   Remanent_state.warn __POS__ (Format.sprintf "%s" (match entry with L3_PSL -> "L3_PSL"
                   | L3_HPSL -> "L3_HPSL" | M1_PSL -> "M1_PSL" | M1_HPSL -> "M1_HPSL" | M2_PSL -> "M2_PSL" | M2_HPSL -> "M2_HPSL" | Autre -> "Autre" ))
                   Exit state) state situation.inscription_helisa
-          in state, filtered_classes
+          in
+          if List.for_all is_dip_L3 situation.inscription_helisa
+          then do_l3 filtered_classes state
+          else if List.for_all is_dip_M1 situation.inscription_helisa
+          then state, filtered_classes
+          else if List.for_all is_dip_M2 situation.inscription_helisa
+          then state, filtered_classes
+          else state, filtered_classes
         | [M1_PSL] | [M1_HPSL] | [M2_PSL] | [M2_HPSL] | [Autre] -> state, filtered_classes
-        | [L3_PSL] | [L3_HPSL] ->
-          begin
-            let rec split state l l3 m1 autre =
-              match l with
-                | [] -> state, l3, m1, autre
-                | h::t ->
-                  let state, l3, m1, autre =
-                    match h.diplome, h.code_cours with
-                      | Some _, _ -> state, l3, m1, h::autre
-                      | _, None -> state, l3, m1, h::autre
-                      | _, Some s ->
-                          if s = "DMA-L3-A06-S2" then state, l3, h::m1, autre  else
-                          if String.length s < 6 then state, l3, m1, h::autre
-                          else if String.sub s 0 6 = "DMA-L3"
-                               then state,h::l3,m1,autre
-                               else if String.sub s 0 6 = "DMA-M1"
-                               then state,l3,h::m1, autre
-                               else state,l3,m1,h::autre
-                    in
-                    split state t l3 m1 autre
-            in
-            let is_phys c =
-                match c.code_cours with
-                  | None -> false
-                  | Some x -> (String.length x > 3) && String.sub x 0 4 = "PHYS"
-            in
-            let is_info c =
-                match c.code_cours with
-                  | None -> false
-                  | Some x -> (String.length x > 3) && String.sub x 0 4 = "INFO"
-            in
-            let is_lm c =
-                c.diplome = None
-            in
-            let double_cursus =
-              List.exists (fun c -> is_lm c && (is_info c || is_phys c)) filtered_classes
-            in
-            let state, l3, m1, autre = split state (List.rev filtered_classes) [] [] []
-            in
-            let state = dump state l3 m1 autre in
-            let etcs =
-              List.fold_left (fun ects c ->
-                                match c.ects with None -> ects | Some ects' -> ects +. ects') 0. l3
-            in
-            let p a b =
-              match a.note,b.note with
-                | Some (Public_data.Float a)  , Some (Public_data.Float b) -> a> b
-                | Some (Public_data.Float _),_  -> true
-                |  _, Some (Public_data.Float _) -> false
-                | (None | Some (Public_data.String _ | Public_data.Absent|Public_data.En_cours|Public_data.Abandon|Public_data.Valide_sans_note|Public_data.Temporary _)),
-(None | Some (Public_data.String _ | Public_data.Absent|Public_data.En_cours|Public_data.Abandon|Public_data.Valide_sans_note|Public_data.Temporary _))
-                    -> true
-
-            in
-            let state, l3, m1 =
-              if etcs >= 60. || double_cursus then state, l3, m1
-              else
-                let rec search list best others =
-                  match list with [] -> best, others
-                            | h::t -> if p h best then search t h (best::others)
-                                                  else search t best (h::others)
-                in
-                match m1 with [] -> state, l3, m1
-                              | h::t ->
-                        let m1elt,m1 = search t h [] in
-                        state, m1elt::l3, m1
-            in
-            let state = dump state l3 m1 autre in
-            let m1 =
-              List.rev_map
-                  (fun x -> {x with diplome=(Some "M")}) (List.rev m1)
-            in
-            state, List.concat [l3;m1;autre]
-
-          end
+        | [L3_PSL] | [L3_HPSL] -> do_l3 filtered_classes state
 
 
 let export_transcript
