@@ -337,8 +337,8 @@ let all_fields =
             match a.pegasus_produit_de_formation with
                 | None -> false
                 | Some x ->
-                if String.length x > 6 then
-                  not (String.sub x 0 6 = "ANDHDR")
+                if String.length x > 5 then
+                  not (String.sub x 0 5 = "ANHDR")
                 else true
 
         let get_pegasus_administrative_data

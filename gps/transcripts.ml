@@ -2986,7 +2986,7 @@ let keep_class
   let success = valide || compensation in
   state, (not future) && success
 
-let filter_class state unvalidated filter ~firstname ~lastname ~year class_list =
+let filter_class state unvalidated filter ~firstname ~lastname ~year ~who class_list =
   let rec aux state list acc =
     match list with
     | [] -> state, acc
@@ -2999,7 +2999,7 @@ let filter_class state unvalidated filter ~firstname ~lastname ~year class_list 
         | None ->
           let msg =
             Printf.sprintf
-              "GPS code is missing in a GPS entry (%s %s %s)" firstname lastname year
+              "GPS code is missing in a GPS entry (%s)" who
           in
           Remanent_state.warn
             __POS__
@@ -7351,7 +7351,7 @@ let is_dip_L3 x = x=L3_PSL || x=L3_HPSL
 let is_dip_M1 x = x=M1_PSL || x=M1_HPSL
 let is_dip_M2 x = x=M2_PSL || x=M2_HPSL
 
-let deal_with_l3_m1_dma ~year ~situation filtered_classes state =
+let deal_with_l3_m1_dma ~year ~situation ~who filtered_classes state =
     let do_l3 filtered_classes state =
       let rec split state l l3 m1 autre =
         match l with
@@ -7430,13 +7430,15 @@ let deal_with_l3_m1_dma ~year ~situation filtered_classes state =
       match situation.inscription_helisa with
         | [] ->
           let state =
-            Remanent_state.warn __POS__ "No option checked for national diploma in student gates"
+            Remanent_state.warn __POS__
+            (Format.sprintf "No option checked for national diploma in student gates for (%s)" who)
             Exit state
           in
           state, filtered_classes
         | _::_::_  ->
           let state =
-            Remanent_state.warn __POS__ "Several options checked for national diploma in student gates"
+            Remanent_state.warn __POS__
+            (Format.sprintf "Several options checked for national diploma in student gates for (%s)" who)
             Exit state
           in
           let state =
@@ -7899,16 +7901,16 @@ let export_transcript
     let state, unvalidated =
         warn_on_course_list ~promo ~firstname ~lastname state l (Format.sprintf "%s %s %s" firstname lastname promo)
     in
-    let state, cursus_map, l =
+      let state, cursus_map, l =
       List.fold_left
         (fun (state, cursus_map, l) (year, situation) ->
            let state, filtered_classes =
-             filter_class ~firstname ~lastname ~year
+             filter_class ~firstname ~lastname ~year ~who
                state unvalidated remove_non_valided_classes
                situation.cours
            in
            let state, filtered_classes =
-              deal_with_l3_m1_dma ~year ~situation filtered_classes state
+              deal_with_l3_m1_dma ~year ~situation ~who filtered_classes state
            in
            let state, (cursus_map, split_cours) =
              List.fold_left
@@ -9655,6 +9657,12 @@ let state,year = Remanent_state.get_current_academic_year state in
         let stages =
             gps_file.stages
         in
+        let who =
+          Format.sprintf
+            "pour %s %s (%s)"
+            firstname lastname promo
+        in
+
         let state, unvalidated =
             warn_on_course_list ~promo ~firstname ~lastname state l (Format.sprintf "%s %s %s" firstname lastname promo)
         in
@@ -9662,7 +9670,7 @@ let state,year = Remanent_state.get_current_academic_year state in
           List.fold_left
             (fun (state, l) (year, situation) ->
                let state, filtered_classes =
-                 filter_class ~firstname ~lastname ~year
+                 filter_class ~firstname ~lastname ~year ~who
                    state unvalidated (Public_data.All_but_in_progress_in_years [])
                    situation.cours
                in

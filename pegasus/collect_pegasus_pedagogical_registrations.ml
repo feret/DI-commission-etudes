@@ -154,6 +154,8 @@ let update_diploma diploma entry (state:Remanent_state.t) =
     | "Département de biologie" -> state, snd "IBENS"
     | "Département d'économie" -> state, snd "ECO"
     | "Département des arts" -> state, snd "ART"
+    | "Département de philosophie" -> state, snd "PHI"
+    | "Département d'études cognitives" -> state, snd "DEC"
     | _ ->
       Remanent_state.warn __POS__ (Format.sprintf "UPDATE_SND' %s %s (%s) @." (Tools.unsome_string entry.firstname) (Tools.unsome_string entry.lastname) dpt) Exit state, "SND-NA"
   in
@@ -175,7 +177,8 @@ let update_diploma diploma entry (state:Remanent_state.t) =
           | "Diplôme de M2 suivi à l'ENS-PSL" -> state, "UNDDIPE-M2"
           | "Diplôme de M2 suivi en dehors de l'ENS-PSL" -> state, "UNDDIPH-M2"
           | "Aucun diplôme national" ->  state, "UNDDIPL-NA"
-            | _ ->
+          | "Cours de langue étrangère ou en langue étrangère suivi dans le cadre du diplôme universitaire" -> state, ""
+          | _ ->
           Remanent_state.warn __POS__ (Format.sprintf "UPDATE_DIPLOMA' %s %s (%s) @." (Tools.unsome_string entry.firstname) (Tools.unsome_string entry.lastname) libelle) Exit state, "UNDDIPL-NA"
           in
           let code_helisa, libelle = Some code, Some libelle in
