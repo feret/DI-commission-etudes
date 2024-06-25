@@ -142,7 +142,7 @@ let update_diploma diploma entry (state:Remanent_state.t) =
         entry state
 
   let update_snd dpt entry state =
-    let snd x = Format.sprintf "UNDDSEC%s" x in
+    let snd x = Format.sprintf "UNDDSEC-%s" x in
     let state, code =
     match dpt with
     | "Département de physique" -> state, snd "PHYS"

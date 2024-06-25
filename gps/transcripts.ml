@@ -37,7 +37,7 @@ let dpt_sciences_sociales = "sciences sociales"
 let dpt_chimie = "chimie"
 let dpt_geosciences = "geosciences"
 let dpt_phys = "physique"
-let dpt_phyl = "phylosiphie"
+let dpt_phil = "philosophie"
 let dpt_bio = "biologie"
 let dpt_arts = "arts"
 let dpt_lila = "litteratures et langage"
@@ -54,7 +54,7 @@ let dpt_info_en = "computer science"
 let dpt_chimie_en = "chemistry"
 let dpt_geosciences_en = "earth sciences"
 let dpt_phys_en = "physics"
-let dpt_phyl_en = "phylosophy"
+let dpt_phil_en = "philosophy"
 let dpt_bio_en = "biology"
 let dpt_arts_en = "arts"
 let dpt_lila_en = "litteratures and language"
@@ -3097,7 +3097,7 @@ else if mphys situation then
 else if mimalis situation then
   state, (Some "IMALIS","M2 IMALIS","M2 IMALIS",dpt_bio,dpt_bio_en,false,true)
 else if mphylo situation then
-  state, (Some "PHILOSorbonne","M2 Phylo (SU)", "M2 Phylo (SU)", dpt_phyl,dpt_phyl_en, false, true)
+  state, (Some "PHILOSorbonne","M2 Phylo (SU)", "M2 Phylo (SU)", dpt_phil,dpt_phil_en, false, true)
 else
 if mmaths situation then
   state, (Some "M","M1 de mathématiques","M1 in Mathematics", dpt_maths,dpt_maths_en,false,false)
@@ -6875,12 +6875,15 @@ let dpt_of_snd state x =
   match x with
     | "UNDDSEC-DMA" -> state, Some dpt_maths_gps_name
     | "UNDDSEC-DSS" -> state, Some dpt_sciences_sociales
-    | "UNDDSEC-DI" -> state, Some dpt_info_gps_name
+    | "UNDDSEC-DI" | "UNDDSEC-INFO"-> state, Some dpt_info_gps_name
+    | "UNDDSEC-PHYS" -> state, Some dpt_phys_gps_name
     | "UNDDSEC-CHIMIE" -> state, Some dpt_chimie_gps_name
     | "UNDDSEC-GEOSCIENCES" -> state, Some dpt_geosciences_gps_name
     | "UNDDSEC-IBENS" -> state, Some dpt_bio
     | "UNDDSEC-ECO" -> state, Some dpt_eco
     | "UNDDSEC-ART" -> state, Some dpt_arts
+    | "UNDDSEC-PHI" -> state, Some dpt_phil 
+    | "UNDDSEC-DEC" -> state, Some dpt_dec_gps_name
     | _ ->
       Remanent_state.warn
         __POS__ (Format.sprintf "Unknown dpt code (%s)" x) Exit state, None
