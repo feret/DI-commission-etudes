@@ -408,14 +408,12 @@ let collect_gen
         (state, List_of_string.empty)
         mandatory_fields
     in
-    if List_of_string.is_empty list_missing
+    if p current_file'
     then
-      if p current_file'
+      if List_of_string.is_empty list_missing
       then
         state, current_file, current_file'::output
       else
-        state, current_file, output
-    else
       begin
         let state, list_known  =
           List.fold_left
@@ -444,6 +442,8 @@ let collect_gen
         in
         state, current_file, output
       end
+  else
+      state, current_file, output
   in
   let at_end_of_array
       _header state current_file output =
@@ -453,7 +453,9 @@ let collect_gen
     state, output
   in
   let flush state current_file output =
-    state, current_file::output
+    if p current_file then
+       state, current_file::output
+    else state, output
   in
   let state, repository =
     match repository with
