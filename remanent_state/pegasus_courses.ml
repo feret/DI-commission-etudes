@@ -112,5 +112,5 @@ let dump m =
                 (fun lib ->
                     Public_data.StringOptMap.iter
                       (fun sem_opt course ->
-                        Format.printf "%s %s %s %s @." y lib (Tools.unsome_string sem_opt) course.Public_data.pegasus_helisa)))
+                        Format.printf "%s %s (%s) %s @." y lib (Tools.unsome_string sem_opt) course.Public_data.pegasus_helisa)))
  m.per_libelle
