@@ -7155,7 +7155,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           in
           let elt =
             {
-              semestre = None ;
+              semestre = course.Public_data.pegasus_semester ;
               code_cours =
                 begin
                   match course.Public_data.pe_code_gps
