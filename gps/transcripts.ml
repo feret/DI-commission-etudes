@@ -7284,7 +7284,9 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           let state, course_opt = Remanent_state.get_course_in_pegasus ~codehelisa ~year state in
           match course_opt with
           | None ->
-            Remanent_state.warn __POS__ "Course not found in helisa database" Exit state, gps_file
+            Remanent_state.warn __POS__
+              (Format.sprintf "Course not found in helisa database (%s)" codehelisa)
+              Exit state, gps_file
           | Some course ->
             let code_cours =
               match course.Public_data.pegasus_codegps
