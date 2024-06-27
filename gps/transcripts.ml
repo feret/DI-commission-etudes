@@ -7297,7 +7297,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             let ects = ects_of_code_cours code_cours in
             let elt =
               {
-                semestre = None ;
+                semestre = course.Public_data.pegasus_semester ;
                 code_cours ;
                 responsable = None ;
                 enseignants = Some (Tools.get_teachers course.Public_data.pegasus_profs)  ;
