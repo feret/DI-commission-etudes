@@ -157,6 +157,11 @@ let update_note _titre nom prenom _id
         in
         Remanent_state.Collector_pegasus_notes.add unify __POS__ entry state
 
+let update_validation _titre nom prenom _id
+            _ref_externe etat entry state  =
+                let state, entry = convert {entry with validation = Some etat ; firstname = Some prenom ; lastname = Some nom } state
+                in
+                Remanent_state.Collector_pegasus_notes.add unify __POS__ entry state
 
 let get
       compute_repository
@@ -219,12 +224,117 @@ let get
                             let state, entry =
                               begin
                                 match h with
+                                | "Cycle"::_
                                 | "Intitulé produit":: _
                                 | "TITRE"::_
+                                | "Ensemble"::_
                                 | "Ensemble Cible"::_ ->
                                     state, entry
-                                | "PRODUIT"::prod::_->
+                                | "PRODUIT"::prod::_
+                                | "ID UV"::prod::_ ->
                                       update_product prod entry state
+                                | "Effectif"::int::_
+                                | "Nombre d'étudiants" ::int::_ ->
+                                      update_n_etu int entry state
+                                | "CONTROLE"::a::b::_ ->
+                                      update_controle a b entry state
+                                | titre::nom::prenom::etat::id::ref_externe::_
+                                    ->
+                                      update_validation
+                                          titre nom prenom id
+                                          ref_externe etat entry state, entry
+                                | _ -> state, entry
+                            end
+                          in
+                          scan t entry state
+                    in
+                    let state = scan csv empty_pegasus_entry state in
+                    let state = Remanent_state.close_event_opt event state in
+                     state
+
+                  ) state files_list
+            in
+            let state = Remanent_state.close_event_opt event state in
+            let state = Remanent_state.close_event_opt event_opt state in
+            state
+
+let event_opt = Some (Profiling.Collect_pegasus_notes)
+let compute_repository = Remanent_state.Collector_pegasus_notes.get_repository
+
+let get_pegasus_notes = get compute_repository event_opt
+
+
+let get
+      compute_repository
+      event_opt
+      ?repository
+      ?prefix
+      ?file_name
+      state
+       =
+      let state = Remanent_state.open_event_opt event_opt state in
+      let state, repository =
+            match repository with
+            | Some a -> state, a
+            | None ->
+              let state, a =
+                compute_repository state
+              in
+              state, a
+            in
+            let event = Some (Profiling.Scan_csv_files (repository,"")) in
+            let state = Remanent_state.open_event_opt event state in
+            let state, files_list =
+                Scan_repository.get_list_of_files
+                  ~repository ?prefix ?file_name state
+            in
+            let state =
+              List.fold_left
+                  (fun state file ->
+                    let event = Some (Profiling.Scan_csv_files (fst file,snd file)) in
+                    let state = Remanent_state.open_event_opt event state in
+                    let _ =
+                      Format.printf
+                        "Scanning file: %s %s @." (fst file) (snd file)
+                    in
+                    let _ =
+                      Format.print_newline ()
+                    in
+                    let _ =
+                      Format.print_flush ()
+                    in
+                    let file =
+                      if fst file = ""
+                      then
+                        snd file
+                      else
+                        Printf.sprintf "%s/%s" (fst file) (snd file)
+                    in
+                    let state,csv_opt =
+                       Scan_xlss_files.get_csv file state
+                    in
+                    let csv =
+                        match csv_opt with
+                          | None -> []
+                          | Some l -> l
+                    in
+                    let rec scan list entry (state:Remanent_state.t) =
+                      match list with
+                          | [] -> state
+                          | h::t ->
+                            let state, entry =
+                              begin
+                                match h with
+                                | "Cycle"::_
+                                | "Intitulé produit":: _
+                                | "TITRE"::_
+                                | "Ensemble"::_
+                                | "Ensemble Cible"::_ ->
+                                    state, entry
+                                | "PRODUIT"::prod::_
+                                | "ID UV"::prod::_ ->
+                                      update_product prod entry state
+                                | "Effectif"::int::_
                                 | "Nombre d'étudiants" ::int::_ ->
                                       update_n_etu int entry state
                                 | "CONTROLE"::a::b::_ ->
@@ -249,10 +359,6 @@ let get
             let state = Remanent_state.close_event_opt event_opt state in
             state
 
-let event_opt = Some (Profiling.Collect_pegasus_notes)
-let compute_repository = Remanent_state.Collector_pegasus_notes.get_repository
-
-let get_pegasus_notes = get compute_repository event_opt
 
 let event_opt = Some (Profiling.Collect_pegasus_validations)
 let compute_repository = Remanent_state.Collector_pegasus_validations.get_repository
