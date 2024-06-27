@@ -44,10 +44,11 @@ let split a =
     | Some i ->
         let y = String.sub a 0 i in
         let y = if i = 2 then "20"^y else y in
+        let size = n-i in
         let res = String.sub a i (n-i) in
         let x = String.get res 0 in
         let rec aux k l =
-          if k>i/2 || k=i then l
+          if k>size/2 || k=size then l
           else if String.get res k = x then aux (k+1) (k::l)
           else aux (k+1) l
         in
