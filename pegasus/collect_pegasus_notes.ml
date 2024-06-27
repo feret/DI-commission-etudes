@@ -168,7 +168,7 @@ let update_note _titre nom prenom _id
 let update_validation _titre nom prenom _id
             _ref_externe etat entry state  =
                 let validation = match etat with "" -> None | _ -> Some etat in
-                let state, entry = convert {entry with validation = Some etat ; firstname = Some prenom ; lastname = Some nom } state
+                let state, entry = convert {entry with validation ; firstname = Some prenom ; lastname = Some nom } state
                 in
                 Remanent_state.Collector_pegasus_notes.add unify __POS__ entry state
 
