@@ -7285,7 +7285,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           match course_opt with
           | None ->
             Remanent_state.warn __POS__
-              (Format.sprintf "Course not found in helisa database (%s)" codehelisa)
+              (Format.sprintf "Course not found in helisa database (%s/%s)" codehelisa year)
               Exit state, gps_file
           | Some course ->
             let code_cours =
