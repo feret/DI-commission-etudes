@@ -8,7 +8,7 @@ val get_pegasus_course:
    val get_pegasus_course_by_libelle:
      libelle:string ->
      year:string ->
-     semester:string option -> 
+     semester:string option ->
       t -> Public_data.course_pegasus option
 
 val add_pegasus_course:
@@ -20,3 +20,5 @@ val add_pegasus_course:
 Public_data.course_pegasus->
 t ->
 'state * t
+
+val dump: t -> unit 

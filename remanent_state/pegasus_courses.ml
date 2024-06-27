@@ -101,3 +101,16 @@ let add_pegasus_course
             courses.per_libelle }
   in
   state, courses
+
+
+
+let dump m =
+    let () = Format.printf "DUMP COURSES @." in
+    Public_data.YearMap.iter
+          (fun y ->
+              Public_data.StringMap.iter
+                (fun lib ->
+                    Public_data.StringOptMap.iter
+                      (fun sem_opt course ->
+                        Format.printf "%s %s %s %s @." y lib (Tools.unsome_string sem_opt) course.Public_data.pegasus_helisa)))
+ m.per_libelle
