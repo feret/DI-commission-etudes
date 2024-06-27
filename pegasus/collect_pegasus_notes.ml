@@ -43,7 +43,8 @@ let split a =
     | None -> a,""
     | Some i ->
         let y = String.sub a 0 i in
-        let y = if i = 2 then "20"^y else y in
+        let y = if i = 4 then "20"^(String.sub a 0 2)
+                else if i = 2 then "20"^y else y in
         let size = n-i in
         let res = String.sub a i (n-i) in
         let x = String.get res 0 in
