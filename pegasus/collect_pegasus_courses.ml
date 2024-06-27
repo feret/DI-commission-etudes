@@ -7,7 +7,8 @@ pegasus_libelle: string option;
 pegasus_libelle_en: string option;
 pegasus_profs: string option;
 pegasus_codegps: string option;
-pegasus_session:string option
+pegasus_session:string option;
+pegasus_semester: string option;
 }
 
 let empty_course =
@@ -17,6 +18,7 @@ pegasus_libelle_en = None;
 pegasus_profs = None;
 pegasus_codegps = None;
 pegasus_session = None;
+pegasus_semester = None;
 }
 
 
@@ -91,6 +93,7 @@ let keywords_list =
   let keywords_of_interest =
     [
     Public_data.PEGASUS_Code_Produit_Helisa;
+    Public_data.PEGASUS_Nature_de_l_activite;
     Public_data.PEGASUS_Libelle;
     Public_data.PEGASUS_Libelle_Anglais;
     Public_data.PEGASUS_CO_PRODUIT_ENS_CE_ENSEIGNANT;
@@ -138,6 +141,16 @@ let all_fields =
             ~record_name
             ~field_name:"Code in Girofle"
             ~pos:__POS__;
+            lift_string_opt
+              ~keyword:Public_data.PEGASUS_Nature_de_l_activite
+              ~set_tmp:(Tools.collect_string
+                            (fun pegasus_semester x -> {x with pegasus_semester}))
+              ~get_tmp:(fun a -> a.pegasus_semester)
+              ~get:(fun a -> a.Public_data.pegasus_semester)
+              ~set:(fun pegasus_semester a -> {a with Public_data.pegasus_semester})
+              ~record_name
+              ~field_name:"Semester"
+              ~pos:__POS__;
           lift_string_opt
             ~keyword:Public_data.PEGASUS_CO_PRODUIT_ENS_CE_ENSEIGNANT
             ~set_tmp:(Tools.collect_string
@@ -276,7 +289,7 @@ let all_fields =
             let state = Remanent_state.open_event_opt event state in
             let state = Scan_xlss_files.collect_gen
               (* ~debug:true *)
-              ~strict:false 
+              ~strict:false
               ?repository
               ?prefix
               ?file_name
