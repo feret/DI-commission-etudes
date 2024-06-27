@@ -31,27 +31,36 @@ let _ = empty_pegasus_entry.control , empty_pegasus_entry.nombre_etudiants, empt
 
 
 let split a =
-    if String.length a > 2 then
-      let i = (String.length a -2) in
-      let y = "20"^(String.sub a 0 2) in
-      let res = String.sub a 2 i in
-      let x = String.get res 0 in
-      let rec aux k l =
+  let n = String.length a in
+  let rec aux i =
+    if i >= n then None
+    else
+      if String.get a i = 'U'
+      then Some i
+      else aux (i+1)
+  in
+  match aux 0 with
+    | None -> a,""
+    | Some i ->
+        let y = String.sub a 0 i in
+        let y = if i = 2 then "20"^y else y in
+        let res = String.sub a i (n-i) in
+        let x = String.get res 0 in
+        let rec aux k l =
           if k>i/2 || k=i then l
           else if String.get res k = x then aux (k+1) (k::l)
           else aux (k+1) l
-      in
-      let l = aux 1 [] in
-      let rec aux l =
-        match l with
-          | [] -> a,""
-          | h::t ->
-              let r = String.sub res 0 h in
-              if r = String.sub res h h
-              then y,r
-              else aux t
-      in aux l
-    else a,""
+        in
+        let l = aux 1 [] in
+        let rec aux l =
+          match l with
+            | [] -> a,""
+            | h::t ->
+                let r = String.sub res 0 h in
+                if r = String.sub res h h
+                then y,r
+                else aux t
+        in aux l
 
 let update_product produit entry state =
      let year, code_helisa = split produit in
