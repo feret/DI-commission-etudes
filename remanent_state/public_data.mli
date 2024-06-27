@@ -43,6 +43,7 @@ type course_pegasus =
     pegasus_codegps: string option;
     pegasus_session:string;
     pegasus_year:string;
+    pegasus_semester: string option;
 }
 
 type helisa_val = NV | VA | NVJU | VACO | VAJU
@@ -77,7 +78,8 @@ type pedagogical_entry_pegasus =
     pe_teachers: (string * string) list ;
 
     pe_student_number: string;
-    pe_ine: string
+    pe_ine: string;
+    pe_semester: string option;
 }
 
 val empty_pedagogical_entry: pedagogical_entry_pegasus
@@ -525,7 +527,7 @@ type origin =
   | EchErasm
   | Info
   | Infompi
-  | Infomp 
+  | Infomp
   | Mpi
   | Mpimp
   | Pc

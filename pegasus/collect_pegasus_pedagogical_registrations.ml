@@ -14,6 +14,7 @@ type pegasus_entry =
   ine: string option;
   libelle_gps: string option ;
   teachers: (string * string) list ;
+  semester: string option;
 }
 
 let empty_pegasus_entry =
@@ -31,6 +32,7 @@ let empty_pegasus_entry =
   ine=None;
   libelle_gps = None;
   teachers = [];
+  semester = None ;
 }
 
 let rec fetch_name l acc =
@@ -124,6 +126,7 @@ let convert entry state =
   Public_data.pe_student_number = Tools.unsome_string entry.student_number;
   Public_data.pe_ine = Tools.unsome_string entry.ine;
   Public_data.pe_teachers = entry.teachers;
+  Public_data.pe_semester = entry.semester; 
 }
 
 
@@ -216,7 +219,7 @@ let update_course course ects entry (state:Remanent_state.t) =
     in
     let code_helisa, libelle, ects = Some codehelisa, Some libelle, Some ects in
     let state, pegasus_entry =
-        Remanent_state.get_course_in_pegasus ~codehelisa ~year state
+        Remanent_state.get_course_in_pegasus ~codehelisa ~year  state
     in
     match pegasus_entry with
       | None ->
@@ -232,17 +235,19 @@ let update_course course ects entry (state:Remanent_state.t) =
                 (fun _ state a _ -> state,a) __POS__
                 entry state
       | Some pegasus_entry ->
+        let semester = pegasus_entry.Public_data.pegasus_semester in
         let teachers = get_teachers pegasus_entry in
         let code_gps = pegasus_entry.Public_data.pegasus_codegps in
         let libelle_gps = Some pegasus_entry.Public_data.pegasus_libelle in
-        let state, entry = convert {entry with libelle ; ects ; code_helisa ; code_gps ; teachers ;  libelle_gps } state in
+        let state, entry = convert {entry with semester ; libelle ; ects ; code_helisa ; code_gps ; teachers ;  libelle_gps } state in
           add
                 (fun _ state a _ -> state,a) __POS__
                 entry state
 
 
-                let update_course'  sem libelle teacher ects entry state  =
-                    let _ = teacher,sem in
+                let update_course'  semester libelle teacher ects entry state  =
+                    let _ = teacher in
+                    let semester = Some semester in
                     let state, year =
                         match entry.year with
                           | None ->
@@ -262,14 +267,14 @@ let update_course course ects entry (state:Remanent_state.t) =
                     let state, pegasus_entry_opt, libelle =
                         begin
                           let state, pegasus_entry_opt =
-                              Remanent_state.get_course_in_pegasus_by_libelle ~libelle ~year state
+                              Remanent_state.get_course_in_pegasus_by_libelle ~libelle ~year ~semester state
                           in
                           match pegasus_entry_opt with
                             | Some _ -> state, pegasus_entry_opt, libelle
                             | None ->
                               let libelle = Tools.simplify_spaces libelle in
                               let state, pegasus_entry_opt =
-                                  Remanent_state.get_course_in_pegasus_by_libelle ~libelle ~year state
+                                  Remanent_state.get_course_in_pegasus_by_libelle ~libelle ~year ~semester state
                               in state, pegasus_entry_opt, libelle
                         end
                     in
@@ -295,8 +300,7 @@ let update_course course ects entry (state:Remanent_state.t) =
                         let code_helisa =
                         Some pegasus_entry.Public_data.pegasus_helisa in
                         let libelle = Some libelle in
-
-                        let state, entry = convert {entry with libelle ; ects ; code_helisa ; code_gps ; teachers ;  libelle_gps } state in
+                        let state, entry = convert {entry with semester ; libelle ; ects ; code_helisa ; code_gps ; teachers ;  libelle_gps } state in
                           add
                                 (fun _ state a _ -> state,a) __POS__
                                 entry state

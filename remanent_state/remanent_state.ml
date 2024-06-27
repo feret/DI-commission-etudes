@@ -1570,12 +1570,12 @@ let get_course_in_pegasus ~codehelisa ~year t =
     in
     t, course_opt
 
-    let get_course_in_pegasus_by_libelle ~libelle ~year t =
+    let get_course_in_pegasus_by_libelle ~libelle ~year ~semester t =
         let libelle = Special_char.lowercase libelle in
         let t, collector = Collector_course_pegasus.get t in
         let course_opt =
               Pegasus_courses.get_pegasus_course_by_libelle
-                ~libelle ~year collector
+                ~libelle ~year ~semester collector
         in
         t, course_opt
 

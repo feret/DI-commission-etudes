@@ -287,6 +287,7 @@ type course_pegasus =
       pegasus_codegps: string option;
       pegasus_session:string;
       pegasus_year:string;
+      pegasus_semester:string option;
   }
 
 let empty_course_pegasus =
@@ -298,6 +299,7 @@ let empty_course_pegasus =
   pegasus_codegps = None ;
   pegasus_session = "" ;
   pegasus_year = "";
+  pegasus_semester = None;
 }
 
 type helisa_val = NV | VA | NVJU | VACO | VAJU
@@ -371,6 +373,7 @@ type pedagogical_entry_pegasus =
         pe_teachers: (string * string) list ;
         pe_student_number: string;
         pe_ine: string;
+        pe_semester: string option;
 
     }
 
@@ -389,6 +392,7 @@ let empty_pedagogical_entry =
         pe_student_number = "";
         pe_ine = "";
         pe_teachers = [];
+        pe_semester = None; 
     }
 type scholarship =
   {
