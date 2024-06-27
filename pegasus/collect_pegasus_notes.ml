@@ -153,6 +153,7 @@ let unify pos state a b  =
 
 let update_note _titre nom prenom _id
     _ref_externe note entry state  =
+        let note = match note with "" -> None | _ -> Some note in 
         let state, entry = convert {entry with note = Some note ; firstname = Some prenom ; lastname = Some nom } state
         in
         Remanent_state.Collector_pegasus_notes.add unify __POS__ entry state
