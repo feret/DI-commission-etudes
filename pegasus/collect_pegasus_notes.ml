@@ -146,7 +146,7 @@ let unify pos state a b  =
                         Exit state, false
         else state, true
     in
-    if b1 && b2 && b3 && b4 && b5
+    if b1 && b2 && b3 && b4 (*&& b5*)
     then
       let state, b =
       match a.Public_data.pegasus_note, b.Public_data.pegasus_note with
