@@ -87,7 +87,7 @@ let convert entry state =
               | None ->
                 Remanent_state.warn
                   __POS__
-                  (Format.sprintf "Wrong validatio status in Helisa (%s)" x)
+                  (Format.sprintf "Wrong validation status in Helisa (%s)" x)
                   Exit
                   state, None
               | Some _ as y -> state, y
@@ -238,11 +238,12 @@ let get
                                       update_n_etu int entry state
                                 | "CONTROLE"::a::b::_ ->
                                       update_controle a b entry state
-                                | titre::nom::prenom::etat::id::ref_externe::_
-                                    ->
-                                      update_validation
-                                          titre nom prenom id
-                                          ref_externe etat entry state, entry
+                                | titre::nom::prenom::id::ref_externe::note::_
+                                          ->
+                                          update_note
+                                                titre nom prenom id
+                                                ref_externe note entry state, entry
+
                                 | _ -> state, entry
                             end
                           in
@@ -339,11 +340,11 @@ let get
                                       update_n_etu int entry state
                                 | "CONTROLE"::a::b::_ ->
                                       update_controle a b entry state
-                                | titre::nom::prenom::id::ref_externe::note::_
-                                    ->
-                                      update_note
-                                          titre nom prenom id
-                                          ref_externe note entry state, entry
+                                | titre::nom::prenom::etat::id::ref_externe::_
+                                              ->
+                                                update_validation
+                                                    titre nom prenom id
+                                                    ref_externe etat entry state, entry
                                 | _ -> state, entry
                             end
                           in

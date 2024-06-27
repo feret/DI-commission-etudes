@@ -6882,7 +6882,7 @@ let dpt_of_snd state x =
     | "UNDDSEC-IBENS" -> state, Some dpt_bio
     | "UNDDSEC-ECO" -> state, Some dpt_eco
     | "UNDDSEC-ART" -> state, Some dpt_arts
-    | "UNDDSEC-PHI" -> state, Some dpt_phil 
+    | "UNDDSEC-PHI" -> state, Some dpt_phil
     | "UNDDSEC-DEC" -> state, Some dpt_dec_gps_name
     | _ ->
       Remanent_state.warn
@@ -6920,6 +6920,8 @@ let ects_9 =
     "INFO-L3-LAFORMCC-S1";
     "INFO-L3-SYSDIG-S1";
     "INFO-L3-SYSRES-S2";
+    "INFO-L3-SEMVP-S2";
+    "INFO-L3-THEOIC-S2";
     "PHYS-L3-A01-S1";
     "PHYS-L3-B03-S2";
     "PHYS-L3-B09-S2";
@@ -6930,7 +6932,6 @@ let ects_9 =
     "UNINF2-008";
     "UNINF2-013";
     "UNINF2-015";
-
     ]
 
 let ects_12 =
