@@ -137,7 +137,7 @@ let unify pos state a b  =
         then Remanent_state.warn pos  "Distinct Helisa code" Exit state, false
         else state, true
     in
-    let state, b5 =
+    let state, _b5 =
         if a.Public_data.pegasus_note_produit<> b.Public_data.pegasus_note_produit
         then Remanent_state.warn pos
                   (Format.sprintf "Distinct products (%s/%s)"
