@@ -105,12 +105,15 @@ let convert entry state =
 let unify pos state a b  =
     let state, b1 =
         if a.Public_data.pegasus_note_annee <> b.Public_data.pegasus_note_annee
-        then Remanent_state.warn pos "Distinct years" Exit state, false
+        then Remanent_state.warn pos
+               (Format.sprintf "Distinct years (%s)/(%s)" a.Public_data.pegasus_note_annee b.Public_data.pegasus_note_annee)Exit state, false
         else state, true
     in
     let state, b2 =
         if a.Public_data.pegasus_note_firstname <> b.Public_data.pegasus_note_firstname
-        then Remanent_state.warn pos "Distinct first names" Exit state, false
+        then Remanent_state.warn pos
+                (Format.sprintf "Distinct first names (%s)/%s"
+                    a.Public_data.pegasus_note_firstname b.Public_data.pegasus_note_firstname) Exit state, false
         else state, true
     in
     let state, b3 =
@@ -125,7 +128,11 @@ let unify pos state a b  =
     in
     let state, b5 =
         if a.Public_data.pegasus_note_produit<> b.Public_data.pegasus_note_produit
-        then Remanent_state.warn pos "Distinct products" Exit state, false
+        then Remanent_state.warn pos
+                  (Format.sprintf "Distinct products (%s/%s)"
+                        a.Public_data.pegasus_note_produit
+                        b.Public_data.pegasus_note_produit)
+                        Exit state, false
         else state, true
     in
     if b1 && b2 && b3 && b4 && b5
@@ -160,6 +167,7 @@ let update_note _titre nom prenom _id
 
 let update_validation _titre nom prenom _id
             _ref_externe etat entry state  =
+                let validation = match etat with "" -> None | _ -> Some etat in
                 let state, entry = convert {entry with validation = Some etat ; firstname = Some prenom ; lastname = Some nom } state
                 in
                 Remanent_state.Collector_pegasus_notes.add unify __POS__ entry state
