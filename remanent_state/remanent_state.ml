@@ -248,13 +248,13 @@ let parameters =
     dens_repository = "diplomation";
     diplomation_year = Some "2023" ;
     repository_for_minors = "mineures" ;
-      repository_for_majors = "majeures" ;
+    repository_for_majors = "majeures" ;
     repository_for_dens_candidate = "dens_candidates" ; repository_to_dump_missing_minors = "mineures" ;
     repository_to_dump_missing_majors = "majeures" ;
     repository_to_dump_missing_internship_translation = "stages" ;
     repository_to_dump_dens_candidate = "dens_candidates" ;
     repository_for_pegasus_administrative_status = "status_administratifs" ;
-    repository_for_pegasus_pedagogical_inscriptions = "programmes_pedagogiques" ;
+    repository_for_pegasus_pedagogical_inscriptions = "programmes_pedagogiques";
     repository_for_pegasus_notes = "notes" ;
     repository_for_pegasus_validations = "validations" ;
     repository_for_pegasus_courses = "cours";
@@ -269,7 +269,7 @@ let parameters =
     repartition = Public_data.Annee_de_validation_du_cours;
     add_grades_without_registration = true  ;
     load_gps_data = false ;
-    log_pegasus_entries = true;
+    log_pegasus_entries = false;
   }
 
 let _ = parameters.parameters_repository
