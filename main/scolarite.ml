@@ -45,6 +45,8 @@ let state =
       let () = Pegasus_administrative_status.dump t in
       let state, t = Remanent_state.Collector_pedagogical_registrations.get state in
       let () = Pegasus_pedagogical_registrations.dump t in
+      let state, t = Remanent_state.Collector_pegasus_notes.get state in
+      let () = Pegasus_notes.dump t in
       state
     else state
 let state =
