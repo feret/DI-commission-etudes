@@ -150,3 +150,15 @@ let add_pegasus_note
       notes.by_student
   in
   state, {by_code; by_student}
+
+let dump t =
+Public_data.YearMap.iter
+  (fun year ->
+    Public_data.CodeMap.iter
+      (fun code ->
+         Public_data.LastNameMap.iter
+            (fun lastname ->
+              Public_data.FirstNameMap.iter
+                  (fun firstname note ->
+                    Format.printf "%s %s %s %s %s %s @." year code lastname firstname (Tools.unsome_string note.Public_data.pegasus_note) (Tools.unsome_string (Tools.map_opt Public_data.string_of_helisa_val note.Public_data.pegasus_validation))
+                  )))) t.by_code

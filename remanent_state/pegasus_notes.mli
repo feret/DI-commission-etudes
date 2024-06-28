@@ -21,3 +21,5 @@ val add_pegasus_note:
 Public_data.note_pegasus->
 t ->
 'state * t
+
+val dump: t -> unit 

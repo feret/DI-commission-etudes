@@ -48,6 +48,8 @@ type course_pegasus =
 
 type helisa_val = NV | VA | NVJU | VACO | VAJU
 
+val string_of_helisa_val: helisa_val -> string
+
 val get_validation: string -> helisa_val option
 type note_pegasus =
    {

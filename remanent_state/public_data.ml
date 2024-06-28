@@ -304,6 +304,14 @@ let empty_course_pegasus =
 
 type helisa_val = NV | VA | NVJU | VACO | VAJU
 
+let string_of_helisa_val x =
+  match x with
+    | NV -> "nv"
+    | VA -> "va"
+    | NVJU -> "nvju"
+    | VACO -> "vaco"
+    | VAJU -> "vaju"
+
 let get_validation x =
   match String.lowercase_ascii (String.trim x) with
     | "nv" -> Some NV
@@ -392,7 +400,7 @@ let empty_pedagogical_entry =
         pe_student_number = "";
         pe_ine = "";
         pe_teachers = [];
-        pe_semester = None; 
+        pe_semester = None;
     }
 type scholarship =
   {

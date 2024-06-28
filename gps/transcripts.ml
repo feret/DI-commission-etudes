@@ -7265,18 +7265,24 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                   begin match grade.Public_data.pegasus_note, grade.Public_data.pegasus_validation
                   with
                     | None, Some (Public_data.VA | Public_data.VAJU | Public_data.VACO)  ->
+                        let state = Remanent_state.warn __POS__ (Format.sprintf "%s: CASE 1" codehelisa) Exit state in
                         state, Some Public_data.Valide_sans_note,
                                Some (Public_data.Bool true)
                     | None, Some (Public_data.NV | Public_data.NVJU)  ->
+                       let state = Remanent_state.warn __POS__ (Format.sprintf "%s: CASE 2" codehelisa) Exit state in
                        state, Some Public_data.Absent, Some (Public_data.Bool false)
-                    | None, None ->  state, None, None
+                    | None, None ->
+                       let state = Remanent_state.warn __POS__ (Format.sprintf "%s: CASE 3" codehelisa) Exit state in state, None, None
                     | Some x, Some (Public_data.VA | Public_data.VAJU | Public_data.VACO) ->
+                       let state = Remanent_state.warn __POS__ (Format.sprintf "%s: CASE 4" codehelisa) Exit state in
                           let state, note = Notes.of_string __POS__ state x (Some (Public_data.Bool true)) in
                           state, note, Some (Public_data.Bool true)
                     | Some x, Some _ ->
+                        let state = Remanent_state.warn __POS__ (Format.sprintf "%s: CASE 5" codehelisa) Exit state in
                            let state, note = Notes.of_string __POS__ state x (Some (Public_data.Bool false)) in
                            state, note, Some (Public_data.Bool false)
                     | Some x , None ->
+                        let state = Remanent_state.warn __POS__ (Format.sprintf "%s: CASE 6" codehelisa) Exit state in 
                            let state, note = Notes.of_string __POS__ state x (Some (Public_data.Bool true)) in
                            state, note, None
                 end
