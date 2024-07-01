@@ -2844,6 +2844,11 @@ let fill_gpscodelist ~year ~firstname ~lastname list situation state =
   else
   let _ = int_of_string year in
   let lmath = lmath ~year ~firstname ~lastname situation state in
+  let state =
+    if linfo situation
+    then Remanent_state.warn __POS__ "LINFO !!!" Exit state
+    else Remanent_state.warn __POS__ "NOT LINFO !!!" Exit state
+  in 
   if lmath && linfo situation then
     state, List.rev ("gps2291"::"gps2274"::(List.rev list))
   else
