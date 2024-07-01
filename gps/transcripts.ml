@@ -2848,7 +2848,7 @@ let fill_gpscodelist ~year ~firstname ~lastname list situation state =
     if linfo situation
     then Remanent_state.warn __POS__ "LINFO !!!" Exit state
     else Remanent_state.warn __POS__ "NOT LINFO !!!" Exit state
-  in 
+  in
   if lmath && linfo situation then
     state, List.rev ("gps2291"::"gps2274"::(List.rev list))
   else
@@ -3188,6 +3188,11 @@ let dispatch_l ~firstname ~lastname check_dpt  origine situation code_cours year
             situation is_m2
 end
 
+let is_dip_L3 x = x=L3_PSL || x=L3_HPSL
+let is_dip_M1 x = x=M1_PSL || x=M1_HPSL
+let is_dip_M2 x = x=M2_PSL || x=M2_HPSL
+
+
 let dispatch check_dpt  ~firstname ~lastname origine situation code_cours year state =
     match situation.inscription_helisa with
       | [] ->
@@ -3204,17 +3209,14 @@ let dispatch check_dpt  ~firstname ~lastname origine situation code_cours year s
         Remanent_state.warn __POS__ "Several options checked for national diploma in student gates"
            Exit state
       in
-      let state =
-        List.fold_left
-          (fun state entry ->
-              Remanent_state.warn __POS__ (Format.sprintf "%s" (match entry with L3_PSL -> "L3_PSL"
-              | L3_HPSL -> "L3_HPSL" | M1_PSL -> "M1_PSL" | M1_HPSL -> "M1_HPSL" | M2_PSL -> "M2_PSL" | M2_HPSL -> "M2_HPSL" | Autre -> "Autre" ))
-              Exit state) state situation.inscription_helisa
-      in
-      let state, (_,b,b_en,c,c_en,d,is_m2) =
-        check_dpt __POS__ state origine "" "" "" code_cours year situation false
-      in
-      state, (None,b,b_en,c,c_en,d,is_m2)
+      if List.for_all is_dip_L3 situation.inscription_helisa
+      then dispatch_l ~firstname ~lastname check_dpt  origine situation code_cours year state
+      else if List.for_all is_dip_M1 situation.inscription_helisa
+      then dispatch_m check_dpt  origine situation code_cours year state
+      else if List.for_all is_dip_M2 situation.inscription_helisa
+      then dispatch_m check_dpt  origine situation code_cours year state
+      else state, (Some ("DENS"), "DENS", "DENS", "DENS", "DENS", false, false)
+
       | [L3_PSL] | [L3_HPSL] -> dispatch_l ~firstname ~lastname check_dpt  origine situation code_cours year state
       | [M1_PSL] | [M1_HPSL] | [M2_PSL] | [M2_HPSL] -> dispatch_m check_dpt  origine situation code_cours year state
       | [Autre] -> state, (Some ("DENS"), "DENS", "DENS", "DENS", "DENS", false, false)
@@ -7365,9 +7367,6 @@ let _dump state l3 m1 autre =
     in
     state
 
-let is_dip_L3 x = x=L3_PSL || x=L3_HPSL
-let is_dip_M1 x = x=M1_PSL || x=M1_HPSL
-let is_dip_M2 x = x=M2_PSL || x=M2_HPSL
 
 let deal_with_l3_m1_dma ~year ~situation ~who filtered_classes state =
     let do_l3 filtered_classes state =
