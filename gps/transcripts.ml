@@ -2638,7 +2638,12 @@ match cours.code_cours with | None -> false | Some code_gps ->
         )    d.cours
 
 let linfo d =
-  lgen "licence" ["gps2291"] dpt_info_gps_name None d
+  lgen "licence" ["gps2291"] dpt_info_gps_name None d ||
+  List.exists
+        (fun cours ->
+          match cours.code_cours with | None -> false | Some code_gps ->
+      code_gps = "INFO-L3-MIIME-S2") d.cours
+
 let leco d =
   lgen "licence" ["XT01362"] dpt_eco_gps_name None d
 let larts d =
@@ -6922,6 +6927,7 @@ let ects_9 =
     "INFO-L3-SYSRES-S2";
     "INFO-L3-SEMVP-S2";
     "INFO-L3-THEOIC-S2";
+    "INFO-L3-SAA-S1";
     "PHYS-L3-A01-S1";
     "PHYS-L3-B03-S2";
     "PHYS-L3-B09-S2";
@@ -7265,25 +7271,20 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                   begin match grade.Public_data.pegasus_note, grade.Public_data.pegasus_validation
                   with
                     | None, Some (Public_data.VA | Public_data.VAJU | Public_data.VACO)  ->
-                        let state = Remanent_state.warn __POS__ (Format.sprintf "%s: CASE 1" codehelisa) Exit state in
                         state, Some Public_data.Valide_sans_note,
                                Some (Public_data.Bool true)
                     | None, Some (Public_data.NV | Public_data.NVJU)  ->
-                       let state = Remanent_state.warn __POS__ (Format.sprintf "%s: CASE 2" codehelisa) Exit state in
                        state, Some Public_data.Absent, Some (Public_data.Bool false)
                     | None, None ->
-                       let state = Remanent_state.warn __POS__ (Format.sprintf "%s: CASE 3" codehelisa) Exit state in state, None, None
+                        state, None, None
                     | Some x, Some (Public_data.VA | Public_data.VAJU | Public_data.VACO) ->
-                       let state = Remanent_state.warn __POS__ (Format.sprintf "%s: CASE 4" codehelisa) Exit state in
-                          let state, note = Notes.of_string __POS__ state x (Some (Public_data.Bool true)) in
-                          state, note, Some (Public_data.Bool true)
+                      let state, note = Notes.of_string __POS__ state x (Some (Public_data.Bool true)) in
+                      state, note, Some (Public_data.Bool true)
                     | Some x, Some _ ->
-                        let state = Remanent_state.warn __POS__ (Format.sprintf "%s: CASE 5" codehelisa) Exit state in
-                           let state, note = Notes.of_string __POS__ state x (Some (Public_data.Bool false)) in
+                      let state, note = Notes.of_string __POS__ state x (Some (Public_data.Bool false)) in
                            state, note, Some (Public_data.Bool false)
                     | Some x , None ->
-                        let state = Remanent_state.warn __POS__ (Format.sprintf "%s: CASE 6" codehelisa) Exit state in 
-                           let state, note = Notes.of_string __POS__ state x (Some (Public_data.Bool true)) in
+                        let state, note = Notes.of_string __POS__ state x (Some (Public_data.Bool true)) in
                            state, note, None
                 end
           in
