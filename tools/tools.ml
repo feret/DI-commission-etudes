@@ -751,12 +751,12 @@ let decompose_name l =
    let lastname, firstname = aux l [] in
    let firstname, lastname =
     match firstname,lastname with
-      | [],[last;first] -> first, last
+      | [],[last;first] -> String.capitalize_ascii first, last
       | _ ->
       let firstname = String.concat " " firstname in
       let lastname = String.concat " " lastname in
       firstname, lastname
-   in 
+   in
    lastname, firstname
 
 let get_teachers list =
