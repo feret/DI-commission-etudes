@@ -6918,7 +6918,7 @@ let ects_6 =
     "DMA-M1-D12cours-S2";
     "DMA-M1-D12GT-S2";
     "INFO-L3-LOGIN-S2";
-"PHYS-L3-A05-S1";
+    "PHYS-L3-A05-S1";
 
   ]
 let ects_9 =

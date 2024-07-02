@@ -749,8 +749,14 @@ let decompose_name l =
             List.rev lastname, l
    in
    let lastname, firstname = aux l [] in
-   let firstname = String.concat " " firstname in
-   let lastname = String.concat " " lastname in
+   let firstname, lastname =
+    match firstname,lastname with
+      | [],[last;first] -> first, last
+      | _ ->
+      let firstname = String.concat " " firstname in
+      let lastname = String.concat " " lastname in
+      firstname, lastname
+   in 
    lastname, firstname
 
 let get_teachers list =
