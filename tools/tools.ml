@@ -750,8 +750,13 @@ let decompose_name l =
    in
    let lastname, firstname = aux l [] in
    let firstname, lastname =
-    match firstname,lastname with
-      | [],[last;first] -> String.capitalize_ascii first, last
+    match firstname with
+      | [] ->
+        begin
+          match List.rev lastname with
+              | h::q -> String.capitalize_ascii h, String.concat " " (List.rev q)
+              | _ -> "", String.concat " " (List.rev lastname)
+        end
       | _ ->
       let firstname = String.concat " " firstname in
       let lastname = String.concat " " lastname in
