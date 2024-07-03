@@ -6909,6 +6909,9 @@ let check ~year ~codehelisa blacklist =
     | None -> false
     | Some set -> Public_data.CodeSet.mem codehelisa set
 
+let ects_45 =
+  ["INFO-M1-OPTCOMB-S1";"INFO-M1-OPTCONV-S1"]
+
 let ects_6 =
   [
     "DMA-L3-GL3-S1";
@@ -6919,6 +6922,8 @@ let ects_6 =
     "DMA-M1-D12GT-S2";
     "INFO-L3-LOGIN-S2";
     "PHYS-L3-A05-S1";
+    "INFO-M1-MPRI117-S1";
+    "INFO-M1-PROJRECH-S1";
 
   ]
 let ects_9 =
@@ -6941,6 +6946,13 @@ let ects_9 =
     "UNINF2-008";
     "UNINF2-013";
     "UNINF2-015";
+    "INFO-M1-LEARNING-S1";
+    "INFO-M1-VISA-S1";
+    "INFO-M1-REAC-S1";
+    "INFO-M1-MODRES-S1";
+    "INFO-M1-MPRI119-S1";
+    "INFO-M1-MPRI120-S1";
+
     ]
 
 let ects_12 =
@@ -6983,14 +6995,20 @@ let ects_24 =
     "PHYS-L3-B11-S2";
     "DMA-AA-stage4-A";
 ]
+
+let ects_30 =
+  ["INFO-M1-STAGEE-S2";
+   "NFO-M1-STAGEFE-S2"]
 let code_map = Public_data.CodeMap.empty
 let fill l ects map =
     List.fold_left (fun map x -> Public_data.CodeMap.add x ects map) map l
 
+let code_map = fill ects_45 4.5 code_map
 let code_map = fill ects_6 6. code_map
 let code_map = fill ects_9 9. code_map
 let code_map = fill ects_12 12. code_map
 let code_map = fill ects_24 24. code_map
+let code_map = fill ects_30 30. code_map
 let ects_of_code_cours code_cours =
     match code_cours with
     | None -> Some 0.
