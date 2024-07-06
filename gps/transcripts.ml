@@ -6954,6 +6954,7 @@ let ects_9 =
     "INFO-M1-MODRES-S1";
     "INFO-M1-MPRI119-S1";
     "INFO-M1-MPRI120-S1";
+    "INFO-M1-MPRI123-S2";
 
     ]
 
