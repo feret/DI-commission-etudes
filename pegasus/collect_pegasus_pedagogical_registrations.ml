@@ -126,7 +126,7 @@ let convert entry state =
   Public_data.pe_student_number = Tools.unsome_string entry.student_number;
   Public_data.pe_ine = Tools.unsome_string entry.ine;
   Public_data.pe_teachers = entry.teachers;
-  Public_data.pe_semester = entry.semester; 
+  Public_data.pe_semester = entry.semester;
 }
 
 
@@ -270,12 +270,29 @@ let update_course course ects entry (state:Remanent_state.t) =
                               Remanent_state.get_course_in_pegasus_by_libelle ~libelle ~year ~semester state
                           in
                           match pegasus_entry_opt with
-                            | Some _ -> state, pegasus_entry_opt, libelle
-                            | None ->
+                            | h::_ ->
+                              begin
+                              match List.filter (fun course -> course.Public_data.pegasus_codegps <> None) pegasus_entry_opt
+                              with
+                                | [] -> state, Some h, libelle
+                                | h::_ -> state, Some h, libelle
+                              end
+                            | [] ->
                               let libelle = Tools.simplify_spaces libelle in
                               let state, pegasus_entry_opt =
                                   Remanent_state.get_course_in_pegasus_by_libelle ~libelle ~year ~semester state
-                              in state, pegasus_entry_opt, libelle
+                              in
+                              begin
+                              match pegasus_entry_opt with
+                                | h::_ ->
+                                  begin
+                                  match List.filter (fun course -> course.Public_data.pegasus_codegps <> None) pegasus_entry_opt
+                                  with
+                                    | [] -> state, Some h, libelle
+                                    | h::_ -> state, Some h, libelle
+                                  end
+                                | [] -> state, None, libelle 
+                              end
                         end
                     in
                     match pegasus_entry_opt with

@@ -2,7 +2,7 @@ type t =
     {per_code:  Public_data.course_pegasus
         Public_data.CodeMap.t
           Public_data.YearMap.t ;
-     per_libelle: Public_data.course_pegasus
+     per_libelle: Public_data.course_pegasus list
         Public_data.StringOptMap.t
          Public_data.StringMap.t
            Public_data.YearMap.t }
@@ -37,17 +37,18 @@ let get_pegasus_course_by_libelle ~libelle ~year  ~semester courses =
             year
             courses.per_libelle
     with
-          | None -> None
+          | None -> []
           | Some a ->
               match
                 Public_data.StringMap.find_opt
                   libelle
                   a
               with
-                | None -> None
+                | None -> []
                 | Some a ->
-                  Public_data.StringOptMap.find_opt
+                  match Public_data.StringOptMap.find_opt
                       semester a
+                  with None -> [] | Some a -> a 
 
 let add_pegasus_course
     unify pos state
@@ -91,12 +92,21 @@ let add_pegasus_course
         | Some map -> map
         | None -> Public_data.StringOptMap.empty
     in
+    let course_list =
+      match
+        Public_data.StringOptMap.find_opt
+          semester
+          libelle'
+      with
+        | Some c -> c
+        | None -> []
+    in
     {per_code = Public_data.YearMap.add year
       (Public_data.CodeMap.add code course old_year) courses.per_code ;
      per_libelle =
         Public_data.YearMap.add year
             (Public_data.StringMap.add libelle
-                (Public_data.StringOptMap.add semester course libelle')
+                (Public_data.StringOptMap.add semester (course::course_list) libelle')
                 old_year')
             courses.per_libelle }
   in
@@ -111,6 +121,6 @@ let dump m =
               Public_data.StringMap.iter
                 (fun lib ->
                     Public_data.StringOptMap.iter
-                      (fun sem_opt course ->
-                        Format.printf "%s %s (%s) %s @." y lib (Tools.unsome_string sem_opt) course.Public_data.pegasus_helisa)))
+                      (fun sem_opt courses ->
+                        List.iter (fun course -> Format.printf "%s %s (%s) %s @." y lib (Tools.unsome_string sem_opt) course.Public_data.pegasus_helisa) courses)))
  m.per_libelle

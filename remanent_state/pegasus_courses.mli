@@ -9,7 +9,7 @@ val get_pegasus_course:
      libelle:string ->
      year:string ->
      semester:string option ->
-      t -> Public_data.course_pegasus option
+      t -> Public_data.course_pegasus list 
 
 val add_pegasus_course:
 ((string * int * int * int) ->
@@ -21,4 +21,4 @@ Public_data.course_pegasus->
 t ->
 'state * t
 
-val dump: t -> unit 
+val dump: t -> unit
