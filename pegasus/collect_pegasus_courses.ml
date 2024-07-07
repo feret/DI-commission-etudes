@@ -102,13 +102,6 @@ let keywords_list =
     Public_data.PEGASUS_Session;
   ]
 
-let clean s =
-  let n = String.length s in
-  if n<2 then s
-  else if String.get s (n-1) = '-' && String.get s (n-2) = ' '
-       then String.sub s 0 (n-2)
-      else
-        s
 let mandatory_fields =
       [
       lift_pred (fun a -> a.pegasus_helisa) "Code (HELISA)";
@@ -186,7 +179,6 @@ let all_fields =
               ~get_tmp:(fun a -> a.pegasus_libelle)
               ~get:(fun a -> a.Public_data.pegasus_libelle)
               ~set:(fun pegasus_libelle a ->
-                  let pegasus_libelle = clean pegasus_libelle in
                   {a with Public_data.pegasus_libelle})
               ~record_name
               ~field_name:"Libelle (Français)"
