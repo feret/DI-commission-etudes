@@ -246,7 +246,7 @@ let parameters =
     error_log_file = "error.txt";
     comma_symbol = ',';
     dens_repository = "diplomation";
-    diplomation_year = Some "2023" ;
+    diplomation_year = Some "2024" ;
     repository_for_minors = "mineures" ;
     repository_for_majors = "majeures" ;
     repository_for_dens_candidate = "dens_candidates" ; repository_to_dump_missing_minors = "mineures" ;
@@ -268,7 +268,7 @@ let parameters =
     language  = Public_data.French;
     repartition = Public_data.Annee_de_validation_du_cours;
     add_grades_without_registration = true  ;
-    load_gps_data = false ;
+    load_gps_data = true ;
     log_pegasus_entries = false;
   }
 
