@@ -191,7 +191,7 @@ let update_diploma diploma entry (state:Remanent_state.t) =
                 entry state
 
 
-let get_teachers entry = Tools.get_teachers entry.Public_data.pegasus_profs
+let get_teachers entry =  [Special_char.capitalize (Tools.unsome_string entry.Public_data.pegasus_prof_prenom),Special_char.uppercase (Tools.unsome_string entry.Public_data.pegasus_prof_nom)] 
 
 
 let update_course course ects entry (state:Remanent_state.t) =
@@ -291,7 +291,7 @@ let update_course course ects entry (state:Remanent_state.t) =
                                     | [] -> state, Some h, libelle
                                     | h::_ -> state, Some h, libelle
                                   end
-                                | [] -> state, None, libelle 
+                                | [] -> state, None, libelle
                               end
                         end
                     in

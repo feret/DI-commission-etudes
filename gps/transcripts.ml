@@ -7331,7 +7331,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                 semestre = course.Public_data.pegasus_semester ;
                 code_cours ;
                 responsable = None ;
-                enseignants = Some (Tools.get_teachers course.Public_data.pegasus_profs)  ;
+                enseignants = Some [Special_char.capitalize (Tools.unsome_string course.Public_data.pegasus_prof_prenom),Special_char.uppercase  (Tools.unsome_string course.Public_data.pegasus_prof_nom)]  ;
                 cours_libelle =
                   begin
                     Some (String.trim (course.Public_data.pegasus_libelle))

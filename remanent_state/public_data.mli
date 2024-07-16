@@ -39,7 +39,8 @@ type course_pegasus =
     pegasus_helisa: string ;
     pegasus_libelle: string ;
     pegasus_libelle_en: string option;
-    pegasus_profs: string option;
+    pegasus_prof_nom: string option;
+    pegasus_prof_prenom: string option;
     pegasus_codegps: string option;
     pegasus_session:string;
     pegasus_year:string;

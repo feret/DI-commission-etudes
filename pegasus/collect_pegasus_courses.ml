@@ -5,7 +5,8 @@ type pegasus_entry =
 {pegasus_helisa: string option;
 pegasus_libelle: string option;
 pegasus_libelle_en: string option;
-pegasus_profs: string option;
+pegasus_prof_prenom: string option;
+pegasus_prof_nom: string option;
 pegasus_codegps: string option;
 pegasus_session:string option;
 pegasus_semester: string option;
@@ -15,7 +16,8 @@ let empty_course =
 {pegasus_helisa = None;
 pegasus_libelle = None;
 pegasus_libelle_en = None;
-pegasus_profs = None;
+pegasus_prof_nom = None;
+pegasus_prof_prenom = None;
 pegasus_codegps = None;
 pegasus_session = None;
 pegasus_semester = None;
@@ -97,7 +99,8 @@ let keywords_list =
     Public_data.PEGASUS_Nature_de_l_activite;
     Public_data.PEGASUS_Libelle;
     Public_data.PEGASUS_Libelle_Anglais;
-    Public_data.PEGASUS_CO_PRODUIT_ENS_CE_ENSEIGNANT;
+    Public_data.PEGASUS_PED_NOM;
+    Public_data.PEGASUS_PED_PRENOM;
     Public_data.PEGASUS_CO_PRODUIT_ID_GIROFLE;
     Public_data.PEGASUS_Session;
   ]
@@ -153,15 +156,25 @@ let all_fields =
               ~field_name:"Semester"
               ~pos:__POS__;
           lift_string_opt
-            ~keyword:Public_data.PEGASUS_CO_PRODUIT_ENS_CE_ENSEIGNANT
+            ~keyword:Public_data.PEGASUS_PED_NOM
             ~set_tmp:(Tools.collect_string
-                            (fun pegasus_profs x -> {x with pegasus_profs}))
-            ~get_tmp:(fun a -> a.pegasus_profs)
-            ~get:(fun a -> a.Public_data.pegasus_profs)
-            ~set:(fun pegasus_profs a -> {a with Public_data.pegasus_profs})
+                            (fun pegasus_prof_nom x -> {x with pegasus_prof_nom}))
+            ~get_tmp:(fun a -> a.pegasus_prof_nom)
+            ~get:(fun a -> a.Public_data.pegasus_prof_nom)
+            ~set:(fun pegasus_prof_nom a -> {a with Public_data.pegasus_prof_nom})
             ~record_name
-            ~field_name:"Professors"
+            ~field_name:"Professor name"
             ~pos:__POS__;
+            lift_string_opt
+              ~keyword:Public_data.PEGASUS_PED_PRENOM
+              ~set_tmp:(Tools.collect_string
+                              (fun pegasus_prof_prenom x -> {x with pegasus_prof_prenom}))
+              ~get_tmp:(fun a -> a.pegasus_prof_prenom)
+              ~get:(fun a -> a.Public_data.pegasus_prof_prenom)
+              ~set:(fun pegasus_prof_prenom a -> {a with Public_data.pegasus_prof_prenom})
+              ~record_name
+              ~field_name:"Professor name"
+              ~pos:__POS__;
           lift_string_opt
             ~keyword:Public_data.PEGASUS_Libelle_Anglais
             ~set_tmp:(Tools.collect_string
