@@ -6000,7 +6000,11 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
               | [] -> ""
               | [last] -> Format.sprintf "%s%s%s" (String.concat ", " (List.rev acc)) op last
               | h::t -> aux t (h::acc)
-          in aux l []
+          in
+          match l with
+            [] -> ""
+          | [a] -> a
+          | _::_ -> aux l []
         in
         let enseignants, enseignants_en =
           match
@@ -7331,7 +7335,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                 semestre = course.Public_data.pegasus_semester ;
                 code_cours ;
                 responsable = None ;
-                enseignants = Some [Special_char.capitalize (Tools.unsome_string course.Public_data.pegasus_prof_prenom),Special_char.uppercase  (Tools.unsome_string course.Public_data.pegasus_prof_nom)]  ;
+                enseignants = Some [Special_char.capitalize (Special_char.lowercase (Tools.unsome_string course.Public_data.pegasus_prof_prenom)),Special_char.uppercase  (Tools.unsome_string course.Public_data.pegasus_prof_nom)]  ;
                 cours_libelle =
                   begin
                     Some (String.trim (course.Public_data.pegasus_libelle))
