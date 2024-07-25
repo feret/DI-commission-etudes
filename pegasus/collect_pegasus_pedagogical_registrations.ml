@@ -191,8 +191,13 @@ let update_diploma diploma entry (state:Remanent_state.t) =
                 entry state
 
 
-let get_teachers entry =  [Special_char.capitalize (Tools.unsome_string entry.Public_data.pegasus_prof_prenom),Special_char.uppercase (Tools.unsome_string entry.Public_data.pegasus_prof_nom)] 
+let get_teachers entry =
+  [Special_char.capitalize (Special_char.lowercase (Tools.unsome_string entry.Public_data.pegasus_prof_prenom)),Special_char.uppercase  (Tools.unsome_string entry.Public_data.pegasus_prof_nom)]
 
+let get_teachers entry =
+  match get_teachers entry with
+  | ["-","-"] -> []
+  | x -> x
 
 let update_course course ects entry (state:Remanent_state.t) =
     let codehelisa, libelle =
