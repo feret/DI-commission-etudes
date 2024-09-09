@@ -41,7 +41,7 @@ let get_scholarship ~firstname ~lastname scholarships =
 let add_scholarship
     unify pos state
     boursier scholarships =
-  let _ = unify, pos in 
+  let _ = unify, pos in
   let firstname = boursier.Public_data.holder_firstname in
   let lastname = boursier.Public_data.holder_lastname in
   let boursier_list = get_scholarship ~firstname ~lastname scholarships in

@@ -1,5 +1,6 @@
 val unsome: 'a option -> 'a -> 'a
 val unsome_string: string option -> string
+val unsome_float: float option -> string
 
 val remove_space_from_string:
   string -> string
@@ -154,4 +155,4 @@ val replace_backslash_n_with_spaces: string -> string
 val decompose_name: string list -> string * string
 val get_teachers: string option -> (string * string) list
 
-val simplify_spaces: string -> string 
+val simplify_spaces: string -> string

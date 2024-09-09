@@ -63,6 +63,19 @@ type note_pegasus =
     pegasus_note_code_helisa: string
 }
 
+type stage_pegasus =
+    {
+      pegasus_stage_firstname: string;
+      pegasus_stage_lastname: string;
+      pegasus_stage_credits: float option;
+      pegasus_stage_valide: bool option;
+      pegasus_stage_commentaire: string option;
+      pegasus_stage_periode: string option;
+      pegasus_stage_sujet: string option;
+      pegasus_stage_directeur: string option;
+   }
+
+val empty_stage_pegasus: stage_pegasus
 val empty_note_pegasus: note_pegasus
 val empty_course_pegasus: course_pegasus
 val empty_student_pegasus: student_pegasus

@@ -344,9 +344,33 @@ let empty_note_pegasus =
  pegasus_note_produit = "";
  pegasus_note_code_helisa= "";
 }
+
+type stage_pegasus =
+    {
+      pegasus_stage_firstname: string;
+      pegasus_stage_lastname: string;
+      pegasus_stage_credits: float option;
+      pegasus_stage_valide: bool option;
+      pegasus_stage_commentaire: string option;
+      pegasus_stage_periode: string option;
+      pegasus_stage_sujet: string option;
+      pegasus_stage_directeur: string option;
+   }
+
 type language = French | English
 type repartition = Annee_de_validation_du_cours | Annee_obtention_du_diplome
 
+let empty_stage_pegasus =
+  {
+    pegasus_stage_firstname = "";
+    pegasus_stage_lastname = "";
+    pegasus_stage_credits = None;
+    pegasus_stage_valide = None;
+    pegasus_stage_commentaire = None;
+    pegasus_stage_periode = None;
+    pegasus_stage_sujet = None;
+    pegasus_stage_directeur = None;
+  }
 
 let empty_student_id =
   {

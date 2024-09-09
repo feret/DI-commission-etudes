@@ -321,6 +321,8 @@ module Collector_pegasus_notes:
 module Collector_pegasus_validations:
       Collector_with_unification with type entry = Public_data.note_pegasus and type collector = Pegasus_notes.t
 
+module Collector_pegasus_stages:
+       Collector_with_search_by_students_wo_year with type entry = Public_data.stage_pegasus and type collector = Pegasus_stages.t
 
 module Collector_stages_tries:
 Collector_with_unification with type entry =  Public_data.stage_a_trier
@@ -351,7 +353,7 @@ val get_course_in_pegasus_by_libelle:
     libelle: string ->
     year:Public_data.annee ->
     semester:string option ->
-    t -> t * Public_data.course_pegasus list 
+    t -> t * Public_data.course_pegasus list
 
 val get_grade_in_pegasus:
     codehelisa: string ->
@@ -498,6 +500,24 @@ val get_sorted_internships:
       ?year:string ->
       ?libelle:string ->
      t -> t * Public_data.stage_a_trier list
+
+
+(** Pegasus stages *)
+val get_pegasus_stages:
+       firstname:string ->
+       lastname:string ->
+       t ->
+       t * Public_data.stage_pegasus list
+
+val add_pegasus_stage:
+       (string * int * int * int ->
+        t ->
+        Public_data.stage_pegasus ->
+        Public_data.stage_pegasus -> t * Public_data.stage_pegasus) ->
+       (string * int * int * int) ->
+       Public_data.stage_pegasus ->
+       t ->
+       t
 
 (** scholarships *)
 val get_scholarship:

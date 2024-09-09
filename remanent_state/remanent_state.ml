@@ -102,6 +102,7 @@ type parameters =
     repository_for_pegasus_courses: string;
     repository_for_pegasus_notes: string;
     repository_for_pegasus_validations: string;
+    repository_for_pegasus_stages: string;
     repository_to_dump_missing_pictures: string;
     repository_to_dump_non_accepted_grades: string;
     repository_to_dump_non_validated_internships: string;
@@ -258,6 +259,7 @@ let parameters =
     repository_for_pegasus_notes = "notes" ;
     repository_for_pegasus_validations = "validations" ;
     repository_for_pegasus_courses = "cours";
+    repository_for_pegasus_stages = "stages" ;
     current_academic_year = "2023";
     commissions_repository = "commissions_des_etudes";
 
@@ -330,6 +332,7 @@ type data =
     pedagogical_inscriptions: Pegasus_pedagogical_registrations.t;
     pegasus_notes: Pegasus_notes.t;
     pedagogical_courses: Pegasus_courses.t ;
+    stages_pegasus: Pegasus_stages.t ;
     output_alias: (string * string) option ;
     scholarships: Scholarships.t;
     mentoring: Mentoring.t;
@@ -385,6 +388,7 @@ let empty_data =
     pedagogical_inscriptions = Pegasus_pedagogical_registrations.empty ;
     pedagogical_courses = Pegasus_courses.empty ;
     pegasus_notes = Pegasus_notes.empty ;
+    stages_pegasus = Pegasus_stages.empty ;
     scholarships = Scholarships.empty;
     mentoring = Mentoring.empty;
     course_exceptions = Course_exceptions.empty;
@@ -1436,6 +1440,24 @@ let get_pegasus_gen get t =
   | "" -> t, get t
   | _ -> t, Format.sprintf "%s/%s" rep (get t)
 
+
+  module Collector_pegasus_stages =
+    Make_collector_with_search_by_students_wo_year
+      (struct
+        type entry = Public_data.stage_pegasus
+        type collector = Pegasus_stages.t
+
+        let prefix = get_repository_bdd_gen
+        let repository t =  t.parameters.repository_for_pegasus_stages
+        let get data =  data.stages_pegasus
+        let set stages_pegasus data = {data with stages_pegasus}
+        let add = Pegasus_stages.add_pegasus_stage
+        let find_list = Pegasus_stages.get_pegasus_stages
+
+    end: Interface_collector_with_search_by_students_wo_year
+    with type entry = Public_data.stage_pegasus
+    and type collector = Pegasus_stages.t )
+
   module Collector_pedagogical_registrations  =
     Make_collector_with_search_by_students_wo_year
       (struct
@@ -2086,6 +2108,11 @@ let set_scholarships scholarships data = {data with scholarships}
 let set_scholarships scholarships t =
   lift_set set_scholarships scholarships t
 
+let get_pegasus_stages data = data.stages_pegasus
+let get_pegasus_stages t = lift_get get_pegasus_stages t
+let set_pegasus_stages stages_pegasus data = {data with stages_pegasus}
+let set_pegasus_stages stages_pegasus t = lift_set set_pegasus_stages stages_pegasus t
+
 let get_mentoring data = data.mentoring
 let get_mentoring t = lift_get get_mentoring t
 let set_mentoring mentoring data = {data with mentoring}
@@ -2198,8 +2225,18 @@ let get_produit_code = get_gen __POS__ (fun a -> a.Public_data.pegasus_produit_d
 
 let add_cost_member = add_gen_list get_cost_members set_cost_members
 
+let add_pegasus_stage =
+  add_gen_unify get_pegasus_stages set_pegasus_stages Pegasus_stages.add_pegasus_stage
+
+let get_pegasus_stages ~firstname ~lastname t =
+  let stages_list =
+    Pegasus_stages.get_pegasus_stages ~firstname ~lastname t.data.stages_pegasus
+  in
+  t, stages_list
+
 let add_scholarship =
   add_gen_unify get_scholarships set_scholarships Scholarships.add_scholarship
+
 
 let get_scholarship ~firstname ~lastname ~current_year t =
   let scholarship_list =

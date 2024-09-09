@@ -4,6 +4,10 @@ let unsome a_opt a =
   | None -> a
 
 let unsome_string s_opt = unsome s_opt ""
+let unsome_float f_opt =
+    match f_opt with
+      | None -> ""
+      | Some f -> (Format.sprintf "%f" f)
 
 let remove_space_from_string s =
   let seq = String.to_seq s in

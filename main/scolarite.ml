@@ -33,6 +33,8 @@ let state =
 let state =
     Collect_pegasus_notes.get_pegasus_validations state
 let state =
+    Collect_pegasus_stages.get_pegasus_stages state
+let state =
   Collect_pegasus_administrative_status.get_pegasus_administrative_data state
 let state =
   Collect_pegasus_pedagogical_registrations.get_pegasus_pedagogical_registrations state
