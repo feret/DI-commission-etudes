@@ -18,7 +18,10 @@ let get_pegasus_stages ~firstname ~lastname stages =
   with
     | None -> []
     | Some c ->
-          Public_data.FirstNameMap.find firstname c
+        match Public_data.FirstNameMap.find_opt firstname c with
+          | None -> []
+          | Some c -> c 
+
 
 
 let add_pegasus_stage
