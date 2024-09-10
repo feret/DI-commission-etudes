@@ -1597,6 +1597,67 @@ let store_stage pos ~who state current_file current_file' output=
   let gps_file = {current_file.gps_file with stages} in
   state, {current_file with gps_file}, output
 
+(*
+  {
+    id: string option;
+    cvt: string option;
+    periode: string option;
+    date_debut: date option;
+    date_fin: date option;
+    sujet: string option;
+    directeur_de_stage: string option;
+    responsable_local: string option;
+    service_labo_dpt: string option;
+    etablissement_ou_entreprise: string option;
+    stage_credits: float option;
+    stage_valide: Public_data.valide option;
+    stage_accord: bool option;
+    stage_commentaire: string list;
+    type_de_financement: string option;
+    periode_de_financement: string option;
+    organisme_de_financement: string option;
+  } *)
+
+let add_extra_stage pos state stage gps_file =
+    let stages = gps_file.stages in
+    let stage_commentaire =
+      match stage.Public_data.pegasus_stage_commentaire with
+        | None -> []
+        | Some s -> [s]
+    in
+    let state, date_opt =
+      match stage.Public_data.pegasus_stage_periode with
+      | None -> state, None
+      | Some periode -> fetch_deb_fin pos state periode
+    in
+    let date_debut, date_fin =
+      match
+        date_opt
+      with
+      | None -> None, None
+      | Some (a,b) -> a,b
+    in
+    let id = fetch_id stage_commentaire in
+    let cvt = fetch_cvt stage_commentaire in
+    let stage_accord = Some true in
+    let stage_valide =
+      match stage.Public_data.pegasus_stage_valide with
+        | None -> None
+        | Some true -> Some (Public_data.Bool true)
+        | Some false -> Some (Public_data.Bool false)
+    in
+    let stage =
+        {
+          empty_stage
+          with
+            stage_accord ; stage_valide ;
+            id ; cvt ; date_debut ; date_fin ; stage_commentaire
+        }
+    in
+    let stages = stage::stages in
+    let gps_file = {gps_file with stages} in
+    state, gps_file
+
 let store_gen_fields
     list_string list_bool pos state current_file current_file' output
   =
@@ -7496,6 +7557,103 @@ let deal_with_l3_m1_dma ~year ~situation ~who filtered_classes state =
         | [M1_PSL] | [M1_HPSL] | [M2_PSL] | [M2_HPSL] | [Autre] -> state, filtered_classes
         | [L3_PSL] | [L3_HPSL] -> do_l3 filtered_classes state
 
+let saturate_gps_file ~firstname ~lastname state gps_file =
+  let state, gps_file = (*1*)
+    saturate_bilan_annuel state gps_file
+  in
+  let state, gps_file = (*2*)
+    add_pegasus_entries ~firstname ~lastname  state gps_file
+  in
+  let state, situation =
+    Public_data.YearMap.fold
+      (fun year situation (state,map) ->
+          let state, situation =
+              build_gpscodelist ~year ~firstname ~lastname situation state
+          in
+          state, Public_data.YearMap.add year situation map)
+      gps_file.situation (state,gps_file.situation)
+  in
+  let gps_file = {gps_file with situation} in (*4*)
+  let state, additional_courses = (*5*)
+    Remanent_state.get_additional_course
+      ~firstname ~lastname
+      state
+  in
+  let state, gps_file = (*6*)
+    List.fold_left
+      (fun (state, gps_file) course ->
+        add_extra_course state course gps_file)
+      (state, gps_file)
+      additional_courses
+  in
+  let state, additional_stages = (*7*)
+    Remanent_state.get_pegasus_stages
+      ~firstname ~lastname
+      state
+  in
+  let state, gps_file = (*8*)
+    List.fold_left
+      (fun (state, gps_file) stage ->
+        add_extra_stage __POS__ state stage gps_file)
+      (state, gps_file)
+      additional_stages
+  in
+  state, gps_file
+
+let compute_l ~firstname ~lastname state gps_file =
+  let l = Public_data.YearMap.bindings gps_file.situation in
+  let state, current_year =
+    Remanent_state.get_current_academic_year state
+  in
+  let state, l_rev =
+    List.fold_left
+      (fun (state, l) (y,annee) ->
+        let state, cours =
+          List.fold_left
+            (fun (state, l) cours ->
+                let state, cours =
+                  match cours.code_cours with
+                    | None -> state, cours
+                    | Some code ->
+                        let state,cours =
+                          match
+                            Remanent_state.get_note_a_modifier
+                              ~firstname ~lastname
+                              ~year:y
+                              ~code
+                              state
+                          with
+                           | state, None -> (state,cours)
+                           | state, Some note ->
+                              let state, note =
+                                Notes.of_string __POS__ state note
+                                    (Some (Public_data.Bool true))
+                              in
+                              state, {cours with note}
+              in
+              match
+               Remanent_state.get_ects_a_modifier
+                 ~firstname ~lastname
+                 ~year:y
+                 ~code
+                 state
+              with
+              | state, None -> (state,cours)
+              | state, Some ects ->
+                let ects = Some ects in
+                state, {cours with ects}
+                in
+                state, cours::l)
+      (state,[])
+      (List.rev annee.cours)
+  in
+  let annee = {annee with cours} in
+  state, (y,annee)::l)
+  (state, [])
+  l
+in
+let l = List.rev l_rev in
+  state, l, current_year
 
 let export_transcript
     ~output
@@ -7647,8 +7805,7 @@ let export_transcript
     let promo =
       (Tools.unsome_string gps_file.promotion)
     in
-    let promo = promo in
-      let state, promo_int =
+    let state, promo_int =
       try
         state, int_of_string promo
       with
@@ -7664,22 +7821,6 @@ let export_transcript
           state,
         0
     in
-    let state, gps_file =
-        saturate_bilan_annuel state gps_file
-    in
-    let state, gps_file =
-        add_pegasus_entries ~firstname ~lastname  state gps_file
-    in
-    let state, situation =
-      Public_data.YearMap.fold
-        (fun year situation (state,map) ->
-            let state, situation =
-              build_gpscodelist ~year ~firstname ~lastname situation state
-            in
-            state, Public_data.YearMap.add year situation map)
-        gps_file.situation (state,gps_file.situation)
-    in
-    let gps_file = {gps_file with situation} in
     let state, promo_int =
       Public_data.YearMap.fold
         (fun year a (state, y') ->
@@ -7711,73 +7852,12 @@ let export_transcript
         "pour %s %s (%s)"
         firstname lastname promo
     in
-    let state, additional_courses =
-      Remanent_state.get_additional_course
-        ~firstname ~lastname
-        state
-    in
-    let state, gps_file =
-      List.fold_left
-        (fun (state, gps_file) course ->
-           add_extra_course state course gps_file)
-        (state, gps_file)
-        additional_courses
-    in
+
+    let state, gps_file = saturate_gps_file ~firstname ~lastname state gps_file in
     let stages =
         gps_file.stages
     in
-    let l = Public_data.YearMap.bindings gps_file.situation in
-    let state, current_year =
-      Remanent_state.get_current_academic_year state
-    in
-    let state, l_rev =
-    List.fold_left
-      (fun (state, l) (y,annee) ->
-      let state, cours =
-        List.fold_left
-          (fun (state, l) cours ->
-             let state, cours =
-               match cours.code_cours with
-               | None -> state, cours
-               | Some code ->
-                 let state,cours =
-                   match
-                     Remanent_state.get_note_a_modifier
-                       ~firstname ~lastname
-                       ~year:y
-                       ~code
-                       state
-                   with
-                   | state, None -> (state,cours)
-                   | state, Some note ->
-                     let state, note =
-                          Notes.of_string __POS__ state note
-                            (Some (Public_data.Bool true))
-                    in
-                     state, {cours with note}
-                 in
-                 match
-                   Remanent_state.get_ects_a_modifier
-                     ~firstname ~lastname
-                     ~year:y
-                     ~code
-                     state
-                 with
-                 | state, None -> (state,cours)
-                 | state, Some ects ->
-                   let ects = Some ects in
-                   state, {cours with ects}
-                 in
-             state, cours::l)
-          (state,[])
-          (List.rev annee.cours)
-      in
-      let annee = {annee with cours} in
-      state, (y,annee)::l)
-      (state, [])
-      l
-    in
-    let l = List.rev l_rev in
+    let state, l, current_year  = compute_l ~firstname ~lastname state gps_file in
     let state,l_rev,_ =
       List.fold_left
         (fun (state,l,counter) (y,annee) ->
@@ -9587,37 +9667,8 @@ let state,year = Remanent_state.get_current_academic_year state in
         let promo =
           (Tools.unsome_string gps_file.promotion)
         in
-        let promo = promo in
-        let state, gps_file =
-            saturate_bilan_annuel state gps_file
-        in
-        let state, gps_file =
-            add_pegasus_entries ~firstname ~lastname  state gps_file
-        in
-        let state, situation =
-          Public_data.YearMap.fold
-            (fun year situation (state,map) ->
-                let state, situation =
-                  build_gpscodelist ~year ~firstname ~lastname situation state
-                in
-                state, Public_data.YearMap.add year situation map)
-            gps_file.situation (state,gps_file.situation)
-        in
-        let gps_file = {gps_file with situation} in
-        let state, additional_courses =
-          Remanent_state.get_additional_course
-            ~firstname ~lastname
-            state
-        in
-        let state, gps_file =
-          List.fold_left
-            (fun (state, gps_file) course ->
-               add_extra_course state course gps_file)
-            (state, gps_file)
-            additional_courses
-        in
-        let l = Public_data.YearMap.bindings gps_file.situation in
-        let state, current_year =
+        let state, gps_file = saturate_gps_file ~firstname ~lastname state gps_file in
+        let state, _current_year =
           Remanent_state.get_current_academic_year state
         in
         let f x =
@@ -9644,54 +9695,7 @@ let state,year = Remanent_state.get_current_academic_year state in
         let () =
             Remanent_state.fprintf state "\\cfoot{}"
         in
-        let state, l_rev =
-        List.fold_left
-          (fun (state, l) (y,annee) ->
-          let state, cours =
-            List.fold_left
-              (fun (state, l) cours ->
-                 let state, cours =
-                   match cours.code_cours with
-                   | None -> state, cours
-                   | Some code ->
-                     let state,cours =
-                       match
-                         Remanent_state.get_note_a_modifier
-                           ~firstname ~lastname
-                           ~year:y
-                           ~code
-                           state
-                       with
-                       | state, None -> (state,cours)
-                       | state, Some note ->
-                         let state, note =
-                              Notes.of_string __POS__ state note
-                                (Some (Public_data.Bool true))
-                        in
-                         state, {cours with note}
-                     in
-                     match
-                       Remanent_state.get_ects_a_modifier
-                         ~firstname ~lastname
-                         ~year:y
-                         ~code
-                         state
-                     with
-                     | state, None -> (state,cours)
-                     | state, Some ects ->
-                       let ects = Some ects in
-                       state, {cours with ects}
-                     in
-                 state, cours::l)
-              (state,[])
-              (List.rev annee.cours)
-          in
-          let annee = {annee with cours} in
-          state, (y,annee)::l)
-          (state, [])
-          l
-        in
-        let l = List.rev l_rev in
+        let state, l , current_year = compute_l ~firstname ~lastname state gps_file in
         let stages =
             gps_file.stages
         in
@@ -9700,7 +9704,6 @@ let state,year = Remanent_state.get_current_academic_year state in
             "pour %s %s (%s)"
             firstname lastname promo
         in
-
         let state, unvalidated =
             warn_on_course_list ~promo ~firstname ~lastname state l (Format.sprintf "%s %s %s" firstname lastname promo)
         in
@@ -9714,7 +9717,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                in
               state, (year,situation,filtered_classes)::l)
             (state,  [])
-            l_rev
+            (List.rev l)
         in
         let l =
           match l with
