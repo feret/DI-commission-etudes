@@ -1258,14 +1258,6 @@ let store_cours  =
 
       end
 
-      let is_stage cours =
-        let b = is_stage cours in
-        let () =
-            Format.printf "IS STAGE: %s -> %s @."
-                                          (match cours.code_cours with Some a -> a | None -> "None") (if b then "TRUE" else "FALSE")
-        in
-        b
-
       let stage = 250
       let memoire = 240
       let ecla = -10
@@ -5824,8 +5816,10 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                     state, [Some libelle, Some stage_entry]
                   end
                 | stage_list ->
+                  let () = Format.printf "MATCH %i @." (List.length stage_list) in
                   List.fold_left
                       (fun (state, acc) stage ->
+                  (* TO DO DUMP STAGE *)
                   let issue =
                     match
                       cours.note
@@ -5877,16 +5871,19 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                   in
                   let sujet =
                     match stage.sujet with
-                    | None -> ""
+                    | None ->
+                      let () = Format.printf "SUJET: SANS @." in ""
                     | Some a ->
+                      let () = Format.printf "SUJET: %s @." a in
                       if l = ""
                       then a
                       else "\\newline \""^a^"\""
                   in
                   let state, directeur =
                     match stage.directeur_de_stage with
-                    | None -> state, ""
+                    | None -> let () = Format.printf "DIR: SANS @." in state, ""
                     | Some a ->
+                      let () = Format.printf "DIR: %s  @." a in
                       if (Special_char.lowercase
                             (String.trim a) = "non applicable") then state, ""
                       else
@@ -5925,7 +5922,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                       ~french:(string_of_stringopt l)
                       state
                   in
-                  let () = Format.printf "%s%s%s" libelle sujet directeur in 
+                  let () = Format.printf "%s%s%s" libelle sujet directeur in
                   state,
                   (Some
                     (Format.sprintf "%s%s%s" libelle sujet directeur),
