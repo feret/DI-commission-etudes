@@ -1258,6 +1258,13 @@ let store_cours  =
 
       end
 
+      let is_stage cours =
+        let b = is_stage cours in
+        let () =
+            Format.printf "IS STAGE: %s -> %s"
+                                          (match cours.code_cours with Some a -> a | None -> "None") (if b then "TRUE" else "FALSE")
+        in
+        b
 
       let stage = 250
       let memoire = 240
