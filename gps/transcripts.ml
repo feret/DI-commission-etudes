@@ -5859,7 +5859,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                         Public_data.activite_annee = year ;Public_data.activite_activite="Stage d'Informatique";
                         Public_data.activite_activite_fr=Some "Stage d'Informatique";
                 Public_data.activite_activite_en=Some "Internship in Computer Science";
-                        Public_data.activite_intitule=(match stage.sujet with None -> "" | Some l -> l) ;
+                        Public_data.activite_intitule=(match stage.sujet with None -> "" | Some l -> Format.printf "sujet: %s @." l;l) ;
                         Public_data.activite_intitule_fr=stage.sujet;
                         Public_data.activite_intitule_en="";
                         Public_data.activite_code = Tools.unsome_string
@@ -5925,6 +5925,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                       ~french:(string_of_stringopt l)
                       state
                   in
+                  let () = Format.printf "%s%s%s" libelle sujet directeur in 
                   state,
                   (Some
                     (Format.sprintf "%s%s%s" libelle sujet directeur),
