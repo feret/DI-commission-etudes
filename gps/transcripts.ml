@@ -1261,7 +1261,7 @@ let store_cours  =
       let is_stage cours =
         let b = is_stage cours in
         let () =
-            Format.printf "IS STAGE: %s -> %s"
+            Format.printf "IS STAGE: %s -> %s @."
                                           (match cours.code_cours with Some a -> a | None -> "None") (if b then "TRUE" else "FALSE")
         in
         b
@@ -5772,6 +5772,7 @@ let program
             if is_stage cours
             then
               begin
+                let () = Format.printf "DEAL WITH INTERNSHIP @." in
                 let internship =
                   {
                     Public_data.missing_internship_promotion = promo ;
@@ -5794,6 +5795,8 @@ let program
                 match stage_opt with
                 | [] ->
                   begin
+                    let () = Format.printf "MISMATCH @." in
+
                     let state, (lib, lib_en) =
                         Remanent_state.Translate_courses.get_translation
                           Collect_course_entries.unify_course_entry __POS__
@@ -5905,9 +5908,9 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                           "\\newline %s %s" directed a
                   in
                   let l =
-                      if cours.code_cours = Some "UNEXPA-39"
+                    (* if cours.code_cours = Some "UNEXPA-39"
                     then "Stage"
-                    else l
+                    else*) l
                   in
 
                   let state, (l, l_en) =
