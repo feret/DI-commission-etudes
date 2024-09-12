@@ -1636,6 +1636,8 @@ let add_extra_stage pos state stage gps_file =
       | None -> None, None
       | Some (a,b) -> a,b
     in
+    let directeur_de_stage = stage.Public_data.pegasus_stage_directeur in
+    let sujet = stage.Public_data.pegasus_stage_sujet in
     let id = fetch_id stage_commentaire in
     let cvt = fetch_cvt stage_commentaire in
     let stage_accord = Some true in
@@ -1649,7 +1651,7 @@ let add_extra_stage pos state stage gps_file =
         {
           empty_stage
           with
-            stage_accord ; stage_valide ;
+            stage_accord ; stage_valide ; sujet ; directeur_de_stage ;
             id ; cvt ; date_debut ; date_fin ; stage_commentaire
         }
     in
