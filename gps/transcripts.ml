@@ -5766,8 +5766,6 @@ let program
             if is_stage cours
             then
               begin
-                let () = Format.printf "DEAL WITH INTERNSHIP @." in
-                let () = Format.printf "%s @." (Tools.unsome_string  cours.cours_libelle) in 
                 let internship =
                   {
                     Public_data.missing_internship_promotion = promo ;
@@ -5790,8 +5788,6 @@ let program
                 match stage_opt with
                 | [] ->
                   begin
-                    let () = Format.printf "MISMATCH @." in
-
                     let state, (lib, lib_en) =
                         Remanent_state.Translate_courses.get_translation
                           Collect_course_entries.unify_course_entry __POS__
@@ -5819,7 +5815,6 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                     state, [Some libelle, Some stage_entry]
                   end
                 | stage_list ->
-                  let () = Format.printf "MATCH %i @." (List.length stage_list) in
                   List.fold_left
                       (fun (state, acc) stage ->
                   (* TO DO DUMP STAGE *)
@@ -5856,7 +5851,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                         Public_data.activite_annee = year ;Public_data.activite_activite="Stage d'Informatique";
                         Public_data.activite_activite_fr=Some "Stage d'Informatique";
                 Public_data.activite_activite_en=Some "Internship in Computer Science";
-                        Public_data.activite_intitule=(match stage.sujet with None -> "" | Some l -> Format.printf "sujet: %s @." l;l) ;
+                        Public_data.activite_intitule=(match stage.sujet with None -> "" | Some l -> l) ;
                         Public_data.activite_intitule_fr=stage.sujet;
                         Public_data.activite_intitule_en="";
                         Public_data.activite_code = Tools.unsome_string
@@ -5874,19 +5869,16 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                   in
                   let sujet =
                     match stage.sujet with
-                    | None ->
-                      let () = Format.printf "SUJET: SANS @." in ""
+                    | None -> ""
                     | Some a ->
-                      let () = Format.printf "SUJET: %s @." a in
                       if l = ""
                       then a
                       else "\\newline \""^a^"\""
                   in
                   let state, directeur =
                     match stage.directeur_de_stage with
-                    | None -> let () = Format.printf "DIR: SANS @." in state, ""
+                    | None -> state, ""
                     | Some a ->
-                      let () = Format.printf "DIR: %s  @." a in
                       if (Special_char.lowercase
                             (String.trim a) = "non applicable") then state, ""
                       else
@@ -5925,7 +5917,6 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                       ~french:(string_of_stringopt l)
                       state
                   in
-                  let () = Format.printf "%s%s%s" libelle sujet directeur in
                   state,
                   (Some
                     (Format.sprintf "%s%s%s" libelle sujet directeur),

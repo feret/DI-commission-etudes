@@ -263,7 +263,7 @@ let parameters =
     current_academic_year = "2023";
     commissions_repository = "commissions_des_etudes";
 
-    commission = None ;
+    commission =  Some ("23 septembre 2024",  "2023");
     target = None ;
     signature = "feret+tampon.pdf";
     bilinguage = true ;
