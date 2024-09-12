@@ -5767,6 +5767,7 @@ let program
             then
               begin
                 let () = Format.printf "DEAL WITH INTERNSHIP @." in
+                let () = Format.printf "%s @." (Tools.unsome_string  cours.cours_libelle) in 
                 let internship =
                   {
                     Public_data.missing_internship_promotion = promo ;
