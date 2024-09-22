@@ -473,6 +473,17 @@ let display_exp state label l =
     if n=0 then ()
     else Remanent_state.fprintf state "%s (%i)," label n
 
+let count_exp dens =
+    List.fold_left
+      (fun n l  -> n+List.length l)
+      0
+      [
+        dens.Public_data.dens_activite_ouverture;
+        dens.Public_data.dens_activite_recherche;
+        dens.Public_data.dens_activite_internationale;
+        dens.Public_data.dens_activite_autre
+      ]
+
 let print_check state =
     let () = Remanent_state.fprintf state "\\textcolor{green}{\\CheckmarkBold}" in
     state
@@ -544,6 +555,7 @@ let dump_dens dens state =
       let () = Remanent_state.fprintf state "\\begin{center}" in
       let () = Remanent_state.fprintf state "\\begin{minipage}{0.5\\linewidth}" in
       let () = Remanent_state.fprintf state "Nbr inscriptions au DENS : %i (3 sont nécessaires)" dens.Public_data.dens_nb_inscriptions in
+      let state = print_status (dens.Public_data.dens_nb_inscriptions > 2) state in
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state "Sortant : %s (doit être sortant)" (match dens.Public_data.dens_sortant with
           | None -> "non précisé"
@@ -577,6 +589,7 @@ let dump_dens dens state =
       let () = display_exp state "Internationale" dens.Public_data.dens_activite_internationale in
       let () = display_exp state "Autre"
       dens.Public_data.dens_activite_autre in
+      let state = print_status (count_exp dens > 1)  state in
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state "M2 recherche : " in
       let () = (match dens.Public_data.dens_master with
