@@ -7036,7 +7036,7 @@ let ects_12 =
     "DMA-L3-D02-S2";
     "DMA-L3-M01-S2";
     "DMA-L3-M03-S2";
-    "DMA-M1-GT1-S1"; 
+    "DMA-M1-GT1-S1";
     "DMA-M1-B01-S1";
     "DMA-M1-B02-S1";
     "DMA-M1-B02-S2";
@@ -7119,6 +7119,11 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                 | _ ->  Remanent_state.warn __POS__ (Format.sprintf "Invalid code for helisa registration %s" code)  Exit state, Autre
             in
             let bilan = {bilan with inscription_helisa = elt::bilan.inscription_helisa} in
+            let bilan =
+              match course.Public_data.pe_dens with
+                | Some true -> {bilan with inscription_au_DENS = Some true}
+                | _ -> bilan
+            in
             state,
             {gps_file with
              situation =
@@ -7286,6 +7291,12 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             }
           in
           let bilan = {bilan with cours = elt::bilan.cours} in
+          let bilan =
+            match course.Public_data.pe_dens with
+              | Some true -> {bilan with inscription_au_DENS = Some true}
+              | _ -> bilan
+          in
+
           let blacklist = add ~year:course.Public_data.pe_year ~codehelisa:code blacklist in
           state,
           {gps_file with

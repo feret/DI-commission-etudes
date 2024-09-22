@@ -15,6 +15,7 @@ type pegasus_entry =
   libelle_gps: string option ;
   teachers: (string * string) list ;
   semester: string option;
+  inscription_dens: bool option;
 }
 
 let empty_pegasus_entry =
@@ -33,6 +34,8 @@ let empty_pegasus_entry =
   libelle_gps = None;
   teachers = [];
   semester = None ;
+  inscription_dens = None;
+
 }
 
 let rec fetch_name l acc =
@@ -83,14 +86,20 @@ let update_student bloc entry state =
           | [] -> entry,t
           | n::tail ->{entry with student_number = Some n },tail
         in
-        let rec aux t =
+        let rec aux t b_opt =
         match t with
-          | ":"::tail -> tail
-          | _::tail -> aux tail
-          | [] -> []
+          | ":"::tail -> tail,b_opt
+          | t::tail ->
+            if String.length t >= 21 && String.sub t 0 21 = "Diplôme de l'ENS-PSL"
+            then
+              aux tail (Some true)
+            else
+              aux tail b_opt
+          | [] -> [], b_opt
         in
-        let _, tutor_lastname, tutor_firstname = fetch_name (aux t) in
-        {entry with tutor_lastname = Some tutor_lastname ; tutor_firstname = Some tutor_firstname}, state
+        let tail, b_opt = aux t None in
+        let _, tutor_lastname, tutor_firstname = fetch_name tail  in
+        {entry with tutor_lastname = Some tutor_lastname ; tutor_firstname = Some tutor_firstname ; inscription_dens = b_opt}, state
 
 
 
@@ -120,13 +129,13 @@ let convert entry state =
     end;
   Public_data.pe_code_helisa = Tools.unsome_string entry.code_helisa;
   Public_data.pe_code_gps = entry.code_gps;
-
   Public_data.pe_tutor_firstname = Tools.unsome_string entry.tutor_firstname;
   Public_data.pe_tutor_lastname = Tools.unsome_string entry.tutor_lastname;
   Public_data.pe_student_number = Tools.unsome_string entry.student_number;
   Public_data.pe_ine = Tools.unsome_string entry.ine;
   Public_data.pe_teachers = entry.teachers;
   Public_data.pe_semester = entry.semester;
+  Public_data.pe_dens = entry.inscription_dens; 
 }
 
 

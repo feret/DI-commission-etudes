@@ -96,6 +96,7 @@ type pedagogical_entry_pegasus =
     pe_student_number: string;
     pe_ine: string;
     pe_semester: string option;
+    pe_dens : bool option; 
 }
 
 val empty_pedagogical_entry: pedagogical_entry_pegasus
