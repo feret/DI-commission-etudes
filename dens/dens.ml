@@ -473,6 +473,17 @@ let display_exp state label l =
     if n=0 then ()
     else Remanent_state.fprintf state "%s (%i)," label n
 
+let print_check state =
+    let () = Remanent_state.fprintf state "\\textcolor{green}{\\CheckmarkBold}" in
+    state
+let print_in_progress state =
+    let () = Remanent_state.fprintf state "\\textcolor{orange}{\\ldots}" in
+    state
+let print_status bool state =
+    if bool
+    then print_check state
+    else print_in_progress state
+
 let dump_dens dens state =
     let size = [None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None] in
@@ -540,23 +551,26 @@ let dump_dens dens state =
           | Some false -> "Non") in
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state "ECTS DENS : %s (72 sont nécessaires)" (string_of_float ects') in
+      let state = print_status (ects'>=72.) state in
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state
                   "ECTS discipline principale : %s (24 sont nécessaires)"
                   (let (_,_,_,ects')=total_principale in (string_of_float ects'))
       in
+      let state = print_status (ects'>=24.) state in
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state
                   "ECTS autres disciplines : %s (24 sont nécessaires)"
                   (let (_,_,_,ects')=total_other in (string_of_float ects'))
       in
+      let state = print_status (ects'>=24.) state in
       let () = Remanent_state.print_newline state in
-      let () = Remanent_state.fprintf state
+    (*  let () = Remanent_state.fprintf state
                   "ECTS langues : %s (24 sont nécessaires%s)"
                   (let (_,_,_,ects')=total_ecla in (string_of_float ects'))
                   (match main_dpt with | Public_data.DI -> " ou un stage à l'étranger" | Public_data.DMA | Public_data.ENS|Public_data.PHYS|Public_data.GEOSCIENCES | Public_data.DEC |  Public_data.CHIMIE|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> "")
       in
-      let () = Remanent_state.print_newline state in
+      let () = Remanent_state.print_newline state in *)
       let () = Remanent_state.fprintf state "Expériences : " in
       let () = display_exp state "Ouverture" dens.Public_data.dens_activite_ouverture in
       let () = display_exp state "Recherche" dens.Public_data.dens_activite_recherche in
@@ -566,20 +580,29 @@ let dump_dens dens state =
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state "M2 recherche : " in
       let () = (match dens.Public_data.dens_master with
-               | [] -> Remanent_state.fprintf state "aucun"
+               | [] -> let () = Remanent_state.fprintf state "aucun" in
+                       ()
                | l ->
-                 List.iter
+                 let () = List.iter
                    (fun dpl ->
                        Remanent_state.fprintf state "%s ; "
-                         (label_of_diplome dpl)) (List.rev l))
+                         (label_of_diplome dpl)) (List.rev l)
+                in ())
       in
-      let () = Remanent_state.fprintf state " (M2 recherche en %s obligatoire)" (match main_dpt with
+      let () = Remanent_state.fprintf state " (M2 recherche en %s obligatoire)"
+          (match main_dpt with
             Public_data.DMA -> "mathématiques"
           | Public_data.DI -> "informatique"
           | Public_data.CHIMIE -> "chimie"
           | Public_data.DEC -> "sciences cognitives"
           | Public_data.GEOSCIENCES -> "géosciences" | (Public_data.ENS|Public_data.PHYS|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA)
   -> "informatique") in
+      let state =
+          print_status
+            (List.exists
+                (fun a -> a.Public_data.diplome_dpt = main_dpt)
+              dens.Public_data.dens_master) state
+      in
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state "Diplômes autre : " in
       let () = (match dens.Public_data.dens_parcours with
@@ -590,25 +613,32 @@ let dump_dens dens state =
                          (label_of_diplome dpl)) (List.rev l))
       in
       let () = Remanent_state.print_newline state in
-      let () =
+      let state =
         match main_dpt with
         | Public_data.DI ->
            begin
                let () = Remanent_state.fprintf state "Cours obligatoires : %i (5 sont nécessaires)" dens.Public_data.dens_nb_mandatory_course in
-           let () = Remanent_state.print_newline state in
-           let () =
-              Remanent_state.fprintf
-                  state
-                  "Cours de maths/maths info : %i/%i (2 sont nécessaires dont au moins un de maths)"
-                  dens.Public_data.dens_nb_math_course
-                  (dens.Public_data.dens_nb_math_and_math_info_course - dens.Public_data.dens_nb_math_course)
+               let state = print_status (dens.Public_data.dens_nb_mandatory_course > 4) state in
+              let () = Remanent_state.print_newline state in
+           let () = Remanent_state.fprintf
+                      state
+                      "Cours de maths: %i "
+                      dens.Public_data.dens_nb_math_course
            in
            let () = Remanent_state.print_newline state in
-           ()
+           let () = Remanent_state.fprintf
+                    state
+                    "Cours de maths-info : %i (2 cours de maths ou maths-info  nécessaires dont au moins un de maths)"
+                    (dens.Public_data.dens_nb_math_and_math_info_course - dens.Public_data.dens_nb_math_course)
+           in
+           let state = print_status (dens.Public_data.dens_nb_math_course > 0 &&
+dens.Public_data.dens_nb_math_and_math_info_course > 1) state in
+           let () = Remanent_state.print_newline state in
+           state
            end
            | Public_data.DMA
            | Public_data.ENS | Public_data.GEOSCIENCES
-           | Public_data.PHYS | Public_data.CHIMIE | Public_data.DEC |  Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> ()
+           | Public_data.PHYS | Public_data.CHIMIE | Public_data.DEC |  Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> state
       in
       let () = Remanent_state.fprintf state "\\end{minipage}" in
       let () = Remanent_state.fprintf state "\\end{center}" in
@@ -1289,7 +1319,7 @@ let get_dens_candidates
             let event = Some (Profiling.Scan_csv_files (str,"")) in
             let state = Remanent_state.open_event_opt event state in
             let state = Scan_csv_files.collect_gen
-              ~strict:true 
+              ~strict:true
               ?repository
               ?prefix
               ?file_name

@@ -89,12 +89,8 @@ let update_student bloc entry state =
         let rec aux t b_opt =
         match t with
           | ":"::tail -> tail,b_opt
-          | t::tail ->
-            if String.length t >= 21 && String.sub t 0 21 = "Diplôme de l'ENS-PSL"
-            then
-              aux tail (Some true)
-            else
-              aux tail b_opt
+          | "Diplôme"::"de"::"l'ENS-PSL"::tail -> aux tail (Some true)
+          | _::tail -> aux tail b_opt
           | [] -> [], b_opt
         in
         let tail, b_opt = aux t None in
@@ -135,7 +131,7 @@ let convert entry state =
   Public_data.pe_ine = Tools.unsome_string entry.ine;
   Public_data.pe_teachers = entry.teachers;
   Public_data.pe_semester = entry.semester;
-  Public_data.pe_dens = entry.inscription_dens; 
+  Public_data.pe_dens = entry.inscription_dens;
 }
 
 

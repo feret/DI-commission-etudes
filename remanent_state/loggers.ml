@@ -710,7 +710,10 @@ let print_preamble
 \\usepackage{xstring}%%\n\
 \\usepackage{ifthen}%%\n\
 \\usepackage{numprint}%%\n\
-\\usepackage{multirow}%%\n\
+\\usepackage{bbding}%%\n\
+\\usepackage{pifont}%%\n\
+\\usepackage{wasysym}%%\n\
+\\usepackage{amssymb}\\usepackage{multirow}%%\n\
 \\usepackage[table]{xcolor}%%\n\
 \\usepackage{ltablex}%%\n\
 \\usepackage{graphicx}%%\n\
