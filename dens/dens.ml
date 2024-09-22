@@ -485,7 +485,7 @@ let count_exp dens =
       ]
 
 let print_check state =
-    let () = Remanent_state.fprintf state "\\textcolor{green}{\\CheckmarkBold}" in
+    let () = Remanent_state.fprintf state "\\textcolor{darkgreen}{\\CheckmarkBold}" in
     state
 let print_in_progress state =
     let () = Remanent_state.fprintf state "\\textcolor{orange}{\\ldots}" in
