@@ -149,7 +149,6 @@ let update_diploma diploma entry (state:Remanent_state.t) =
         entry state
 
 let update_inscription code_helisa entry state =
-  let state = Remanent_state.warn __POS__ (Format.sprintf "UPDATE INSCRIPTION") Exit state in
   match code_helisa with
     | Some (dpt,n) ->
         let state, dpt =
@@ -166,7 +165,6 @@ let update_inscription code_helisa entry state =
           | "3ème" -> state, 3
           | _ -> Remanent_state.warn __POS__ (Format.sprintf "Unknwon inscription year %s" n) Exit state, 0
         in
-        let state = Remanent_state.warn __POS__ (Format.sprintf "UPDATE INSCRIPTION %s %i" dpt n) Exit state in 
         let code_helisa =
           Some (Format.sprintf "AND%s%i" dpt n) in
         let state, entry = convert {entry with code_helisa} state in
