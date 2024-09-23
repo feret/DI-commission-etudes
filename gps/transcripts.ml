@@ -1542,9 +1542,9 @@ let add_extra_course state cours_a_ajouter gps_file =
       contrat = None ;
       accord = Some true ;
       note =
-        if int_of_string (cours_a_ajouter.Public_data.coursaj_annee) > 2022
+        (*if int_of_string (cours_a_ajouter.Public_data.coursaj_annee) > 2022
         then Some Public_data.En_cours
-        else
+        else*)
         (match cours_a_ajouter.Public_data.coursaj_note
         with
         | Some f ->
