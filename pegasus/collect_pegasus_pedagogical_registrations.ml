@@ -86,16 +86,16 @@ let update_student bloc entry state =
           | [] -> entry,t
           | n::tail ->{entry with student_number = Some n },tail
         in
-        let rec aux t b_opt =
+        let rec aux t b_opt dpt =
         match t with
-          | ":"::tail -> tail,b_opt
-          | "Diplôme"::"de"::"l'ENS-PSL"::tail -> aux tail (Some true)
-          | _::tail -> aux tail b_opt
-          | [] -> [], b_opt
+          | ":"::tail -> tail,b_opt, dpt
+          | "Diplôme"::"de"::"l'ENS-PSL"::dpt::"-"::n::tail -> aux tail (Some true) (Some (dpt,n))
+          | _::tail -> aux tail b_opt dpt
+          | [] -> [], b_opt, dpt
         in
-        let tail, b_opt = aux t None in
+        let tail, b_opt,dpt = aux t None None in
         let _, tutor_lastname, tutor_firstname = fetch_name tail  in
-        {entry with tutor_lastname = Some tutor_lastname ; tutor_firstname = Some tutor_firstname ; inscription_dens = b_opt}, state
+        {entry with tutor_lastname = Some tutor_lastname ; tutor_firstname = Some tutor_firstname ; inscription_dens = b_opt}, state, dpt
 
 
 
@@ -142,12 +142,34 @@ let update_diploma diploma entry (state:Remanent_state.t) =
     | h::t -> h, String.concat " " t
     | [] -> "",""
   in
-  let code_gps = entry.code_gps in
   let code_helisa, libelle = Some code, Some libelle in
-  let state, entry = convert {entry with libelle ; code_helisa ; code_gps } state in
+  let state, entry = convert {entry with libelle ; code_helisa} state in
   add
         (fun _ state a _ -> state,a) __POS__
         entry state
+
+let update_inscription code_helisa entry state =
+  match code_helisa with
+    | Some (dpt,n) ->
+        let state, dpt =
+          match dpt with
+            | "Informatique"  -> state, "INF"
+            | "Mathématique" -> state, "DMA"
+            | "Chimie" -> state, "CHI"
+            | _ -> Remanent_state.warn __POS__ (Format.sprintf "Unknown dpt %s " dpt) Exit state, ""
+        in
+        let state, n =
+         match n with
+          | "1ère" -> state, 1
+          | "2ème" -> state, 2
+          | "3ème" -> state, 3
+          | _ -> Remanent_state.warn __POS__ (Format.sprintf "Unknwon inscription year %s" n) Exit state, 0
+        in
+        let code_helisa =
+          Some (Format.sprintf "AND%s%i" dpt n) in
+        let state, entry = convert {entry with code_helisa} state in
+        add (fun _ state a _ -> state,a ) __POS__ entry state
+    | None -> state
 
   let update_snd dpt entry state =
     let snd x = Format.sprintf "UNDDSEC-%s" x in
@@ -439,7 +461,8 @@ let get_pegasus_pedagogical_registrations
                             | ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_)::(year::_)::(bloc::_)::_::tail
  ->
                             let entry, state = update_year year entry state in
-                            let entry, state  = update_bloc' bloc entry state in
+                            let entry, state, dpt  = update_bloc' bloc entry state in
+                            let state = update_inscription dpt entry state in
                             let rec aux_diploma tail state =
                               match tail with [] -> state, []
                                             | (""::""::""::diploma::_)::tail when diploma <> "" ->
