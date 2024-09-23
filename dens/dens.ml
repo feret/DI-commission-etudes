@@ -575,7 +575,7 @@ let dump_dens dens state =
                   "ECTS autres disciplines : %s (24 sont nécessaires)"
                   (let (_,_,_,ects')=total_other in (string_of_float ects'))
       in
-      let state = print_status ((let (_,_,_,ects')=total_other in ects'>=24.) state in
+      let state = print_status (let (_,_,_,ects')=total_other in ects'>=24.) state in
       let () = Remanent_state.print_newline state in
     (*  let () = Remanent_state.fprintf state
                   "ECTS langues : %s (24 sont nécessaires%s)"
