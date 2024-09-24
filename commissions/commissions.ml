@@ -653,6 +653,12 @@ let print_sous_commission
         state
 
       | TODO_Nat (f,lbl,recu), Public_data.Diplome_National dip, univ ->
+      let state =
+        match recu with
+        | None -> Remanent_state.warn __POS__ (Format.sprintf "%s NONE" lbl) Exit state
+        | Some true -> Remanent_state.warn __POS__ (Format.sprintf "%s TRUE" lbl) Exit state
+        | Some false -> Remanent_state.warn __POS__ (Format.sprintf "%s FALSE" lbl) Exit state
+      in
         let headpage = headpage dip.Public_data.dn_long in
         let academicyear=commission_year in
         let state,_ =
