@@ -370,6 +370,12 @@ let filter_dens
     let _ =
       dpt, dpt_gps_code, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription, attributionyear, libelle
     in
+    let state =
+      match recu with
+      | None -> Remanent_state.warn __POS__ "NONE" Exit state
+      | Some true -> Remanent_state.warn __POS__ "TRUE" Exit state
+      | Some false -> Remanent_state.warn __POS__ "FALSE" Exit state
+    in 
     state,
     check commission dens.Public_data.diplome_commission
     &&
