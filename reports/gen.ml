@@ -532,6 +532,7 @@ let filter
            ?recu
            ?libelle
            state elt in
+      let state = Remanent_state.warn __POS__ (Format.sprintf "%s" (if b then "true" else "false")) Exit state in 
       if b then
         state, elt::list
       else
