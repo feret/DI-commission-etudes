@@ -189,15 +189,17 @@ Public_data.Diplome_National
   }
 
 type todo =
-  | TODO_Nat of Diploma_report.dump * string
+  | TODO_Nat of Diploma_report.dump * string * bool option
   | TODO_DENS of Dens_report.dump * string
 
 let todo =
   [
     TODO_Nat
-      (Diploma_report.DiplomaReport.dump_per_result_per_student,"_par_resultat") ;
+      (Diploma_report.DiplomaReport.dump_per_result_per_student,"_par_resultat",None) ;
     TODO_Nat
-      (Diploma_report.DiplomaReport.dump_per_student,"_alphabetic");
+      (Diploma_report.DiplomaReport.dump_per_student,"_alphabetic",None);
+    TODO_Nat
+        (Diploma_report.DiplomaReport.dump_per_student,"_alphabetic_validated_only",Some true);
     TODO_DENS
       (Dens_report.DensReport.dump_per_promo,"_par_promotion");
     TODO_DENS
@@ -650,11 +652,11 @@ let print_sous_commission
         in
         state
 
-      | TODO_Nat (f,lbl), Public_data.Diplome_National dip, univ ->
+      | TODO_Nat (f,lbl,recu), Public_data.Diplome_National dip, univ ->
         let headpage = headpage dip.Public_data.dn_long in
         let academicyear=commission_year in
         let state,_ =
-          f
+          f ?recu
             ~file_name:(Format.sprintf
                           "PV_%s%s%s.html" dip.Public_data.dn_short lbl (Public_data.file_suffix_of_univ univ))
             ?academicyear
