@@ -373,9 +373,9 @@ let filter_dens
     in
     let state =
       match recu with
-      | None -> Remanent_state.warn __POS__ (Format.sprintf "NONE %s %s" (if dens.Public_data.diplome_recu then "true" else "false") dens.Public_data.diplome_lastname) Exit state
-      | Some true -> Remanent_state.warn __POS__ (Format.sprintf  "TRUE %s %s" (if dens.Public_data.diplome_recu then "true" else "false") dens.Public_data.diplome_lastname) Exit state
-      | Some false -> Remanent_state.warn __POS__ (Format.sprintf  "FALSE %s %s" (if dens.Public_data.diplome_recu then "true" else "false") dens.Public_data.diplome_lastname) Exit state
+      | None -> Remanent_state.warn __POS__ (Format.sprintf "NONE %s %s %s %S" (if dens.Public_data.diplome_recu then "true" else "false") dens.Public_data.diplome_lastname dens.Public_data.diplome_year  dens.Public_data.diplome_niveau) Exit state
+      | Some true -> Remanent_state.warn __POS__ (Format.sprintf  "TRUE %s %s %s %s" (if dens.Public_data.diplome_recu then "true" else "false") dens.Public_data.diplome_lastname dens.Public_data.diplome_year  dens.Public_data.diplome_niveau) Exit state
+      | Some false -> Remanent_state.warn __POS__ (Format.sprintf  "FALSE %s %s %s %s" (if dens.Public_data.diplome_recu then "true" else "false") dens.Public_data.diplome_lastname dens.Public_data.diplome_year  dens.Public_data.diplome_niveau) Exit state
     in
     state,
     check commission dens.Public_data.diplome_commission
