@@ -63,7 +63,7 @@ struct
     let event_opt =
       Some Profiling.Dump_national_diploma_list
     in
-    let state = if lastname = "CLERGUE" && niveau = "m" then
+    let state = if lastname = (Some "CLERGUE") && niveau = (Some "m") then
       match recu with
       | None -> Remanent_state.warn __POS__ "NONE" Exit state
       | Some true -> Remanent_state.warn __POS__ "TRUE" Exit state
@@ -216,12 +216,12 @@ else state
       []
     in
     let state =
-if lastname = "CLERGUE" && niveau = "m" then
+if lastname = (Some "CLERGUE") && niveau = (Some "m") then
         match recu with
         | None -> Remanent_state.warn __POS__ "NONE" Exit state
         | Some true -> Remanent_state.warn __POS__ "TRUE" Exit state
         | Some false -> Remanent_state.warn __POS__ "FALSE" Exit state
-  else state 
+  else state
       in
     dump_national_diploma_list
       ?commission ?firstname ?lastname ?promo ?niveau ?dpt ?universite
