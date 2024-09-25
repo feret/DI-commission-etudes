@@ -781,9 +781,9 @@ let print_sous_commission
           state
         in
         let state =
-          match sous_commission_key_next_opt with
-          | None -> state
-          | Some x ->
+          match sous_commission_key_next_opt, recu with
+          | None,_ | _, Some _ -> state
+          | Some x,_ ->
           begin
           match
             Public_data.StringUnivMap.find_opt (x,Public_data.PSL) diplomes
