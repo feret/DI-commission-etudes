@@ -88,7 +88,7 @@ let dump_elts
              ?libelle
              state elt
          in
-         let state = Remanent_state.warn __POS__ (Format.sprintf "%s" (if b then "true" else "false")) Exit state in 
+         let state = Remanent_state.warn __POS__ (Format.sprintf "%s" (if b then "true" else "false")) Exit state in
          if b then
            state, elt::l
          else
@@ -373,9 +373,9 @@ let filter_dens
     in
     let state =
       match recu with
-      | None -> Remanent_state.warn __POS__ (Format.sprintf "NONE %s" (if dens.Public_data.diplome_recu then "true" else "false")) Exit state
-      | Some true -> Remanent_state.warn __POS__ (Format.sprintf  "TRUE %s" (if dens.Public_data.diplome_recu then "true" else "false")) Exit state
-      | Some false -> Remanent_state.warn __POS__ (Format.sprintf  "FALSE %s" (if dens.Public_data.diplome_recu then "true" else "false")) Exit state
+      | None -> Remanent_state.warn __POS__ (Format.sprintf "NONE %s %s" (if dens.Public_data.diplome_recu then "true" else "false") dens.Public_data.diplome_lastname) Exit state
+      | Some true -> Remanent_state.warn __POS__ (Format.sprintf  "TRUE %s %s" (if dens.Public_data.diplome_recu then "true" else "false") dens.Public_data.diplome_lastname) Exit state
+      | Some false -> Remanent_state.warn __POS__ (Format.sprintf  "FALSE %s %s" (if dens.Public_data.diplome_recu then "true" else "false") dens.Public_data.diplome_lastname) Exit state
     in
     state,
     check commission dens.Public_data.diplome_commission
