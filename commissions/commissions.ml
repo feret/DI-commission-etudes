@@ -691,7 +691,7 @@ let print_sous_commission
                dpt]
         in
         let state,input =
-          f
+          f ?recu
             ~file_name:(Format.sprintf "PV_%s%s_sans_signature_%s%s.tex"
                           dip.Public_data.dn_short lbl direction.Public_data.direction_initiales
                           (Public_data.file_suffix_of_univ dip.Public_data.dn_univ_key))
@@ -753,7 +753,7 @@ let print_sous_commission
               ]
           in
           let state,input =
-            f
+            f ?recu
               ~file_name:(Format.sprintf "PV_%s%s_signe_%s%s.tex"
                             dip.Public_data.dn_short lbl direction.Public_data.direction_initiales
                             (Public_data.file_suffix_of_univ dip.Public_data.dn_univ_key))
