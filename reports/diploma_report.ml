@@ -63,11 +63,12 @@ struct
     let event_opt =
       Some Profiling.Dump_national_diploma_list
     in
-    let state =
+    let state = if lastname = "CLERGUE" && niveau = "m" then
       match recu with
       | None -> Remanent_state.warn __POS__ "NONE" Exit state
       | Some true -> Remanent_state.warn __POS__ "TRUE" Exit state
       | Some false -> Remanent_state.warn __POS__ "FALSE" Exit state
+else state
     in
     let filter = Gen.filter_national_diploma in
     let get = I.Missing_entry.get in
@@ -171,12 +172,6 @@ struct
       ?title ?preamble ?signature
       ?output_repository ?prefix ?file_name
       state =
-    let state =
-        match recu with
-        | None -> Remanent_state.warn __POS__ "NONE" Exit state
-        | Some true -> Remanent_state.warn __POS__ "TRUE" Exit state
-        | Some false -> Remanent_state.warn __POS__ "FALSE" Exit state
-      in
     let cmp =
       [
         Gen.lift_cmp (fun a -> if a.Public_data.diplome_recu then "0" else "1");
@@ -220,6 +215,14 @@ struct
     let headers =
       []
     in
+    let state =
+if lastname = "CLERGUE" && niveau = "m" then
+        match recu with
+        | None -> Remanent_state.warn __POS__ "NONE" Exit state
+        | Some true -> Remanent_state.warn __POS__ "TRUE" Exit state
+        | Some false -> Remanent_state.warn __POS__ "FALSE" Exit state
+  else state 
+      in
     dump_national_diploma_list
       ?commission ?firstname ?lastname ?promo ?niveau ?dpt ?universite
       ?recu ?academicyear

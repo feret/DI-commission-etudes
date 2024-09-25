@@ -372,10 +372,12 @@ let filter_dens
       dpt, dpt_gps_code, codegps, mentorname, mentorfirstname, mentorlastname, teachername, academicyear, ninscription, attributionyear, libelle
     in
     let state =
+      if lastname = "CLERGUE" && niveau = "m" then
       match recu with
       | None -> Remanent_state.warn __POS__ (Format.sprintf "NONE %s %s %s %S" (if dens.Public_data.diplome_recu then "true" else "false") dens.Public_data.diplome_lastname dens.Public_data.diplome_year  dens.Public_data.diplome_niveau) Exit state
       | Some true -> Remanent_state.warn __POS__ (Format.sprintf  "TRUE %s %s %s %s" (if dens.Public_data.diplome_recu then "true" else "false") dens.Public_data.diplome_lastname dens.Public_data.diplome_year  dens.Public_data.diplome_niveau) Exit state
       | Some false -> Remanent_state.warn __POS__ (Format.sprintf  "FALSE %s %s %s %s" (if dens.Public_data.diplome_recu then "true" else "false") dens.Public_data.diplome_lastname dens.Public_data.diplome_year  dens.Public_data.diplome_niveau) Exit state
+      else state 
     in
     state,
     check commission dens.Public_data.diplome_commission
