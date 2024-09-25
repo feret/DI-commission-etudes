@@ -804,7 +804,7 @@ let print_sous_commission
           in
           let headpage _ =
             [Loggers.fprintf_verbatim,
-             Format.sprintf "%s \\\\}{}" s;
+             Format.sprintf "%s \\\\" s;
              Loggers.fprintf,
                Format.sprintf
                  "\\textbf{PROCÈS VERBAL D'ADMISSION EN MASTER} \\\\ \\textbf{Niveau~: MASTER 1}\\\\Page \\thepage/\\pageref{LastPage}\\\\"

@@ -63,13 +63,6 @@ struct
     let event_opt =
       Some Profiling.Dump_national_diploma_list
     in
-    let state = if  niveau = (Some "m") then
-      match recu with
-      | None -> Remanent_state.warn __POS__ "NONE" Exit state
-      | Some true -> Remanent_state.warn __POS__ "TRUE" Exit state
-      | Some false -> Remanent_state.warn __POS__ "FALSE" Exit state
-else state
-    in
     let filter = Gen.filter_national_diploma in
     let get = I.Missing_entry.get in
     let default_file_name = I.default_file_name in
@@ -215,14 +208,6 @@ else state
     let headers =
       []
     in
-    let state =
-if  niveau = (Some "m") then
-        match recu with
-        | None -> Remanent_state.warn __POS__ "NONE" Exit state
-        | Some true -> Remanent_state.warn __POS__ "TRUE" Exit state
-        | Some false -> Remanent_state.warn __POS__ "FALSE" Exit state
-  else state
-      in
     dump_national_diploma_list
       ?commission ?firstname ?lastname ?promo ?niveau ?dpt ?universite
       ?recu ?academicyear
