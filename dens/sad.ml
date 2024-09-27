@@ -244,7 +244,7 @@ let dump_course_gen label is_empty fold fold_state _iter acc state =
             let state, l, _l_en =
               match
                 Remanent_state.Translate_courses.get_translation
-                  Collect_course_entries.unify_course_entry __POS__ 
+                  Collect_course_entries.unify_course_entry __POS__
                   elt.Public_data.supplement_intitule
                   state
               with
@@ -466,7 +466,7 @@ let dump_one_sad ~repository ?firstname ?lastname ?language ?bilingual dens stat
       let firstname =
         Special_char.capitalize dens.Public_data.dens_firstname
       in
-       let output = (repository, Format.sprintf "DENS_%s_%s.tex" lastname firstname) in
+       let output = (repository, Format.sprintf "DENS_%s_%s.tex" (Tools.remove_space_from_string lastname) (Tools.remove_space_from_string firstname)) in
        let state, language =
         Tools.get_option
           state
