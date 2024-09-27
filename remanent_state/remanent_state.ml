@@ -2988,7 +2988,7 @@ let get_diplomation_rep ?firstname ?lastname t =
         match firstname, lastname with
           | None, _ | _,None -> Some rep
           | Some firstname, Some lastname ->
-            Some (Format.sprintf "%s%s_%s" rep (Special_char.uppercase lastname) (Special_char.capitalize firstname))
+            Some (Format.sprintf "%s%s_%s" rep (Special_char.uppercase (Tools.remove_space_from_string lastname)) (Special_char.capitalize (Tools.remove_space_from_string firstname)))
 
 let get_commission_rep_from_key ?commission_rep ?univ sous_commission_short t =
                 let t, commission_rep =
