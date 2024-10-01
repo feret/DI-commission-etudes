@@ -6603,9 +6603,6 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
         (fun
           (state, cours_list, stage_list)
           cours ->
-          let () =
-            Remanent_state.open_row ~macro state
-          in
           let codecours =
               string_of_stringopt cours.code_cours
           in
@@ -6616,21 +6613,6 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
           in
           let unvalidated =
               is_unvalidated codecours year unvalidated_map
-          in
-          let () =
-            match
-              compensation
-            with
-            | Some _ ->
-              Remanent_state.print_optional_cell
-                "compensation"
-                state
-            | None ->
-              if unvalidated then
-              Remanent_state.print_optional_cell
-                "unvalidated"
-                state
-              else ()
           in
           let state, libelle_stage_opt_list =
             match cours.cours_libelle with
@@ -6832,6 +6814,24 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
               ?english:libelle_en
               ~french:(string_of_stringopt libelle)
               state
+          in
+          let () =
+            Remanent_state.open_row ~macro state
+          in
+          let () =
+            match
+              compensation
+            with
+            | Some _ ->
+              Remanent_state.print_optional_cell
+                "compensation"
+                state
+            | None ->
+              if unvalidated then
+              Remanent_state.print_optional_cell
+                "unvalidated"
+                state
+              else ()
           in
           let () =
             Remanent_state.print_cell
