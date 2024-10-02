@@ -15,6 +15,12 @@ module StringMap =
         Special_char.lowercase
           (Special_char.correct_string_txt
              (String.trim s))
+
+      let simplify s =
+        match simplify s with
+          | "bouverot - dupuis" -> "bouverot-dupuis"
+          |  x -> x
+
     end
     )
 
@@ -36,6 +42,11 @@ module StringMap =
             Special_char.lowercase
               (Special_char.correct_string_txt
                  (String.trim s))
+
+           let simplify s =
+             match simplify s with
+              | "bouverot - dupuis" -> "bouverot-dupuis"
+              |  x -> x
         end
         )
 
