@@ -16,10 +16,13 @@ module StringMap =
           (Special_char.correct_string_txt
              (String.trim s))
 
-      let simplify s =
-        match simplify s with
-          | "bouverot - dupuis" -> "bouverot-dupuis"
-          |  x -> x
+      let simplify' s =
+        let l = String.split_on_char '-' s in
+        let l = List.rev_map String.trim (List.rev l) in
+        let s = String.concat "-" l in
+        s
+
+      let simplify s = simplify' (simplify s)
 
     end
     )
