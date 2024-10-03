@@ -1792,15 +1792,20 @@ let empty_remanent =
 
   let saturate_bilan_annuel state gps_file =
     let remanent = {empty_remanent with gps_file} in
+    let state, current_year = Remanent_state.get_current_academic_year state in
+    let state, previous_year =
+      try state, string_of_int (int_of_string current_year -1)
+      with
+        _ -> Remanent_state.warn __POS__ "Cannot computer previous year" Exit state, "" in
     let state, remanent =
     try
       let state, bilan =
-          get_bilan_annuel state remanent "2022" in
+          get_bilan_annuel state remanent previous_year in
       if match bilan.derniere_annee with Some true -> true | None | Some false -> false then state, remanent
       else
         let bilan =
           {bilan with
-            annee = Some "2023" ;
+            annee = Some current_year ;
             programme_d_etudes = None ;
             inscription_au_DENS = None;
             cours = [];
@@ -1810,7 +1815,7 @@ let empty_remanent =
             nannee=None;
             gpscodelist=[]}
         in
-        set_bilan_annuel state remanent "2023" bilan
+        set_bilan_annuel state remanent current_year bilan
      with  _ -> state, remanent
       in state, remanent.gps_file
 
