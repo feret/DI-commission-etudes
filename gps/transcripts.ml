@@ -1793,31 +1793,37 @@ let empty_remanent =
   let saturate_bilan_annuel state gps_file =
     let remanent = {empty_remanent with gps_file} in
     let state, current_year = Remanent_state.get_current_academic_year state in
-    let state, previous_year =
-      try state, string_of_int (int_of_string current_year -1)
-      with
-        _ -> Remanent_state.warn __POS__ "Cannot computer previous year" Exit state, "" in
+    let state, current_year =
+        try
+          state, (int_of_string current_year)
+        with
+          | _ -> Remanent_state.warn __POS__ "Cannot computer previous year" Exit state, 0
+    in
     let state, remanent =
-    try
-      let state, bilan =
-          get_bilan_annuel state remanent previous_year in
-      if match bilan.derniere_annee with Some true -> true | None | Some false -> false then state, remanent
-      else
-        let bilan =
-          {bilan with
-            annee = Some current_year ;
-            programme_d_etudes = None ;
-            inscription_au_DENS = None;
-            cours = [];
-            code_option = None;
-            diplomes = [];
-            option=None;
-            nannee=None;
-            gpscodelist=[]}
-        in
-        set_bilan_annuel state remanent current_year bilan
-     with  _ -> state, remanent
-      in state, remanent.gps_file
+      let rec aux previous_year (year:int) state remanent =
+          if year > current_year then
+          state, remanent
+          else
+            let state, bilan =
+              get_bilan_annuel state remanent (string_of_int previous_year) in
+            if match bilan.derniere_annee with Some true -> true | None | Some false -> false then state, remanent
+          else
+            let bilan =
+              {bilan with
+                annee = Some (string_of_int year) ;
+                programme_d_etudes = None ;
+                inscription_au_DENS = None;
+                cours = [];
+                code_option = None;
+                diplomes = [];
+                option=None;
+                nannee=None;
+                gpscodelist=[]}
+            in
+            let state, remanent = set_bilan_annuel state remanent (string_of_int year) bilan in
+            aux year (year+1) state remanent
+      in aux 2022 2023 state remanent
+    in state, remanent.gps_file
 
 let fun_default =
   (fun state _ x -> state, x)
