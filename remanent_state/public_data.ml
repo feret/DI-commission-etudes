@@ -22,7 +22,11 @@ module StringMap =
         let s = String.concat "-" l in
         s
 
-      let simplify s = simplify' (simplify s)
+      let simplify'' s =
+        match s with
+          | "thedore" -> "theodore"
+          | _ -> s
+      let simplify s = simplify'' (simplify' (simplify s))
 
     end
     )
