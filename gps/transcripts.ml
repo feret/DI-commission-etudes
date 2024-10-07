@@ -1790,14 +1790,20 @@ let empty_remanent =
     preaccord = None ;
   }
 
-  let saturate_bilan_annuel state gps_file =
+  let saturate_bilan_annuel state ~firstname ~lastname ~promo gps_file =
     let remanent = {empty_remanent with gps_file} in
     let state, current_year = Remanent_state.get_current_academic_year state in
     let state, current_year =
         try
           state, (int_of_string current_year)
         with
-          | _ -> Remanent_state.warn __POS__ "Cannot computer previous year" Exit state, 0
+          | _ -> Remanent_state.warn __POS__ "Cannot compute previous year" Exit state, 0
+    in
+    let state, promo =
+              try state, int_of_string promo
+              with
+                | _ ->
+                  Remanent_state.warn __POS__ "Cannot compute promotion" Exit state, 0
     in
     let state, remanent =
       let rec aux previous_year (year:int) state remanent =
@@ -1806,7 +1812,16 @@ let empty_remanent =
           else
             let state, bilan =
               get_bilan_annuel state remanent (string_of_int previous_year) in
-            if match bilan.derniere_annee with Some true -> true | None | Some false -> false then state, remanent
+            let state, b2 =
+                let state, l =  Remanent_state.Collector_pedagogical_registrations.find_list ~firstname ~lastname state
+                in
+                state, not (List.exists (fun a -> a.Public_data.pe_year = (string_of_int year)) l)
+
+            in
+            if
+              b2 ||
+              (match bilan.derniere_annee with Some true -> true | None | Some false -> false)
+            then state, remanent
           else
             let bilan =
               {bilan with
@@ -1822,7 +1837,7 @@ let empty_remanent =
             in
             let state, remanent = set_bilan_annuel state remanent (string_of_int year) bilan in
             aux year (year+1) state remanent
-      in aux 2022 2023 state remanent
+      in aux (max 2022 promo) 2023 state remanent
     in state, remanent.gps_file
 
 let fun_default =
@@ -7584,9 +7599,9 @@ let deal_with_l3_m1_dma ~year ~situation ~who filtered_classes state =
         | [M1_PSL] | [M1_HPSL] | [M2_PSL] | [M2_HPSL] | [Autre] -> state, filtered_classes
         | [L3_PSL] | [L3_HPSL] -> do_l3 filtered_classes state
 
-let saturate_gps_file ~firstname ~lastname state gps_file =
+let saturate_gps_file ~firstname ~lastname ~promo state gps_file =
   let state, gps_file = (*1*)
-    saturate_bilan_annuel state gps_file
+    saturate_bilan_annuel state gps_file ~firstname ~lastname ~promo
   in
   let state, gps_file = (*2*)
     add_pegasus_entries ~firstname ~lastname  state gps_file
@@ -7880,7 +7895,7 @@ let export_transcript
         firstname lastname promo
     in
 
-    let state, gps_file = saturate_gps_file ~firstname ~lastname state gps_file in
+    let state, gps_file = saturate_gps_file ~firstname ~lastname ~promo state gps_file in
     let stages =
         gps_file.stages
     in
@@ -9694,7 +9709,7 @@ let state,year = Remanent_state.get_current_academic_year state in
         let promo =
           (Tools.unsome_string gps_file.promotion)
         in
-        let state, gps_file = saturate_gps_file ~firstname ~lastname state gps_file in
+        let state, gps_file = saturate_gps_file ~firstname ~lastname ~promo state gps_file in
         let state, _current_year =
           Remanent_state.get_current_academic_year state
         in
