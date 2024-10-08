@@ -96,7 +96,7 @@ type pedagogical_entry_pegasus =
     pe_student_number: string;
     pe_ine: string;
     pe_semester: string option;
-    pe_dens : bool option; 
+    pe_dens : bool option;
 }
 
 val empty_pedagogical_entry: pedagogical_entry_pegasus
@@ -143,6 +143,7 @@ module LastNameMap : Map.S with type key = string
 module YearMap: Map.S with type key = annee
 module AcronymMap: Map.S with type key = string
 module ProgramMap: Map.S with type key = string
+module LibelleSet: Set.S with type elt = string
 module LibelleMap: Map.S with type key = string
 module LevelMap: Map.S with type key = string
 

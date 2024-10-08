@@ -6989,18 +6989,21 @@ let dpt_of_snd state x =
         __POS__ (Format.sprintf "Unknown dpt code (%s)" x) Exit state, None
 
 let blacklist = Public_data.YearMap.empty
-let add ~year ~codehelisa blacklist =
-    let old_set =
+let add ~year ~codehelisa ~libelle blacklist =
+    let old_set, old_set_libelle =
       match Public_data.YearMap.find_opt year blacklist with
-        | None -> Public_data.CodeSet.empty
+        | None -> Public_data.CodeSet.empty, Public_data.LibelleSet.empty
         | Some set -> set
     in
-    Public_data.YearMap.add year (Public_data.CodeSet.add codehelisa old_set) blacklist
+    Public_data.YearMap.add year (Public_data.CodeSet.add codehelisa old_set,
+                                  Public_data.LibelleSet.add libelle old_set_libelle) blacklist
 
-let check ~year ~codehelisa blacklist =
+let check ~year ~codehelisa ~libelle blacklist =
   match Public_data.YearMap.find_opt year blacklist with
     | None -> false
-    | Some set -> Public_data.CodeSet.mem codehelisa set
+    | Some (set,set') ->
+      Public_data.CodeSet.mem codehelisa set
+      || Public_data.LibelleSet.mem libelle set'
 
 let ects_45 =
   ["INFO-M1-OPTCOMB-S1";"INFO-M1-OPTCONV-S1"]
@@ -7323,7 +7326,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
               | _ -> bilan
           in
 
-          let blacklist = add ~year:course.Public_data.pe_year ~codehelisa:code blacklist in
+          let blacklist = add ~year:course.Public_data.pe_year ~codehelisa:code ~libelle:course.Public_data.pe_libelle  blacklist in
           state,
           {gps_file with
            situation =
@@ -7395,9 +7398,6 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             | None -> empty_bilan_annuel
             | Some b -> b
           in
-          if check ~year ~codehelisa blacklist
-          then state, gps_file
-          else
           let state, note, validation =
                   begin match grade.Public_data.pegasus_note, grade.Public_data.pegasus_validation
                   with
@@ -7426,6 +7426,11 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
               (Format.sprintf "Course not found in helisa database (%s/%s)" codehelisa year)
               Exit state, gps_file
           | Some course ->
+            let libelle =  String.trim (course.Public_data.pegasus_libelle) in
+            if check ~year ~codehelisa ~libelle blacklist
+            then state, gps_file
+            else
+
             let code_cours =
               match course.Public_data.pegasus_codegps
               with
@@ -7439,10 +7444,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                 code_cours ;
                 responsable = None ;
                 enseignants = Some [Special_char.capitalize (Special_char.lowercase (Tools.unsome_string course.Public_data.pegasus_prof_prenom)),Special_char.uppercase  (Tools.unsome_string course.Public_data.pegasus_prof_nom)]  ;
-                cours_libelle =
-                  begin
-                    Some (String.trim (course.Public_data.pegasus_libelle))
-                  end;
+                cours_libelle = Some libelle ;
                 cours_etablissement = None ;
                 duree = None ;
                 ects ;

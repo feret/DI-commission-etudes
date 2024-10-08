@@ -1455,6 +1455,7 @@ module FirstNameMap = StringMap
 module LastNameMap = StringMap
 module AcronymMap = StringMap
 module ProgramMap = StringMap
+module LibelleSet = StringSet
 module LibelleMap = StringMap
 module YearMap =
   Map.Make
