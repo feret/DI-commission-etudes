@@ -6999,11 +6999,12 @@ let add ~year ~codehelisa ~libelle blacklist =
                                   Public_data.LibelleSet.add libelle old_set_libelle) blacklist
 
 let check ~year ~codehelisa ~libelle blacklist =
+  let _ = libelle in 
   match Public_data.YearMap.find_opt year blacklist with
     | None -> false
-    | Some (set,set') ->
+    | Some (set,_set') ->
       Public_data.CodeSet.mem codehelisa set
-      || Public_data.LibelleSet.mem libelle set'
+      (* || Public_data.LibelleSet.mem libelle set' *)
 
 let ects_45 =
   ["INFO-M1-OPTCOMB-S1";"INFO-M1-OPTCONV-S1"]
