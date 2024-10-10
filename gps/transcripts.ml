@@ -2930,7 +2930,6 @@ let fill_gpscodelist ~year ~firstname ~lastname list situation state =
   if lmathphys situation then
     state, List.rev ("gps1672"::"gps3017"::(List.rev list))
   else
-  let _ = int_of_string year in
   let lmath = lmath ~year ~firstname ~lastname situation state in
   if lmath && linfo situation then
     state, List.rev ("gps2291"::"gps2274"::(List.rev list))
@@ -6999,7 +6998,7 @@ let add ~year ~codehelisa ~libelle blacklist =
                                   Public_data.LibelleSet.add libelle old_set_libelle) blacklist
 
 let check ~year ~codehelisa ~libelle blacklist =
-  let _ = libelle in 
+  let _ = libelle in
   match Public_data.YearMap.find_opt year blacklist with
     | None -> false
     | Some (set,_set') ->
