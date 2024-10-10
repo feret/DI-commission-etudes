@@ -4369,7 +4369,6 @@ let heading
           in
           let state, suffix_fr, suffix_en, nationaux_opt, nationaux_en_opt
             =
-            let _ = int_of_string year in
             let lmath = lmath ~year ~firstname ~lastname situation state in
             if
               lmath
