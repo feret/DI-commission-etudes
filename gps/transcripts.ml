@@ -4590,7 +4590,6 @@ let heading
         | Some _ -> state, ["Diplôme de l'ENS"], ["ENS diploma"]
         | _ ->
           let state, cursus_opt =
-            let _ = int_of_string year in
             let lmath = lmath ~year ~firstname ~lastname situation state in
             if lmath
             || lmathphys situation
@@ -9042,7 +9041,6 @@ let export_transcript
                                match fst key with
                                 | None -> state, ""
                                 | Some "l" ->
-                                  let _ = int_of_string year in
                                   let lmath = lmath ~year ~firstname ~lastname situation state in
                                   if
                                     lmath  && linfo situation
