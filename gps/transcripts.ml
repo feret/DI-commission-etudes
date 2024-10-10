@@ -7566,9 +7566,11 @@ let deal_with_l3_m1_dma ~year ~situation ~who filtered_classes state =
       in
       state, List.concat [l3;m1;autre]
     in
-
-
-    if int_of_string year < 2022 then state, filtered_classes
+    let state, year_i =
+        try state, int_of_string year  with _ ->
+        Remanent_state.warn __POS__ (Format.sprintf "int_of_string %s" year) Exit state, 0
+    in
+    if year_i < 2022 then state, filtered_classes
     else
       match situation.inscription_helisa with
         | [] ->
