@@ -525,6 +525,19 @@ let dump_dens dens state =
           (fun key  -> dump_repartition ~key:(String.uppercase_ascii key))
           liste (state,total_init)
     in
+    let liste = dens.Public_data.dens_cours_mineure in
+    let state,total_minor  =
+        Public_data.StringMap.fold
+          (fun key  -> dump_repartition ~key:(String.uppercase_ascii key))
+          liste (state,total_init)
+    in
+    let liste = dens.Public_data.dens_cours_majeure in
+    let state,total_major  =
+        Public_data.StringMap.fold
+          (fun key  -> dump_repartition ~key:(String.uppercase_ascii key))
+          liste (state,total_init)
+    in
+
     let state, total_ecla =
         dump_list
           ~key:"Langues"
@@ -539,7 +552,7 @@ let dump_dens dens state =
           ~key:"À trier"
           dens.Public_data.dens_cours_a_trier (state,total_init)
       in
-     let total = add_total [total_to_sort; total_resp; total_ecla; total_other; total_principale] in
+     let total = add_total [total_to_sort; total_resp; total_ecla; total_other; total_minor; total_major; total_principale] in
       let () = Remanent_state.fprintf state "\\hline" in
       let () = Remanent_state.open_row state in
       let (i,i',ects,ects') = total in
