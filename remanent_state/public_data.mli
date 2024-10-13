@@ -495,6 +495,7 @@ type experience_supplement =
   activite_intitule_en: string;
   activite_ects: float ;
   activite_annee: string ;
+  activite_validee: bool option ; 
 }
 
 type 'a repartition_diplomes =

@@ -3061,6 +3061,34 @@ let keep_class state filter year unvalidated note =
     | Public_data.All_but_in_progress_in_years _), Some (Some false)
     -> state, false
 
+let keep_activite state filter year activite =
+  match
+  filter, activite.Public_data.activite_validee
+  with
+  | _, Some true -> state, true
+  | Public_data.All, _
+  | Public_data.All_but_in_progress, None -> state, true
+  | Public_data.All_but_current_academic_year, Some _
+  | Public_data.All_but_in_progress_in_current_academic_year, None ->
+    let state, current_year =
+      Remanent_state.get_current_academic_year state
+    in
+    state, current_year=year
+  | Public_data.All_but_years l, Some _
+  | Public_data.All_but_in_progress_in_years l, None ->
+      state, List.mem year l
+  | (Public_data.All_but_in_progress
+  | Public_data.All_but_in_progress_in_current_academic_year
+  | Public_data.All_but_in_progress_in_years _), Some false
+  -> state, false
+  | _, None ->
+  Remanent_state.warn_dft
+    __POS__
+    "missing note when filtering classes"
+    Exit
+    true
+    state
+
 let keep_class
     ~firstname ~lastname ~year ~codecours ~note
     state unvalidated_map  filter =
@@ -5301,7 +5329,7 @@ let program
     ~print_foot_note
     ~origine ~gpscodelist ~string ~dpt ~year ~who ~alloc_suffix ~mean ~cours_list ~stage_list ~firstname ~lastname ~promo ~cursus_map
     ~size ~stages ~current_year (*~report ~keep_faillure ~keep_success*)
-    ~dens ~natt ~is_m2 ~unvalidated_map
+    ~dens ~natt ~is_m2 ~unvalidated_map ~remove_non_valided_classes
     (list:(bool * string * string * string * cours) list) state =
   let state,
       entete,entete_en,
@@ -5816,6 +5844,7 @@ let program
                           Collect_course_entries.unify_course_entry __POS__
                           l state
                     in
+                    let valide = None in
                     let stage_entry =
                         {
                           Public_data.activite_annee = year ;Public_data.activite_activite="Stage d'Informatique";
@@ -5827,7 +5856,8 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
 (match lib_en with None -> "" | Some l -> l);
                           Public_data.activite_code = Tools.unsome_string
                             cours.code_cours;
-                          Public_data.activite_ects = 0.}
+                          Public_data.activite_ects = 0.;
+                          Public_data.activite_validee = valide }
                     in
                     let state, libelle =
                       Remanent_state.bilingual_string
@@ -5869,6 +5899,11 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                         | Some (Public_data.Bool true), Some true -> false
                       end
                   in
+                  let valide =
+                    match stage.stage_valide with
+                        | None -> None
+                        | Some a -> Valide.valide a
+                  in
                   let stage_entry =
                       {
                         Public_data.activite_annee = year ;Public_data.activite_activite="Stage d'Informatique";
@@ -5879,8 +5914,10 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                         Public_data.activite_intitule_en="";
                         Public_data.activite_code = Tools.unsome_string
                           cours.code_cours;
+                        Public_data.activite_validee = valide ;
                         Public_data.activite_ects =
-                          match stage.stage_credits with None -> 0. | Some f ->f}
+                          match stage.stage_credits with None -> 0. | Some f ->f;
+                      }
                   in
 
                   let state =
@@ -5940,10 +5977,15 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                       ~french:(string_of_stringopt l)
                       state
                   in
+                  let state, b = keep_activite state remove_non_valided_classes year stage_entry in
+                  if b
+                  then
                   state,
                   (Some
                     (Format.sprintf "%s%s%s" libelle sujet directeur),
-                  Some stage_entry)::acc) (state,[]) stage_list
+                  Some stage_entry)::acc
+                  else state,acc)
+                (state,[]) stage_list
               end
             else state, [Some l,None]
         in
@@ -5956,19 +5998,21 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
         let state,mean, dens, natt, cours_list, stage_list  =
           List.fold_left
             (fun (state,mean, dens, natt, cours_list, stage_list) (libelle,stage_opt) ->
-            let state, libelle, libelle_en, ects =
+            let state, libelle, libelle_en, ects, force_validation =
             if is_stage cours then
               (*if cours.code_cours = Some "UNEXPA-39"
-              then*) state, libelle, None, match stage_opt with None -> cours.ects | Some a -> begin
+              then*) state, libelle, None, (match stage_opt with None -> cours.ects | Some a -> begin
                                       match cours.ects with None -> Some (a.Public_data.activite_ects)
                                       | Some ects -> Some (ects+. a.Public_data.activite_ects)
-                                    end
+                                    end),
+                                    match stage_opt with None -> false
+                                          | Some _a -> (* TODO *) false
               (*else state, libelle, None*)
             else
             if String.trim codecours = ""
             then
-              if libelle = Some "N/A" then state, libelle, libelle, cours.ects
-              else if libelle = Some "Points de jury" then state, libelle, Some "Jury credits", cours.ects
+              if libelle = Some "N/A" then state, libelle, libelle, cours.ects,  false
+              else if libelle = Some "Points de jury" then state, libelle, Some "Jury credits", cours.ects, false
             else
               let state =
                 Remanent_state.warn
@@ -5979,14 +6023,14 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                   Exit
                   state
               in
-              state, libelle, None, cours.ects
+              state, libelle, None, cours.ects, false
           else
             let a, (b,c) =
               Remanent_state.Translate_courses.get_translation
                 Collect_course_entries.unify_course_entry __POS__
                 (match libelle with Some a -> a | None -> "")
                 state
-            in a, b, c, cours.ects
+            in a, b, c, cours.ects, false
         in
         let () =
           Remanent_state.open_row ~macro state
@@ -5997,7 +6041,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
             ~firstname ~lastname ~year ~codecours
         in
         let unvalidated =
-            is_unvalidated codecours year unvalidated_map
+            is_unvalidated codecours year unvalidated_map && not force_validation
         in
         let () =
           match
@@ -6572,7 +6616,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
   let program_sco
       ~year ~alloc_suffix  ~cours_list ~stage_list ~firstname ~lastname ~promo
       ~size ~stages
-       ~unvalidated_map ~language
+       ~unvalidated_map ~language ~remove_non_valided_classes
       (list:(cours) list) state =
     let (size_fr, size_en) = size in
     let state, key, b =
@@ -6674,6 +6718,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                             Collect_course_entries.unify_course_entry __POS__
                             l state
                       in
+                      let valide = None in
                       let stage_entry =
                           {
                             Public_data.activite_annee = year ;Public_data.activite_activite="Stage d'Informatique";
@@ -6685,7 +6730,8 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
   (match l_en with None -> "" | Some l -> l);
                             Public_data.activite_code = Tools.unsome_string
                               cours.code_cours;
-                            Public_data.activite_ects = 0.}
+                            Public_data.activite_ects = 0.;
+                            Public_data.activite_validee = valide}
                       in
                       let state, libelle =
                         Remanent_state.bilingual_string
@@ -6727,18 +6773,25 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                           | Some (Public_data.Bool true), Some true -> false
                         end
                     in
+                    let valide =
+                      match stage.stage_valide with
+                        | None -> None
+                        | Some a -> Valide.valide a
+                    in
                     let stage_entry =
                         {
                           Public_data.activite_annee = year ;Public_data.activite_activite="Stage d'Informatique";
                           Public_data.activite_activite_fr=Some "Stage d'Informatique";
-                  Public_data.activite_activite_en=Some "Internship in Computer Science";
+                          Public_data.activite_activite_en=Some "Internship in Computer Science";
                           Public_data.activite_intitule=(match stage.sujet with None -> "" | Some l -> l) ;
                           Public_data.activite_intitule_fr=stage.sujet;
                           Public_data.activite_intitule_en="";
                           Public_data.activite_code = Tools.unsome_string
                             cours.code_cours;
+                          Public_data.activite_validee = valide  ;
                           Public_data.activite_ects =
-                            match stage.stage_credits with None -> 0. | Some f ->f}
+                            match stage.stage_credits with None -> 0. | Some f ->f};
+
                     in
 
                     let state =
@@ -6791,9 +6844,14 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                         ~french:(string_of_stringopt l)
                         state
                     in
+                    let state, b = keep_activite state remove_non_valided_classes year stage_entry in
+                    if b
+                    then
                     state,
-                    (Some (Format.sprintf "%s%s%s" libelle sujet directeur),
-                    Some stage_entry)::acc)
+                    (Some
+                      (Format.sprintf "%s%s%s" libelle sujet directeur),
+                    Some stage_entry)::acc
+                    else state,acc)
                     (state, []) stage_list
                 end
               else state, [Some l, None]
@@ -6809,16 +6867,18 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
             List.fold_left (fun (state,cours_list, stage_list ) (libelle,stage_opt) ->
 
 
-          let state, libelle, libelle_en, ects =
-            if is_stage cours then state, libelle, None, match stage_opt with None -> cours.ects | Some a -> begin
+          let state, libelle, libelle_en, ects, force_validation =
+            if is_stage cours then state, libelle, None, (match stage_opt with None -> cours.ects | Some a -> begin
                                     match cours.ects with None -> Some (a.Public_data.activite_ects)
                                     | Some ects -> Some (ects+. a.Public_data.activite_ects)
-                                  end
+                                  end),
+                                  match stage_opt with None -> false
+                                        | Some _a -> (* TODO *) false
             else
             if String.trim codecours = ""
             then
-              if libelle = Some "N/A" then state, libelle, libelle, cours.ects
-              else if libelle = Some "Points de jury" then state, libelle, Some "Jury credits", cours.ects
+              if libelle = Some "N/A" then state, libelle, libelle, cours.ects, false
+              else if libelle = Some "Points de jury" then state, libelle, Some "Jury credits", cours.ects, false
               else
                 let state =
                   Remanent_state.warn
@@ -6829,15 +6889,16 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                     Exit
                     state
                 in
-                state, libelle, None, cours.ects
+                state, libelle, None, cours.ects, false
             else
               let a, (b,c) =
                 Remanent_state.Translate_courses.get_translation
                   Collect_course_entries.unify_course_entry __POS__
                   (match libelle with Some a -> a | None -> "")
                   state
-              in a, b, c, cours.ects
+              in a, b, c, cours.ects, false
           in
+          let unvalidated = unvalidated && not force_validation in
           let state, libelle =
             Remanent_state.bilingual_string
               ?english:libelle_en
@@ -8777,6 +8838,7 @@ let export_transcript
                              ~dens
                              ~natt
                              ~unvalidated_map:unvalidated
+                             ~remove_non_valided_classes
                               list state
                          in
                          let () =
@@ -9828,6 +9890,7 @@ let state,year = Remanent_state.get_current_academic_year state in
                                  ~firstname ~lastname ~promo  ~size
                                  ~stages
                                  ~unvalidated_map:unvalidated ~language
+                                 ~remove_non_valided_classes:(Public_data.All_but_in_progress_in_years [])
                                   split_cours state
                              in
                              let state,s  =
