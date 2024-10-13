@@ -5955,17 +5955,20 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
         in
         let state,mean, dens, natt, cours_list, stage_list  =
           List.fold_left
-            (fun (state,mean, dens, natt, cours_list, stage_list) (libelle,_stage_opt) ->
-            let state, libelle, libelle_en =
+            (fun (state,mean, dens, natt, cours_list, stage_list) (libelle,stage_opt) ->
+            let state, libelle, libelle_en, ects =
             if is_stage cours then
               (*if cours.code_cours = Some "UNEXPA-39"
-              then*) state, libelle, None
+              then*) state, libelle, None, match stage_opt with None -> cours.ects | Some a -> begin
+                                      match cours.ects with None -> Some (a.Public_data.activite_ects)
+                                      | Some ects -> Some (ects+. a.Public_data.activite_ects)
+                                    end
               (*else state, libelle, None*)
             else
             if String.trim codecours = ""
             then
-              if libelle = Some "N/A" then state, libelle, libelle
-              else if libelle = Some "Points de jury" then state, libelle, Some "Jury credits"
+              if libelle = Some "N/A" then state, libelle, libelle, cours.ects
+              else if libelle = Some "Points de jury" then state, libelle, Some "Jury credits", cours.ects
             else
               let state =
                 Remanent_state.warn
@@ -5976,14 +5979,14 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                   Exit
                   state
               in
-              state, libelle, None
+              state, libelle, None, cours.ects
           else
             let a, (b,c) =
               Remanent_state.Translate_courses.get_translation
                 Collect_course_entries.unify_course_entry __POS__
                 (match libelle with Some a -> a | None -> "")
                 state
-            in a, b, c
+            in a, b, c, cours.ects
         in
         let () =
           Remanent_state.open_row ~macro state
@@ -6130,7 +6133,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
         in
         let () =
           Remanent_state.print_cell
-            (Notes.string_of_ects cours.ects)
+            (Notes.string_of_ects ects)
             state
         in
         let () =
@@ -6803,16 +6806,19 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
           let
             state,cours_list, stage_list
           =
-            List.fold_left (fun (state,cours_list, stage_list ) (libelle,_stage_opt) ->
+            List.fold_left (fun (state,cours_list, stage_list ) (libelle,stage_opt) ->
 
 
-          let state, libelle, libelle_en =
-            if is_stage cours then state, libelle, None
+          let state, libelle, libelle_en, ects =
+            if is_stage cours then state, libelle, None, match stage_opt with None -> cours.ects | Some a -> begin
+                                    match cours.ects with None -> Some (a.Public_data.activite_ects)
+                                    | Some ects -> Some (ects+. a.Public_data.activite_ects)
+                                  end
             else
             if String.trim codecours = ""
             then
-              if libelle = Some "N/A" then state, libelle, libelle
-              else if libelle = Some "Points de jury" then state, libelle, Some "Jury credits"
+              if libelle = Some "N/A" then state, libelle, libelle, cours.ects
+              else if libelle = Some "Points de jury" then state, libelle, Some "Jury credits", cours.ects
               else
                 let state =
                   Remanent_state.warn
@@ -6823,14 +6829,14 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                     Exit
                     state
                 in
-                state, libelle, None
+                state, libelle, None, cours.ects
             else
               let a, (b,c) =
                 Remanent_state.Translate_courses.get_translation
                   Collect_course_entries.unify_course_entry __POS__
                   (match libelle with Some a -> a | None -> "")
                   state
-              in a, b, c
+              in a, b, c, cours.ects
           in
           let state, libelle =
             Remanent_state.bilingual_string
@@ -6863,7 +6869,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
           in
           let () =
             Remanent_state.print_cell
-              (Notes.string_of_ects cours.ects)
+              (Notes.string_of_ects ects)
               state
           in
           let state, note_string =

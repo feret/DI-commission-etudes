@@ -429,11 +429,11 @@ let dump_repartition ?key repartition (state, total) =
   let (j,j',fcts,fcts') = total in
   state, (i+j,i'+j',ects+.fcts,ects'+.fcts')
 
-  let dump_list ?key list (state,total) =
+  let dump_list_gen ?key get list (state,total) =
     let i,ects =
       List.fold_left
         (fun (i,ects) course ->
-            (i+1,ects+.course.Public_data.supplement_ects))
+            (i+1,ects+.(get course)))
         (0,0.) list
     in
     if i = 0 && ects = 0. then state, total
@@ -451,6 +451,11 @@ let dump_repartition ?key repartition (state, total) =
       let () = Remanent_state.close_row state in
       let (j,j',fcts,fcts') = total in
       state, (j,j'+i,fcts,ects+.fcts')
+
+      let dump_list ?key = dump_list_gen ?key (fun course -> course.Public_data.supplement_ects)
+
+      let dump_list_exp ?key = dump_list_gen ?key (fun course -> course.Public_data.activite_ects)
+
 
 let add_total l =
     List.fold_left
@@ -537,7 +542,17 @@ let dump_dens dens state =
           (fun key  -> dump_repartition ~key:(String.uppercase_ascii key))
           liste (state,total_init)
     in
-
+    let l1, l2, l3, l4, l5 = dens.Public_data.dens_activite_internationale,
+                         dens.Public_data.dens_activite_recherche,
+                         dens.Public_data.dens_activite_ouverture,
+                         dens.Public_data.dens_activite_autre,
+                         dens.Public_data.dens_activite_a_trier
+    in
+    let liste = List.flatten [l1;l2;l3;l4;l5] in
+    let state, total_exp =
+        dump_list_exp ~key:"Expériences"
+              liste (state, total_init)
+    in
     let state, total_ecla =
         dump_list
           ~key:"Langues"
@@ -552,7 +567,7 @@ let dump_dens dens state =
           ~key:"À trier"
           dens.Public_data.dens_cours_a_trier (state,total_init)
       in
-     let total = add_total [total_to_sort; total_resp; total_ecla; total_other; total_minor; total_major; total_principale] in
+     let total = add_total [total_to_sort; total_resp; total_ecla; total_other; total_minor; total_major; total_principale; total_exp] in
       let () = Remanent_state.fprintf state "\\hline" in
       let () = Remanent_state.open_row state in
       let (i,i',ects,ects') = total in
