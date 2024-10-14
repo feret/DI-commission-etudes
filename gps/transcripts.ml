@@ -6171,9 +6171,10 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
             state
         in
         let state, note_string =
-          match cours.note with
-          | None -> state, ""
-          | Some f -> Notes.to_string __POS__ state f
+          match cours.note, force_validation with
+          | None,_ -> state, ""
+          | Some Public_data.En_cours  -> state, Notes.to_string __POS__ state Public_data.Valide_sans_note
+          | Some f, _ -> state, Notes.to_string __POS__ state f
         in
         let () =
           Remanent_state.print_cell
@@ -6943,9 +6944,10 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
               state
           in
           let state, note_string =
-            match cours.note with
-            | None -> state, ""
-            | Some f -> Notes.to_string __POS__ state f
+            match cours.note, force_validation with
+            | None,_ -> state, ""
+            | Some Public_data.En_cours  -> state, Notes.to_string __POS__ state Public_data.Valide_sans_note
+            | Some f, _ -> state, Notes.to_string __POS__ state f
           in
           let () =
             Remanent_state.print_cell
