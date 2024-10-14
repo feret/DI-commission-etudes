@@ -6006,7 +6006,12 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                                       | Some ects -> Some (ects+. a.Public_data.activite_ects)
                                     end),
                                     match stage_opt with None -> false
-                                          | Some _a -> (* TODO *) false
+                                          | Some a ->
+                                        begin
+                                          match a.Public_data.activite_validee with
+                                            | None | Some false -> false
+                                            | Some true -> true
+                                        end
               (*else state, libelle, None*)
             else
             if String.trim codecours = ""
@@ -6873,8 +6878,12 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                                     | Some ects -> Some (ects+. a.Public_data.activite_ects)
                                   end),
                                   match stage_opt with None -> false
-                                        | Some _a -> (* TODO *) false
-            else
+                                        | Some a ->
+                                      begin
+                                        match a.Public_data.activite_validee with
+                                          | None | Some false -> false
+                                          | Some true -> true
+                                      end            else
             if String.trim codecours = ""
             then
               if libelle = Some "N/A" then state, libelle, libelle, cours.ects, false
