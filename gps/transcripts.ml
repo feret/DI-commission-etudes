@@ -6173,8 +6173,14 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
         let state, note_string =
           match cours.note, force_validation with
           | None,_ -> state, ""
-          | Some Public_data.En_cours  -> state, Notes.to_string __POS__ state Public_data.Valide_sans_note
-          | Some f, _ -> state, Notes.to_string __POS__ state f
+          | Some Public_data.En_cours, true  -> Notes.to_string __POS__ state Public_data.Valide_sans_note
+          | Some (Public_data.Float _
+          | Public_data.String _
+          | Public_data.Temporary _
+          | Public_data.En_cours
+          | Public_data.Absent
+          | Public_data.Abandon
+          | Public_data.Valide_sans_note as f), _ -> Notes.to_string __POS__ state f
         in
         let () =
           Remanent_state.print_cell
@@ -6946,8 +6952,14 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
           let state, note_string =
             match cours.note, force_validation with
             | None,_ -> state, ""
-            | Some Public_data.En_cours  -> state, Notes.to_string __POS__ state Public_data.Valide_sans_note
-            | Some f, _ -> state, Notes.to_string __POS__ state f
+            | Some Public_data.En_cours, true  -> Notes.to_string __POS__ state Public_data.Valide_sans_note
+            | Some (Public_data.Float _
+            | Public_data.String _
+            | Public_data.Temporary _
+            | Public_data.En_cours
+            | Public_data.Absent
+            | Public_data.Abandon
+            | Public_data.Valide_sans_note as f), _ -> Notes.to_string __POS__ state f
           in
           let () =
             Remanent_state.print_cell
