@@ -6,6 +6,7 @@ val of_string: (string* int * int * int) -> Remanent_state.t -> string -> Public
 val better: t -> t -> bool
 val comparable: t -> t -> bool
 val valide: t -> bool option
+val valide_forced: t -> bool  -> bool option 
 val temporary: t -> bool option
 val a_compter: t -> bool option
 val string_of_ects: float option -> string

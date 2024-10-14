@@ -3847,14 +3847,14 @@ let add_dens_potential year course map =
       (total, potential+.f,mandatory,math,math_math_info)
       map
 
-let add_dens state year compensation unvalidated course course_list map =
+let add_dens state year compensation unvalidated force_validation  course course_list map =
   match compensation, unvalidated, course.note with
-  | Some _, _, _ -> add_dens_ok state year course course_list map
+  | Some _, _, _-> add_dens_ok state year course course_list map
   | _, true, _ -> state, course_list, map
   | None,_,None -> state, course_list, add_dens_potential year course map
   | None,_,Some note ->
       match
-        Notes.valide note
+        Notes.valide_forced note force_validation
       with
       | Some true -> add_dens_ok state year course course_list map
       | Some false -> state, course_list, map
@@ -6208,13 +6208,13 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
             | None
             | Some ""->
               let state, cours_list, natt =
-                add_dens state year compensation unvalidated cours cours_list natt
+                add_dens state year compensation unvalidated force_validation cours cours_list natt
               in
                 state, mean, dens, natt, cours_list, stage_list
 
             | Some ("dens" | "DENS") ->
               let state, cours_list, dens =
-                add_dens state year compensation unvalidated cours cours_list dens
+                add_dens state year compensation unvalidated force_validation cours cours_list dens
               in
               state, mean, dens, natt, cours_list, stage_list
             | Some _ ->

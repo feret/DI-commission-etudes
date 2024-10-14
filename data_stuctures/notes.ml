@@ -189,6 +189,20 @@ let valide f =
   | Public_data.Temporary _
   | Public_data.En_cours -> None
 
+  let valide_forced f b =
+    match f with
+    | Public_data.String s -> Some (Public_data.valide_string s)
+    | Public_data.Float f -> Some (f >= 10.)
+    | Public_data.Valide_sans_note
+      -> Some true
+    | Public_data.Abandon
+    | Public_data.Absent -> Some false
+    | Public_data.Temporary _ -> None
+    | Public_data.En_cours ->
+        begin
+          if b then Some true else None
+        end
+
 let temporary f =
   match f with
   | Public_data.Temporary _
