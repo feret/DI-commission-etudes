@@ -3860,6 +3860,11 @@ let add_dens state year compensation unvalidated force_validation ects course co
       | Some false -> state, course_list, map
       | None -> state, course_list, add_dens_potential year ects map
 
+let add_dens state year compensation unvalidated force_validation ects course course_list map =
+    if (course.ects = None || course.ects = Some 0.) && is_stage course then
+       state, course_list, map
+    else add_dens state year compensation unvalidated force_validation ects course course_list map
+
 let add_mean_empty is_m2 state ~dens ~natt ~decision ~exception_cursus key year  map =
   let is_m2,ects,old,y =
     match StringOptMap.find_opt key (fst map)
