@@ -9274,9 +9274,10 @@ let export_transcript
                   then state, m2_list, dip_autre_list
                   else
                         if validated then
-                        if is_m2 then state, dpl::m2_list, dip_autre_list
+                        if is_m2 || Tools.substring "m2" (String.lowercase_ascii (Public_data.label_of_diplome dpl))
+                        then state, dpl::m2_list, dip_autre_list
                         else state, m2_list, dpl::dip_autre_list
-                        else state, m2_list, dip_autre_list
+                  else state, m2_list, dip_autre_list
               in
               if (do_report report) && ((validated && keep_success)
                || ((not validated) && keep_faillure))

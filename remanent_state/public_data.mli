@@ -495,7 +495,7 @@ type experience_supplement =
   activite_intitule_en: string;
   activite_ects: float ;
   activite_annee: string ;
-  activite_validee: bool option ; 
+  activite_validee: bool option ;
 }
 
 type 'a repartition_diplomes =
@@ -580,6 +580,8 @@ type diplome_national =
     diplome_year : string ;
     diplome_commission: bool ;
   }
+
+val label_of_diplome: diplome_national -> string
 
 type dens_candidate =
   {

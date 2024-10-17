@@ -968,7 +968,7 @@ let empty_mineure_majeure ={
      activite_intitule_en: string;
      activite_ects: float ;
      activite_annee: string ;
-     activite_validee: bool option; 
+     activite_validee: bool option;
   }
 
   type 'a repartition_diplomes =
@@ -1041,6 +1041,16 @@ let all_notes_string =
       diplome_year : string ;
       diplome_commission : bool ;
     }
+
+
+    let label_of_diplome dip =
+        match dip.diplome_cursus.inscription with
+          | None ->
+            Format.sprintf
+              "%s (%s)"
+              dip.diplome_niveau
+              (string_of_dpt dip.diplome_dpt)
+          | Some l -> l
 
   type dens_candidate =
     {

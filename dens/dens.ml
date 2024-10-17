@@ -463,16 +463,6 @@ let add_total l =
                 (i+j,i'+j',ects+.fcts,ects'+.fcts'))
         (0,0,0.,0.) l
 
-let label_of_diplome dip =
-    match dip.Public_data.diplome_cursus.Public_data.inscription with
-      | None ->
-        Format.sprintf
-          "%s (%s)"
-          dip.Public_data.diplome_niveau
-          (Public_data.string_of_dpt dip.Public_data.diplome_dpt)
-      | Some l -> l
-
-
 let display_exp state label l =
     let n = List.length l in
     if n=0 then ()
@@ -542,7 +532,7 @@ let dump_dens dens state =
           (fun key  -> dump_repartition ~key:(String.uppercase_ascii key))
           liste (state,total_init)
     in
-    let total_other = add_total [total_other;total_minor;total_major] in 
+    let total_other = add_total [total_other;total_minor;total_major] in
     let l1, l2, l3, l4, l5 = dens.Public_data.dens_activite_internationale,
                          dens.Public_data.dens_activite_recherche,
                          dens.Public_data.dens_activite_ouverture,
@@ -628,7 +618,7 @@ let dump_dens dens state =
                  let () = List.iter
                    (fun dpl ->
                        Remanent_state.fprintf state "%s ; "
-                         (label_of_diplome dpl)) (List.rev l)
+                         (Public_data.label_of_diplome dpl)) (List.rev l)
                 in ())
       in
       let () = Remanent_state.fprintf state " (M2 recherche en %s obligatoire)"
@@ -652,7 +642,7 @@ let dump_dens dens state =
                | l ->
                  List.iter
                    (fun dpl -> Remanent_state.fprintf state "%s ; "
-                         (label_of_diplome dpl)) (List.rev l))
+                         (Public_data.label_of_diplome dpl)) (List.rev l))
       in
       let () = Remanent_state.print_newline state in
       let state =
