@@ -983,7 +983,6 @@ let get_students_list
     state
 
 let key = "Année académique"
-let key' = "Année"
 
 let patch_student_csv
     state
