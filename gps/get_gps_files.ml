@@ -1028,6 +1028,7 @@ let patch_student_csv
             | None -> lastname'
             | Some a -> a
           in
+          let state = Remanent_state.warn __POS__ (Format.sprintf "Patch GPS FILE %s %s %s" genre firstname lastname) in 
           if firstname = "" || lastname = ""
           then
             let state =
@@ -1100,7 +1101,7 @@ let patch_student_csv
       let state =
         Remanent_state.warn
           __POS__
-          (Format.sprintf "Ill-formed GPS file for %s %s" (Tools.unsome_string firstname) (Tools.unsome_string lastname))
+          (Format.sprintf "Ill-formed GPS file for %s %s looking for field %s" (Tools.unsome_string firstname) (Tools.unsome_string lastname) key)
           Exit
           state
       in
