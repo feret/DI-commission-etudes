@@ -1028,7 +1028,7 @@ let patch_student_csv
             | None -> lastname'
             | Some a -> a
           in
-          let state = Remanent_state.warn __POS__ (Format.sprintf "Patch GPS FILE %s %s %s" genre firstname lastname) in 
+          let state = Remanent_state.warn __POS__ (Format.sprintf "Patch GPS FILE %s %s %s" genre firstname lastname) Exit state in 
           if firstname = "" || lastname = ""
           then
             let state =
