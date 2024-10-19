@@ -1100,7 +1100,7 @@ let patch_student_csv
       let state =
         Remanent_state.warn
           __POS__
-          "Ill-formed GPS file"
+          (Format.sprintf "Ill-formed GPS file for %s %s" (Tools.unsome_string firstname) (Tools.unsome_string lastname))
           Exit
           state
       in

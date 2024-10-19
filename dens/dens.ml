@@ -711,6 +711,7 @@ let suggest_mineure dens state =
                     ects+.course.Public_data.supplement_ects)
                 0. elt.Public_data.diplomes_nationaux
           in
+          let year_int = try int_of_string year with _ -> 0 in
           let ects =
               List.fold_left
                 (fun ects course ->
@@ -718,8 +719,10 @@ let suggest_mineure dens state =
               ects elt.Public_data.dens
           in
           if
-            (List.mem key humanities && ects >= 48. ||
-             List.mem key sciences && ects >= 24.) || (accepted = Some true)
+          ((ects >= 30. && year_int >= 2024) ||
+          (List.mem key humanities && ects >= 48.) ||
+          (List.mem key sciences && ects >= 24.) ||
+          (accepted = Some true))
             && (not (accepted = Some false))
           then
             let m =
