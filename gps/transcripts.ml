@@ -7211,7 +7211,6 @@ let ects_of_code_cours code_cours =
       Public_data.CodeMap.find_opt code code_map
 
 let add_pegasus_entries ~firstname ~lastname state gps_file =
-    let state = Remanent_state.warn __POS__ (Format.sprintf "ADD PEGASUS ENTRIES %s %s" firstname lastname) Exit state in
     let state, l = Remanent_state.Collector_pedagogical_registrations.find_list ~firstname ~lastname state in
     let state, gps_file, blacklist =
       List.fold_left
@@ -7698,10 +7697,6 @@ let deal_with_l3_m1_dma ~year ~situation ~who filtered_classes state =
         | [L3_PSL] | [L3_HPSL] -> do_l3 filtered_classes state
 
 let saturate_gps_file ~firstname ~lastname ~promo state gps_file =
-  let state =
-    Remanent_state.warn
-      __POS__ (Format.sprintf "SATURATE %s %s" firstname lastname) Exit state
-  in
   let state, gps_file = (*1*)
     saturate_bilan_annuel state gps_file ~firstname ~lastname ~promo
   in
@@ -7948,10 +7943,6 @@ let export_transcript
     in
     let promo =
       (Tools.unsome_string gps_file.promotion)
-    in
-    let state =
-      Remanent_state.warn
-        __POS__ (Format.sprintf "EXPORT TRANSCRIPT %s %s %s" firstname lastname promo) Exit state
     in
     let state, promo_int =
       try
