@@ -255,6 +255,10 @@ let asso_list =
     Public_data.PEGASUS_CO_PRODUIT_ENS_CE_EMAIL_GESTIONNAIRE,["co_produit ens-ce-email_gestionnaire"];
     Public_data.PEGASUS_CO_PRODUIT_ENS_EMAIL_RDD_01,["co_produit ens-email_rdd_01"];
     Public_data.PEGASUS_CO_PRODUIT_ENS_EMAIL_RDD_02,["co_produit ens-email_rdd_02"];
+    Public_data.PEGASUS_CO_PRODUIT_ENS_EMAIL_RDD_03,["co_produit ens-email_rdd_03"];
+    Public_data.PEGASUS_CO_PRODUIT_ENS_EMAIL_RDD_04,["co_produit ens-email_rdd_04"];
+    Public_data.PEGASUS_CO_PRODUIT_ENS_EMAIL_RDD_05,["co_produit ens-email_rdd_05"];
+    Public_data.PEGASUS_CO_PRODUIT_ENS_EMAIL_RDD_06,["co_produit ens-email_rdd_06"];
     Public_data.PEGASUS_CO_PRODUIT_ID_GIROFLE,["co_produit id_girofle"];
     Public_data.PEGASUS_CO_PRODUIT_NOTES,["co_produit notes-saisie_directe"];
     Public_data.PEGASUS_CO_PRODUIT_ID_PRODUIT_SF,["co_produit id_produit_sf"];
@@ -268,7 +272,7 @@ let asso_list =
     Public_data.PEGASUS_CO_ANNEE_AUTORISATION_EDITION_BULLETIN,["co_annee autorisation edition bulletin"];
     Public_data.PEGASUS_CO_ANNEE_AFFICHE_CLASSEMENT_EDITION,["co_annee affiche classement edition"];
     Public_data.PEGASUS_CO_ANNEE_COURS_OBL_PHASES_PROS,["co_annee cours-obl-phases_pros"];
-    Public_data.PEGASUS_CO_ANNEE_COURS_OBL_CODES_PRODUITS,["co_annee cours_obl_codes_produits"];
+    Public_data.PEGASUS_CO_ANNEE_COURS_OBL_CODES_PRODUITS,["co_annee cours-obl-codes_produits"];
     Public_data.PEGASUS_GENRE,["genre"];
     Public_data.PEGASUS_CODE_SEXE,["code_sexe"];
     Public_data.PEGASUS_NOM,["nom"];
