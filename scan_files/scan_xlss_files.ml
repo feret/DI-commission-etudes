@@ -26,7 +26,7 @@ let get_csv file state =
 
 let get_csv file state =
   let state, output = get_csv file state in
-  let () = Format.printf "GET CSV %s %i" file (match output with None -> 0 | Some l -> List.length l) in
+  let () = Format.printf "GET CSV %s %i @." file (match output with None -> 0 | Some l -> List.length l) in
   state, output
 
 let get_list_from_a_file
