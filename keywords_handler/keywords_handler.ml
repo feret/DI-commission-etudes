@@ -267,6 +267,8 @@ let asso_list =
     Public_data.PEGASUS_CO_ANNEE_EMARGER_ENSEIGNEMENT_FERME,["co_annee emarger.enseignement_ferme"];
     Public_data.PEGASUS_CO_ANNEE_AUTORISATION_EDITION_BULLETIN,["co_annee autorisation edition bulletin"];
     Public_data.PEGASUS_CO_ANNEE_AFFICHE_CLASSEMENT_EDITION,["co_annee affiche classement edition"];
+    Public_data.PEGASUS_CO_ANNEE_COURS_OBL_PHASES_PROS,["co_annee cours-obl-phases_pros"];
+    Public_data.PEGASUS_CO_ANNEE_COURS_OBL_CODES_PRODUITS,["co_annee cours_obl_codes_produits"];
     Public_data.PEGASUS_GENRE,["genre"];
     Public_data.PEGASUS_CODE_SEXE,["code_sexe"];
     Public_data.PEGASUS_NOM,["nom"];
