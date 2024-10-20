@@ -252,6 +252,10 @@ let asso_list =
     Public_data.PEGASUS_CO_PRODUIT_ENS_CE_ENSEIGNANT,["co_produit ens-ce-enseignant"];
     Public_data.PEGASUS_CO_PRODUIT_ENS_CE_EMAIL_RDD_01,["co_produit ens-ce-email_rdd_01"];
     Public_data.PEGASUS_CO_PRODUIT_ENS_CE_EMAIL_RDD_02,["co_produit ens-ce-email_rdd_02"];
+    Public_data.PEGASUS_CO_PRODUIT_ENS_CE_EMAIL_RDD_03,["co_produit ens-ce-email_rdd_03"];
+    Public_data.PEGASUS_CO_PRODUIT_ENS_CE_EMAIL_RDD_04,["co_produit ens-ce-email_rdd_04"];
+    Public_data.PEGASUS_CO_PRODUIT_ENS_CE_EMAIL_RDD_05,["co_produit ens-ce-email_rdd_05"];
+    Public_data.PEGASUS_CO_PRODUIT_ENS_CE_EMAIL_RDD_06,["co_produit ens-ce-email_rdd_06"];
     Public_data.PEGASUS_CO_PRODUIT_ENS_CE_EMAIL_GESTIONNAIRE,["co_produit ens-ce-email_gestionnaire"];
     Public_data.PEGASUS_CO_PRODUIT_ENS_EMAIL_RDD_01,["co_produit ens-email_rdd_01"];
     Public_data.PEGASUS_CO_PRODUIT_ENS_EMAIL_RDD_02,["co_produit ens-email_rdd_02"];
