@@ -57,7 +57,6 @@ let add_pegasus_course
   let libelle = course.Public_data.pegasus_libelle in
   let year = course.Public_data.pegasus_year in
   let semester = course.Public_data.pegasus_semester in
-  let () = Format.printf "ADD PEGASUS COURSE %s %s %s %s @." code libelle year (Tools.unsome_string semester) in 
   let course' = get_pegasus_course ~code ~year  courses  in
   let state, course =
     match course' with

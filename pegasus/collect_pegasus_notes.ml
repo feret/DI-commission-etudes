@@ -31,7 +31,7 @@ let _ = empty_pegasus_entry.control , empty_pegasus_entry.nombre_etudiants, empt
 
 
 let split a =
-  (*let a = Tools.remove_space_from_string a in *)
+  let a = Tools.remove_space_from_string a in 
   let n = String.length a in
   let rec aux i =
     if i >= n then None

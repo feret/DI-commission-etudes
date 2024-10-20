@@ -11,14 +11,6 @@ let get_list_from_a_file
     empty
     state  (rep,file) output =
   let is_keyword = automaton.Keywords_handler.is_keyword in
-  let is_keyword p state key =
-      let state, a = is_keyword p state key in
-      let () =
-        if a then ()
-        else
-          Format.printf "KEY %s -> false " key
-      in state, a
-  in
   let action = automaton.Keywords_handler.action in
   let of_interest= automaton.Keywords_handler.flush_required in
   let translate = automaton.Keywords_handler.translate in
