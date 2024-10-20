@@ -113,7 +113,7 @@ let mandatory_fields =
       ]
 
 let all_fields =
-    let record_name = "dens candidate" in
+    let record_name = "Courses in HELISA database" in
         [
           lift_string
             ~keyword:Public_data.PEGASUS_Code_Produit_Helisa

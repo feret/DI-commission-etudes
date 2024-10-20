@@ -48,7 +48,7 @@ let get_pegasus_course_by_libelle ~libelle ~year  ~semester courses =
                 | Some a ->
                   match Public_data.StringOptMap.find_opt
                       semester a
-                  with None -> [] | Some a -> a 
+                  with None -> [] | Some a -> a
 
 let add_pegasus_course
     unify pos state
@@ -57,6 +57,7 @@ let add_pegasus_course
   let libelle = course.Public_data.pegasus_libelle in
   let year = course.Public_data.pegasus_year in
   let semester = course.Public_data.pegasus_semester in
+  let () = Format.printf "ADD PEGASUS COURSE %s %s %s %s @." code libelle year (Tools.unsome_string semester) in 
   let course' = get_pegasus_course ~code ~year  courses  in
   let state, course =
     match course' with
