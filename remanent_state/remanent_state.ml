@@ -325,6 +325,19 @@ let set_phys parameters =
         include_pictures = true;
       }
 
+      let set_ibens parameters =
+        {
+          parameters with
+          main_dpt = Public_data.IBENS ;
+          commission = None (*Some ("23 juin 2021",  "2020")*);
+          local_repository = "IBENS/suivi_pedagogique" ;
+          scholarships_repository = "IBENS/scolarite/ELEVES" ;
+          diplomation_repository = "IBENS/scolarite/diplomation" ;
+  load_gps_data = true ;
+          repartition = Public_data.Annee_obtention_du_diplome ;
+          include_pictures = true;
+        }
+
 type data =
   {
     students: Public_data.student_id list ;
@@ -1807,6 +1820,7 @@ let get_option parameters =
     | h::_ ->
       begin
         match String.lowercase_ascii h with
+        | "ibens" -> set_ibens parameters
         | "dma" -> set_dma parameters
         | "phys" -> set_phys parameters
         | "chimie" -> set_chimie parameters
