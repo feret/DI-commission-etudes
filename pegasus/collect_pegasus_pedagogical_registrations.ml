@@ -226,6 +226,27 @@ let get_teachers entry =
   | ["-","-"] -> []
   | x -> x
 
+let is_dens course =
+  match course.Public_data.pegasus_domain with
+    | Some a when String.length a > 3 && Special_char.lowercase (String.sub a 0 4) = "dens" -> true
+    | None | Some _ -> false
+
+let filter_dens state h libelle pegasus_entry_opt  =
+  begin
+    match
+        List.filter
+          (fun course -> is_dens course)
+          pegasus_entry_opt
+    with
+      | [] -> state, Some h, libelle
+      | h::_ ->
+    begin match List.filter (fun course -> course.Public_data.pegasus_codegps <> None) pegasus_entry_opt
+with
+  | [] -> state, Some h, libelle
+  | h::_ -> state, Some h, libelle
+end
+end
+
 let update_course course ects entry (state:Remanent_state.t) =
     let codehelisa, libelle =
        let l = String.split_on_char ' ' course in
@@ -303,12 +324,7 @@ let update_course course ects entry (state:Remanent_state.t) =
                           in
                           match pegasus_entry_opt with
                             | h::_ ->
-                              begin
-                              match List.filter (fun course -> course.Public_data.pegasus_codegps <> None) pegasus_entry_opt
-                              with
-                                | [] -> state, Some h, libelle
-                                | h::_ -> state, Some h, libelle
-                              end
+                              filter_dens state h libelle pegasus_entry_opt
                             | [] ->
                               let libelle = Tools.simplify_spaces libelle in
                               let state, pegasus_entry_opt =
@@ -317,12 +333,7 @@ let update_course course ects entry (state:Remanent_state.t) =
                               begin
                               match pegasus_entry_opt with
                                 | h::_ ->
-                                  begin
-                                  match List.filter (fun course -> course.Public_data.pegasus_codegps <> None) pegasus_entry_opt
-                                  with
-                                    | [] -> state, Some h, libelle
-                                    | h::_ -> state, Some h, libelle
-                                  end
+                                  filter_dens state h libelle pegasus_entry_opt 
                                 | [] -> state, None, libelle
                               end
                         end

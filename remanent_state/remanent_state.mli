@@ -350,6 +350,7 @@ val get_course_in_pegasus:
   t -> t * Public_data.course_pegasus option
 
 val get_course_in_pegasus_by_libelle:
+    ?domain:string ->
     libelle: string ->
     year:Public_data.annee ->
     semester:string option ->

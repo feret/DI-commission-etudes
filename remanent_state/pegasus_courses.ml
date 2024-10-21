@@ -12,7 +12,7 @@ let empty =
 
 let get_pegasus_course ~code ~year  courses =
   let code =
-    String.lowercase_ascii code
+    Special_char.lowercase code
   in
   match
     Public_data.YearMap.find_opt
@@ -27,10 +27,10 @@ let get_pegasus_course ~code ~year  courses =
 
 let get_pegasus_course_by_libelle ~libelle ~year  ~semester courses =
     let libelle =
-        String.lowercase_ascii libelle
+        Special_char.lowercase libelle
     in
     let semester =
-        Tools.map_opt String.lowercase_ascii semester
+        Tools.map_opt Special_char.lowercase semester
     in
     match
         Public_data.YearMap.find_opt
@@ -49,6 +49,13 @@ let get_pegasus_course_by_libelle ~libelle ~year  ~semester courses =
                   match Public_data.StringOptMap.find_opt
                       semester a
                   with None -> [] | Some a -> a
+
+let get_pegasus_course_by_libelle ?domain ~libelle ~year  ~semester courses =
+    let l = get_pegasus_course_by_libelle ~libelle ~year  ~semester courses in
+    let l = match domain with None -> l | Some _ -> List.filter (fun a -> a.Public_data.pegasus_domain = domain) l in
+    List.sort
+        (fun a b -> compare a.Public_data.pegasus_domain b.Public_data.pegasus_domain)
+        l
 
 let add_pegasus_course
     unify pos state

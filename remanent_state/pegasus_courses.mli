@@ -5,11 +5,12 @@ val get_pegasus_course:
   year:string ->
    t -> Public_data.course_pegasus option
 
-   val get_pegasus_course_by_libelle:
-     libelle:string ->
-     year:string ->
-     semester:string option ->
-      t -> Public_data.course_pegasus list 
+val get_pegasus_course_by_libelle:
+    ?domain:string -> 
+    libelle:string ->
+    year:string ->
+    semester:string option ->
+    t -> Public_data.course_pegasus list
 
 val add_pegasus_course:
 ((string * int * int * int) ->
