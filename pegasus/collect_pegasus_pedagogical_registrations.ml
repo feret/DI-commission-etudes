@@ -235,7 +235,7 @@ let filter_dens state h libelle pegasus_entry_opt  =
   begin
     match
         List.filter
-          (fun course -> not (is_dens course))
+          (fun course -> is_dens course)
           pegasus_entry_opt
     with
       | [] -> state, Some h, libelle

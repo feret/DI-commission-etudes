@@ -10,6 +10,7 @@ pegasus_prof_nom: string option;
 pegasus_codegps: string option;
 pegasus_session:string option;
 pegasus_semester: string option;
+pegasus_domain: string option;
 }
 
 let empty_course =
@@ -21,6 +22,7 @@ pegasus_prof_prenom = None;
 pegasus_codegps = None;
 pegasus_session = None;
 pegasus_semester = None;
+pegasus_domain = None;
 }
 
 
@@ -114,6 +116,7 @@ let keywords_list =
     Public_data.PEGASUS_PED_PRENOM;
     Public_data.PEGASUS_CO_PRODUIT_ID_GIROFLE;
     Public_data.PEGASUS_Session;
+    Public_data.PEGASUS_Domaine;
   ]
 
 let mandatory_fields =
@@ -156,6 +159,16 @@ let all_fields =
             ~record_name
             ~field_name:"Code in Girofle"
             ~pos:__POS__;
+            lift_string_opt
+              ~keyword:Public_data.PEGASUS_DOMAINE
+              ~set_tmp:(Tools.collect_string
+                            (fun pegasus_domain x -> {x with pegasus_domain}))
+              ~get_tmp:(fun a -> a.pegasus_domain)
+              ~get:(fun a -> a.Public_data.pegasus_domain)
+              ~set:(fun pegasus_domain a -> {a with Public_data.pegasus_domain})
+              ~record_name
+              ~field_name:"Code in Girofle"
+              ~pos:__POS__;
             lift_string_opt
               ~keyword:Public_data.PEGASUS_Nature_de_l_activite
               ~set_tmp:(Tools.collect_string
