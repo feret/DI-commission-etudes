@@ -235,7 +235,7 @@ let filter_dens state h libelle pegasus_entry_opt  =
   begin
     match
         List.filter
-          (fun course -> is_dens course)
+          (fun course -> not (is_dens course))
           pegasus_entry_opt
     with
       | [] -> state, Some h, libelle
@@ -333,7 +333,7 @@ let update_course course ects entry (state:Remanent_state.t) =
                               begin
                               match pegasus_entry_opt with
                                 | h::_ ->
-                                  filter_dens state h libelle pegasus_entry_opt 
+                                  filter_dens state h libelle pegasus_entry_opt
                                 | [] -> state, None, libelle
                               end
                         end
