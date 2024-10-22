@@ -1772,7 +1772,7 @@ let close_event_opt step_kind_opt t =
 
 let list_dpt =
   [
-    "IBENS";"DI";"di";"DMA";"dma";"PHYS";"Phys";"phys";"chimie";
+    "ibens";"IBENS";"DI";"di";"DMA";"dma";"PHYS";"Phys";"phys";"chimie";
     "gsc";"geos";"geosciences";"géos";"géosciences" ]
 
 let get_cmd_options () =
