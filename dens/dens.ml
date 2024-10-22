@@ -16,7 +16,6 @@ let chimie = "CHIM"
 let gsc = "GSC"
 let phil = "PHIL"
 let dec = "DEC"
-let ibens = "IBENS"
 let arts = "ARTS"
 let dsa = "DSA"
 let dss = "DSS"
@@ -57,7 +56,7 @@ let string_of_key k =
       | "dri" -> "Relations internationales"
       | _ -> "Autre"
 
-let sciences = [info;dma;bio;phys;dec;ibens;gsc;chimie]
+let sciences = [info;dma;bio;phys;dec;gsc;chimie]
 let humanities = [arts;dsa;eco;lila;phil;hist;dss;geog]
 let sans_mineure = [ceres]
 let ecla = [ecla;"code3251"]
@@ -88,7 +87,7 @@ let translate_main_dpt x =
   | Public_data.PHYS -> phys
   | Public_data.CHIMIE -> chimie
   | Public_data.GEOSCIENCES -> gsc
-  | Public_data.IBENS -> ibens
+  | Public_data.IBENS -> bio
   | Public_data.ECO -> eco
   | Public_data.DRI -> dri
   | Public_data.ARTS -> arts

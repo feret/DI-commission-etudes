@@ -38,7 +38,7 @@ let state =
   Collect_pegasus_administrative_status.get_pegasus_administrative_data state
 let state =
   Collect_pegasus_pedagogical_registrations.get_pegasus_pedagogical_registrations state
-let state, t = Remanent_state.Collector_pegasus_stages.get state 
+let state, t = Remanent_state.Collector_pegasus_stages.get state
 let () = Pegasus_stages.dump t
 let state =
     let state, b = Remanent_state.do_we_log_pegasus_entries state in
@@ -255,6 +255,7 @@ let state =
          let state, is_phys = Remanent_state.is_main_dpt_phys state in
          let state, is_chimie = Remanent_state.is_main_dpt_chimie state in
          let state, is_geosciences = Remanent_state.is_main_dpt_geosciences state in
+         let state, is_bio = Remanent_state.is_main_dpt_bio state in
          let state =
            match gps with
            | None -> state
@@ -265,7 +266,9 @@ let state =
                  ~output ~keep_success:true ~report state gps
              in
              let state =
-               match input, is_dma || is_phys || is_chimie || is_geosciences
+               match
+                input, is_dma || is_phys || is_chimie
+                        || is_geosciences || is_bio
                with
                | Some (input_rep,file_name), true ->
                  let state,rep  =
@@ -285,7 +288,7 @@ let state =
              Latex_engine.latex_opt_to_pdf ~rev:true state ~input
          in
          let state =
-           if is_dma || is_phys || is_chimie || is_geosciences then
+           if is_dma || is_phys || is_chimie || is_geosciences || is_bio then
              let output =
                (fst output0,
                 (Tools.basename (snd
@@ -300,7 +303,7 @@ let state =
                    ~output state gps
                in
                let state =
-                 match input, is_dma || is_phys || is_chimie || is_geosciences with
+                 match input, is_dma || is_phys || is_chimie || is_geosciences || is_bio with
                  | Some (input_rep,file_name), true ->
                    let state,rep  =
                      Remanent_state.get_student_personnal_repository

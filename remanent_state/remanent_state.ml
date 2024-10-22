@@ -2950,13 +2950,19 @@ let is_main_dpt_phys t =
   let t,dpt = get_main_dpt t in
   t, dpt = Public_data.PHYS
 
-  let is_main_dpt_chimie t =
-    let t,dpt = get_main_dpt t in
-    t, dpt = Public_data.CHIMIE
+let is_main_dpt_chimie t =
+  let t,dpt = get_main_dpt t in
+  t, dpt = Public_data.CHIMIE
 
-    let is_main_dpt_geosciences t =
-      let t,dpt = get_main_dpt t in
-      t, dpt = Public_data.GEOSCIENCES
+let is_main_dpt_geosciences t =
+  let t,dpt = get_main_dpt t in
+  t, dpt = Public_data.GEOSCIENCES
+
+let is_main_dpt_ibens t =
+  let t,dpt = get_main_dpt t in
+  t, dpt = Public_data.IBENS
+
+let is_main_dpt_bio = is_main_dpt_ibens 
 
 let get_language t =
   t, t.parameters.language

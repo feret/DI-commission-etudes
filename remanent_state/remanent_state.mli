@@ -773,6 +773,8 @@ val is_main_dpt_dma: t -> t * bool
 val is_main_dpt_phys: t -> t * bool
 val is_main_dpt_chimie: t -> t * bool
 val is_main_dpt_geosciences: t -> t * bool
+val is_main_dpt_ibens: t -> t * bool
+val is_main_dpt_bio: t -> t * bool
 
 val get_file_retriever_skip: t -> t * bool
 val file_retriever_fail: t -> t
