@@ -1,4 +1,4 @@
-type dpt = Maths | PE | DRI | PHYS | CHIMIE | GEOSCIENCES
+type dpt = Maths | PE | DRI | PHYS | CHIMIE | GEOSCIENCES | IBENS
 type access_type =
        GPS of dpt option | Backup | Preempt | Warn
 
@@ -18,6 +18,7 @@ let string_of_dpt_opt =
   | Some PHYS -> "&dept=phys"
   | Some CHIMIE -> "&dept=chim"
   | Some GEOSCIENCES -> "&dept=5"
+  | Some IBENS -> "&dept=1"
 
 let profiling_label_of_dpt_opt =
   function
@@ -28,6 +29,7 @@ let profiling_label_of_dpt_opt =
   | Some PHYS -> Some "PHYS"
   | Some CHIMIE -> Some "CHIMIE"
   | Some GEOSCIENCES -> Some "GSC"
+  | Some IBENS -> Some "IBENS"
 
 let build_output
     pos ~has_promo
@@ -757,6 +759,17 @@ let modelist_gsc_gen b1 b2 =
                                      (add_to_list true true Warn
                                         (add_to_list b1 b2 Backup []))))))
 
+                                        let modelist_ibens_gen b1 b2 =
+                                                               add_to_list b1 b2 Preempt
+                                                                 (add_to_list b1 b2 (GPS (Some IBENS))
+                                                                    (add_to_list b1 b2 (GPS (Some Maths))
+                                                                       (add_to_list b1 b2 (GPS (Some DRI))
+                                                                          (add_to_list b1 b2 (GPS (Some PE))
+                                                                             (add_to_list true true Warn
+                                                                                (add_to_list b1 b2 Backup []))))))
+
+
+
   let modelist_chimie_true_true =
     modelist_chimie_gen true true
   let modelist_chimie_true_false =
@@ -776,6 +789,14 @@ let modelist_gsc_gen b1 b2 =
     let modelist_gsc_false_false =
       modelist_gsc_gen false false
 
+      let modelist_ibens_true_true =
+        modelist_ibens_gen true true
+      let modelist_ibens_true_false =
+        modelist_ibens_gen true false
+      let modelist_ibens_false_true =
+        modelist_ibens_gen false true
+      let modelist_ibens_false_false =
+        modelist_ibens_gen false false
 let get_student_file
       student_id
       ?modelist
@@ -808,16 +829,16 @@ let modelist =
         with
         | true, true,
           (Public_data.DRI | Public_data.ARTS | Public_data.DI | Public_data.ENS
-          | Public_data.IBENS | Public_data.ECO | Public_data.LILA | Public_data.DEC ) -> modelist_di_true_true
+          | Public_data.ECO | Public_data.LILA | Public_data.DEC ) -> modelist_di_true_true
         | true, false,
           (Public_data.DRI | Public_data.ARTS | Public_data.DI | Public_data.ENS
-          | Public_data.IBENS  | Public_data.ECO | Public_data.LILA | Public_data.DEC ) -> modelist_di_true_false
+           | Public_data.ECO | Public_data.LILA | Public_data.DEC ) -> modelist_di_true_false
         | false, true,
           (Public_data.DRI | Public_data.ARTS | Public_data.DI | Public_data.ENS
-          | Public_data.IBENS | Public_data.ECO | Public_data.LILA | Public_data.DEC )  -> modelist_di_false_true
+           | Public_data.ECO | Public_data.LILA | Public_data.DEC )  -> modelist_di_false_true
         | false, false,
           (Public_data.DRI | Public_data.ARTS | Public_data.DI | Public_data.ENS
-          | Public_data.IBENS | Public_data.ECO | Public_data.LILA | Public_data.DEC ) -> modelist_di_false_false
+          | Public_data.ECO | Public_data.LILA | Public_data.DEC ) -> modelist_di_false_false
         | true, true, Public_data.DMA -> modelist_dma_true_true
         | true, false, Public_data.DMA -> modelist_dma_true_false
         | false, true, Public_data.DMA  -> modelist_dma_false_true
@@ -834,6 +855,10 @@ let modelist =
         | true, false, Public_data.GEOSCIENCES-> modelist_gsc_true_false
         | false, true, Public_data.GEOSCIENCES -> modelist_gsc_false_true
         | false, false, Public_data.GEOSCIENCES-> modelist_gsc_false_false
+        | true, true, Public_data.IBENS -> modelist_ibens_true_true
+        | true, false, Public_data.IBENS -> modelist_ibens_true_false
+        | false, true, Public_data.IBENS -> modelist_ibens_false_true
+        | false, false, Public_data.IBENS-> modelist_ibens_false_false
 
       end
   in
