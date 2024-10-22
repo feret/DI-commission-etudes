@@ -626,7 +626,13 @@ let dump_dens dens state =
           | Public_data.DI -> "informatique"
           | Public_data.CHIMIE -> "chimie"
           | Public_data.DEC -> "sciences cognitives"
-          | Public_data.GEOSCIENCES -> "géosciences" | (Public_data.ENS|Public_data.PHYS|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA)
+          | Public_data.GEOSCIENCES -> "géosciences"
+          | Public_data.IBENS -> "biologie"
+          | Public_data.PHYS -> "physique"
+          | Public_data.ECO -> "économie"
+          | Public_data.LILA -> "langues anciennes"
+          | Public_data.ARTS -> "arts"
+          | (Public_data.ENS|Public_data.DRI)
   -> "informatique") in
       let state =
           print_status
