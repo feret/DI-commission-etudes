@@ -43,6 +43,7 @@ let rec fetch_name l acc =
     | "Student:"::_
     | "Student"::"number:"::_
     | "INE"::"number:"::_
+    | "Statut"::_
     | "Tutor:"::_
     | [] -> List.rev acc, l
     | x::_ when String.length x > 0 && (let c =Char.code (String.get x 0) in
