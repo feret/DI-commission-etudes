@@ -80,15 +80,20 @@ let update_student bloc entry state =
         let l = String.split_on_char ' ' bloc in
         let l = List.rev_map (String.split_on_char '\n') (List.rev l) in
         let l = List.flatten l in
+        let () = List.iter (Format.printf "%s @.") l in
+        let () = Format.printf "---@." in
         let t, lastname, firstname = fetch_name l in
         let entry = {entry with lastname = Some lastname ; firstname = Some firstname} in
         let rec get tail acc =
             match tail with
               | "Numéro"::"INE"::":"::tail -> Some (List.rev acc), tail
-              | t::tail -> get tail (t::acc)
+              | t::tail ->
+                if String.length t > 1 && String.sub t 0 2 = "20"
+                then Some (List.rev acc), t::tail
+                else get tail (t::acc)
               | [] -> None, []
         in
-        let _statut, t =
+        let statut, t =
             match t with
               | "Statut"::":"::tail -> get tail []
               | tail -> None, tail
@@ -107,6 +112,8 @@ let update_student bloc entry state =
         in
         let tail, b_opt,dpt = aux t None None in
         let _, tutor_lastname, tutor_firstname = fetch_name tail  in
+        let () = Format.printf "%s %s STATUT %s INE %s B %s DPT %s %s %s" firstname lastname (match statut with None -> "None" | Some x -> List.hd x) (match entry.student_number with None -> "None" | Some x -> x) (match b_opt with None -> "None" | Some x -> if x then "true" else "false")
+        (match dpt with None -> "None" | Some (x,_) -> x) tutor_firstname tutor_lastname in
         {entry with tutor_lastname = Some tutor_lastname ; tutor_firstname = Some tutor_firstname ; inscription_dens = b_opt}, state, dpt
 
 
