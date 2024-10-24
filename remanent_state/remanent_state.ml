@@ -333,7 +333,7 @@ let set_phys parameters =
           local_repository = "IBENS/suivi_pedagogique" ;
           scholarships_repository = "IBENS/scolarite/ELEVES" ;
           diplomation_repository = "IBENS/scolarite/diplomation" ;
-  load_gps_data = true ;
+          load_gps_data = false ;
           repartition = Public_data.Annee_obtention_du_diplome ;
           include_pictures = true;
         }
@@ -2962,7 +2962,7 @@ let is_main_dpt_ibens t =
   let t,dpt = get_main_dpt t in
   t, dpt = Public_data.IBENS
 
-let is_main_dpt_bio = is_main_dpt_ibens 
+let is_main_dpt_bio = is_main_dpt_ibens
 
 let get_language t =
   t, t.parameters.language

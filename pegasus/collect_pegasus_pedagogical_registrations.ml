@@ -82,6 +82,17 @@ let update_student bloc entry state =
         let l = List.flatten l in
         let t, lastname, firstname = fetch_name l in
         let entry = {entry with lastname = Some lastname ; firstname = Some firstname} in
+        let rec get tail acc =
+            match tail with
+              | "Numéro"::"INE"::":"::tail -> Some (List.rev acc), tail
+              | t::tail -> get tail (t::acc)
+              | [] -> None, []
+        in
+        let _statut, t =
+            match t with
+              | "Statut"::":"::tail -> get tail []
+              | tail -> None, tail
+        in
         let entry, t = match t with
           | [] -> entry,t
           | n::tail ->{entry with student_number = Some n },tail
@@ -89,7 +100,8 @@ let update_student bloc entry state =
         let rec aux t b_opt dpt =
         match t with
           | ":"::tail -> tail,b_opt, dpt
-          | "Diplôme"::"de"::"l'ENS-PSL"::dpt::"-"::n::tail -> aux tail (Some true) (Some (dpt,n))
+          | "Diplôme"::"de"::"l'ENS-PSL"::dpt::"-"::n::tail
+          | "Diplôme"::":"::"Diplôme"::"de"::"l'ENS-PSL"::dpt::"-"::n::tail -> aux tail (Some true) (Some (dpt,n))
           | _::tail -> aux tail b_opt dpt
           | [] -> [], b_opt, dpt
         in
