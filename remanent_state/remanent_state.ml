@@ -167,7 +167,7 @@ let parameters =
     repository_to_access_gps = "gps";
     output_repository = "sortie" ;
     database_repository = "base_de_donnees";
-    pegasus_repository = "pegasus";
+    pegasus_repository = "pegasus_data";
     study_repository = "etudes";
     parameters_repository = "parametres" ;
     gps_backup_repository = "gps_backup" ;
@@ -1441,8 +1441,8 @@ let get_study_gen get t =
   | _ -> t, Format.sprintf "%s/%s" rep (get t)
 
 let get_pegasus t =
-  let t, local = get_local_repository t in
-  match local, t.parameters.pegasus_repository with
+  let t, cloud = get_cloud_repository t in
+  match cloud, t.parameters.pegasus_repository with
     | "", "" -> t, ""
     | a,"" | "",a -> t, a
     | a,b -> t, Format.sprintf "%s/%s" a b
