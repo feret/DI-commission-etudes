@@ -180,6 +180,7 @@ let dpt_of_string x =
   | "relations internationales" -> DRI
   | "litteratures et langage" -> LILA
   | "etudes cognitives" | "sciences cognitives" -> DEC
+  | "arts" -> ARTS 
   | _ -> DI
 
 let file_suffix_of_univ x =
