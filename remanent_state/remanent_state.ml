@@ -333,7 +333,7 @@ let set_phys parameters =
           local_repository = "IBENS/suivi_pedagogique" ;
           scholarships_repository = "IBENS/scolarite/ELEVES" ;
           diplomation_repository = "IBENS/scolarite/diplomation" ;
-          load_gps_data = true ;
+          load_gps_data = false ;
           repartition = Public_data.Annee_obtention_du_diplome ;
           include_pictures = true;
         }
