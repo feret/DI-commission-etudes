@@ -67,7 +67,7 @@ let add_minor_candidate
   let lastname = minor_candidate.Public_data.secondary_student_lastname in
   let year = minor_candidate.Public_data.secondary_diplomation_year in
   let dpt  = minor_candidate.Public_data.secondary_dpt in
-  let () = Format.printf "add minor candidate %s %s %s" firstname lastname (Public_data.string_of_mineure dpt)  in 
+  let () = Format.printf "add minor candidate %s %s %s @." firstname lastname (Public_data.string_of_mineure dpt)  in 
   let minor_candidate_list = get_minor_candidate ~firstname ~lastname ~year ~dpt minor_candidates in
   let state, minor_candidate_list =
       match minor_candidate_list with [] -> state, [minor_candidate]
