@@ -26,7 +26,7 @@ module Build
       ["PROMO"],
       (fun a -> a.Public_data.secondary_student_promo);
       ["DPT"],
-      (fun a -> Public_data.string_of_dpt (a.Public_data.secondary_dpt));
+      (fun a -> Public_data.string_of_mineure (a.Public_data.secondary_dpt));
       ["ANNEE"],
       (fun a -> a.Public_data.secondary_diplomation_year);
       ["ACCEPTE"],

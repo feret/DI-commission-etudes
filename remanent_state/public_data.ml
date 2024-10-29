@@ -109,6 +109,11 @@ module StringOptMap =
         )
 
 type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA | DEC
+
+type specific = Musicologie
+
+type mineure = DPT of main_dpt | Specific of specific
+
 type universite =
   | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud | UPNord | USPN | UDauphine
 
@@ -180,8 +185,18 @@ let dpt_of_string x =
   | "relations internationales" -> DRI
   | "litteratures et langage" -> LILA
   | "etudes cognitives" | "sciences cognitives" -> DEC
-  | "arts" -> ARTS 
+  | "arts" -> ARTS
   | _ -> DI
+
+let string_of_mineure x =
+    match x with
+      | DPT x -> string_of_dpt x
+      | Specific Musicologie -> "musicologie"
+
+let mineure_of_string x =
+  match x with
+    | "musicologie" -> Specific Musicologie
+    | _ -> DPT (dpt_of_string x)
 
 let file_suffix_of_univ x =
     match x with
@@ -929,7 +944,7 @@ type mineure_majeure =
          secondary_student_firstname: string ;
          secondary_student_lastname : string ;
          secondary_student_promo : string ;
-         secondary_dpt : main_dpt ;
+         secondary_dpt : mineure ;
          secondary_diplomation_year : string ;
          secondary_accepted : bool option ;
        }
@@ -938,7 +953,7 @@ let empty_mineure_majeure ={
   secondary_student_firstname = "" ;
   secondary_student_lastname = "" ;
   secondary_student_promo = "" ;
-  secondary_dpt = DI ;
+  secondary_dpt = DPT DI ;
   secondary_diplomation_year = "" ;
   secondary_accepted = None ;
 }
@@ -1465,6 +1480,18 @@ Map.Make
     type t = main_dpt option
     let compare = compare
   end)
+  module MineureMap =
+    Map.Make
+      (struct
+        type t = mineure
+        let compare = compare
+      end)
+  module MineureOptMap =
+  Map.Make
+    (struct
+      type t = mineure option
+      let compare = compare
+    end)
 module CodeMap = StringMap
 module CodeSet = StringSet
 module CodeOptMap =

@@ -103,6 +103,11 @@ type pedagogical_entry_pegasus =
 val empty_pedagogical_entry: pedagogical_entry_pegasus
 
 type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA | DEC
+
+type specific = Musicologie
+
+type mineure = DPT of main_dpt | Specific of specific
+
 type universite =  | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud | UPNord | USPN | UDauphine
 type experience = Recherche | Internationale | Ouverture | Hors_Dens
 
@@ -111,6 +116,10 @@ val experience_of_string: string -> experience
 
 val string_of_dpt: main_dpt -> string
 val dpt_of_string: string -> main_dpt
+
+val string_of_mineure: mineure -> string
+val mineure_of_string: string -> mineure
+
 val string_of_universite: universite -> string
 val string_of_universite_long_fr: universite -> string
 val string_of_universite_long_en: universite -> string
@@ -134,6 +143,8 @@ module StringOptStringOptMap: Map.S with type key = string option * string optio
 module StringUnivMap: Map.S with type key = string * universite
 module DptMap: Map.S with type key = main_dpt
 module DptOptMap : Map.S with type key = main_dpt option
+module MineureMap: Map.S with type key = mineure
+module MineureOptMap : Map.S with type key = mineure option
 module CodeMap : Map.S with type key = string
 module CodeOptMap : Map.S with type key = string option
 module CodeSet : Set.S with type elt = string
@@ -1045,7 +1056,7 @@ type mineure_majeure =
     secondary_student_firstname: string ;
     secondary_student_lastname : string ;
     secondary_student_promo : string ;
-    secondary_dpt : main_dpt ;
+    secondary_dpt : mineure ;
     secondary_diplomation_year : string ;
     secondary_accepted : bool option ;
   }

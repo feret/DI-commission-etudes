@@ -4,7 +4,7 @@ val get_major_candidate:
   firstname:string ->
   lastname:string ->
   year:string ->
-  ?dpt:Public_data.main_dpt -> t -> Public_data.mineure_majeure list
+  ?dpt:Public_data.mineure -> t -> Public_data.mineure_majeure list
 
 val add_major_candidate:
 ((string * int * int * int) ->

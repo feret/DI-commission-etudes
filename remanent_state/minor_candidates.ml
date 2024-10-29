@@ -2,12 +2,12 @@ type t =
   {
     per_promo:
       Public_data.mineure_majeure list
-        Public_data.DptMap.t
+        Public_data.MineureMap.t
         Public_data.FirstNameMap.t Public_data.LastNameMap.t Public_data.YearMap.t
         Public_data.PromoMap.t ;
     per_name:
       Public_data.mineure_majeure list
-        Public_data.DptMap.t
+        Public_data.MineureMap.t
         Public_data.YearMap.t
         Public_data.FirstNameMap.t Public_data.LastNameMap.t
   }
@@ -50,13 +50,13 @@ let get_minor_candidate ~firstname ~lastname ~year ?dpt minor_candidates =
             | Some dpt ->
                 begin
                   match
-                    Public_data.DptMap.find_opt
+                    Public_data.MineureMap.find_opt
                       dpt a
                   with None -> []
                     | Some a -> a
                 end
           | None ->
-              Public_data.DptMap.fold
+              Public_data.MineureMap.fold
                 (fun _ l l' ->  l@l')
                 a []
 
@@ -107,7 +107,7 @@ let add_minor_candidate
           old_lastname
       with
       | Some map -> map
-      | None -> Public_data.DptMap.empty
+      | None -> Public_data.MineureMap.empty
     in
       let per_promo =
         Public_data.PromoMap.add promo
@@ -116,7 +116,7 @@ let add_minor_candidate
               lastname
               (Public_data.FirstNameMap.add
                   firstname
-                  (Public_data.DptMap.add
+                  (Public_data.MineureMap.add
                       dpt minor_candidate_list
                   old_firstname)
               old_lastname)
@@ -152,7 +152,7 @@ let add_minor_candidate
           old_firstname
      with
         | Some map -> map
-        | None -> Public_data.DptMap.empty
+        | None -> Public_data.MineureMap.empty
     in
     let per_name =
       Public_data.LastNameMap.add
@@ -161,7 +161,7 @@ let add_minor_candidate
            firstname
            (Public_data.YearMap.add
               year
-              (Public_data.DptMap.add dpt
+              (Public_data.MineureMap.add dpt
               minor_candidate_list old_year)
               old_firstname)
            old_lastname)

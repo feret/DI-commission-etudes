@@ -30,6 +30,7 @@ let dg = "DG"
 let ens = "DENS"
 let dri = "DRI"
 let xt = "XT"
+let musicologie = "MUSICOLOGIE"
 
 let string_of_key k =
     match String.lowercase_ascii k with
@@ -54,6 +55,7 @@ let string_of_key k =
       | "dg" -> "Délégation générale"
       | "dens" -> "Diplôme de l'ENS"
       | "dri" -> "Relations internationales"
+      | "musicologie" -> "Musicologie"
       | _ -> "Autre"
 
 let sciences = [info;dma;bio;phys;dec;gsc;chimie]
@@ -94,6 +96,12 @@ let translate_main_dpt x =
   | Public_data.LILA -> lila
   | Public_data.DMA -> dma
   | Public_data.DEC -> dec
+
+  let translate_mineure x =
+    match x with
+    | Public_data.DPT x -> translate_main_dpt x
+    | Public_data.Specific Public_data.Musicologie -> musicologie
+
 
 let kind_of_course state code extra =
   if code = "" && extra
@@ -365,7 +373,7 @@ let split_stages ~firstname ~lastname dens state =
 
 
 let declare_as_minor dpt (state,dens) =
-      let dpt  = translate_main_dpt dpt in
+      let dpt  = translate_mineure dpt in
       match Public_data.StringMap.find_opt dpt  dens.Public_data.dens_cours_par_dpt
       with
       | None -> state, dens
@@ -696,7 +704,7 @@ let suggest_mineure dens state =
       List.fold_left
           (fun (state,map') a ->
               state, Public_data.StringMap.add
-                (translate_main_dpt a.Public_data.secondary_dpt)
+                (translate_mineure a.Public_data.secondary_dpt)
                 a map'
             )
           (state,Public_data.StringMap.empty) minors_list
@@ -735,7 +743,7 @@ let suggest_mineure dens state =
              Public_data.secondary_student_lastname=lastname;
              Public_data.secondary_student_firstname=firstname;
              Public_data.secondary_student_promo=dens.Public_data.dens_promotion;
-             Public_data.secondary_dpt = Public_data.dpt_of_string key ;
+             Public_data.secondary_dpt = Public_data.mineure_of_string key ;
              Public_data.secondary_diplomation_year = year;
              Public_data.secondary_accepted = accepted}
             in
@@ -751,7 +759,7 @@ Public_data.StringMap.fold
          Public_data.secondary_student_lastname=lastname;
          Public_data.secondary_student_firstname=firstname;
          Public_data.secondary_student_promo=dens.Public_data.dens_promotion;
-         Public_data.secondary_dpt = Public_data.dpt_of_string key ;
+         Public_data.secondary_dpt = Public_data.mineure_of_string key ;
          Public_data.secondary_diplomation_year = year ;
          Public_data.secondary_accepted = elt.Public_data.secondary_accepted}
         in
@@ -787,22 +795,23 @@ let suggest_majeure dens state =
   let state, map' =
       List.fold_left
           (fun (state,map') a ->
-              state, Public_data.DptMap.add
+              state, Public_data.MineureMap.add
                 a.Public_data.secondary_dpt
                 a map'
             )
-          (state,Public_data.DptMap.empty) majors_list
+          (state,Public_data.MineureMap.empty) majors_list
   in
   let map', state =
     Public_data.DptMap.fold
       (fun key elt (map',state) ->
+          let key = Public_data.DPT key in
           let map', accepted =
-              match Public_data.DptMap.find_opt key map' with
+              match Public_data.MineureMap.find_opt key map' with
                 | None -> map', None
-                | Some a -> Public_data.DptMap.remove key map', a.Public_data.secondary_accepted
+                | Some a -> Public_data.MineureMap.remove key map', a.Public_data.secondary_accepted
           in
           if
-            ((elt > 1 && key <> dens.Public_data.dens_main_dpt)  || (accepted = Some true))
+            ((elt > 1 && key <> Public_data.DPT dens.Public_data.dens_main_dpt)  || (accepted = Some true))
             && (not (accepted = Some false))
           then
             let m =
@@ -819,7 +828,7 @@ let suggest_majeure dens state =
       map  (map',state)
 in
 let state =
-Public_data.DptMap.fold
+Public_data.MineureMap.fold
   (fun key elt state ->
       let m =
         {
@@ -1098,7 +1107,7 @@ let get_dens_candidates
     (* Collect minors candidates from the data-bases *)
     type secondary_id =
       {
-        secondary_dpt: Public_data.main_dpt option ;
+        secondary_dpt: Public_data.mineure option ;
         secondary_firstname : string option ;
         secondary_lastname : string option ;
         secondary_promotion : string option ;
@@ -1146,10 +1155,8 @@ let get_dens_candidates
           (Lift.string empty_candidate_id Public_data.empty_dens_candidate).Lift.opt_safe*)
         let lift_bool_opt =
           (Lift.bool empty_secondary_id Public_data.empty_mineure_majeure).Lift.opt_safe
-        let lift_dpt =
-          (Lift.main_dpt empty_secondary_id Public_data.empty_mineure_majeure).Lift.safe
-
-
+        let lift_mineure =
+          (Lift.mineure empty_secondary_id Public_data.empty_mineure_majeure).Lift.safe
     let mandatory_fields =
           [
             lift_pred (fun a -> a.secondary_diplomation_year) "diplomation year";
@@ -1200,12 +1207,12 @@ let get_dens_candidates
                 ~record_name
                 ~field_name:"diplomation year of the student"
                 ~pos:__POS__;
-              lift_dpt
+              lift_mineure
                 ~keyword:Public_data.Departement
                 ~set_tmp:(Tools.collect_string (fun dpt x ->
                     let secondary_dpt =
                       Tools.map_opt
-                        Public_data.dpt_of_string dpt
+                        Public_data.mineure_of_string dpt
                     in {x with secondary_dpt}))
                 ~get_tmp:(fun a -> a.secondary_dpt)
                 ~get:(fun a -> a.Public_data.secondary_dpt)
@@ -1311,12 +1318,12 @@ let get_dens_candidates
                     ~record_name
                     ~field_name:"diplomation year of the student"
                     ~pos:__POS__;
-                  lift_dpt
+                  lift_mineure
                     ~keyword:Public_data.Departement
                     ~set_tmp:(Tools.collect_string (fun dpt x ->
                         let secondary_dpt =
                           Tools.map_opt
-                            Public_data.dpt_of_string dpt
+                            Public_data.mineure_of_string dpt
                         in {x with secondary_dpt}))
                     ~get_tmp:(fun a -> a.secondary_dpt)
                     ~get:(fun a -> a.Public_data.secondary_dpt)
