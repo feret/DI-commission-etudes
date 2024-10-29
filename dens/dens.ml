@@ -1,3 +1,12 @@
+let p_musicologie x =
+    List.mem x.Public_data.supplement_code
+        [
+          "ARTS-BAROQUE-S1";
+          "ARTS-INTROHISTMUS-S1";
+          "ARTS-INTROHISTMUS-S2";
+          "ARTS-COMPROPERA-S2";
+          "ARTS-MUSICOSPEAV-S2"]
+
 type kind =
   | Humanities
   | Sciences
@@ -31,6 +40,8 @@ let ens = "DENS"
 let dri = "DRI"
 let xt = "XT"
 let musicologie = "MUSICOLOGIE"
+
+
 
 let string_of_key k =
     match String.lowercase_ascii k with
@@ -372,9 +383,9 @@ let split_stages ~firstname ~lastname dens state =
         state stages dens
 
 
-let declare_as_minor dpt (state,dens) =
-      let dpt  = translate_mineure dpt in
-      match Public_data.StringMap.find_opt dpt  dens.Public_data.dens_cours_par_dpt
+let declare_as_dpt_minor dpt (state,dens) =
+    let dpt  = translate_main_dpt dpt in
+    match Public_data.StringMap.find_opt dpt  dens.Public_data.dens_cours_par_dpt
       with
       | None -> state, dens
       | Some a ->
@@ -389,6 +400,63 @@ let declare_as_minor dpt (state,dens) =
           state, {dens with
                     Public_data.dens_cours_par_dpt;
                     Public_data.dens_cours_mineure}
+
+
+
+let split_list p list acc =
+      let rec aux to_do kept acc =
+          match to_do with
+            | [] -> kept, acc
+            | h::t ->
+                if p h then aux t kept (h::acc)
+                        else aux t (h::kept) acc
+      in aux (List.rev list) [] acc
+
+let split_repartition p rep acc =
+    let dens, acc = split_list p rep.Public_data.dens acc  in
+    {rep with Public_data.dens}, acc
+
+let split_map p map acc =
+      Public_data.StringMap.fold
+        (fun x rep (map, acc) ->
+            let rep, acc' = split_repartition p rep acc in
+            if acc'==acc then
+              (map,acc)
+            else (Public_data.StringMap.add x rep map, acc'))
+        map (map,acc)
+
+
+
+
+
+let declare_as_specific_minor mineure (state, dens) =
+    match mineure with
+      | Public_data.Musicologie ->
+          let p = p_musicologie in
+          let dens_cours_a_trier, acc =
+              split_repartition p dens.Public_data.dens_cours_a_trier []
+          in
+          let dens_cours_discipline_principale, acc =
+              split_repartition p dens.Public_data.dens_cours_discipline_principale acc
+          in
+          let dens_cours_hors_disciplines_principale, acc =
+              split_repartition p dens.Public_data.dens_cours_hors_disciplines_principale  acc
+          in
+          let dens_cours_par_dpt, acc =
+              split_map p dens.Public_data.dens_cours_par_dpt acc
+          in
+          let key = Public_data.string_of_mineure (Public_data.Specific mineure) in
+          let dens_cours_mineure =
+              Public_data.StringMap.add key
+              {Public_data.empty_repartition_diplomes with Public_data.dens = acc}  dens.Public_data.dens_cours_mineure
+          in
+          state,
+          {dens with Public_data.dens_cours_a_trier ; Public_data.dens_cours_discipline_principale ; Public_data.dens_cours_hors_disciplines_principale ; Public_data.dens_cours_par_dpt ; Public_data.dens_cours_mineure}
+
+let declare_as_minor mineure (state,dens) =
+    match mineure with
+      | Public_data.DPT x -> declare_as_dpt_minor x (state,dens)
+      | Public_data.Specific x -> declare_as_specific_minor x (state,dens)
 
 let collect_mineure dens state =
     let firstname = dens.Public_data.dens_firstname in
