@@ -385,6 +385,7 @@ let split_stages ~firstname ~lastname dens state =
 
 let declare_as_dpt_minor dpt (state,dens) =
     let dpt  = translate_main_dpt dpt in
+    let state = Remanent_state.warn __POS__ (Format.sprintf "Declare mineure %s" dpt)  Exit state in 
     match Public_data.StringMap.find_opt dpt  dens.Public_data.dens_cours_par_dpt
       with
       | None -> state, dens
@@ -432,6 +433,7 @@ let split_map p map acc =
 let declare_as_specific_minor mineure (state, dens) =
     match mineure with
       | Public_data.Musicologie ->
+          let state = Remanent_state.warn __POS__ "Declare mineure musicologie" Exit state in
           let p = p_musicologie in
           let dens_cours_a_trier, acc =
               split_repartition p dens.Public_data.dens_cours_a_trier []
