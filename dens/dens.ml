@@ -385,7 +385,6 @@ let split_stages ~firstname ~lastname dens state =
 
 let declare_as_dpt_minor dpt (state,dens) =
     let dpt  = translate_main_dpt dpt in
-    let state = Remanent_state.warn __POS__ (Format.sprintf "Declare mineure %s" dpt)  Exit state in
     match Public_data.StringMap.find_opt dpt  dens.Public_data.dens_cours_par_dpt
       with
       | None -> state, dens
@@ -1280,11 +1279,6 @@ let get_dens_candidates
               lift_mineure
                 ~keyword:Public_data.Departement
                 ~set_tmp:(Tools.collect_string (fun dpt x ->
-                    let s = match dpt with Some dpt -> dpt | None -> "" in
-                    let s' = Public_data.string_of_mineure (Public_data.mineure_of_string s) in
-                    let () = Format.printf
-                        "MINEURE %s -> %s @." s s'
-                    in
                     let secondary_dpt =
                       Tools.map_opt
                         Public_data.mineure_of_string dpt
