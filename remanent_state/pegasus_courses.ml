@@ -62,6 +62,11 @@ let add_pegasus_course
     course courses =
   let code = course.Public_data.pegasus_helisa in
   let libelle = course.Public_data.pegasus_libelle in
+  let libelle_en =
+      match course.Public_data.pegasus_libelle_en with
+        | None -> ""
+        | Some a -> a
+  in
   let year = course.Public_data.pegasus_year in
   let semester = course.Public_data.pegasus_semester in
   let course' = get_pegasus_course ~code ~year  courses  in
@@ -108,14 +113,58 @@ let add_pegasus_course
         | Some c -> c
         | None -> []
     in
+    let per_libelle =
+    Public_data.YearMap.add year
+        (Public_data.StringMap.add libelle
+            (Public_data.StringOptMap.add semester (course::course_list) libelle')
+            old_year')
+        courses.per_libelle
+    in
+    let per_libelle =
+      if libelle_en = "" || libelle_en = libelle
+      then per_libelle
+      else
+        begin
+          let old_year' =
+            match
+              Public_data.YearMap.find_opt
+                year
+                per_libelle
+            with
+            | Some map -> map
+            | None -> Public_data.StringMap.empty
+          in
+          let libelle' =
+            match
+              Public_data.StringMap.find_opt
+                libelle_en
+                old_year'
+            with
+            | Some map -> map
+            | None -> Public_data.StringOptMap.empty
+          in
+          let course_list =
+            match
+              Public_data.StringOptMap.find_opt
+                semester
+                libelle'
+            with
+              | Some c -> c
+              | None -> []
+          in
+          let per_libelle =
+            Public_data.YearMap.add year
+              (Public_data.StringMap.add libelle_en
+                  (Public_data.StringOptMap.add semester (course::course_list) libelle')
+                  old_year')
+              courses.per_libelle
+          in
+          per_libelle
+        end
+    in 
     {per_code = Public_data.YearMap.add year
       (Public_data.CodeMap.add code course old_year) courses.per_code ;
-     per_libelle =
-        Public_data.YearMap.add year
-            (Public_data.StringMap.add libelle
-                (Public_data.StringOptMap.add semester (course::course_list) libelle')
-                old_year')
-            courses.per_libelle }
+     per_libelle  }
   in
   state, courses
 
