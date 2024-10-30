@@ -6,7 +6,6 @@ val get_pegasus_course:
    t -> Public_data.course_pegasus option
 
 val get_pegasus_course_by_libelle:
-    ?domain:string -> 
     libelle:string ->
     year:string ->
     semester:string option ->

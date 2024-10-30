@@ -1,5 +1,5 @@
 type t =
-      Public_data.pedagogical_entry_pegasus list
+      Public_data.pedagogical_entry_pegasus list list
         Public_data.FirstNameMap.t Public_data.LastNameMap.t
 
 let empty =
@@ -44,8 +44,11 @@ let add_pegasus_pedagocial_registrations
     unify pos state
     dens_candidate dens_candidates =
   let _ = unify, pos in
-  let firstname = dens_candidate.Public_data.pe_firstname in
-  let lastname = dens_candidate.Public_data.pe_lastname in
+  match dens_candidate with
+    | [] ->state, dens_candidates 
+    | h::_ ->
+    let firstname = h.Public_data.pe_firstname in
+    let lastname = h.Public_data.pe_lastname in
   (*let () = Format.printf "%s %s (%s) (ADD PEGAGUS)" firstname lastname year in*)
   let dens_candidate_list = get_pegasus_pedagocial_registrations ~firstname ~lastname   dens_candidates in
   let dens_candidate_list = dens_candidate::dens_candidate_list in

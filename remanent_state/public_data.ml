@@ -110,7 +110,7 @@ module StringOptMap =
 
 type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA | DEC
 
-type specific = Musicologie
+type specific = Musicologie | Sciences_Cognitives
 
 type mineure = DPT of main_dpt | Specific of specific
 
@@ -188,14 +188,20 @@ let dpt_of_string x =
   | "arts" -> ARTS
   | _ -> DI
 
+let string_of_specific x =
+  match x with
+    | Musicologie -> "musicologie"
+    | Sciences_Cognitives -> "sciences cognitives"
+
 let string_of_mineure x =
     match x with
       | DPT x -> string_of_dpt x
-      | Specific Musicologie -> "musicologie"
+      | Specific x -> string_of_specific x
 
 let mineure_of_string x =
   match x with
     | "musicologie" -> Specific Musicologie
+    | "sciences cognitives" -> Specific Sciences_Cognitives
     | _ -> DPT (dpt_of_string x)
 
 let file_suffix_of_univ x =

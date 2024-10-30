@@ -104,7 +104,7 @@ val empty_pedagogical_entry: pedagogical_entry_pegasus
 
 type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA | DEC
 
-type specific = Musicologie
+type specific = Musicologie | Sciences_Cognitives
 
 type mineure = DPT of main_dpt | Specific of specific
 

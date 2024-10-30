@@ -166,7 +166,7 @@ let update_diploma diploma entry (state:Remanent_state.t) =
   let state, entry = convert {entry with libelle ; code_helisa} state in
   add
         (fun _ state a _ -> state,a) __POS__
-        entry state
+        [entry] state
 
 let update_inscription code_helisa entry state =
   match code_helisa with
@@ -188,7 +188,7 @@ let update_inscription code_helisa entry state =
         let code_helisa =
           Some (Format.sprintf "AND%s%i" dpt n) in
         let state, entry = convert {entry with code_helisa} state in
-        add (fun _ state a _ -> state,a ) __POS__ entry state
+        add (fun _ state a _ -> state,a ) __POS__ [entry] state
     | None -> state
 
   let update_snd dpt entry state =
@@ -213,7 +213,7 @@ let update_inscription code_helisa entry state =
   let state, entry = convert {entry with libelle ; code_helisa } state in
   add
         (fun _ state a _ -> state,a) __POS__
-        entry state
+        [entry] state
 
   let update_diploma' diploma entry (state:Remanent_state.t) =
       let libelle = diploma in
@@ -235,7 +235,7 @@ let update_inscription code_helisa entry state =
           let state, entry = convert {entry with libelle ; code_helisa  } state in
           add
                 (fun _ state a _ -> state,a) __POS__
-                entry state
+                [entry] state
 
 
 let get_teachers entry =
@@ -245,27 +245,6 @@ let get_teachers entry =
   match get_teachers entry with
   | ["-","-"] -> []
   | x -> x
-
-let is_dens course =
-  match course.Public_data.pegasus_domain with
-    | Some a when String.length a > 3 && Special_char.lowercase (String.sub a 0 4) = "dens" -> true
-    | None | Some _ -> false
-
-let filter_dens state h libelle pegasus_entry_opt  =
-  begin
-    match
-        List.filter
-          (fun course -> is_dens course)
-          pegasus_entry_opt
-    with
-      | [] -> state, Some h, libelle
-      | h::_ ->
-    begin match List.filter (fun course -> course.Public_data.pegasus_codegps <> None) pegasus_entry_opt
-with
-  | [] -> state, Some h, libelle
-  | h::_ -> state, Some h, libelle
-end
-end
 
 let update_course course ects entry (state:Remanent_state.t) =
     let codehelisa, libelle =
@@ -306,7 +285,7 @@ let update_course course ects entry (state:Remanent_state.t) =
         let state, entry = convert {entry with libelle ; ects ; code_helisa } state in
           add
                 (fun _ state a _ -> state,a) __POS__
-                entry state
+                [entry] state
       | Some pegasus_entry ->
         let semester = pegasus_entry.Public_data.pegasus_semester in
         let teachers = get_teachers pegasus_entry in
@@ -315,7 +294,7 @@ let update_course course ects entry (state:Remanent_state.t) =
         let state, entry = convert {entry with semester ; libelle ; ects ; code_helisa ; code_gps ; teachers ;  libelle_gps } state in
           add
                 (fun _ state a _ -> state,a) __POS__
-                entry state
+                [entry] state
 
 
                 let update_course'  semester libelle teacher ects entry state  =
@@ -343,8 +322,7 @@ let update_course course ects entry (state:Remanent_state.t) =
                               Remanent_state.get_course_in_pegasus_by_libelle ~libelle ~year ~semester state
                           in
                           match pegasus_entry_opt with
-                            | h::_ ->
-                              filter_dens state h libelle pegasus_entry_opt
+                            | _::_ -> state, Some pegasus_entry_opt, libelle
                             | [] ->
                               let libelle = Tools.simplify_spaces libelle in
                               let state, pegasus_entry_opt =
@@ -352,8 +330,7 @@ let update_course course ects entry (state:Remanent_state.t) =
                               in
                               begin
                               match pegasus_entry_opt with
-                                | h::_ ->
-                                  filter_dens state h libelle pegasus_entry_opt
+                                | _::_ -> state, Some pegasus_entry_opt, libelle
                                 | [] -> state, None, libelle
                               end
                         end
@@ -372,18 +349,23 @@ let update_course course ects entry (state:Remanent_state.t) =
                         let state, entry = convert {entry with libelle ; ects ; code_helisa } state in
                           add
                                 (fun _ state a _ -> state,a) __POS__
-                                entry state
+                                [entry] state
                       | Some pegasus_entry ->
-                        let teachers = get_teachers pegasus_entry in
-                        let code_gps = pegasus_entry.Public_data.pegasus_codegps in
-                        let libelle_gps = Some pegasus_entry.Public_data.pegasus_libelle in
-                        let code_helisa =
-                        Some pegasus_entry.Public_data.pegasus_helisa in
-                        let libelle = Some libelle in
-                        let state, entry = convert {entry with semester ; libelle ; ects ; code_helisa ; code_gps ; teachers ;  libelle_gps } state in
+                        let state, entries =
+                        List.fold_left
+                          (fun (state, acc) pegasus_entry ->
+                            let teachers = get_teachers pegasus_entry in
+                            let code_gps = pegasus_entry.Public_data.pegasus_codegps in
+                            let libelle_gps = Some pegasus_entry.Public_data.pegasus_libelle in
+                            let code_helisa =
+                              Some pegasus_entry.Public_data.pegasus_helisa in
+                            let libelle = Some libelle in
+                            let state, entry = convert {entry with semester ; libelle ; ects ; code_helisa ; code_gps ; teachers ;  libelle_gps } state in
+                            state, entry::acc) (state,[]) pegasus_entry
+                        in
                           add
-                                (fun _ state a _ -> state,a) __POS__
-                                entry state
+                            (fun _ state a _ -> state,a) __POS__
+                            entries state
 
 let event_opt = Some (Profiling.Collect_pegasus_pedagogical_registrations)
 let compute_repository = Remanent_state.Collector_pedagogical_registrations.get_repository

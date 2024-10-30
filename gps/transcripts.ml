@@ -1815,7 +1815,8 @@ let empty_remanent =
             let state, b2 =
                 let state, l =  Remanent_state.Collector_pedagogical_registrations.find_list ~firstname ~lastname state
                 in
-                state, not (List.exists (fun a -> a.Public_data.pe_year = (string_of_int year)) l)
+                state, not (List.exists (List.exists (fun a ->
+                              a.Public_data.pe_year = (string_of_int year))) l)
 
             in
             if
@@ -7210,11 +7211,42 @@ let ects_of_code_cours code_cours =
     | Some code ->
       Public_data.CodeMap.find_opt code code_map
 
+let pick_course ~firstname ~lastname state l =
+    let p state course =
+      let code = String.trim (course.Public_data.pe_code_helisa) in
+      match kind code with
+        | Inscription | RdV | Annee|Annee_dpt|Secondary -> state, true
+        | Course ->
+          begin
+          let state, grade =
+            Remanent_state.get_grade_in_pegasus
+              ~firstname ~lastname ~codehelisa:code ~year:course.Public_data.pe_year state
+          in
+          match grade with None -> state, false
+                          | Some _ -> state, true
+          end
+    in
+    let rec filter p l acc state =
+        match l with
+          | [] -> state, List.rev acc
+          | h::t ->
+            let state,b = p state h in
+            if b then filter p t (h::acc) state
+                 else filter p t acc state
+    in
+    match filter p l [] state with
+      | state, [] -> state, None
+      | state, h::_ -> state, Some h
+
 let add_pegasus_entries ~firstname ~lastname state gps_file =
     let state, l = Remanent_state.Collector_pedagogical_registrations.find_list ~firstname ~lastname state in
     let state, gps_file, blacklist =
       List.fold_left
         (fun (state, gps_file,blacklist) course ->
+          let state, course_opt = pick_course ~firstname ~lastname state course in
+          match course_opt with None ->  Remanent_state.warn __POS__ "EMPTY ENTRY LIST" Exit state, gps_file, blacklist
+              | Some course ->
+
           let code = String.trim (course.Public_data.pe_code_helisa) in
           match kind code with
           | Inscription ->

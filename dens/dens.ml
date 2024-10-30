@@ -7,6 +7,12 @@ let p_musicologie x =
           "ARTS-COMPROPERA-S2";
           "ARTS-MUSICOSPEAV-S2"]
 
+let p_sciences_cognitives x =
+  List.mem x.Public_data.supplement_discipline ["Études cognitives";"Sciences cognitives"]
+  ||
+  List.mem x.Public_data.supplement_code
+      ["UNPHIL101";"PHIL-AA-INTPHCOGN-S1";"UNCOGEN303";"UNMOD101";"UNNEURO101";"UNSOCSI101";"UNLING101";"UNCOGSI304"]
+
 type kind =
   | Humanities
   | Sciences
@@ -39,7 +45,8 @@ let dg = "DG"
 let ens = "DENS"
 let dri = "DRI"
 let xt = "XT"
-let musicologie = "MUSICOLOGIE"
+let musicologie = "Musicologie"
+let sciences_cognitives = "Sciences cognitives"
 
 
 
@@ -112,6 +119,7 @@ let translate_main_dpt x =
     match x with
     | Public_data.DPT x -> translate_main_dpt x
     | Public_data.Specific Public_data.Musicologie -> musicologie
+    | Public_data.Specific Public_data.Sciences_Cognitives -> sciences_cognitives
 
 
 let kind_of_course state code extra =
@@ -430,29 +438,32 @@ let split_map p map acc =
 
 
 let declare_as_specific_minor mineure (state, dens) =
-    match mineure with
+    let state, p =
+      match mineure with
       | Public_data.Musicologie ->
-          let state = Remanent_state.warn __POS__ "Declare mineure musicologie" Exit state in
-          let p = p_musicologie in
-          let dens_cours_a_trier, acc =
-              split_repartition p dens.Public_data.dens_cours_a_trier []
-          in
-          let dens_cours_discipline_principale, acc =
-              split_repartition p dens.Public_data.dens_cours_discipline_principale acc
-          in
-          let dens_cours_hors_disciplines_principale, acc =
-              split_repartition p dens.Public_data.dens_cours_hors_disciplines_principale  acc
-          in
-          let dens_cours_par_dpt, acc =
-              split_map p dens.Public_data.dens_cours_par_dpt acc
-          in
-          let key = Public_data.string_of_mineure (Public_data.Specific mineure) in
-          let dens_cours_mineure =
-              Public_data.StringMap.add key
-              {Public_data.empty_repartition_diplomes with Public_data.dens = acc}  dens.Public_data.dens_cours_mineure
-          in
-          state,
-          {dens with Public_data.dens_cours_a_trier ; Public_data.dens_cours_discipline_principale ; Public_data.dens_cours_hors_disciplines_principale ; Public_data.dens_cours_par_dpt ; Public_data.dens_cours_mineure}
+          state, p_musicologie
+      | Public_data.Sciences_Cognitives -> state, p_sciences_cognitives
+    in
+    let dens_cours_a_trier, acc =
+        split_repartition p dens.Public_data.dens_cours_a_trier []
+    in
+    let dens_cours_discipline_principale, acc =
+        split_repartition p dens.Public_data.dens_cours_discipline_principale acc
+    in
+    let dens_cours_hors_disciplines_principale, acc =
+        split_repartition p dens.Public_data.dens_cours_hors_disciplines_principale  acc
+    in
+    let dens_cours_par_dpt, acc =
+        split_map p dens.Public_data.dens_cours_par_dpt acc
+    in
+    let key = Public_data.string_of_mineure (Public_data.Specific mineure) in
+    let dens_cours_mineure =
+        Public_data.StringMap.add key
+          {Public_data.empty_repartition_diplomes with Public_data.dens = acc}
+          dens.Public_data.dens_cours_mineure
+    in
+    state,
+    {dens with Public_data.dens_cours_a_trier ; Public_data.dens_cours_discipline_principale ; Public_data.dens_cours_hors_disciplines_principale ; Public_data.dens_cours_par_dpt ; Public_data.dens_cours_mineure}
 
 let declare_as_minor mineure (state,dens) =
     match mineure with

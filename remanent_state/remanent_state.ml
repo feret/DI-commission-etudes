@@ -1474,7 +1474,7 @@ let get_pegasus_gen get t =
   module Collector_pedagogical_registrations  =
     Make_collector_with_search_by_students_wo_year
       (struct
-        type entry = Public_data.pedagogical_entry_pegasus
+        type entry = Public_data.pedagogical_entry_pegasus list
         type collector = Pegasus_pedagogical_registrations.t
 
         let prefix = get_pegasus_gen
@@ -1485,7 +1485,7 @@ let get_pegasus_gen get t =
         let find_list = Pegasus_pedagogical_registrations.get_pegasus_pedagocial_registrations
 
       end: Interface_collector_with_search_by_students_wo_year
-      with type entry = Public_data.pedagogical_entry_pegasus
+      with type entry = Public_data.pedagogical_entry_pegasus list 
       and type collector = Pegasus_pedagogical_registrations.t )
 
   module Collector_pegasus_notes  =
@@ -1610,12 +1610,12 @@ let get_course_in_pegasus ~codehelisa ~year t =
     in
     t, course_opt
 
-    let get_course_in_pegasus_by_libelle ?domain ~libelle ~year ~semester t =
+    let get_course_in_pegasus_by_libelle ~libelle ~year ~semester t =
         let libelle = Special_char.lowercase libelle in
         let t, collector = Collector_course_pegasus.get t in
         let course_opt =
               Pegasus_courses.get_pegasus_course_by_libelle
-                ?domain ~libelle ~year ~semester collector
+                 ~libelle ~year ~semester collector
         in
         t, course_opt
 

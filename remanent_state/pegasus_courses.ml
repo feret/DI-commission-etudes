@@ -50,13 +50,6 @@ let get_pegasus_course_by_libelle ~libelle ~year  ~semester courses =
                       semester a
                   with None -> [] | Some a -> a
 
-let get_pegasus_course_by_libelle ?domain ~libelle ~year  ~semester courses =
-    let l = get_pegasus_course_by_libelle ~libelle ~year  ~semester courses in
-    let l = match domain with None -> l | Some _ -> List.filter (fun a -> a.Public_data.pegasus_domain = domain) l in
-    List.sort
-        (fun a b -> compare a.Public_data.pegasus_domain b.Public_data.pegasus_domain)
-        l
-
 let add_pegasus_course
     unify pos state
     course courses =
@@ -161,7 +154,7 @@ let add_pegasus_course
           in
           per_libelle
         end
-    in 
+    in
     {per_code = Public_data.YearMap.add year
       (Public_data.CodeMap.add code course old_year) courses.per_code ;
      per_libelle  }
