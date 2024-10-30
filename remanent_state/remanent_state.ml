@@ -1540,6 +1540,11 @@ module Collector_course_pegasus =
                 Exit state, session
             in
             let course = {course with Public_data.pegasus_year} in
+            let course =
+              match  course.Public_data.pegasus_codegps with
+              | None | Some "" -> {course with Public_data.pegasus_codegps = Some course.Public_data.pegasus_helisa}
+              | Some _ ->  course
+            in
             Pegasus_courses.add_pegasus_course unify pos state course courses
 
       end: Interface_collector_with_unification
