@@ -92,7 +92,7 @@ let update_student bloc entry state =
                 else get tail (t::acc)
               | [] -> None, []
         in
-        let statut, t =
+        let _statut, t =
             match t with
               | "Statut"::":"::tail -> get tail []
               | tail -> None, tail
