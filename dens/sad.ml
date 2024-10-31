@@ -466,14 +466,19 @@ let dump_one_sad ~repository ?firstname ?lastname ?language ?bilingual dens stat
       let firstname =
         Special_char.capitalize dens.Public_data.dens_firstname
       in
-       let output = (repository, Format.sprintf "DENS_%s_%s.tex" (Tools.remove_space_from_string lastname) (Tools.remove_space_from_string firstname)) in
-       let state, language =
-        Tools.get_option
-          state
-          Remanent_state.get_language
-          language
-       in
-       let state, bilinguage =
+      let state, language =
+       Tools.get_option
+         state
+         Remanent_state.get_language
+         language
+      in
+      let ext =
+        match language with
+        | Public_data.French -> ""
+        | Public_data.English -> "_en"
+      in
+       let output = (repository, Format.sprintf "DENS_%s_%s%s.tex" (Tools.remove_space_from_string lastname) (Tools.remove_space_from_string firstname) ext) in
+      let state, bilinguage =
         Tools.get_option
           state
           Remanent_state.get_is_bilingual
