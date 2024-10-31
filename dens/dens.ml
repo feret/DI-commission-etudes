@@ -484,7 +484,7 @@ let collect_mineure dens state =
          match elt.Public_data.secondary_accepted with
            | None | Some false -> state, dens
            | Some true ->
-                declare_as_minor elt.Public_data.secondary_dpt (state,dens)
+                declare_as_minor elt.Public_data.secondary_mineure (state,dens)
       ) (state,dens) minors_list
 
 let dump_repartition ?key repartition (state, total) =
@@ -784,7 +784,7 @@ let suggest_mineure dens state =
       List.fold_left
           (fun (state,map') a ->
               state, Public_data.StringMap.add
-                (translate_mineure a.Public_data.secondary_dpt)
+                (translate_mineure a.Public_data.secondary_mineure)
                 a map'
             )
           (state,Public_data.StringMap.empty) minors_list
@@ -823,7 +823,7 @@ let suggest_mineure dens state =
              Public_data.secondary_student_lastname=lastname;
              Public_data.secondary_student_firstname=firstname;
              Public_data.secondary_student_promo=dens.Public_data.dens_promotion;
-             Public_data.secondary_dpt = Public_data.mineure_of_string key ;
+             Public_data.secondary_mineure = Public_data.mineure_of_string key ;
              Public_data.secondary_diplomation_year = year;
              Public_data.secondary_accepted = accepted}
             in
@@ -839,7 +839,7 @@ Public_data.StringMap.fold
          Public_data.secondary_student_lastname=lastname;
          Public_data.secondary_student_firstname=firstname;
          Public_data.secondary_student_promo=dens.Public_data.dens_promotion;
-         Public_data.secondary_dpt = Public_data.mineure_of_string key ;
+         Public_data.secondary_mineure = Public_data.mineure_of_string key ;
          Public_data.secondary_diplomation_year = year ;
          Public_data.secondary_accepted = elt.Public_data.secondary_accepted}
         in
@@ -876,7 +876,7 @@ let suggest_majeure dens state =
       List.fold_left
           (fun (state,map') a ->
               state, Public_data.MineureMap.add
-                a.Public_data.secondary_dpt
+                a.Public_data.secondary_mineure
                 a map'
             )
           (state,Public_data.MineureMap.empty) majors_list
@@ -899,7 +899,7 @@ let suggest_majeure dens state =
              Public_data.secondary_student_lastname=lastname;
              Public_data.secondary_student_firstname=firstname;
              Public_data.secondary_student_promo=dens.Public_data.dens_promotion;
-             Public_data.secondary_dpt = key ;
+             Public_data.secondary_mineure = key ;
              Public_data.secondary_diplomation_year = year;
              Public_data.secondary_accepted = accepted}
             in
@@ -915,7 +915,7 @@ Public_data.MineureMap.fold
          Public_data.secondary_student_lastname=lastname;
          Public_data.secondary_student_firstname=firstname;
          Public_data.secondary_student_promo=dens.Public_data.dens_promotion;
-         Public_data.secondary_dpt = key ;
+         Public_data.secondary_mineure = key ;
          Public_data.secondary_diplomation_year = year ;
          Public_data.secondary_accepted = elt.Public_data.secondary_accepted}
         in
@@ -1187,7 +1187,7 @@ let get_dens_candidates
     (* Collect minors candidates from the data-bases *)
     type secondary_id =
       {
-        secondary_dpt: Public_data.mineure option ;
+        secondary_mineure: Public_data.mineure option ;
         secondary_firstname : string option ;
         secondary_lastname : string option ;
         secondary_promotion : string option ;
@@ -1197,7 +1197,7 @@ let get_dens_candidates
 
     let empty_secondary_id =
     {
-      secondary_dpt =  None ;
+      secondary_mineure =  None ;
       secondary_firstname = None ;
       secondary_lastname = None ;
       secondary_promotion = None ;
@@ -1243,7 +1243,7 @@ let get_dens_candidates
             lift_pred (fun a -> a.secondary_firstname) "the first name of the student";
             lift_pred (fun a -> a.secondary_lastname) "the last name of the student";
             lift_pred (fun a -> a.secondary_promotion) "promotion";
-            lift_pred (fun a -> a.secondary_dpt) "fields of the minor";
+            lift_pred (fun a -> a.secondary_mineure) "fields of the minor";
           ]
 
     let all_fields =
@@ -1290,14 +1290,14 @@ let get_dens_candidates
               lift_mineure
                 ~keyword:Public_data.Departement
                 ~set_tmp:(Tools.collect_string (fun dpt x ->
-                    let secondary_dpt =
+                    let secondary_mineure =
                       Tools.map_opt
                         Public_data.mineure_of_string dpt
-                    in {x with secondary_dpt}))
-                ~get_tmp:(fun a -> a.secondary_dpt)
-                ~get:(fun a -> a.Public_data.secondary_dpt)
-                ~set:(fun secondary_dpt a ->
-                    {a with Public_data.secondary_dpt})
+                    in {x with secondary_mineure}))
+                ~get_tmp:(fun a -> a.secondary_mineure)
+                ~get:(fun a -> a.Public_data.secondary_mineure)
+                ~set:(fun secondary_mineure a ->
+                    {a with Public_data.secondary_mineure})
                 ~record_name
                 ~field_name:"department of the minor/major"
                 ~pos:__POS__ ;
@@ -1401,14 +1401,14 @@ let get_dens_candidates
                   lift_mineure
                     ~keyword:Public_data.Departement
                     ~set_tmp:(Tools.collect_string (fun dpt x ->
-                        let secondary_dpt =
+                        let secondary_mineure =
                           Tools.map_opt
                             Public_data.mineure_of_string dpt
-                        in {x with secondary_dpt}))
-                    ~get_tmp:(fun a -> a.secondary_dpt)
-                    ~get:(fun a -> a.Public_data.secondary_dpt)
-                    ~set:(fun secondary_dpt a ->
-                        {a with Public_data.secondary_dpt})
+                        in {x with secondary_mineure}))
+                    ~get_tmp:(fun a -> a.secondary_mineure)
+                    ~get:(fun a -> a.Public_data.secondary_mineure)
+                    ~set:(fun secondary_mineure a ->
+                        {a with Public_data.secondary_mineure})
                     ~record_name
                     ~field_name:"department of the minor/major"
                     ~pos:__POS__ ;

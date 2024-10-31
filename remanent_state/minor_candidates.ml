@@ -66,7 +66,7 @@ let add_minor_candidate
   let firstname = minor_candidate.Public_data.secondary_student_firstname in
   let lastname = minor_candidate.Public_data.secondary_student_lastname in
   let year = minor_candidate.Public_data.secondary_diplomation_year in
-  let dpt  = minor_candidate.Public_data.secondary_dpt in
+  let dpt  = minor_candidate.Public_data.secondary_mineure in
   let minor_candidate_list = get_minor_candidate ~firstname ~lastname ~year ~dpt minor_candidates in
   let state, minor_candidate_list =
       match minor_candidate_list with [] -> state, [minor_candidate]

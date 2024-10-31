@@ -26,7 +26,7 @@ module Build
       ["PROMO"],
       (fun a -> a.Public_data.secondary_student_promo);
       ["DPT"],
-      (fun a -> Public_data.string_of_mineure (a.Public_data.secondary_dpt));
+      (fun a -> Public_data.string_of_mineure (a.Public_data.secondary_mineure));
       ["ANNEE"],
       (fun a -> a.Public_data.secondary_diplomation_year);
       ["ACCEPTE"],
@@ -64,7 +64,7 @@ module Build
         Gen.lift_cmp
             (fun a -> a.Public_data.secondary_student_firstname);
         Gen.lift_cmp
-            (fun a -> a.Public_data.secondary_dpt);
+            (fun a -> a.Public_data.secondary_mineure);
         Gen.lift_cmp
                 (fun a -> a.Public_data.secondary_student_promo);
         Gen.lift_cmp

@@ -950,7 +950,7 @@ type mineure_majeure =
          secondary_student_firstname: string ;
          secondary_student_lastname : string ;
          secondary_student_promo : string ;
-         secondary_dpt : mineure ;
+         secondary_mineure : mineure ;
          secondary_diplomation_year : string ;
          secondary_accepted : bool option ;
        }
@@ -959,7 +959,7 @@ let empty_mineure_majeure ={
   secondary_student_firstname = "" ;
   secondary_student_lastname = "" ;
   secondary_student_promo = "" ;
-  secondary_dpt = DPT DI ;
+  secondary_mineure = DPT DI ;
   secondary_diplomation_year = "" ;
   secondary_accepted = None ;
 }

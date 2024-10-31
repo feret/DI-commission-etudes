@@ -1056,7 +1056,7 @@ type mineure_majeure =
     secondary_student_firstname: string ;
     secondary_student_lastname : string ;
     secondary_student_promo : string ;
-    secondary_dpt : mineure ;
+    secondary_mineure : mineure ;
     secondary_diplomation_year : string ;
     secondary_accepted : bool option ;
   }
