@@ -475,7 +475,7 @@ let dump_one_sad ~repository ?firstname ?lastname ?language ?bilingual dens stat
       let ext =
         match language with
         | Public_data.French -> ""
-        | Public_data.English -> "_en"
+        | Public_data.English -> ".en"
       in
        let output = (repository, Format.sprintf "DENS_%s_%s%s.tex" (Tools.remove_space_from_string lastname) (Tools.remove_space_from_string firstname) ext) in
       let state, bilinguage =
