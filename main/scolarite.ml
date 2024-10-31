@@ -39,7 +39,6 @@ let state =
 let state =
   Collect_pegasus_pedagogical_registrations.get_pegasus_pedagogical_registrations state
 let state, t = Remanent_state.Collector_pegasus_stages.get state
-let () = Pegasus_stages.dump t
 let state =
     let state, b = Remanent_state.do_we_log_pegasus_entries state in
     if b then
@@ -474,7 +473,7 @@ let state, output_repository_dens =
       Remanent_state.Collector_dens_diplomas.get_repository
         state
 let state = Sad.dump_sad ~repository:output_repository_dens ~bilingual:true state
-let state = Sad.dump_sad ~language:Public_data.English  ~repository:output_repository_dens state
+let state = Sad.dump_sad ~language:Public_data.English ~bilingual:true ~repository:output_repository_dens state
 let title =
   [Loggers.fprintf,
    Format.sprintf

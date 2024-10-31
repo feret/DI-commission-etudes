@@ -1485,7 +1485,7 @@ let get_pegasus_gen get t =
         let find_list = Pegasus_pedagogical_registrations.get_pegasus_pedagocial_registrations
 
       end: Interface_collector_with_search_by_students_wo_year
-      with type entry = Public_data.pedagogical_entry_pegasus list 
+      with type entry = Public_data.pedagogical_entry_pegasus list
       and type collector = Pegasus_pedagogical_registrations.t )
 
   module Collector_pegasus_notes  =
