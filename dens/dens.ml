@@ -22,31 +22,31 @@ type kind =
   | Missing
   | Dummy
 
-let actd = "ACTD"
-let info = "INFO"
-let dma = "DMA"
-let bio = "BIO"
-let phys = "PHYS"
-let chimie = "CHIM"
-let gsc = "GSC"
-let phil = "PHIL"
-let dec = "DEC"
-let arts = "ARTS"
-let dsa = "DSA"
-let dss = "DSS"
-let eco = "ECO"
-let lila = "LILA"
-let geog = "GEOG"
-let hist = "HIST"
-let ceres = "CERES"
-let ecla = "ECLA"
-let vetu = "VETU"
-let dg = "DG"
-let ens = "DENS"
-let dri = "DRI"
-let xt = "XT"
-let musicologie = "Musicologie"
-let sciences_cognitives = "Sciences cognitives"
+let actd = "ACTD","UNEXP"
+let info = "INFO","UNINF"
+let dma = "DMA","UNDMA"
+let bio = "BIO","UNBIO"
+let phys = "PHYS","UNPHY"
+let chimie = "CHIM","UNCHI"
+let gsc = "GSC","UNGSC"
+let phil = "PHIL","UNPHI"
+let dec = "DEC","UNDEC"
+let arts = "ARTS","UNART"
+let dsa = "DSA","UNDSA"
+let dss = "DSS","UNDSS"
+let eco = "ECO","UNECO"
+let lila = "LILA","UNLIT"
+let geog = "GEOG","UNGEO"
+let hist = "HIST","UNHIS"
+let ceres = "CERES","UNCER"
+let ecla = "ECLA","UNECL"
+let vetu = "VETU","UNEXP"
+let dg = "DG",""
+let ens = "DENS",""
+let dri = "DRI",""
+let xt = "XT",""
+let musicologie = "Musicologie",""
+let sciences_cognitives = "Sciences cognitives",""
 
 
 
@@ -79,7 +79,7 @@ let string_of_key k =
 let sciences = [info;dma;bio;phys;dec;gsc;chimie]
 let humanities = [arts;dsa;eco;lila;phil;hist;dss;geog]
 let sans_mineure = [ceres]
-let ecla = [ecla;"code3251"]
+let ecla = [ecla;"code3251",""]
 let activite = [vetu;dg;actd]
 
 let all =
@@ -95,13 +95,18 @@ let map =
     List.fold_left
         (fun map (list,kind) ->
             List.fold_left
-                (fun map elt -> Public_data.StringMap.add elt kind map)
+                (fun map elt -> Public_data.StringMap.add (fst elt) kind map)
                 map list)
         Public_data.StringMap.empty
         all
 
+let list =
+  List.fold_left
+    (fun list (l,_) -> List.fold_left (fun list elt -> elt::list) list l)
+    [] all
+
 let translate_main_dpt x =
-  match x with
+  fst (match x with
   | Public_data.DI -> info
   | Public_data.ENS -> ens
   | Public_data.PHYS -> phys
@@ -113,13 +118,13 @@ let translate_main_dpt x =
   | Public_data.ARTS -> arts
   | Public_data.LILA -> lila
   | Public_data.DMA -> dma
-  | Public_data.DEC -> dec
+  | Public_data.DEC -> dec)
 
   let translate_mineure x =
-    match x with
-    | Public_data.DPT x -> translate_main_dpt x
+    fst (match x with
+    | Public_data.DPT x -> translate_main_dpt x,""
     | Public_data.Specific Public_data.Musicologie -> musicologie
-    | Public_data.Specific Public_data.Sciences_Cognitives -> sciences_cognitives
+    | Public_data.Specific Public_data.Sciences_Cognitives -> sciences_cognitives)
 
 
 let kind_of_course state code extra =
@@ -134,11 +139,32 @@ let kind_of_course state code extra =
           with
             | None ->
                 begin
-                  Remanent_state.warn
+                  let rec aux state l =
+                    match l with
+                        | (a,b)::tail ->
+                            let n = String.length b in
+                            if n <= String.length code
+                            && String.sub code 0 n = b
+                            then
+                            match Public_data.StringMap.find_opt a map
+                            with
+                              | None ->
+                                  let state = Remanent_state.warn
+                                      __POS__
+                                        (Format.sprintf "Undefined GPS key: (%s) (%s)" code t)
+                                      Exit
+                                      state
+                                  in aux state tail
+                              | Some lbl -> state, (t,lbl)
+                          else aux state tail
+                      | [] ->
+                        Remanent_state.warn
                             __POS__
-                            (Format.sprintf "Undefined GPS key: (%s) (%s)" code t)
+                              (Format.sprintf "Undefined GPS key: (%s) (%s)" code t)
                             Exit
                             state, (t, Missing)
+                  in aux state list
+
                 end
             | Some lbl -> state, (t, lbl)
         end
@@ -213,7 +239,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
       let dens_cours_discipline_principale = store (course::list) dens_cours_discipline_principale in
       let dens = {dens with Public_data.dens_cours_discipline_principale} in
         state, dens
-    else if code = xt then
+    else if code = fst xt then
         let state = Remanent_state.Course_to_be_sorted.add
                           state
                           {Public_data.coursat_nom = lastname;
@@ -813,8 +839,8 @@ let suggest_mineure dens state =
           in
           if
           ((ects >= 30. && year_int >= 2024) ||
-          (List.mem key humanities && ects >= 48.) ||
-          (List.mem key sciences && ects >= 24.) ||
+          (List.exists (fun a -> fst a= key) humanities && ects >= 48.) ||
+          (List.exists (fun a -> fst a= key) sciences && ects >= 24.) ||
           (accepted = Some true))
             && (not (accepted = Some false))
           then
