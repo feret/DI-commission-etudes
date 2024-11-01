@@ -472,7 +472,7 @@ let state, output_repository_dens =
       Remanent_state.Collector_dens_diplomas.get_repository
         state
 let state = Sad.dump_sad ~repository:output_repository_dens ~bilingual:true state
-let state = Sad.dump_sad ~language:Public_data.English ~bilingual:true ~repository:output_repository_dens state
+(*let state = Sad.dump_sad ~language:Public_data.English ~bilingual:true ~repository:output_repository_dens state*) (* SAD in English, not ready yet *)
 let title =
   [Loggers.fprintf,
    Format.sprintf
