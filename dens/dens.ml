@@ -91,19 +91,34 @@ let all =
     activite,Activite;
   ]
 
-let map =
+let map,map' =
     List.fold_left
         (fun map (list,kind) ->
             List.fold_left
-                (fun map elt -> Public_data.StringMap.add (fst elt) kind map)
-                map list)
-        Public_data.StringMap.empty
+                (fun (map,map') elt ->
+                    Public_data.StringMap.add (fst elt) (fst elt,kind) map,
+                    Public_data.StringMap.add (snd elt) (fst elt,kind) map')
+          map list)
+        (Public_data.StringMap.empty,Public_data.StringMap.empty)
         all
 
-let list =
-  List.fold_left
-    (fun list (l,_) -> List.fold_left (fun list elt -> elt::list) list l)
-    [] all
+
+let fetch_kind_gps a =
+  match String.split_on_char '-' a with
+    | t::_ -> Public_data.StringMap.find_opt t map
+    | [] -> None
+
+let fetch_kind_helisa a =
+  if String.length a < 5
+  then None
+  else
+    let p = String.sub a 0 5 in
+    Public_data.StringMap.find_opt p map'
+
+let fetch_kind a =
+  match fetch_kind_gps a with
+    | None -> fetch_kind_helisa a
+    | Some x -> Some x
 
 let translate_main_dpt x =
   fst (match x with
@@ -131,48 +146,16 @@ let kind_of_course state code extra =
   if code = "" && extra
   then state, ("", Dummy)
   else
-    match String.split_on_char '-' code with
-      | t::_ ->
-        begin
-          match
-            Public_data.StringMap.find_opt t map
-          with
-            | None ->
-                begin
-                  let rec aux state l =
-                    match l with
-                        | (a,b)::tail ->
-                            let n = String.length b in
-                            if n <= String.length code
-                            && String.sub code 0 n = b
-                            then
-                            match Public_data.StringMap.find_opt a map
-                            with
-                              | None ->
-                                  let state = Remanent_state.warn
-                                      __POS__
-                                        (Format.sprintf "Undefined GPS key: (%s) (%s)" code t)
-                                      Exit
-                                      state
-                                  in aux state tail
-                              | Some lbl -> state, (t,lbl)
-                          else aux state tail
-                      | [] ->
-                        Remanent_state.warn
-                            __POS__
-                              (Format.sprintf "Undefined GPS key: (%s) (%s)" code t)
-                            Exit
-                            state, (t, Missing)
-                  in aux state list
+    match
+      fetch_kind code
+    with
+      | None ->
+        Remanent_state.warn
+          __POS__ (Format.sprintf "Ill-formed GPS code %s" code) Exit state,
+        ("", Missing)
+      | Some a -> state, a
 
-                end
-            | Some lbl -> state, (t, lbl)
-        end
-      | [] ->
-          Remanent_state.warn
-                  __POS__
-                  (Format.sprintf "Ill-formed GPS code %s" code)
-                  Exit state, ("", Missing)
+
 
 let fold_repartition_diplome ~main_dpt ~firstname ~lastname ~f_nat ~f_dens state repartition dens =
   let state, dens =
