@@ -7378,12 +7378,6 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             Remanent_state.get_grade_in_pegasus
               ~firstname ~lastname ~codehelisa:code ~year:course.Public_data.pe_year state
           in
-          let state =
-            Remanent_state.warn
-                __POS__
-                (Format.sprintf "%s %s %s %s %s" firstname lastname code course.Public_data.pe_year (match grade with None -> "Not_found" | Some _ -> "Found"))
-                Exit state
-          in
           let state, note, validation =
               match grade with
               | None ->

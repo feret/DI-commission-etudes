@@ -1543,7 +1543,11 @@ module Collector_course_pegasus =
             let course =
               match  course.Public_data.pegasus_codegps with
               | None | Some "" -> {course with Public_data.pegasus_codegps = Some course.Public_data.pegasus_helisa}
-              | Some _ ->  course
+              | Some x ->
+                if String.length x > 1 && String.sub x 0 2 = "XT"
+                then {course with Public_data.pegasus_codegps = Some course.Public_data.pegasus_helisa}
+                else
+                  course
             in
             Pegasus_courses.add_pegasus_course unify pos state course courses
 
