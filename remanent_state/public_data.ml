@@ -152,7 +152,7 @@ let experience_of_string x =
   | "ouverture" -> Ouverture
   | "internationale" | "international" -> Internationale
   | "recherches" | "recherche" -> Recherche
-  | "hors" | "hors dens" -> Hors_Dens
+  | "x" | "hors" | "hors dens" -> Hors_Dens
   | _ -> Recherche
 
 let string_of_dpt x =
