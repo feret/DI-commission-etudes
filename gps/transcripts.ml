@@ -3858,13 +3858,11 @@ let add_dens state year compensation unvalidated force_validation ects course co
       match
         Notes.valide_forced note force_validation
       with
-      | Some true ->     let state = Remanent_state.warn __POS__ (Format.sprintf "OK") Exit state  in
-      add_dens_ok state year course ects course_list map
-      | Some false -> let state = Remanent_state.warn __POS__ (Format.sprintf "KO") Exit state  in  state, course_list, map
-      | None -> let state = Remanent_state.warn __POS__ (Format.sprintf "NONE") Exit state in  state, course_list, add_dens_potential year ects map
+      | Some true ->  add_dens_ok state year course ects course_list map
+      | Some false -> state, course_list, map
+      | None -> state, course_list, add_dens_potential year ects map
 
 let add_dens state year compensation unvalidated force_validation ects course course_list map =
-    let state = Remanent_state.warn __POS__ (Format.sprintf "%s %f" (match course.cours_libelle with None -> "None" | Some a -> a) (match course.ects with None -> 0. | Some x -> x)) Exit state in
     if (course.ects = None || course.ects = Some 0.) && is_stage course then
        state, course_list, map
     else add_dens state year compensation unvalidated force_validation ects course course_list map
