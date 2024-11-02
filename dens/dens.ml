@@ -75,7 +75,8 @@ let string_of_key k =
       | "dens" -> "Diplôme de l'ENS"
       | "dri" -> "Relations internationales"
       | "musicologie" -> "Musicologie"
-      | _ -> "Autre"
+      | "sciences cognitives" -> "Études cognitives"
+      | _ - "Autre"
 
 let sciences = [info;dma;bio;phys;dec;gsc;chimie]
 let humanities = [arts;dsa;eco;lila;phil;hist;dss;geog]
