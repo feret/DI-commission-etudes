@@ -76,7 +76,7 @@ let string_of_key k =
       | "dri" -> "Relations internationales"
       | "musicologie" -> "Musicologie"
       | "sciences cognitives" -> "Études cognitives"
-      | _ - "Autre"
+      | _ -> "Autre"
 
 let sciences = [info;dma;bio;phys;dec;gsc;chimie]
 let humanities = [arts;dsa;eco;lila;phil;hist;dss;geog]
