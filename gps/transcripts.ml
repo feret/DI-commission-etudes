@@ -6046,6 +6046,7 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                 state
             in a, b, c, cours.ects, false
         in
+        let cours = {cours with ects} in
         let () =
           Remanent_state.open_row ~macro state
         in
