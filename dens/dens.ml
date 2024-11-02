@@ -7,11 +7,12 @@ let p_musicologie x =
           "ARTS-COMPROPERA-S2";
           "ARTS-MUSICOSPEAV-S2"]
 
+let liste_dec = ["UNPHIL101";"PHIL-AA-INTPHCOGN-S1";"UNCOGEN303";"UNMOD101";"UNNEURO101";"UNSOCSI101";"UNLING101";"UNCOGSI304"]
+
 let p_sciences_cognitives x =
   List.mem x.Public_data.supplement_discipline ["Études cognitives";"Sciences cognitives"]
   ||
-  List.mem x.Public_data.supplement_code
-      ["UNPHIL101";"PHIL-AA-INTPHCOGN-S1";"UNCOGEN303";"UNMOD101";"UNNEURO101";"UNSOCSI101";"UNLING101";"UNCOGSI304"]
+  List.mem x.Public_data.supplement_code liste_dec
 
 type kind =
   | Humanities
@@ -108,6 +109,11 @@ let fetch_kind_gps a =
     | t::_ -> Public_data.StringMap.find_opt t map
     | [] -> None
 
+let fetch_kind_exception a =
+  if List.mem a liste_dec
+  then Public_data.StringMap.find_opt "DEC" map
+  else None
+
 let fetch_kind_helisa a =
   if String.length a < 5
   then None
@@ -115,10 +121,19 @@ let fetch_kind_helisa a =
     let p = String.sub a 0 5 in
     Public_data.StringMap.find_opt p map'
 
+let l = fetch_kind_gps::fetch_kind_exception::fetch_kind_helisa::[]
+
 let fetch_kind a =
-  match fetch_kind_gps a with
-    | None -> fetch_kind_helisa a
-    | Some x -> Some x
+  let rec aux l =
+      match l with
+        | [] -> None
+        | fetch::tail ->
+          begin
+            match fetch a with
+            | Some x -> Some x
+            | None -> aux tail
+          end
+  in aux l
 
 let translate_main_dpt x =
   fst (match x with
