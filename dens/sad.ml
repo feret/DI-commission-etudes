@@ -68,12 +68,12 @@ let print_preamble state dens =
    let () = Remanent_state.fprintf state "\\section*{Principes généraux du diplôme de l'ENS}" in
    let () = Remanent_state.print_newline state in
    let () = Remanent_state.fprintf state
-      "La formation reçue à l'École normale supérieure s'inscrit dans le schéma général européen du \" processus de Bologne \", dit système 3-5-8 ou LMD.%%\n " in
-   let () = Remanent_state.fprintf state "À ce titre, le pivot du diplôme de l'ENS est le diplôme national de Master.%%\n" in
+      "La formation reçue à l'École normale supérieure s'inscrit dans le schéma général européen du \" processus de Bologne \", dit système 3-5-8 ou LMD. %%\n " in
+   let () = Remanent_state.fprintf state "À ce titre, le pivot du diplôme de l'ENS est le diplôme national de Master. %%\n" in
   let () = Remanent_state.fprintf state "Le rôle dévolu au diplôme d'établissement est d'identifier et de valoriser la formation spécifique donnée par l'ENS grâce aux multiples itinéraires intellectuels qu'elle permet.%%\n" in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state
-      "La formation à l'ENS est avant tout une formation par la recherche. Elle accorde ainsi une place importante à l'initiative personnelle et à l'autonomie scientifique dont les diverses expressions (y compris les stages de recherche, sous certaines conditions) sont validées dans le cadre du diplôme.%%\n" in
+      "La formation à l'ENS est avant tout une formation par la recherche. Elle accorde ainsi une place importante à l'initiative personnelle et à l'autonomie scientifique dont les diverses expressions (y compris les stages de recherche, sous certaines conditions) sont validées dans le cadre du diplôme. %%\n" in
     let () = Remanent_state.fprintf state "La recherche ayant une portée résolument internationale, les cursus proposés incluent ou permettent un séjour ou un stage à l'étranger de longue durée (6 mois à un an)." in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state
