@@ -7,7 +7,7 @@ let p_musicologie x =
           "ARTS-COMPROPERA-S2";
           "ARTS-MUSICOSPEAV-S2"]
 
-let liste_dec = ["UNPHIL101";"PHIL-AA-INTPHCOGN-S1";"UNCOGEN303";"UNMOD101";"UNNEURO101";"UNSOCSI101";"UNLING101";"UNCOGSI304"]
+let liste_dec = ["UNPHIL101";"PHIL-AA-INTPHCOGN-S1";"UNCOGEN303";"UNMOD101";"UNNEURO101";"UNSOCSI101";"UNLING101";"UNCOGSI304";"UNSOCSI101"]
 
 let p_sciences_cognitives x =
   List.mem x.Public_data.supplement_discipline ["Études cognitives";"Sciences cognitives"]
