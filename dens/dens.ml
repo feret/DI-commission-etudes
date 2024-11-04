@@ -60,7 +60,7 @@ let string_of_key k =
       | "chim" -> "Chimie"
       | "gsc" -> "Géosciences"
       | "phil" -> "Philosophie"
-      | "dec" -> "Études cognitives"
+      | "dec" -> "Sciences cognitives"
       | "arts" -> "Arts"
       | "dsa" -> "Sciences de l'Antiquité"
       | "dss" -> "Sciences sociales"
@@ -75,7 +75,7 @@ let string_of_key k =
       | "dens" -> "Diplôme de l'ENS"
       | "dri" -> "Relations internationales"
       | "musicologie" -> "Musicologie"
-      | "sciences cognitives" -> "Études cognitives"
+      | "sciences cognitives" -> "Sciences cognitives"
       | _ -> "Autre"
 
 let sciences = [info;dma;bio;phys;dec;gsc;chimie]
