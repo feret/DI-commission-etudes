@@ -117,7 +117,7 @@ type mineure = DPT of main_dpt | Specific of specific
 type universite =
   | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud | UPNord | USPN | UDauphine
 
-type experience = Recherche | Internationale | Ouverture | Hors_Dens
+type experience = Recherche | Internationale | Ouverture | Hors_Dens | Transdisciplinaire
 
 module StringUnivMap =
   Map_tools.MakeSimplified
@@ -144,6 +144,7 @@ let string_of_experience x =
   | Recherche -> "Recherche"
   | Ouverture -> "Ouverture"
   | Internationale -> "Internationale"
+  | Transdisciplinaire -> "Transdisciplinaire"
   | Hors_Dens -> "Hors Dens"
 
 let experience_of_string x =
@@ -152,6 +153,7 @@ let experience_of_string x =
   | "ouverture" -> Ouverture
   | "internationale" | "international" -> Internationale
   | "recherches" | "recherche" -> Recherche
+  | "transdisciplinaire" -> Transdisciplinaire
   | "x" | "hors" | "hors dens" -> Hors_Dens
   | _ -> Recherche
 
@@ -1131,6 +1133,7 @@ let all_notes_string =
       dens_activite_recherche: experience_supplement list;
       dens_activite_internationale: experience_supplement list;
       dens_activite_ouverture: experience_supplement list;
+      dens_activite_transdisciplinaire: experience_supplement list;
       dens_activite_autre: experience_supplement list;
       dens_diplomation_year: string;
       dens_ine: string option;

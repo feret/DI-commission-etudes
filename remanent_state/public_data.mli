@@ -109,7 +109,7 @@ type specific = Musicologie | Sciences_Cognitives
 type mineure = DPT of main_dpt | Specific of specific
 
 type universite =  | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud | UPNord | USPN | UDauphine
-type experience = Recherche | Internationale | Ouverture | Hors_Dens
+type experience = Recherche | Internationale | Ouverture | Hors_Dens | Transdisciplinaire
 
 val string_of_experience: experience -> string
 val experience_of_string: string -> experience
@@ -640,6 +640,7 @@ type dens =
     dens_activite_recherche: experience_supplement list;
     dens_activite_internationale: experience_supplement list;
     dens_activite_ouverture: experience_supplement list;
+    dens_activite_transdisciplinaire: experience_supplement list;
     dens_activite_autre: experience_supplement list;
     dens_diplomation_year : string ;
     dens_ine: string option;

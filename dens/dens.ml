@@ -318,6 +318,13 @@ let store_activite_recherche stage dens =
       (fun dens_activite_recherche dens -> {dens with Public_data.dens_activite_recherche})
       stage dens
 
+let store_activite_transdisciplinaire stage dens =
+    store_activite
+      (fun dens -> dens.Public_data.dens_activite_transdisciplinaire)
+      (fun dens_activite_transdisciplinaire dens -> {dens with Public_data.dens_activite_transdisciplinaire})
+      stage dens
+
+
 let store_activite_internationale stage dens =
           store_activite
             (fun dens -> dens.Public_data.dens_activite_internationale)
@@ -390,6 +397,8 @@ Tools.unsome_string stage.Public_data.activite_intitule_fr;
                     | Some Public_data.Internationale -> store_activite_internationale stage dens
                     | Some Public_data.Ouverture ->
                     store_activite_ouverture stage dens
+                    | Some Public_data.Transdisciplinaire ->
+                    store_activite_transdisciplinaire stage dens
                     | Some Public_data.Hors_Dens -> dens
                     | None ->
                     store_activite_autre stage dens
@@ -588,6 +597,7 @@ let count_exp dens =
         dens.Public_data.dens_activite_ouverture;
         dens.Public_data.dens_activite_recherche;
         dens.Public_data.dens_activite_internationale;
+        dens.Public_data.dens_activite_transdisciplinaire;
         dens.Public_data.dens_activite_autre
       ]
 
@@ -645,13 +655,14 @@ let dump_dens dens state =
           liste (state,total_init)
     in
     let total_other = add_total [total_other;total_minor;total_major] in
-    let l1, l2, l3, l4, l5 = dens.Public_data.dens_activite_internationale,
+    let l1, l2, l3, l4, l5, l6 = dens.Public_data.dens_activite_internationale,
                          dens.Public_data.dens_activite_recherche,
                          dens.Public_data.dens_activite_ouverture,
                          dens.Public_data.dens_activite_autre,
+                         dens.Public_data.dens_activite_transdisciplinaire,
                          dens.Public_data.dens_activite_a_trier
     in
-    let liste = List.flatten [l1;l2;l3;l4;l5] in
+    let liste = List.flatten [l1;l2;l3;l4;l5;l6] in
     let state, total_exp =
         dump_list_exp ~key:"Expériences"
               liste (state, total_init)
@@ -718,6 +729,8 @@ let dump_dens dens state =
       let () = display_exp state "Ouverture" dens.Public_data.dens_activite_ouverture in
       let () = display_exp state "Recherche" dens.Public_data.dens_activite_recherche in
       let () = display_exp state "Internationale" dens.Public_data.dens_activite_internationale in
+      let () = display_exp state "Transdisciplinaire"
+      dens.Public_data.dens_activite_internationale in
       let () = display_exp state "Autre"
       dens.Public_data.dens_activite_autre in
       let state = print_status (count_exp dens > 1)  state in

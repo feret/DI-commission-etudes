@@ -1235,7 +1235,7 @@ let store_cours  =
 
     let is_stage cours =
       begin
-        cours.code_cours = Some "UNEXPA-39"
+        List.mem cours.code_cours [Some "UNEXPA-39";Some "UNEXPA-34"]
       end
       ||
       begin
@@ -9397,6 +9397,7 @@ let export_transcript
           Public_data.dens_activite_recherche=[];
           Public_data.dens_activite_internationale=[];
           Public_data.dens_activite_ouverture=[];
+          Public_data.dens_activite_transdisciplinaire=[];
           Public_data.dens_activite_autre=[];
           Public_data.dens_cours_par_dpt = Public_data.StringMap.empty;
           Public_data.dens_sad = None ;
