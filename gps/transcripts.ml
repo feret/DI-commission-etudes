@@ -2646,8 +2646,30 @@ let filter_stage_string string get comment state stage =
 let filter_stage_id = filter_stage_string "id" (fun stage -> stage.id)
 let filter_stage_cvt = filter_stage_string "cvt" (fun stage -> stage.cvt)
 
+let filter_code code state stage =
+  match code with
+    | None -> state, stage
+    | Some code ->
+    begin
+      let l' =
+        List.filter
+          (fun stage ->
+            let list =
+              List.rev_map
+                (String.split_on_char ' ')
+                (List.rev stage.stage_commentaire)
+            in
+            let list = List.flatten list in
+        List.mem code list)
+        stage
+      in
+    if l' = []
+  then state, stage
+  else state, l'
+end
+
 let fetch_stage
-    ~internship state commentaires stages =
+    ~internship ?code state ~commentaires stages =
   let year = internship.Public_data.missing_internship_year in
   let rec aux state fun_list stages =
     match fun_list with
@@ -2672,7 +2694,9 @@ let fetch_stage
   in
   aux
     state
-    [filter_stage_year year;filter_stage_cvt commentaires ;filter_stage_id commentaires]
+    [
+     filter_stage_year year;filter_code code;
+     filter_stage_cvt commentaires ;filter_stage_id commentaires]
     stages
 
 let lgen _grade gps dpt acro d =
@@ -5635,8 +5659,9 @@ let program
                 let state, stage_opt =
                   fetch_stage
                     state
+                    ?code:cours.code_cours
                     ~internship
-                    cours.commentaire stages
+                    ~commentaires:cours.commentaire stages
                 in
                 match stage_opt with
                 | [] -> state, 1
@@ -5841,7 +5866,8 @@ let program
                   fetch_stage
                     state
                     ~internship
-                    cours.commentaire stages
+                    ?code:cours.code_cours
+                    ~commentaires:cours.commentaire stages
                 in
                 match stage_opt with
                 | [] ->
@@ -6728,7 +6754,9 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                     fetch_stage
                       state
                       ~internship
-                      cours.commentaire stages
+                      ~commentaires:cours.commentaire
+                      ?code:cours.code_cours
+                      stages
                   in
                   match stage_opt with
                   | [] ->
