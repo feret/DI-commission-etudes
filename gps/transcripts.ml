@@ -1641,6 +1641,7 @@ let add_extra_stage pos state stage gps_file =
     let sujet = stage.Public_data.pegasus_stage_sujet in
     let id = fetch_id stage_commentaire in
     let cvt = fetch_cvt stage_commentaire in
+    let stage_credits = stage.Public_data.pegasus_stage_credits in
     let stage_accord = Some true in
     let stage_valide =
       match stage.Public_data.pegasus_stage_valide with
@@ -1653,7 +1654,7 @@ let add_extra_stage pos state stage gps_file =
           empty_stage
           with
             stage_accord ; stage_valide ; sujet ; directeur_de_stage ;
-            id ; cvt ; date_debut ; date_fin ; stage_commentaire
+            id ; cvt ; date_debut ; date_fin ; stage_commentaire ; stage_credits
         }
     in
     let stages = stage::stages in
@@ -3855,7 +3856,7 @@ let add_dens_ok state year course ects course_list map =
         (total, potential,mandatory,math,math_math_info) map
     in
     let state, map = add_dens_requirements state year course map in
-    state, (if is_stage course then course_list else 
+    state, (if is_stage course then course_list else
     {course_list with Public_data.dens  = (translate_course_dens course year)::course_list.Public_data.dens}), map
 
 let add_dens_potential year ects map =
