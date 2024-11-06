@@ -25,6 +25,7 @@ type parameters =
     output_repository: string;
     database_repository: string;
     pegasus_repository: string;
+    scolarity_repository: string;
     study_repository:string;
     parameters_repository:string;
     gps_backup_repository:string;
@@ -168,6 +169,7 @@ let parameters =
     output_repository = "sortie" ;
     database_repository = "base_de_donnees";
     pegasus_repository = "pegasus_data";
+    scolarity_repository = "scolarite_data";
     study_repository = "etudes";
     parameters_repository = "parametres" ;
     gps_backup_repository = "gps_backup" ;
@@ -320,6 +322,8 @@ let set_phys parameters =
         local_repository = "geosciences/suivi_pedagogique" ;
         scholarships_repository = "geosciences/scolarite/ELEVES" ;
         diplomation_repository = "geosciences/scolarite/diplomation" ;
+        add_grades_without_registration = true  ;
+        load_gps_data = true ;
 
         repartition = Public_data.Annee_obtention_du_diplome ;
         include_pictures = true;
@@ -1409,8 +1413,22 @@ let get_rep_gen get_main get_prefix t =
   let get_course_entry_list_prefix t =
                 t, t.parameters.repository_for_course_entry
 
+
+let get_scolarity_bdd t =
+  let t, cloud = get_cloud_repository t in
+  match cloud, t.parameters.scolarity_repository with
+    | "", "" -> t, ""
+    | a,"" | "",a -> t, a
+    | a,b -> t, Format.sprintf "%s/%s" a b
+
+(*let get_scolarity_bdd_gen get t =
+  let t, rep = get_scolarity_bdd t in
+  match rep with
+    | "" -> t, get t
+    | _ -> t, Format.sprintf "%s/%s" rep (get t)*)
+
   let get_course_entry_list_repository t =
-      get_rep_gen get_bdd get_course_entry_list_prefix t
+      get_rep_gen get_scolarity_bdd get_course_entry_list_prefix t
 
 module Collector_stages_tries =
   Make_collector_with_unification
