@@ -3856,8 +3856,8 @@ let add_dens_ok state year course ects course_list map =
         (total, potential,mandatory,math,math_math_info) map
     in
     let state, map = add_dens_requirements state year course map in
-    state, (if is_stage course then course_list else
-    {course_list with Public_data.dens  = (translate_course_dens course year)::course_list.Public_data.dens}), map
+    state,
+    {course_list with Public_data.dens  = (translate_course_dens course year)::course_list.Public_data.dens}, map
 
 let add_dens_potential year ects map =
   match ects with
@@ -3888,7 +3888,7 @@ let add_dens state year compensation unvalidated force_validation ects course co
       | None -> state, course_list, add_dens_potential year ects map
 
 let add_dens state year compensation unvalidated force_validation ects course course_list map =
-    if (course.ects = None || course.ects = Some 0.) && is_stage course then
+    if is_stage course then
        state, course_list, map
     else add_dens state year compensation unvalidated force_validation ects course course_list map
 
