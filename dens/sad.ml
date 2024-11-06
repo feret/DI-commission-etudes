@@ -430,6 +430,8 @@ let prompt_sad dens state =
     in
     let state = dump_activite_list "Expérience de recherche (collective pour les lettres, de laboratoire pour les sciences)" dens.Public_data.dens_activite_recherche state in
     let state = dump_activite_list "Expérience internationale (stages académiques ou non-académiques à l'étranger)" dens.Public_data.dens_activite_internationale state in
+    let state = dump_activite_list "Expérience transdisciplinaire"
+    dens.Public_data.dens_activite_transdisciplinaire state in 
     let state =
         dump_activite_list
           "Expérience d'ouverture hors les murs (stages non-académiques uniquement, en France ou à l'étranger: stages en administration, entreprise, lycée, ONG, etc.)" dens.Public_data.dens_activite_ouverture state
