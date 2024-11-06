@@ -149,14 +149,13 @@ let string_of_experience x =
 
 let experience_of_string x =
   let x = Special_char.lowercase (Special_char.correct_string_txt (Special_char.correct_string_utf8 (String.trim x))) in
-  let () = Format.printf "EXPERIENCE OF STRING %s " x in
   match x with
-  | "ouverture" -> let () = Format.printf "OU @." in  Ouverture
-  | "internationale" | "international" -> let () = Format.printf "IN @." in  Internationale
-  | "recherches" | "recherche" -> let () = Format.printf "RE @." in  Recherche
-  | "transdisciplinaire" -> let () = Format.printf "TR @." in Transdisciplinaire
-  | "x" | "hors" | "hors dens" -> let () = Format.printf "HR @." in  Hors_Dens
-  | _ -> let () = Format.printf "AUTRE @." in  Recherche
+  | "ouverture" -> Ouverture
+  | "internationale" | "international" -> Internationale
+  | "recherches" | "recherche" -> Recherche
+  | "transdisciplinaire" -> Transdisciplinaire
+  | "x" | "hors" | "hors dens" -> Hors_Dens
+  | _ -> Recherche
 
 let string_of_dpt x =
   match x with

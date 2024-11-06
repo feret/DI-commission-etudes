@@ -393,28 +393,13 @@ Tools.unsome_string stage.Public_data.activite_intitule_fr;
                 in
                 let dens =
                   match s.Public_data.stageat_type with
-                    | Some Public_data.Recherche ->
-                                        let () = Format.printf "DENS RECHERCHE %s %s %s %s @." firstname lastname
-s.Public_data.stageat_libelle_fr (match s.Public_data.stageat_activite_fr with None -> "None" | Some a -> a)
-in  store_activite_recherche stage dens
-
-                    | Some Public_data.Internationale ->
-                    let () = Format.printf "DENS INTERNATIONALE %s %s %s %s @."
-                    firstname lastname  s.Public_data.stageat_libelle_fr (match s.Public_data.stageat_activite_fr with None -> "None" | Some a -> a) in
-                    store_activite_internationale stage dens
-                    | Some Public_data.Ouverture ->
-                    let () = Format.printf "DENS OUVERTURE %s %s %s %s @." firstname lastname s.Public_data.stageat_libelle_fr (match s.Public_data.stageat_activite_fr with None -> "None" | Some a -> a) in
-                    store_activite_ouverture stage dens
-                    | Some Public_data.Transdisciplinaire ->
-                    let () = Format.printf "DENS TRANS %s %s %s %s @." firstname lastname s.Public_data.stageat_libelle_fr (match s.Public_data.stageat_activite_fr with None -> "None" | Some a -> a) in
-                    store_activite_transdisciplinaire stage dens
+                    | Some Public_data.Recherche -> store_activite_recherche stage dens
+                    | Some Public_data.Internationale -> store_activite_internationale stage dens
+                    | Some Public_data.Ouverture -> store_activite_ouverture stage dens
+                    | Some Public_data.Transdisciplinaire -> store_activite_transdisciplinaire stage dens
                     | Some Public_data.Hors_Dens ->
-                    let () = Format.printf "DENS HORS %s %s %s %s @." firstname lastname s.Public_data.stageat_libelle_fr (match s.Public_data.stageat_activite_fr with None -> "None" | Some a -> a) in
- dens
-                    | None ->
-                    let () = Format.printf "DENS NONE %s %s %s %s @." firstname lastname s.Public_data.stageat_libelle_fr (match s.Public_data.stageat_activite_fr with None -> "None" | Some a -> a) in
-
-                    store_activite_autre stage dens
+                    dens
+                    | None -> store_activite_autre stage dens
                 in
                 state, dens
               end)
