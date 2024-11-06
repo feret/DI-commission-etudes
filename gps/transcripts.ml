@@ -3855,8 +3855,8 @@ let add_dens_ok state year course ects course_list map =
         (total, potential,mandatory,math,math_math_info) map
     in
     let state, map = add_dens_requirements state year course map in
-    state,
-    {course_list with Public_data.dens  = (translate_course_dens course year)::course_list.Public_data.dens}, map
+    state, (if is_stage course then course_list else 
+    {course_list with Public_data.dens  = (translate_course_dens course year)::course_list.Public_data.dens}), map
 
 let add_dens_potential year ects map =
   match ects with
