@@ -335,7 +335,7 @@ let dump_activite_list label list state =
         else
         let () = Remanent_state.fprintf state "{\\noindent}\\textit{Unités d'enseignement étudiées et nombre d'ECTS}" in
         let () = Remanent_state.print_newline state in
-        let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Nombre d'ECTS~: %s}" (string_of_float ects) in
+        let () = Remanent_state.fprintf state "{\\noindent}{Nombre d'ECTS~: %s}" (string_of_float ects) in
         let () = Remanent_state.print_newline state in
         state,size4,[None;None;None;None],[["Code"];["Activité"];["Intitulé"]; ["ECTS"]],[["Code"];["Activity"];["Name"]; ["ECTS"]],true
     in
