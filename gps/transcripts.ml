@@ -3888,7 +3888,7 @@ let add_dens state year compensation unvalidated force_validation ects course co
       | None -> state, course_list, add_dens_potential year ects map
 
 let add_dens state year compensation unvalidated force_validation ects course course_list map =
-    if is_stage course then
+    if (course.ects = None || course.ects = Some 0.) && is_stage course then
        state, course_list, map
     else add_dens state year compensation unvalidated force_validation ects course course_list map
 
@@ -5632,14 +5632,14 @@ let program
   in
   let bgcolor=[None;color;None;None;None;None;None] in
   let list = Tools.sort fetch p list in
-  let state, length   =
+  let state, list, length   =
     List.fold_left
       (fun
-        (state, length)
-        (_,_,_,_,cours) ->
-        let state, libelle_stage_opt_list =
+        (state, acc, length)
+        (a,b,c,d,cours) ->
+        let state, cours, libelle_stage_opt_list =
           match cours.cours_libelle with
-          | None -> state,1
+          | None -> state,cours, 1
           | Some _ ->
             if is_stage cours
             then
@@ -5665,17 +5665,17 @@ let program
                     ~commentaires:cours.commentaire stages
                 in
                 match stage_opt with
-                | [] -> state, 1
-                | stage_list -> state, List.length stage_list
+                | [] -> state, cours, 1
+                | stage_list -> state, (if List.for_all (fun c -> match c.stage_credits with None | Some 0. -> true | Some _ -> false) stage_opt then cours else {cours with ects = None}), List.length stage_list
                 end
-            else state, 1
+            else state, cours, 1
         in
         let length = length + libelle_stage_opt_list in
-        (state,length))
-
-      (state,0)
+        (state, (a,b,c,d,cours)::acc,length))
+      (state,[],0)
       list
   in
+  let list = List.rev list in
   let () =
     Remanent_state.fprintf state
       "\\setcounter{totalrows}{%i}%%%%\n\ "
