@@ -3837,10 +3837,11 @@ let add_dens_requirements state year course map =
       (total, potential,mandatory,math,math_math_info) map
 
 
-let add_dens_ok state year course ects course_list map =
+let add_dens_ok state year course ects course_list map skip_dens =
   match ects with
     | None -> state,
-            {course_list with Public_data.dens  = (translate_course_dens course year )::course_list.Public_data.dens },
+            (if skip_dens then course_list else
+            {course_list with Public_data.dens  = (translate_course_dens course year )::course_list.Public_data.dens }),
             map
     | Some ects ->
     let total,potential,mandatory,math,math_math_info =
@@ -3857,7 +3858,7 @@ let add_dens_ok state year course ects course_list map =
     in
     let state, map = add_dens_requirements state year course map in
     state,
-    {course_list with Public_data.dens  = (translate_course_dens course year)::course_list.Public_data.dens}, map
+    (if skip_dens then course_list else {course_list with Public_data.dens  = (translate_course_dens course year)::course_list.Public_data.dens}), map
 
 let add_dens_potential year ects map =
   match ects with
@@ -3874,23 +3875,23 @@ let add_dens_potential year ects map =
       (total, potential+.ects,mandatory,math,math_math_info)
       map
 
-let add_dens state year compensation unvalidated force_validation ects course course_list map =
+let add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens =
   match compensation, unvalidated, course.note with
-  | Some _, _, _-> add_dens_ok state year course ects course_list map
+  | Some _, _, _-> add_dens_ok state year course ects course_list map skip_dens
   | _, true, _ -> state, course_list, map
   | None,_,None -> state, course_list, add_dens_potential year ects map
   | None,_,Some note ->
       match
         Notes.valide_forced note force_validation
       with
-      | Some true ->  add_dens_ok state year course ects course_list map
+      | Some true ->  add_dens_ok state year course ects course_list map skip_dens
       | Some false -> state, course_list, map
-      | None -> state, course_list, add_dens_potential year ects map
+      | None -> state, course_list, add_dens_potential year ects map 
 
-let add_dens state year compensation unvalidated force_validation ects course course_list map =
+let add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens =
     if (course.ects = None || course.ects = Some 0.) && is_stage course then
        state, course_list, map
-    else add_dens state year compensation unvalidated force_validation ects course course_list map
+    else add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens
 
 let add_mean_empty is_m2 state ~dens ~natt ~decision ~exception_cursus key year  map =
   let is_m2,ects,old,y =
@@ -6246,20 +6247,14 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
             with
             | None
             | Some ""->
-              if skip_dens then
-                state, mean, dens, natt, cours_list, stage_list
-              else
                 let state, cours_list, natt =
-                  add_dens state year compensation unvalidated force_validation ects cours cours_list natt
+                  add_dens state year compensation unvalidated force_validation ects cours cours_list natt skip_dens
                 in
                   state, mean, dens, natt, cours_list, stage_list
 
             | Some ("dens" | "DENS") ->
-              if skip_dens then
-                state, mean, dens, natt, cours_list, stage_list
-              else
                 let state, cours_list, dens =
-                  add_dens state year compensation unvalidated force_validation ects cours cours_list dens
+                  add_dens state year compensation unvalidated force_validation ects cours cours_list dens skip_dens
                 in
                 state, mean, dens, natt, cours_list, stage_list
             | Some _ ->
