@@ -5843,9 +5843,9 @@ let program
         let state, f =
           special_course state cours
         in
-        let state, libelle_stage_opt_list =
+        let state, libelle_stage_opt_list, skip_dens =
           match cours.cours_libelle with
-          | None -> state,[None,None]
+          | None -> state,[None,None], false
           | Some l ->
             if is_stage cours
             then
@@ -5899,11 +5899,11 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                         ~french:(string_of_stringopt lib)
                         state
                     in
-                    state, [Some libelle, Some stage_entry]
+                    state, [Some libelle, Some stage_entry], false
                   end
                 | stage_list ->
                   List.fold_left
-                      (fun (state, acc) stage ->
+                      (fun (state, acc, skip_dens) stage ->
                   (* TO DO DUMP STAGE *)
                   let issue =
                     match
@@ -5953,7 +5953,11 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                           match stage.stage_credits with None -> 0. | Some f ->f;
                       }
                   in
-
+                  let stage_with_ects =
+                      match stage.stage_credits with
+                        | None -> false
+                        | Some f -> f>0.
+                  in
                   let state =
                     if issue then
                       Remanent_state.Non_validated_internships.add
@@ -6017,11 +6021,11 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                   state,
                   (Some
                     (Format.sprintf "%s%s%s" libelle sujet directeur),
-                  Some stage_entry)::acc
-                  else state,acc)
-                (state,[]) stage_list
+                  Some stage_entry)::acc, skip_dens || stage_with_ects
+                  else state,acc,skip_dens)
+                (state,[],false) stage_list
               end
-            else state, [Some l,None]
+            else state, [Some l,None], false
         in
         let stage_list =
           List.fold_left
@@ -6242,16 +6246,22 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
             with
             | None
             | Some ""->
-              let state, cours_list, natt =
-                add_dens state year compensation unvalidated force_validation ects cours cours_list natt
-              in
+              if skip_dens then
                 state, mean, dens, natt, cours_list, stage_list
+              else
+                let state, cours_list, natt =
+                  add_dens state year compensation unvalidated force_validation ects cours cours_list natt
+                in
+                  state, mean, dens, natt, cours_list, stage_list
 
             | Some ("dens" | "DENS") ->
-              let state, cours_list, dens =
-                add_dens state year compensation unvalidated force_validation ects cours cours_list dens
-              in
-              state, mean, dens, natt, cours_list, stage_list
+              if skip_dens then
+                state, mean, dens, natt, cours_list, stage_list
+              else
+                let state, cours_list, dens =
+                  add_dens state year compensation unvalidated force_validation ects cours cours_list dens
+                in
+                state, mean, dens, natt, cours_list, stage_list
             | Some _ ->
               let state, mean, cours_list, dens =
                 add_mean is_m2 state
