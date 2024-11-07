@@ -221,6 +221,9 @@ let dump_course_gen label is_empty fold fold_state _iter acc state =
     else
     let () = Remanent_state.fprintf state "{\\noindent}\\textbf{%s}" label in
     let () = Remanent_state.print_newline state in
+    let () = Remanent_state.fprintf state "{\\noindent}\\textit{Unités d'enseignement étudiées et nombre d'ECTS}" in
+    let () = Remanent_state.print_newline state in
+
     let ects =
           fold
             (fun cours ects -> ects+.cours.Public_data.supplement_ects) acc 0.
@@ -328,7 +331,7 @@ let dump_activite_list label list state =
         if ects = 0.
         then state,size3,[None;None;None],[["Code"];["Activité"];["Intitulé"]],[["Code"];["Activity"];["Name"]],false
         else
-        let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Unités d'enseignement étudiées et nombre d'ECTS}" in
+        let () = Remanent_state.fprintf state "{\\noindent}\\textit{Unités d'enseignement étudiées et nombre d'ECTS}" in
         let () = Remanent_state.print_newline state in
         let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Nombre d'ECTS~: %s}" (string_of_float ects) in
         let () = Remanent_state.print_newline state in
@@ -431,7 +434,7 @@ let prompt_sad dens state =
     let state = dump_activite_list "Expérience de recherche (collective pour les lettres, de laboratoire pour les sciences)" dens.Public_data.dens_activite_recherche state in
     let state = dump_activite_list "Expérience internationale (stages académiques ou non-académiques à l'étranger)" dens.Public_data.dens_activite_internationale state in
     let state = dump_activite_list "Expérience transdisciplinaire"
-    dens.Public_data.dens_activite_transdisciplinaire state in 
+    dens.Public_data.dens_activite_transdisciplinaire state in
     let state =
         dump_activite_list
           "Expérience d'ouverture hors les murs (stages non-académiques uniquement, en France ou à l'étranger: stages en administration, entreprise, lycée, ONG, etc.)" dens.Public_data.dens_activite_ouverture state
