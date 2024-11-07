@@ -427,7 +427,14 @@ let declare_as_dpt_minor dpt (state,dens) =
     let dpt  = translate_main_dpt dpt in
     match Public_data.StringMap.find_opt dpt  dens.Public_data.dens_cours_par_dpt
       with
-      | None -> state, dens
+      | None ->
+        let dens_cours_mineure =
+          Public_data.StringMap.add dpt
+             Public_data.empty_repartition_diplomes dens.Public_data.dens_cours_mineure
+        in
+        state, {dens with
+                Public_data.dens_cours_mineure}
+
       | Some a ->
           let dens_cours_par_dpt =
               Public_data.StringMap.remove dpt
