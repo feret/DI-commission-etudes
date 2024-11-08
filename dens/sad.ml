@@ -172,7 +172,7 @@ let print_preamble state dens =
         let () = Remanent_state.fprintf state "\\vspace*{1cm}" in
         let () = Remanent_state.print_newline state in
         let () =
-            Remanent_state.fprintf state "\\hfill\\begin{minipage}{.20\\linewidth}"
+            Remanent_state.fprintf state "\\hfill\\begin{minipage}{.33\\linewidth}"
         in
         let () = Remanent_state.print_newline state in
         let () =
@@ -195,6 +195,10 @@ let print_preamble state dens =
         let () = Remanent_state.fprintf state "\\vspace*{1cm}" in
         let () = Remanent_state.print_newline state in
         let ()  = Remanent_state.fprintf state "%s" title in
+        let () =
+            Remanent_state.fprintf state "\\end{minipage}"
+        in
+
         let () = Remanent_state.fprintf state "\\clearpage" in
         state
 
