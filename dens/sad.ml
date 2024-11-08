@@ -168,6 +168,38 @@ let print_preamble state dens =
     let () = Remanent_state.print_newline state in
     ()
 
+    let print_signature state =
+        let () = Remanent_state.fprintf state "\\vspace*{1cm}" in
+        let () = Remanent_state.print_newline state in
+        let () =
+            Remanent_state.fprintf state "\\hfill\\begin{minipage}{.20\\linewidth}"
+        in
+        let () = Remanent_state.print_newline state in
+        let () =
+            Remanent_state.fprintf state "\\today"
+        in
+        let () = Remanent_state.print_newline state in
+        let state, main_dpt =
+              Remanent_state.get_main_dpt state
+        in
+        let de,title =
+            match Dens.kind_of_dpt main_dpt with
+              | Some Dens.Sciences -> "Clotilde POLICAR","Directrice des études Sciences"
+              | Some Dens.Humanities -> "David Schreiber","Directeur des études Lettres"
+              | None | Some (Dens.Ecla|Dens.Activite|Dens.Sans_mineure|Dens.Missing|Dens.Dummy) -> "",""
+        in
+        let () = Remanent_state.fprintf state "\\vspace*{5cm}" in
+        let () = Remanent_state.print_newline state in
+        let ()  = Remanent_state.fprintf state "%s" de in
+        let () = Remanent_state.print_newline state in
+        let () = Remanent_state.fprintf state "\\vspace*{1cm}" in
+        let () = Remanent_state.print_newline state in
+        let ()  = Remanent_state.fprintf state "%s" title in
+        let () = Remanent_state.fprintf state "\\clearpage" in
+        state
+
+
+
 let maj map =
   let n = Public_data.StringMap.cardinal map in
   let rec aux n l =
@@ -274,9 +306,14 @@ let dump_course_gen label is_empty fold fold_state _iter acc state =
 
     let fold_left_tild f a b = List.fold_left (fun a b -> f b a) b a
     let fold_left_tild' f a b = List.fold_left (fun a b -> f b a) b a
-    let dump_course_list label list state =
+    let dump_course_list ?even_if_empty label list state =
+        let even_if_empty =
+          match even_if_empty with
+            | None -> false
+            | Some a -> a
+        in
         let list = list.Public_data.dens in
-        dump_course_gen label (fun l -> l = []) fold_left_tild fold_left_tild' List.iter list state
+        dump_course_gen label (fun l -> l = [] && not even_if_empty) fold_left_tild fold_left_tild' List.iter list state
 
     let dump_course_list_autre label list map state =
         let list = list.Public_data.dens in
@@ -296,26 +333,26 @@ let dump_course_gen label is_empty fold fold_state _iter acc state =
           (list,map)
           state
 
-let dump_repartition_diplomes label list state =
-    dump_course_list label list state
+let dump_repartition_diplomes ?even_if_empty label list state =
+    dump_course_list ?even_if_empty label list state
 
 
 
-let dump_min_maj label map state pos =
+let dump_min_maj ?even_if_empty label map state pos =
     if Public_data.StringMap.cardinal map = 1
     then
       Public_data.StringMap.fold
         (fun key list state ->
             let key = Special_char.lowercase (Dens.string_of_key key) in
             let label = Format.sprintf  "{\\noindent}Enseignements validés dans le cadre d'%s %s en %s" undef label key in
-            dump_repartition_diplomes label list state)
+            dump_repartition_diplomes ?even_if_empty label list state)
         map state
     else
       fst (Public_data.StringMap.fold
         (fun key list (state,pos) ->
             let key = Special_char.lowercase (Dens.string_of_key key) in
           let label = Format.sprintf  "{\\noindent}Enseignements validés dans le cadre d'une %s %s en %s" (List.hd (fst pos)) label key in
-          dump_repartition_diplomes label list state,next pos)
+          dump_repartition_diplomes ?even_if_empty label list state,next pos)
       map (state,pos))
 
 let dump_activite_list label list state =
@@ -449,6 +486,7 @@ let prompt_sad dens state =
     let state = dump_activite_list "Autre" dens.Public_data.dens_activite_autre state in
     let state = dump_course_list "Autres (vie universitaire, initiatives citoyennes, sport, etc.)" (lift_dens dens.Public_data.dens_cours_activite) state
     in
+    let state = print_signature state in
      state
 
 

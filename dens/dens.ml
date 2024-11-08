@@ -151,6 +151,11 @@ let translate_main_dpt x =
   | Public_data.DMA -> dma
   | Public_data.DEC -> dec)
 
+let kind_of_dpt dpt =
+    match Public_data.StringMap.find_opt (translate_main_dpt dpt) map with
+      | None -> None
+      | Some (_,a) -> Some a 
+
   let translate_mineure x =
     fst (match x with
     | Public_data.DPT x -> translate_main_dpt x,""
