@@ -466,7 +466,8 @@ let prompt_sad dens state =
         dump_course_list
             "Enseignements disciplinaires (cours et stages de recherche dans la spécialité principale)" dens.Public_data.dens_cours_discipline_principale state
     in
-    let state = dump_min_maj "mineure" dens.Public_data.dens_cours_mineure state pos_order_1 in
+    let even_if_empty = Some true in 
+    let state = dump_min_maj ?even_if_empty "mineure" dens.Public_data.dens_cours_mineure state pos_order_1 in
     let state = dump_min_maj "majeure" dens.Public_data.dens_cours_majeure state (maj dens.Public_data.dens_cours_majeure) in
     let state =
         dump_course_list_autre
