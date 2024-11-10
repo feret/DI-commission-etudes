@@ -169,14 +169,14 @@ let print_preamble state dens =
     ()
 
     let print_signature state =
-        let () = Remanent_state.fprintf state "\\vspace*{1cm}" in
+        let () = Remanent_state.fprintf state "\\vspace*{0.5cm}" in
         let () = Remanent_state.print_newline state in
         let () =
             Remanent_state.fprintf state "\\hfill\\begin{minipage}{.33\\linewidth}"
         in
         let () = Remanent_state.print_newline state in
         let () =
-            Remanent_state.fprintf state "\\today"
+            Remanent_state.fprintf state "Paris, le \\today"
         in
         let () = Remanent_state.print_newline state in
         let state, main_dpt =
@@ -188,11 +188,11 @@ let print_preamble state dens =
               | Some Dens.Humanities -> "David Schreiber","Directeur des études Lettres"
               | None | Some (Dens.Ecla|Dens.Activite|Dens.Sans_mineure|Dens.Missing|Dens.Dummy) -> "",""
         in
-        let () = Remanent_state.fprintf state "\\vspace*{5cm}" in
+        let () = Remanent_state.fprintf state "\\vspace*{4.5cm}" in
         let () = Remanent_state.print_newline state in
         let ()  = Remanent_state.fprintf state "%s" de in
         let () = Remanent_state.print_newline state in
-        let () = Remanent_state.fprintf state "\\vspace*{1cm}" in
+        let () = Remanent_state.fprintf state "\\vspace*{0.5cm}" in
         let () = Remanent_state.print_newline state in
         let ()  = Remanent_state.fprintf state "%s" title in
         let () =
@@ -466,7 +466,7 @@ let prompt_sad dens state =
         dump_course_list
             "Enseignements disciplinaires (cours et stages de recherche dans la spécialité principale)" dens.Public_data.dens_cours_discipline_principale state
     in
-    let even_if_empty = Some true in 
+    let even_if_empty = Some true in
     let state = dump_min_maj ?even_if_empty "mineure" dens.Public_data.dens_cours_mineure state pos_order_1 in
     let state = dump_min_maj "majeure" dens.Public_data.dens_cours_majeure state (maj dens.Public_data.dens_cours_majeure) in
     let state =
