@@ -14,6 +14,10 @@ let p_sciences_cognitives x =
   ||
   List.mem x.Public_data.supplement_code liste_dec
 
+let p_environnement x =
+List.mem x.Public_data.supplement_discipline ["Environnement";"Environnement et société"]
+
+
 type kind =
   | Humanities
   | Sciences
@@ -154,13 +158,16 @@ let translate_main_dpt x =
 let kind_of_dpt dpt =
     match Public_data.StringMap.find_opt (translate_main_dpt dpt) map with
       | None -> None
-      | Some (_,a) -> Some a 
+      | Some (_,a) -> Some a
 
   let translate_mineure x =
     fst (match x with
     | Public_data.DPT x -> translate_main_dpt x,""
     | Public_data.Specific Public_data.Musicologie -> musicologie
-    | Public_data.Specific Public_data.Sciences_Cognitives -> sciences_cognitives)
+    | Public_data.Specific Public_data.Sciences_Cognitives -> sciences_cognitives
+    | Public_data.Specific Public_data.Environnement ->
+    ceres)
+
 
 
 let kind_of_course state code extra =
@@ -487,6 +494,7 @@ let declare_as_specific_minor mineure (state, dens) =
       | Public_data.Musicologie ->
           state, p_musicologie
       | Public_data.Sciences_Cognitives -> state, p_sciences_cognitives
+      | Public_data.Environnement -> state, p_environnement
     in
     let dens_cours_a_trier, acc =
         split_repartition p dens.Public_data.dens_cours_a_trier []
