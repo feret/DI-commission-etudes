@@ -288,6 +288,8 @@ let set_dma parameters =
     diplomation_repository = "dma/scolarite/diplomation" ;
     repartition = Public_data.Annee_obtention_du_diplome ;
     include_pictures = false;
+    load_gps_data = true ;
+
   }
 
 let set_phys parameters =
