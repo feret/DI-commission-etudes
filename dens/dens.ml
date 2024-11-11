@@ -869,8 +869,8 @@ let suggest_mineure dens state =
           in
           let state =
             Remanent_state.warn
-              __POS__ (Format.sprintf "MINEURE %s %s" key (Public_data.string_of_mineure (Public_data.mineure_of_string key))) Exit state
-          in 
+              __POS__ (Format.sprintf "MINEURE %s %s %s" key (string_of_key key) (Public_data.string_of_mineure (Public_data.mineure_of_string (string_of_key key)))) Exit state
+          in
           if
           ((ects >= 30. && year_int >= 2024) ||
           (List.exists (fun a -> fst a= key) humanities && ects >= 48.) ||
@@ -883,7 +883,7 @@ let suggest_mineure dens state =
              Public_data.secondary_student_lastname=lastname;
              Public_data.secondary_student_firstname=firstname;
              Public_data.secondary_student_promo=dens.Public_data.dens_promotion;
-             Public_data.secondary_mineure = Public_data.mineure_of_string key ;
+             Public_data.secondary_mineure = Public_data.mineure_of_string (string_of_key key) ;
              Public_data.secondary_diplomation_year = year;
              Public_data.secondary_accepted = accepted}
             in

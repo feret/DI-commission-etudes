@@ -180,7 +180,7 @@ let dpt_of_string x =
   | "chimie" -> CHIMIE
   | "geosciences" -> GEOSCIENCES
   | "physique" -> PHYS
-  | "biologie" -> IBENS
+  | "biologie" | "bio" -> IBENS
   | "" | "ens" -> ENS
   | "eco" | "economie" -> ECO
   | "echanges dri"
