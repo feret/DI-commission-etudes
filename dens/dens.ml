@@ -879,6 +879,10 @@ let suggest_mineure dens state =
                     ects+.course.Public_data.supplement_ects)
               ects elt.Public_data.dens
           in
+          let state =
+                     Remanent_state.warn
+                       __POS__ (Format.sprintf "MINEURE %s %s %s" key (string_of_key key) (Public_data.string_of_mineure (Public_data.mineure_of_string (string_of_key key)))) Exit state
+                   in
           if
           ((ects >= 30. && year_int >= 2024) ||
           (List.exists (fun a -> fst a= key) humanities && ects >= 48.) ||
