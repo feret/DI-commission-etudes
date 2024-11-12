@@ -211,7 +211,7 @@ let string_of_mineure x =
 
 let mineure_of_string x =
   match x with
-    | "ceres" | "environnement" | "environnement et société" | "environnnement et societe "-> Specific Environnement
+    | "ceres" | "environnement" | "environnement et société" | "environnement et societe "-> Specific Environnement
     | "musicologie" -> Specific Musicologie
     | "sciences cognitives" -> Specific Sciences_Cognitives
     | _ -> DPT (dpt_of_string x)
