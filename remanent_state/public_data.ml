@@ -177,7 +177,6 @@ let string_of_dpt x =
   | ENS -> ""
 
 let dpt_of_string x =
-  let x = Special_char.lowercase (Special_char.correct_string_txt (Special_char.correct_string_utf8 (String.trim x))) in
   match x with
   | "informatique" | "di" -> DI
   | "mathematiques" | "dma" -> DMA
@@ -210,11 +209,16 @@ let string_of_mineure x =
       | Specific x -> string_of_specific x
 
 let mineure_of_string x =
+  let x = Special_char.lowercase (Special_char.correct_string_txt (Special_char.correct_string_utf8 (String.trim x))) in
   match x with
-    | "ceres" | "environnement" | "environnement et société" | "environnement et societe "-> Specific Environnement
+    | "ceres" | "environnement" | "environnement et societe "-> Specific Environnement
     | "musicologie" -> Specific Musicologie
     | "sciences cognitives" -> Specific Sciences_Cognitives
     | _ -> DPT (dpt_of_string x)
+
+let dpt_of_string x =
+  let x = Special_char.lowercase (Special_char.correct_string_txt (Special_char.correct_string_utf8 (String.trim x))) in
+  dpt_of_string x
 
 let file_suffix_of_univ x =
     match x with
