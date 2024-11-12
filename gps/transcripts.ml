@@ -47,7 +47,9 @@ let dpt_ibens = dpt_bio
 let dpt_dec = "etudes cognitives"
 let dpt_eco = "economie"
 let dpt_dri = "relations internationales"
-
+let dpt_hist = "histoire"
+let dpt_sciences_antiquite = "sciences de l'antiquité"
+let dpt_geog = "geographie"
 
 let dpt_maths_en = "mathematics"
 let dpt_info_en = "computer science"
@@ -62,7 +64,10 @@ let dpt_ibens_en = dpt_bio_en
 
 let dpt_dec_en = "cognitive sciences"
 let dpt_eco_en = "economics"
-
+let dpt_hist_en = "history"
+let dpt_geog_en = "geography"
+let dpt_dsa_en = "ancient sciences"
+let dpt_dss_en = "social sciences"
 
 
 let dpt_eco_gps_name = dpt_eco
@@ -76,6 +81,10 @@ let dpt_dri_gps_name = dpt_dri
 let dpt_dec_gps_name = dpt_dec
 let dpt_arts_gps_name  = dpt_arts
 let dpt_lila_gps_name = dpt_lila
+let dpt_hist_gps_name = dpt_hist
+let dpt_geog_gps_name = dpt_geog
+let dpt_dsa_gps_name = dpt_sciences_antiquite
+let dpt_dss_gps_name = dpt_sciences_sociales
 
 let acro_dpt_arts = "Département des arts"
 let acro_dpt_phys = "Département de Physique"
@@ -87,6 +96,11 @@ let acro_dpt_eco = "Département de d'Économie"
 let acro_dpt_bio = "Département de Biologie"
 let acro_dpt_dri = "DRI"
 let acro_dpt_lila = "LILA"
+let acro_dpt_hist = "Département d'Histoire"
+let acro_dpt_geog = "Département de Géographie"
+let acro_dpt_dss = "Département de Sciences Sociales"
+let acro_dpt_dsa = "Département des Sciences de l'Antiquité"
+
 
 let dpt_arts_full = "Département d'Arts"
 let dpt_info_full = "Département d'Informatique"
@@ -99,6 +113,12 @@ let dpt_dec_full = "Département d'Études Cognitives"
 let dpt_eco_full = "Département d'Économie"
 let dpt_dri_full = "Direction des Relations Internationales"
 let dpt_lila_full = "Département de Litteratures et Langage"
+let dpt_hist_full = "Département d'Histoire"
+let dpt_geog_full = "Département de Géographie"
+let dpt_dss_full = "Département de Sciences Sociales"
+let dpt_dsa_full = "Département des Sciences de l'Antiquité"
+
+
 
 let dpt_arts_full_en = "Arts Department"
 let dpt_info_full_en = "Computer Science Department"
@@ -111,6 +131,12 @@ let dpt_dec_full_en = "Cognitive Studies Department"
 let dpt_eco_full_en = "Economy Department"
 let dpt_dri_full_en = "International Relations Office"
 let dpt_lila_full_en = "Litteratures and Language Department"
+let dpt_hist_full_en = "History Department"
+let dpt_geog_full_en = "Geography Department"
+let dpt_dss_full_en = "Social Sciences Department"
+let dpt_dsa_full_en = "Ancient Sciences Department"
+
+
 
 let simplify_string s =
   Special_char.lowercase
@@ -139,6 +165,14 @@ let acro_of_gps_name x =
   then acro_dpt_arts
   else if x = dpt_lila_gps_name
   then acro_dpt_lila
+  else if x = dpt_hist_gps_name
+  then acro_dpt_hist
+  else if x = dpt_geog_gps_name
+  then acro_dpt_geog
+  else if x = dpt_dss_gps_name
+  then acro_dpt_dss
+  else if x = dpt_dsa_gps_name
+  then acro_dpt_dsa
   else acro_dpt_info
 
 let addmap x data map =
@@ -1276,6 +1310,9 @@ let store_cours  =
       let lila = 24
       let phil = 25
       let phys = 30
+      let hist = 31
+      let geog = 32
+      let dss = 34
       let vetu = 35
       let autre = 40
       let manquant = 50
@@ -1301,6 +1338,9 @@ let store_cours  =
           lila, "LILA";
           phil, "PHIL";
           phys, "PHYS";
+          hist, "HIST";
+          geog, "GEOG";
+          dss, "DSS";
           vetu, "VETU";
         ]
 
@@ -2773,6 +2813,10 @@ let lpoly d =
   lgen "licence" ["gps74842"] "" None d
 let lbio _ = false
 let ldec _ = false
+let ldss _ = false
+let ldsa _ = false
+let lhist _ = false
+let lgeog _ = false
 
 let lerasmus origine =
   match origine with
@@ -3037,7 +3081,12 @@ let translate_dpt ~firstname ~lastname ~year state d =
       | x when x=dpt_eco_gps_name -> state, (dpt_eco_full,dpt_eco_full_en)
       | x when x=dpt_arts_gps_name -> state, (dpt_arts_full,dpt_arts_full_en)
       | x when x=dpt_lila_gps_name -> state, (dpt_lila_full,dpt_lila_full_en)
-      | x ->
+      | x when x=dpt_dss_gps_name -> state, (dpt_dss_full,dpt_dss_full_en)
+      | x when x=dpt_dsa_gps_name -> state, (dpt_dsa_full,dpt_dsa_full_en)
+      | x when x=dpt_hist_gps_name -> state, (dpt_hist_full,dpt_hist_full_en)
+      | x when x=dpt_geog_gps_name -> state, (dpt_geog_full,dpt_geog_full_en)
+
+  | x ->
         Remanent_state.warn
           __POS__
           (Format.sprintf "Unknown dpt %s for %s %s in %i" x firstname lastname year)
@@ -3318,7 +3367,19 @@ let dispatch_l ~firstname ~lastname check_dpt  origine situation code_cours year
           (Some "L","L3 de Sciences de la Terre","Bachelor in Earth Sciences",dpt_geosciences,dpt_geosciences_en,false,is_m2)
          else if ldec situation then
           state,
-          (Some "L","L3 de sciences cognitives","Bachelor in Cognitive Sciences",dpt_ibens,dpt_ibens_en,false,is_m2)
+          (Some "L","L3 de sciences cognitives","Bachelor in Cognitive Sciences",dpt_dec,dpt_dec_en,false,is_m2)
+         else if ldss situation then
+         state,
+         (Some "L","L3 de sciences sociales","Bachelor in Social Sciences",dpt_sciences_sociales,dpt_dss_en,false,is_m2)
+         else if lgeog situation then
+         state,
+         (Some "L","L3 de géographie","Bachelor in Geography",dpt_geog,dpt_geog_en,false,is_m2)
+         else if ldsa situation then
+         state,
+         (Some "L","L3 de sciences de l'Antiquité","Bachelor in Ancient Sciences",dpt_sciences_antiquite,dpt_dsa_en,false,is_m2)
+         else if lhist situation then
+         state,
+         (Some "L","L3 d'Histoire","Bachelor in History",dpt_hist,dpt_hist_en,false,is_m2)
          else
           check_dpt __POS__ state origine
             "L" "L3" "Bachelor" code_cours year
@@ -3636,6 +3697,11 @@ let dpt_of_acro who pos state dpt origine =
     | Public_data.LILA -> state, Some dpt_lila
     | Public_data.DRI -> state, Some dpt_dri
     | Public_data.DEC -> state, Some dpt_dec
+    | Public_data.DSS -> state, Some dpt_sciences_sociales
+    | Public_data.DSA -> state, Some dpt_sciences_antiquite
+    | Public_data.HIST -> state, Some dpt_hist
+    | Public_data.GEOG -> state, Some dpt_geog
+
     | Public_data.ENS ->
       let msg =
         Format.sprintf "Unknown departement (%s) for %s"
@@ -3675,7 +3741,11 @@ let check_mandatory state cours =
       true
     else
       false
-  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.DMA | Public_data.DEC | Public_data.LILA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS) -> state, false
+  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.DMA | Public_data.DEC | Public_data.LILA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS    | Public_data.DSS
+     | Public_data.DSA
+     | Public_data.HIST
+     | Public_data.GEOG
+) -> state, false
 
 let is_mandatory state cours =
   let state, b = check_mandatory state cours in
@@ -3715,7 +3785,11 @@ let check_count_for_maths state cours =
         ||
         course_by_dma cours
     end
-  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.DEC |  Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.DMA | Public_data.LILA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, false
+  | state, ( Public_data.DSS
+     | Public_data.DSA
+     | Public_data.HIST
+     | Public_data.GEOG |
+ Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.DEC |  Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.DMA | Public_data.LILA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, false
 
 let count_for_maths state cours =
   let state, b = check_count_for_maths state cours in
@@ -3886,7 +3960,7 @@ let add_dens state year compensation unvalidated force_validation ects course co
       with
       | Some true ->  add_dens_ok state year course ects course_list map skip_dens
       | Some false -> state, course_list, map
-      | None -> state, course_list, add_dens_potential year ects map 
+      | None -> state, course_list, add_dens_potential year ects map
 
 let add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens =
     if (course.ects = None || course.ects = Some 0.) && is_stage course then
@@ -4143,11 +4217,15 @@ let heading
                 "D\\'epartement de Géosciences. \\'Ecole  Normale  Sup\\'erieure. 4XXXXXXX 75005 Paris. Tel : +33 (0)1 44 32 ?? ??."
             in
             state
-      | state, (Public_data.ARTS | Public_data.DRI | Public_data.ENS | Public_data.ECO | Public_data.IBENS | Public_data.LILA) ->
+      | state, (Public_data.ARTS | Public_data.DRI | Public_data.ENS | Public_data.ECO | Public_data.IBENS | Public_data.LILA    | Public_data.DSS
+         | Public_data.DSA
+         | Public_data.HIST
+         | Public_data.GEOG
+    ) ->
       let state =
         Remanent_state.warn
           __POS__
-          "ARTS/DRI/ENS/IBENS/ECO are not a valid dpt to edit transcripts"
+          "ARTS/DRI/ENS/IBENS/ECO/DSS/DSA/HIST/GEOG are not a valid dpt to edit transcripts"
           Exit
           state
       in state
@@ -4358,6 +4436,11 @@ let heading
           | Public_data.ARTS -> "d'arts"
           | Public_data.LILA -> "de littératures et langage"
           | Public_data.DEC -> "d'études cognitives"
+          | Public_data.DSS -> "de sciences sociales"
+          | Public_data.DSA -> "de sciences de l'antiquité"
+          | Public_data.HIST -> "d'Histoire"
+          | Public_data.GEOG -> "de géographie"
+
           | Public_data.DRI -> "")
       ),
       (Format.sprintf "Year: %s Department"
@@ -4373,6 +4456,11 @@ let heading
           | Public_data.ARTS -> "Arts"
           | Public_data.LILA -> "Litteratures and Language"
           | Public_data.DEC  -> "Cognitive Studies"
+          | Public_data.DSS -> "Social Sciences"
+          | Public_data.DSA -> "Ancient Sciences"
+          | Public_data.HIST -> "History"
+          | Public_data.GEOG -> "Geography"
+
           | Public_data.DRI -> "")
          ),
       None, None
@@ -5387,6 +5475,11 @@ let program
                 | _,Public_data.ENS -> None
                 | _,(Public_data.ARTS
                     | Public_data.ECO | Public_data.DI | Public_data.DMA | Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.DEC
+                    | Public_data.DSS
+                    | Public_data.DSA
+                    | Public_data.HIST
+                    | Public_data.GEOG
+
                 | Public_data.IBENS | Public_data.PHYS | Public_data.LILA) ->
                   Some dpt)
             ~gpscodelist
@@ -7113,6 +7206,10 @@ let dpt_of_snd state x =
     | "UNDDSEC-ART" -> state, Some dpt_arts
     | "UNDDSEC-PHI" -> state, Some dpt_phil
     | "UNDDSEC-DEC" -> state, Some dpt_dec_gps_name
+    | "UNDDSEC-HIST" -> state, Some dpt_hist_gps_name
+    | "UNDDSEC-GEOG" -> state, Some dpt_geog_gps_name
+    | "UNDDSEC-DSA" -> state, Some dpt_dsa_gps_name
+
     | _ ->
       Remanent_state.warn
         __POS__ (Format.sprintf "Unknown dpt code (%s)" x) Exit state, None
@@ -8443,6 +8540,10 @@ let export_transcript
                  | state, (Public_data.DRI | Public_data.DI | Public_data.ENS) -> state, None
                  | state, (Public_data.ARTS
                           | Public_data.ECO
+                          | Public_data.DSS
+                          | Public_data.DSA
+                          | Public_data.HIST
+                          | Public_data.GEOG
                           | Public_data.DMA
                           | Public_data.DEC
                           | Public_data.CHIMIE
@@ -9474,6 +9575,10 @@ let export_transcript
                  | Public_data.DMA
                  | Public_data.CHIMIE
                  | Public_data.GEOSCIENCES
+                 | Public_data.DSS
+                 | Public_data.DSA
+                 | Public_data.HIST
+                 | Public_data.GEOG
                  | Public_data.PHYS
                  | Public_data.IBENS
                  | Public_data.DEC

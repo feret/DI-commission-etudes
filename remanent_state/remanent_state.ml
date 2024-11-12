@@ -288,7 +288,7 @@ let set_dma parameters =
     diplomation_repository = "dma/scolarite/diplomation" ;
     repartition = Public_data.Annee_obtention_du_diplome ;
     include_pictures = false;
-    load_gps_data = true ;
+    load_gps_data = false ;
 
   }
 
@@ -325,7 +325,7 @@ let set_phys parameters =
         scholarships_repository = "geosciences/scolarite/ELEVES" ;
         diplomation_repository = "geosciences/scolarite/diplomation" ;
         add_grades_without_registration = true  ;
-        load_gps_data = true ;
+        load_gps_data = false ;
 
         repartition = Public_data.Annee_obtention_du_diplome ;
         include_pictures = true;

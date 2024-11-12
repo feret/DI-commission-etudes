@@ -285,6 +285,35 @@ let direction_etude_lila =
     Public_data.StringMap.empty
     People.lila_list
 
+let direction_etude_dsa =
+      List.fold_left
+        (fun map elt ->
+           Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+        Public_data.StringMap.empty
+        People.dsa_list
+
+        let direction_etude_dss =
+              List.fold_left
+                (fun map elt ->
+                   Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+                Public_data.StringMap.empty
+                People.dss_list
+
+                let direction_etude_hist =
+                      List.fold_left
+                        (fun map elt ->
+                           Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+                        Public_data.StringMap.empty
+                        People.hist_list
+
+                        let direction_etude_geog =
+                              List.fold_left
+                                (fun map elt ->
+                                   Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+                                Public_data.StringMap.empty
+                                People.geog_list
+
+
 let diplomes =
   List.fold_left
     (fun map elt ->
@@ -396,6 +425,59 @@ let diplomes_lila =
     Public_data.StringUnivMap.empty
     [dens]
 
+    let diplomes_dss =
+      List.fold_left
+        (fun map elt ->
+           Public_data.StringUnivMap.add
+             (match elt with
+              | Public_data.Diplome_ENS elt ->
+                elt.Public_data.dens_key,Public_data.UENS
+              | Public_data.Diplome_National elt ->
+                elt.Public_data.dn_key,elt.Public_data.dn_univ_key)
+             elt map)
+        Public_data.StringUnivMap.empty
+        [dens]
+
+        let diplomes_dsa =
+          List.fold_left
+            (fun map elt ->
+               Public_data.StringUnivMap.add
+                 (match elt with
+                  | Public_data.Diplome_ENS elt ->
+                    elt.Public_data.dens_key,Public_data.UENS
+                  | Public_data.Diplome_National elt ->
+                    elt.Public_data.dn_key,elt.Public_data.dn_univ_key)
+                 elt map)
+            Public_data.StringUnivMap.empty
+            [dens]
+
+            let diplomes_geog =
+              List.fold_left
+                (fun map elt ->
+                   Public_data.StringUnivMap.add
+                     (match elt with
+                      | Public_data.Diplome_ENS elt ->
+                        elt.Public_data.dens_key,Public_data.UENS
+                      | Public_data.Diplome_National elt ->
+                        elt.Public_data.dn_key,elt.Public_data.dn_univ_key)
+                     elt map)
+                Public_data.StringUnivMap.empty
+                [dens]
+
+                let diplomes_hist =
+                  List.fold_left
+                    (fun map elt ->
+                       Public_data.StringUnivMap.add
+                         (match elt with
+                          | Public_data.Diplome_ENS elt ->
+                            elt.Public_data.dens_key,Public_data.UENS
+                          | Public_data.Diplome_National elt ->
+                            elt.Public_data.dn_key,elt.Public_data.dn_univ_key)
+                         elt map)
+                    Public_data.StringUnivMap.empty
+                    [dens]
+
+
 let print_sous_commission
     commission_rep
     ?commission_year
@@ -437,6 +519,15 @@ let print_sous_commission
     | Public_data.LILA ->
       People.dpt_lila,
       direction_etude_lila,diplomes_lila,People.footpage_string_lila,Color.white
+  | Public_data.HIST ->
+      People.dpt_hist, direction_etude_hist,diplomes_hist,People.footpage_string_hist,Color.red
+  | Public_data.GEOG ->
+  People.dpt_geog, direction_etude_geog,diplomes_geog,People.footpage_string_geog,Color.green
+  | Public_data.DSS ->
+  People.dpt_dss, direction_etude_dss,diplomes_dss,People.footpage_string_dss,Color.blue
+  | Public_data.DSA ->
+  People.dpt_dsa, direction_etude_dsa,diplomes_dsa,People.footpage_string_dsa,Color.blue
+
   in
   let state, full_year =
     match

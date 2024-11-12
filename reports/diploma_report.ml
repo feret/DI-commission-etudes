@@ -377,6 +377,35 @@ let direction_etude_eco =
            Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
         Public_data.StringMap.empty
         People.gsc_list
+
+        let direction_etude_dsa =
+              List.fold_left
+                (fun map elt ->
+                   Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+                Public_data.StringMap.empty
+                People.dsa_list
+
+                let direction_etude_dss =
+                      List.fold_left
+                        (fun map elt ->
+                           Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+                        Public_data.StringMap.empty
+                        People.dss_list
+
+                        let direction_etude_hist =
+                              List.fold_left
+                                (fun map elt ->
+                                   Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+                                Public_data.StringMap.empty
+                                People.hist_list
+
+                                let direction_etude_geog =
+                                      List.fold_left
+                                        (fun map elt ->
+                                           Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+                                        Public_data.StringMap.empty
+                                        People.geog_list
+
 let dump_attestation
   ?output_repository
   ?prefix
@@ -611,7 +640,26 @@ let dump_attestation
                   Loggers.setfootpage logger ~color
                     [Loggers.fprintf,
                      People.footpage_string_gsc], direction_etude_gsc, "géosciences"
-
+      | Public_data.DSS ->
+      let color = Color.blue in
+      Loggers.setfootpage logger ~color
+        [Loggers.fprintf,
+         People.footpage_string_dss], direction_etude_dss, "sciences sociales"
+      | Public_data.DSA ->
+      let color = Color.blue in
+      Loggers.setfootpage logger ~color
+        [Loggers.fprintf,
+         People.footpage_string_dsa], direction_etude_dsa, "sciences de l'Antiquité"
+      | Public_data.HIST ->
+      let color = Color.red in
+      Loggers.setfootpage logger ~color
+        [Loggers.fprintf,
+         People.footpage_string_hist], direction_etude_hist, "Histoire"
+      | Public_data.GEOG ->
+      let color = Color.green in
+      Loggers.setfootpage logger ~color
+        [Loggers.fprintf,
+         People.footpage_string_geog], direction_etude_geog, "géographie"
 
     in
     let dir =  Public_data.StringMap.find_opt signataire dir_list in

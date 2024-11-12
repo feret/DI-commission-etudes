@@ -153,7 +153,12 @@ let translate_main_dpt x =
   | Public_data.ARTS -> arts
   | Public_data.LILA -> lila
   | Public_data.DMA -> dma
-  | Public_data.DEC -> dec)
+  | Public_data.DEC -> dec
+  | Public_data.DSA -> dsa
+  | Public_data.DSS -> dss
+  | Public_data.GEOG -> geog
+  | Public_data.HIST -> hist
+)
 
 let kind_of_dpt dpt =
     match Public_data.StringMap.find_opt (translate_main_dpt dpt) map with
@@ -776,6 +781,10 @@ let dump_dens dens state =
           | Public_data.ECO -> "économie"
           | Public_data.LILA -> "langues anciennes"
           | Public_data.ARTS -> "arts"
+          | Public_data.DSA -> "sciences de l'antiquité"
+          | Public_data.DSS -> "sciences sociales"
+          | Public_data.GEOG -> "geographie"
+          | Public_data.HIST -> "histoire"
           | (Public_data.ENS|Public_data.DRI)
   -> "informatique") in
       let state =
@@ -819,7 +828,10 @@ dens.Public_data.dens_nb_math_and_math_info_course > 1) state in
            end
            | Public_data.DMA
            | Public_data.ENS | Public_data.GEOSCIENCES
-           | Public_data.PHYS | Public_data.CHIMIE | Public_data.DEC |  Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> state
+           | Public_data.PHYS | Public_data.CHIMIE | Public_data.DEC |  Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA
+          | Public_data.DSA | Public_data.DSS
+          | Public_data.GEOG | Public_data.HIST
+       -> state
       in
       let () = Remanent_state.fprintf state "\\end{minipage}" in
       let () = Remanent_state.fprintf state "\\end{center}" in
@@ -866,10 +878,6 @@ let suggest_mineure dens state =
                 (fun ects course ->
                     ects+.course.Public_data.supplement_ects)
               ects elt.Public_data.dens
-          in
-          let state =
-            Remanent_state.warn
-              __POS__ (Format.sprintf "MINEURE %s %s %s" key (string_of_key key) (Public_data.string_of_mineure (Public_data.mineure_of_string (string_of_key key)))) Exit state
           in
           if
           ((ects >= 30. && year_int >= 2024) ||

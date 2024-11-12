@@ -524,6 +524,11 @@ let state, _dpt, signataires =
   | state, Public_data.ECO -> state, Public_data.ECO, []
   | state, Public_data.DRI -> state, Public_data.DRI, []
   | state, Public_data.LILA -> state, Public_data.LILA, []
+  | state, Public_data.DSS -> state, Public_data.DSS, []
+  | state, Public_data.DSA -> state, Public_data.DSA, []
+  | state, Public_data.HIST -> state, Public_data.HIST, []
+  | state, Public_data.GEOG -> state, Public_data.GEOG, []
+
 let state =
   match
     Remanent_state.get_commission state
