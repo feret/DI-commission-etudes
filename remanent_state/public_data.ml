@@ -211,7 +211,7 @@ let string_of_mineure x =
 let mineure_of_string x =
   let x = Special_char.lowercase (Special_char.correct_string_txt (Special_char.correct_string_utf8 (String.trim x))) in
   match x with
-    | "ceres" | "environnement" | "environnement et societe "-> Specific Environnement
+    | "ceres" | "environnement" | "environnement et societe"-> Specific Environnement
     | "musicologie" -> Specific Musicologie
     | "sciences cognitives" -> Specific Sciences_Cognitives
     | _ -> DPT (dpt_of_string x)
