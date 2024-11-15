@@ -198,8 +198,6 @@ let print_preamble state dens =
         let () =
             Remanent_state.fprintf state "\\end{minipage}"
         in
-
-        let () = Remanent_state.fprintf state "\\clearpage" in
         state
 
 
