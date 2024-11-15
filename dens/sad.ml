@@ -29,6 +29,7 @@ let print_preamble state dens =
         "{\\includegraphics[width=5cm]{%s}}\\mbox{}"
         x
     in
+    let state, main_dpt = Remanent_state.get_main_dpt state in
     let state, s  =
       Tools.include_latex_list
         f
@@ -110,7 +111,24 @@ let print_preamble state dens =
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Principal(aux) domaine(s) d'étude couvert(s) par le diplôme~:}" in
     let () = Remanent_state.print_newline state in
-    let () = Remanent_state.fprintf state "{\\noindent}Spécialité principale~: INFORMATIQUE" in
+    let () = Remanent_state.fprintf state "{\\noindent}Spécialité principale~: %s" (match main_dpt with
+            | Public_data.DI -> "INFORMATIQUE"
+            | Public_data.GEOSCIENCES -> "GÉOSCIENCES"
+            | Public_data.DMA -> "MATHÉMATIQUES"
+            | Public_data.ENS -> "N/A"
+            | Public_data.CHIMIE -> "CHIMIE"
+            | Public_data.PHYS -> "PHYSIQUE"
+            | Public_data.IBENS -> "BIOLOGIE"
+            | Public_data.ECO -> "ÉCONOMIE"
+            | Public_data.DRI -> "N/A"
+            | Public_data.ARTS -> "ARTS"
+            | Public_data.LILA -> "LITTÉRATURES ET LANGAGE"
+            | Public_data.DEC -> "SCIENCES COGNITIVES"
+            | Public_data.DSA -> "SCIENCES DE L'ANTIQUITÉ"
+            | Public_data.DSS -> "SCIENCES SOCIALES"
+            | Public_data.GEOG -> "GÉOGRAPHIE"
+            | Public_data.HIST -> "HISTOIRE")
+    in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Nom et statut de l'établissement ayant délivré le diplôme~:}" in
     let () = Remanent_state.print_newline state in
