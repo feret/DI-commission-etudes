@@ -1293,6 +1293,23 @@ let store_cours  =
           || Tools.substring "expérience de recherche" a
       end
 
+  let not_stages =
+    [
+    "GSC-L3-DENS10-S2";
+    "GSC-L3-A01-S1";
+    "GSC-DENS-A01-S1";
+    "GSC-L3-DENS-D04-S2";
+    "XT 00000000000678402";
+    "XT 00000000000678762";
+    ]
+
+  let is_stage cours =
+    is_stage cours
+    &&
+      match cours.code_cours with
+        | None -> true
+        | Some k -> not (List.mem k not_stages)
+
       let stage = 250
       let memoire = 240
       let ecla = -10
