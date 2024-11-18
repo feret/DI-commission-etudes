@@ -221,7 +221,8 @@ let dpt_of_string x =
   dpt_of_string x
 
 let dpt_of_string x =
-  let () = Format.printf "DPT OF STRING %s %s" (x) (string_of_dpt (dpt_of_string x)) in
+let x' = Special_char.lowercase (Special_char.correct_string_txt (Special_char.correct_string_utf8 (String.trim x))) in
+  let () = Format.printf "DPT OF STRING (%s) (%s) (%s)" x x' (string_of_dpt (dpt_of_string x)) in
   dpt_of_string x
 
 let file_suffix_of_univ x =
