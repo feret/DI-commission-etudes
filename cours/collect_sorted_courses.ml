@@ -135,7 +135,6 @@ let all_fields =
        ~keyword:Public_data.Departement
        ~set_tmp:(fun state at_dpt x ->
          let at_dpt =
-            let () = Format.printf "COLLECT SORTED COURSE %s @." (match at_dpt with Some x -> x | None -> "none") in 
            Tools.map_opt
              Public_data.dpt_of_string at_dpt
          in state, {x with at_dpt})
