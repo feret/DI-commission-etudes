@@ -1301,6 +1301,7 @@ let store_cours  =
     "GSC-L3-DENS-D04-S2";
     "XT 00000000000678402";
     "XT 00000000000678762";
+    "XT 00000000000670607";
     ]
 
   let is_stage cours =
