@@ -243,6 +243,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
                 Exit state, ""
       end
     in
+    let state = Remanent_state.warn __POS__ (Format.sprintf "COURSE: %s %s" course.Public_data.supplement_code code) Exit state in 
     if code = main_dpt then
       let state, (key,_kind) =
           kind_of_course state code course.Public_data.supplement_extra
