@@ -181,7 +181,7 @@ let dpt_of_string x =
   | "informatique" | "di" -> DI
   | "mathematiques" | "dma" -> DMA
   | "chimie" -> CHIMIE
-  | "geosciences" | "gsc "-> GEOSCIENCES
+  | "geosciences" | "gsc"-> GEOSCIENCES
   | "histoire" | "hist" -> HIST
   | "geographie" | "geog" -> GEOG
   | "sciences sociales" | "dss"-> DSS
