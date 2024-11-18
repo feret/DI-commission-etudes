@@ -181,19 +181,19 @@ let dpt_of_string x =
   | "informatique" | "di" -> DI
   | "mathematiques" | "dma" -> DMA
   | "chimie" -> CHIMIE
-  | "geosciences" -> GEOSCIENCES
-  | "histoire" -> HIST
-  | "geographie" -> GEOG
-  | "sciences sociales" -> DSS
-  | "sciences de l'antiquite" -> DSA
-  | "physique" -> PHYS
-  | "biologie" | "bio" -> IBENS
+  | "geosciences" | "gsc "-> GEOSCIENCES
+  | "histoire" | "hist" -> HIST
+  | "geographie" | "geog" -> GEOG
+  | "sciences sociales" | "dss"-> DSS
+  | "sciences de l'antiquite" | "dsa" -> DSA
+  | "physique" | "phys"-> PHYS
+  | "biologie" | "bio" | "ibens"-> IBENS
   | "" | "ens" -> ENS
   | "eco" | "economie" -> ECO
   | "echanges dri"
   | "relations internationales" -> DRI
-  | "litteratures et langage" -> LILA
-  | "etudes cognitives" | "sciences cognitives" -> DEC
+  | "litteratures et langage" | "lila"-> LILA
+  | "etudes cognitives" | "sciences cognitives" | "dec" -> DEC
   | "arts" -> ARTS
   | _ -> DI
 
