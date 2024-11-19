@@ -1310,7 +1310,9 @@ let store_cours  =
     "GSC-M1-DENSA02-S1" (*Stage de géodesie*);
     "GSC-M1-ST1-S1";
     "GSC-M1-ST2-S1";
-
+    "GSC-M2-ST5-S1";
+    "GSC-M2-ST6-S1"; (*Participation au stage de terrain *)
+    "GSC-M2-ST7-S2";
   ]
 
 
