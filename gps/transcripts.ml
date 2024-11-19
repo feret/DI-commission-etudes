@@ -1306,7 +1306,7 @@ let store_cours  =
     "GSC-L3-DENS09-S2"; (*Participation au stage Etna*)
     "GSC-L3-DENS-A01-S1"; (*Stage de pédologie des Alpes*)
     "GSC-M1-A01a-S1"; (*Stage*)
-    "GSC-M1-D04-S2"; (*stage de recherche en laboratoire a l’etranger*)
+    (*"GSC-M1-D04-S2"; (*stage de recherche en laboratoire a l’etranger*)*)
     "GSC-M1-DENSA02-S1" (*Stage de géodesie*);
     "GSC-M1-ST1-S1";
     "GSC-M1-ST2-S1";
