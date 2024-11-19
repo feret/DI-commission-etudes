@@ -364,7 +364,7 @@ let fold_repartition_stages ~firstname ~lastname state stages dens =
     List.fold_left
       (fun (state,dens) stage ->
           match
-            Remanent_state.get_sorted_internships ~firstname ~lastname  ~libelle:stage.Public_data.activite_intitule  state
+            Remanent_state.get_sorted_internships ~firstname ~lastname  ~libelle:stage.Public_data.activite_intitule  ~year:stage.Public_data.activite_annee state
           with
             | state, [] ->
               begin
