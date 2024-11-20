@@ -1298,7 +1298,7 @@ let store_cours  =
     "GSC-L3-DENS10-S2"; (*Stage de météorologie*)
     "GSC-L3-A01-S1"; (*Stage de cartographie des Alpes*)
     "GSC-L3A01-S1"; (*Stage de cartographie des Alpes*)
-    "GSC-L3-L3A01-S1" (*Stage de cartographie des Alpes*)
+    "GSC-L3-L3A01-S1"; (*Stage de cartographie des Alpes*)
     "GSC-DENS-A01-S1"; (*Stage de Pédologie des alpes*)
     "GSC-DENSA01-S1"; (*Stage de Pédologie des alpes*)
     "GSC-L3-DENSA01-S1"; (*Stage de Pédologie des alpes*)
