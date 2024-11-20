@@ -528,6 +528,7 @@ let state, _dpt, signataires =
   | state, Public_data.DSA -> state, Public_data.DSA, []
   | state, Public_data.HIST -> state, Public_data.HIST, []
   | state, Public_data.GEOG -> state, Public_data.GEOG, []
+  | state, Public_data.ECLA -> state, Public_data.ECLA, []
 
 let state =
   match

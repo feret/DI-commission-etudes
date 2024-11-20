@@ -165,9 +165,10 @@ module Build
       | Public_data.ENS | Public_data.PHYS | Public_data.CHIMIE
       | Public_data.IBENS | Public_data.DMA | Public_data.GEOSCIENCES
       | Public_data.ECO | Public_data.DRI | Public_data.ARTS
-      | Public_data.LILA | Public_data.DEC 
+      | Public_data.LILA | Public_data.DEC
       | Public_data.DSA | Public_data.DSS
       | Public_data.GEOG | Public_data.HIST
+      | Public_data.ECLA
         ->
         [prenom_etudiant;nom_etudiant;promotion;inscriptions; total ]
       | Public_data.DI ->
@@ -209,7 +210,7 @@ module Build
       | Public_data.LILA | Public_data.DEC
       | Public_data.ECO | Public_data.DRI | Public_data.ARTS
       | Public_data.DSA | Public_data.DSS
-      | Public_data.GEOG | Public_data.HIST
+      | Public_data.GEOG | Public_data.HIST | Public_data.ECLA
         ->
         [prenom_etudiant;nom_etudiant;inscriptions;  total ]
       | Public_data.DI ->
@@ -252,7 +253,7 @@ module Build
       | Public_data.LILA | Public_data.DEC
       | Public_data.ECO | Public_data.DRI | Public_data.ARTS
       | Public_data.DSA | Public_data.DSS
-      | Public_data.GEOG | Public_data.HIST
+      | Public_data.GEOG | Public_data.HIST | Public_data.ECLA
         ->
         [prenom_etudiant;nom_etudiant;promotion; total ]
       | Public_data.DI ->

@@ -597,6 +597,13 @@ let dump_attestation
           Loggers.fprintf,
           People.footpage_string
         ],direction_etude, "informatique"
+      | Public_data.ECLA ->
+          let color = Color.blue in
+          Loggers.setfootpage logger ~color
+          [
+            Loggers.fprintf,
+            People.footpage_string
+          ],direction_etude, "cultures et langues d'ailleurs"
       | Public_data.ECO ->
           let color = Color.pink in
           Loggers.setfootpage logger ~color

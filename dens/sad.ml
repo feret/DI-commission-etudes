@@ -115,7 +115,7 @@ let print_preamble state dens =
             | Public_data.DI -> "INFORMATIQUE"
             | Public_data.GEOSCIENCES -> "GÉOSCIENCES"
             | Public_data.DMA -> "MATHÉMATIQUES"
-            | Public_data.ENS -> "N/A"
+            | Public_data.ENS | Public_data.ECLA -> "N/A"
             | Public_data.CHIMIE -> "CHIMIE"
             | Public_data.PHYS -> "PHYSIQUE"
             | Public_data.IBENS -> "BIOLOGIE"

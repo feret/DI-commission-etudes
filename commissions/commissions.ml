@@ -271,6 +271,13 @@ let direction_etude_gsc=
                 Public_data.StringMap.empty
                 People.gsc_list
 
+let direction_etude_ecla=
+                              List.fold_left
+                                (fun map elt ->
+                                   Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+                                Public_data.StringMap.empty
+                                People.ecla_list
+
 let direction_etude_eco =
   List.fold_left
     (fun map elt ->
@@ -499,6 +506,8 @@ let print_sous_commission
       People.dpt_dma,direction_etude_dma,diplomes_dma,People.footpage_string_dma,Color.duckblue
     | Public_data.DRI ->
       People.dpt_dri,direction_etude_dri,Public_data.StringUnivMap.empty ,People.footpage_string_dri,Color.orange
+    | Public_data.ECLA ->
+      People.espace_ecla,direction_etude_ecla,Public_data.StringUnivMap.empty,People.footpage_string_ecla,Color.blue
     | Public_data.ARTS ->
       People.dpt_arts,direction_etude_arts,Public_data.StringUnivMap.empty,People.footpage_string_arts,Color.brown
     | Public_data.DEC ->

@@ -54,7 +54,6 @@ let musicologie = "Musicologie",""
 let sciences_cognitives = "Sciences cognitives",""
 
 
-
 let string_of_key k =
     match String.lowercase_ascii k with
       | "info" -> "Informatique"
@@ -85,14 +84,14 @@ let string_of_key k =
 let sciences = [info;dma;bio;phys;dec;gsc;chimie]
 let humanities = [arts;dsa;eco;lila;phil;hist;dss;geog]
 let sans_mineure = [ceres]
-let ecla = [ecla;"code3251",""]
+let ecla_list = [ecla;"code3251",""]
 let activite = [vetu;dg;actd]
 
 let all =
  [
     sciences,Sciences;
     humanities,Humanities;
-    ecla,Ecla;
+    ecla_list,Ecla;
     sans_mineure,Sans_mineure;
     activite,Activite;
   ]
@@ -158,6 +157,7 @@ let translate_main_dpt x =
   | Public_data.DSS -> dss
   | Public_data.GEOG -> geog
   | Public_data.HIST -> hist
+  | Public_data.ECLA -> ecla
 )
 
 let kind_of_dpt dpt =
@@ -785,6 +785,7 @@ let dump_dens dens state =
           | Public_data.DSS -> "sciences sociales"
           | Public_data.GEOG -> "geographie"
           | Public_data.HIST -> "histoire"
+          | Public_data.ECLA -> "cultures et langues"
           | (Public_data.ENS|Public_data.DRI)
   -> "informatique") in
       let state =
@@ -829,7 +830,7 @@ dens.Public_data.dens_nb_math_and_math_info_course > 1) state in
            | Public_data.DMA
            | Public_data.ENS | Public_data.GEOSCIENCES
            | Public_data.PHYS | Public_data.CHIMIE | Public_data.DEC |  Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA
-          | Public_data.DSA | Public_data.DSS
+          | Public_data.DSA | Public_data.DSS | Public_data.ECLA
           | Public_data.GEOG | Public_data.HIST
        -> state
       in

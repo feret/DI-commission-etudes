@@ -41,6 +41,7 @@ let dpt_phil = "philosophie"
 let dpt_bio = "biologie"
 let dpt_arts = "arts"
 let dpt_lila = "litteratures et langage"
+let espace_ecla = "cultures et langues d'ailleurs"
 let dpt_ibens = dpt_bio
 
 
@@ -61,7 +62,7 @@ let dpt_bio_en = "biology"
 let dpt_arts_en = "arts"
 let dpt_lila_en = "litteratures and language"
 let dpt_ibens_en = dpt_bio_en
-
+let espace_ecla_en = "cultures and languages from elsewhere"
 let dpt_dec_en = "cognitive sciences"
 let dpt_eco_en = "economics"
 let dpt_hist_en = "history"
@@ -2853,6 +2854,7 @@ let ldss _ = false
 let ldsa _ = false
 let lhist _ = false
 let lgeog _ = false
+let lecla _ = false
 
 let lerasmus origine =
   match origine with
@@ -3416,7 +3418,10 @@ let dispatch_l ~firstname ~lastname check_dpt  origine situation code_cours year
          else if lhist situation then
          state,
          (Some "L","L3 d'Histoire","Bachelor in History",dpt_hist,dpt_hist_en,false,is_m2)
-         else
+         else if lecla situation then
+         state,
+          (Some "L","L3 cultures et langues d'ailleurs","Bachelor in Cultures and Languages from elsewhere",espace_ecla,espace_ecla_en,false,is_m2)
+        else
           check_dpt __POS__ state origine
             "L" "L3" "Bachelor" code_cours year
             situation is_m2
@@ -3536,6 +3541,7 @@ let translate_diplome
           | "LILA" -> "littératures et langage","Litteratures and Language"
           | "ECO" -> "économie","Economy"
           | "ART" -> "arts","Arts"
+          | "ECLA" -> "cultures et langues d'ailleurs","Cultures and Languages "
           | _ -> "",""
         in
         state,
@@ -3737,7 +3743,7 @@ let dpt_of_acro who pos state dpt origine =
     | Public_data.DSA -> state, Some dpt_sciences_antiquite
     | Public_data.HIST -> state, Some dpt_hist
     | Public_data.GEOG -> state, Some dpt_geog
-
+    | Public_data.ECLA -> state, Some espace_ecla
     | Public_data.ENS ->
       let msg =
         Format.sprintf "Unknown departement (%s) for %s"
@@ -3777,7 +3783,7 @@ let check_mandatory state cours =
       true
     else
       false
-  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.DMA | Public_data.DEC | Public_data.LILA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS    | Public_data.DSS
+  | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.DMA | Public_data.DEC | Public_data.LILA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS    | Public_data.DSS | Public_data.ECLA
      | Public_data.DSA
      | Public_data.HIST
      | Public_data.GEOG
@@ -3824,7 +3830,7 @@ let check_count_for_maths state cours =
   | state, ( Public_data.DSS
      | Public_data.DSA
      | Public_data.HIST
-     | Public_data.GEOG |
+     | Public_data.GEOG | Public_data.ECLA |
  Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.DEC |  Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.DMA | Public_data.LILA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, false
 
 let count_for_maths state cours =
@@ -4253,7 +4259,7 @@ let heading
                 "D\\'epartement de Géosciences. \\'Ecole  Normale  Sup\\'erieure. 4XXXXXXX 75005 Paris. Tel : +33 (0)1 44 32 ?? ??."
             in
             state
-      | state, (Public_data.ARTS | Public_data.DRI | Public_data.ENS | Public_data.ECO | Public_data.IBENS | Public_data.LILA    | Public_data.DSS
+      | state, (Public_data.ARTS | Public_data.DRI | Public_data.ENS | Public_data.ECO | Public_data.IBENS | Public_data.LILA    | Public_data.DSS | Public_data.ECLA
          | Public_data.DSA
          | Public_data.HIST
          | Public_data.GEOG
@@ -4459,44 +4465,44 @@ let heading
     || lpe origine
     then
       state,
-      (Format.sprintf "Année d'étude au département %s"
+      (Format.sprintf "Année d'étude %s"
          (match main_dpt with
-            Public_data.DI -> "d'informatique"
-          | Public_data.DMA -> "de mathématiques"
+            Public_data.DI -> "au département d'informatique"
+          | Public_data.DMA -> "au département de mathématiques"
           | Public_data.ENS -> ""
-          | Public_data.PHYS -> "de physique"
-          | Public_data.CHIMIE -> "de chimie"
-          | Public_data.GEOSCIENCES -> "de géosciences"
-          | Public_data.IBENS -> "de biologie"
-          | Public_data.ECO -> "d'économie"
-          | Public_data.ARTS -> "d'arts"
-          | Public_data.LILA -> "de littératures et langage"
-          | Public_data.DEC -> "d'études cognitives"
-          | Public_data.DSS -> "de sciences sociales"
-          | Public_data.DSA -> "de sciences de l'antiquité"
-          | Public_data.HIST -> "d'Histoire"
-          | Public_data.GEOG -> "de géographie"
-
+          | Public_data.PHYS -> "au département de physique"
+          | Public_data.CHIMIE -> "au département de chimie"
+          | Public_data.GEOSCIENCES -> "au département de géosciences"
+          | Public_data.IBENS -> "au département de biologie"
+          | Public_data.ECO -> "au département d'économie"
+          | Public_data.ARTS -> "au département d'arts"
+          | Public_data.LILA -> "au département de littératures et langage"
+          | Public_data.DEC -> "au département d'études cognitives"
+          | Public_data.DSS -> "au département de sciences sociales"
+          | Public_data.DSA -> "au département de sciences de l'antiquité"
+          | Public_data.HIST -> "au département d'Histoire"
+          | Public_data.GEOG -> "au département de géographie"
+          | Public_data.ECLA -> "à l'espace cultures et langues d'ailleurs"
           | Public_data.DRI -> "")
       ),
-      (Format.sprintf "Year: %s Department"
+      (Format.sprintf "Year: %s"
          (match main_dpt with
-            Public_data.DI -> "Computer Science"
-          | Public_data.DMA -> "Mathematics"
+            Public_data.DI -> "Computer Science Department"
+          | Public_data.DMA -> "Mathematics Department"
           | Public_data.ENS -> ""
-          | Public_data.PHYS -> "Physics"
-          | Public_data.CHIMIE -> "Chemistry"
-          | Public_data.GEOSCIENCES -> "Earch Sciences"
-          | Public_data.IBENS -> "Biology"
-          | Public_data.ECO -> "Economy"
-          | Public_data.ARTS -> "Arts"
-          | Public_data.LILA -> "Litteratures and Language"
-          | Public_data.DEC  -> "Cognitive Studies"
-          | Public_data.DSS -> "Social Sciences"
-          | Public_data.DSA -> "Ancient Sciences"
-          | Public_data.HIST -> "History"
-          | Public_data.GEOG -> "Geography"
-
+          | Public_data.PHYS -> "Physics Department"
+          | Public_data.CHIMIE -> "Chemistry Department"
+          | Public_data.GEOSCIENCES -> "Earch Sciences Department"
+          | Public_data.IBENS -> "Biology Department"
+          | Public_data.ECO -> "Economy Department"
+          | Public_data.ARTS -> "Arts Department"
+          | Public_data.LILA -> "Litteratures and Language Department"
+          | Public_data.DEC  -> "Cognitive Studies Department"
+          | Public_data.DSS -> "Social Sciences Department"
+          | Public_data.DSA -> "Ancient Sciences Department"
+          | Public_data.HIST -> "History Department"
+          | Public_data.GEOG -> "Geography Department"
+          | Public_data.ECLA -> "Cultures and languages from elsewhere space"
           | Public_data.DRI -> "")
          ),
       None, None
@@ -5510,7 +5516,7 @@ let program
                 | _,Public_data.DRI
                 | _,Public_data.ENS -> None
                 | _,(Public_data.ARTS
-                    | Public_data.ECO | Public_data.DI | Public_data.DMA | Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.DEC
+                    | Public_data.ECO | Public_data.DI | Public_data.DMA | Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.ECLA | Public_data.DEC
                     | Public_data.DSS
                     | Public_data.DSA
                     | Public_data.HIST
@@ -8586,7 +8592,8 @@ let export_transcript
                           | Public_data.GEOSCIENCES
                           | Public_data.PHYS
                           | Public_data.IBENS
-                          | Public_data.LILA)->
+                          | Public_data.LILA
+                          | Public_data.ECLA)->
                    begin
                      match
                        gps_file.tuteur
@@ -9618,7 +9625,8 @@ let export_transcript
                  | Public_data.PHYS
                  | Public_data.IBENS
                  | Public_data.DEC
-                 | Public_data.LILA)->
+                 | Public_data.LILA
+                | Public_data.ECLA )->
           begin
             match
               gps_file.tuteur

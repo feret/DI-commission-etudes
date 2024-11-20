@@ -108,7 +108,7 @@ module StringOptMap =
         end
         )
 
-type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA | DEC | DSA | DSS | GEOG | HIST
+type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA | DEC | DSA | DSS | GEOG | HIST | ECLA
 
 type specific = Musicologie | Sciences_Cognitives | Environnement
 
@@ -174,6 +174,7 @@ let string_of_dpt x =
   | DEC -> "études cognitives"
   | GEOG -> "géographie"
   | HIST -> "Histoire"
+  | ECLA -> "cultures et langues d'ailleurs"
   | ENS -> ""
 
 let dpt_of_string x =
@@ -195,6 +196,7 @@ let dpt_of_string x =
   | "litteratures et langage" | "lila"-> LILA
   | "etudes cognitives" | "sciences cognitives" | "dec" -> DEC
   | "arts" -> ARTS
+  | "cultures et langues d'ailleurs" -> ECLA 
   | _ -> DI
 
 let string_of_specific x =
