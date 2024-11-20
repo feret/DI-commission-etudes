@@ -196,7 +196,7 @@ let dpt_of_string x =
   | "litteratures et langage" | "lila"-> LILA
   | "etudes cognitives" | "sciences cognitives" | "dec" -> DEC
   | "arts" -> ARTS
-  | "cultures et langues d'ailleurs" -> ECLA 
+  | "cultures et langues d'ailleurs" | "ecla" -> ECLA 
   | _ -> DI
 
 let string_of_specific x =
