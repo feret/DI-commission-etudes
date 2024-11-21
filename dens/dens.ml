@@ -79,7 +79,8 @@ let string_of_key k =
       | "dri" -> "Relations internationales"
       | "musicologie" -> "Musicologie"
       | "sciences cognitives" -> "Sciences cognitives"
-      | _ -> "Autre"
+      | _ ->
+      let () = Format.printf "AUTRE: %s " k in "Autre"
 
 let sciences = [info;dma;bio;phys;dec;gsc;chimie]
 let humanities = [arts;dsa;eco;lila;phil;hist;dss;geog]
