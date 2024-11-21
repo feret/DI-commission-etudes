@@ -1308,7 +1308,9 @@ let store_cours  =
     "XT 00000000000678762"; (*Stage de recherche *)
     "XT 00000000000670607"; (*Stage de terrain et expérimental*)
     "GSC-L3-DENSD07-S2"; (*Stages de coupe des Alpes*)
+    "GSC-L3-DENS08-S2"; (*Organisation au stage Etna*)
     "GSC-L3-DENS09-S2"; (*Participation au stage Etna*)
+
     "GSC-L3-DENS-A01-S1"; (*Stage de pédologie des Alpes*)
     "GSC-M1-A01a-S1"; (*Stage*)
     (*"GSC-M1-D04-S2"; (*stage de recherche en laboratoire a l’etranger*)*)
