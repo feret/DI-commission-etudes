@@ -10,6 +10,7 @@ type cours_id  =
     note:float option;
     ects:float option;
     annee:Public_data.annee option;
+    commentaire:string option;
   }
 
 let empty_cours =
@@ -23,6 +24,7 @@ let empty_cours =
     note = None;
     ects = None;
     annee = None;
+    commentaire = None;
   }
 
 let keywords_list =
@@ -36,7 +38,8 @@ let keywords_list =
     Public_data.Grade;
     Public_data.ECTS;
     Public_data.Departement;
-    Public_data.Niveau
+    Public_data.Niveau;
+    Public_data.Commentaire
   ]
 
 let keywords_of_interest =
@@ -159,6 +162,16 @@ let all_fields =
             ~field_name:"COURSE DPT"
             ~pos:__POS__
             ~record_name;
+            lift_string_opt
+              ~keyword:Public_data.Commentaire
+              ~set_tmp:(Tools.collect_string (fun commentaire x -> { x with commentaire}))
+                    ~get_tmp:(fun a -> a.commentaire)
+                    ~get:(fun a -> a.Public_data.coursaj_comment)
+                    ~set:(fun coursaj_comment a ->
+                        {a with Public_data.coursaj_comment})
+                    ~field_name:"COURSE COMMENTAIRE"
+                    ~pos:__POS__
+                    ~record_name;
     lift_float
       ~keyword:Public_data.ECTS
       ~set_tmp:(collect_float "ects" __POS__
@@ -194,7 +207,7 @@ let get_additional_courses
     state
   =
   Scan_csv_files.collect_gen
-    ~strict:true 
+    ~strict:true
     ?repository
     ?prefix
     ?file_name

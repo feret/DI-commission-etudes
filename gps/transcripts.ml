@@ -1632,7 +1632,7 @@ let add_extra_course state cours_a_ajouter gps_file =
         | None ->
           Some (Public_data.Valide_sans_note)) ;
         lettre = None;
-      commentaire = [];
+      commentaire = (match cours_a_ajouter.Public_data.coursaj_comment with None -> [] | Some s -> [s]);
       extra = true;
       inconsistency = None;
       valide_dans_gps = None;
