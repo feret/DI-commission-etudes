@@ -72,6 +72,7 @@ let string_of_key k =
       | "geog" -> "Géographie"
       | "hist" -> "Histoire"
       | "ceres" -> "Environnement et société"
+      | "environnement" -> "Environnement"
       | "ecla" -> "Langues"
       | "vetu" -> "VETU"
       | "dg" -> "Délégation générale"
@@ -79,8 +80,7 @@ let string_of_key k =
       | "dri" -> "Relations internationales"
       | "musicologie" -> "Musicologie"
       | "sciences cognitives" -> "Sciences cognitives"
-      | _ ->
-      let () = Format.printf "AUTRE: %s " k in "Autre"
+      | x -> (Format.sprintf "Autre(%s)" x)
 
 let sciences = [info;dma;bio;phys;dec;gsc;chimie]
 let humanities = [arts;dsa;eco;lila;phil;hist;dss;geog]
