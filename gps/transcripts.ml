@@ -9610,6 +9610,9 @@ let export_transcript
               state, None
         | Some (_,x) -> state, x.derniere_annee
     in
+    let state, cand =
+      Remanent_state.get_ine_number ~firstname ~lastname ~year:promo state
+    in
     let dens =
         {
           Public_data.dens_main_dpt = main_dpt ;
@@ -9646,7 +9649,7 @@ let export_transcript
           Public_data.dens_activite_autre=[];
           Public_data.dens_cours_par_dpt = Public_data.StringMap.empty;
           Public_data.dens_sad = None ;
-          Public_data.dens_ine = None ;
+          Public_data.dens_ine = cand ;
           Public_data.dens_ok = None ;
         }
   in
@@ -9852,9 +9855,13 @@ let state,year = Remanent_state.get_current_academic_year state in
               match dens_in_bdd with
                 | None -> state, dens
                 | Some dens_in_bdd ->
-                  let state, ine_opt =
-                      Remanent_state.get_ine_number
-                          ~firstname ~lastname ~year:promo state
+                  let state, ine_opt
+                      =
+                        match dens_in_bdd.Public_data.dens_candidate_ine with
+                        | None ->
+                          Remanent_state.get_ine_number
+                            ~firstname ~lastname ~year:promo state
+                        | Some x -> state, Some x
                   in
                   let state, ine =
                       match ine_opt with
