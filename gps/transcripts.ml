@@ -93,7 +93,7 @@ let acro_dpt_info = "DI"
 let acro_dpt_maths = "DMA"
 let acro_dpt_chimie = "Départmenent de Chimie"
 let acro_dpt_geosciences = "Départmenent de G\'eosciences"
-let acro_dpt_eco = "Département de d'Économie"
+let acro_dpt_eco = "Département d'Économie"
 let acro_dpt_bio = "Département de Biologie"
 let acro_dpt_dri = "DRI"
 let acro_dpt_lila = "LILA"
@@ -101,6 +101,23 @@ let acro_dpt_hist = "Département d'Histoire"
 let acro_dpt_geog = "Département de Géographie"
 let acro_dpt_dss = "Département de Sciences Sociales"
 let acro_dpt_dsa = "Département des Sciences de l'Antiquité"
+
+let stage_dpt_arts = "Stage en Arts"
+let stage_dpt_phys = "Stage de Physique"
+let stage_dpt_info = "Stage d'Informatique"
+let stage_dpt_maths = "Stage de Mathématiques"
+let stage_dpt_chimie = "Stage de Chimie"
+let stage_dpt_geosciences = "Stage de G\'eosciences"
+let stage_dpt_eco = "Stage d'Économie"
+let stage_dpt_bio = "Stage de Biologie"
+let stage_dpt_lila = "LILA"
+let stage_dpt_hist = "Stage d'Histoire"
+let stage_dpt_geog = "Stage de Géographie"
+let stage_dpt_dss = "Stage de Sciences Sociales"
+let stage_dpt_dsa = "Stage de Sciences de l'Antiquité"
+let stage_dpt_dec = "Stage de Sciences Cognitives"
+let stage_dpt_ecla = "Stage en Cultures et Langues d'Ailleurs"
+
 
 
 let dpt_arts_full = "Département d'Arts"
@@ -120,6 +137,43 @@ let dpt_dss_full = "Département de Sciences Sociales"
 let dpt_dsa_full = "Département des Sciences de l'Antiquité"
 
 
+
+let stage_dpt_arts_en = "Internship in Arts"
+let stage_dpt_phys_en = "Internship in Physics"
+let stage_dpt_info_en = "Internship in Computer Science"
+let stage_dpt_maths_en = "Internship in Mathématics"
+let stage_dpt_chimie_en = "Internship in Chemistry"
+let stage_dpt_geosciences_en = "Internship in Earth Sciences"
+let stage_dpt_eco_en = "Internship in Economy"
+let stage_dpt_bio_en = "Internship in Biology"
+let stage_dpt_lila_en = "Internship in Litteratures and Languages"
+let stage_dpt_hist_en = "Internship in History"
+let stage_dpt_geog_en = "Internship in Geography"
+let stage_dpt_dss_en = "Internship in Social Sciences"
+let stage_dpt_dsa_en = "Internship in Ancient Sciences"
+let stage_dpt_dec_en = "Internship in Cognitive Sciences"
+let stage_dpt_ecla_en = "Internship in Cultures and Languages from elsewhere"
+
+let translate_stage state =
+    let state, main_dpt = Remanent_state.get_main_dpt state in
+    match main_dpt with
+      | Public_data.DI -> state, stage_dpt_info, stage_dpt_info_en
+      | Public_data.DMA -> state, stage_dpt_maths, stage_dpt_maths_en
+      | Public_data.ENS -> state, "",""
+      | Public_data.CHIMIE -> state, stage_dpt_chimie, stage_dpt_chimie_en
+      | Public_data.GEOSCIENCES -> state, stage_dpt_geosciences, stage_dpt_geosciences_en
+      | Public_data.PHYS -> state, stage_dpt_phys, stage_dpt_phys_en
+      | Public_data.IBENS -> state, stage_dpt_bio, stage_dpt_bio_en
+      | Public_data.ECO -> state, stage_dpt_eco, stage_dpt_eco_en
+      | Public_data.DRI -> state, "",""
+      | Public_data.ARTS -> state, stage_dpt_arts, stage_dpt_arts_en
+      | Public_data.LILA -> state, stage_dpt_lila, stage_dpt_lila_en
+      | Public_data.DEC -> state, stage_dpt_dec, stage_dpt_dec_en
+      | Public_data.DSA -> state, stage_dpt_dsa, stage_dpt_dsa_en
+      | Public_data.DSS -> state, stage_dpt_dss, stage_dpt_dss_en
+      | Public_data.GEOG -> state, stage_dpt_geog, stage_dpt_geog_en
+      | Public_data.HIST -> state, stage_dpt_hist, stage_dpt_hist_en
+      | Public_data.ECLA -> state, stage_dpt_ecla, stage_dpt_ecla_en
 
 let dpt_arts_full_en = "Arts Department"
 let dpt_info_full_en = "Computer Science Department"
@@ -6019,11 +6073,14 @@ let program
                           l state
                     in
                     let valide = None in
+                    let state, activite_activite, activite_activite_en =
+                        translate_stage state
+                    in
                     let stage_entry =
                         {
-                          Public_data.activite_annee = year ;Public_data.activite_activite="Stage d'Informatique";
-                          Public_data.activite_activite_fr=Some "Stage d'Informatique";
-Public_data.activite_activite_en=Some "Internship in Computer Science";
+                          Public_data.activite_annee = year ;Public_data.activite_activite=activite_activite;
+                          Public_data.activite_activite_fr=Some activite_activite;
+Public_data.activite_activite_en=Some activite_activite_en;
                           Public_data.activite_intitule=(match lib with None -> "" | Some l -> l) ;
                           Public_data.activite_intitule_fr=lib;
                           Public_data.activite_intitule_en=
@@ -6078,11 +6135,14 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                         | None -> None
                         | Some a -> Valide.valide a
                   in
+                  let state, activite_activite, activite_activite_en =
+                    translate_stage state
+                  in
                   let stage_entry =
                       {
-                        Public_data.activite_annee = year ;Public_data.activite_activite="Stage d'Informatique";
-                        Public_data.activite_activite_fr=Some "Stage d'Informatique";
-                Public_data.activite_activite_en=Some "Internship in Computer Science";
+                        Public_data.activite_annee = year ;Public_data.activite_activite=activite_activite;
+                        Public_data.activite_activite_fr=Some activite_activite ;
+                Public_data.activite_activite_en=Some activite_activite_en;
                         Public_data.activite_intitule=(match stage.sujet with None -> "" | Some l -> l) ;
                         Public_data.activite_intitule_fr=stage.sujet;
                         Public_data.activite_intitule_en="";
@@ -6846,6 +6906,9 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
         "\\setcounter{totalrows}{%i}%%%%\n\ "
         (List.length list)
     in
+    let state, activite_activite, activite_activite_en =
+        translate_stage state
+    in
     let state =
       Remanent_state.open_array
         __POS__
@@ -6914,9 +6977,9 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                       let valide = None in
                       let stage_entry =
                           {
-                            Public_data.activite_annee = year ;Public_data.activite_activite="Stage d'Informatique";
-                            Public_data.activite_activite_fr=Some "Stage d'Informatique";
-  Public_data.activite_activite_en=Some "Internship in Computer Science";
+                            Public_data.activite_annee = year ;Public_data.activite_activite=activite_activite;
+                            Public_data.activite_activite_fr=Some activite_activite;
+  Public_data.activite_activite_en=Some activite_activite_en;
                             Public_data.activite_intitule=(match l with None -> "" | Some l -> l) ;
                             Public_data.activite_intitule_fr=l;
                             Public_data.activite_intitule_en=
@@ -6973,9 +7036,9 @@ Public_data.activite_activite_en=Some "Internship in Computer Science";
                     in
                     let stage_entry =
                         {
-                          Public_data.activite_annee = year ;Public_data.activite_activite="Stage d'Informatique";
-                          Public_data.activite_activite_fr=Some "Stage d'Informatique";
-                          Public_data.activite_activite_en=Some "Internship in Computer Science";
+                          Public_data.activite_annee = year ;Public_data.activite_activite=activite_activite;
+                          Public_data.activite_activite_fr=Some activite_activite;
+                          Public_data.activite_activite_en=Some activite_activite_en;
                           Public_data.activite_intitule=(match stage.sujet with None -> "" | Some l -> l) ;
                           Public_data.activite_intitule_fr=stage.sujet;
                           Public_data.activite_intitule_en="";
