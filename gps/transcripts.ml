@@ -1321,7 +1321,9 @@ let store_cours  =
     "GSC-M2-ST6-S1"; (*Participation au stage de terrain *)
     "GSC-M2-ST7-S2";
     "GSC-M2-A08-S1"; (*stage de rentrée*)
+    "GSC-DENS-A08ST-S1"; (* stage de rentrée *)
     "GSC-M2-A09-S1"; (*stage de rentrée, maquette*)
+    "GSC-M1-DENSA01-S1"; (*océanographie et géodésie *)
   ]
 
 
