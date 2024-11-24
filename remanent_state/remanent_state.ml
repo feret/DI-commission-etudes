@@ -314,7 +314,7 @@ let set_phys parameters =
       diplomation_repository = "chimie/scolarite/diplomation" ;
       repartition = Public_data.Annee_obtention_du_diplome ;
       add_grades_without_registration = true  ;
-      load_gps_data = false ;
+      load_gps_data = true:s ;
       include_pictures = true;
     }
 
