@@ -9613,6 +9613,12 @@ let export_transcript
     let state, cand =
       Remanent_state.get_ine_number ~firstname ~lastname ~year:promo state
     in
+    let stages_a_trier =
+        List.filter
+            (fun st -> match st.Public_data.activite_validee
+                       with Some false -> false
+                          | Some true | None -> true) stages_a_trier
+    in
     let dens =
         {
           Public_data.dens_main_dpt = main_dpt ;
