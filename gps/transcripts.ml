@@ -6072,7 +6072,7 @@ let program
                           Collect_course_entries.unify_course_entry __POS__
                           l state
                     in
-                    let valide = None in
+                    let valide = match cours.valide_dans_gps with None -> None | Some t -> Valide.valide t in
                     let state, activite_activite, activite_activite_en =
                         translate_stage state
                     in
@@ -6979,7 +6979,7 @@ Public_data.activite_activite_en=Some activite_activite_en;
                             Collect_course_entries.unify_course_entry __POS__
                             l state
                       in
-                      let valide = None in
+                      let valide = match cours.valide_dans_gps with None -> None | Some t -> Valide.valide t in
                       let stage_entry =
                           {
                             Public_data.activite_annee = year ;Public_data.activite_activite=activite_activite;
