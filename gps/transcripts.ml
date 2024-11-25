@@ -6090,6 +6090,9 @@ Public_data.activite_activite_en=Some activite_activite_en;
                           Public_data.activite_ects = 0.;
                           Public_data.activite_validee = valide }
                     in
+                    let state =
+                        Remanent_state.warn
+                            __POS__ (Format.sprintf "LOG %s %s %s" (activite_activite) year (match valide with None -> "NONE" | Some true -> "true" | Some false -> "false")) Exit state  in
                     let state, libelle =
                       Remanent_state.bilingual_string
                         ?english:lib_en
@@ -6202,7 +6205,9 @@ Public_data.activite_activite_en=Some activite_activite_en;
                     then "Stage"
                     else*) l
                   in
-
+                  let state =
+                      Remanent_state.warn
+                          __POS__ (Format.sprintf "LOG %s %s %s" (activite_activite) year (match valide with None -> "NONE" | Some true -> "true" | Some false -> "false")) Exit state  in
                   let state, (l, l_en) =
                       Remanent_state.Translate_courses.get_translation
                       Collect_course_entries.unify_course_entry __POS__
@@ -6991,7 +6996,7 @@ Public_data.activite_activite_en=Some activite_activite_en;
                       in
                       let state =
                           Remanent_state.warn
-                              __POS__ (Format.sprintf "LOG %s %s %s" (activite_activite) year (match valide with None -> "NONE" | Some true -> "true" | Some false -> "false")) Exit state  in 
+                              __POS__ (Format.sprintf "LOG %s %s %s" (activite_activite) year (match valide with None -> "NONE" | Some true -> "true" | Some false -> "false")) Exit state  in
                       let state, libelle =
                         Remanent_state.bilingual_string
                           ?english:l_en
@@ -7052,6 +7057,9 @@ Public_data.activite_activite_en=Some activite_activite_en;
                             match stage.stage_credits with None -> 0. | Some f ->f};
 
                     in
+                    let state =
+                        Remanent_state.warn
+                            __POS__ (Format.sprintf "LOG %s %s %s" (activite_activite) year (match valide with None -> "NONE" | Some true -> "true" | Some false -> "false")) Exit state  in
 
                     let state =
                       if issue then
