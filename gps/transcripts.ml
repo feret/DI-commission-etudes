@@ -5838,10 +5838,15 @@ let program
             if is_stage cours
             then
               begin
+                let state, annee =
+                  match cours.cours_annee with
+                    | None -> Remanent_state.warn __POS__ "Year is missing" Exit state, year
+                    | Some x -> state, x
+                in
                 let internship =
                   {
                     Public_data.missing_internship_promotion = promo ;
-                    Public_data.missing_internship_year=year;
+                    Public_data.missing_internship_year=annee;
                     Public_data.missing_internship_firstname=firstname;
                     Public_data.missing_internship_lastname=lastname;
                     Public_data.missing_internship_intitule=
@@ -6044,10 +6049,15 @@ let program
             if is_stage cours
             then
               begin
+                let state, annee =
+                  match cours.cours_annee with
+                    | None -> Remanent_state.warn __POS__ "Year is missing" Exit state, year
+                    | Some x -> state, x
+                in
                 let internship =
                   {
                     Public_data.missing_internship_promotion = promo ;
-                    Public_data.missing_internship_year=year;
+                    Public_data.missing_internship_year=annee;
                     Public_data.missing_internship_firstname=firstname;
                     Public_data.missing_internship_lastname=lastname;
                     Public_data.missing_internship_intitule=
@@ -6950,10 +6960,15 @@ Public_data.activite_activite_en=Some activite_activite_en;
               if is_stage cours
               then
                 begin
+                let state, annee =
+                  match cours.cours_annee with
+                    | None -> Remanent_state.warn __POS__ "Year is missing" Exit state, year
+                    | Some x -> state, x
+                in
                   let internship =
                     {
                       Public_data.missing_internship_promotion = promo ;
-                      Public_data.missing_internship_year=year;
+                      Public_data.missing_internship_year=annee;
                       Public_data.missing_internship_firstname=firstname;
                       Public_data.missing_internship_lastname=lastname;
                       Public_data.missing_internship_intitule=
