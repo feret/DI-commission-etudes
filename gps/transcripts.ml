@@ -6088,7 +6088,8 @@ let program
                     in
                     let stage_entry =
                         {
-                          Public_data.activite_annee = year ;Public_data.activite_activite=activite_activite;
+                          Public_data.activite_annee = annee;
+                          Public_data.activite_activite=activite_activite;
                           Public_data.activite_activite_fr=Some activite_activite;
 Public_data.activite_activite_en=Some activite_activite_en;
                           Public_data.activite_intitule=(match lib with None -> "" | Some l -> l) ;
@@ -6153,7 +6154,8 @@ Public_data.activite_activite_en=Some activite_activite_en;
                   in
                   let stage_entry =
                       {
-                        Public_data.activite_annee = year ;Public_data.activite_activite=activite_activite;
+                        Public_data.activite_annee = annee;
+                        Public_data.activite_activite=activite_activite;
                         Public_data.activite_activite_fr=Some activite_activite ;
                 Public_data.activite_activite_en=Some activite_activite_en;
                         Public_data.activite_intitule=(match stage.sujet with None -> "" | Some l -> l) ;
@@ -6997,7 +6999,7 @@ Public_data.activite_activite_en=Some activite_activite_en;
                       let valide = match cours.valide_dans_gps with None -> None | Some t -> Valide.valide t in
                       let stage_entry =
                           {
-                            Public_data.activite_annee = year ;Public_data.activite_activite=activite_activite;
+                            Public_data.activite_annee = annee; Public_data.activite_activite=activite_activite;
                             Public_data.activite_activite_fr=Some activite_activite;
   Public_data.activite_activite_en=Some activite_activite_en;
                             Public_data.activite_intitule=(match l with None -> "" | Some l -> l) ;
@@ -7059,7 +7061,7 @@ Public_data.activite_activite_en=Some activite_activite_en;
                     in
                     let stage_entry =
                         {
-                          Public_data.activite_annee = year ;Public_data.activite_activite=activite_activite;
+                          Public_data.activite_annee = annee ;Public_data.activite_activite=activite_activite;
                           Public_data.activite_activite_fr=Some activite_activite;
                           Public_data.activite_activite_en=Some activite_activite_en;
                           Public_data.activite_intitule=(match stage.sujet with None -> "" | Some l -> l) ;
