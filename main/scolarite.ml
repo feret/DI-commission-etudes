@@ -610,6 +610,7 @@ let state =
   if is_di then
     let state,input =
       Diploma_report.DiplomaReport.dump_stats
+        ~dpt:Public_data.DI 
         ~file_name:"stats.tex"
         state
     in
