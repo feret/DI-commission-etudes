@@ -65,25 +65,25 @@ let split a =
                 else aux t
         in aux l
 
-let update_product produit entry state =
+let update_product produit entry pos state =
      let year, code_helisa = split produit in
      let year = Some year in
         let produit = Some produit in
         let code_helisa = Some code_helisa in
-        state, {entry with code_helisa ; produit ; year}
+        state, {entry with code_helisa ; produit ; year}, pos 
 
-let update_controle a b entry state =
+let update_controle a b entry pos state =
   try
-    state, {entry with control = Some (int_of_string a,b)}
+    state, {entry with control = Some (int_of_string a,b)}, pos 
   with
-    _ -> state, entry
+    _ -> state, entry, pos
 
 
-let update_n_etu n entry state =
+let update_n_etu n entry pos state =
   try
-    state, {entry with nombre_etudiants = Some (int_of_string n)}
+    state, {entry with nombre_etudiants = Some (int_of_string n)}, pos
   with
-    _ -> state, entry
+    _ -> state, entry, pos 
 
 
 let convert entry state =
@@ -238,39 +238,44 @@ let get
                           | None -> []
                           | Some l -> l
                     in
-                    let rec scan list entry (state:Remanent_state.t) =
+                    let rec scan list entry pos (state:Remanent_state.t) =
                       match list with
                           | [] -> state
                           | h::t ->
-                            let state, entry =
+                            let state, entry, pos  =
                               begin
                                 match h with
                                 | "Cycle"::_
                                 | "Intitulé produit":: _
-                                | "TITRE"::_
                                 | "Ensemble"::_
                                 | "Ensemble Cible"::_ ->
-                                    state, entry
+                                    state, entry, pos 
                                 | "PRODUIT"::prod::_
                                 | "ID UV"::prod::_ ->
-                                      update_product prod entry state
+                                      update_product prod entry pos state
                                 | "Effectif"::int::_
                                 | "Nombre d'étudiants" ::int::_ ->
-                                      update_n_etu int entry state
+                                      update_n_etu int entry pos state
                                 | "CONTROLE"::a::b::_ ->
-                                      update_controle a b entry state
-                                | titre::nom::prenom::id::ref_externe::note::_
-                                          ->
+                                      update_controle a b entry pos state
+                                | "TITRE"::_::_::_::_::_::a::_ when String.length a > 10 && String.sub a 6 4 = "NOTE" 
+                                   ->    state, entry, 7 
+                                | "TITRE"::_ -> state, entry, 6 
+                                | titre::nom::prenom::id::ref_externe::note::q 
+                                        ->
+                                    let note = 
+                                        if pos = 7 then match q with note'::_ -> note' | [] -> note 
+                                        else note in 
                                           update_note
                                                 titre nom prenom id
-                                                ref_externe note entry state, entry
+                                                ref_externe note entry state, entry, pos 
 
-                                | _ -> state, entry
+                                | _ -> state, entry, pos
                             end
                           in
-                          scan t entry state
+                          scan t entry pos state
                     in
-                    let state = scan csv empty_pegasus_entry state in
+                    let state = scan csv empty_pegasus_entry 6 state in
                     let state = Remanent_state.close_event_opt event state in
                      state
 
@@ -340,11 +345,11 @@ let get
                           | None -> []
                           | Some l -> l
                     in
-                    let rec scan list entry (state:Remanent_state.t) =
+                    let rec scan list entry pos (state:Remanent_state.t) =
                       match list with
                           | [] -> state
                           | h::t ->
-                            let state, entry =
+                            let state, entry, pos  =
                               begin
                                 match h with
                                 | "Cycle"::_
@@ -352,26 +357,26 @@ let get
                                 | "TITRE"::_
                                 | "Ensemble"::_
                                 | "Ensemble Cible"::_ ->
-                                    state, entry
+                                    state, entry, pos 
                                 | "PRODUIT"::prod::_
                                 | "ID UV"::prod::_ ->
-                                      update_product prod entry state
+                                      update_product prod entry pos state
                                 | "Effectif"::int::_
                                 | "Nombre d'étudiants" ::int::_ ->
-                                      update_n_etu int entry state
+                                      update_n_etu int entry pos state
                                 | "CONTROLE"::a::b::_ ->
-                                      update_controle a b entry state
+                                      update_controle a b entry pos state
                                 | titre::nom::prenom::etat::id::ref_externe::_
                                               ->
                                                 update_validation
                                                     titre nom prenom id
-                                                    ref_externe etat entry state, entry
-                                | _ -> state, entry
+                                                    ref_externe etat entry state, entry, pos 
+                                | _ -> state, entry, pos 
                             end
                           in
-                          scan t entry state
+                          scan t entry pos state
                     in
-                    let state = scan csv empty_pegasus_entry state in
+                    let state = scan csv empty_pegasus_entry 6 state in
                     let state = Remanent_state.close_event_opt event state in
                      state
 
