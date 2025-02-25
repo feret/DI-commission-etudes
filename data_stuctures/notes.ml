@@ -148,7 +148,7 @@ let of_string pos state s v =
     match
       String.lowercase_ascii s
     with
-    | "abandon" | "inexc" ->
+    | "abandon" | "inexc" | "exc" ->
       state,
       Some Public_data.Abandon
     | s when s=valide_sans_note ->
