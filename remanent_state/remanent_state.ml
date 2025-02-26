@@ -273,7 +273,7 @@ let parameters =
     repartition = Public_data.Annee_de_validation_du_cours;
     add_grades_without_registration = true  ;
     load_gps_data = false ;
-    log_pegasus_entries = false;
+    log_pegasus_entries = true;
   }
 
 let _ = parameters.parameters_repository
