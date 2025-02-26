@@ -7112,10 +7112,47 @@ Public_data.activite_activite_en=Some activite_activite_en;
                       else
                         state
                     in
+                    let state, intitule_fr, intitule_en = 
+                       match
+                        Remanent_state.get_sorted_internships 
+                          ~firstname ~lastname ~libelle:(match stage.sujet with None -> "" | Some l -> l)  ~year:annee state
+                       with
+                        | state, [] ->
+                          begin
+                           state, "", "" 
+                          end
+                        | state, s::_ ->
+                          begin
+                           let activite_intitule_en = s.Public_data.stageat_libelle_en in
+                           let activite_intitule_fr = s.Public_data.stageat_libelle_fr in
+                           state, activite_intitule_fr, activite_intitule_en 
+                          end
+                    in 
+                    let state, sujet =
+                      match 
+                       intitule_fr, 
+                       intitule_en 
+                      with
+                      | "", "" -> state, "" 
+                      | a, "" | "", a -> 
+                        if l = ""
+                        then state, a
+                        else state, "\\newline \""^a^"\""
+                      | a, a' -> 
+                        let state, a = 
+                         Remanent_state.bilingual_string 
+                           ~english:a' ~french:a 
+                            state 
+                        in
+                        if l = ""
+                        then state, a
+                       else state, "\\newline \""^a^"\""
+                    in
+             
                     let sujet =
-                      match stage.sujet with
-                      | None -> ""
-                      | Some a ->
+                      match sujet with
+                      | "" -> ""
+                      | a ->
                         if l = ""
                         then a
                         else "\\newline \""^a^"\""
