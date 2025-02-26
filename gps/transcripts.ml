@@ -6152,6 +6152,21 @@ Public_data.activite_activite_en=Some activite_activite_en;
                   let state, activite_activite, activite_activite_en =
                     translate_stage state
                   in
+                  let state, intitule_fr, intitule_en = 
+                    match
+                    Remanent_state.get_sorted_internships ~firstname ~lastname  ~libelle:(match stage.sujet with None -> "" | Some l -> l)  ~year:annee state
+                with
+                  | state, [] ->
+                    begin
+                      state, "", "" 
+                    end
+                  | state, s::_ ->
+                    begin
+                      let activite_intitule_en = s.Public_data.stageat_libelle_en in
+                      let activite_intitule_fr = s.Public_data.stageat_libelle_fr in
+                      state, activite_intitule_fr, activite_intitule_en 
+                    end
+                  in 
                   let stage_entry =
                       {
                         Public_data.activite_annee = annee;
@@ -6159,8 +6174,8 @@ Public_data.activite_activite_en=Some activite_activite_en;
                         Public_data.activite_activite_fr=Some activite_activite ;
                 Public_data.activite_activite_en=Some activite_activite_en;
                         Public_data.activite_intitule=(match stage.sujet with None -> "" | Some l -> l) ;
-                        Public_data.activite_intitule_fr=stage.sujet;
-                        Public_data.activite_intitule_en="";
+                        Public_data.activite_intitule_fr=(if intitule_fr = "" then stage.sujet else Some intitule_fr);
+                        Public_data.activite_intitule_en=intitule_en;
                         Public_data.activite_code = Tools.unsome_string
                           cours.code_cours;
                         Public_data.activite_validee = valide ;
