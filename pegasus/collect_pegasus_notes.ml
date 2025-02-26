@@ -259,14 +259,19 @@ let get
                                 | "CONTROLE"::a::b::_ ->
                                       update_controle a b entry pos state
                                 | "TITRE"::_::_::_::_::_::a::_ 
-                                when String.length a > 10 && String.sub a 5 4 = "NOTE" 
+                                when String.length a > 9 && String.sub a 5 4 = "NOTE" 
                                    ->    state, entry, 7 
                                 | "TITRE"::_ -> state, entry, 6 
                                 | titre::nom::prenom::id::ref_externe::note::q 
                                         ->
                                     let note = 
                                         if pos = 7 then match q with note'::_ -> note' | [] -> note 
-                                        else note in 
+                                        else note 
+                                    in 
+                                    let () = 
+                                        if nom = "le corre" || nom = "LE CORRE"
+                                        then Format.printf "LE CORRE POS:%i %s %s @." pos (match entry.produit with None -> "none" | Some a -> a)  note 
+                                    in 
                                           update_note
                                                 titre nom prenom id
                                                 ref_externe note entry state, entry, pos 
