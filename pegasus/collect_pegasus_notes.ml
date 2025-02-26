@@ -264,6 +264,10 @@ let get
                                 | "TITRE"::_ -> state, entry, 6 
                                 | titre::nom::prenom::id::ref_externe::note::q 
                                         ->
+                                    let () = 
+                                        if nom = "le corre" || nom = "LE CORRE"
+                                        then Format.printf "%s %s %s %s %s %s %s  @." titre nom prenom id ref_externe note  (match q with a::_ -> a | _ -> "NA")
+                                    in 
                                     let note = 
                                         if pos = 7 then match q with note'::_ -> note' | [] -> note 
                                         else note 
