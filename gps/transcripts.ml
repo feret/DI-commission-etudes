@@ -6152,8 +6152,6 @@ Public_data.activite_activite_en=Some activite_activite_en;
                   let state, activite_activite, activite_activite_en =
                     translate_stage state
                   in
-                  let state = 
-                      Remanent_state.warn __POS__ (Format.sprintf "%s %s %s %s" firstname lastname (match stage.sujet with None -> "" | Some l -> l)  year ) Exit state in 
                   let state, intitule_fr, intitule_en = 
                     match
                       Remanent_state.get_sorted_internships 
@@ -6161,16 +6159,13 @@ Public_data.activite_activite_en=Some activite_activite_en;
                 with
                   | state, [] ->
                     begin
-                      let state = Remanent_state.warn __POS__ "KO" Exit state in 
                       state, "", "" 
                     end
                   | state, s::_ ->
                     begin
                       let activite_intitule_en = s.Public_data.stageat_libelle_en in
                       let activite_intitule_fr = s.Public_data.stageat_libelle_fr in
-                      let state = Remanent_state.warn __POS__ (Format.sprintf "OK %s %s" activite_intitule_fr activite_intitule_en)  Exit state in 
-                     
-                      state, activite_intitule_fr, activite_intitule_en 
+                        state, activite_intitule_fr, activite_intitule_en 
                     end
                   in 
                   let stage_entry =
@@ -6201,13 +6196,24 @@ Public_data.activite_activite_en=Some activite_activite_en;
                     else
                       state
                   in
-                  let sujet =
-                    match stage.sujet with
-                    | None -> ""
-                    | Some a ->
+                  let state, sujet =
+                    match 
+                      stage_entry.Public_data.activite_intitule_fr, 
+                      stage_entry.Public_data.activite_intitule_en with
+                    | None, "" -> state, "" 
+                    | Some a, "" | None, a -> 
                       if l = ""
-                      then a
-                      else "\\newline \""^a^"\""
+                      then state, a
+                    else state, "\\newline \""^a^"\""
+                    | Some a, a' -> 
+                      let state, a = 
+                        Remanent_state.bilingual_string 
+                          ~english:a' ~french:a 
+                            state 
+                      in
+                      if l = ""
+                      then state, a
+                      else state, "\\newline \""^a^"\""
                   in
                   let state, directeur =
                     match stage.directeur_de_stage with
