@@ -258,7 +258,8 @@ let get
                                       update_n_etu int entry pos state
                                 | "CONTROLE"::a::b::_ ->
                                       update_controle a b entry pos state
-                                | "TITRE"::_::_::_::_::_::a::_ when String.length a > 10 && String.sub a 6 4 = "NOTE" 
+                                | "TITRE"::_::_::_::_::_::a::_ 
+                                when String.length a > 10 && String.sub a 5 4 = "NOTE" 
                                    ->    state, entry, 7 
                                 | "TITRE"::_ -> state, entry, 6 
                                 | titre::nom::prenom::id::ref_externe::note::q 
