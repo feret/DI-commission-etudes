@@ -6152,18 +6152,24 @@ Public_data.activite_activite_en=Some activite_activite_en;
                   let state, activite_activite, activite_activite_en =
                     translate_stage state
                   in
+                  let state = 
+                      Remanent_state.warn __POS__ (Format.sprintf "%s %s %s %s" firstname lastname (match stage.sujet with None -> "" | Some l -> l)  year ) Exit state in 
                   let state, intitule_fr, intitule_en = 
                     match
-                    Remanent_state.get_sorted_internships ~firstname ~lastname  ~libelle:(match stage.sujet with None -> "" | Some l -> l)  ~year:annee state
+                      Remanent_state.get_sorted_internships 
+                        ~firstname ~lastname ~libelle:(match stage.sujet with None -> "" | Some l -> l)  ~year:annee state
                 with
                   | state, [] ->
                     begin
+                      let state = Remanent_state.warn __POS__ "KO" Exit state in 
                       state, "", "" 
                     end
                   | state, s::_ ->
                     begin
                       let activite_intitule_en = s.Public_data.stageat_libelle_en in
                       let activite_intitule_fr = s.Public_data.stageat_libelle_fr in
+                      let state = Remanent_state.warn __POS__ (Format.sprintf "OK %s %s" activite_intitule_fr activite_intitule_en)  Exit state in 
+                     
                       state, activite_intitule_fr, activite_intitule_en 
                     end
                   in 
