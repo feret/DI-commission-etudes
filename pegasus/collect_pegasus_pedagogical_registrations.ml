@@ -433,6 +433,8 @@ let get_pegasus_pedagogical_registrations
                                      entry, state 
                                 | ""::"List of the courses":: _ ->
                                     entry, state
+                                | ""::"ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science "::_ -> 
+                                  entry, update_diploma "ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science " entry state 
                                 | ""::""::academic::_ ->
                                       update_year academic entry state
                                 | ""::diploma::""::""::""::""::""::_->
