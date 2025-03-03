@@ -75,6 +75,8 @@ let update_student bloc entry state =
           | _ -> entry
     in
     let entry = aux l entry in
+    let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s" (Tools.unsome_string entry.lastname) 
+    (Tools.unsome_string entry.firstname)) Exit state in 
     entry, state
 
     let update_bloc' bloc entry state =
@@ -427,7 +429,8 @@ let get_pegasus_pedagogical_registrations
                             let entry, state =
                               begin
                                 match h with
-                                | ""::"LEARNING AGREEMENT"::_ 
+                                | ""::"LEARNING AGREEMENT"::_ -> 
+                                     entry, state 
                                 | ""::"List of the courses":: _ ->
                                     entry, state
                                 | ""::""::academic::_ ->
