@@ -7741,6 +7741,11 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           let state, b =
               Remanent_state.do_we_consider_grades_without_registration state
           in
+          let state = 
+             match course.Public_data.pe_diploma with 
+              | None -> state 
+              | Some a -> Remanent_state.warn __POS__ (Format.sprintf "LOG (%s)" a) Exit state 
+          in  
           let elt =
             {
               semestre = course.Public_data.pe_semester ;
