@@ -555,10 +555,18 @@ let get_pegasus_pedagogical_registrations
                     in
                     let state =
                       match csv with
-                        (""::"LEARNING AGREEMENT"::_)::_ ->  scan csv empty_pegasus_entry state
-                        | ("LEARNING AGREEMENT"::_)::_ ->  scan3 csv empty_pegasus_entry state
-                        | ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_)::_ -> scan2 csv state
-                        | _ -> state
+                        (""::"LEARNING AGREEMENT"::_)::_ -> 
+                          let state = Remanent_state.warn __POS__ "SCAN" Exit state in 
+                          scan csv empty_pegasus_entry state
+                        | ("LEARNING AGREEMENT"::_)::_ ->  
+                          let state = Remanent_state.warn __POS__ "SCAN3" Exit state in 
+                          scan3 csv empty_pegasus_entry state
+                        | ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_)::_ -> 
+                          let state = Remanent_state.warn __POS__ "SCAN2" Exit state in 
+                           scan2 csv state
+                        | _ -> 
+                          let state = Remanent_state.warn __POS__ "NOT SCANNED" Exit state in 
+                          state
                     in
                     let state = Remanent_state.close_event_opt event state in
                      state
