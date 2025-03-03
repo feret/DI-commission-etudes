@@ -453,7 +453,7 @@ let get_pegasus_pedagogical_registrations
                                     entry, (bset, state)
                                 | ""::"ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science"::_ -> 
                                   let state = Remanent_state.warn __POS__ (Format.sprintf "LOG MPRI") Exit state in 
-                                  entry, (update_diploma "ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science " {entry with diploma = Some "ANM2INFPRI"} (bset,state))
+                                  entry, (update_diploma "ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science" {entry with diploma = Some "ANM2INFPRI"} (bset,state))
                                 | ""::""::academic::_ ->
                                     update_year academic entry bset state
                                 | ""::diploma::""::""::""::""::""::_->
