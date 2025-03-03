@@ -7032,9 +7032,6 @@ Public_data.activite_activite_en=Some activite_activite_en;
                             Public_data.activite_ects = 0.;
                             Public_data.activite_validee = valide}
                       in
-                      let state =
-                          Remanent_state.warn
-                              __POS__ (Format.sprintf "LOG %s %s %s" (activite_activite) year (match valide with None -> "NONE" | Some true -> "true" | Some false -> "false")) Exit state  in
                       let state, libelle =
                         Remanent_state.bilingual_string
                           ?english:l_en
@@ -7095,10 +7092,6 @@ Public_data.activite_activite_en=Some activite_activite_en;
                             match stage.stage_credits with None -> 0. | Some f ->f};
 
                     in
-                    let state =
-                        Remanent_state.warn
-                            __POS__ (Format.sprintf "LOG %s %s %s" (activite_activite) year (match valide with None -> "NONE" | Some true -> "true" | Some false -> "false")) Exit state  in
-
                     let state =
                       if issue then
                         Remanent_state.Non_validated_internships.add
