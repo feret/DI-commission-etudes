@@ -56,7 +56,7 @@ let fetch_name l =
   let lastname, firstname = Tools.decompose_name name in
   tail, lastname, firstname
 
-let update_student bloc entry state =
+let update_student bloc entry bset state =
     let l = String.split_on_char ' ' bloc in
     let l = List.rev_map (String.split_on_char '\n') (List.rev l) in
     let l = List.flatten l in
@@ -77,7 +77,7 @@ let update_student bloc entry state =
     let entry = aux l entry in
     let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s" (Tools.unsome_string entry.lastname) 
     (Tools.unsome_string entry.firstname)) Exit state in 
-    entry, state
+    entry, (bset, state)
 
     let update_bloc' bloc entry state =
         let l = String.split_on_char ' ' bloc in
@@ -118,16 +118,23 @@ let update_student bloc entry state =
 
 
 
-let update_year year entry state =
+let update_year year entry bset state =
   let l = String.split_on_char ' ' year in
   let l = List.filter (fun x -> x<>"") l in
   match l with "Academic"::"year"::y::_
-    | "Année"::"universitaire"::y::_ -> {entry with year = Some y}, state
-    | _ -> entry, state
+    | "Année"::"universitaire"::y::_ -> {entry with year = Some y}, (bset, state)
+    | _ -> entry, (bset, state)
 
 
-let add unify pos c state =
-   Remanent_state.Collector_pedagogical_registrations.add unify pos c state
+let add unify pos c (bset,state) =
+  List.fold_left (fun (bset,state) elt -> 
+    if Public_data.PESET.mem elt bset 
+    then 
+      bset,state
+    else 
+      Public_data.PESET.add elt bset, 
+      Remanent_state.Collector_pedagogical_registrations.add unify pos [elt] state) 
+    (bset,state) c 
 
 let convert entry state =
   state, {
@@ -153,7 +160,7 @@ let convert entry state =
 }
 
 
-let update_diploma diploma entry (state:Remanent_state.t) =
+let update_diploma diploma entry (bset,state) =
   let code, libelle =
     let l = String.split_on_char ' ' diploma in
     match l with
@@ -164,9 +171,9 @@ let update_diploma diploma entry (state:Remanent_state.t) =
   let state, entry = convert {entry with libelle ; code_helisa} state in
   add
         (fun _ state a _ -> state,a) __POS__
-        [entry] state
+        [entry] (bset,state)
 
-let update_inscription code_helisa entry state =
+let update_inscription code_helisa entry bset state =
   match code_helisa with
     | Some (dpt,n) ->
         let state, dpt =
@@ -186,10 +193,10 @@ let update_inscription code_helisa entry state =
         let code_helisa =
           Some (Format.sprintf "AND%s%i" dpt n) in
         let state, entry = convert {entry with code_helisa} state in
-        add (fun _ state a _ -> state,a ) __POS__ [entry] state
-    | None -> state
+        add (fun _ state a _ -> state,a ) __POS__ [entry] (bset,state)
+    | None -> bset,state
 
-  let update_snd dpt entry state =
+  let update_snd dpt entry bset state =
     let snd x = Format.sprintf "UNDDSEC-%s" x in
     let state, code =
     match dpt with
@@ -211,9 +218,9 @@ let update_inscription code_helisa entry state =
   let state, entry = convert {entry with libelle ; code_helisa } state in
   add
         (fun _ state a _ -> state,a) __POS__
-        [entry] state
+        [entry] (bset,state)
 
-  let update_diploma' diploma entry (state:Remanent_state.t) =
+  let update_diploma' diploma entry bset (state:Remanent_state.t) =
       let libelle = diploma in
       let state, code =
           match libelle with
@@ -228,12 +235,12 @@ let update_inscription code_helisa entry state =
           | "Cours de langue étrangère ou en langue étrangère suivi dans le cadre du diplôme universitaire" -> state, ""
           | _ ->
           Remanent_state.warn __POS__ (Format.sprintf "UPDATE_DIPLOMA' %s %s (%s) @." (Tools.unsome_string entry.firstname) (Tools.unsome_string entry.lastname) libelle) Exit state, "UNDDIPL-NA"
-          in
-          let code_helisa, libelle = Some code, Some libelle in
-          let state, entry = convert {entry with libelle ; code_helisa  } state in
-          add
-                (fun _ state a _ -> state,a) __POS__
-                [entry] state
+      in
+      let code_helisa, libelle = Some code, Some libelle in
+      let state, entry = convert {entry with libelle ; code_helisa  } state in
+        add
+            (fun _ state a _ -> state,a) __POS__
+            [entry] (bset,state)
 
 
 let get_teachers entry =
@@ -244,7 +251,7 @@ let get_teachers entry =
   | ["-","-"] -> []
   | x -> x
 
-let update_course course ects entry (state:Remanent_state.t) =
+let update_course course ects entry bset (state:Remanent_state.t) =
     let codehelisa, libelle =
        let l = String.split_on_char ' ' course in
        match l with
@@ -283,7 +290,7 @@ let update_course course ects entry (state:Remanent_state.t) =
         let state, entry = convert {entry with libelle ; ects ; code_helisa } state in
           add
                 (fun _ state a _ -> state,a) __POS__
-                [entry] state
+                [entry] (bset,state)
       | Some pegasus_entry ->
         let semester = pegasus_entry.Public_data.pegasus_semester in
         let teachers = get_teachers pegasus_entry in
@@ -292,41 +299,41 @@ let update_course course ects entry (state:Remanent_state.t) =
         let state, entry = convert {entry with semester ; libelle ; ects ; code_helisa ; code_gps ; teachers ;  libelle_gps } state in
           add
                 (fun _ state a _ -> state,a) __POS__
-                [entry] state
+                [entry] (bset,state)
 
 
-                let update_course'  semester libelle teacher ects entry state  =
-                    let _ = teacher in
-                    let semester = Some semester in
-                    let state, year =
-                        match entry.year with
-                          | None ->
-                              Remanent_state.warn
-                                  __POS__
-                                  "Year is missing"
-                                  Exit
-                                  state, ""
-                          | Some y -> state, y
-                    in
-                    let state, ects =
-                      try state, Some (float_of_string ects) with
-                      _ -> let l = String.split_on_char '+' ects in
-                      try state, Some (List.fold_left (fun b a -> (float_of_string a)+.b) 0. l) with _ ->
-                      Remanent_state.warn __POS__ (Format.sprintf "float_of_string %s" ects) Exit state, None
-                    in
-                    let state, pegasus_entry_opt, libelle =
-                        begin
-                          let state, pegasus_entry_opt =
-                              Remanent_state.get_course_in_pegasus_by_libelle ~libelle ~year ~semester state
-                          in
-                          match pegasus_entry_opt with
-                            | _::_ -> state, Some pegasus_entry_opt, libelle
-                            | [] ->
-                              let libelle = Tools.simplify_spaces libelle in
-                              let state, pegasus_entry_opt =
-                                  Remanent_state.get_course_in_pegasus_by_libelle ~libelle ~year ~semester state
-                              in
-                              begin
+let update_course'  semester libelle teacher ects entry bset state  =
+    let _ = teacher in
+    let semester = Some semester in
+    let state, year =
+      match entry.year with
+        | None ->
+              Remanent_state.warn
+                __POS__ "Year is missing" Exit state, ""
+        | Some y -> state, y
+    in
+    let state, ects =
+        try state, Some (float_of_string ects) 
+        with
+          | _ -> let l = String.split_on_char '+' ects in
+                   try state, Some (List.fold_left (fun b a -> (float_of_string a)+.b) 0. l) 
+                   with 
+                    | _ ->
+                     Remanent_state.warn __POS__ (Format.sprintf "float_of_string %s" ects) Exit state, None
+                 in
+                let state, pegasus_entry_opt, libelle =
+                    begin
+                      let state, pegasus_entry_opt =
+                          Remanent_state.get_course_in_pegasus_by_libelle ~libelle ~year ~semester state
+                      in
+                      match pegasus_entry_opt with
+                        | _::_ -> state, Some pegasus_entry_opt, libelle
+                        | [] ->
+                            let libelle = Tools.simplify_spaces libelle in
+                            let state, pegasus_entry_opt =
+                                Remanent_state.get_course_in_pegasus_by_libelle ~libelle ~year ~semester state
+                            in
+                            begin
                               match pegasus_entry_opt with
                                 | _::_ -> state, Some pegasus_entry_opt, libelle
                                 | [] -> state, None, libelle
@@ -347,7 +354,7 @@ let update_course course ects entry (state:Remanent_state.t) =
                         let state, entry = convert {entry with libelle ; ects ; code_helisa } state in
                           add
                                 (fun _ state a _ -> state,a) __POS__
-                                [entry] state
+                                [entry] (bset,state)
                       | Some pegasus_entry ->
                         let state, entries =
                         List.fold_left
@@ -363,7 +370,7 @@ let update_course course ects entry (state:Remanent_state.t) =
                         in
                           add
                             (fun _ state a _ -> state,a) __POS__
-                            entries state
+                            entries (bset,state)
 
 let event_opt = Some (Profiling.Collect_pegasus_pedagogical_registrations)
 let compute_repository = Remanent_state.Collector_pedagogical_registrations.get_repository
@@ -422,64 +429,64 @@ let get_pegasus_pedagogical_registrations
                           | None -> []
                           | Some l -> l
                     in
-                      let rec scan list entry (state:Remanent_state.t) =
+                      let rec scan list entry bset (state:Remanent_state.t) =
                       match list with
                           | [] -> state
                           | h::t ->
-                            let entry, state =
+                            let entry, (bset, state) =
                               begin
                                 match h with
                                 | ""::"LEARNING AGREEMENT"::_ -> 
-                                     entry, state 
+                                     entry, (bset, state)
                                 | ""::"List of the courses":: _ ->
-                                    entry, state
+                                    entry, (bset, state)
                                 | ""::"ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science "::_ -> 
-                                  entry, update_diploma "ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science " entry state 
+                                  entry, (update_diploma "ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science " entry (bset,state))
                                 | ""::""::academic::_ ->
-                                      update_year academic entry state
+                                    update_year academic entry bset state
                                 | ""::diploma::""::""::""::""::""::_->
-                                       entry, update_diploma diploma entry state
+                                       entry, update_diploma diploma entry (bset, state)
                                 | ""::course::""::""::ects::_ ->
-                                      if course = "" then entry, state else
-                                      entry,  update_course course ects entry state
-                                | bloc::_ ->  update_student bloc entry state
-                                | [] -> entry, state
-        end
+                                      if course = "" 
+                                      then entry, (bset, state) 
+                                      else
+                                        entry,  update_course course ects entry bset state
+                                | bloc::_ ->  update_student bloc entry bset state
+                                | [] -> entry, (bset,state)
+                              end
                           in
-                          scan t entry state
+                          scan t entry bset state
                     in
-                    let rec scan3 list entry (state:Remanent_state.t) =
+                    let rec scan3 list entry bset (state:Remanent_state.t) =
                       match list with
                           | [] -> state
                           | h::t ->
-                            let entry, state =
+                            let entry, (bset, state) =
                               begin
                                 match h with
                                 | "LEARNING AGREEMENT"::_ ->
                                     let state = Remanent_state.warn __POS__ "SCAN3 LEARNING" Exit state in 
-                                    entry, state
+                                    entry, (bset, state)
                                 | diploma::""::""::_ ->
                                   let state = Remanent_state.warn __POS__ (Format.sprintf "%s" diploma)  Exit state in 
-                                  entry, update_diploma diploma entry state
+                                  entry, update_diploma diploma entry (bset, state)
                                 | academic::[] when String.length academic > 2 && String.sub academic 0 3 = "Aca" ->
                                   let state = Remanent_state.warn __POS__ (Format.sprintf "%s" academic)  Exit state in 
-                              
-                                  update_year academic entry state
+                                  update_year academic entry bset state
                                 | course::ects::_ -> 
                                   let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s" course ects)  Exit state in 
-                              
-                                  if course = "" then entry, state else
-                                          entry,  update_course course ects entry state
+                                  if course = "" then entry, (bset, state) else
+                                          entry,  update_course course ects entry bset state
                                 | bloc::_ ->  
                                   let state = Remanent_state.warn __POS__ (Format.sprintf "%s" bloc)  Exit state in 
-                                  update_student bloc entry state
+                                  update_student bloc entry bset state
                                 
-                                | [] -> entry, state
+                                | [] -> entry, (bset, state)
         end
                           in
-                          scan3 t entry state
+                          scan3 t entry bset state
                     in
-                    let scan2 list state =
+                    let scan2 list bset state =
                         let split l =
                           let rec aux todo current acc =
                                 match todo with
@@ -493,83 +500,86 @@ let get_pegasus_pedagogical_registrations
                           in
                          aux l [] []
                         in
-                        let convert_line line entry state =
+                        let convert_line line entry bset state =
                             match line with
                               | sem::""::libelle::""::""::""::""::teacher::""::""::ects::_
-                              |
-                              sem::libelle::""::""::teacher::""::ects::_  ->   if libelle = "" then state else
-                                update_course' sem libelle teacher ects entry state
-                              | _ -> state
+                              | sem::libelle::""::""::teacher::""::ects::_  ->   
+                                  if libelle = "" 
+                                  then bset, state 
+                                  else
+                                   update_course' sem libelle teacher ects entry bset state
+                              | _ -> bset, state
                         in
-                        let convert_recap recapitulatif state =
+                        let convert_recap recapitulatif bset (state:Remanent_state.t) =
                             let entry = empty_pegasus_entry in
                             match recapitulatif with
                             | ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_)::(year::_)::(bloc::_)::_::tail
  ->
-                            let entry, state = update_year year entry state in
-                            let entry, state, dpt  = update_bloc' bloc entry state in
-                            let state = update_inscription dpt entry state in
-                            let rec aux_diploma tail state =
-                              match tail with [] -> state, []
+                            let entry, (bset, state) = update_year year entry bset state in
+                            let entry, (bset, state), dpt  = update_bloc' bloc entry (bset,state) in
+                            let bset, state = update_inscription dpt entry bset state in
+                            let rec aux_diploma tail bset state =
+                              match tail with [] -> bset, state, []
                                             | (""::""::""::diploma::_)::tail when diploma <> "" ->
-                                              let state = update_diploma' diploma entry state in
-                                              aux_diploma tail state
+                                              let bset, state = update_diploma' diploma entry bset state in
+                                              aux_diploma tail bset state
                                             | (""::""::diploma::_)::tail when diploma <> "" ->
-                                              let state = update_diploma' diploma entry state in
-                                              aux_diploma tail state
+                                              let bset, state = update_diploma' diploma entry bset state in
+                                              aux_diploma tail bset state
                                             | (""::diploma::_)::tail
                                             when diploma <> "" ->
-                                            let state = update_diploma' diploma entry state in
-                                            aux_diploma tail state
-                                            | _ -> state, tail
+                                            let bset, state = update_diploma' diploma entry bset state in
+                                            aux_diploma tail bset state
+                                            | _ -> bset, state, tail
                             in
-                            let rec aux_snd tail state =
-                              match tail with [] -> state, []
-                                            | (""::dpt::_)::tail when dpt <> "" ->
-                                            let state = update_snd dpt entry state in
-                                            aux_snd tail state
-                                            | (""::""::dpt::_)::tail when dpt <> "" ->
-                                            let state = update_snd dpt entry state in
-                                            aux_snd tail state
-                                            | (""::""::""::dpt::_)::tail
+                            let rec aux_snd tail bset state =
+                              match tail with 
+                                  | [] -> bset, state, []
+                                  | (""::dpt::_)::tail when dpt <> "" ->
+                                        let bset, state = update_snd dpt entry bset state in
+                                            aux_snd tail bset state
+                                  | (""::""::dpt::_)::tail when dpt <> "" ->
+                                        let bset, state = update_snd dpt entry bset state in
+                                            aux_snd tail bset state
+                                  | (""::""::""::dpt::_)::tail
                                             when dpt <> "" ->
-                                            let state = update_snd dpt entry state in
-                                            aux_snd tail state
-                                            | _ -> state, tail
+                                         let bset, state = update_snd dpt entry bset state in
+                                            aux_snd tail bset state
+                                  | _ -> bset, state, tail
                             in
-                            let rec aux tail state =
+                            let rec aux tail bset state =
                               match tail with
-                                | [] -> state
+                                | [] -> bset, state
                                 | ("Choix du département secondaire"::_)::tail
                                   ->
-                                  let state, tail = aux_snd tail state in
-                                  aux tail state
+                                  let bset, state, tail = aux_snd tail bset state in
+                                  aux tail bset state
                                 | ("Diplôme suivi  pendant l’année universitaire en cours"::_)::tail  ->
-                                  let state,tail = aux_diploma tail state in
-                                  aux tail state
+                                  let bset, state,tail = aux_diploma tail bset state in
+                                  aux tail bset state
                                 | line::tail ->
-                                  let state = convert_line line entry state in
-                                  aux tail state
-                            in aux tail state
-                          | _ -> state
+                                  let bset, state = convert_line line entry bset state in
+                                  aux tail bset state
+                            in aux tail bset state
+                          | _ -> bset, state
                         in
                         let l = split list in
                         let () = Format.printf "RECAPITULATIFS :%i @." (List.length l) in
-                        let state = List.fold_left (fun state recapitulatif ->
-                            convert_recap recapitulatif state) state l in
+                        let _, state = List.fold_left (fun (bset, state) recapitulatif ->
+                            convert_recap recapitulatif bset state) (bset, state) l in
                         state
                     in
                     let state =
                       match csv with
                         (""::"LEARNING AGREEMENT"::_)::_ -> 
                           let state = Remanent_state.warn __POS__ (Format.sprintf "%s SCAN" file) Exit state in 
-                          scan csv empty_pegasus_entry state
+                          scan csv empty_pegasus_entry Public_data.PESET.empty state
                         | ("LEARNING AGREEMENT"::_)::_ ->  
                           let state = Remanent_state.warn __POS__ (Format.sprintf "%s SCAN3" file)  Exit state in 
-                          scan3 csv empty_pegasus_entry state
+                          scan3 csv empty_pegasus_entry Public_data.PESET.empty state
                         | ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_)::_ -> 
                           let state = Remanent_state.warn __POS__ (Format.sprintf "%s SCAN2" file) Exit state in 
-                           scan2 csv state
+                           scan2 csv Public_data.PESET.empty state
                         | _ -> 
                           let state = Remanent_state.warn __POS__ (Format.sprintf "%s NOT SCANNED" file) Exit state in 
                           let state = match csv with 
@@ -585,7 +595,7 @@ let get_pegasus_pedagogical_registrations
                           state
                     in
                     let state = Remanent_state.close_event_opt event state in
-                     state
+                    state
 
                   ) state files_list
             in

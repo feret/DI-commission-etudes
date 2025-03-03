@@ -100,6 +100,8 @@ type pedagogical_entry_pegasus =
     pe_dens : bool option;
 }
 
+module PESET: Set.S with type elt = pedagogical_entry_pegasus 
+
 val empty_pedagogical_entry: pedagogical_entry_pegasus
 
 type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA | DEC | DSA | DSS | GEOG | HIST | ECLA 

@@ -472,6 +472,12 @@ type pedagogical_entry_pegasus =
 
     }
 
+ module PESET = Set.Make
+ (struct
+   type t = pedagogical_entry_pegasus 
+   let compare = compare
+ end) 
+
 let empty_pedagogical_entry =
       {
         pe_firstname = "";
