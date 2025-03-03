@@ -469,6 +469,7 @@ type pedagogical_entry_pegasus =
         pe_ine: string;
         pe_semester: string option;
         pe_dens: bool option;
+        pe_diploma: string option; 
 
     }
 
@@ -495,6 +496,7 @@ let empty_pedagogical_entry =
         pe_teachers = [];
         pe_semester = None;
         pe_dens = None;
+        pe_diploma = None; 
     }
 type scholarship =
   {

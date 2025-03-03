@@ -7760,7 +7760,12 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
               cours_etablissement = None ;
               duree = None ;
               ects = course.Public_data.pe_ects;
-              diplome = (if b then Some "dens" else None);
+              diplome = 
+                begin 
+                  match course.Public_data.pe_diploma with 
+                    | Some "ANM2INFPRI" -> Some "mpri"
+                    | None | Some _ -> (if b then Some "dens" else None)
+                end ;
               contrat = None ;
               accord = Some true ;
               note = note ;

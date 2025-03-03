@@ -16,6 +16,7 @@ type pegasus_entry =
   teachers: (string * string) list ;
   semester: string option;
   inscription_dens: bool option;
+  diploma: string option; 
 }
 
 let empty_pegasus_entry =
@@ -35,6 +36,7 @@ let empty_pegasus_entry =
   teachers = [];
   semester = None ;
   inscription_dens = None;
+  diploma = None; 
 
 }
 
@@ -64,7 +66,10 @@ let update_student bloc entry bset state =
           match l with
           | "Student:"::t ->
              let t, lastname, firstname = fetch_name t in
-             aux t {entry with lastname = Some lastname; firstname = Some firstname}
+             if entry.lastname = Some lastname && entry.firstname = Some firstname 
+             then aux t entry 
+             else 
+                  aux t {entry with lastname = Some lastname; firstname = Some firstname ; diploma = None}
           | "Student"::"number:"::n::t ->
              aux t {entry with student_number = Some n}
           | "INE"::"number:"::n::t ->
@@ -84,7 +89,12 @@ let update_student bloc entry bset state =
         let l = List.rev_map (String.split_on_char '\n') (List.rev l) in
         let l = List.flatten l in
         let t, lastname, firstname = fetch_name l in
-        let entry = {entry with lastname = Some lastname ; firstname = Some firstname} in
+        let entry = 
+          if entry.lastname = Some lastname && entry.firstname = Some firstname 
+          then entry 
+          else 
+          {entry with lastname = Some lastname ; firstname = Some firstname} 
+        in
         let rec get tail acc =
             match tail with
               | "Numéro"::"INE"::":"::tail -> Some (List.rev acc), tail
@@ -157,6 +167,7 @@ let convert entry state =
   Public_data.pe_teachers = entry.teachers;
   Public_data.pe_semester = entry.semester;
   Public_data.pe_dens = entry.inscription_dens;
+  Public_data.pe_diploma = entry.diploma; 
 }
 
 
@@ -441,7 +452,7 @@ let get_pegasus_pedagogical_registrations
                                 | ""::"List of the courses":: _ ->
                                     entry, (bset, state)
                                 | ""::"ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science "::_ -> 
-                                  entry, (update_diploma "ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science " entry (bset,state))
+                                  entry, (update_diploma "ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science " {entry with diploma = Some "ANM2INFPRI"} (bset,state))
                                 | ""::""::academic::_ ->
                                     update_year academic entry bset state
                                 | ""::diploma::""::""::""::""::""::_->

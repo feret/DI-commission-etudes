@@ -98,6 +98,7 @@ type pedagogical_entry_pegasus =
     pe_ine: string;
     pe_semester: string option;
     pe_dens : bool option;
+    pe_diploma : string option; 
 }
 
 module PESET: Set.S with type elt = pedagogical_entry_pegasus 
