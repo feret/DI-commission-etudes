@@ -566,6 +566,14 @@ let get_pegasus_pedagogical_registrations
                            scan2 csv state
                         | _ -> 
                           let state = Remanent_state.warn __POS__ "NOT SCANNED" Exit state in 
+                          let state = match csv with 
+                                      | (a::b::_)::_ -> 
+                                        Remanent_state.warn __POS__ (Format.sprintf "%s %s" a b) Exit state 
+                                        | (a::_)::_ -> 
+                                          Remanent_state.warn __POS__ (Format.sprintf "%s" a) Exit state 
+                                      
+                                      | _ -> state   
+                                        in 
                           state
                     in
                     let state = Remanent_state.close_event_opt event state in
