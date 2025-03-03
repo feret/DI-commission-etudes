@@ -431,7 +431,7 @@ let get_pegasus_pedagogical_registrations
                                     entry, state
                                 | ""::""::academic::_ ->
                                       update_year academic entry state
-                                | ""::diploma::""::""::""::""::""::_ ->
+                                | ""::diploma::""::""::""::""::""::_->
                                        entry, update_diploma diploma entry state
                                 | ""::course::""::""::ects::_ ->
                                       if course = "" then entry, state else
@@ -441,6 +441,37 @@ let get_pegasus_pedagogical_registrations
         end
                           in
                           scan t entry state
+                    in
+                    let rec scan3 list entry (state:Remanent_state.t) =
+                      match list with
+                          | [] -> state
+                          | h::t ->
+                            let entry, state =
+                              begin
+                                match h with
+                                | "LEARNING AGREEMENT"::_ ->
+                                    let state = Remanent_state.warn __POS__ "SCAN3 LEARNING" Exit state in 
+                                    entry, state
+                                | diploma::""::""::_ ->
+                                  let state = Remanent_state.warn __POS__ (Format.sprintf "%s" diploma)  Exit state in 
+                                  entry, update_diploma diploma entry state
+                                | academic::[] when String.length academic > 2 && String.sub academic 0 3 = "Aca" ->
+                                  let state = Remanent_state.warn __POS__ (Format.sprintf "%s" academic)  Exit state in 
+                              
+                                  update_year academic entry state
+                                | course::ects::_ -> 
+                                  let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s" course ects)  Exit state in 
+                              
+                                  if course = "" then entry, state else
+                                          entry,  update_course course ects entry state
+                                | bloc::_ ->  
+                                  let state = Remanent_state.warn __POS__ (Format.sprintf "%s" bloc)  Exit state in 
+                                  update_student bloc entry state
+                                
+                                | [] -> entry, state
+        end
+                          in
+                          scan3 t entry state
                     in
                     let scan2 list state =
                         let split l =
@@ -524,7 +555,8 @@ let get_pegasus_pedagogical_registrations
                     in
                     let state =
                       match csv with
-                        (""::"LEARNING AGREEMENT"::_)::_->  scan csv empty_pegasus_entry state
+                        (""::"LEARNING AGREEMENT"::_)::_ ->  scan csv empty_pegasus_entry state
+                        | ("LEARNING AGREEMENT"::_)::_ ->  scan3 csv empty_pegasus_entry state
                         | ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_)::_ -> scan2 csv state
                         | _ -> state
                     in
