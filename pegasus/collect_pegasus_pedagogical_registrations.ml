@@ -428,7 +428,7 @@ let get_pegasus_pedagogical_registrations
                               begin
                                 match h with
                                 | ""::"LEARNING AGREEMENT"::_ 
-                                | ""::"List of the course":: _ ->
+                                | ""::"List of the courses":: _ ->
                                     entry, state
                                 | ""::""::academic::_ ->
                                       update_year academic entry state
