@@ -5551,7 +5551,7 @@ let program
     ~origine ~gpscodelist ~string ~dpt ~year ~who ~alloc_suffix ~mean ~cours_list ~stage_list ~firstname ~lastname ~promo ~cursus_map
     ~size ~stages ~current_year (*~report ~keep_faillure ~keep_success*)
     ~dens ~natt ~is_m2 ~unvalidated_map ~remove_non_valided_classes
-    (list:(bool * string * string * string * cours) list) state =
+    nl (list:(bool * string * string * string * cours) list) state =
   let state,
       entete,entete_en,
       footpage,footpage_en =
@@ -5974,26 +5974,26 @@ let program
       ~english:"Mrs"
       state
   in
-  let state, mean, dens, natt, cours_list, stage_list  =
+  let state, nl, mean, dens, natt, cours_list, stage_list  =
     List.fold_left
       (fun
-        (state, (mean:(bool * float * (Public_data.note option * float option) list * int)
+        (state, (nl:int), (mean:(bool * float * (Public_data.note option * float option) list * int)
          StringOptMap.t * (StringOptMap.key * float option * string option * bool option * int)
          list), dens, natt, cours_list, stage_list)
         (is_m2,dpt_en,(diplome:string),diplome_en,cours) ->
         let codecours =
           string_of_stringopt cours.code_cours
         in
-          let state =
+        let state =
           if int_of_string year < int_of_string promo
           then
-          let dpt = fetch_code (is_m2,dpt_en,diplome,diplome_en,cours) in
-          let dpt_indice =
-            string_of_int (fetch (is_m2,dpt_en,diplome,diplome_en,cours))
-          in
-          Remanent_state.Grade_out_of_schooling_years.add
-            state
-            {
+            let dpt = fetch_code (is_m2,dpt_en,diplome,diplome_en,cours) in
+            let dpt_indice =
+              string_of_int (fetch (is_m2,dpt_en,diplome,diplome_en,cours))
+            in
+            Remanent_state.Grade_out_of_schooling_years.add
+              state
+             {
               Public_data.missing_grade_promotion =
                 promo;
               Public_data.missing_grade_firstname =
@@ -6091,11 +6091,11 @@ let program
                           Public_data.activite_annee = annee;
                           Public_data.activite_activite=activite_activite;
                           Public_data.activite_activite_fr=Some activite_activite;
-Public_data.activite_activite_en=Some activite_activite_en;
+                          Public_data.activite_activite_en=Some activite_activite_en;
                           Public_data.activite_intitule=(match lib with None -> "" | Some l -> l) ;
                           Public_data.activite_intitule_fr=lib;
                           Public_data.activite_intitule_en=
-(match lib_en with None -> "" | Some l -> l);
+                              (match lib_en with None -> "" | Some l -> l);
                           Public_data.activite_code = Tools.unsome_string
                             cours.code_cours;
                           Public_data.activite_ects = 0.;
@@ -6271,9 +6271,9 @@ Public_data.activite_activite_en=Some activite_activite_en;
             match stage_opt with None -> stage_list | Some st -> st::stage_list)
             stage_list libelle_stage_opt_list
         in
-        let state,mean, dens, natt, cours_list, stage_list  =
+        let state,nl,mean, dens, natt, cours_list, stage_list  =
           List.fold_left
-            (fun (state,mean, dens, natt, cours_list, stage_list) (libelle,stage_opt) ->
+            (fun (state,nl,mean, dens, natt, cours_list, stage_list) (libelle,stage_opt) ->
             let state, libelle, libelle_en, ects, force_validation =
             if is_stage cours then
               (*if cours.code_cours = Some "UNEXPA-39"
@@ -6472,6 +6472,7 @@ Public_data.activite_activite_en=Some activite_activite_en;
         let () =
           Remanent_state.close_row state
         in
+        let _nl = if is_stage cours then nl +3 else nl+1 in 
         let () =
           Remanent_state.fprintf state "%%\n\ "
         in
@@ -6502,12 +6503,13 @@ Public_data.activite_activite_en=Some activite_activite_en;
                 mean dens
               in state, mean, dens, natt, cours_list, stage_list
         in
-        state,mean, dens, natt, cours_list, stage_list)
-        (state,mean, dens, natt, cours_list, stage_list)
+        ((state:Remanent_state.t),(nl:int),mean, dens, natt, cours_list, stage_list))
+        (state,nl,mean, dens, natt, cours_list, stage_list)
         libelle_stage_opt_list in
-      (state,mean, dens, natt, cours_list, stage_list)  )
+      (state,nl,mean, dens, natt, cours_list, stage_list)  
+      )
 
-      (state,mean,dens,natt, cours_list, stage_list)
+      (state,(nl:int),mean,dens,natt, cours_list, stage_list)
       list
   in
   let () =
@@ -6798,19 +6800,21 @@ Public_data.activite_activite_en=Some activite_activite_en;
         "Decision of the %s %s \n\n"
         a b)
   in
-  let state, commission =
+  let state, nl, commission =
     match commission_en with
-    | None -> state, commission
+    | None -> state, nl, commission
     | Some english ->
-      Remanent_state.bilingual_string ~english ~french:commission state
+      let state, s = Remanent_state.bilingual_string ~english ~french:commission state in 
+      state, nl+1, s 
   in
-  let state, decision =
+  let state, nl, decision =
     match decision_opt, decision_en_opt with
-    | None, None -> state, ""
+    | None, None -> state, nl, ""
     | Some x, None | None, Some x  ->
-      state, Format.sprintf "%s \\hspace*{1cm}" x
+      state, nl+1, Format.sprintf "%s \\hspace*{1cm}" x
     | Some x, Some y ->
-      Remanent_state.bilingual_string ~english:y ~french:x state
+      let state, s = Remanent_state.bilingual_string ~english:y ~french:x state in 
+      state, nl+1, s 
   in
   let lineproportion = 0.9 in
   let () =
@@ -6863,6 +6867,7 @@ Public_data.activite_activite_en=Some activite_activite_en;
       in
       ()
   in
+  let nl = nl+1 in 
   let lineproportion = 0.45 in
   let () =
     (fun s ->
@@ -6894,12 +6899,13 @@ Public_data.activite_activite_en=Some activite_activite_en;
              s)
       [decision,0.45;rank,0.25;mention,0.25]
   in
+  let nl = if decision ="" && rank = "" && mention ="" then nl else nl+1 in 
   let () = Remanent_state.print_newline state in
   let () = Remanent_state.fprintf state "\\vfill\n\ " in
   let () = Remanent_state.print_newline state in
   let () = Remanent_state.print_newline state in
   let () = Remanent_state.print_newline state in
-  state,mean,dens,natt, cours_list, stage_list
+  state,nl,mean,dens,natt, cours_list, stage_list
 
 
   let program_sco
@@ -8652,6 +8658,45 @@ let export_transcript
         | Some(_,None) -> false
         | Some (_,Some y') -> year=y')
     in
+    let page_break 
+        ~who ~firstname ~lastname
+        ~promo ~origine ~gpscodelist
+        ~year ~situation
+        ~tuteur ?tuteur_bis
+        cursus_map split_cours
+        picture_list gps_file
+        list i nl is_l3 number_of_diploma_per_page signature state = 
+      if List.length list > 10 (* TO DO *)
+      && i mod number_of_diploma_per_page = 0
+      then
+       let state =
+         foot signature state
+       in
+       let () =
+         Remanent_state.fprintf
+           state "\n\ \\vfill\n\ \n\ "
+       in
+       let () =
+         Remanent_state.fprintf
+           state "\\pagebreak\n\ "
+       in
+       let suite = true in
+       let state, is_l3 =
+        heading
+          ~who ~firstname ~lastname
+          ~promo ~origine ~gpscodelist
+          ~year ~situation
+          ~tuteur ?tuteur_bis
+          cursus_map split_cours
+          picture_list suite gps_file state
+       in
+       let () =
+         Remanent_state.fprintf
+           state "\n\ \\vfill\n\ \n\ "
+       in
+       state,is_l3, 0, 1 
+      else state, is_l3, nl, i                     
+    in 
     let l =
       match l with
       | [] ->
@@ -9161,17 +9206,17 @@ let export_transcript
                state, mean, dens, natt, is_l3 || is_l3', cours_list, stage_list
              else
                begin
-                 let _, state, mean, dens, natt, is_l3, cours_list, stage_list  =
+                 let _, _, state, mean, dens, natt, is_l3, cours_list, stage_list  =
                    StringOptMap.fold
                      (fun
                        (string,dpt)  list
-                       (i,state,mean,dens,natt, is_l3,cours_list,stage_list)
+                       (i,nl,state,mean,dens,natt, is_l3,cours_list,stage_list)
                        ->
                          let is_m2 =
                               match list with [] -> false
                                             | (b,_,_,_,_)::_ -> b
                          in
-                         let state, is_l3' =
+                         let state, is_l3', nl, i =
                            if i mod number_of_diploma_per_page <> 0
                            || number_of_diploma_per_page = 1
                            then
@@ -9189,41 +9234,19 @@ let export_transcript
                                Remanent_state.fprintf
                                  state "\n\ \\vfill\n\ \n\ "
                              in
-                             state, is_l3
+                             state, is_l3, nl, i 
                            else
-                             if List.length list > 10
-                             && i mod number_of_diploma_per_page = 0
-                             then
-                              let state =
-                                foot signature state
-                              in
-                              let () =
-                                Remanent_state.fprintf
-                                  state "\n\ \\vfill\n\ \n\ "
-                              in
-                              let () =
-                                Remanent_state.fprintf
-                                  state "\\pagebreak\n\ "
-                              in
-                              let suite = true in
-                              let state, is_l3 =
-                               heading
-                                 ~who ~firstname ~lastname
-                                 ~promo ~origine ~gpscodelist
-                                 ~year ~situation
-                                 ~tuteur ?tuteur_bis
-                                 cursus_map split_cours
-                                 picture_list suite gps_file state
-                              in
-                              let () =
-                                Remanent_state.fprintf
-                                  state "\n\ \\vfill\n\ \n\ "
-                              in
-                              state,is_l3
-                           else state, is_l3
-                         in
+                            page_break 
+                               ~who ~firstname ~lastname
+                               ~promo ~origine ~gpscodelist
+                               ~year ~situation
+                               ~tuteur ?tuteur_bis
+                               cursus_map split_cours
+                               picture_list gps_file
+                               list i nl is_l3 number_of_diploma_per_page signature state 
+                         in 
                          let
-                           (state,mean,dens,natt,cours_list,stage_list)
+                           (state,nl, mean,dens,natt,cours_list,stage_list)
                            =
                            program
                              ~is_m2 ~print_foot_note
@@ -9236,7 +9259,7 @@ let export_transcript
                              ~natt
                              ~unvalidated_map:unvalidated
                              ~remove_non_valided_classes
-                              list state
+                              nl list state
                          in
                          let () =
                            Remanent_state.fprintf
@@ -9299,10 +9322,10 @@ let export_transcript
                              Remanent_state.fprintf
                                state "\\pagebreak\n\ "
                          in
-                         (i+1,state,mean,dens,natt,is_l3 || is_l3',cours_list,stage_list)
+                         (i+1,nl,state,mean,dens,natt,is_l3 || is_l3',cours_list,stage_list)
                      )
                      split_cours
-                     (1,state,mean,dens,natt,false,cours_list,stage_list)
+                     (1,0,state,mean,dens,natt,false,cours_list,stage_list)
                  in
                  state,mean,dens,natt, is_l3, cours_list, stage_list
                end
