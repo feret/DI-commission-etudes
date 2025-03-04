@@ -7556,8 +7556,8 @@ let pick_course ~firstname ~lastname state l =
                  else filter p t acc state
     in
     match filter p l [] state,l  with
-      | state, [], [] -> state, None
-      | state, h::_, _ | state, [], h::_ -> state, Some h
+      | (state, []), [] -> state, None
+      | (state, h::_), _ | (state, []), h::_ -> state, Some h
 
 let add_pegasus_entries ~firstname ~lastname state gps_file =
     let state, l = Remanent_state.Collector_pedagogical_registrations.find_list ~firstname ~lastname state in
