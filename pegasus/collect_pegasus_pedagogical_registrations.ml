@@ -183,9 +183,13 @@ let update_diploma diploma entry (bset,state) =
     | h::t -> h, String.concat " " t
     | [] -> "",""
   in
-  let code_helisa, libelle = Some code, Some libelle in
-  let state, entry = convert {entry with libelle ; code_helisa} state in
-  add
+  if String.length code > 1 && String.sub code 0 2 = "SN"
+    && String.length libelle > 9 && String.sub libelle 0 10 = "- Semestre"
+  then bset, state 
+  else 
+    let code_helisa, libelle = Some code, Some libelle in
+    let state, entry = convert {entry with libelle ; code_helisa} state in
+    add
         (fun _ state a _ -> state,a) __POS__
         [entry] (bset,state)
 
@@ -477,7 +481,7 @@ let get_pegasus_pedagogical_registrations
                                   entry, (update_diploma "ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science " entry (bset,state))
                                 | ""::""::academic::_ ->
                                     update_year academic entry bset state
-                                | ""::diploma::""::""::""::""::""::_->
+                                | ""::diploma::""::""::""::_->
                                        entry, update_diploma diploma entry (bset, state)
                                 | ""::course::""::""::ects::_ ->
                                       if course = "" 
