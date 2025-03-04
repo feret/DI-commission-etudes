@@ -147,6 +147,11 @@ let add unify pos c (bset,state) =
     (bset,state) c 
 
 let convert entry state =
+  let state =
+      match entry.diploma with 
+        | None -> state 
+        | Some a -> Remanent_state.warn __POS__ a Exit state 
+  in 
   state, {
   Public_data.pe_firstname = Tools.unsome_string entry.firstname;
   Public_data.pe_lastname = Tools.unsome_string entry.lastname;
