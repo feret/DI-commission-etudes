@@ -6899,12 +6899,12 @@ let program
              s)
       [decision,0.45;rank,0.25;mention,0.25]
   in
-  let nl = if decision ="" && rank = "" && mention ="" then nl else nl+1 in 
   let () = Remanent_state.print_newline state in
   let () = Remanent_state.fprintf state "\\vfill\n\ " in
   let () = Remanent_state.print_newline state in
   let () = Remanent_state.print_newline state in
   let () = Remanent_state.print_newline state in
+  let nl = nl + 4 in 
   state,nl,mean,dens,natt, cours_list, stage_list
 
 
@@ -8666,8 +8666,8 @@ let export_transcript
         cursus_map split_cours
         picture_list gps_file
         list i nl is_l3 number_of_diploma_per_page signature state = 
-      if List.length list > 10 (* TO DO *)
-      && i mod number_of_diploma_per_page = 0
+      if (List.length list > 10 (* TO DO *)
+      && i mod number_of_diploma_per_page = 0) || nl > 12 
       then
        let state =
          foot signature state
@@ -9219,6 +9219,7 @@ let export_transcript
                          let state, is_l3', nl, i =
                            if i mod number_of_diploma_per_page <> 0
                            || number_of_diploma_per_page = 1
+                           || nl > 12 
                            then
                              let suite = i<>1 in
                              let state, is_l3 =
@@ -9234,7 +9235,7 @@ let export_transcript
                                Remanent_state.fprintf
                                  state "\n\ \\vfill\n\ \n\ "
                              in
-                             state, is_l3, nl, i 
+                             state, is_l3, 0, i 
                            else
                             page_break 
                                ~who ~firstname ~lastname
@@ -9265,7 +9266,7 @@ let export_transcript
                            Remanent_state.fprintf
                              state "\n\ \\vfill\n\ \n\ "
                          in
-                         let () =
+                         let nl =
                            if
                              begin
                                match
@@ -9277,7 +9278,7 @@ let export_transcript
                              end
                            then
                              match admission_opt with
-                             | None -> ()
+                             | None -> nl
                              | Some admission ->
                                let lineproportion = 1. in
                                let english =
@@ -9298,7 +9299,9 @@ let export_transcript
                                  Remanent_state.fprintf
                                    state "\n\ \\vfill\n\ \n\ "
                                in
-                               ()
+                               nl+1 
+                          else 
+                            nl 
                          in
                          let state =
                            if i mod number_of_diploma_per_page = 0
@@ -9318,6 +9321,7 @@ let export_transcript
                          let () =
                            if i mod number_of_diploma_per_page = 0
                            || i = nprogram
+                           || nl > 12 
                            then
                              Remanent_state.fprintf
                                state "\\pagebreak\n\ "
