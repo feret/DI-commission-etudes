@@ -269,8 +269,11 @@ let update_course course ects entry bset (state:Remanent_state.t) =
         | h::"-"::t | h::t -> h, String.concat " "  t
         | [] -> "",""
     in
-    let state, year =
-        match entry.year with
+    match codehelisa with 
+      | "Semestre" | "Semester" -> bset, state 
+      | _ -> 
+        let state, year =
+          match entry.year with
           | None ->
               Remanent_state.warn
                   __POS__
@@ -278,37 +281,42 @@ let update_course course ects entry bset (state:Remanent_state.t) =
                   Exit
                   state, ""
           | Some y -> state, y
-    in
-    let state, ects =
-      try state, float_of_string ects with
-      _ -> let l = String.split_on_char '+' ects in
-      try state, List.fold_left (fun b a -> (float_of_string a)+.b) 0. l with _ ->
-      Remanent_state.warn __POS__ (Format.sprintf "float_of_string %s" ects) Exit state, 0.
-    in
-    let code_helisa, libelle, ects = Some codehelisa, Some libelle, Some ects in
-    let state, pegasus_entry =
-        Remanent_state.get_course_in_pegasus ~codehelisa ~year  state
-    in
-    match pegasus_entry with
-      | None ->
-        let state =
-          Remanent_state.warn
-          __POS__
-          (Format.sprintf "Pegasus entry is missing %s %s" codehelisa year)
-          Exit
-          state
         in
-        let state, entry = convert {entry with libelle ; ects ; code_helisa } state in
-          add
+        let state, ects =
+          try 
+            state, float_of_string ects 
+          with
+            | _ -> 
+                let l = String.split_on_char '+' ects in
+                try 
+                  state, List.fold_left (fun b a -> (float_of_string a)+.b) 0. l 
+                with _ ->
+                    Remanent_state.warn __POS__ (Format.sprintf "float_of_string %s" ects) Exit state, 0.
+        in
+        let code_helisa, libelle, ects = Some codehelisa, Some libelle, Some ects in
+        let state, pegasus_entry =
+          Remanent_state.get_course_in_pegasus ~codehelisa ~year  state
+        in
+        match pegasus_entry with
+         | None ->
+            let state =
+                Remanent_state.warn
+                    __POS__
+                    (Format.sprintf "Pegasus entry is missing %s %s" codehelisa year)
+                    Exit
+                    state
+            in
+            let state, entry = convert {entry with libelle ; ects ; code_helisa } state in
+              add
                 (fun _ state a _ -> state,a) __POS__
                 [entry] (bset,state)
-      | Some pegasus_entry ->
-        let semester = pegasus_entry.Public_data.pegasus_semester in
-        let teachers = get_teachers pegasus_entry in
-        let code_gps = pegasus_entry.Public_data.pegasus_codegps in
-        let libelle_gps = Some pegasus_entry.Public_data.pegasus_libelle in
-        let state, entry = convert {entry with semester ; libelle ; ects ; code_helisa ; code_gps ; teachers ;  libelle_gps } state in
-          add
+          | Some pegasus_entry ->
+            let semester = pegasus_entry.Public_data.pegasus_semester in
+            let teachers = get_teachers pegasus_entry in
+            let code_gps = pegasus_entry.Public_data.pegasus_codegps in
+            let libelle_gps = Some pegasus_entry.Public_data.pegasus_libelle in
+            let state, entry = convert {entry with semester ; libelle ; ects ; code_helisa ; code_gps ; teachers ;  libelle_gps } state in
+            add
                 (fun _ state a _ -> state,a) __POS__
                 [entry] (bset,state)
 
@@ -446,14 +454,21 @@ let get_pegasus_pedagogical_registrations
                           | h::t ->
                             let entry, (bset, state) =
                               begin
+                                let state = 
+                                  if entry.lastname = Some "LABBE" then 
+                                    List.fold_left 
+                                      (fun state a -> Remanent_state.warn __POS__ a Exit state)
+                                      state h 
+                                  else state 
+                                in 
                                 match h with
                                 | ""::"LEARNING AGREEMENT"::_ -> 
                                      entry, (bset, state)
                                 | ""::"List of the courses":: _ ->
                                     entry, (bset, state)
-                                | ""::"ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science"::_ -> 
+                                | ""::"ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science "::_ -> 
                                   let state = Remanent_state.warn __POS__ (Format.sprintf "LOG MPRI") Exit state in 
-                                  entry, (update_diploma "ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science" {entry with diploma = Some "ANM2INFPRI"} (bset,state))
+                                  entry, (update_diploma "ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science " {entry with diploma = Some "ANM2INFPRI"} (bset,state))
                                 | ""::""::academic::_ ->
                                     update_year academic entry bset state
                                 | ""::diploma::""::""::""::""::""::_->
