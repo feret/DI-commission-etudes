@@ -8666,6 +8666,9 @@ let export_transcript
         cursus_map split_cours
         picture_list gps_file
         list i nl is_l3 number_of_diploma_per_page signature state = 
+      let state = 
+          Remanent_state.warn __POS__ (Format.sprintf "cours:%i" nl) Exit state 
+      in 
       if (List.length list > 10 (* TO DO *)
       && i mod number_of_diploma_per_page = 0) || nl > 12 
       then
@@ -9219,7 +9222,6 @@ let export_transcript
                          let state, is_l3', nl, i =
                            if i mod number_of_diploma_per_page <> 0
                            || number_of_diploma_per_page = 1
-                           || nl > 12 
                            then
                              let suite = i<>1 in
                              let state, is_l3 =
@@ -9306,6 +9308,7 @@ let export_transcript
                          let state =
                            if i mod number_of_diploma_per_page = 0
                             || i = nprogram
+                            || nl > 12 
                            then
                              let state =
                                foot signature state
@@ -9321,8 +9324,7 @@ let export_transcript
                          let () =
                            if i mod number_of_diploma_per_page = 0
                            || i = nprogram
-                           || nl > 12 
-                           then
+                          then
                              Remanent_state.fprintf
                                state "\\pagebreak\n\ "
                          in
