@@ -8665,12 +8665,12 @@ let export_transcript
         ~tuteur ?tuteur_bis
         cursus_map split_cours
         picture_list gps_file
-        list i nl is_l3 number_of_diploma_per_page signature state = 
+        list i j nl is_l3 number_of_diploma_per_page signature state = 
       let state = 
           Remanent_state.warn __POS__ (Format.sprintf "cours:%i" nl) Exit state 
       in 
       if (List.length list > 10 (* TO DO *)
-      && i mod number_of_diploma_per_page = 0) || nl > 12 
+      && j mod number_of_diploma_per_page = 0) || nl > 12 
       then
        let state =
          foot signature state
@@ -8697,8 +8697,8 @@ let export_transcript
          Remanent_state.fprintf
            state "\n\ \\vfill\n\ \n\ "
        in
-       state,is_l3, 0, 1 
-      else state, is_l3, nl, i                     
+       state,is_l3, 0, i, 0
+      else state, is_l3, nl, i, j                      
     in 
     let l =
       match l with
@@ -9209,21 +9209,21 @@ let export_transcript
                state, mean, dens, natt, is_l3 || is_l3', cours_list, stage_list
              else
                begin
-                 let _, _, state, mean, dens, natt, is_l3, cours_list, stage_list  =
+                 let _, _, _, state, mean, dens, natt, is_l3, cours_list, stage_list  =
                    StringOptMap.fold
                      (fun
                        (string,dpt)  list
-                       (i,nl,state,mean,dens,natt, is_l3,cours_list,stage_list)
+                       (i,j,nl,state,mean,dens,natt, is_l3,cours_list,stage_list)
                        ->
                          let is_m2 =
                               match list with [] -> false
                                             | (b,_,_,_,_)::_ -> b
                          in
-                         let state, is_l3', nl, i =
-                           if i mod number_of_diploma_per_page <> 0
+                         let state, is_l3', nl, i, j =
+                           if j mod number_of_diploma_per_page <> 0
                            || number_of_diploma_per_page = 1
                            then
-                             let suite = i<>1 in
+                             let suite = j<>1 in
                              let state, is_l3 =
                                heading
                                  ~who ~firstname ~lastname
@@ -9237,7 +9237,7 @@ let export_transcript
                                Remanent_state.fprintf
                                  state "\n\ \\vfill\n\ \n\ "
                              in
-                             state, is_l3, 0, i 
+                             state, is_l3, 0, i, j
                            else
                             page_break 
                                ~who ~firstname ~lastname
@@ -9246,7 +9246,7 @@ let export_transcript
                                ~tuteur ?tuteur_bis
                                cursus_map split_cours
                                picture_list gps_file
-                               list i nl is_l3 number_of_diploma_per_page signature state 
+                               list i j nl is_l3 number_of_diploma_per_page signature state 
                          in 
                          let
                            (state,nl, mean,dens,natt,cours_list,stage_list)
@@ -9306,7 +9306,7 @@ let export_transcript
                             nl 
                          in
                          let state =
-                           if i mod number_of_diploma_per_page = 0
+                           if j mod number_of_diploma_per_page = 0
                             || i = nprogram
                             || nl > 12 
                            then
@@ -9322,16 +9322,16 @@ let export_transcript
                              state
                          in
                          let () =
-                           if i mod number_of_diploma_per_page = 0
+                           if j mod number_of_diploma_per_page = 0
                            || i = nprogram
                           then
                              Remanent_state.fprintf
                                state "\\pagebreak\n\ "
                          in
-                         (i+1,nl,state,mean,dens,natt,is_l3 || is_l3',cours_list,stage_list)
+                         (i+1,j+1,nl,state,mean,dens,natt,is_l3 || is_l3',cours_list,stage_list)
                      )
                      split_cours
-                     (1,0,state,mean,dens,natt,false,cours_list,stage_list)
+                     (1,0,0,state,mean,dens,natt,false,cours_list,stage_list)
                  in
                  state,mean,dens,natt, is_l3, cours_list, stage_list
                end
