@@ -6472,7 +6472,7 @@ let program
         let () =
           Remanent_state.close_row state
         in
-        let _nl = if is_stage cours then nl +3 else nl+1 in 
+        let nl = if is_stage cours then nl +3 else nl+1 in 
         let () =
           Remanent_state.fprintf state "%%\n\ "
         in
