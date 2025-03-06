@@ -9220,8 +9220,10 @@ let export_transcript
                                             | (b,_,_,_,_)::_ -> b
                          in
                          let state, is_l3', nl, i, j =
-                           if j mod number_of_diploma_per_page <> 0
-                           || number_of_diploma_per_page = 1
+                         if j mod number_of_diploma_per_page = 1
+                          || i = nprogram+1
+                          || nl > 12 
+                          || number_of_diploma_per_page = 1
                            then
                              let suite = j<>1 in
                              let state, is_l3 =
@@ -9316,17 +9318,14 @@ let export_transcript
                              let () =
                                Remanent_state.fprintf
                                  state "\n\ \\vfill\n\ \n\ "
+                            in 
+                            let () = 
+                               Remanent_state.fprintf
+                                 state "\\pagebreak\n\ "
                              in
                              state
                            else
                              state
-                         in
-                         let () =
-                           if j mod number_of_diploma_per_page = 0
-                           || i = nprogram
-                          then
-                             Remanent_state.fprintf
-                               state "\\pagebreak\n\ "
                          in
                          (i+1,j+1,nl,state,mean,dens,natt,is_l3 || is_l3',cours_list,stage_list)
                      )
