@@ -8697,7 +8697,7 @@ let export_transcript
          Remanent_state.fprintf
            state "\n\ \\vfill\n\ \n\ "
        in
-       state,is_l3, 0, i, 0
+       state,is_l3, 0, i, 1
       else state, is_l3, nl, i, j                      
     in 
     let l =
@@ -9331,7 +9331,7 @@ let export_transcript
                          (i+1,j+1,nl,state,mean,dens,natt,is_l3 || is_l3',cours_list,stage_list)
                      )
                      split_cours
-                     (1,0,0,state,mean,dens,natt,false,cours_list,stage_list)
+                     (1,1,0,state,mean,dens,natt,false,cours_list,stage_list)
                  in
                  state,mean,dens,natt, is_l3, cours_list, stage_list
                end
