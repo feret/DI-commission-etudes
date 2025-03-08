@@ -417,7 +417,7 @@ let all_fields =
             let event = Some (Profiling.Scan_csv_files (str,"")) in
             let state = Remanent_state.open_event_opt event state in
             let state = Scan_xlss_files.collect_gen
-              (* ~debug:true *)
+               ~debug:true 
               ~strict:false
               ?repository
               ?prefix
