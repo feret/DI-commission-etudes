@@ -158,7 +158,7 @@ let asso_list =
     Public_data.Label, ["label";"libellé(anglais)";"libellé_en"];
     Public_data.LastName, ["nom"];
     Public_data.Lettre, ["lettre"];
-    Public_data.Libelle, ["libellé";"LIBELLE_PRODUIT"]; 
+    Public_data.Libelle, ["libellé";"LIBELLE_PRODUIT";"libelle_produit"]; 
     Public_data.Mention, ["mention"];
     Public_data.Motif, ["motif";"raison"];
     Public_data.Motif_en, ["reason";"raison_en";"motif_en";"motif(english)";"motif(anglais)"];
@@ -462,6 +462,7 @@ let asso_list =
     Public_data.PEGASUS_ffp_,["ffp_"]; 
     Public_data.PEGASUS_COURS,["COURS"]; 
     Public_data.PEGASUS_TD,["TD"]; 
+    Public_data.PEGASUS_TP,["TP"]; 
     Public_data.PEGASUS_CM,["CM"]; 
     Public_data.PEGASUS_ENSEIGNANT_0,["ENSEIGNANT 0"]; 
     Public_data.PEGASUS_ENSEIGNANT_1,["ENSEIGNANT 1"]; 
