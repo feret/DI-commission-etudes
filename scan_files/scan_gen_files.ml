@@ -238,6 +238,23 @@ let get_list_from_a_file
           in
           array_mode state header_key header t current_file output
     in
+    let () = 
+      match csv with 
+        | [] -> ()
+        | h::_ -> 
+          begin 
+            let () = 
+              List.iter 
+                (fun x -> 
+                    Format.printf "PEGAGUS_%s @." (Special_char.correct_string_txt x)) h 
+            in 
+            let () = 
+              List.iter 
+                (fun x -> 
+                   Format.printf "PEGASUS_%s = ["%s"]; @." (Special_char.correct_string_txt x) x) h 
+            in ()
+          end 
+    in 
     scan state [] csv None false empty false output
 
 let get_list
