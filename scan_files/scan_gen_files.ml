@@ -240,7 +240,7 @@ let get_list_from_a_file
     in
     let () = 
       match csv with 
-        | [] -> ()
+        | [] -> ()
         | h::_ -> 
           begin 
             let () = 
@@ -251,7 +251,7 @@ let get_list_from_a_file
             let () = 
               List.iter 
                 (fun x -> 
-                   Format.printf "PEGASUS_%s = ["%s"]; @." (Special_char.correct_string_txt x) x) h 
+                   Format.printf "PEGASUS_%s = [\"%s\"]; @." (Special_char.correct_string_txt x) x) h 
             in ()
           end 
     in 
