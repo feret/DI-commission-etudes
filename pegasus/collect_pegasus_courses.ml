@@ -171,9 +171,6 @@ let keywords_list =
     Public_data.PEGASUS_MODALITE_D_EVAL_ANGLAIS; 
     Public_data.PEGASUS_MODALITE_DIDACT ;
     Public_data.PEGASUS_MODALITE_DIDACT_ANGLAIS; 
-
-
-
   ]
 
   let keywords_of_interest =
@@ -192,8 +189,8 @@ let keywords_list =
 
 let mandatory_fields =
       [
-      lift_pred (fun a -> a.pegasus_helisa) "Code (HELISA)";
-      lift_pred (fun a -> a.pegasus_libelle) "libelle" ;
+   (*   lift_pred (fun a -> a.pegasus_helisa) "Code (HELISA)";*)
+(*      lift_pred (fun a -> a.pegasus_libelle) "libelle" ;*)
   (*    lift_pred (fun a -> a.pegasus_session) "session"*)
       ]
 
