@@ -32,7 +32,7 @@ pegasus_date_debut = None;
 let event_opt = Some (Profiling.Collect_pegasus_courses)
 let compute_repository = Remanent_state.Collector_course_pegasus.get_repository
 
-let lift_pred = Lift.pred_safe
+(*let lift_pred = Lift.pred_safe*)
 let lift_string =
   (Lift.string empty_course Public_data.empty_course_pegasus).Lift.safe
 let lift_string_opt =
