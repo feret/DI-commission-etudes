@@ -158,7 +158,7 @@ let asso_list =
     Public_data.Label, ["label";"libellé(anglais)";"libellé_en"];
     Public_data.LastName, ["nom"];
     Public_data.Lettre, ["lettre"];
-    Public_data.Libelle, ["libellé";"LIBELLE_PRODUIT";"libelle_produit"]; 
+    Public_data.Libelle, ["libellé"]; 
     Public_data.Mention, ["mention"];
     Public_data.Motif, ["motif";"raison"];
     Public_data.Motif_en, ["reason";"raison_en";"motif_en";"motif(english)";"motif(anglais)"];
@@ -215,7 +215,7 @@ let asso_list =
     Public_data.Valide, ["validé"];
     Public_data.Ignore, ["ignore"];
     Public_data.PEGASUS_Code_Produit_Helisa,["code produit helisa";"CODE"];
-    Public_data.PEGASUS_Libelle,["libellé"];
+    Public_data.PEGASUS_Libelle,["libellé";"LIBELLE_PRODUIT"];
     Public_data.PEGASUS_Libelle_Anglais,["libellé anglais";"LIBELLE_PRODUIT_GB"];
     Public_data.PEGASUS_Type_de_produit,["type de produit"];
     Public_data.PEGASUS_Domaine,["domaine"];
