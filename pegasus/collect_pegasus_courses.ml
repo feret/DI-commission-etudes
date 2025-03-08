@@ -11,6 +11,7 @@ pegasus_codegps: string option;
 pegasus_session:string option;
 pegasus_semester: string option;
 pegasus_domain: string option;
+pegasus_date_debut: string option; 
 }
 
 let empty_course =
@@ -23,6 +24,7 @@ pegasus_codegps = None;
 pegasus_session = None;
 pegasus_semester = None;
 pegasus_domain = None;
+pegasus_date_debut = None;
 }
 
 
@@ -117,13 +119,14 @@ let keywords_list =
     Public_data.PEGASUS_CO_PRODUIT_ID_GIROFLE;
     Public_data.PEGASUS_Session;
     Public_data.PEGASUS_Domaine;
+    Public_data.PEGASUS_DATE_DEBUT; 
   ]
 
 let mandatory_fields =
       [
       lift_pred (fun a -> a.pegasus_helisa) "Code (HELISA)";
       lift_pred (fun a -> a.pegasus_libelle) "libelle" ;
-      lift_pred (fun a -> a.pegasus_session) "session"
+  (*    lift_pred (fun a -> a.pegasus_session) "session"*)
       ]
 
 let all_fields =
@@ -146,6 +149,28 @@ let all_fields =
             ~get_tmp:(fun a -> a.pegasus_session)
             ~get:(fun a -> a.Public_data.pegasus_session)
             ~set:(fun pegasus_session a -> {a with Public_data.pegasus_session})
+            ~record_name
+            ~field_name:"Session"
+            ~pos:__POS__;
+          lift_string
+            ~keyword:Public_data.PEGASUS_DATE_DEBUT
+            ~set_tmp:(Tools.collect_string
+                          (fun pegasus_date_debut x -> {x with pegasus_date_debut}))
+            ~get_tmp:(fun a -> a.pegasus_date_debut)
+            ~get:(fun a -> a.Public_data.pegasus_session)
+            ~set:(fun pegasus_date_debut a -> 
+              if String.length pegasus_date_debut >= 10 
+              then 
+                let year = String.sub pegasus_date_debut 6 4 in 
+                let year_short = String.sub pegasus_date_debut 8 2 in
+                let pegasus_session= 
+                    year^a.Public_data.pegasus_helisa^"          "^year_short^"010001"
+                in 
+                let () = 
+                  Format.printf "CHECK (%s)" pegasus_session 
+              in  
+                {a with Public_data.pegasus_session}
+              else a)
             ~record_name
             ~field_name:"Session"
             ~pos:__POS__;
