@@ -7788,7 +7788,10 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
               | Some true -> {bilan with inscription_au_DENS = Some true}
               | _ -> bilan
           in
-
+          let state = 
+            Remanent_state.warn 
+              __POS__ (Format.sprintf "ADD %s %s %s" course.Public_data.pe_year code course.Public_data.pe_libelle) Exit state 
+          in 
           let blacklist = add ~year:course.Public_data.pe_year ~codehelisa:code ~libelle:course.Public_data.pe_libelle  blacklist in
           state,
           {gps_file with
@@ -7890,6 +7893,9 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
               Exit state, gps_file
           | Some course ->
             let libelle =  String.trim (course.Public_data.pegasus_libelle) in
+            let state = 
+              Remanent_state.warn __POS__ (Format.sprintf "CHECK %s %s" year codehelis) Exit state 
+            in 
             if check ~year ~codehelisa ~libelle blacklist
             then state, gps_file
             else
