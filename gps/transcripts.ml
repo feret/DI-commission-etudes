@@ -7575,6 +7575,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
               | Some course ->
 
           let code = String.trim (course.Public_data.pe_code_helisa) in
+          let state = Remanent_state.warn __POS__ (Format.sprintf "HELISA: %s" code) Exit state in 
           match kind code with
           | Inscription ->
             begin
