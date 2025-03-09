@@ -7894,7 +7894,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           | Some course ->
             let libelle =  String.trim (course.Public_data.pegasus_libelle) in
             let state = 
-              Remanent_state.warn __POS__ (Format.sprintf "CHECK %s %s" year codehelis) Exit state 
+              Remanent_state.warn __POS__ (Format.sprintf "CHECK %s %s" year codehelisa) Exit state 
             in 
             if check ~year ~codehelisa ~libelle blacklist
             then state, gps_file
