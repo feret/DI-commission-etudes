@@ -3330,7 +3330,7 @@ let is_phys_course code_cours _year =
 let is_di_course code_cours _year =
   Tools.substring "INFO" code_cours
 
-let dispatch_m check_dpt origine situation code_cours year state
+let dispatch_m ~lastname check_dpt origine situation code_cours year state
 =
 if mpri situation then
   state, (Some "MPRI","M2 du MPRI","M2 MPRI",dpt_info,dpt_info_en,false,true)
@@ -3356,7 +3356,7 @@ else if mfondupc situation then
   state, (Some "MathFondUPC", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false,true)
 else if mfondps situation then
   state, (Some "MathFondPantheonSor", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false,true)
-else if mlmfi situation then
+else if mlmfi situation || (year = "2023" && List.mem lastname ["defossez"] then
   state, (Some "LMFI", "M2 LMFI", "M2 LMFI", dpt_info, dpt_info_en,false,true)
 else if mrandom situation then
   state, (Some "ALEA", "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness", dpt_maths, dpt_maths_en,false,true)
@@ -3509,13 +3509,13 @@ let dispatch check_dpt  ~firstname ~lastname origine situation code_cours year s
       if List.for_all is_dip_L3 situation.inscription_helisa
       then dispatch_l ~firstname ~lastname check_dpt  origine situation code_cours year state
       else if List.for_all is_dip_M1 situation.inscription_helisa
-      then dispatch_m check_dpt  origine situation code_cours year state
+      then dispatch_m check_dpt  ~lastname origine situation code_cours year state
       else if List.for_all is_dip_M2 situation.inscription_helisa
-      then dispatch_m check_dpt  origine situation code_cours year state
+      then dispatch_m check_dpt ~lastname origine situation code_cours year state
       else state, (Some ("DENS"), "DENS", "DENS", "DENS", "DENS", false, false)
 
       | [L3_PSL] | [L3_HPSL] -> dispatch_l ~firstname ~lastname check_dpt  origine situation code_cours year state
-      | [M1_PSL] | [M1_HPSL] | [M2_PSL] | [M2_HPSL] -> dispatch_m check_dpt  origine situation code_cours year state
+      | [M1_PSL] | [M1_HPSL] | [M2_PSL] | [M2_HPSL] -> dispatch_m ~lastname check_dpt  origine situation code_cours year state
       | [Autre] -> state, (Some ("DENS"), "DENS", "DENS", "DENS", "DENS", false, false)
 
 let translate_diplome
@@ -3692,7 +3692,7 @@ let translate_diplome
   in
   match diplome with
   | Some "L" -> dispatch_l ~firstname ~lastname check_dpt origine situation code_cours year state
-  | Some ("M" | "mpri") -> dispatch_m check_dpt origine situation code_cours year state
+  | Some ("M" | "mpri") -> dispatch_m ~lastname check_dpt origine situation code_cours year state
 
   | Some ("PRAGR" | "pragr") ->
       (*if agregmathsu situation

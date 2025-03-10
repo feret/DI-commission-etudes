@@ -231,13 +231,10 @@ let all_fields =
                 let pegasus_session= 
                     year^a.Public_data.pegasus_helisa^"          "^year_short^"010001"
                 in 
-                let () = 
-                  Format.printf "CHECK (%s)" pegasus_session 
-              in  
                 {a with Public_data.pegasus_session}
               else a)
             ~record_name
-            ~field_name:"Session"
+            ~field_name:"Date-début"
             ~pos:__POS__;
           lift_string_opt
             ~keyword:Public_data.PEGASUS_CO_PRODUIT_ID_GIROFLE

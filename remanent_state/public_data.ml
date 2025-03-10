@@ -602,7 +602,7 @@ type stage_a_trier =
 let empty_stage_a_trier =
 {
   stageat_nom = "";
-  stageat_prenom ="";
+  stageat_prenom = "";
   stageat_annee = "";
   stageat_libelle = "";
   stageat_libelle_fr = "";
