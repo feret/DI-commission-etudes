@@ -3361,7 +3361,7 @@ else if mfondupc situation then
   state, (Some "MathFondUPC", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false,true)
 else if mfondps situation then
   state, (Some "MathFondPantheonSor", "M2 Mathématiques Fondamentales", "M2 Fundamental Mathematics",dpt_maths, dpt_maths_en,false,true)
-else if mlmfi situation || (year = "2023" && List.mem lastname ["defossez"]) then
+else if mlmfi situation || (year = "2023" && List.mem lastname ["defossez";"DEFOSSEZ"]) then
   state, (Some "LMFI", "M2 LMFI", "M2 LMFI", dpt_info, dpt_info_en,false,true)
 else if mrandom situation then
   state, (Some "ALEA", "M2 Mathématiques de l'Aléatoire", "M2 Mathematics of Randomness", dpt_maths, dpt_maths_en,false,true)
