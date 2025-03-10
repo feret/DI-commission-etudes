@@ -3332,6 +3332,11 @@ let is_di_course code_cours _year =
 
 let dispatch_m ~lastname check_dpt origine situation code_cours year state
 =
+let state = 
+  Remanent_state.warn 
+    __POS__ (Format.sprintf "year:%s lastname:%s" year lastname) 
+    Exit state 
+in 
 if mpri situation then
   state, (Some "MPRI","M2 du MPRI","M2 MPRI",dpt_info,dpt_info_en,false,true)
 else if mva situation then
