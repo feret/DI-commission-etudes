@@ -7575,7 +7575,6 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
               | Some course ->
 
           let code = String.trim (course.Public_data.pe_code_helisa) in
-          let state = Remanent_state.warn __POS__ (Format.sprintf "HELISA: %s" code) Exit state in 
           match kind code with
           | Inscription ->
             begin
@@ -7741,11 +7740,6 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           let state, b =
               Remanent_state.do_we_consider_grades_without_registration state
           in
-          let state = 
-             match course.Public_data.pe_diploma with 
-              | None -> state 
-              | Some a -> Remanent_state.warn __POS__ (Format.sprintf "LOG (%s)" a) Exit state 
-          in  
           let elt =
             {
               semestre = course.Public_data.pe_semester ;
@@ -7789,10 +7783,6 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
               | Some true -> {bilan with inscription_au_DENS = Some true}
               | _ -> bilan
           in
-          let state = 
-            Remanent_state.warn 
-              __POS__ (Format.sprintf "ADD %s %s %s" course.Public_data.pe_year code course.Public_data.pe_libelle) Exit state 
-          in 
           let blacklist = add ~year:course.Public_data.pe_year ~codehelisa:code ~libelle:course.Public_data.pe_libelle  blacklist in
           state,
           {gps_file with
@@ -7894,9 +7884,6 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
               Exit state, gps_file
           | Some course ->
             let libelle =  String.trim (course.Public_data.pegasus_libelle) in
-            let state = 
-              Remanent_state.warn __POS__ (Format.sprintf "CHECK %s %s" year codehelisa) Exit state 
-            in 
             if check ~year ~codehelisa ~libelle blacklist
             then state, gps_file
             else
@@ -8673,9 +8660,6 @@ let export_transcript
         cursus_map split_cours
         picture_list gps_file
         list i j nl is_l3 number_of_diploma_per_page signature state = 
-      let state = 
-          Remanent_state.warn __POS__ (Format.sprintf "cours:%i" nl) Exit state 
-      in 
       if (List.length list > 10 (* TO DO *)
       && j mod number_of_diploma_per_page = 0) || nl > 12 
       then

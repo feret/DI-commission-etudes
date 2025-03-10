@@ -80,8 +80,6 @@ let update_student bloc entry bset state =
           | _ -> entry
     in
     let entry = aux l entry in
-    let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s" (Tools.unsome_string entry.lastname) 
-    (Tools.unsome_string entry.firstname)) Exit state in 
     entry, (bset, state)
 
     let update_bloc' bloc entry state =
@@ -147,11 +145,6 @@ let add unify pos c (bset,state) =
     (bset,state) c 
 
 let convert entry state =
-  let state =
-      match entry.diploma with 
-        | None -> state 
-        | Some a -> Remanent_state.warn __POS__ a Exit state 
-  in 
   state, {
   Public_data.pe_firstname = Tools.unsome_string entry.firstname;
   Public_data.pe_lastname = Tools.unsome_string entry.lastname;
@@ -476,7 +469,6 @@ let get_pegasus_pedagogical_registrations
                                 | ""::"List of the courses":: _ ->
                                     entry, (bset, state)
                                 | ""::"ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science "::_ -> 
-                                  let state = Remanent_state.warn __POS__ (Format.sprintf "LOG MPRI") Exit state in 
                                   let entry = {entry with diploma = Some "ANM2INFPRI"} in 
                                   entry, (update_diploma "ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science " entry (bset,state))
                                 | ""::""::academic::_ ->
@@ -502,20 +494,15 @@ let get_pegasus_pedagogical_registrations
                               begin
                                 match h with
                                 | "LEARNING AGREEMENT"::_ ->
-                                    let state = Remanent_state.warn __POS__ "SCAN3 LEARNING" Exit state in 
                                     entry, (bset, state)
                                 | diploma::""::""::_ ->
-                                  let state = Remanent_state.warn __POS__ (Format.sprintf "%s" diploma)  Exit state in 
                                   entry, update_diploma diploma entry (bset, state)
                                 | academic::[] when String.length academic > 2 && String.sub academic 0 3 = "Aca" ->
-                                  let state = Remanent_state.warn __POS__ (Format.sprintf "%s" academic)  Exit state in 
                                   update_year academic entry bset state
                                 | course::ects::_ -> 
-                                  let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s" course ects)  Exit state in 
                                   if course = "" then entry, (bset, state) else
                                           entry,  update_course course ects entry bset state
                                 | bloc::_ ->  
-                                  let state = Remanent_state.warn __POS__ (Format.sprintf "%s" bloc)  Exit state in 
                                   update_student bloc entry bset state
                                 
                                 | [] -> entry, (bset, state)
@@ -609,27 +596,12 @@ let get_pegasus_pedagogical_registrations
                     let state =
                       match csv with
                         (""::"LEARNING AGREEMENT"::_)::_ -> 
-                          let state = Remanent_state.warn __POS__ (Format.sprintf "%s SCAN" file) Exit state in 
                           scan csv empty_pegasus_entry Public_data.PESET.empty state
                         | ("LEARNING AGREEMENT"::_)::_ ->  
-                          let state = Remanent_state.warn __POS__ (Format.sprintf "%s SCAN3" file)  Exit state in 
                           scan3 csv empty_pegasus_entry Public_data.PESET.empty state
                         | ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_)::_ -> 
-                          let state = Remanent_state.warn __POS__ (Format.sprintf "%s SCAN2" file) Exit state in 
                            scan2 csv Public_data.PESET.empty state
-                        | _ -> 
-                          let state = Remanent_state.warn __POS__ (Format.sprintf "%s NOT SCANNED" file) Exit state in 
-                          let state = match csv with 
-                                      | (a::b::_)::_ -> 
-                                        Remanent_state.warn __POS__ (Format.sprintf "%s %s" a b) Exit state 
-                                        | (a::_)::_ -> 
-                                          Remanent_state.warn __POS__ (Format.sprintf "%s" a) Exit state 
-                                      
-                                      | []::_ -> 
-                                        Remanent_state.warn __POS__ (Format.sprintf "EMPTY") Exit state 
-                                        | [] -> 
-                                          Remanent_state.warn __POS__ (Format.sprintf "FULL EMPTY") Exit state  in 
-                          state
+                        | _ -> state 
                     in
                     let state = Remanent_state.close_event_opt event state in
                     state
