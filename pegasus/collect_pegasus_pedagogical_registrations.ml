@@ -326,6 +326,16 @@ let update_course course ects entry bset (state:Remanent_state.t) =
 let update_course'  semester libelle teacher ects entry bset state  =
     let _ = teacher in
     let semester = Some semester in
+    let libelle = 
+        if String.length libelle = 0 
+        then libelle 
+        else 
+           if String.get libelle ((String.length libelle)-1)  = '-'
+           then 
+            String.trim (String.sub libelle 0 ((String.length libelle)-1))
+          else 
+            libelle 
+    in 
     let state, year =
       match entry.year with
         | None ->
