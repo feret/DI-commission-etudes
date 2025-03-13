@@ -801,5 +801,8 @@ let remove_ending_dash libelle =
        else 
           libelle 
 
+let normalise_and s = 
+    let l = String.split_on_char '&' s in 
+    String.concat " & " (List.rev_map String.trim (List.rev l))
 
-let simplify_libelle s = remove_ending_dash (simplify_spaces s)
+let simplify_libelle s = normalise_and (remove_ending_dash (simplify_spaces s))
