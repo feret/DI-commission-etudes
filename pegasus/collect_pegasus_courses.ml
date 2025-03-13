@@ -303,16 +303,7 @@ let all_fields =
               ~get_tmp:(fun a -> a.pegasus_libelle)
               ~get:(fun a -> a.Public_data.pegasus_libelle)
               ~set:(fun pegasus_libelle a ->
-                let pegasus_libelle = 
-                  if String.length pegasus_libelle = 0 
-                  then pegasus_libelle 
-                  else 
-                     if String.get pegasus_libelle ((String.length pegasus_libelle)-1)  = '-'
-                     then 
-                      String.trim (String.sub pegasus_libelle 0 ((String.length pegasus_libelle)-1))
-                    else 
-                      pegasus_libelle 
-                  in 
+                let pegasus_libelle = Tools.simplify_libelle pegasus_libelle in 
                   {a with Public_data.pegasus_libelle})
               ~record_name
               ~field_name:"Libelle (Français)"

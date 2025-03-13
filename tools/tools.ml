@@ -790,3 +790,16 @@ let simplify_spaces s =
   let l = String.split_on_char ' ' s in
   let l = List.filter (fun x -> x<>"") l in
   String.concat " " l
+
+let remove_ending_dash libelle =  
+    if String.length libelle = 0 
+    then libelle 
+    else 
+       if String.get libelle ((String.length libelle)-1)  = '-'
+       then 
+          String.trim (String.sub libelle 0 ((String.length libelle)-1))
+       else 
+          libelle 
+
+
+let simplify_libelle s = remove_ending_dash (simplify_spaces s)
