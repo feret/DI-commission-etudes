@@ -388,7 +388,12 @@ let update_course'  semester libelle teacher ects entry bset state  =
         
                           end 
                         in 
-                          let state, entries =
+                        let pegasus_entry = 
+                            match pegasus_entry with 
+                              | a::_ -> [a]
+                              | _ -> pegasus_entry 
+                        in 
+                        let state, entries =
                         List.fold_left
                           (fun (state, acc) pegasus_entry ->
                             let teachers = get_teachers pegasus_entry in
