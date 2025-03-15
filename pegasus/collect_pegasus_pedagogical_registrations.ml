@@ -378,7 +378,17 @@ let update_course'  semester libelle teacher ects entry bset state  =
                                 (fun _ state a _ -> state,a) __POS__
                                 [entry] (bset,state)
                       | Some pegasus_entry ->
-                        let state, entries =
+                        let pegasus_entry = 
+                          match pegasus_entry with 
+                            | [_] | [] -> pegasus_entry
+                            | _ -> let l' = List.filter (fun a -> a.Public_data.pegasus_domain = Some "DENS-ENS") pegasus_entry 
+                        in 
+                        begin 
+                          match l' with [_] -> l' | _ -> pegasus_entry 
+        
+                          end 
+                        in 
+                          let state, entries =
                         List.fold_left
                           (fun (state, acc) pegasus_entry ->
                             let teachers = get_teachers pegasus_entry in
