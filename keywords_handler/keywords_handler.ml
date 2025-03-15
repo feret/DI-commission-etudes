@@ -308,7 +308,6 @@ let asso_list =
     Public_data.PEGASUS_CLOTURE_DATE,["cloture_date"];
     Public_data.PEGASUS_CLOTURE_STATUT,["cloture_statut"];
     Public_data.PEGASUS_NUMERO_ETU_ECOLE,["numero_etu_ecole"];
-    Public_data.PEGASUS_DOMAINE,["domaine"];
     Public_data.PEGASUS_NOM_DE_L_ETABLISSEMENT,["nom_de_l_etablissement"];
     Public_data.PEGASUS_REGION,["region"];
     Public_data.PEGASUS_TYPE_D_ACTION_FORMATION,["type_d_action_formation"];
@@ -427,7 +426,6 @@ let asso_list =
     Public_data.PEGASUS_C9,["C9"]; 
     Public_data.PEGASUS_C10,["C10"]; 
     Public_data.PEGASUS_Ob_Op,["Ob/Op"]; 
-    Public_data.PEGASUS_Domaine,["Domaine"]; 
     Public_data.PEGASUS_TYPE_PRODUIT,["TYPE PRODUIT"]; 
     Public_data.PEGASUS_DATE_DEBUT,["DATE_DEBUT"]; 
     Public_data.PEGASUS_DATE_FIN,["DATE_FIN"]; 
@@ -436,18 +434,14 @@ let asso_list =
     Public_data.PEGASUS_Stand_,["Stand."]; 
     Public_data.PEGASUS_Credit,["Crédit"]; 
     Public_data.PEGASUS_Coef,["Coef"]; 
-    Public_data.PEGASUS_NIVEAU,["NIVEAU"]; 
     Public_data.PEGASUS_NATURE,["NATURE"]; 
     Public_data.PEGASUS_QUANTITE,["QUANTITE"]; 
-    Public_data.PEGASUS_UNITE,["UNITE"]; 
     Public_data.PEGASUS_TYPE_DE_PRESTATION,["TYPE_DE_PRESTATION"]; 
     Public_data.PEGASUS_TYPE_DE_CALCUL_DE_MOYENNE,["TYPE_DE_CALCUL_DE_MOYENNE"]; 
     Public_data.PEGASUS_TYPE_SOMMATION_CREDIT,["TYPE_SOMMATION_CREDIT"]; 
     Public_data.PEGASUS_NOTE_SEUIL_ACCES_CREDIT,["NOTE_SEUIL_ACCES_CREDIT"]; 
     Public_data.PEGASUS_NOTE_SUR,["NOTE_SUR"]; 
     Public_data.PEGASUS_TYPE_D_ARRONDI_NOTE,["TYPE_D_ARRONDI_NOTE"]; 
-    Public_data.PEGASUS_PED_NOM,["PED_NOM"]; 
-    Public_data.PEGASUS_PED_PRENOM,["PED_PRENOM"]; 
     Public_data.PEGASUS_RESPONSABLE_PEDAGOGIQUE,["RESPONSABLE_PEDAGOGIQUE"]; 
     Public_data.PEGASUS_ADM_NOM,["ADM_NOM"]; 
     Public_data.PEGASUS_ADM_PRENOM,["ADM_PRENOM"]; 

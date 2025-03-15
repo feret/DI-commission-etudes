@@ -127,10 +127,8 @@ let keywords_list =
     Public_data.PEGASUS_Stand_;
     Public_data.PEGASUS_Credit ;
     Public_data.PEGASUS_Coef ;
-    Public_data.PEGASUS_NIVEAU ;
     Public_data.PEGASUS_NATURE ;
     Public_data.PEGASUS_QUANTITE ;
-    Public_data.PEGASUS_UNITE ;
     Public_data.PEGASUS_TYPE_DE_PRESTATION ;
     Public_data.PEGASUS_TYPE_DE_CALCUL_DE_MOYENNE ;
     Public_data.PEGASUS_TYPE_SOMMATION_CREDIT ;
@@ -217,13 +215,14 @@ let all_fields =
             ~record_name
             ~field_name:"Session"
             ~pos:__POS__;
-          lift_string
+          lift_string_opt 
             ~keyword:Public_data.PEGASUS_DATE_DEBUT
             ~set_tmp:(Tools.collect_string
                           (fun pegasus_date_debut x -> {x with pegasus_date_debut}))
             ~get_tmp:(fun a -> a.pegasus_date_debut)
-            ~get:(fun a -> a.Public_data.pegasus_session)
+            ~get:(fun a -> Some (a.Public_data.pegasus_session))
             ~set:(fun pegasus_date_debut a -> 
+              let pegasus_date_debut = Tools.unsome_string pegasus_date_debut in 
               if String.length pegasus_date_debut >= 10 
               then 
                 let year = String.sub pegasus_date_debut 6 4 in 
@@ -247,7 +246,7 @@ let all_fields =
             ~field_name:"Code in Girofle"
             ~pos:__POS__;
             lift_string_opt
-              ~keyword:Public_data.PEGASUS_DOMAINE
+              ~keyword:Public_data.PEGASUS_Domaine
               ~set_tmp:(Tools.collect_string
                             (fun pegasus_domain x -> {x with pegasus_domain}))
               ~get_tmp:(fun a -> a.pegasus_domain)

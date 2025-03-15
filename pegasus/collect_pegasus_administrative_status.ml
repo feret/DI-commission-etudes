@@ -66,7 +66,6 @@ let keywords_list =
     Public_data.PEGASUS_CLOTURE_DATE;
     Public_data.PEGASUS_CLOTURE_STATUT;
     Public_data.PEGASUS_NUMERO_ETU_ECOLE;
-    Public_data.PEGASUS_DOMAINE;
     Public_data.PEGASUS_NOM_DE_L_ETABLISSEMENT;
     Public_data.PEGASUS_REGION;
     Public_data.PEGASUS_TYPE_D_ACTION_FORMATION;
