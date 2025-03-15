@@ -378,20 +378,22 @@ let update_course'  semester libelle teacher ects entry bset state  =
                                 (fun _ state a _ -> state,a) __POS__
                                 [entry] (bset,state)
                       | Some pegasus_entry ->
-                        let pegasus_entry = 
+                        let state, pegasus_entry = 
                           match pegasus_entry with 
-                            | [_] | [] -> pegasus_entry
-                            | _ -> let l' = List.filter (fun a -> a.Public_data.pegasus_domain = Some "DENS-ENS") pegasus_entry 
+                            | [_] | [] -> state, pegasus_entry
+                            | _ -> 
+                              let state = Remanent_state.warn __POS__ (Format.sprintf "Several Pegasus entries for the cours label %s" libelle) Exit state in 
+                              let l' = List.filter (fun a -> a.Public_data.pegasus_domain = Some "DENS-ENS") pegasus_entry 
                         in 
                         begin 
-                          match l' with [_] -> l' | _ -> pegasus_entry 
+                          match l' with [_] -> state, l' | _ -> state, pegasus_entry 
         
                           end 
                         in 
                         let pegasus_entry = 
                             match pegasus_entry with 
-                              | a::_ -> [a]
-                              | _ -> pegasus_entry 
+                              | a::_ -> [a]
+                              | _ -> pegasus_entry 
                         in 
                         let state, entries =
                         List.fold_left
