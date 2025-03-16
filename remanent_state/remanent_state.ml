@@ -1572,9 +1572,11 @@ module Collector_course_pegasus =
                       __POS__ (Format.sprintf "Bad range for the date of the course %s" pegasus_de_a)
                       Exit state, course        
                 | Some session, _ -> 
+                   let session = Tools.remove_end ~suffix:"-GENERAL" session in 
+                   let course = {course with Public_data.pegasus_session = Some session} in 
                   if String.length session > 3 then
                     let pegasus_year = String.sub session 0 4 in 
-                    state, {course with Public_data.pegasus_year} 
+                    state, {course with Public_data.pegasus_year } 
                   else
                     warn
                       __POS__ (Format.sprintf "Bad session number %s" session)

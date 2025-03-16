@@ -157,3 +157,5 @@ val get_teachers: string option -> (string * string) list
 
 val simplify_spaces: string -> string
 val simplify_libelle: string -> string 
+
+val remove_end: suffix:string -> string -> string 

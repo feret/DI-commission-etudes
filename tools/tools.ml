@@ -806,3 +806,13 @@ let normalise_and s =
     String.concat " & " (List.rev_map String.trim (List.rev l))
 
 let simplify_libelle s = normalise_and (remove_ending_dash (simplify_spaces s))
+
+let remove_end ~suffix s = 
+  let n = String.length suffix in 
+  let m = String.length s in 
+  if m >= n then 
+    if String.sub s (m-n) n = suffix 
+    then String.sub s 0 (m-n)
+    else s  
+  else 
+    s 
