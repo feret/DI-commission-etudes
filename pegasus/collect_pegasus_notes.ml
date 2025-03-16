@@ -86,6 +86,11 @@ let update_n_etu n entry pos state =
     _ -> state, entry, pos 
 
 
+let clean_produit s = 
+  if String.length s > 3 && String.sub s 2 2 = "00"
+  then (String.sub s 0 2)^(String.sub s 4 (String.length s -4))
+  else s 
+
 let convert entry state =
   let state, validation =
       match entry.validation
@@ -112,7 +117,7 @@ let convert entry state =
     Public_data.pegasus_note = entry.note ;
     Public_data.pegasus_validation = validation ;
     Public_data.pegasus_note_code_helisa = Tools.unsome_string entry.code_helisa ;
-    Public_data.pegasus_note_produit = Tools.unsome_string entry.produit; }
+    Public_data.pegasus_note_produit = clean_produit (Tools.unsome_string entry.produit); }
 
 let unify pos state a b  =
     let state, b1 =
