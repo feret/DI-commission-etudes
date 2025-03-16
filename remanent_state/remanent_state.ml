@@ -1553,15 +1553,33 @@ module Collector_course_pegasus =
           let get data = data.pedagogical_courses
           let set pedagogical_courses data = {data with pedagogical_courses}
           let add unify pos state course courses =
-            let state, pegasus_year =
-              let session = course.Public_data.pegasus_session in
-              if String.length session > 3 then
-              state, String.sub session 0 4 else
-              warn
-                __POS__ (Format.sprintf "Bad session number %s" session)
-                Exit state, session
+            let state, course =
+              match course.Public_data.pegasus_session, course.Public_data.pegasus_de_a with 
+                | None, None ->   
+                  warn __POS__ (Format.sprintf "Either a date or a session number is required")
+                        Exit state, course  
+                | _, Some pegasus_de_a -> 
+                  if String.length pegasus_de_a >= 10 
+                  then 
+                    let pegasus_year = String.sub pegasus_de_a 6 4 in 
+                    let year_short = String.sub pegasus_de_a 8 2 in
+                    let pegasus_session= 
+                        Some (pegasus_year^course.Public_data.pegasus_helisa^"          "^year_short^"010001")
+                    in 
+                    state, {course with Public_data.pegasus_session ; Public_data.pegasus_year}  
+                  else
+                    warn
+                      __POS__ (Format.sprintf "Bad range for the date of the course %s" pegasus_de_a)
+                      Exit state, course        
+                | Some session, _ -> 
+                  if String.length session > 3 then
+                    let pegasus_year = String.sub session 0 4 in 
+                    state, {course with Public_data.pegasus_year} 
+                  else
+                    warn
+                      __POS__ (Format.sprintf "Bad session number %s" session)
+                      Exit state, course
             in
-            let course = {course with Public_data.pegasus_year} in
             let course =
               match  course.Public_data.pegasus_codegps with
               | None | Some "" -> {course with Public_data.pegasus_codegps = Some course.Public_data.pegasus_helisa}

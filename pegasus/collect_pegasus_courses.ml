@@ -11,7 +11,7 @@ pegasus_codegps: string option;
 pegasus_session:string option;
 pegasus_semester: string option;
 pegasus_domain: string option;
-pegasus_date_debut: string option; 
+pegasus_de_a: string option; 
 }
 
 let empty_course =
@@ -24,7 +24,7 @@ pegasus_codegps = None;
 pegasus_session = None;
 pegasus_semester = None;
 pegasus_domain = None;
-pegasus_date_debut = None;
+pegasus_de_a = None;
 }
 
 
@@ -205,7 +205,7 @@ let all_fields =
             ~record_name
             ~field_name:"Code in Helisa"
             ~pos:__POS__;
-          lift_string
+          lift_string_opt
             ~keyword:Public_data.PEGASUS_Session
             ~set_tmp:(Tools.collect_string
                           (fun pegasus_session x -> {x with pegasus_session}))
@@ -217,21 +217,10 @@ let all_fields =
             ~pos:__POS__;
           lift_string_opt 
             ~keyword:Public_data.PEGASUS_DATE_DEBUT
-            ~set_tmp:(Tools.collect_string
-                          (fun pegasus_date_debut x -> {x with pegasus_date_debut}))
-            ~get_tmp:(fun a -> a.pegasus_date_debut)
-            ~get:(fun a -> Some (a.Public_data.pegasus_session))
-            ~set:(fun pegasus_date_debut a -> 
-              let pegasus_date_debut = Tools.unsome_string pegasus_date_debut in 
-              if String.length pegasus_date_debut >= 10 
-              then 
-                let year = String.sub pegasus_date_debut 6 4 in 
-                let year_short = String.sub pegasus_date_debut 8 2 in
-                let pegasus_session= 
-                    year^a.Public_data.pegasus_helisa^"          "^year_short^"010001"
-                in 
-                {a with Public_data.pegasus_session}
-              else a)
+            ~set_tmp:(Tools.collect_string (fun pegasus_de_a x -> {x with pegasus_de_a}))
+            ~get_tmp:(fun a -> a.pegasus_de_a)
+            ~get:(fun a -> a.Public_data.pegasus_de_a)
+            ~set:(fun pegasus_de_a a ->  {a with Public_data.pegasus_de_a})
             ~record_name
             ~field_name:"Date-début"
             ~pos:__POS__;

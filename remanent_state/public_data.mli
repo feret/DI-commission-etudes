@@ -42,10 +42,11 @@ type course_pegasus =
     pegasus_prof_nom: string option;
     pegasus_prof_prenom: string option;
     pegasus_codegps: string option;
-    pegasus_session:string;
+    pegasus_session:string option; 
     pegasus_year:string;
     pegasus_semester: string option;
     pegasus_domain:string option;
+    pegasus_de_a: string option; 
 }
 
 type helisa_val = NV | VA | NVJU | VACO | VAJU
