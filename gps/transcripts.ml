@@ -8087,7 +8087,6 @@ let saturate_gps_file ~firstname ~lastname ~promo state gps_file =
       ~firstname ~lastname
       state
   in
-  let state = Remanent_state.warn __POS__ (Format.sprintf "ADDITIONAL COURSES %s %s %n" firstname lastname (List.length additional_courses)) Exit state in 
   let state, gps_file = (*6*)
     List.fold_left
       (fun (state, gps_file) course ->
