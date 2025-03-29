@@ -102,15 +102,27 @@ let update_student bloc entry bset state =
                 else get tail (t::acc)
               | [] -> None, []
         in
+        let bset, state = state in 
+        let state = 
+            Remanent_state.warn __POS__ (Format.sprintf "%s %s" firstname lastname) Exit state 
+        in  
         let _statut, t =
             match t with
               | "Statut"::":"::tail -> get tail []
               | tail -> None, tail
         in
+        let state = 
+          Remanent_state.warn __POS__ (Format.sprintf "%s %s %s" firstname lastname (match _statut with None -> "" | Some (a::b::_) -> a^b | Some _ -> "")) Exit state 
+        in  
+
         let entry, t = match t with
           | [] -> entry,t
           | n::tail ->{entry with student_number = Some n },tail
         in
+        let state = 
+          Remanent_state.warn __POS__ (Format.sprintf "%s %s %s %s" firstname lastname 
+          (match _statut with None -> "" | Some (a::b::_) -> a^b | Some _ -> "") (match entry.student_number with None -> "0" | Some n -> n)) Exit state 
+        in  
         let rec aux t b_opt dpt =
         match t with
           | ":"::tail -> tail,b_opt, dpt
@@ -121,7 +133,12 @@ let update_student bloc entry bset state =
         in
         let tail, b_opt,dpt = aux t None None in
         let _, tutor_lastname, tutor_firstname = fetch_name tail  in
-        {entry with tutor_lastname = Some tutor_lastname ; tutor_firstname = Some tutor_firstname ; inscription_dens = b_opt}, state, dpt
+       
+        let state = 
+          Remanent_state.warn __POS__ (Format.sprintf "%s %s %s %s %s %s %s" firstname lastname (match _statut with None -> "" | Some (a::b::_) -> a^b | Some _ -> "") (match entry.student_number with None -> "0" | Some n -> n) tutor_lastname tutor_firstname (match b_opt with None -> "NA" | Some s -> if s then "true" else "false")) Exit state 
+        in  
+ 
+        {entry with tutor_lastname = Some tutor_lastname ; tutor_firstname = Some tutor_firstname ; inscription_dens = b_opt}, (bset,state), dpt
 
 
 
@@ -345,6 +362,7 @@ let update_course'  semester libelle teacher ects entry bset state  =
                  in
                 let state, pegasus_entry_opt, libelle =
                     begin
+                      let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %s" libelle year (match semester with None -> "" | Some a -> a)) Exit state in 
                       let state, pegasus_entry_opt =
                           Remanent_state.get_course_in_pegasus_by_libelle ~libelle ~year ~semester state
                       in
