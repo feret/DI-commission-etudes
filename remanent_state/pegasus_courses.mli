@@ -22,3 +22,4 @@ t ->
 'state * t
 
 val dump: t -> unit
+val fold: (Public_data.course_pegasus -> 'a -> 'a) -> t -> 'a -> 'a 

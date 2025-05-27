@@ -28,6 +28,8 @@ let state, students_list =
       students_list
 let state =
   Collect_pegasus_courses.get_pegasus_courses state
+let state = 
+  Collect_pegasus_courses.make_dictionary state 
 let state =
     Collect_pegasus_notes.get_pegasus_notes state
 let state =

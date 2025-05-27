@@ -807,6 +807,10 @@ let normalise_and s =
 
 let simplify_libelle s = normalise_and (remove_ending_dash (simplify_spaces s))
 
+let hash_libelle s = 
+  let l = String.split_on_char ' ' s in 
+  String.lowercase_ascii (String.concat "" l)  
+
 let remove_end ~suffix s = 
   let n = String.length suffix in 
   let m = String.length s in 

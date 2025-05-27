@@ -344,7 +344,11 @@ module Translate_courses: Translations
   and type Missing.entry = Public_data.course_entry
   (*and type Missing.collector = Public_data.course_entry list*)
 
+val set_pedagogical_courses_dictionnary: 
+  string Public_data.StringMap.t -> t -> t 
 
+val get_pedagogical_courses_dictionnary: 
+  t -> t * string Public_data.StringMap.t   
 val get_course_in_pegasus:
   codehelisa: string ->
   year:Public_data.annee ->

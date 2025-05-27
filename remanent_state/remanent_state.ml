@@ -353,6 +353,7 @@ type data =
     pedagogical_inscriptions: Pegasus_pedagogical_registrations.t;
     pegasus_notes: Pegasus_notes.t;
     pedagogical_courses: Pegasus_courses.t ;
+    pedagogical_courses_dictionnary: string Public_data.StringMap.t ;  
     stages_pegasus: Pegasus_stages.t ;
     output_alias: (string * string) option ;
     scholarships: Scholarships.t;
@@ -408,6 +409,7 @@ let empty_data =
     status_administratifs = Pegasus_administrative_status.empty;
     pedagogical_inscriptions = Pegasus_pedagogical_registrations.empty ;
     pedagogical_courses = Pegasus_courses.empty ;
+    pedagogical_courses_dictionnary = Public_data.StringMap.empty ; 
     pegasus_notes = Pegasus_notes.empty ;
     stages_pegasus = Pegasus_stages.empty ;
     scholarships = Scholarships.empty;
@@ -1597,6 +1599,13 @@ module Collector_course_pegasus =
       with type entry = Public_data.course_pegasus
         and type collector = Pegasus_courses.t)
 
+let set_pedagogical_courses_dictionnary map state = 
+  let data = {state.data with pedagogical_courses_dictionnary = map} in 
+  {state with data} 
+
+let get_pedagogical_courses_dictionnary state = 
+  state, state.data.pedagogical_courses_dictionnary
+  
 module Collector_administrative_status =
   Make_collector_with_search_by_students
     (struct
@@ -1647,14 +1656,14 @@ module Collector_course_exceptions =
     with type entry = Public_data.course_exception
     and type collector = Course_exceptions.t )
 
-let get_course_in_pegasus ~codehelisa ~year t =
-    let code = Special_char.lowercase codehelisa in
-    let t, collector = Collector_course_pegasus.get t in
-    let course_opt =
-          Pegasus_courses.get_pegasus_course
-            ~code ~year collector
-    in
-    t, course_opt
+    let get_course_in_pegasus ~codehelisa ~year t =
+        let code = Special_char.lowercase codehelisa in
+        let t, collector = Collector_course_pegasus.get t in
+        let course_opt =
+               Pegasus_courses.get_pegasus_course
+                  ~code ~year collector
+        in
+        t, course_opt
 
     let get_course_in_pegasus_by_libelle ~libelle ~year ~semester t =
         let libelle = Special_char.lowercase libelle in
@@ -1663,7 +1672,19 @@ let get_course_in_pegasus ~codehelisa ~year t =
               Pegasus_courses.get_pegasus_course_by_libelle
                  ~libelle ~year ~semester collector
         in
-        t, course_opt
+        match course_opt with 
+        | _::_ -> t, course_opt
+        | [] -> 
+          let libelle = Tools.hash_libelle libelle in 
+          match Public_data.StringMap.find_opt libelle t.data.pedagogical_courses_dictionnary with 
+          | None -> t, []
+          | Some libelle -> 
+            let libelle = Special_char.lowercase libelle in
+            let course_opt =
+                  Pegasus_courses.get_pegasus_course_by_libelle
+                     ~libelle ~year ~semester collector
+            in
+            t, course_opt 
 
 let get_grade_in_pegasus ~codehelisa ~year ~firstname ~lastname t =
     let code = Special_char.lowercase codehelisa in

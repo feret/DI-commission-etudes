@@ -173,3 +173,16 @@ let dump m =
                       (fun sem_opt courses ->
                         List.iter (fun course -> Format.printf "%s %s (%s) %s @." y lib (Tools.unsome_string sem_opt) course.Public_data.pegasus_helisa) courses)))
  m.per_libelle
+
+
+ let fold f m acc = 
+  Public_data.YearMap.fold 
+  (fun _ data acc ->
+      Public_data.StringMap.fold 
+        (fun _ data acc ->
+            Public_data.StringOptMap.fold 
+              (fun _ courses acc ->
+                List.fold_left  (fun acc course -> f course acc) acc courses) 
+                data acc) data acc) 
+
+                m.per_libelle acc 
