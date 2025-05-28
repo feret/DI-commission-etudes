@@ -7769,7 +7769,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                 begin 
                   match course.Public_data.pe_diploma with 
                     | Some "ANM2INFPRI" -> Some "mpri"
-                    | Some "ANM1INF" -> Some "m1"
+                    | Some "ANM1INF" -> Some "M"
                     | None | Some _ -> (if b then Some "dens" else None)
                 end ;
               contrat = None ;
