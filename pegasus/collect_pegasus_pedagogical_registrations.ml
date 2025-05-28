@@ -487,6 +487,9 @@ let get_pegasus_pedagogical_registrations
                                      entry, (bset, state)
                                 | ""::"List of the courses":: _ ->
                                     entry, (bset, state)
+                                | ""::"ANM1INF - Master in Computer science (First year)"::_ -> 
+                                      let entry = {entry with diploma = Some "ANM1INF"} in 
+                                      entry, (update_diploma "ANM1INF - Master in Computer science (First year)" entry (bset,state))
                                 | ""::"ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science "::_ -> 
                                   let entry = {entry with diploma = Some "ANM2INFPRI"} in 
                                   entry, (update_diploma "ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science " entry (bset,state))

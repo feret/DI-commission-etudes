@@ -7602,6 +7602,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                 | "UNDDIPE-L3" -> state, L3_PSL
                 | "UNDDIPH-L3" -> state, L3_HPSL
                 | "ANM2INFPRI" -> state, M2_PSL 
+                | "ANM1INF" -> state, M1_PSL 
                 | "UNDDIPL-NA" -> state, Autre
                 | _ ->  Remanent_state.warn __POS__ (Format.sprintf "Invalid code for helisa registration %s" code)  Exit state, Autre
             in
@@ -7768,6 +7769,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                 begin 
                   match course.Public_data.pe_diploma with 
                     | Some "ANM2INFPRI" -> Some "mpri"
+                    | Some "ANM1INF" -> Some "m"
                     | None | Some _ -> (if b then Some "dens" else None)
                 end ;
               contrat = None ;
