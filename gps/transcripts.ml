@@ -3692,7 +3692,7 @@ let translate_diplome
   in
   match diplome with
   | Some "L" -> dispatch_l ~firstname ~lastname check_dpt origine situation code_cours year state
-  | Some ("M" | "mpri") -> dispatch_m ~lastname check_dpt origine situation code_cours year state
+  | Some ("M" | "mpri" | "m") -> dispatch_m ~lastname check_dpt origine situation code_cours year state
 
   | Some ("PRAGR" | "pragr") ->
       (*if agregmathsu situation
