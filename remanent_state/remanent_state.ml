@@ -302,6 +302,7 @@ let set_phys parameters =
     diplomation_repository = "phys/scolarite/diplomation" ;
     repartition = Public_data.Annee_obtention_du_diplome ;
     include_pictures = false;
+    load_gps_data = true ;
   }
 
   let set_chimie parameters =
