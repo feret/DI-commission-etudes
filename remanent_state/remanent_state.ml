@@ -282,13 +282,13 @@ let set_dma parameters =
   {
     parameters with
     main_dpt = Public_data.DMA ;
-    commission = Some ("20 juin 2024",  "2023");
+    commission = Some ("20 juin 2025",  "2024");
     local_repository = "dma/suivi_pedagogique" ;
     scholarships_repository = "dma/scolarite/ELEVES" ;
     diplomation_repository = "dma/scolarite/diplomation" ;
     repartition = Public_data.Annee_obtention_du_diplome ;
     include_pictures = false;
-    load_gps_data = false ;
+    load_gps_data = true ;
 
   }
 
