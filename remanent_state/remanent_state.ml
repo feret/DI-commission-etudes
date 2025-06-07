@@ -264,14 +264,14 @@ let parameters =
     repository_for_pegasus_stages = "stages" ;
     current_academic_year = "2024";
     commissions_repository = "commissions_des_etudes";
+    add_grades_without_registration = true  ;
 
-    commission =  Some ("23 septembre 2024",  "2023");
+    commission =  Some ("26 septembre 2025",  "2024");
     target = None ;
     signature = "feret+tampon.pdf";
     bilinguage = true ;
     language  = Public_data.French;
     repartition = Public_data.Annee_de_validation_du_cours;
-    add_grades_without_registration = true  ;
     load_gps_data = false ;
     log_pegasus_entries = false;
   }
