@@ -1944,8 +1944,10 @@ let empty_remanent =
     in
     let state, remanent =
       let rec aux previous_year (year:int) state remanent =
+          let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %i" firstname lastname previous_year) Exit state in 
           if year > current_year then
-          state, remanent
+            let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %i : yeat > current_year" firstname lastname previous_year) Exit state in 
+            state, remanent
           else
             let state, bilan =
               get_bilan_annuel state remanent (string_of_int previous_year) in
@@ -1958,9 +1960,12 @@ let empty_remanent =
             in
             if
               b2 ||
-              (match bilan.derniere_annee with Some true -> true | None | Some false -> false)
-            then state, remanent
+              (if previous_year < 2024 then (match bilan.derniere_annee with Some true -> true | None | Some false -> false)
+              else (match bilan.derniere_annee with Some true | None -> true | Some false -> false))
+            then 
+              let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %i : b2 || last_year" firstname lastname previous_year) Exit state in state, remanent
           else
+            let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %i : not b2 || last_year" firstname lastname previous_year) Exit state in 
             let bilan =
               {bilan with
                 annee = Some (string_of_int year) ;
