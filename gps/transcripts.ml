@@ -1946,7 +1946,7 @@ let empty_remanent =
       let rec aux previous_year (year:int) state remanent =
           let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %i" firstname lastname previous_year) Exit state in 
           if year > current_year then
-            let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %i : yeat > current_year" firstname lastname previous_year) Exit state in 
+            let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %i > %i : year > current_year" firstname lastname year current_year) Exit state in 
             state, remanent
           else
             let state, bilan =
