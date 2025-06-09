@@ -8447,12 +8447,13 @@ let export_transcript
                        with
                        | Some "OPT1" -> true
                        | Some _ | None -> false
-                     end) 
-                     ||  try int_of_string y>=2024
-                    with _ -> false (* TO DO Check for Cesure *)
-                     )
+                     end))
+                   
+                     
                  )
              end
+             ||  try int_of_string y>=2024
+            with _ -> false (* TO DO Check for Cesure *)
            then
              let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %i " lastname firstname (counter+1)) Exit state in 
              let counter = counter + 1 in
