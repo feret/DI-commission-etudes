@@ -1944,9 +1944,7 @@ let empty_remanent =
     in
     let state, remanent =
       let rec aux previous_year (year:int) state remanent =
-          let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %i" firstname lastname year) Exit state in 
           if year > current_year then
-            let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %i > %i : year > current_year" firstname lastname year current_year) Exit state in 
             state, remanent
           else
             let state, bilan =
@@ -1963,9 +1961,8 @@ let empty_remanent =
               (if previous_year < 2024 then (match bilan.derniere_annee with Some true -> true | None | Some false -> false)
               else (match bilan.derniere_annee with Some true | None -> true | Some false -> false))
             then 
-              let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s previous_year:%i year:%i  b2 || last_year" firstname lastname previous_year year) Exit state in state, remanent
+              state, remanent
           else
-            let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s previous_year:%i year:%i : not b2 || last_year" firstname lastname previous_year year) Exit state in 
             let bilan =
               {bilan with
                 annee = Some (string_of_int year) ;
@@ -8165,6 +8162,88 @@ in
 let l = List.rev l_rev in
   state, l, current_year
 
+
+let regular_study_year (y,annee) counter = 
+  (not (lechange_dri annee))
+  &&
+  begin
+    match annee.situation_administrative
+    with
+    | None ->
+      begin
+        try int_of_string y<=2015
+        with _ -> false
+      end
+      ||
+      begin
+        match
+          annee.code_option
+        with
+        | Some "OPT1" -> true
+        | Some _ | None -> false
+      end
+      ||
+      counter = 0
+    | Some sit ->
+      (let ssit = simplify_string sit in
+        ((ssit = "scolarite a l'ens"
+         &&
+         (not
+            (List.exists
+               (fun dip ->
+                  let code = dip.diplome_diplome in
+                  match code with
+                  | None -> false
+                  | Some dip ->
+                    if String.length dip <5 then false else
+                     String.sub dip 0 5 = "CST-A")
+               annee.diplomes))
+)
+||
+
+         (int_of_string y>=2022 && ssit = "etalement : conge sur l'annee")
+         &&
+         not
+           (List.exists
+              (fun dip ->
+                 let code = dip.diplome_diplome in
+                 match code with
+                 | None -> false
+                 | Some dip ->
+                   if String.length dip < 3 then false
+                   else let sdip = String.sub dip 0 3 in
+                         (sdip = "CES")
+                     || (sdip = "CST"))
+              annee.diplomes))
+        ||
+        (List.mem (simplify_string sit)
+             ["autre cas";"etalement : conge sur le s1";"etalement : conge sur le s2"]
+         &&
+         (not
+            (List.exists
+               (fun dip ->
+                  let code = dip.diplome_diplome in
+                  match code with
+                  | None -> false
+                  | Some dip ->
+                    if String.length dip < 3 then false
+                    else
+                       String.sub dip 0 3 = "CES"
+                   || (if String.length dip < 5 then false else String.sub dip 0 5 = "CST-A"))
+               annee.diplomes))
+         &&
+         (annee.derniere_annee = Some true
+          || begin
+            match
+              annee.code_option
+            with
+            | Some "OPT1" -> true
+            | Some _ | None -> false
+          end)))
+  end
+  ||  try int_of_string y>=2024
+ with _ -> false (* TO DO Check for Cesure *)
+
 let export_transcript
     ~output
     ?language
@@ -8372,97 +8451,13 @@ let export_transcript
       List.fold_left
         (fun (state,l,counter) (y,annee) ->
            if
-             (not (lechange_dri annee))
-             &&
-             begin
-               match annee.situation_administrative
-               with
-               | None ->
-                 begin
-                   try int_of_string y<=2015
-                   with _ -> false
-                 end
-                 ||
-                 begin
-                   match
-                     annee.code_option
-                   with
-                   | Some "OPT1" -> true
-                   | Some _ | None -> false
-                 end
-                 ||
-                 counter = 0
-               | Some sit ->
-                 (let ssit = simplify_string sit in
-                   ((ssit = "scolarite a l'ens"
-                    &&
-                    (not
-                       (List.exists
-                          (fun dip ->
-                             let code = dip.diplome_diplome in
-                             match code with
-                             | None -> false
-                             | Some dip ->
-                               if String.length dip <5 then false else
-                                String.sub dip 0 5 = "CST-A")
-                          annee.diplomes))
-)
-    ||
-
-                    (int_of_string y>=2022 && ssit = "etalement : conge sur l'annee")
-                    &&
-                    not
-                      (List.exists
-                         (fun dip ->
-                            let code = dip.diplome_diplome in
-                            match code with
-                            | None -> false
-                            | Some dip ->
-                              if String.length dip < 3 then false
-                              else let sdip = String.sub dip 0 3 in
-                                    (sdip = "CES")
-                                || (sdip = "CST"))
-                         annee.diplomes))
-                   ||
-                   (List.mem (simplify_string sit)
-                        ["autre cas";"etalement : conge sur le s1";"etalement : conge sur le s2"]
-                    &&
-                    (not
-                       (List.exists
-                          (fun dip ->
-                             let code = dip.diplome_diplome in
-                             match code with
-                             | None -> false
-                             | Some dip ->
-                               if String.length dip < 3 then false
-                               else
-                                  String.sub dip 0 3 = "CES"
-                              || (if String.length dip < 5 then false else String.sub dip 0 5 = "CST-A"))
-                          annee.diplomes))
-                    &&
-                    (annee.derniere_annee = Some true
-                     || begin
-                       match
-                         annee.code_option
-                       with
-                       | Some "OPT1" -> true
-                       | Some _ | None -> false
-                     end))
-                   
-                     
-                 )
-             end
-             ||  try int_of_string y>=2024
-            with _ -> false (* TO DO Check for Cesure *)
+            regular_study_year (y,annee) counter 
            then
-             let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %i " lastname firstname (counter+1)) Exit state in 
              let counter = counter + 1 in
              let nannee = Some counter in
              let annee = {annee with nannee} in
              state,(y,annee)::l,counter
            else
-            let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s Cesure " lastname firstname ) Exit state in 
-
             state, (y,annee)::l,counter)
         (state,[],0) l
     in

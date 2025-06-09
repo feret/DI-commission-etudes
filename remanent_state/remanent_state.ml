@@ -3229,3 +3229,4 @@ let get_diplomation_year t = t, t.parameters.diplomation_year
 let do_we_consider_grades_without_registration t = t, t.parameters.add_grades_without_registration
 let do_we_load_gps_data t = t,t.parameters.load_gps_data
 let do_we_log_pegasus_entries t  = t,t.parameters.log_pegasus_entries
+
