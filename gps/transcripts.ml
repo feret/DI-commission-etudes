@@ -1963,9 +1963,9 @@ let empty_remanent =
               (if previous_year < 2024 then (match bilan.derniere_annee with Some true -> true | None | Some false -> false)
               else (match bilan.derniere_annee with Some true | None -> true | Some false -> false))
             then 
-              let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %i : b2 || last_year" firstname lastname previous_year) Exit state in state, remanent
+              let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s previous_year:%i year:%i  b2 || last_year" firstname lastname previous_year year) Exit state in state, remanent
           else
-            let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %i : not b2 || last_year" firstname lastname previous_year) Exit state in 
+            let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s previous_year:%i year:%i : not b2 || last_year" firstname lastname previous_year year) Exit state in 
             let bilan =
               {bilan with
                 annee = Some (string_of_int year) ;
@@ -8451,12 +8451,15 @@ let export_transcript
                  )
              end
            then
+             let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %i " lastname firstname (counter+1)) Exit state in 
              let counter = counter + 1 in
              let nannee = Some counter in
              let annee = {annee with nannee} in
              state,(y,annee)::l,counter
            else
-             state, (y,annee)::l,counter)
+            let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s Cesure " lastname firstname ) Exit state in 
+
+            state, (y,annee)::l,counter)
         (state,[],0) l
     in
     let gps_file =
