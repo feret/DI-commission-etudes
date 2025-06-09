@@ -8447,7 +8447,10 @@ let export_transcript
                        with
                        | Some "OPT1" -> true
                        | Some _ | None -> false
-                     end))
+                     end) 
+                     ||  try int_of_string y>=2024
+                    with _ -> false (* TO DO Check for Cesure *)
+                     )
                  )
              end
            then
