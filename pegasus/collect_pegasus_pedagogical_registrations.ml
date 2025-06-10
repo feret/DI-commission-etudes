@@ -491,7 +491,7 @@ let get_pegasus_pedagogical_registrations
                                       let entry = {entry with diploma = Some "ANM1INF"} in 
                                       let entry, (bset, state) = 
                                       entry, (update_diploma "ANM1INF - Master in Computer science (First year)" entry (bset,state)) in 
-                                      let course = "MPRI 2.00 stage de recherche M2 du MPRI" in  
+                                      let course = "UNINF2-135 - MPRI 2.00 stage de recherche M2 du MPRI" in  
                                       let ects = "30." in 
                                       entry,  update_course course ects entry bset state
                                 | ""::"ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science "::_ -> 
