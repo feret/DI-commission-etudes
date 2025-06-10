@@ -590,7 +590,7 @@ let state =
        let output = (output_rep,Format.sprintf "promo%s.pdf" promo)
        in
        let state =
-         Latex_engine.concat_pdf ~pattern ~exclude:".en.pdf\\|transcript" ~output
+         Latex_engine.concat_pdf ~pattern ~exclude:".en.pdf\\|transcript\\|conflicted" ~output
            state
        in
        let output = (output_rep,Format.sprintf "promo%s_en.pdf" promo)
@@ -601,7 +601,7 @@ let state =
            ~promo state
        in
        let state =
-         Latex_engine.concat_pdf ~pattern ~output ~exclude:"transcript"
+         Latex_engine.concat_pdf ~pattern ~output ~exclude:"transcript\\|conflicted"
            state
        in
 
