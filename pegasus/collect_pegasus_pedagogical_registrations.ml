@@ -489,11 +489,11 @@ let get_pegasus_pedagogical_registrations
                                     entry, (bset, state)
                                 | ""::"ANM1INF - Master in Computer science (First year)"::_ -> 
                                       let entry = {entry with diploma = Some "ANM1INF"} in 
-                                      let entry, (bset, state) = 
-                                      entry, (update_diploma "ANM1INF - Master in Computer science (First year)" entry (bset,state)) in 
+                                   (*  let entry, (bset, state) = *)
+                                      entry, (update_diploma "ANM1INF - Master in Computer science (First year)" entry (bset,state)) (*in*) 
                                     (*  let course = "UNINF2-045 - Stage long M1 étranger pays non francophone & Long interns" in  
-                                      let ects = "30." in*) 
-                                      entry,  update_course course ects entry bset state
+                                      let ects = "30." in
+                                      entry,  update_course course ects entry bset state*)
                                 | ""::"ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science "::_ -> 
                                   let entry = {entry with diploma = Some "ANM2INFPRI"} in 
                                   entry, (update_diploma "ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science " entry (bset,state))
