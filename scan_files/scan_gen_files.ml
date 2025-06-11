@@ -252,7 +252,7 @@ let get_list_from_a_file
               aux k_total state tk td current_file
           in
           let state, current_file' =
-            aux ((List.length header)/2) state header h current_file in
+            aux (max 10 ((List.length header)/2)) state header h current_file in
           let state, current_file, output =
             do_at_end_of_array_line
               header_key state current_file current_file' output
