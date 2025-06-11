@@ -45,12 +45,15 @@ let get_list_from_a_file
             let state, output =
               if is_non_empty
               then
+                let state = Remanent_state.warn __POS__ "flush" Exit state in 
                 flush state current_file output
               else
+                let state = Remanent_state.warn __POS__ "ignored" Exit state in 
                 state, output
             in
             do_at_end_of_file state current_file output
           | h::t ->
+            let state = Remanent_state.warn __POS__ "Next line" Exit state in 
             if List.length
                 (List.filter (fun s -> s <> "") h) > 1
             then
@@ -412,6 +415,7 @@ let collect_gen
     then
       if List_of_string.is_empty list_missing
       then
+        let state = Remanent_state.warn __POS__ "EMPTY LIST_MISSING" Exit state in 
         state, current_file, current_file'::output
       else
       begin
