@@ -218,6 +218,7 @@ let get_list_from_a_file
           let rec aux state header data current_file =
             match header,data with
             | _, [] | [], _ ->
+              let state = Remanent_state.warn __POS__ "Incomplete row" Exit state in 
               state, current_file
             | None::tk, _::td ->
               let state =
