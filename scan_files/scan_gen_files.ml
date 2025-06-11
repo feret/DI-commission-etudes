@@ -217,7 +217,7 @@ let get_list_from_a_file
         else
           let rec aux k_total state header data current_file =
             match header,data with
-            | None::tk, [] -> 
+           (* | None::tk, [] -> 
               if List.length tk < k_total then 
                 let state =
                   Remanent_state.warn
@@ -233,7 +233,8 @@ let get_list_from_a_file
                   let state, current_file =
                 hk state None current_file in
                 aux k_total state tk [] current_file
-                else state, current_file 
+                else state, current_file *)
+                | _,[] 
             | [], _ ->
               let state = Remanent_state.warn __POS__ "Incomplete row" Exit state in 
               state, current_file
