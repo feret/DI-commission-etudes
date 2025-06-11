@@ -215,9 +215,26 @@ let get_list_from_a_file
           scan
             state [] remaining_lines None false current_file false output
         else
-          let rec aux state header data current_file =
+          let rec aux k_total state header data current_file =
             match header,data with
-            | _, [] | [], _ ->
+            | None::tk, [] -> 
+              if List.length tk < k_total then 
+                let state =
+                  Remanent_state.warn
+                    __POS__
+                    (Format.sprintf "Action field is missing in %s" file)
+                    Exit
+                    state
+                in
+                aux k_total state tk [] current_file
+              else state, current_file 
+              | (Some hk)::tk, [] -> 
+                  if List.length tk < k_total then 
+                  let state, current_file =
+                hk state None current_file in
+                aux k_total state tk [] current_file
+                else state, current_file 
+            | [], _ ->
               let state = Remanent_state.warn __POS__ "Incomplete row" Exit state in 
               state, current_file
             | None::tk, _::td ->
@@ -228,14 +245,14 @@ let get_list_from_a_file
                   Exit
                   state
               in
-              aux state tk td current_file
+              aux k_total state tk td current_file
             | (Some hk)::tk, hd::td ->
               let state, current_file =
                 hk state (Some hd) current_file in
-              aux state tk td current_file
+              aux k_total state tk td current_file
           in
           let state, current_file' =
-            aux state header h current_file in
+            aux ((List.length header)/2) state header h current_file in
           let state, current_file, output =
             do_at_end_of_array_line
               header_key state current_file current_file' output
