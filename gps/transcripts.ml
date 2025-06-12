@@ -1347,7 +1347,7 @@ let store_cours  =
           && (not (Tools.substring "préparation" a)))
           || Tools.substring "experience de recherche" a
           || Tools.substring "expérience de recherche" a) 
-          && not (Tools.substring "déjà" a || Tools.substring "deja" a || Tools.substring "dej a" a)
+          && not (Tools.substring "déjà" a || Tools.substring "deja" a || Tools.substring "dej" a || Tools.substring "déj" a)
       end
 
   let not_stages =
