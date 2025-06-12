@@ -1342,10 +1342,12 @@ let store_cours  =
           let a = String.lowercase_ascii a in
           (((Tools.substring "internship" a
            || Tools.substring "stage" a || ((Tools.substring "séjour" a || Tools.substring "sejour" a) && (Tools.substring "linguistique" a ||  Tools.substring "etranger" a || Tools.substring "étranger" a))) &&
-          (not
-             (Tools.substring "intensif" a)) && (not (Tools.substring "preparation" a)) && (not (Tools.substring "préparation" a)))
+          (not (Tools.substring "intensif" a)) && 
+          (not (Tools.substring "preparation" a)) 
+          && (not (Tools.substring "préparation" a)))
           || Tools.substring "experience de recherche" a
-          || Tools.substring "expérience de recherche" a) && not (Tools.substring "déjà" a || Tools.substring "deja" a)
+          || Tools.substring "expérience de recherche" a) 
+          && not (Tools.substring "déjà" a || Tools.substring "deja" a || Tools.substring "dej a" a)
       end
 
   let not_stages =
