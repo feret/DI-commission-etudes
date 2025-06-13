@@ -45,15 +45,12 @@ let get_list_from_a_file
             let state, output =
               if is_non_empty
               then
-                let state = Remanent_state.warn __POS__ "flush" Exit state in 
                 flush state current_file output
               else
-                let state = Remanent_state.warn __POS__ "ignored" Exit state in 
                 state, output
             in
             do_at_end_of_file state current_file output
           | h::t ->
-            let state = Remanent_state.warn __POS__ "Next line" Exit state in 
             if List.length
                 (List.filter (fun s -> s <> "") h) > 1
             then
@@ -215,28 +212,10 @@ let get_list_from_a_file
           scan
             state [] remaining_lines None false current_file false output
         else
-          let rec aux k_total state header data current_file =
+          let rec aux state header data current_file =
             match header,data with
-           (* | None::tk, [] -> 
-              if List.length tk < k_total then 
-                let state =
-                  Remanent_state.warn
-                    __POS__
-                    (Format.sprintf "Action field is missing in %s" file)
-                    Exit
-                    state
-                in
-                aux k_total state tk [] current_file
-              else state, current_file 
-              | (Some hk)::tk, [] -> 
-                  if List.length tk < k_total then 
-                  let state, current_file =
-                hk state None current_file in
-                aux k_total state tk [] current_file
-                else state, current_file *)
-                | _,[] 
+            | _,[] 
             | [], _ ->
-              let state = Remanent_state.warn __POS__ "Incomplete row" Exit state in 
               state, current_file
             | None::tk, _::td ->
               let state =
@@ -246,14 +225,14 @@ let get_list_from_a_file
                   Exit
                   state
               in
-              aux k_total state tk td current_file
+              aux state tk td current_file
             | (Some hk)::tk, hd::td ->
               let state, current_file =
                 hk state (Some hd) current_file in
-              aux k_total state tk td current_file
+              aux state tk td current_file
           in
           let state, current_file' =
-            aux (max 10 ((List.length header)/2)) state header h current_file in
+            aux state header h current_file in
           let state, current_file, output =
             do_at_end_of_array_line
               header_key state current_file current_file' output
@@ -434,7 +413,6 @@ let collect_gen
     then
       if List_of_string.is_empty list_missing
       then
-        let state = Remanent_state.warn __POS__ "EMPTY LIST_MISSING" Exit state in 
         state, current_file, current_file'::output
       else
       begin

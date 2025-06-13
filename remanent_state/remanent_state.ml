@@ -273,7 +273,7 @@ let parameters =
     language  = Public_data.French;
     repartition = Public_data.Annee_de_validation_du_cours;
     load_gps_data = false ;
-    log_pegasus_entries = true (*false*);
+    log_pegasus_entries = false;
   }
 
 let _ = parameters.parameters_repository
