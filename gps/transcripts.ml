@@ -7363,7 +7363,8 @@ type kind = Inscription | RdV | Course | Annee | Annee_dpt | Secondary
 
 
 let kind libelle =
-  if String.length libelle > 6 && String.sub libelle 0 7 = "UNDRVTU" then RdV
+  if String.length libelle > 9 && String.sub libelle 0 10 = "ANECHINTER" then Annee
+  else if String.length libelle > 6 && String.sub libelle 0 7 = "UNDRVTU" then RdV
   else
   if String.length libelle > 6 && String.sub libelle 0 7 = "UNDDSEC" then
 Secondary
@@ -7602,6 +7603,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                 | "UNDDIPH-L3" -> state, L3_HPSL
                 | "ANM2INFPRI" -> state, M2_PSL 
                 | "ANM1INF" -> state, M1_PSL 
+                | "ANECHINTER" -> state, Autre 
                 | "UNDDIPL-NA" -> state, Autre
                 | _ ->  Remanent_state.warn __POS__ (Format.sprintf "Invalid code for helisa registration %s" code)  Exit state, Autre
             in
