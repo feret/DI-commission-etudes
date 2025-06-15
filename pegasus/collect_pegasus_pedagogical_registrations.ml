@@ -114,6 +114,11 @@ let update_student bloc entry bset state =
         let rec aux t b_opt dpt =
         match t with
           | ":"::tail -> tail,b_opt, dpt
+          | "Diplôme"::"de"::"l'ENS-PSL"::dpt1::dpt2::dpt3::"-"::n::tail
+          | "Diplôme"::":"::"Diplôme"::"de"::"l'ENS-PSL"::dpt1::dpt2::dpt3::"-"::n::tail -> aux tail (Some true) (Some (String.concat " " [dpt1;dpt2;dpt3],n))
+          | "Diplôme"::"de"::"l'ENS-PSL"::dpt1::dpt2::"-"::n::tail
+          | "Diplôme"::":"::"Diplôme"::"de"::"l'ENS-PSL"::dpt1::dpt2::"-"::n::tail -> aux tail (Some true) (Some (String.concat " " [dpt1;dpt2],n))
+         
           | "Diplôme"::"de"::"l'ENS-PSL"::dpt::"-"::n::tail
           | "Diplôme"::":"::"Diplôme"::"de"::"l'ENS-PSL"::dpt::"-"::n::tail -> aux tail (Some true) (Some (dpt,n))
           | _::tail -> aux tail b_opt dpt
