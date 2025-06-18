@@ -3054,7 +3054,7 @@ let mgen dpt d =
     with
     | None -> false
     | Some x -> 
-      let () = Format.printf "MGEN %s %s" (simplify_string x) dpt in 
+      let () = Format.printf "MGEN (%s) (%s) @." (simplify_string x) dpt in 
       simplify_string x = dpt
   end
 
@@ -3591,6 +3591,7 @@ let translate_diplome
               Exit
               state, "","", false
         in
+        let () = Format.sprintf "GERUND (%s) (%s) @." label label_en in 
         let dpt,dpt_en =
           if String.lowercase_ascii level = "dens"
           then "DENS", "DENS"
