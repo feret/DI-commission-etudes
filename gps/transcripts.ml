@@ -4623,6 +4623,7 @@ let heading
                  (string_of_int i)^"th Year"^is_suite_en^":")
                 state
           in
+          let () = Format.printf "PREFIX %s @." prefix_fr in 
           let state, suffix_fr, suffix_en, nationaux_opt, nationaux_en_opt
             =
             let lmath = lmath ~year ~firstname ~lastname situation state in
