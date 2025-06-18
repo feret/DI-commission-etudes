@@ -3591,7 +3591,7 @@ let translate_diplome
               Exit
               state, "","", false
         in
-        let () = Format.sprintf "GERUND (%s) (%s) @." label label_en in 
+        let () = Format.printf "GERUND (%s) (%s) @." label label_en in 
         let dpt,dpt_en =
           if String.lowercase_ascii level = "dens"
           then "DENS", "DENS"
@@ -4817,6 +4817,7 @@ let heading
               match situation.departement_principal with
                 | None when annee_int<int_of_string promo -> state, ("", "")
                 | None | Some _ ->
+                let () = Format.printf "TRANSLATE (%s) @." (match situation.departement_principal with None -> "none" | Some a -> a) in 
                 translate_dpt ~firstname ~lastname ~year:annee_int state
                   situation.departement_principal
               in
