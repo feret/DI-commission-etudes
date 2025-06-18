@@ -7368,6 +7368,7 @@ type kind = Inscription | RdV | Course | Annee | Annee_dpt | Secondary
 
 
 let kind libelle =
+  let () = Format.printf "KIND (%s) @." libelle in 
   if String.length libelle > 9 && String.sub libelle 0 10 = "ANECHINTER" then Annee
   else if String.length libelle > 6 && String.sub libelle 0 7 = "UNDRVTU" then RdV
   else
