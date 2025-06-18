@@ -3053,7 +3053,9 @@ let mgen dpt d =
       d.departement_principal
     with
     | None -> false
-    | Some x -> simplify_string x = dpt
+    | Some x -> 
+      let () = Format.printf "MGEN %s %s" (simplify_string x) dpt in 
+      simplify_string x = dpt
   end
 
 let _minfo = mgen dpt_info_gps_name
