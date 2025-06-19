@@ -197,7 +197,7 @@ let update_inscription code_helisa entry bset state =
         let state, dpt =
           match dpt with
             | "Informatique"  -> state, "INF"
-            | "Mathématiques et applications" | "Mathématique" -> state, "DMA"
+            | "Mathématiques et applications" | "Mathématique" -> state, "DMA"
             | "Chimie" -> state, "CHI"
             | _ -> Remanent_state.warn __POS__ (Format.sprintf "Unknown dpt %s " dpt) Exit state, ""
         in
