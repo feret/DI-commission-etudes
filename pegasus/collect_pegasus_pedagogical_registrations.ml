@@ -145,6 +145,14 @@ let add unify pos c (bset,state) =
     then 
       bset,state
     else 
+      let state = 
+        if elt.Public_data.pe_lastname="BOYER" || elt.Public_data.pe_lastname="boyer"
+        then 
+         Remanent_state.warn __POS__ (Format.sprintf "%s %s %s %s %s %s" elt.Public_data.pe_firstname
+        elt.Public_data.pe_lastname elt.Public_data.pe_year elt.Public_data.pe_libelle elt.Public_data.pe_code_helisa
+        (match elt.Public_data.pe_code_gps with None -> "none" | Some x -> x)) Exit state 
+        else state 
+      in 
       Public_data.PESET.add elt bset, 
       Remanent_state.Collector_pedagogical_registrations.add unify pos [elt] state) 
     (bset,state) c 
