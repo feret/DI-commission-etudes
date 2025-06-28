@@ -580,7 +580,7 @@ let get_pegasus_pedagogical_registrations
                         let convert_recap recapitulatif bset (state:Remanent_state.t) =
                             let entry = empty_pegasus_entry in
                             match recapitulatif with
-                            | ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_)::(year::_)::(bloc::_)::_::tail
+                            | ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_)::(year::_)::(bloc::_)::tail
  ->
                             let entry, (bset, state) = update_year year entry bset state in
                             let entry, (bset, state), dpt  = update_bloc' bloc entry (bset,state) in
@@ -617,6 +617,7 @@ let get_pegasus_pedagogical_registrations
                             let rec aux tail bset state =
                               match tail with
                                 | [] -> bset, state
+                                | ("Période"::_)::tail -> aux tail bset state  
                                 | ("Choix du département secondaire"::_)::tail
                                   ->
                                   let bset, state, tail = aux_snd tail bset state in
