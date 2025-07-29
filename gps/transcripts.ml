@@ -7444,7 +7444,7 @@ let ects_6 =
   [
     "DMA-L3-GL3-S1";
   "DMA-L3-GL2-S1";
-    "DMA-L3-GL1-S1";
+    "DMA-L3-GL1";
     "DMA-M1-E01-S1";
     "DMA-M1-D12cours-S2";
     "DMA-M1-D12GT-S2";
@@ -7486,6 +7486,18 @@ let ects_9 =
 
     ]
 
+let ects_5 = 
+  [ 
+    "NFO-M2-MVA-P2D4-S1"; 
+    "INFO-M2-MVA-P1D1-S1"; 
+    "INFO-M2-MVA-P1M12-S1"; 
+    "INFO-M2-MVA-P2M4-S1";
+    "INFO-M2-MVA-P1M5-S1"; 
+    "INFO-M2-MVA-P2D9-S1"; 
+    "INFO-M2-MVA-P2D5-S1"; 
+    "INFO-M2-MVA-P2D6-S1"; 
+    "INFO-M2-MVA-P1M1-S1"; 
+  ]
 let ects_12 =
     [
     "DMA-L3-A01-S1";
@@ -7522,6 +7534,8 @@ let ects_12 =
     "INFO-L3-STAGE-S2";
 ]
 
+let ects_20 = 
+  ["INFO-M2-MVASTAGE-S2"]
 let ects_24 =
   [
     "PHYS-L3-B11-S2";
@@ -7538,9 +7552,14 @@ let fill l ects map =
     List.fold_left (fun map x -> Public_data.CodeMap.add x ects map) map l
 
 let code_map = fill ects_45 4.5 code_map
+
+let code_map fill ects_5 5. code_map 
 let code_map = fill ects_6 6. code_map
 let code_map = fill ects_9 9. code_map
 let code_map = fill ects_12 12. code_map
+
+let code_map = fill ects_20 20. code_map 
+
 let code_map = fill ects_24 24. code_map
 let code_map = fill ects_30 30. code_map
 let ects_of_code_cours code_cours =

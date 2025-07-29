@@ -249,7 +249,7 @@ let parameters =
     error_log_file = "error.txt";
     comma_symbol = ',';
     dens_repository = "diplomation";
-    diplomation_year = Some "2024" ;
+    diplomation_year = Some "2025" ;
     repository_for_minors = "mineures" ;
     repository_for_majors = "majeures" ;
     repository_for_dens_candidate = "dens_candidates" ; repository_to_dump_missing_minors = "mineures" ;
