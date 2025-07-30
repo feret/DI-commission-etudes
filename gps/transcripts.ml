@@ -7502,9 +7502,12 @@ let ects_5 =
     "INFO-M2-MVA-P2D9-S1"; 
     "INFO-M2-MVA-P2M3-S1"; 
     "INFO-M2-MVA-P2M4-S1";
+    "INFO-M2-MVA-P2M8-S1"; 
     "INFO-M2-MVA-XX-S1"; 
     "UNDEXT01a0"
   ]
+
+  
 let ects_12 =
     [
     "DMA-L3-A01-S1";
