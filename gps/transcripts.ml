@@ -6179,7 +6179,7 @@ let program
                         Public_data.activite_annee = annee;
                         Public_data.activite_activite=activite_activite;
                         Public_data.activite_activite_fr=Some activite_activite ;
-                Public_data.activite_activite_en=Some activite_activite_en;
+                        Public_data.activite_activite_en=Some activite_activite_en;
                         Public_data.activite_intitule=(match stage.sujet with None -> "" | Some l -> l) ;
                         Public_data.activite_intitule_fr=(if intitule_fr = "" then stage.sujet else Some intitule_fr);
                         Public_data.activite_intitule_en=intitule_en;
@@ -6228,7 +6228,7 @@ let program
                       if (Special_char.lowercase
                             (String.trim a) = "non applicable") then state, ""
                       else
-                      if (l = "" && sujet="")
+                      if (l = "" && sujet="" || (a=""))
                       then state, a else
                         let state, directed =
                           Remanent_state.bilingual_string
@@ -7488,15 +7488,22 @@ let ects_9 =
 
 let ects_5 = 
   [ 
-    "NFO-M2-MVA-P2D4-S1"; 
     "INFO-M2-MVA-P1D1-S1"; 
-    "INFO-M2-MVA-P1M12-S1"; 
-    "INFO-M2-MVA-P2M4-S1";
+    "INFO-M2-MVA-P1D3-S1"; 
     "INFO-M2-MVA-P1M5-S1"; 
-    "INFO-M2-MVA-P2D9-S1"; 
+    "INFO-M2-MVA-P1M12-S1"; 
+    "INFO-M2-MVA-P2D4-S1"; 
     "INFO-M2-MVA-P2D5-S1"; 
     "INFO-M2-MVA-P2D6-S1"; 
+    "INFO-M2-MVA-P2D8-S1"; 
     "INFO-M2-MVA-P1M1-S1"; 
+    "INFO-M2-MVA-P1M8-S1";
+    "INFO-M2-MVA-P2D4-S1";
+    "INFO-M2-MVA-P2D9-S1"; 
+    "INFO-M2-MVA-P2M3-S1"; 
+    "INFO-M2-MVA-P2M4-S1";
+    "INFO-M2-MVA-XX-S1"; 
+    "UNDEXT01a0"
   ]
 let ects_12 =
     [
