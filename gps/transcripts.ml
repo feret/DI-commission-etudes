@@ -6210,7 +6210,7 @@ let program
                     | Some a, "" | None, a -> 
                       if l = ""
                       then state, a
-                    else state, "\\newline \""^a^"\""
+                    else state, "\\newline "^(Tools.guillemet a)
                     | Some a, a' -> 
                       let state, a = 
                         Remanent_state.bilingual_string 
@@ -7139,7 +7139,7 @@ let program
                       | a, "" | "", a -> 
                         if l = ""
                         then state, a
-                        else state, "\\newline \""^a^"\""
+                        else state, "\\newline "^(Tools.guillemet a)
                       | a, a' -> 
                         let state, a = 
                          Remanent_state.bilingual_string 
@@ -7148,7 +7148,7 @@ let program
                         in
                         if l = ""
                         then state, a
-                       else state, "\\newline \""^a^"\""
+                       else state, "\\newline "^(Tools.guillemet a)
                     in
              
                     let sujet =
@@ -7157,7 +7157,7 @@ let program
                       | a ->
                         if l = ""
                         then a
-                        else "\\newline \""^a^"\""
+                        else "\\newline "^(Tools.guillemet a)
                     in
                     let state, directeur =
                       match stage.directeur_de_stage with

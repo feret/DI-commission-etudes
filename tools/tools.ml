@@ -820,3 +820,10 @@ let remove_end ~suffix s =
     else s  
   else 
     s 
+
+  let guillemet s = 
+    if s="" then s 
+    else 
+      let l = String.length s in 
+      if l > 1 && String.get s 0 = '\"' && String.get s (l-1) = '\"' then s 
+      else Format.sprintf "\"%s\"" s 
