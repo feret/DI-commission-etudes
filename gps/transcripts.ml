@@ -6219,7 +6219,7 @@ let program
                       in
                       if l = ""
                       then state, a
-                      else state, "\\newline \""^a^"\""
+                      else state, "\\newline "^(Tools.guillemet a)
                   in
                   let state, directeur =
                     match stage.directeur_de_stage with
@@ -7131,24 +7131,25 @@ let program
                           end
                     in 
                     let state, sujet =
-                    match 
-                      stage_entry.Public_data.activite_intitule_fr, 
-                      stage_entry.Public_data.activite_intitule_en with
-                    | None, "" -> state, "" 
-                    | Some a, "" | None, a -> 
-                      if l = ""
-                      then state, a
-                    else state, "\\newline "^(Tools.guillemet a)
-                    | Some a, a' -> 
-                      let state, a = 
-                        Remanent_state.bilingual_string 
-                          ~english:a' ~french:a 
+                      match 
+                       intitule_fr, 
+                       intitule_en 
+                      with
+                      | "", "" -> state, "" 
+                      | a, "" | "", a -> 
+                        if l = ""
+                        then state, a
+                        else state, "\\newline "^(Tools.guillemet a)
+                      | a, a' -> 
+                        let state, a = 
+                         Remanent_state.bilingual_string 
+                           ~english:a' ~french:a 
                             state 
-                      in
-                      if l = ""
-                      then state, a
-                      else state, "\\newline \""^a^"\""
-                  in
+                        in
+                        if l = ""
+                        then state, a
+                       else state, "\\newline "^(Tools.guillemet a)
+                    in
                     let state, directeur =
                       match stage.directeur_de_stage with
                       | None -> state, ""
