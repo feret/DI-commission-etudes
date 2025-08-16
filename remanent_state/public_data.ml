@@ -154,7 +154,7 @@ let experience_of_string x =
   | "internationale" | "international" -> Internationale
   | "recherches" | "recherche" -> Recherche
   | "transdisciplinaire" -> Transdisciplinaire
-  | "x" | "hors" | "hors dens" -> Hors_Dens
+  | "" | "x" | "hors" | "hors dens" -> Hors_Dens
   | _ -> Recherche
 
 let string_of_dpt x =
