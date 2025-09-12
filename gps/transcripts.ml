@@ -6297,7 +6297,7 @@ let program
                                             | None | Some false -> false
                                             | Some true -> true
                                         end
-              else state, libelle, None, None, false 
+              else state, libelle, None, cours.ects, false 
             else
             if String.trim codecours = ""
             then
