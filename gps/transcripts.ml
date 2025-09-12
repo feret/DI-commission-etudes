@@ -6285,8 +6285,8 @@ let program
             (fun (state,nl,mean, dens, natt, cours_list, stage_list) (libelle,stage_opt) ->
             let state, libelle, libelle_en, ects, force_validation =
             if is_stage cours then
-              if List.mem cours.code_cours [Some "UNEXPA-39"] (* TO BE CHECKED, or extended*)
-              then state, libelle, None, (match stage_opt with None -> cours.ects | Some a -> begin
+              (*if List.mem cours.code_cours [Some "UNEXPA-39"] (* TO BE CHECKED, or extended*)
+              then*) state, libelle, None, (match stage_opt with None -> cours.ects | Some a -> begin
                                       match cours.ects with None -> Some (a.Public_data.activite_ects)
                                       | Some ects -> Some (ects+. a.Public_data.activite_ects)
                                     end),
@@ -6297,7 +6297,7 @@ let program
                                             | None | Some false -> false
                                             | Some true -> true
                                         end
-              else state, libelle, None, cours.ects, false 
+              (*else state, libelle, None, cours.ects, false *)
             else
             if String.trim codecours = ""
             then
