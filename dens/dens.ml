@@ -636,6 +636,7 @@ let print_status bool state =
     then print_check state
     else print_in_progress state
 
+    let _ = dump_list_exp 
 let dump_dens dens state =
     let size = [None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None] in
@@ -679,18 +680,18 @@ let dump_dens dens state =
           liste (state,total_init)
     in
     let total_other = add_total [total_other;total_minor;total_major] in
-    let l1, l2, l3, l4, l5, l6 = dens.Public_data.dens_activite_internationale,
+    (*let l1, l2, l3, l4, l5, l6 = dens.Public_data.dens_activite_internationale,
                          dens.Public_data.dens_activite_recherche,
                          dens.Public_data.dens_activite_ouverture,
                          dens.Public_data.dens_activite_autre,
                          dens.Public_data.dens_activite_transdisciplinaire,
                          dens.Public_data.dens_activite_a_trier
-    in
-    let liste = List.flatten [l1;l2;l3;l4;l5;l6] in
-    let state, total_exp =
+    in*)
+    (*let liste = List.flatten [l1;l2;l3;l4;l5;l6] in*)
+    (*let state, total_exp =
         dump_list_exp ~key:"Expériences"
               liste (state, total_init)
-    in
+    in*)
     let state, total_ecla =
         dump_list
           ~key:"Langues"
@@ -705,7 +706,7 @@ let dump_dens dens state =
           ~key:"À trier"
           dens.Public_data.dens_cours_a_trier (state,total_init)
       in
-     let total = add_total [total_to_sort; total_resp; total_ecla; total_other;  total_principale; total_exp] in
+     let total = add_total [total_to_sort; total_resp; total_ecla; total_other;  total_principale(*; total_exp*)] in
       let () = Remanent_state.fprintf state "\\hline" in
       let () = Remanent_state.open_row state in
       let (i,i',ects,ects') = total in
