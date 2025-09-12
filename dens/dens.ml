@@ -754,7 +754,7 @@ let dump_dens dens state =
       let () = display_exp state "Recherche" dens.Public_data.dens_activite_recherche in
       let () = display_exp state "Internationale" dens.Public_data.dens_activite_internationale in
       let () = display_exp state "Transdisciplinaire"
-      dens.Public_data.dens_activite_internationale in
+      dens.Public_data.dens_activite_transdisciplinaire in
       let () = display_exp state "Autre"
       dens.Public_data.dens_activite_autre in
       let state = print_status (count_exp dens > 1)  state in
