@@ -110,9 +110,14 @@ let convert entry state =
               | Some _ as y -> state, y
           end
   in
+  let firstname = 
+    if entry.lastname = Some "DANILKIN" && entry.firstname = Some "Anna" 
+    then Some "Anton"
+  else entry.firstname 
+in 
   state, {
     Public_data.pegasus_note_annee = Tools.unsome_string entry.year ;
-    Public_data.pegasus_note_firstname = Tools.unsome_string entry.firstname ;
+    Public_data.pegasus_note_firstname = Tools.unsome_string firstname ;
     Public_data.pegasus_note_lastname = Tools.unsome_string entry.lastname ;
     Public_data.pegasus_note = entry.note ;
     Public_data.pegasus_validation = validation ;
