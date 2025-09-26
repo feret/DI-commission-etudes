@@ -1964,7 +1964,7 @@ let empty_remanent =
               get_bilan_annuel state remanent (string_of_int previous_year) in
             let bilan = 
               if is_pg then 
-                let () = Format.printf "DENS FALSE 1967 @." in 
+                let () = Format.printf "DENS FALSE (year:%i) 1967 @." year in 
                 {bilan with 
                   inscription_helisa=[PG];
                   situation_administrative = Some "Programme Gradué";
@@ -7713,7 +7713,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           let () = Format.printf "PE ANNEE 7710 @." in 
           let bilan = 
             match bilan.inscription_au_DENS with None -> 
-              let () = Format.printf "PE ANNEE 7716 @." in 
+              let () = Format.printf "PE ANNEE 7716 YEAR(%s) @." course.Public_data.pe_year in 
               {bilan with inscription_au_DENS = Some true } 
             | Some _ -> bilan 
           in
