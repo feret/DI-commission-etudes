@@ -36,6 +36,14 @@ val get_students_list:
   Remanent_state.t ->
   Remanent_state.t
 
+val get_pg_students_list:
+  ?repository:string ->
+  ?prefix:string ->
+  ?file_name:string ->
+  ?promotion:string ->
+  Remanent_state.t ->
+  Remanent_state.t
+
 val patch_student_file:
   ?firstname:string ->
   ?lastname:string ->

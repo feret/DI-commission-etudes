@@ -766,6 +766,7 @@ type inscription_helisa =
     | M1_HPSL
     | M2_PSL
     | M2_HPSL
+    | PG 
     | Autre
 
 type bilan_annuel =
@@ -1931,6 +1932,15 @@ let empty_remanent =
 
   let saturate_bilan_annuel state ~firstname ~lastname ~promo gps_file =
     let remanent = {empty_remanent with gps_file} in
+    let state, pg = Remanent_state.Pg_students.get state in 
+    let pg = List.rev_map (fun x -> 
+      {x with Public_data.firstname = Special_char.capitalize x.Public_data.firstname ; 
+              Public_data.lastname = Special_char.uppercase x.Public_data.lastname}
+      ) (List.rev pg)  in 
+    let is_pg = 
+      List.exists (fun x -> x.Public_data.firstname = firstname && x.Public_data.lastname = lastname) pg 
+    in  
+  
     let state, current_year = Remanent_state.get_current_academic_year state in
     let state, current_year =
         try
@@ -1951,6 +1961,15 @@ let empty_remanent =
           else
             let state, bilan =
               get_bilan_annuel state remanent (string_of_int previous_year) in
+            let bilan = 
+              if is_pg then 
+                {bilan with 
+                  inscription_helisa=[PG];
+                  situation_administrative = Some "Programme Gradué";
+                  inscription_au_DENS=Some false} 
+              else 
+                bilan 
+            in 
             let state, b2 =
                 let state, l =  Remanent_state.Collector_pedagogical_registrations.find_list ~firstname ~lastname state
                 in
@@ -3521,7 +3540,7 @@ let dispatch check_dpt  ~firstname ~lastname origine situation code_cours year s
       else state, (Some ("DENS"), "DENS", "DENS", "DENS", "DENS", false, false)
 
       | [L3_PSL] | [L3_HPSL] -> dispatch_l ~firstname ~lastname check_dpt  origine situation code_cours year state
-      | [M1_PSL] | [M1_HPSL] | [M2_PSL] | [M2_HPSL] -> dispatch_m ~lastname check_dpt  origine situation code_cours year state
+      | [PG] | [M1_PSL] | [M1_HPSL] | [M2_PSL] | [M2_HPSL] -> dispatch_m ~lastname check_dpt  origine situation code_cours year state
       | [Autre] -> state, (Some ("DENS"), "DENS", "DENS", "DENS", "DENS", false, false)
 
 let translate_diplome
@@ -7636,7 +7655,9 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             let bilan = {bilan with inscription_helisa = elt::bilan.inscription_helisa} in
             let bilan =
               match course.Public_data.pe_dens with
-                | Some true -> {bilan with inscription_au_DENS = Some true}
+                | Some true -> 
+                  let () = Format.printf "PE DENS 7658 @." in 
+                  {bilan with inscription_au_DENS = Some true}
                 | _ -> bilan
             in
             state,
@@ -7662,6 +7683,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             | None -> empty_bilan_annuel
             | Some b -> b
           in
+              let () = Format.printf "ANNEE_DPT: DENS 7686 @." in 
               let bilan = {bilan with inscription_au_DENS = Some true ; departement_principal} in
           state,
           {gps_file with
@@ -7685,6 +7707,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             | None -> empty_bilan_annuel
             | Some b -> b
           in
+          let () = Format.printf "PE ANNEE 7710 @." in 
               let bilan = {bilan with inscription_au_DENS = Some true } in
           state,
           {gps_file with
@@ -7814,7 +7837,9 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           let bilan = {bilan with cours = elt::bilan.cours} in
           let bilan =
             match course.Public_data.pe_dens with
-              | Some true -> {bilan with inscription_au_DENS = Some true}
+              | Some true -> 
+                let () = Format.printf "PE DENS 7841 @." in 
+                  {bilan with inscription_au_DENS = Some true}
               | _ -> bilan
           in
           let blacklist = add ~year:course.Public_data.pe_year ~codehelisa:code ~libelle:course.Public_data.pe_libelle  blacklist in
@@ -8080,7 +8105,7 @@ let deal_with_l3_m1_dma ~year ~situation ~who filtered_classes state =
           let state =
             List.fold_left
               (fun state entry ->
-                  Remanent_state.warn __POS__ (Format.sprintf "%s" (match entry with L3_PSL -> "L3_PSL"
+                  Remanent_state.warn __POS__ (Format.sprintf "%s" (match entry with PG -> "PG" | L3_PSL -> "L3_PSL"
                   | L3_HPSL -> "L3_HPSL" | M1_PSL -> "M1_PSL" | M1_HPSL -> "M1_HPSL" | M2_PSL -> "M2_PSL" | M2_HPSL -> "M2_HPSL" | Autre -> "Autre" ))
                   Exit state) state situation.inscription_helisa
           in
@@ -8091,7 +8116,7 @@ let deal_with_l3_m1_dma ~year ~situation ~who filtered_classes state =
           else if List.for_all is_dip_M2 situation.inscription_helisa
           then state, filtered_classes
           else state, filtered_classes
-        | [M1_PSL] | [M1_HPSL] | [M2_PSL] | [M2_HPSL] | [Autre] -> state, filtered_classes
+        | [PG] | [M1_PSL] | [M1_HPSL] | [M2_PSL] | [M2_HPSL] | [Autre] -> state, filtered_classes
         | [L3_PSL] | [L3_HPSL] -> do_l3 filtered_classes state
 
 let saturate_gps_file ~firstname ~lastname ~promo state gps_file =

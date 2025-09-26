@@ -262,11 +262,11 @@ let parameters =
     repository_for_pegasus_validations = "validations" ;
     repository_for_pegasus_courses = "cours";
     repository_for_pegasus_stages = "stages" ;
-    current_academic_year = "2024";
+    current_academic_year = "2025";
     commissions_repository = "commissions_des_etudes";
     add_grades_without_registration = true  ;
 
-    commission =  Some ("19 septembre 2025",  "2024");
+    commission =  None;
     target = None ;
     signature = "feret+tampon.pdf";
     bilinguage = true ;
@@ -282,7 +282,7 @@ let set_dma parameters =
   {
     parameters with
     main_dpt = Public_data.DMA ;
-    commission = Some ("20 juin 2025",  "2024");
+    commission = None;
     local_repository = "dma/suivi_pedagogique" ;
     scholarships_repository = "dma/scolarite/ELEVES" ;
     diplomation_repository = "dma/scolarite/diplomation" ;
@@ -350,6 +350,7 @@ let set_phys parameters =
 type data =
   {
     students: Public_data.student_id list ;
+    pg_students: Public_data.student_id list ;
     status_administratifs: Pegasus_administrative_status.t;
     pedagogical_inscriptions: Pegasus_pedagogical_registrations.t;
     pegasus_notes: Pegasus_notes.t;
@@ -407,6 +408,7 @@ type data =
 let empty_data =
   {
     students = [];
+    pg_students = []; 
     status_administratifs = Pegasus_administrative_status.empty;
     pedagogical_inscriptions = Pegasus_pedagogical_registrations.empty ;
     pedagogical_courses = Pegasus_courses.empty ;
@@ -1067,6 +1069,17 @@ module Student_ids =
         let set students data = {data with students}
 
       end: Interface_collector_without_unification with type entry = Public_data.student_id)
+
+module Pg_students =
+    Make_list_collector
+         (struct
+           type entry = Public_data.student_id
+           let prefix t = get_repository_bdd_gen t
+           let repository _t = "pg"
+           let get data = data.pg_students
+           let set pg_students data = {data with pg_students}
+   
+         end: Interface_collector_without_unification with type entry = Public_data.student_id)
 
 (* Warnings about failure in gps accesses *)
 module Gps_server_faillures =

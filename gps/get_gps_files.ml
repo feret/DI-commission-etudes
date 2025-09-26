@@ -1015,6 +1015,43 @@ let get_students_list
     ?p
     state
 
+
+let compute_repository =
+    Remanent_state.Pg_students.get_repository
+    
+
+
+let get_pg_students_list 
+        ?repository
+        ?prefix
+        ?file_name
+        ?promotion
+        state
+      =
+      let p =
+        match promotion with
+        | None -> None
+        | Some x ->
+          Some (fun y -> match y.promotion with None -> true | Some y -> x = y)
+      in
+      Scan_csv_files.collect_gen
+        ~strict:true
+        ?repository
+        ?prefix
+        ?file_name
+        ~compute_repository
+        ~fun_default:fun_ignore
+        ~keywords_of_interest
+        ~keywords_list
+        ~init_state:empty_student
+        ~empty_elt:Public_data.empty_student_id
+        ~add_elt:(fun _ _ a b -> Remanent_state.Pg_students.add b a)
+        ~mandatory_fields
+        ~all_fields
+        ?event_opt
+        ?p
+        state
+
 let key = "Année académique"
 
 let patch_student_csv

@@ -11,6 +11,8 @@ let state =
     state
 let state =
   Get_gps_files.get_students_list state
+let state =
+  Get_gps_files.get_pg_students_list state
 let state, students_list =
   Remanent_state.Student_ids.get state
 let state, students_list =

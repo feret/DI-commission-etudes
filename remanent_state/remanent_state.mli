@@ -237,6 +237,12 @@ module Student_ids:
         Collector
         with type entry = Public_data.student_id
         and type collector = Public_data.student_id list
+
+module Pg_students:
+        Collector
+        with type entry = Public_data.student_id
+        and type collector = Public_data.student_id list
+        
 module Non_accepted_grades:
         Collector
         with type entry = Public_data.missing_grade
