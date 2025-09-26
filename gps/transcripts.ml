@@ -1859,7 +1859,6 @@ let set_dens
           remanent
           year
       in
-      let () = Format.printf "DENS 1862 @." in 
       let updated =
         {bilan with inscription_au_DENS = Some true}
       in
@@ -4257,6 +4256,15 @@ let not_dispense ~firstname ~lastname ~year state =
       | _, []-> true
       | _, _::_ -> false
 
+let is_pg state ~firstname ~lastname = 
+  let state, pg = Remanent_state.Pg_students.get state in 
+  let pg = List.rev_map (fun x -> 
+      {x with Public_data.firstname = Special_char.capitalize x.Public_data.firstname ; 
+                Public_data.lastname = Special_char.uppercase x.Public_data.lastname}
+        ) (List.rev pg)  in 
+  state, List.exists (fun x -> x.Public_data.firstname = firstname && x.Public_data.lastname = lastname) pg 
+       
+
 let heading
     ?dens ~who ~firstname ~lastname ~promo ~origine
     ~year ~situation ~gpscodelist ~tuteur ?tuteur_bis
@@ -4840,15 +4848,20 @@ let heading
             | Some true -> "BILAN DENS","DENS SUMMARY"
             | None | Some false -> statut, statut_en
   in
+  let state, is_pg = is_pg state ~firstname ~lastname in 
     let state, dens_opt, dens_en_opt  =
     match
       situation.inscription_au_DENS
     with
     | Some true ->
       begin
-        let () = Format.printf "Inscrit au DENS 4866 @." in 
         match nationaux_opt with
-        | Some _ -> state, ["Diplôme de l'ENS"], ["ENS diploma"]
+        | Some _ -> 
+          if is_pg 
+          then 
+            state,["Programme gradué"],["Graduate programme"]
+          else 
+            state, ["Diplôme de l'ENS"], ["ENS diploma"]
         | _ ->
           let state, cursus_opt =
             let lmath = lmath ~year ~firstname ~lastname situation state in
@@ -7691,17 +7704,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             | None -> empty_bilan_annuel
             | Some b -> b
           in
-          let state, pg = Remanent_state.Pg_students.get state in 
-          let pg = List.rev_map (fun x -> 
-            {x with Public_data.firstname = Special_char.capitalize x.Public_data.firstname ; 
-                    Public_data.lastname = Special_char.uppercase x.Public_data.lastname}
-            ) (List.rev pg)  in 
-          let is_pg = 
-            List.exists (fun x -> x.Public_data.firstname = firstname && x.Public_data.lastname = lastname) pg 
-          in  
-        
-         
-          let () = Format.printf "PE ANNEE 7710 @." in 
+          let state, is_pg = is_pg state ~firstname ~lastname in 
           let bilan = 
             match bilan.inscription_au_DENS with None -> 
               if is_pg then 
