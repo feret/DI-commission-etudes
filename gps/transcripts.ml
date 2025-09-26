@@ -7711,7 +7711,11 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             | Some b -> b
           in
           let () = Format.printf "PE ANNEE 7710 @." in 
-              let bilan = {bilan with inscription_au_DENS = Some true } in
+          let bilan = 
+            match bilan.inscription_au_DENS with None -> 
+              {bilan with inscription_au_DENS = Some true } 
+            | Some _ -> bilan 
+          in
           state,
           {gps_file with
            situation =
