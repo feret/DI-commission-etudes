@@ -1859,6 +1859,7 @@ let set_dens
           remanent
           year
       in
+      let () = Format.printf "DENS 1862 @." in 
       let updated =
         {bilan with inscription_au_DENS = Some true}
       in
@@ -1963,6 +1964,7 @@ let empty_remanent =
               get_bilan_annuel state remanent (string_of_int previous_year) in
             let bilan = 
               if is_pg then 
+                let () = Format.printf "DENS FALSE 1967 @." in 
                 {bilan with 
                   inscription_helisa=[PG];
                   situation_administrative = Some "Programme Gradué";
@@ -4863,6 +4865,7 @@ let heading
     with
     | Some true ->
       begin
+        let () = Format.printf "Inscrit au DENS 4866 @." in 
         match nationaux_opt with
         | Some _ -> state, ["Diplôme de l'ENS"], ["ENS diploma"]
         | _ ->

@@ -401,7 +401,7 @@ let update_course'  semester libelle teacher ects entry bset state  =
                             | [_] | [] -> state, pegasus_entry
                             | _ -> 
                               let state = Remanent_state.warn __POS__ (Format.sprintf "Several Pegasus entries for the cours label %s (%s) %s" libelle year (match semester with None -> "NA" | Some s -> s)) Exit state in 
-                              let state = List.fold_left (fun state a -> Remanent_state.warn __POS__ (Format.sprintf "Domain %s" (Tools.unsome_string a.Public_data.pegasus_domain)) Exit state) state pegasus_entry in 
+                              let state = List.fold_left (fun state a -> Remanent_state.warn __POS__ (Format.sprintf "Domain %s, Libellé %s " (Tools.unsome_string a.Public_data.pegasus_domain) libelle ) Exit state) state pegasus_entry in 
                               let l' = List.filter (fun a -> a.Public_data.pegasus_domain = Some "DENS-ENS") pegasus_entry 
                         in 
                         begin 
