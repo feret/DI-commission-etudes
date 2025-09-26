@@ -1933,15 +1933,6 @@ let empty_remanent =
 
   let saturate_bilan_annuel state ~firstname ~lastname ~promo gps_file =
     let remanent = {empty_remanent with gps_file} in
-    let state, pg = Remanent_state.Pg_students.get state in 
-    let pg = List.rev_map (fun x -> 
-      {x with Public_data.firstname = Special_char.capitalize x.Public_data.firstname ; 
-              Public_data.lastname = Special_char.uppercase x.Public_data.lastname}
-      ) (List.rev pg)  in 
-    let is_pg = 
-      List.exists (fun x -> x.Public_data.firstname = firstname && x.Public_data.lastname = lastname) pg 
-    in  
-  
     let state, current_year = Remanent_state.get_current_academic_year state in
     let state, current_year =
         try
@@ -1962,16 +1953,6 @@ let empty_remanent =
           else
             let state, bilan =
               get_bilan_annuel state remanent (string_of_int previous_year) in
-            let bilan = 
-              if is_pg then 
-                let () = Format.printf "DENS FALSE (year:%i) 1967 @." year in 
-                {bilan with 
-                  inscription_helisa=[PG];
-                  situation_administrative = Some "Programme Gradué";
-                  inscription_au_DENS=Some false} 
-              else 
-                bilan 
-            in 
             let state, b2 =
                 let state, l =  Remanent_state.Collector_pedagogical_registrations.find_list ~firstname ~lastname state
                 in
@@ -7710,11 +7691,26 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             | None -> empty_bilan_annuel
             | Some b -> b
           in
+          let state, pg = Remanent_state.Pg_students.get state in 
+          let pg = List.rev_map (fun x -> 
+            {x with Public_data.firstname = Special_char.capitalize x.Public_data.firstname ; 
+                    Public_data.lastname = Special_char.uppercase x.Public_data.lastname}
+            ) (List.rev pg)  in 
+          let is_pg = 
+            List.exists (fun x -> x.Public_data.firstname = firstname && x.Public_data.lastname = lastname) pg 
+          in  
+        
+         
           let () = Format.printf "PE ANNEE 7710 @." in 
           let bilan = 
             match bilan.inscription_au_DENS with None -> 
-              let () = Format.printf "PE ANNEE 7716 YEAR(%s) @." course.Public_data.pe_year in 
-              {bilan with inscription_au_DENS = Some true } 
+              if is_pg then 
+                {bilan with 
+                  inscription_helisa=[PG];
+                  situation_administrative = Some "Programme Gradué";
+                  inscription_au_DENS=Some false} 
+              else 
+                {bilan with inscription_au_DENS = Some true } 
             | Some _ -> bilan 
           in
           state,
