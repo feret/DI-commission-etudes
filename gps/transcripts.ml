@@ -1965,6 +1965,7 @@ let empty_remanent =
             let state, bilan = 
               if is_pg then 
                 let state, departement_principal = Remanent_state.get_main_dpt state in 
+                let () = Format.printf "POLITELLI %i %s @." year (Public_data.string_of_dpt departement_principal) in 
                 let departement_principal = Some (Public_data.string_of_dpt departement_principal) in 
                 state, {bilan with departement_principal} 
               else 
@@ -1982,6 +1983,7 @@ let empty_remanent =
               (if previous_year < 2024 then (match bilan.derniere_annee with Some true -> true | None | Some false -> false)
               else (match bilan.derniere_annee with Some true | None -> true | Some false -> false))
             then 
+              let state, remanent = set_bilan_annuel state remanent (string_of_int year) bilan in
               state, remanent
           else
             let bilan =
