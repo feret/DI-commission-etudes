@@ -1930,7 +1930,17 @@ let empty_remanent =
     preaccord = None ;
   }
 
+  let is_pg state ~firstname ~lastname = 
+    let state, pg = Remanent_state.Pg_students.get state in 
+    let pg = List.rev_map (fun x -> 
+        {x with Public_data.firstname = Special_char.capitalize x.Public_data.firstname ; 
+                  Public_data.lastname = Special_char.uppercase x.Public_data.lastname}
+          ) (List.rev pg)  in 
+    state, List.exists (fun x -> x.Public_data.firstname = firstname && x.Public_data.lastname = lastname) pg 
+     
+
   let saturate_bilan_annuel state ~firstname ~lastname ~promo gps_file =
+    let state, is_pg = is_pg state ~firstname ~lastname in 
     let remanent = {empty_remanent with gps_file} in
     let state, current_year = Remanent_state.get_current_academic_year state in
     let state, current_year =
@@ -1952,6 +1962,14 @@ let empty_remanent =
           else
             let state, bilan =
               get_bilan_annuel state remanent (string_of_int previous_year) in
+            let state, bilan = 
+              if is_pg then 
+                let state, departement_principal = Remanent_state.get_main_dpt state in 
+                let departement_principal = Some (Public_data.string_of_dpt departement_principal) in 
+                state, {bilan with departement_principal} 
+              else 
+                state, bilan
+            in   
             let state, b2 =
                 let state, l =  Remanent_state.Collector_pedagogical_registrations.find_list ~firstname ~lastname state
                 in
@@ -4254,16 +4272,7 @@ let is_elligble_for_funding origine gps_file state =
 let not_dispense ~firstname ~lastname ~year state =
     match Remanent_state.get_dispenses ~firstname ~lastname ~year state with
       | _, []-> true
-      | _, _::_ -> false
-
-let is_pg state ~firstname ~lastname = 
-  let state, pg = Remanent_state.Pg_students.get state in 
-  let pg = List.rev_map (fun x -> 
-      {x with Public_data.firstname = Special_char.capitalize x.Public_data.firstname ; 
-                Public_data.lastname = Special_char.uppercase x.Public_data.lastname}
-        ) (List.rev pg)  in 
-  state, List.exists (fun x -> x.Public_data.firstname = firstname && x.Public_data.lastname = lastname) pg 
-       
+      | _, _::_ -> false    
 
 let heading
     ?dens ~who ~firstname ~lastname ~promo ~origine
@@ -7620,11 +7629,12 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
     let state, l = Remanent_state.Collector_pedagogical_registrations.find_list ~firstname ~lastname state in
     let state, gps_file, blacklist =
       List.fold_left
-        (fun (state, gps_file,blacklist) course ->
+        (fun (state, gps_file, blacklist) course ->
           let state, course_opt = pick_course ~firstname ~lastname state course in
-          match course_opt with None ->  Remanent_state.warn __POS__ "EMPTY ENTRY LIST" Exit state, gps_file, blacklist
+          match course_opt with 
+              | None ->  
+                  Remanent_state.warn __POS__ "EMPTY ENTRY LIST" Exit state, gps_file, blacklist
               | Some course ->
-
           let code = String.trim (course.Public_data.pe_code_helisa) in
           match kind code with
           | Inscription ->
@@ -7657,7 +7667,6 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             let bilan =
               match course.Public_data.pe_dens with
                 | Some true -> 
-                  let () = Format.printf "PE DENS 7658 @." in 
                   {bilan with inscription_au_DENS = Some true}
                 | _ -> bilan
             in
