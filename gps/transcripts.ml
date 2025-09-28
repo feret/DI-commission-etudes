@@ -1950,9 +1950,10 @@ let empty_remanent =
           | _ -> Remanent_state.warn __POS__ "Cannot compute previous year" Exit state, 0
     in
     let state, promo =
-              try state, int_of_string promo
-              with
-                | _ ->
+         try 
+          state, int_of_string promo
+         with
+          | _ ->
                   Remanent_state.warn __POS__ "Cannot compute promotion" Exit state, 0
     in
     let state, remanent =
@@ -1962,15 +1963,7 @@ let empty_remanent =
           else
             let state, bilan =
               get_bilan_annuel state remanent (string_of_int previous_year) in
-            let state, bilan = 
-              if is_pg then 
-                let state, departement_principal = Remanent_state.get_main_dpt state in 
-                let () = Format.printf "POLITELLI %i %s @." year (Public_data.string_of_dpt departement_principal) in 
-                let departement_principal = Some (Public_data.string_of_dpt departement_principal) in 
-                state, {bilan with departement_principal} 
-              else 
-                state, bilan
-            in   
+            
             let state, b2 =
                 let state, l =  Remanent_state.Collector_pedagogical_registrations.find_list ~firstname ~lastname state
                 in
@@ -1980,28 +1973,38 @@ let empty_remanent =
             in
             if
               b2 ||
-              (if previous_year < 2024 then (match bilan.derniere_annee with Some true -> true | None | Some false -> false)
-              else (match bilan.derniere_annee with Some true | None -> true | Some false -> false))
+              (if previous_year < 2024 
+               then (match bilan.derniere_annee with Some true -> true | None | Some false -> false)
+               else (match bilan.derniere_annee with Some true | None -> true | Some false -> false))
             then 
               let state, remanent = set_bilan_annuel state remanent (string_of_int year) bilan in
               state, remanent
-          else
-            let bilan =
-              {bilan with
-                annee = Some (string_of_int year) ;
-                programme_d_etudes = None ;
-                inscription_au_DENS = None;
-                cours = [];
-                code_option = None;
-                diplomes = [];
-                option=None;
-                nannee=None;
-                gpscodelist=[]}
-            in
-            let state, remanent = set_bilan_annuel state remanent (string_of_int year) bilan in
-            aux year (year+1) state remanent
+            else
+              let state, bilan = 
+              if is_pg then 
+                let state, departement_principal = Remanent_state.get_main_dpt state in 
+                let () = Format.printf "POLITELLI %i %s @." year (Public_data.string_of_dpt departement_principal) in 
+                let departement_principal = Some (Public_data.string_of_dpt departement_principal) in 
+                state, {bilan with departement_principal} 
+              else 
+                state, bilan
+              in   
+              let bilan =
+                {bilan with
+                  annee = Some (string_of_int year) ;
+                  programme_d_etudes = None ;
+                  inscription_au_DENS = None;
+                  cours = [];
+                  code_option = None;
+                  diplomes = [];
+                  option=None;
+                  nannee=None;
+                  gpscodelist=[]}
+              in
+              let state, remanent = set_bilan_annuel state remanent (string_of_int year) bilan in
+              aux year (year+1) state remanent
       in aux (max 2022 promo) 2023 state remanent
-    in state, remanent.gps_file
+  in state, remanent.gps_file
 
 let fun_default =
   (fun state _ x -> state, x)
