@@ -7723,13 +7723,19 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             | Some b -> b
           in
           let state, is_pg = is_pg state ~firstname ~lastname in 
+          let state, departement_principal = 
+            match Remanent_state.get_main_dpt state with 
+              | state, x ->  state, Some (Public_data.string_of_dpt x)
+          in
+          let () = Format.printf "POLITELLI %s @." course.Public_data.pe_year in 
           let bilan = 
             match bilan.inscription_au_DENS with None -> 
               if is_pg then 
                 {bilan with 
                   inscription_helisa=[PG];
                   situation_administrative = Some "Programme Gradué";
-                  inscription_au_DENS=Some false} 
+                  inscription_au_DENS=Some false; 
+                  departement_principal} 
               else 
                 {bilan with inscription_au_DENS = Some true } 
             | Some _ -> bilan 
