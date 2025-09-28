@@ -4926,13 +4926,6 @@ let heading
     | None -> 
           state, [], []
   in
-  let dens_opt, dens_en_opt = 
-     if is_pg 
-    then 
-        "Programme gradué"::dens_opt,"Graduate programme"::dens_en_opt
-    else 
-      dens_opt, dens_en_opt 
-   in 
   let state, inscriptions, inscriptions_en, inscriptions_short, inscriptions_en_short, is_l3 =
     match nationaux_opt,nationaux_en_opt with
     | Some x,Some y ->
