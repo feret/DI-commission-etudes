@@ -1977,7 +1977,6 @@ let empty_remanent =
                then (match bilan.derniere_annee with Some true -> true | None | Some false -> false)
                else (match bilan.derniere_annee with Some true | None -> true | Some false -> false)))
             then 
-              let state, remanent = set_bilan_annuel state remanent (string_of_int year) bilan in
               state, remanent
             else
               let state, bilan = 
