@@ -5802,7 +5802,7 @@ let program
           list
       in
       state,None
-    | Some ("DENS" | "dens" | "Hors cursus" | "hors cursus") -> state, Some Color.blue
+    | Some ("DENS" | "dens" | "Hors diplôme" | "Beyond diploma" | "Hors cursus" | "hors cursus") -> state, Some Color.blue
     | Some ("LInfo" | "linfo" | "agreginfosu" | "agreginfoupc") ->
       state, Some Color.yellow
     | Some ("lmath" | "mmath" | "LMath" | "MMath" | "mape" | "mathfond" | "mathfondpantheonsor" | "mathfondsu" | "modsimorsay" | "modsimversailles" | "prob" | "mfimfa" |   "mfimfaorsay" |  "mmod" | "mformens" | "mprobfinsu"
