@@ -3602,6 +3602,7 @@ let translate_diplome
           | "imalis" -> state, "M2 IMALIS","M2 IMALIS",true
           | "philosorbonne" -> state, "M2 Phylo (SU)", "M2 Phylo (SU)", true
           | "dens" -> state, "DENS", "DENS", false
+          | "hc" -> state, "Hors diplôme", "Beyond diploma", false 
           | _ ->
             let msg =
               Format.sprintf
@@ -5801,7 +5802,7 @@ let program
           list
       in
       state,None
-    | Some ("DENS" | "dens") -> state, Some Color.blue
+    | Some ("DENS" | "dens" | "Hors cursus" | "hors cursus") -> state, Some Color.blue
     | Some ("LInfo" | "linfo" | "agreginfosu" | "agreginfoupc") ->
       state, Some Color.yellow
     | Some ("lmath" | "mmath" | "LMath" | "MMath" | "mape" | "mathfond" | "mathfondpantheonsor" | "mathfondsu" | "modsimorsay" | "modsimversailles" | "prob" | "mfimfa" |   "mfimfaorsay" |  "mmod" | "mformens" | "mprobfinsu"
@@ -9814,9 +9815,17 @@ let export_transcript
                        with Some false -> false
                           | Some true | None -> true) stages_a_trier
     in
-    let dens =
-        {
-          Public_data.dens_main_dpt = main_dpt ;
+    let state, is_pg = is_pg state ~firstname ~lastname in 
+    let state = 
+      if is_pg 
+      then 
+        state 
+      else 
+        begin 
+
+          let dens =
+             {
+                 Public_data.dens_main_dpt = main_dpt ;
           Public_data.dens_firstname = firstname ;
           Public_data.dens_lastname = lastname;
           Public_data.dens_promotion = promo;
@@ -9930,7 +9939,8 @@ let export_transcript
   let state, tuteur =
   begin
     match
-      tuteur.Public_data.nom_du_tuteur,           tuteur.Public_data.prenom_du_tuteur,
+      tuteur.Public_data.nom_du_tuteur,         
+      tuteur.Public_data.prenom_du_tuteur,
       tuteur.Public_data.genre_du_tuteur,
       tuteur.Public_data.courriel_du_tuteur
     with
@@ -10103,6 +10113,9 @@ let state,year = Remanent_state.get_current_academic_year state in
           else
             state
         in
+        state 
+      end 
+    in 
     let state =
       if do_report report &&
          (match gps_file.annee_en_cours with

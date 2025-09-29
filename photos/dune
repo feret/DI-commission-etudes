@@ -1,8 +1,6 @@
 (library
-  (name sco_photos)
-  (libraries sco_remanent_state sco_tools sco_file_retriever)
-  (flags (:standard -w @a
-    -open Sco_remanent_state
-    -open Sco_tools
-    -open Sco_file_retriever
-)))
+ (name sco_photos)
+ (libraries sco_remanent_state sco_tools sco_file_retriever)
+ (flags
+  (:standard -w @a -open Sco_remanent_state -open Sco_tools -open
+    Sco_file_retriever)))

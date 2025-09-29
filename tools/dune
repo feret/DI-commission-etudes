@@ -1,5 +1,5 @@
 (library
-  (name sco_tools)
-  (libraries lwt lwt.unix core SZXX yojson ppx_tools)
-  (flags (:standard -w @a
-)))
+ (name sco_tools)
+ (libraries lwt lwt.unix core SZXX yojson ppx_tools)
+ (flags
+  (:standard -w @a)))
