@@ -4862,8 +4862,7 @@ let heading
             | Some true -> "BILAN DENS","DENS SUMMARY"
             | None | Some false -> statut, statut_en
   in
-  let state, is_pg = is_pg state ~firstname ~lastname in 
-    let state, dens_opt, dens_en_opt  =
+  let state, dens_opt, dens_en_opt  =
     match
       situation.inscription_au_DENS
     with
