@@ -262,7 +262,7 @@ let parameters =
     repository_for_pegasus_validations = "validations" ;
     repository_for_pegasus_courses = "cours";
     repository_for_pegasus_stages = "stages" ;
-    current_academic_year = "2025";
+    current_academic_year = "2024";
     commissions_repository = "commissions_des_etudes";
     add_grades_without_registration = true  ;
 
