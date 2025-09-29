@@ -2194,6 +2194,7 @@ let gen_fetch_opt_of_string_opt ?who ?gps_file list err pos state s_opt =
     if String.trim s = ""
     then state, None
     else
+      let s = Special_char.lowercase s in 
       let s = simplify_string s in
       let rec aux state l =
         match l with
@@ -2255,14 +2256,14 @@ let origines =
     Public_data.DensDEC,["dens-dec"];
     Public_data.EchErasm,["e-echerasm"];
     Public_data.Info,["info"];
-    Public_data.Mpi,["mpi"];
+    Public_data.Mpi,["mpi";"c-mpi"];
     Public_data.Mpimp,["c-mpimp"];
     Public_data.Infompi,["c-infompi"];
     Public_data.Infomp,["c-infomp"];
     Public_data.BCPST,["bcpst"];
     Public_data.PensionnaireEtranger,["e-pe"];
-    Public_data.Pc,["pc"];
-    Public_data.Psi,["psi"];
+    Public_data.Pc,["pc";"c-pc"];
+    Public_data.Psi,["psi";"c-psi"];
     Public_data.Sis,["sis";"si-s"];
     Public_data.M_MPRI,["m-mpri"];
     Public_data.ED386,["ed-386"]
@@ -2278,7 +2279,7 @@ let concours =
     Public_data.PensionnaireEtranger,[];
     Public_data.Pc,[];
     Public_data.Psi,[];
-    Public_data.Sis,["SI-S"];
+    Public_data.Sis,["si-s"];
     Public_data.M_MPRI,[]
   ]
 
