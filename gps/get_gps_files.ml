@@ -283,10 +283,11 @@ let get_student_file_gen
         let date_de_naissance = Tools.unsome_string date_de_naissance in
         let origine = Tools.unsome_string origine in
         let genre = Tools.unsome_string genre in
-        let status =
+        let state, status =
           match origine with
-            | "MPI" -> "Elève"
-            | _ -> "TO DO"
+            | "MPI" -> state, "Elève"
+            | _ -> let state = Remanent_state.warn __POS__ (Format.sprintf "ORIGIN : %s" origine) Exit state  in
+            state, "TO DO"
         in
         let csv =
           [
