@@ -286,7 +286,7 @@ let get_student_file_gen
         let state, status =
           match origine with
             | "MPI" -> state, "Elève"
-            | _ -> let state = Remanent_state.warn __POS__ (Format.sprintf "ORIGIN : %s" origine) Exit state  in
+            | _ -> let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s ORIGIN : %s" student_id.Public_data.firstname student_id.Public_data.lastname origine) Exit state  in
             state, "TO DO"
         in
         let csv =
