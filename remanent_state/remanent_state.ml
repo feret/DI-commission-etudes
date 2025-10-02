@@ -2381,6 +2381,12 @@ let get_mentoring_list
   t, Mentoring.get_mentoring_list ?year ?firstname ?lastname ?tuteur_lastname ?tuteur_firstname (get_mentoring t)
 
 let get_mentoring ~firstname ~lastname ~year ?tuteur_gps t =
+    let t = 
+      warn 
+        __POS__ 
+        (Format.sprintf "GET MENTORING %s %s %s" firstname lastname year) 
+        Exit t         
+    in 
     let mentoring_opt =
       Mentoring.get_mentoring
         ~firstname ~lastname ~year (get_mentoring t)
