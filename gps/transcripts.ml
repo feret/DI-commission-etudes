@@ -1982,7 +1982,6 @@ let empty_remanent =
               let state, bilan = 
               if is_pg then 
                 let state, departement_principal = Remanent_state.get_main_dpt state in 
-                let () = Format.printf "POLITELLI %i %s @." year (Public_data.string_of_dpt departement_principal) in 
                 let departement_principal = Some (Public_data.string_of_dpt departement_principal) in 
                 state, {bilan with departement_principal} 
               else 
@@ -3078,7 +3077,6 @@ let mgen dpt d =
     with
     | None -> false
     | Some x -> 
-      let () = Format.printf "MGEN (%s) (%s) @." (simplify_string x) dpt in 
       simplify_string x = dpt
   end
 
@@ -3616,7 +3614,6 @@ let translate_diplome
               Exit
               state, "","", false
         in
-        let () = Format.printf "GERUND (%s) (%s) @." label label_en in 
         let dpt,dpt_en =
           if String.lowercase_ascii level = "dens"
           then "DENS", "DENS"
@@ -4648,7 +4645,6 @@ let heading
                  (string_of_int i)^"th Year"^is_suite_en^":")
                 state
           in
-          let () = Format.printf "PREFIX %s @." prefix_fr in 
           let state, suffix_fr, suffix_en, nationaux_opt, nationaux_en_opt
             =
             let lmath = lmath ~year ~firstname ~lastname situation state in
@@ -4843,7 +4839,6 @@ let heading
               match situation.departement_principal with
                 | None when annee_int<int_of_string promo -> state, ("", "")
                 | None | Some _ ->
-                let () = Format.printf "TRANSLATE (%s) @." (match situation.departement_principal with None -> "none" | Some a -> a) in 
                 translate_dpt ~firstname ~lastname ~year:annee_int state
                   situation.departement_principal
               in
@@ -7386,7 +7381,6 @@ type kind = Inscription | RdV | Course | Annee | Annee_dpt | Secondary
 
 
 let kind libelle =
-  let () = Format.printf "KIND (%s) @." libelle in 
   if String.length libelle > 9 && String.sub libelle 0 10 = "ANECHINTER" then Annee
   else if String.length libelle > 6 && String.sub libelle 0 7 = "UNDRVTU" then RdV
   else
@@ -7691,8 +7685,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             | None -> empty_bilan_annuel
             | Some b -> b
           in
-              let () = Format.printf "ANNEE_DPT: DENS 7686 @." in 
-              let bilan = {bilan with inscription_au_DENS = Some true ; departement_principal} in
+          let bilan = {bilan with inscription_au_DENS = Some true ; departement_principal} in
           state,
           {gps_file with
            situation =
@@ -7720,7 +7713,6 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
             match Remanent_state.get_main_dpt state with 
               | state, x ->  state, Some (Public_data.string_of_dpt x)
           in
-          let () = Format.printf "POLITELLI %s @." course.Public_data.pe_year in 
           let bilan = 
             match bilan.inscription_au_DENS with None -> 
               if is_pg then 
@@ -7862,7 +7854,6 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           let bilan =
             match course.Public_data.pe_dens with
               | Some true -> 
-                let () = Format.printf "PE DENS 7841 @." in 
                   {bilan with inscription_au_DENS = Some true}
               | _ -> bilan
           in
