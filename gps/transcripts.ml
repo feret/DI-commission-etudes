@@ -8829,6 +8829,13 @@ let export_transcript
            let who =
              Format.sprintf "%s in %s" who year
            in
+           let state = 
+              Remanent_state.warn 
+                __POS__ 
+                (Format.sprintf "%s %s %s @." firstname lastname year) 
+                Exit 
+                state 
+           in 
            let state, tuteur =
              Remanent_state.get_mentoring
                ~year
@@ -9858,6 +9865,13 @@ let export_transcript
   let state, dens = Dens.split_courses ~firstname ~lastname dens state in
   let state, dens = Dens.split_stages ~firstname ~lastname dens state in
   let state, dens = Dens.collect_mineure dens state in
+  let state = 
+    Remanent_state.warn 
+      __POS__ 
+      (Format.sprintf "%s %s %s @." firstname lastname current_year) 
+      Exit 
+      state 
+ in 
   let state, tuteur =
     Remanent_state.get_mentoring
       ~year:current_year
@@ -10122,6 +10136,13 @@ let state,year = Remanent_state.get_current_academic_year state in
             ~firstname
             state
         in
+        let state = 
+          Remanent_state.warn 
+            __POS__ 
+            (Format.sprintf "%s %s %s @." firstname lastname current_year) 
+            Exit 
+            state 
+       in 
         let state, tuteur =
           Remanent_state.get_mentoring
             ~year:current_year
