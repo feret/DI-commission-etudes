@@ -474,6 +474,7 @@ let string_of_origin_short_opt a =
   | Some Public_data.BCPST -> "BCPST"
   | Some Public_data.Infomp -> "Info-MP"
   | Some Public_data.Infompi -> "Info-MPI"
+  | Some Public_data.Mp -> "MP"
   | Some Public_data.Mpimp -> "MPI-MP"
 
   let english_string_of_origin_short_opt a =
@@ -490,6 +491,7 @@ let string_of_origin_short_opt a =
     | Some Public_data.Nes -> "Sciences Normalien Student"
     | Some Public_data.EchErasm -> "Erasmus"
     | Some Public_data.Info -> "CS"
+    | Some Public_data.Mp -> "Math-Phys"
     | Some Public_data.Mpi -> "Math-Phys-CS"
     | Some Public_data.Pc  -> "Phys-Chem"
     | Some Public_data.ED386 -> "ED386"
@@ -2260,6 +2262,7 @@ let origines =
     Public_data.Infompi,["c-infompi"];
     Public_data.Infomp,["c-infomp"];
     Public_data.BCPST,["bcpst"];
+    Public_data.Mp,["c-mp"]; 
     Public_data.PensionnaireEtranger,["e-pe"];
     Public_data.Pc,["pc";"c-pc"];
     Public_data.Psi,["psi";"c-psi"];
@@ -2275,6 +2278,7 @@ let concours =
     Public_data.Info,["c-info"];
     Public_data.Mpi,["c-mpi"];
     Public_data.BCPST,["c-bcpst"];
+    Public_data.Mp,["c-mp"]; 
     Public_data.PensionnaireEtranger,[];
     Public_data.Pc,[];
     Public_data.Psi,[];
@@ -2957,6 +2961,7 @@ let lerasmus origine =
       | Public_data.Info
       | Public_data.Infomp
       | Public_data.Infompi
+      | Public_data.Mp 
       | Public_data.Mpimp
       | Public_data.Mpi
       | Public_data.BCPST
@@ -2991,6 +2996,7 @@ let lpe origine =
       | Public_data.Infomp
       | Public_data.Infompi
       | Public_data.Mpimp
+      | Public_data.Mp 
       | Public_data.Mpi
       | Public_data.BCPST
       | Public_data.Pc
@@ -4185,7 +4191,7 @@ let get_origine who promo gps_file state =
       | Public_data.Infompi
       |Public_data.Mpi
       |Public_data.Mpimp
-
+      | Public_data.Mp 
       |Public_data.BCPST
       |Public_data.Pc
       |Public_data.PensionnaireEtranger
@@ -4255,6 +4261,7 @@ let is_elligble_for_funding origine gps_file state =
           | Public_data.Mpimp
           | Public_data.Infomp
           | Public_data.Infompi
+          | Public_data.Mp 
           | Public_data.BCPST
           | Public_data.Pc
           | Public_data.Psi
@@ -4445,6 +4452,7 @@ let heading
         | Some Public_data.Mpimp
         | Some Public_data.Infomp
         | Some Public_data.Infompi
+        | Some Public_data.Mp 
         | Some Public_data.BCPST
         | Some Public_data.Pc
         | Some Public_data.Psi
@@ -8829,13 +8837,6 @@ let export_transcript
            let who =
              Format.sprintf "%s in %s" who year
            in
-           let state = 
-              Remanent_state.warn 
-                __POS__ 
-                (Format.sprintf "%s %s %s @." firstname lastname year) 
-                Exit 
-                state 
-           in 
            let state, tuteur =
              Remanent_state.get_mentoring
                ~year
@@ -9865,13 +9866,6 @@ let export_transcript
   let state, dens = Dens.split_courses ~firstname ~lastname dens state in
   let state, dens = Dens.split_stages ~firstname ~lastname dens state in
   let state, dens = Dens.collect_mineure dens state in
-  let state = 
-    Remanent_state.warn 
-      __POS__ 
-      (Format.sprintf "%s %s %s @." firstname lastname current_year) 
-      Exit 
-      state 
- in 
   let state, tuteur =
     Remanent_state.get_mentoring
       ~year:current_year
@@ -10136,13 +10130,6 @@ let state,year = Remanent_state.get_current_academic_year state in
             ~firstname
             state
         in
-        let state = 
-          Remanent_state.warn 
-            __POS__ 
-            (Format.sprintf "%s %s %s @." firstname lastname current_year) 
-            Exit 
-            state 
-       in 
         let state, tuteur =
           Remanent_state.get_mentoring
             ~year:current_year

@@ -1063,6 +1063,7 @@ let all_notes_string =
     | Info
     | Infompi
     | Infomp
+    | Mp 
     | Mpi
     | Mpimp
     | Pc
@@ -1701,6 +1702,7 @@ let string_of_origin_opt a =
   | Some EchErasm -> "Erasmus"
   | Some ED386 -> "ED386"
   | Some Info -> "CPGE Informatique"
+  | Some Mp -> "CPGE Math-Physique"
   | Some Mpi -> "CPGE Math-Physique-Info"
   | Some Pc  -> "CPGE Physique-Chimie"
   | Some PensionnaireEtranger -> "Pensionnaire Étranger"

@@ -285,7 +285,8 @@ let get_student_file_gen
         let genre = Tools.unsome_string genre in
         let state, status =
           match origine with
-            | "MPI" -> state, "Elève"
+            | "MPI" | "C-INFOMPI" | "C-INFOMP" -> state, "Elève"
+            | "NES" -> state, "Etudiant"
             | _ -> let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s ORIGIN : %s" student_id.Public_data.firstname student_id.Public_data.lastname origine) Exit state  in
             state, "TO DO"
         in

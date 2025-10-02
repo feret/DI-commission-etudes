@@ -563,6 +563,7 @@ type origin =
   | Info
   | Infompi
   | Infomp
+  | Mp 
   | Mpi
   | Mpimp
   | Pc
