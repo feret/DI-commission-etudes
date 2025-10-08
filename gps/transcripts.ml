@@ -3333,15 +3333,15 @@ let filter_class state unvalidated filter ~firstname ~lastname ~year ~who class_
             Exit
             state, ""
       in
-      let state, b =
-        keep_class state unvalidated filter
-          ~firstname ~lastname ~year ~note:h.note ~codecours
-      in
       let state = 
         Remanent_state.warn 
           __POS__ 
-          (Format.sprintf "FILTER CLASS %s %s %s %s %s @." firstname lastname codecours ((match h.note with None -> "" | Some x -> snd (Notes.to_string __POS__ state x))) (if b then "true" else "false"))
+          (Format.sprintf "FILTER CLASS %s %s %s %s @." firstname lastname codecours ((match h.note with None -> "" | Some x -> snd (Notes.to_string __POS__ state x))))
           Exit state 
+      in
+      let state, b =
+        keep_class state unvalidated filter
+          ~firstname ~lastname ~year ~note:h.note ~codecours
       in
       if b then
         aux state t (h::acc)
@@ -6301,11 +6301,11 @@ let program
                   let state, b = keep_activite state remove_non_valided_classes year stage_entry in
                   if b
                   then
-                  Remanent_state.warn __POS__ "keep it" Exit state,
+                  state,
                   (Some
                     (Format.sprintf "%s%s%s" libelle sujet directeur),
                   Some stage_entry)::acc, skip_dens || stage_with_ects
-                  else Remanent_state.warn __POS__ "give up" Exit state,acc,skip_dens)
+                  else state,acc,skip_dens)
                 (state,[],false) stage_list
               end
             else state, [Some l,None], false
@@ -8623,11 +8623,9 @@ let export_transcript
                state unvalidated remove_non_valided_classes
                situation.cours
            in
-           let state = Remanent_state.warn __POS__ (Format.sprintf "FILTERED CLASS: %i" (List.length filtered_classes)) Exit state in 
            let state, filtered_classes =
               deal_with_l3_m1_dma ~year ~situation ~who filtered_classes state
            in
-           let state = Remanent_state.warn __POS__ (Format.sprintf "FILTERED CLASS L3 M1 DMA : %i" (List.length filtered_classes)) Exit state in 
            let state, (cursus_map, split_cours) =
              List.fold_left
                (fun (state,
@@ -8729,13 +8727,7 @@ let export_transcript
                )
                (state,cursus_map,split_cours) decision_list
            in
-        let state = 
-          StringOptMap.fold 
-            (fun i j state ->          
-                Remanent_state.warn 
-                    __POS__ 
-                    (Format.sprintf "split cours: %s %s %i" (match fst i with None -> "" | Some i -> i) (snd i) (List.length j)) Exit state ) split_cours state 
-        in 
+
         state, cursus_map, (year,situation,split_cours)::l)
         (state, StringOptMap.empty, [])
         l_rev
