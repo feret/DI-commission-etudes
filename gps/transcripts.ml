@@ -3333,6 +3333,12 @@ let filter_class state unvalidated filter ~firstname ~lastname ~year ~who class_
             Exit
             state, ""
       in
+      let state = 
+        Remanent_state.warn 
+          __POS__ 
+          (Format.sprintf "FILTER CLASS %s %s %s %s @." firstname lastname codecours ((match h.note with None -> "" | Some x -> snd (Notes.to_string __POS__ state x))))
+          Exit state 
+      in
       let state, b =
         keep_class state unvalidated filter
           ~firstname ~lastname ~year ~note:h.note ~codecours
