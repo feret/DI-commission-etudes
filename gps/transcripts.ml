@@ -5597,6 +5597,11 @@ let program
     ~size ~stages ~current_year (*~report ~keep_faillure ~keep_success*)
     ~dens ~natt ~is_m2 ~unvalidated_map ~remove_non_valided_classes
     nl (list:(bool * string * string * string * cours) list) state =
+    let state = 
+        Remanent_state.warn 
+          __POS__ 
+          (Format.sprintf "%s %s %i %i" firstname lastname (List.length cours_list.Public_data.dens) (List.length cours_list.Public_data.diplomes_nationaux)) 
+          Exit state in 
   let state,
       entete,entete_en,
       footpage,footpage_en =
@@ -6094,6 +6099,7 @@ let program
             if is_stage cours
             then
               begin
+                let state = Remanent_state.warn __POS__ (Format.sprintf "STAGE !!!") Exit state in 
                 let state, annee =
                   match cours.cours_annee with
                     | None -> Remanent_state.warn __POS__ "Year is missing" Exit state, year
@@ -6122,6 +6128,8 @@ let program
                 match stage_opt with
                 | [] ->
                   begin
+                    let state = Remanent_state.warn __POS__ (Format.sprintf "EMPTY LIST") Exit state in 
+               
                     let state, (lib, lib_en) =
                         Remanent_state.Translate_courses.get_translation
                           Collect_course_entries.unify_course_entry __POS__
@@ -6155,6 +6163,7 @@ let program
                     state, [Some libelle, Some stage_entry], false
                   end
                 | stage_list ->
+                  let state = Remanent_state.warn __POS__ (Format.sprintf "FOUND !!!") Exit state in 
                   List.fold_left
                       (fun (state, acc, skip_dens) stage ->
                   (* TO DO DUMP STAGE *)
@@ -6201,10 +6210,13 @@ let program
                 with
                   | state, [] ->
                     begin
+                      let state = Remanent_state.warn __POS__ (Format.sprintf "EMPTY (sorted) !!!") Exit state in 
+               
                       state, "", "" 
                     end
                   | state, s::_ ->
                     begin
+                      let state = Remanent_state.warn __POS__ (Format.sprintf "FOUND (sorted) !!!") Exit  state in 
                       let activite_intitule_en = s.Public_data.stageat_libelle_en in
                       let activite_intitule_fr = s.Public_data.stageat_libelle_fr in
                         state, activite_intitule_fr, activite_intitule_en 
