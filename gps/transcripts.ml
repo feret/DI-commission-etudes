@@ -3271,22 +3271,29 @@ let keep_activite state filter year activite =
   match
   filter, activite.Public_data.activite_validee
   with
-  | _, Some true -> state, true
+  | _, Some true -> 
+    Remanent_state.warn __POS__ "ACTIVITE GARDEE" Exit state, true
   | Public_data.All, _
   | Public_data.All_but_in_progress, None -> state, true
-  | Public_data.All_but_current_academic_year, Some _
+  | Public_data.All_but_current_academic_year, Some _ -> 
+    let state, current_year =
+      Remanent_state.get_current_academic_year state
+    in
+    Remanent_state.warn __POS__ (Format.sprintf "ACTIVITE TEST1 %s" (if current_year=year then "true" else "false")) Exit state , current_year=year
   | Public_data.All_but_in_progress_in_current_academic_year, None ->
     let state, current_year =
       Remanent_state.get_current_academic_year state
     in
-    state, current_year=year
-  | Public_data.All_but_years l, Some _
+    Remanent_state.warn __POS__ (Format.sprintf "ACTIVITE TEST2 %s" (if current_year=year then "true" else "false")) Exit state , current_year=year
+  | Public_data.All_but_years l, Some _->  
+    Remanent_state.warn __POS__ (Format.sprintf "ACTIVITE TEST2 %s" (if List.mem year l then "true" else "false")) Exit state, List.mem year l
   | Public_data.All_but_in_progress_in_years l, None ->
       state, List.mem year l
   | (Public_data.All_but_in_progress
   | Public_data.All_but_in_progress_in_current_academic_year
   | Public_data.All_but_in_progress_in_years _), Some false
-  -> state, false
+  -> 
+    Remanent_state.warn __POS__ (Format.sprintf "ACTIVITE DISGARD" ) Exit state, false
   | _, None ->
   Remanent_state.warn_dft
     __POS__
