@@ -3286,7 +3286,7 @@ let keep_activite state filter year activite =
     in
     Remanent_state.warn __POS__ (Format.sprintf "ACTIVITE TEST2 %s" (if current_year=year then "true" else "false")) Exit state , current_year=year
   | Public_data.All_but_years l, Some _->  
-    Remanent_state.warn __POS__ (Format.sprintf "ACTIVITE TEST2 %s" (if List.mem year l then "true" else "false")) Exit state, List.mem year l
+    Remanent_state.warn __POS__ (Format.sprintf "ACTIVITE TEST3 %s" (if List.mem year l then "true" else "false")) Exit state, List.mem year l
   | Public_data.All_but_in_progress_in_years l, None ->
       state, List.mem year l
   | (Public_data.All_but_in_progress
