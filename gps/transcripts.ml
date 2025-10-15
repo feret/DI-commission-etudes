@@ -4048,12 +4048,17 @@ let add_dens_requirements state year course map =
 
 let add_dens_ok state year course ects course_list map skip_dens =
   match ects with
-    | None -> state,
+    | None -> 
+      let state = Remanent_state.warn __POS__ (Format.sprintf "CASE ..1") Exit state in 
+
+      state,
             (if skip_dens then course_list else
             {course_list with Public_data.dens  = (translate_course_dens course year )::course_list.Public_data.dens }),
             map
     | Some ects ->
-    let total,potential,mandatory,math,math_math_info =
+      let state = Remanent_state.warn __POS__ (Format.sprintf "CASE ..2") Exit state in 
+
+      let total,potential,mandatory,math,math_math_info =
       match
         Public_data.YearMap.find_opt year map
       with
@@ -4066,7 +4071,12 @@ let add_dens_ok state year course ects course_list map skip_dens =
         (total, potential,mandatory,math,math_math_info) map
     in
     let state, map = add_dens_requirements state year course map in
-    state,
+    (if skip_dens then   
+      let state = Remanent_state.warn __POS__ (Format.sprintf "CASE ..3") Exit state in 
+        state 
+    else       
+    let state = Remanent_state.warn __POS__ (Format.sprintf "CASE ..4") Exit state in state
+    ),
     (if skip_dens then course_list else {course_list with Public_data.dens  = (translate_course_dens course year)::course_list.Public_data.dens}), map
 
 let add_dens_potential year ects map =
@@ -4086,21 +4096,40 @@ let add_dens_potential year ects map =
 
 let add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens =
   match compensation, unvalidated, course.note with
-  | Some _, _, _-> add_dens_ok state year course ects course_list map skip_dens
-  | _, true, _ -> state, course_list, map
-  | None,_,None -> state, course_list, add_dens_potential year ects map
+  | Some _, _, _-> 
+    let state = Remanent_state.warn __POS__ (Format.sprintf "CASE .1") Exit state in 
+    add_dens_ok state year course ects course_list map skip_dens
+  | _, true, _ -> 
+    let state = Remanent_state.warn __POS__ (Format.sprintf "CASE .2") Exit state in 
+    state, course_list, map
+  | None,_,None -> 
+    let state = Remanent_state.warn __POS__ (Format.sprintf "CASE .3") Exit state in 
+    state, course_list, add_dens_potential year ects map
   | None,_,Some note ->
       match
         Notes.valide_forced note force_validation
       with
-      | Some true ->  add_dens_ok state year course ects course_list map skip_dens
-      | Some false -> state, course_list, map
-      | None -> state, course_list, add_dens_potential year ects map
+      | Some true ->  
+        let state = Remanent_state.warn __POS__ (Format.sprintf "CASE .4") Exit state in 
+        add_dens_ok state year course ects course_list map skip_dens
+      | Some false -> 
+        let state = Remanent_state.warn __POS__ (Format.sprintf "CASE .5") Exit state in 
+        state, course_list, map
+      | None -> 
+        let state = Remanent_state.warn __POS__ (Format.sprintf "CASE .6") Exit state in 
+        state, course_list, add_dens_potential year ects map
 
 let add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens =
     if (course.ects = None || course.ects = Some 0.) && is_stage course then
-       state, course_list, map
-    else add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens
+      let state = Remanent_state.warn __POS__ (Format.sprintf "CASE 1") Exit state in 
+      state, course_list, map
+    else 
+      let state = Remanent_state.warn __POS__ (Format.sprintf "CASE 2") Exit state in 
+      add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens
+
+let add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens =
+  let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s" year (match course.code_cours with Some x -> x | None -> "None")) Exit state in 
+  add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens
 
 let add_mean_empty is_m2 state ~dens ~natt ~decision ~exception_cursus key year  map =
   let is_m2,ects,old,y =
