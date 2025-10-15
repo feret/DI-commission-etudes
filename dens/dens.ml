@@ -222,6 +222,11 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
     let year = course.Public_data.supplement_validation_year in
     let libelle = course.Public_data.supplement_intitule in
     let codegps = course.Public_data.supplement_code in
+    let state = 
+      Remanent_state.warn 
+        __POS__ 
+        (Format.sprintf "%s %s %s" year libelle codegps) Exit state 
+    in 
     let state, courselist =
         Remanent_state.get_sorted_courses ~firstname ~lastname ~year ~libelle ~codegps state
     in
@@ -231,7 +236,8 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
       | cours::_  ->
           begin
             match cours.Public_data.coursat_dpt with
-            | None -> state, "xt"
+            | None -> 
+               state, "xt"
             | Some a ->
                 state, translate_main_dpt a
           end
@@ -256,6 +262,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
                 Exit state, ""
       end
     in
+    let state = Remanent_state.warn __POS__ (Format.sprintf "code:%s" code) Exit state in 
     if code = main_dpt then
       let state, (key,_kind) =
           kind_of_course state code course.Public_data.supplement_extra
@@ -266,6 +273,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
             {course with Public_data.supplement_discipline = string_of_key key}
       in
       let dens_cours_discipline_principale = store (course::list) dens_cours_discipline_principale in
+      let state = Remanent_state.warn __POS__ (Format.sprintf "main") Exit state in 
       let dens = {dens with Public_data.dens_cours_discipline_principale} in
         state, dens
     else if code = fst xt then
@@ -283,11 +291,13 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
         let list = get dens_cours_a_trier in
         let dens_cours_a_trier = store (course::list) dens_cours_a_trier in
         let dens = {dens with Public_data.dens_cours_a_trier} in
+        let state = Remanent_state.warn __POS__ (Format.sprintf "a trier") Exit state in 
         state, dens
     else
       let state, (key,kind) = kind_of_course state code course.Public_data.supplement_extra in
       match kind with
       | Ecla ->
+        let state = Remanent_state.warn __POS__ (Format.sprintf "ECLA") Exit state in 
       let dens_cours_langue = dens.Public_data.dens_cours_langue in
       let list = dens_cours_langue in
       let dens_cours_langue = {course with Public_data.supplement_discipline="Langues"}::list in
@@ -318,15 +328,20 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
         let dens_cours_par_dpt =
           Public_data.StringMap.add key repartition dens_cours_par_dpt
         in
+        let state = Remanent_state.warn __POS__ (Format.sprintf "by dpt") Exit state in 
         state, {dens with Public_data.dens_cours_par_dpt}
       end
       | Missing ->
+        let state = Remanent_state.warn __POS__ (Format.sprintf "missing") Exit state in 
       let dens_cours_a_trier = dens.Public_data.dens_cours_a_trier in
       let list = get dens_cours_a_trier in
       let dens_cours_a_trier = store (course::list) dens_cours_a_trier in
       let dens = {dens with Public_data.dens_cours_a_trier} in
       state, dens
       | Dummy -> state, dens
+
+
+ 
 
 let f_nat =
     f_gen
