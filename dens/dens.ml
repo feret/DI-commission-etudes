@@ -320,12 +320,12 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
       state, dens
       | Activite ->
       begin 
-        let state, blacklisted = Remanent_state.exp_black_list code state in 
+        let state, blacklisted = Remanent_state.exp_black_list codegps state in 
         if blacklisted 
         then state, dens 
         else 
         begin 
-          match Remanent_state.which_exp code state 
+          match Remanent_state.which_exp codegps state 
         with 
           | state, Some Public_data.Recherche -> 
             let dens_activite_recherche = (convert_exp (Public_data.string_of_experience Public_data.Recherche) course)::dens.Public_data.dens_activite_recherche in 
