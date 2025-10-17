@@ -9876,7 +9876,9 @@ let export_transcript
           Public_data.dens_parcours=dip_autre_list;
           Public_data.dens_cours_a_trier= cours_a_trier;
           Public_data.dens_cours_discipline_principale=Public_data.empty_repartition_diplomes;
-          Public_data.dens_cours_hors_disciplines_principale=Public_data.empty_repartition_diplomes; Public_data.dens_cours_langue=[];
+          Public_data.dens_cours_hors_disciplines_principale=Public_data.empty_repartition_diplomes; 
+          Public_data.dens_activite_promotion=[];
+          Public_data.dens_cours_langue=[];
           Public_data.dens_cours_mineure=Public_data.StringMap.empty;
           Public_data.dens_cours_majeure=Public_data.StringMap.empty;
           Public_data.dens_cours_activite=[];

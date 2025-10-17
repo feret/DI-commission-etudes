@@ -11,6 +11,7 @@ module StringMap =
         end
         )
 
+
       let simplify s =
         Special_char.lowercase
           (Special_char.correct_string_txt
@@ -117,7 +118,7 @@ type mineure = DPT of main_dpt | Specific of specific
 type universite =
   | PSL | UP | UPC | UPS | SU | UPantheonSorbonne | Upartenaire | UENS | UDiderot | UPSud | UPNord | USPN | UDauphine
 
-type experience = Recherche | Internationale | Ouverture | Hors_Dens | Transdisciplinaire
+type experience = Recherche | Internationale | Ouverture | Hors_Dens | Transdisciplinaire | Promotion
 
 module StringUnivMap =
   Map_tools.MakeSimplified
@@ -141,6 +142,7 @@ module StringUnivMap =
 
 let string_of_experience x =
   match x with
+  | Promotion -> "Promotion"
   | Recherche -> "Recherche"
   | Ouverture -> "Ouverture"
   | Internationale -> "Internationale"
@@ -1161,6 +1163,7 @@ let all_notes_string =
       dens_activite_internationale: experience_supplement list;
       dens_activite_ouverture: experience_supplement list;
       dens_activite_transdisciplinaire: experience_supplement list;
+      dens_activite_promotion: experience_supplement list; 
       dens_activite_autre: experience_supplement list;
       dens_diplomation_year: string;
       dens_ine: string option;

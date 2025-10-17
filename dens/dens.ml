@@ -219,6 +219,20 @@ let fold_repartition_diplome ~main_dpt ~firstname ~lastname ~f_nat ~f_dens state
   in
   state, dens
 
+let convert_exp activite cours = 
+    {
+      Public_data.activite_code = cours.Public_data.supplement_code; 
+      Public_data.activite_activite = activite; 
+      Public_data.activite_intitule = cours.Public_data.supplement_intitule; 
+      Public_data.activite_activite_fr = None; 
+      Public_data.activite_intitule_fr = None ;
+      Public_data.activite_activite_en = None ;
+      Public_data.activite_intitule_en = cours.Public_data.supplement_intitule; 
+      Public_data.activite_ects = cours.Public_data.supplement_ects; 
+      Public_data.activite_annee = cours.Public_data.supplement_validation_year;
+      Public_data.activite_validee = Some cours.Public_data.supplement_dens; 
+    }
+
 let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
     let year = course.Public_data.supplement_validation_year in
     let libelle = course.Public_data.supplement_intitule in
@@ -305,12 +319,42 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
       let dens = {dens with Public_data.dens_cours_langue} in
       state, dens
       | Activite ->
-      let dens_cours_activite = dens.Public_data.dens_cours_activite in
-      let course = {course with Public_data.supplement_discipline="Activité"} in
-      let list = dens_cours_activite in
-      let dens_cours_activite = course::list in
-      let dens = {dens with Public_data.dens_cours_activite} in
-      state, dens
+      begin 
+        let state, blacklisted = Remanent_state.exp_black_list code state in 
+        if blacklisted 
+        then state, dens 
+        else 
+        begin 
+          match Remanent_state.which_exp code state 
+        with 
+          | state, Some Public_data.Recherche -> 
+            let dens_activite_recherche = (convert_exp (Public_data.string_of_experience Public_data.Recherche) course)::dens.Public_data.dens_activite_recherche in 
+            let dens = {dens with Public_data.dens_activite_recherche} in 
+            state, dens 
+          | state, Some Public_data.Internationale -> 
+            let dens_activite_internationale = (convert_exp (Public_data.string_of_experience Public_data.Internationale) course)::dens.Public_data.dens_activite_internationale in  
+            let dens = {dens with Public_data.dens_activite_internationale} in 
+            state, dens 
+          | state, Some Public_data.Ouverture -> 
+              let dens_activite_ouverture = (convert_exp (Public_data.string_of_experience Public_data.Ouverture)  course)::dens.Public_data.dens_activite_ouverture in 
+              let dens = {dens with Public_data.dens_activite_ouverture} in 
+              state, dens 
+              | state, Some Public_data.Promotion -> 
+                let dens_activite_promotion = (convert_exp (Public_data.string_of_experience Public_data.Promotion) course)::dens.Public_data.dens_activite_promotion in 
+                let dens = {dens with Public_data.dens_activite_promotion} in 
+                state, dens 
+          | state, Some Public_data.Transdisciplinaire -> 
+                let dens_activite_transdisciplinaire= (convert_exp (Public_data.string_of_experience Public_data.Transdisciplinaire) course)::dens.Public_data.dens_activite_transdisciplinaire in 
+                let dens = {dens with Public_data.dens_activite_transdisciplinaire} in 
+                state, dens               
+          | state, (Some Public_data.Hors_Dens | None) -> 
+            let dens_cours_activite = dens.Public_data.dens_cours_activite in
+            let course = {course with Public_data.supplement_discipline="Activité"} in
+            let list = dens_cours_activite in
+            let dens_cours_activite = course::list in
+            let dens = {dens with Public_data.dens_cours_activite} in
+            state, dens
+      end end 
     | Humanities | Sciences | Sans_mineure ->
       let dens_cours_par_dpt = dens.Public_data.dens_cours_par_dpt in
       begin
@@ -363,6 +407,12 @@ let store_activite_recherche stage dens =
       (fun dens -> dens.Public_data.dens_activite_recherche)
       (fun dens_activite_recherche dens -> {dens with Public_data.dens_activite_recherche})
       stage dens
+
+let store_activite_promotion stage dens =
+    store_activite
+        (fun dens -> dens.Public_data.dens_activite_promotion)
+        (fun dens_activite_promotion dens -> {dens with Public_data.dens_activite_promotion})
+        stage dens
 
 let store_activite_transdisciplinaire stage dens =
     store_activite
@@ -439,6 +489,7 @@ Tools.unsome_string stage.Public_data.activite_intitule_fr;
                 in
                 let dens =
                   match s.Public_data.stageat_type with
+                    | Some Public_data.Promotion -> store_activite_promotion stage dens 
                     | Some Public_data.Recherche -> store_activite_recherche stage dens
                     | Some Public_data.Internationale -> store_activite_internationale stage dens
                     | Some Public_data.Ouverture -> store_activite_ouverture stage dens

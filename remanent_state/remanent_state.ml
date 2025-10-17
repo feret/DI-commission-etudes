@@ -132,6 +132,12 @@ type parameters =
     add_grades_without_registration: bool ;
     load_gps_data: bool ;
     log_pegasus_entries: bool ;
+    list_exp_blacklist: string list; 
+    list_exp_internationale: string list; 
+    list_exp_ouverture: string list; 
+    list_exp_recherche: string list; 
+    list_exp_transdisciplinaire: string list; 
+    list_exp_promotion:string list;
   }
 
 
@@ -274,6 +280,22 @@ let parameters =
     repartition = Public_data.Annee_de_validation_du_cours;
     load_gps_data = false ;
     log_pegasus_entries = false;
+    list_exp_blacklist = ["UNEXPA-08"] ; 
+    list_exp_internationale = 
+    List.map (fun x -> "UNEXPA-"^x) ["06";"07";"09";"10"];
+    list_exp_ouverture = 
+    List.map (fun x -> "UNEXPA-"^x) ["01";"02";"03";"04";"05";"75";"76";"77";"78"];
+    list_exp_promotion = 
+    (List.map (fun x -> "UNEXP1-"^x) ["11";"14";"16";"84"]) @
+    (List.map (fun x -> "UNEXP2-"^x) ["15";"17";"85"]) @ 
+    (List.map (fun x -> "UNEXPA-"^x) ["13";"19";"20";"21";"22";"23";"73";"74";"79";"80"]);
+    list_exp_recherche = 
+     (List.map (fun x -> "UNEXP1-"^x) ["35"]) @
+    (List.map (fun x -> "UNEXP2-"^x) ["36"]) @ 
+    (List.map (fun x -> "UNEXPA-"^x) ["37";"38";"39";"40";"41";"42";"43";"44";"45";"46";"47";"48";"49"]);
+    list_exp_transdisciplinaire = (List.map (fun x -> "UNEXP1-"^x) ["25";"27";"33";"82"]) @
+    (List.map (fun x -> "UNEXP2-"^x) ["26";"34";"71";"72"]) @ 
+    (List.map (fun x -> "UNEXPA-"^x) ["24";"28";"29";"30";"31";"32";"70"]) @ ["UNECL2-207"];
   }
 
 let _ = parameters.parameters_repository
@@ -403,7 +425,7 @@ type data =
     dens_candidates: Dens_candidates.t;
     dens_candidates_suggestion: Public_data.dens_candidate list;
     cost_members: Public_data.cost_member list;
-  }
+   }
 
 let empty_data =
   {
@@ -462,6 +484,31 @@ let empty_data =
     cost_members = [];
   }
 
+type exp = 
+ {
+  blacklist: Public_data.StringSet.t ; 
+  map: Public_data.experience Public_data.StringMap.t; 
+ }
+
+let set_exp parameters = 
+  {
+blacklist = Public_data.StringSet.of_list parameters.list_exp_blacklist ;
+map = 
+  List.fold_left 
+    (fun map (data,l) -> 
+      List.fold_left 
+        (fun map k -> Public_data.StringMap.add k data map) 
+        map l)
+    Public_data.StringMap.empty 
+        [
+    Public_data.Recherche,parameters.list_exp_recherche; 
+    Public_data.Promotion,parameters.list_exp_promotion; 
+    Public_data.Internationale,parameters.list_exp_internationale; 
+    Public_data.Transdisciplinaire,parameters.list_exp_transdisciplinaire; 
+    Public_data.Ouverture,parameters.list_exp_ouverture; 
+    ];
+
+  }
 type t =
   {
     parameters : parameters ;
@@ -475,6 +522,7 @@ type t =
     data: data;
     date: string;
     copy_stack:(string*string*string) list;
+    exp_data: exp; 
   }
 
 type pos = string*int*int*int
@@ -1976,6 +2024,7 @@ let init () =
   let copy_stack = [] in
   let prefix = "" in
   let cloud_repository = None in
+  let exp_data = set_exp parameters in 
   let t =
     {
       parameters ;
@@ -1989,6 +2038,7 @@ let init () =
       date ;
       copy_stack ;
       cloud_repository ;
+      exp_data;
     }
   in
   let t = get_option t in
@@ -3249,3 +3299,8 @@ let do_we_consider_grades_without_registration t = t, t.parameters.add_grades_wi
 let do_we_load_gps_data t = t,t.parameters.load_gps_data
 let do_we_log_pegasus_entries t  = t,t.parameters.log_pegasus_entries
 
+let exp_black_list code t = 
+  t,Public_data.StringSet.mem code t.exp_data.blacklist 
+
+let which_exp code t = 
+  t,Public_data.StringMap.find_opt code t.exp_data.map 
