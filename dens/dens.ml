@@ -199,8 +199,7 @@ let kind_of_course state code extra =
         Remanent_state.warn
           __POS__ (Format.sprintf "Ill-formed GPS code %s" code) Exit state,
         ("", Missing)
-      | Some a -> 
-        Remanent_state.warn __POS__ (Format.sprintf "KIND:%s %s" (fst a) (match (snd a) with Activite -> "activite" | Humanities -> "Hum" |Sciences -> "SCi"|Ecla -> "ECLA"|Sans_mineure-> "no min"|Missing->"missing"|Dummy->"dummy")) Exit state, a
+      | Some a -> state, a
 
 
 
