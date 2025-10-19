@@ -15,6 +15,7 @@ val export_transcript:
   ?filter: Public_data.remove_non_valided_classes ->
   ?keep_success:bool ->
   ?keep_faillure:bool ->
+  ?copy_dens:bool -> 
   Remanent_state.t ->
   gps_file
   -> Remanent_state.t * (string * string) option

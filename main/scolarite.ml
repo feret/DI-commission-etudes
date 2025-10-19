@@ -453,7 +453,7 @@ let state =
              let filter = Public_data.All in
              let report = true in
              let state, output_opt =
-               Transcripts.export_transcript
+               Transcripts.export_transcript ~copy_dens:true 
                  ~filter ~keep_faillure:true ~output ~report state gps
              in
              match output_opt with

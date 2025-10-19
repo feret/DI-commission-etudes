@@ -8334,6 +8334,7 @@ let export_transcript
     ?filter:(remove_non_valided_classes=Public_data.All_but_in_progress_in_current_academic_year)
     ?keep_success
     ?keep_faillure
+    ?copy_dens 
     state gps_file =
   let number_of_diploma_per_page =
     match number_of_diploma_per_page with
@@ -9473,7 +9474,8 @@ let export_transcript
           | Some key ->
             let input_rep,file_name = rep, snd output in
             let file_name = Copy.pdf_file file_name in
-            match Remanent_state.get_commission state with
+            let state = 
+              match Remanent_state.get_commission state with
             | state, None -> state
             | state, Some _ ->
               if
@@ -9501,7 +9503,35 @@ let export_transcript
                   in
                   state
               else state
-        in
+            in 
+            let state =
+              match copy_dens with 
+              | Some true -> 
+                begin 
+                  let state, dens_in_bdd =
+                      Remanent_state.Collector_dens_candidate.find_opt ~firstname ~lastname ~year state 
+                  in
+                  let accepte =
+                    match dens_in_bdd with 
+                      | None -> None
+                      | Some dens_in_bdd -> dens_in_bdd.Public_data.dens_candidate_ok
+                  in
+                  match accepte with 
+                    | Some true -> 
+                      begin 
+                        match
+                          Remanent_state.get_diplomation_rep ~firstname ~lastname state
+                        with
+                        | state, None -> state
+                        | state, Some output_rep ->
+                            Remanent_state.push_copy ~input_rep ~file_name ~output_rep state 
+                      end 
+                    | None | Some false ->  
+                      state
+                  end
+              | Some false | None -> state   
+          in state 
+        in 
         let list_national_diploma = snd mean in
         let state,m2_list,dip_autre_list =
           List.fold_left
