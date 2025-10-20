@@ -9504,33 +9504,7 @@ let export_transcript
                   state
               else state
             in 
-            let state =
-              match copy_dens with 
-              | Some true -> 
-                begin 
-                  let state, dens_in_bdd =
-                      Remanent_state.Collector_dens_candidate.find_opt ~firstname ~lastname ~year state 
-                  in
-                  let accepte =
-                    match dens_in_bdd with 
-                      | None -> None
-                      | Some dens_in_bdd -> dens_in_bdd.Public_data.dens_candidate_ok
-                  in
-                  match accepte with 
-                    | Some true -> 
-                      begin 
-                        match
-                          Remanent_state.get_diplomation_rep ~firstname ~lastname state
-                        with
-                        | state, None -> state
-                        | state, Some output_rep ->
-                            Remanent_state.push_copy ~input_rep ~file_name ~output_rep state 
-                      end 
-                    | None | Some false ->  
-                      state
-                  end
-              | Some false | None -> state   
-          in state 
+            state 
         in 
         let list_national_diploma = snd mean in
         let state,m2_list,dip_autre_list =
@@ -9701,11 +9675,38 @@ let export_transcript
                              && cursus.Public_data.cursus_niveau = "m"
                             then state
                             else
-                           Remanent_state.push_copy
+                           let state  = Remanent_state.push_copy
                                ~input_rep
                                ~file_name
                                ~output_rep
-                               state
+                               state in 
+                                match copy_dens with 
+                                | Some true -> 
+                                  begin 
+                                    let state, dens_in_bdd =
+                                        Remanent_state.Collector_dens_candidate.find_opt ~firstname ~lastname ~year state 
+                                    in
+                                    let accepte =
+                                      match dens_in_bdd with 
+                                        | None -> None
+                                        | Some dens_in_bdd -> dens_in_bdd.Public_data.dens_candidate_ok
+                                    in
+                                    match accepte with 
+                                      | Some true -> 
+                                        begin 
+                                          match
+                                            Remanent_state.get_diplomation_rep ~firstname ~lastname state
+                                          with
+                                          | state, None -> state
+                                          | state, Some output_rep ->
+                                              Remanent_state.push_copy ~input_rep ~file_name ~output_rep state 
+                                        end 
+                                      | None | Some false ->  
+                                        state
+                                    end
+                                | Some false | None -> state   
+                             
+                           
                            else
                              state
                          in
