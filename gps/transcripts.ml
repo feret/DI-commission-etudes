@@ -9675,6 +9675,11 @@ let export_transcript
                              && cursus.Public_data.cursus_niveau = "m"
                             then state
                             else
+                           let state = Remanent_state.warn 
+                              __POS__ (Format.sprintf "PUSH COPY %s %s -> %s" input_rep file_name output_rep) 
+                              Exit state 
+                            in 
+                            
                            let state  = Remanent_state.push_copy
                                ~input_rep
                                ~file_name
@@ -9699,6 +9704,10 @@ let export_transcript
                                           with
                                           | state, None -> state
                                           | state, Some output_rep ->
+                                            let state = Remanent_state.warn 
+                                            __POS__ (Format.sprintf "PUSH COPY %s %s -> %s" input_rep file_name output_rep) 
+                                            Exit state 
+                                          in 
                                               Remanent_state.push_copy ~input_rep ~file_name ~output_rep state 
                                         end 
                                       | None | Some false ->  
