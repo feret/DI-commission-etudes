@@ -459,11 +459,11 @@ let state =
              let state, year = Remanent_state.get_diplomation_year state in 
              let state = 
               match output_opt,year with
-             | None,_ | _,None -> 
-                Remanent_state.warn __POS__ "COPY FAIL" Exit state
+             | None,_ | _,None -> state 
              | Some input, Some year ->
-              let state = Remanent_state.warn __POS__ (Format.sprintf "COPY SUCCESS %s %s %s" (fst input) (snd input)  year) Exit state in 
               let input_rep, file_name = input in 
+              let file_name = Copy.pdf_file file_name in
+                      
                let state = Latex_engine.latex_to_pdf ~rev:true state ~input in 
                 let state, dens_in_bdd =
                   Remanent_state.Collector_dens_candidate.find_opt ~firstname ~lastname ~year state 
@@ -476,21 +476,14 @@ let state =
                 match accepte with 
                  | Some true -> 
                    begin 
-                    let state = Remanent_state.warn __POS__ (Format.sprintf "COPY ACCEPTED" ) Exit state in 
                     match
                       Remanent_state.get_diplomation_rep ~firstname ~lastname state
                     with
-                    | state, None -> Remanent_state.warn __POS__ (Format.sprintf "COPY FIRST ACCEPTED, THEN REFUSED" ) Exit state
+                    | state, None -> state 
                     | state, Some output_rep ->
-                      let state = Remanent_state.warn 
-                         __POS__ (Format.sprintf "PUSH COPY %s %s -> %s" input_rep file_name output_rep) 
-                         Exit state 
-                       in 
                       Remanent_state.push_copy ~input_rep ~file_name ~output_rep state 
                      end 
                    | None | Some false ->  
-                    let state = Remanent_state.warn __POS__ (Format.sprintf "COPY REFUSED" ) Exit state in 
-                   
                      state
           in state
         in state 
