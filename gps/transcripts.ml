@@ -8334,7 +8334,6 @@ let export_transcript
     ?filter:(remove_non_valided_classes=Public_data.All_but_in_progress_in_current_academic_year)
     ?keep_success
     ?keep_faillure
-    ?copy_dens 
     state gps_file =
   let number_of_diploma_per_page =
     match number_of_diploma_per_page with
@@ -9670,52 +9669,14 @@ let export_transcript
                            | Some cursus -> cursus
                            | _ -> Public_data.empty_cursus
                          in
-                            if is_l3
+                         if is_l3
                              && cursus.Public_data.cursus_gps = None
                              && cursus.Public_data.cursus_niveau = "m"
-                            then state
-                            else
-                           let state = Remanent_state.warn 
-                              __POS__ (Format.sprintf "PUSH COPY %s %s -> %s" input_rep file_name output_rep) 
-                              Exit state 
-                            in 
-                            
-                           let state  = Remanent_state.push_copy
-                               ~input_rep
-                               ~file_name
-                               ~output_rep
-                               state in 
-                                match copy_dens with 
-                                | Some true -> 
-                                  begin 
-                                    let state, dens_in_bdd =
-                                        Remanent_state.Collector_dens_candidate.find_opt ~firstname ~lastname ~year state 
-                                    in
-                                    let accepte =
-                                      match dens_in_bdd with 
-                                        | None -> None
-                                        | Some dens_in_bdd -> dens_in_bdd.Public_data.dens_candidate_ok
-                                    in
-                                    match accepte with 
-                                      | Some true -> 
-                                        begin 
-                                          match
-                                            Remanent_state.get_diplomation_rep ~firstname ~lastname state
-                                          with
-                                          | state, None -> state
-                                          | state, Some output_rep ->
-                                            let state = Remanent_state.warn 
-                                            __POS__ (Format.sprintf "PUSH COPY %s %s -> %s" input_rep file_name output_rep) 
-                                            Exit state 
-                                          in 
-                                              Remanent_state.push_copy ~input_rep ~file_name ~output_rep state 
-                                        end 
-                                      | None | Some false ->  
-                                        state
-                                    end
-                                | Some false | None -> state   
-                             
-                           
+                          then 
+                             state
+                          else   
+                              Remanent_state.push_copy ~input_rep ~file_name ~output_rep state 
+                              
                            else
                              state
                          in
