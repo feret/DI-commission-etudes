@@ -7474,6 +7474,10 @@ let ects_6 =
     "INFO-M1-PROJRECH-S1";
 
   ]
+
+let ects_7 = 
+  ["INFO-M1-CACHAN3-S1"]
+
 let ects_9 =
   [
     "INFO-L3-ALGOPRO-S1";
@@ -7585,6 +7589,9 @@ let code_map = fill ects_45 4.5 code_map
 
 let code_map = fill ects_5 5. code_map 
 let code_map = fill ects_6 6. code_map
+
+let code_map = fill ects_7 7. code_map 
+
 let code_map = fill ects_9 9. code_map
 let code_map = fill ects_12 12. code_map
 
