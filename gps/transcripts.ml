@@ -3184,10 +3184,12 @@ let string_of_stringopt s_opt =
 let semester_of_stringopt s_opt =
   let s = String.trim (string_of_stringopt s_opt) in
   match s with
+  | "S1" -> "1"
+  | "S2" -> "2"
   | "1" | "2" -> s
-  | "3" -> "1\\&2"
-  | _ -> s
-
+  | "3" | "Annuel" -> "1\\&2"
+  | _ -> s 
+  
 let translate_dpt ~firstname ~lastname ~year state d =
   match d with
   | None ->
