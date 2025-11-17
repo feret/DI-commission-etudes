@@ -7581,7 +7581,8 @@ let ects_24 =
 let ects_30 =
   ["INFO-M1-STAGEE-S2";
    "INFO-M1-STAGEFE-S2";
-   "INFO-M1-STAGEFF-S2"]
+   "INFO-M1-STAGEFF-S2"; 
+   "INFO-M2-MPRI200-S2"]
 
 let code_map = Public_data.CodeMap.empty
 let fill l ects map =

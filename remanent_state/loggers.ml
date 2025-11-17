@@ -1029,12 +1029,12 @@ Tools.valide_sans_note Tools.valide_sans_note_en
            {\\setcounter{vectsb}{\\fpeval{\\resects*\\factor}}}%%\n\
             {\\setcounter{vectsb}{0}}%%\n\
              %%\n\
-          \\addtocounter{total}{\\fpeval{\\thecects*\\thecnote}}%%\n\
-          \\addtocounter{ects}{\\fpeval{\\thecects*\\factor}}%%\n\
+         \\addtocounter{ects}{\\fpeval{\\thecects*\\factor}}%%\n\
           %%\n\
           \\addtocounter{vsnects}{\\fpeval{\\thevectsc*\\factor+\\thevectsa*\\factor+\\thevectsb*\\factor}}%%\n\
            %%\n\       #2 & #3 &  \\IfStrEq{#4}{%s}{sans note}{\\IfStrEq{#4}{%s}{not graded}{\\IfStrEq{#1}{compensation}{\\cellcolor{lightpink}{\\mynumprint{#4}}}{\\IfStrEq{#1}{unvalidated}{\\cellcolor{grey}{\\mynumprint{#4}}}{\\mynumprint{#4}}}}}  \\cr%%\n\
-          }%%\n\
+             \\addtocounter{total}{\\fpeval{\\thecects*\\thecnote}}%%\n\
+        }%%\n\
           %%\n\ " Tools.valide_sans_note Tools.valide_sans_note_en
         Tools.valide_sans_note Tools.valide_sans_note_en
               in
