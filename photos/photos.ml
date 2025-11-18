@@ -287,7 +287,7 @@ let fetch
   let state,timeout =
     match timeout with
     | None ->
-      Remanent_state.get_file_retriever_time_out_in_second state
+      Remanent_state.get_file_retriever_time_out_in_second_for_photos state
     | Some t -> state, t
   in
    let state,tries =

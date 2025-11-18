@@ -114,6 +114,7 @@ val get_file_retriever_log_file: t -> t * string
 val get_file_retriever_annuaire_tmp_repository: t -> t * string
 val get_file_retriever_annuaire_html_file: t -> t * string
 val get_file_retriever_time_out_in_second: t -> t * int option
+val get_file_retriever_time_out_in_second_for_photos: t -> t * int option
 val get_file_retriever_number_of_tries: t -> t * int option 
 val get_file_retriever_checking_period: t -> t * int
 
