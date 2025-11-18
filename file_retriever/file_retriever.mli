@@ -5,6 +5,7 @@ val launch :
   ?log_file:string ->
   ?log_repository:string ->
   ?timeout:int ->
+  ?tries:int ->
   Public_data.file_retriever ->
   url:string ->
   output_repository:string ->

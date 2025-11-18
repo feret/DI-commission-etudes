@@ -12,6 +12,7 @@ val fetch:
   ?file_retriever:Public_data.file_retriever ->
   ?command_line_options:string ->
   ?timeout:int option ->
+  ?tries:int option -> 
   ?checkoutperiod:int ->
   ?url_to_access_annuaire: string -> 
   ?log_file:string ->

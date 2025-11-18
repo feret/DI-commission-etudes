@@ -63,6 +63,7 @@ type parameters =
     include_pictures: bool;
     file_retriever_time_out_in_seconds: int option;
     file_retriever_checking_period_in_seconds : int;
+    file_retriever_number_or_tries: int option; 
     tmp_profiling_repository: string;
     profiling_log_file_repository: string;
     profiling_log_file: string;
@@ -243,6 +244,7 @@ let parameters =
     file_retriever_annuaire_html_file = "annuaire.html";
     annuaire_check_certificate = false ;
     file_retriever_time_out_in_seconds = Some 300;
+    file_retriever_number_or_tries = Some 3; 
     file_retriever_checking_period_in_seconds = 5;
     file_retriever_skip = false;
     file_retriever_n_fail = 0;
@@ -704,6 +706,9 @@ let get_file_retriever_annuaire_html_file t =
 
 let get_file_retriever_time_out_in_second t =
   t, t.parameters.file_retriever_time_out_in_seconds
+
+let get_file_retriever_number_of_tries t = 
+  t, t.parameters.file_retriever_number_or_tries 
 
 let get_file_retriever_checking_period t =
   t, t.parameters.file_retriever_checking_period_in_seconds

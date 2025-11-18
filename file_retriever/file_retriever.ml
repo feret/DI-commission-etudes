@@ -1,6 +1,6 @@
 let launch
     ?user_name ?password ?options
-    ?log_file ?log_repository ?timeout
+    ?log_file ?log_repository ?timeout ?tries 
     t ~url ~output_repository ~output_file_name
     state
   =
@@ -36,10 +36,15 @@ let launch
     | None -> ""
     | Some i -> Printf.sprintf " -T %d" i
   in
+  let tries = 
+    match tries with 
+      | None -> "" 
+      | Some i -> Printf.sprintf " -t %d" i 
+  in 
   let tool =
     match t with
     | Public_data.WGET ->
-      Printf.sprintf "wget -O %s%s%s" output log_option timeout
+      Printf.sprintf "wget -O %s%s%s%s" output log_option timeout tries 
   in
   let options =
     match options with

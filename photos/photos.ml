@@ -55,7 +55,7 @@ let check_url
     file_retriever ?user_name ?password ~options
     ?log_file ?log_repository
     ~url ~output_repository ~output_file_name
-    ~period ?timeout
+    ~period ?timeout ?tries
     firstname lastname promo
     state
   =
@@ -75,7 +75,7 @@ let check_url
         ~options
         ?log_file ?log_repository
         ~url ~output_repository ~output_file_name
-        ?timeout
+        ?timeout ?tries 
         state
     with
     | state, 0 ->
@@ -83,7 +83,7 @@ let check_url
         ?log_file ?log_repository
         ~period ~output_repository
         ~output_file_name
-        ?timeout
+        ?timeout 
         file_retriever state,
       Some (output_repository,output_file_name)
   | state, i ->
@@ -159,7 +159,7 @@ let check_url
                        ?log_file ?log_repository
                        ~url ~output_repository
                        ~output_file_name
-                       ?timeout state
+                       ?timeout ?tries state
                    with
                    | state, 0 ->
                      let state =
@@ -167,7 +167,7 @@ let check_url
                          ?log_file ?log_repository
                          ~period ~output_repository
                          ~output_file_name
-                         ?timeout
+                         ?timeout 
                          file_retriever state
                      in
                      begin
@@ -231,7 +231,7 @@ let check_url
 let fetch
     ?user_name ?password
     ?file_retriever ?command_line_options
-    ?timeout ?checkoutperiod ?url_to_access_annuaire
+    ?timeout ?tries ?checkoutperiod ?url_to_access_annuaire
     ?log_file ?log_repository ?tmp_repository ?tmp_file
     ~firstname ~lastname ~promo state =
   let event_opt =
@@ -288,6 +288,12 @@ let fetch
     match timeout with
     | None ->
       Remanent_state.get_file_retriever_time_out_in_second state
+    | Some t -> state, t
+  in
+   let state,tries =
+    match tries with
+    | None ->
+      Remanent_state.get_file_retriever_number_of_tries state 
     | Some t -> state, t
   in
   let state, period =
@@ -353,7 +359,7 @@ let fetch
             ~options
             ?log_file ?log_repository
             ~url ~output_repository ~output_file_name
-            ~period ?timeout
+            ~period ?timeout ?tries 
             firstname lastname promo
             state
         in
