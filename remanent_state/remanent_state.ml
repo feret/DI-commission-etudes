@@ -3310,11 +3310,6 @@ let exp_black_list code t =
   t,Public_data.StringSet.mem code t.exp_data.blacklist 
 
 let exp_black_list_transcript code t = 
-  let t = 
-    Public_data.StringSet.fold 
-      (fun s t -> 
-    warn __POS__ (Format.sprintf "(%s)=(%s) %s?" s code (if s=code then "true" else "false")) Exit t) t.exp_data.blacklist_transcript  t 
-  in
   t,Public_data.StringSet.mem code t.exp_data.blacklist_transcript 
 
 let which_exp code t = 
