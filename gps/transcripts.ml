@@ -7023,6 +7023,7 @@ let program
           let codecours =
               string_of_stringopt cours.code_cours
           in
+          let state = Remanent_state.warn __POS__ (Format.sprintf "COURS %s %s " codecours (match cours.cours_libelle with None -> "" | Some a -> a)) Exit state in 
           let state, b = Remanent_state.exp_black_list_transcript codecours state in 
           if b then state, cours_list, stage_list 
           else  
