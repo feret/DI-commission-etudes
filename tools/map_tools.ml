@@ -45,6 +45,8 @@ struct
   let add key map = gen add key map
   let mem key map = gen mem key map
   let remove key map = gen remove key map
+
+  let of_list l = of_list (List.rev_map O.simplify (List.rev l))
 end
 
 module Collect (M:Map.S) =
