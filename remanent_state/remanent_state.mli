@@ -815,4 +815,5 @@ val do_we_load_gps_data: t -> t * bool
 val do_we_log_pegasus_entries: t -> t * bool
 
 val exp_black_list: string -> t -> t * bool 
+val exp_black_list_transcript: string -> t -> t * bool 
 val which_exp: string -> t -> t * Public_data.experience option 

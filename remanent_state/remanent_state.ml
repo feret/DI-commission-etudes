@@ -134,6 +134,7 @@ type parameters =
     add_grades_without_registration: bool ;
     load_gps_data: bool ;
     log_pegasus_entries: bool ;
+    list_exp_not_in_transcript: string list; 
     list_exp_blacklist: string list; 
     list_exp_internationale: string list; 
     list_exp_ouverture: string list; 
@@ -284,6 +285,7 @@ let parameters =
     repartition = Public_data.Annee_de_validation_du_cours;
     load_gps_data = false ;
     log_pegasus_entries = false;
+    list_exp_not_in_transcript = ["UNEXPA-08";"UNEXPA-37"]; 
     list_exp_blacklist = ["UNEXPA-08"] ; 
     list_exp_internationale = 
     List.map (fun x -> "UNEXPA-"^x) ["06";"07";"09";"10"];
@@ -490,12 +492,14 @@ let empty_data =
 
 type exp = 
  {
+  blacklist_transcript: Public_data.StringSet.t ; 
   blacklist: Public_data.StringSet.t ; 
   map: Public_data.experience Public_data.StringMap.t; 
  }
 
 let set_exp parameters = 
   {
+blacklist_transcript = Public_data.StringSet.of_list parameters.list_exp_not_in_transcript ;
 blacklist = Public_data.StringSet.of_list parameters.list_exp_blacklist ;
 map = 
   List.fold_left 
@@ -3304,6 +3308,9 @@ let do_we_log_pegasus_entries t  = t,t.parameters.log_pegasus_entries
 
 let exp_black_list code t = 
   t,Public_data.StringSet.mem code t.exp_data.blacklist 
+
+let exp_black_list_transcript code t = 
+  t,Public_data.StringSet.mem code t.exp_data.blacklist_transcript 
 
 let which_exp code t = 
   t,Public_data.StringMap.find_opt code t.exp_data.map 
