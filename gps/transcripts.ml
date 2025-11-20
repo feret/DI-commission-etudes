@@ -7280,6 +7280,7 @@ let program
                   state
               in a, b, c, cours.ects, false
           in
+          let state = Remanent_state.warn __POS__ (Format.sprintf "ECTS %s %f" (match libelle with None -> "" | Some a -> a) (match ects with None -> 0. | Some f -> f)) Exit state in 
           let unvalidated = unvalidated && not force_validation in
           let state, libelle =
             Remanent_state.bilingual_string
