@@ -916,12 +916,12 @@ let () = fprintf logger
                         Format.sprintf
                                       "\\fpeval{\\res<14.}  = 1",p bplus;
    ]
-         ~otherwise:(p a)) (match dft with None -> "" | Some x -> p x)
+         ~otherwise:(p a)) (match dft with None -> "" | Some x -> x)
   in
   let lettergrade = gen "lettergrade" fst in
   let pga = gen
               "pga"
-              ?dft:(Some f)
+              ?dft:(Some ("\\setcounter{cnote}{\\fpeval{"^(snd f)^"*\\factor}}%%\n\ "))
                (fun (_,x) -> "\\setcounter{cnote}{\\fpeval{"^x^"*\\factor}}%%\n\ "^x) 
               in
   let () = fprintf logger
@@ -948,7 +948,7 @@ let () = fprintf logger
       match Public_data.all_notes_string with
           | [] -> ()
           | _::_ -> fprintf
-                      logger "\\setcounter{vectsc}{0}%%\n\ \\setcounter{ectsc}{0}%%\n\ "
+                      logger "\\setcounter{vectsc}{0}%%\n\ \\setcounter{cects}{0}%%\n\ "
     in
     let () =
         List.iter (fun x ->

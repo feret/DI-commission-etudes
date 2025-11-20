@@ -7355,7 +7355,7 @@ let program
     let () =
       Remanent_state.log
         state
-        "\\addtocounter{validatedwogradeects%s}{\\thevsnects}%%\n\ \\addtocounter{grade%s}{\\thetotal}%%\n\ \\addtocounter{gradedects%s}{\\theects}%%\n\ "  key key key
+        "\\setcounter{validatedwogradeects%s}{\\thevsnects}%%\n\ \\setcounter{grade%s}{\\thetotal}%%\n\ \\setcounter{gradedects%s}{\\theects}%%\n\ "  key key key
     in
     let moyenne_value =
       Format.sprintf
