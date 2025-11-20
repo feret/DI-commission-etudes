@@ -6972,11 +6972,6 @@ let program
             state
             "\\setcounter{validatedwogradeects%s}{0}%%\n\ \\setcounter{grade%s}{0}%%\n\ \\setcounter{gradedects%s}{0}%%\n\ " key key key
         in
-        let () =
-          Remanent_state.fprintf
-            state
-            "\\setcounter{total}{0}%%\n\ \\setcounter{vsnects}{0}%%\n\ \\setcounter{ects}{0}%%\n\ " 
-        in
         ()
     in
     let bgcolor_en = [None;None;None;None;None;] in
@@ -6990,6 +6985,11 @@ let program
       match language with
         | Public_data.French -> state, size_fr, bgcolor_fr, align_fr,   "coursscofr", title_fr
         | Public_data.English -> state, size_en, bgcolor_en, align_en, "coursscoen", title_en
+    in
+    let () =
+          Remanent_state.fprintf
+            state
+            "\\setcounter{total}{0}%%\n\ \\setcounter{vsnects}{0}%%\n\ \\setcounter{ects}{0}%%\n\ " 
     in
     let () =
       Remanent_state.fprintf state
