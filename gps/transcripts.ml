@@ -7036,7 +7036,7 @@ let program
           in
           let state, cours, libelle_stage_opt_list =
             match cours.cours_libelle with
-            | None -> state,[None,None]
+            | None -> state, cours, [None,None]
             | Some l ->
               if is_stage cours
               then
@@ -7067,10 +7067,8 @@ let program
                       ?code:cours.code_cours
                       stages
                   in
-                  let state, cours = 
-                  match stage_opt with
-                | [] -> state, cours
-                | stage_list -> state, (if List.for_all (fun c -> match c.stage_credits with None | Some 0. -> true | Some _ -> false) stage_opt then cours else {cours with ects = None})
+                  let cours = 
+                      if List.for_all (fun c -> match c.stage_credits with None | Some 0. -> true | Some _ -> false) stage_opt then cours else {cours with ects = None}
                 in
                                   match stage_opt with
                   | [] ->
