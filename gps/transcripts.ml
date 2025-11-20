@@ -6972,6 +6972,11 @@ let program
             state
             "\\setcounter{validatedwogradeects%s}{0}%%\n\ \\setcounter{grade%s}{0}%%\n\ \\setcounter{gradedects%s}{0}%%\n\ " key key key
         in
+         let () =
+          Remanent_state.fprintf
+            state
+            "\\setcounter{total}{0}%%\n\ \\setcounter{vsnects}{0}%%\n\ \\setcounter{ects%s}{0}%%\n\ " 
+        in
         ()
     in
     let bgcolor_en = [None;None;None;None;None;] in

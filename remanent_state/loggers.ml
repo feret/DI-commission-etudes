@@ -884,9 +884,9 @@ let () = fprintf logger
     let b = set "B" "3.0" in
     let bplus = set "B+" "3.33" in
     let a = set "A" "4" in
-    let gen name p =
+    let gen ?dft name p =
     Format.sprintf
-      "\\newcommand{\\%s}[1]{%s\\myifdecimal{\\res}{%s}{}}"
+      "\\newcommand{\\%s}[1]{%s\\myifdecimal{\\res}{%s}{%s}}"
       name
        "\\StrSubstitute{#1}{,}{.}[\\res]%%\n\ "
        (Latex_helper.case
@@ -916,12 +916,14 @@ let () = fprintf logger
                         Format.sprintf
                                       "\\fpeval{\\res<14.}  = 1",p bplus;
    ]
-         ~otherwise:(p a))
+         ~otherwise:(p a)) (match dft with None -> "" | Some x -> p x)
   in
   let lettergrade = gen "lettergrade" fst in
   let pga = gen
               "pga"
-               (fun (_,x) -> "\\setcounter{cnote}{\\fpeval{"^x^"*\\factor}}%%\n\ "^x) in
+              ?dft:(Some f)
+               (fun (_,x) -> "\\setcounter{cnote}{\\fpeval{"^x^"*\\factor}}%%\n\ "^x) 
+              in
   let () = fprintf logger
     "%s%s\\newcommand{\\coursscoen}[4][]{%%\n\
     \\addtocounter{nrow}{1}%%\n\
@@ -946,7 +948,7 @@ let () = fprintf logger
       match Public_data.all_notes_string with
           | [] -> ()
           | _::_ -> fprintf
-                      logger "\\setcounter{vectsc}{0}%%\n\ "
+                      logger "\\setcounter{vectsc}{0}%%\n\ \\setcounter{ectsc}{0}%%\n\ "
     in
     let () =
         List.iter (fun x ->
