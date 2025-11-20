@@ -7034,7 +7034,7 @@ let program
           let unvalidated =
               is_unvalidated codecours year unvalidated_map
           in
-          let state, libelle_stage_opt_list =
+          let state, cours, libelle_stage_opt_list =
             match cours.cours_libelle with
             | None -> state,[None,None]
             | Some l ->
@@ -7067,7 +7067,12 @@ let program
                       ?code:cours.code_cours
                       stages
                   in
+                  let state, cours = 
                   match stage_opt with
+                | [] -> state, cours
+                | stage_list -> state, (if List.for_all (fun c -> match c.stage_credits with None | Some 0. -> true | Some _ -> false) stage_opt then cours else {cours with ects = None})
+                in
+                                  match stage_opt with
                   | [] ->
                     begin
                       let state, (l, l_en) =
@@ -7096,11 +7101,11 @@ let program
                           ~french:(string_of_stringopt l)
                           state
                       in
-                      state, [Some libelle, Some stage_entry]
+                      state, cours, [Some libelle, Some stage_entry]
                     end
                   | stage_list ->
                     List.fold_left
-                      (fun (state, acc) stage ->
+                      (fun (state, cours, acc) stage ->
 
                     let issue =
                       match
@@ -7231,14 +7236,14 @@ let program
                     let state, b = keep_activite state remove_non_valided_classes year stage_entry in
                     if b
                     then
-                    state,
+                    state, cours, 
                     (Some
                       (Format.sprintf "%s%s%s" libelle sujet directeur),
                     Some stage_entry)::acc
-                    else state,acc)
-                    (state, []) stage_list
+                    else state,cours, acc)
+                    (state, cours, []) stage_list
                 end
-              else state, [Some l, None]
+              else state, cours, [Some l, None]
           in
           let stage_list =
             List.fold_left (fun stage_list (_,stage_opt) ->
