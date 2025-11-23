@@ -162,6 +162,7 @@ module Build
       match
         main_dpt
       with
+      | Public_data.CIENS 
       | Public_data.ENS | Public_data.PHYS | Public_data.CHIMIE
       | Public_data.IBENS | Public_data.DMA | Public_data.GEOSCIENCES
       | Public_data.ECO | Public_data.DRI | Public_data.ARTS
@@ -205,6 +206,7 @@ module Build
       match
         main_dpt
       with
+      | Public_data.CIENS 
       | Public_data.ENS | Public_data.PHYS | Public_data.CHIMIE
       | Public_data.IBENS | Public_data.DMA | Public_data.GEOSCIENCES
       | Public_data.LILA | Public_data.DEC
@@ -248,6 +250,7 @@ module Build
       match
         main_dpt
       with
+      | Public_data.CIENS 
       | Public_data.ENS | Public_data.PHYS | Public_data.CHIMIE
       | Public_data.IBENS | Public_data.DMA | Public_data.GEOSCIENCES
       | Public_data.LILA | Public_data.DEC

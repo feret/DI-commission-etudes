@@ -106,7 +106,7 @@ module PESET: Set.S with type elt = pedagogical_entry_pegasus
 
 val empty_pedagogical_entry: pedagogical_entry_pegasus
 
-type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA | DEC | DSA | DSS | GEOG | HIST | ECLA 
+type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA | DEC | DSA | DSS | GEOG | HIST | ECLA | CIENS 
 
 type specific = Musicologie | Sciences_Cognitives | Environnement
 

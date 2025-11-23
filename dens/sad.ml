@@ -127,7 +127,8 @@ let print_preamble state dens =
             | Public_data.DSA -> "SCIENCES DE L'ANTIQUITÉ"
             | Public_data.DSS -> "SCIENCES SOCIALES"
             | Public_data.GEOG -> "GÉOGRAPHIE"
-            | Public_data.HIST -> "HISTOIRE")
+            | Public_data.HIST -> "HISTOIRE"
+            | Public_data.CIENS -> "ENJEUX STRATÉGIQUES")
     in
     let () = Remanent_state.print_newline state in
     let () = Remanent_state.fprintf state "{\\noindent}\\textbf{Nom et statut de l'établissement ayant délivré le diplôme~:}" in

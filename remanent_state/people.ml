@@ -122,6 +122,8 @@ let hist_list = []
 let dss_list = []
 let ecla_list = []
 
+let ciens_list = []
+
 let dpt_di = "informatique"
 let dpt_dma = "mathématiques"
 let dpt_phys = "physique"
@@ -138,6 +140,8 @@ let dpt_dsa = "sciences de l'Antiquité"
 let dpt_hist = "Histoire"
 let dpt_geog = "géographie"
 let espace_ecla = "cultures et langues d'ailleurs"
+
+let dpt_ciens = "enjeux stratégiques"
 
 let footpage_string = "\\small{45, rue d'Ulm  75230 Paris Cedex 05  --  Tél. : + 33 (0)1 44 32 20 45 --  Fax : + 33 (0) 1 44 32 20 75 -- direction.etudes@di.ens.fr}"
 let footpage_string_dma =
@@ -156,3 +160,5 @@ let footpage_string_geog = ""
 let footpage_string_dsa = ""
 let footpage_string_dss = ""
 let footpage_string_ecla = ""
+
+let footpage_string_ciens = "" 

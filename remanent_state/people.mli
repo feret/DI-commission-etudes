@@ -16,6 +16,7 @@ val dsa_list: Remanent_state.t Public_data.direction_des_etudes list
 val hist_list: Remanent_state.t Public_data.direction_des_etudes list
 val geog_list: Remanent_state.t Public_data.direction_des_etudes list
 val ecla_list: Remanent_state.t Public_data.direction_des_etudes list
+val ciens_list: Remanent_state.t Public_data.direction_des_etudes list
 
 val dpt_di: string
 val dpt_gsc: string
@@ -33,7 +34,7 @@ val dpt_dss: string
 val dpt_geog: string
 val dpt_hist: string
 val espace_ecla:string
-
+val dpt_ciens: string 
 
 val footpage_string: string
 val footpage_string_dma: string
@@ -51,3 +52,4 @@ val footpage_string_dss: string
 val footpage_string_hist: string
 val footpage_string_geog: string
 val footpage_string_ecla: string
+val footpage_string_ciens: string 

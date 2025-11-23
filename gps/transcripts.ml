@@ -44,6 +44,7 @@ let dpt_lila = "litteratures et langage"
 let espace_ecla = "cultures et langues d'ailleurs"
 let dpt_ibens = dpt_bio
 
+let dpt_ciens = "enjeux stratégiques"
 
 let dpt_dec = "etudes cognitives"
 let dpt_eco = "economie"
@@ -87,6 +88,8 @@ let dpt_geog_gps_name = dpt_geog
 let dpt_dsa_gps_name = dpt_sciences_antiquite
 let dpt_dss_gps_name = dpt_sciences_sociales
 
+let dpt_ciens_gps_name = dpt_ciens 
+
 let acro_dpt_arts = "Département des arts"
 let acro_dpt_phys = "Département de Physique"
 let acro_dpt_info = "DI"
@@ -118,7 +121,7 @@ let stage_dpt_dsa = "Stage de Sciences de l'Antiquité"
 let stage_dpt_dec = "Stage de Sciences Cognitives"
 let stage_dpt_ecla = "Stage en Cultures et Langues d'Ailleurs"
 
-
+let stage_dpt_ciens = "Stage sur les Enjeux Statégiques"
 
 let dpt_arts_full = "Département d'Arts"
 let dpt_info_full = "Département d'Informatique"
@@ -154,6 +157,8 @@ let stage_dpt_dsa_en = "Internship in Ancient Sciences"
 let stage_dpt_dec_en = "Internship in Cognitive Sciences"
 let stage_dpt_ecla_en = "Internship in Cultures and Languages from elsewhere"
 
+let stage_dpt_ciens_en = "Internship in strategies"
+
 let translate_stage state =
     let state, main_dpt = Remanent_state.get_main_dpt state in
     match main_dpt with
@@ -174,6 +179,7 @@ let translate_stage state =
       | Public_data.GEOG -> state, stage_dpt_geog, stage_dpt_geog_en
       | Public_data.HIST -> state, stage_dpt_hist, stage_dpt_hist_en
       | Public_data.ECLA -> state, stage_dpt_ecla, stage_dpt_ecla_en
+      | Public_data.CIENS -> state, stage_dpt_ciens, stage_dpt_ciens_en 
 
 let dpt_arts_full_en = "Arts Department"
 let dpt_info_full_en = "Computer Science Department"
@@ -1413,7 +1419,8 @@ let store_cours  =
       let hist = 31
       let geog = 32
       let dss = 34
-      let vetu = 35
+      let ciens = 35 
+      let vetu = 36
       let autre = 40
       let manquant = 50
       let pratique = 15
@@ -1440,6 +1447,7 @@ let store_cours  =
           phys, "PHYS";
           hist, "HIST";
           geog, "GEOG";
+          ciens, "CIENS";
           dss, "DSS";
           vetu, "VETU";
         ]
@@ -3838,6 +3846,7 @@ let dpt_of_acro who pos state dpt origine =
     | Public_data.DSA -> state, Some dpt_sciences_antiquite
     | Public_data.HIST -> state, Some dpt_hist
     | Public_data.GEOG -> state, Some dpt_geog
+    | Public_data.CIENS -> state, Some dpt_ciens 
     | Public_data.ECLA -> state, Some espace_ecla
     | Public_data.ENS ->
       let msg =
@@ -3881,7 +3890,7 @@ let check_mandatory state cours =
   | state, (Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.DMA | Public_data.DEC | Public_data.LILA | Public_data.ENS | Public_data.IBENS | Public_data.PHYS    | Public_data.DSS | Public_data.ECLA
      | Public_data.DSA
      | Public_data.HIST
-     | Public_data.GEOG
+     | Public_data.GEOG | Public_data.CIENS 
 ) -> state, false
 
 let is_mandatory state cours =
@@ -3925,7 +3934,7 @@ let check_count_for_maths state cours =
   | state, ( Public_data.DSS
      | Public_data.DSA
      | Public_data.HIST
-     | Public_data.GEOG | Public_data.ECLA |
+     | Public_data.GEOG | Public_data.CIENS | Public_data.ECLA |
  Public_data.ARTS | Public_data.DRI | Public_data.ECO | Public_data.DEC |  Public_data.CHIMIE | Public_data.GEOSCIENCES | Public_data.DMA | Public_data.LILA | Public_data.ENS | Public_data.PHYS | Public_data.IBENS) -> state, false
 
 let count_for_maths state cours =
@@ -4359,11 +4368,12 @@ let heading
          | Public_data.DSA
          | Public_data.HIST
          | Public_data.GEOG
+         | Public_data.CIENS 
     ) ->
       let state =
         Remanent_state.warn
           __POS__
-          "ARTS/DRI/ENS/IBENS/ECO/DSS/DSA/HIST/GEOG are not a valid dpt to edit transcripts"
+          "ARTS/DRI/ENS/IBENS/ECO/DSS/DSA/HIST/GEOG/CIENS are not a valid dpt to edit transcripts"
           Exit
           state
       in state
@@ -4579,6 +4589,7 @@ let heading
           | Public_data.DSA -> "au département de sciences de l'antiquité"
           | Public_data.HIST -> "au département d'Histoire"
           | Public_data.GEOG -> "au département de géographie"
+          | Public_data.CIENS -> "au centre international de enjeux stratégiques"
           | Public_data.ECLA -> "à l'espace cultures et langues d'ailleurs"
           | Public_data.DRI -> "")
       ),
@@ -4599,6 +4610,7 @@ let heading
           | Public_data.DSA -> "Ancient Sciences Department"
           | Public_data.HIST -> "History Department"
           | Public_data.GEOG -> "Geography Department"
+          | Public_data.CIENS -> "Strategic Studies Center"
           | Public_data.ECLA -> "Cultures and languages from elsewhere space"
           | Public_data.DRI -> "")
          ),
@@ -5620,7 +5632,7 @@ let program
                     | Public_data.DSA
                     | Public_data.HIST
                     | Public_data.GEOG
-
+                    | Public_data.CIENS 
                 | Public_data.IBENS | Public_data.PHYS | Public_data.LILA) ->
                   Some dpt)
             ~gpscodelist
@@ -7450,6 +7462,7 @@ let dpt_of_snd state x =
     | "UNDDSEC-HIST" -> state, Some dpt_hist_gps_name
     | "UNDDSEC-GEOG" -> state, Some dpt_geog_gps_name
     | "UNDDSEC-DSA" -> state, Some dpt_dsa_gps_name
+    | "UNDDSEC-CIE" -> state, Some dpt_ciens_gps_name 
 
     | _ ->
       Remanent_state.warn
@@ -8902,6 +8915,7 @@ let export_transcript
                           | Public_data.DSA
                           | Public_data.HIST
                           | Public_data.GEOG
+                          | Public_data.CIENS 
                           | Public_data.DMA
                           | Public_data.DEC
                           | Public_data.CHIMIE
@@ -9938,6 +9952,7 @@ let export_transcript
                  | Public_data.DSA
                  | Public_data.HIST
                  | Public_data.GEOG
+                 | Public_data.CIENS
                  | Public_data.PHYS
                  | Public_data.IBENS
                  | Public_data.DEC

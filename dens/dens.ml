@@ -56,6 +56,7 @@ let lila = "LILA","UNLIT"
 let geog = "GEOG","UNGEO"
 let hist = "HIST","UNHIS"
 let ceres = "CERES","UNCER"
+let ciens = "CIENS","UNCIE"
 let ecla = "ECLA","UNECL"
 let vetu = "VETU","UNEXP"
 let dg = "DG",""
@@ -82,6 +83,7 @@ let string_of_key k =
       | "eco" -> "Économie"
       | "lila" -> "Langues anciennes"
       | "geog" -> "Géographie"
+      | "ciens" -> "Enjeux stratégiques"
       | "hist" -> "Histoire"
       | "ceres" -> "Environnement et société"
       | "environnement" -> "Environnement"
@@ -95,7 +97,7 @@ let string_of_key k =
       | x -> (Format.sprintf "Autre(%s)" x)
 
 let sciences = [info;dma;bio;phys;dec;gsc;chimie]
-let humanities = [arts;dsa;eco;lila;phil;hist;dss;geog]
+let humanities = [arts;dsa;eco;lila;phil;hist;dss;geog;ciens]
 let sans_mineure = [ceres]
 let ecla_list = [ecla;"code3251",""]
 let activite = [vetu;dg;actd]
@@ -169,6 +171,7 @@ let translate_main_dpt x =
   | Public_data.DSA -> dsa
   | Public_data.DSS -> dss
   | Public_data.GEOG -> geog
+  | Public_data.CIENS -> ciens 
   | Public_data.HIST -> hist
   | Public_data.ECLA -> ecla
 )
@@ -851,6 +854,7 @@ let dump_dens dens state =
           | Public_data.GEOG -> "geographie"
           | Public_data.HIST -> "histoire"
           | Public_data.ECLA -> "cultures et langues"
+          | Public_data.CIENS -> "enjeux stratégiques"
           | (Public_data.ENS|Public_data.DRI)
   -> "informatique") in
       let state =
@@ -892,7 +896,7 @@ dens.Public_data.dens_nb_math_and_math_info_course > 1) state in
            let () = Remanent_state.print_newline state in
            state
            end
-           | Public_data.DMA
+           | Public_data.DMA | Public_data.CIENS 
            | Public_data.ENS | Public_data.GEOSCIENCES
            | Public_data.PHYS | Public_data.CHIMIE | Public_data.DEC |  Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA
           | Public_data.DSA | Public_data.DSS | Public_data.ECLA

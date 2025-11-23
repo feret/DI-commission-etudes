@@ -271,6 +271,13 @@ let direction_etude_gsc=
                 Public_data.StringMap.empty
                 People.gsc_list
 
+ let direction_etude_ciens =
+              List.fold_left 
+                  (fun map elt -> 
+                      Public_data.StringMap.add elt.Public_data.direction_initiales elt map)
+                      Public_data.StringMap.empty 
+                      People.ciens_list 
+                    
 let direction_etude_ecla=
                               List.fold_left
                                 (fun map elt ->
@@ -404,7 +411,18 @@ let diplomes_phys =
             Public_data.StringUnivMap.empty
             [dens]
 
-
+ let diplomes_ciens =
+          List.fold_left
+            (fun map elt ->
+               Public_data.StringUnivMap.add
+                 (match elt with
+                  | Public_data.Diplome_ENS elt ->
+                    elt.Public_data.dens_key, Public_data.UENS
+                  | Public_data.Diplome_National elt ->
+                    elt.Public_data.dn_key,elt.Public_data.dn_univ_key)
+                 elt map)
+            Public_data.StringUnivMap.empty
+            [dens]
 let diplomes_eco =
   List.fold_left
     (fun map elt ->
@@ -532,6 +550,8 @@ let print_sous_commission
       People.dpt_hist, direction_etude_hist,diplomes_hist,People.footpage_string_hist,Color.red
   | Public_data.GEOG ->
   People.dpt_geog, direction_etude_geog,diplomes_geog,People.footpage_string_geog,Color.green
+  | Public_data.CIENS -> 
+  People.dpt_ciens, direction_etude_ciens,diplomes_ciens,People.footpage_string_ciens,Color.orange 
   | Public_data.DSS ->
   People.dpt_dss, direction_etude_dss,diplomes_dss,People.footpage_string_dss,Color.blue
   | Public_data.DSA ->
