@@ -200,7 +200,7 @@ let dpt_of_string x =
   | "etudes cognitives" | "sciences cognitives" | "dec" -> DEC
   | "arts" -> ARTS
   | "cultures et langues d'ailleurs" | "ecla" -> ECLA 
-  | "enjeux strategiques" -> CIENS 
+  | "enjeux strategiques" | "ciens" -> CIENS 
   | _ -> DI
 
 let string_of_specific x =
