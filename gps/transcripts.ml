@@ -7503,6 +7503,10 @@ let ects_6 =
     "INFO-M1-PROJRECH-S1";
     "INFO-M2-MPRI24-S1";
     "INFO-M2-MPRI230-S1";
+    "INFO-M2-MPRI21-S1"; 
+    "INFO-M2-MPRI22-S1"; 
+    "INFO-M2-MPRI26-S1"; 
+
   ]
 
 let ects_7 = 
@@ -7570,6 +7574,8 @@ let ects_5 =
       "INFO-M2-MPRI2122-S1";
       "INFO-M2-MPRI2171-S1";
       "INFO-M2-MPRI2182-S1"; 
+      "INFO-M2-MPRI2271-S1";
+      "INFO-M2-MPRI2361-S1";
 
     ]
   
