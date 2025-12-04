@@ -111,8 +111,8 @@ let convert entry state =
           end
   in
   let firstname = 
-    if entry.lastname = Some "DANILKIN" && entry.firstname = Some "Anna" 
-    then Some "Anton"
+    if entry.lastname = Some "DANILKIN" && entry.firstname = Some "Anton" 
+    then Some "Anna"
   else entry.firstname 
 in 
   state, {

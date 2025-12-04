@@ -57,8 +57,8 @@ let fetch_name l =
   let name, tail = fetch_name l [] in
   let lastname, firstname = Tools.decompose_name name in
   let firstname = 
-    if lastname = "DANILKIN" && firstname = "Anna" then 
-      "Anton"
+    if lastname = "DANILKIN" && firstname = "Anton" then 
+      "Anna"
     else firstname 
   in 
   tail, lastname, firstname
