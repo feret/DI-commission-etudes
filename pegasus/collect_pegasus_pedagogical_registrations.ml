@@ -509,7 +509,8 @@ let get_pegasus_pedagogical_registrations
                                   let entry = {entry with diploma = Some "ANECHINTER"} in 
                                   (*  let entry, (bset, state) = *)
                                      entry, (update_diploma "ANECHINTER - International Exchange" entry (bset,state))
-                                | ""::"ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science"::_ -> 
+                                | ""::"ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science"::_ 
+                                | ""::"ANM2INFPRI - Master in Computer science (Second year) -"::_-> 
                                   let entry = {entry with diploma = Some "ANM2INFMPRI"} in 
                                   (*  let entry, (bset, state) = *)
                                      entry, (update_diploma "ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science" entry (bset,state))
