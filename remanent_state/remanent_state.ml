@@ -1757,6 +1757,7 @@ module Collector_course_exceptions =
                           Exit 
                           t
           in 
+          let libelle = libelle' in 
           match Public_data.StringMap.find_opt libelle t.data.pedagogical_courses_dictionnary with 
           | None -> t, []
           | Some libelle -> 
