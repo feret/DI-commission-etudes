@@ -1750,7 +1750,7 @@ module Collector_course_exceptions =
         match course_opt with 
         | _::_ -> t, course_opt
         | [] -> 
-          let libelle = Tools.hash_libelle libelle in 
+          let libelle = Tools.hash_libelle2 libelle in 
           match Public_data.StringMap.find_opt libelle t.data.pedagogical_courses_dictionnary with 
           | None -> t, []
           | Some libelle -> 

@@ -428,7 +428,7 @@ let make_dictionary state =
   let pedagogical_courses_dictionnary = 
       Pegasus_courses.fold (fun course acc -> 
         let lib = course.Public_data.pegasus_libelle in 
-        let lib' = Tools.hash_libelle lib in 
+        let lib' = Tools.hash_libelle2 lib in 
         Public_data.StringMap.add lib' lib acc)
       map Public_data.StringMap.empty 
   in 

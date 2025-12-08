@@ -811,6 +811,12 @@ let hash_libelle s =
   let l = String.split_on_char ' ' s in 
   String.lowercase_ascii (String.concat "" l)  
 
+let hash_libelle2 s = 
+  let l = String.split_on_char '-' s in 
+  String.lowercase_ascii (String.concat "" l)  
+
+let hash_libelle2 s = hash_libelle2 (hash_libelle s)
+
 let remove_end ~suffix s = 
   let n = String.length suffix in 
   let m = String.length s in 
