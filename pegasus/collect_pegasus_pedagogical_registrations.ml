@@ -612,29 +612,10 @@ let get_pegasus_pedagogical_registrations
                                             | _ -> bset, state, tail
                             in
                             let rec aux_recap_inscriptions tail bset state = 
-                              let state = Remanent_state.warn 
-                                __POS__ "AUX RECAP STATE %i" Exit state 
-                              in 
-                              let state = 
-                                match tail with [] -> state 
-                                | h::_ -> 
-                                  List.fold_left 
-                                      (fun state l -> 
-                                        Remanent_state.warn 
-                                          __POS__ (Format.sprintf "AUX RECAP STATE %s" l) 
-                                          Exit state) state  h 
-                                    
-                              in 
                               match tail with [] -> bset, state, []
                               | ("Année"::"Diplôme"::""::""::"Statut"::""::"Tuteur.rice"::""::"Dpt secondaire"::_)::tail -> 
-                                let state = Remanent_state.warn 
-                                __POS__ "AUX RECAP STATE ANNEE" Exit state 
-                                in 
                                 aux_recap_inscriptions tail bset state 
-                              | (y::_::""::""::_::""::_::""::_::_)::tail ->
-                                let state = Remanent_state.warn 
-                                __POS__ (Format.sprintf "AUX RECAP STATE ANNEE %s" y) Exit state 
-                                in  
+                              | (_::_::""::""::_::""::_::""::_::_)::tail ->
                                 aux_recap_inscriptions tail bset state
                               | _ -> bset, state, tail 
                             in 
@@ -663,7 +644,6 @@ let get_pegasus_pedagogical_registrations
                                   let bset, state, tail = aux_snd tail bset state in
                                   aux tail bset state
                                 | ("RECAPITULATIF INSCRIPTIONS"::_)::tail -> 
-                                  let state = Remanent_state.warn __POS__ "RECAP" Exit state in 
                                   let bset, state, tail = aux_recap_inscriptions tail bset state 
                                    in aux tail bset state  
                                 | ("Diplôme suivi  pendant l’année universitaire en cours"::_)::tail  ->
@@ -676,7 +656,6 @@ let get_pegasus_pedagogical_registrations
                           | _ -> bset, state
                         in
                         let l = split list in
-                        let () = Format.printf "RECAPITULATIFS :%i @." (List.length l) in
                         let _, state = List.fold_left (fun (bset, state) recapitulatif ->
                             convert_recap recapitulatif bset state) (bset, state) l in
                         state
