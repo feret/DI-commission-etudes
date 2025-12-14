@@ -433,18 +433,6 @@ let update_course'  semester libelle teacher ects entry bset state  =
 let event_opt = Some (Profiling.Collect_pegasus_pedagogical_registrations)
 let compute_repository = Remanent_state.Collector_pedagogical_registrations.get_repository
 
-let is_academic_year y = 
-  let n = String.length y in 
-  String.length y > 4 && 
-  begin
-    let start = String.sub y 0 4 in 
-    let finish = String.sub y (n-4) 4 in 
-    try 
-      int_of_string start + 1 = int_of_string finish 
-    with 
-      | Failure s -> if s = "int_of_string" then false else raise (Failure s) 
-    end
-
 let get_pegasus_pedagogical_registrations
       ?repository
       ?prefix
@@ -643,7 +631,7 @@ let get_pegasus_pedagogical_registrations
                                 __POS__ "AUX RECAP STATE ANNEE" Exit state 
                                 in 
                                 aux_recap_inscriptions tail bset state 
-                              | (y::_)::tail when is_academic_year y ->
+                              | (y::_::""::""::_::""::_::""::_::_)::tail ->
                                 let state = Remanent_state.warn 
                                 __POS__ (Format.sprintf "AUX RECAP STATE ANNEE %s" y) Exit state 
                                 in  
