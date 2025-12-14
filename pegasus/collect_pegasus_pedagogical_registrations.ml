@@ -638,7 +638,7 @@ let get_pegasus_pedagogical_registrations
                                     
                               in 
                               match tail with [] -> bset, state, []
-                              | ("Année"::"Diplôme"::"Statut"::"Tuteur.rice"::"Dpt secondaire"::_)::tail -> 
+                              | ("Année"::"Diplôme"::""::""::"Statut"::""::"Tuteur.rice"::""::"Dpt secondaire"::_)::tail -> 
                                 let state = Remanent_state.warn 
                                 __POS__ "AUX RECAP STATE ANNEE" Exit state 
                                 in 
