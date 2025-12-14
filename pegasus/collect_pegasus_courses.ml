@@ -429,12 +429,6 @@ let make_dictionary state =
       Pegasus_courses.fold (fun course (state,acc) -> 
         let lib = course.Public_data.pegasus_libelle in 
         let lib' = Tools.hash_libelle2 lib in 
-          let state= Remanent_state.warn 
-                          __POS__ 
-                          (Format.sprintf "(%s) (%s)->(%s)" course.Public_data.pegasus_year lib lib')
-                          Exit 
-                          state 
-          in 
         state, Public_data.StringMap.add lib' lib acc)
       map (state, Public_data.StringMap.empty)
   in 
