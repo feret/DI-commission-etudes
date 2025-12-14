@@ -626,17 +626,17 @@ let get_pegasus_pedagogical_registrations
                             let rec aux_recap_inscriptions tail bset state = 
                               let state = Remanent_state.warn 
                                 __POS__ "AUX RECAP STATE" Exit state 
-                            in 
+                              in 
                               match tail with [] -> bset, state, []
                               | ("Année"::"Diplôme"::"Statut"::"Tuteur.rice"::"Dpt secondaire"::_)::tail -> 
                                 let state = Remanent_state.warn 
                                 __POS__ "AUX RECAP STATE ANNEE" Exit state 
-                            in 
+                                in 
                                 aux_recap_inscriptions tail bset state 
                               | (y::_)::tail when is_academic_year y ->
                                 let state = Remanent_state.warn 
                                 __POS__ (Format.sprintf "AUX RECAP STATE ANNEE %s" y) Exit state 
-                            in  
+                                in  
                                 aux_recap_inscriptions tail bset state
                               | _ -> bset, state, tail 
                             in 
@@ -656,6 +656,7 @@ let get_pegasus_pedagogical_registrations
                                   | _ -> bset, state, tail
                             in
                             let rec aux tail bset state =
+                              let state = Remanent_state.warn __POS__ (Format.sprintf "AUX %s" (match tail with [] | []::_ -> "" | (t::_)::_ -> t)) Exit state in 
                               match tail with
                                 | [] -> bset, state
                                 | ("Période"::_)::tail -> aux tail bset state  
