@@ -8170,7 +8170,7 @@ let deal_with_l3_m1_dma ~year ~situation ~who filtered_classes state =
         | [] ->
           let state =
             Remanent_state.warn __POS__
-            (Format.sprintf "No option checked for national diploma in student gates for (%s)" who)
+            (Format.sprintf "No option checked for national diploma in student gates for (%s) in %i" who year_i)
             Exit state
           in
           state, filtered_classes
