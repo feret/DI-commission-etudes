@@ -582,6 +582,7 @@ let get_pegasus_pedagogical_registrations
                         let convert_line line entry bset state =
                             match line with
                               | sem::""::libelle::""::""::""::""::teacher::""::""::ects::_
+                              | sem::""::libelle::""::""::""::teacher::""::""::ects::_
                               | sem::libelle::""::""::teacher::""::ects::_  ->   
                                   if libelle = "" 
                                   then bset, state 
