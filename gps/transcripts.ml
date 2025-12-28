@@ -3147,7 +3147,7 @@ let fill_gpscodelist ~year ~firstname ~lastname list situation state =
 
 let mpri = gen_master "M-MPRI" ["gps62263";"gps78782"] "INFO-M2-MPRI200-S2"
 let mva = gen_master "M-MVA" ["gps2228"] "INFO-M2-MVASTAGE-S2"
-let atiam = gen_master "M_ATIAM" ["UNDEXT0479"] 
+let atiam = gen_master "M_ATIAM" [] "UNDEXT0479" 
 let iasd = gen_master "M-IASD" ["gps76822";"gps78762"] "INFO-M2-IASD-STG-S2"
 let mash = gen_master "M-MASH" ["gps59622"] "INFO-M2-MASH-STG-S2"
 let msesi = gen_master_one "M-SESI" ["gps86653"] "NOWAY"
