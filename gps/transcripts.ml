@@ -3373,7 +3373,7 @@ let is_phys_course code_cours _year =
   Tools.substring "PHYS" code_cours
 
 let is_di_course code_cours _year =
-  Tools.substring "INFO" code_cours
+  Tools.substring "INFO" code_cours || Tools.substring "UNINF" code_cours 
 
 let dispatch_m ~lastname check_dpt origine situation code_cours year state
 =
