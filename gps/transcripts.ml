@@ -3147,6 +3147,7 @@ let fill_gpscodelist ~year ~firstname ~lastname list situation state =
 
 let mpri = gen_master "M-MPRI" ["gps62263";"gps78782"] "INFO-M2-MPRI200-S2"
 let mva = gen_master "M-MVA" ["gps2228"] "INFO-M2-MVASTAGE-S2"
+let atiam = gen_master "M_ATIAM" ["UNDEXT0479"] 
 let iasd = gen_master "M-IASD" ["gps76822";"gps78762"] "INFO-M2-IASD-STG-S2"
 let mash = gen_master "M-MASH" ["gps59622"] "INFO-M2-MASH-STG-S2"
 let msesi = gen_master_one "M-SESI" ["gps86653"] "NOWAY"
@@ -3380,6 +3381,8 @@ if mpri situation then
   state, (Some "MPRI","M2 du MPRI","M2 MPRI",dpt_info,dpt_info_en,false,true)
 else if mva situation then
   state, (Some "MVA","M2 du MVA","M2 MVA",dpt_info,dpt_info_en,false,true)
+else if atiam situation then 
+  state, (Some "ATIAM","M2 ATIAM","M2 ATIAM",dpt_info,dpt_info_en,false,true)
 else if iasd situation then
   state, (Some "IASD","M2 IASD","M2 IASD",dpt_info,dpt_info_en,false,true)
 else if mash situation then
@@ -3587,6 +3590,7 @@ let translate_diplome
           | "m" -> state, "M1 "^gerund, "M1 "^gerund_en,false
           | "mpri" -> state,"M2 du MPRI","M2 MPRI",true
           | "mva" -> state,"M2 du MVA","M2 MVA",true
+          | "atiam" -> state,"M2 ATIAM","M2 ATIAM",true 
           | "iasd" -> state,"M2 IASD","M2 IASD",true
           | "mash" -> state,"M2 MASH","M2 MASH",true
           | "sesi" -> state,"M1 SESI","M1 SESI",false
@@ -3807,7 +3811,7 @@ let color_of_dpt who pos state dpt origine =
   else if dpt = dpt_arts
   then state, Some Color.brown
   else if dpt = dpt_lila
-  then state, Some Color.blue
+  then state, Some Color.pink 
   else if dpt = dpt_chimie
   then state, Some Color.white
   else if dpt = dpt_geosciences
@@ -5833,7 +5837,7 @@ let program
     | Some ("leco" | "LEco") ->
       state, Some Color.pink
     | Some ("mphys") -> state, Some Color.duckblue
-    | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" | "lmfi" | "PHILOSorbonne" | "sesi" | "sesi2" | "alea") ->
+    | Some ("m" | "l" | "m1" | "l3" | "M" | "L" | "M1" | "L3" | "mva" | "mpri" | "iasd" | "mash" | "interaction" | "lmfi" | "PHILOSorbonne" | "sesi" | "sesi2" | "alea" | "atiam") ->
       if year < promo then state, Some Color.white
       else
         color_of_dpt
@@ -7506,7 +7510,11 @@ let ects_6 =
     "INFO-M2-MPRI21-S1"; 
     "INFO-M2-MPRI22-S1"; 
     "INFO-M2-MPRI26-S1"; 
-
+    "UNDEXT0478";
+    "UNDEXT047b";
+    "UNDEXT047c";
+    "UNDEXT047a";
+    "UNDEXT0479";
   ]
 
 let ects_7 = 
@@ -7554,7 +7562,7 @@ let ects_5 =
     "INFO-M2-MVA-P2D5-S1"; 
     "INFO-M2-MVA-P2D6-S1"; 
     "INFO-M2-MVA-P2D8-S1"; 
-    "INFO-M2-MVA-P1M1-S1"; 
+    "INFO-M2-MVA-P1M1-S1";
     "INFO-M2-MVA-P1M8-S1";
     "INFO-M2-MVA-P2D4-S1";
     "INFO-M2-MVA-P2D9-S1"; 
@@ -7562,6 +7570,12 @@ let ects_5 =
     "INFO-M2-MVA-P2M4-S1";
     "INFO-M2-MVA-P2M8-S1"; 
     "INFO-M2-MVA-XX-S1"; 
+    "INFO-M2-MVA-P1MA-S1";
+    "INFO-M2-MVA-P1M2-S1";
+    "UNINF1-219";
+    "UNINF1-221";
+    "UNINF1-222";
+    "UNINF1-220";
     "UNDEXT01a0"
   ]
 
@@ -7579,7 +7593,7 @@ let ects_5 =
       "INFO-M2-MPRI219-S1"; 
       "INFO-M2-MPRI240-S1"; 
       "INFO-M2-MPRI216-S1";
-
+      "UNDEXT047d";
     ]
   
 let ects_12 =
@@ -7626,6 +7640,8 @@ let ects_24 =
     "DMA-AA-stage4-A";
 ]
 
+let ects_27 = 
+  ["UNDEXT047e";]
 let ects_30 =
   ["INFO-M1-STAGEE-S2";
    "INFO-M1-STAGEFE-S2";
@@ -7646,6 +7662,7 @@ let code_map = fill ects_9 9. code_map
 let code_map = fill ects_12 12. code_map
 let code_map = fill ects_20 20. code_map 
 let code_map = fill ects_24 24. code_map
+let code_map = fill ects_27 27. code_map
 let code_map = fill ects_30 30. code_map
 let ects_of_code_cours code_cours =
     match code_cours with
