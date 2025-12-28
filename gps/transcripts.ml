@@ -4081,14 +4081,6 @@ let add_dens_ok state year course ects course_list map skip_dens =
         (total, potential,mandatory,math,math_math_info) map
     in
     let state, map = add_dens_requirements state year course map in
-      let state = 
-    Remanent_state.warn 
-        __POS__ 
-        (Format.sprintf "DIP DENS (%s) %s" year (match course.cours_libelle with None -> "" | Some a -> a))
-        Exit 
-        state 
-  in 
-
     state,
     (if skip_dens then course_list else {course_list with Public_data.dens  = (translate_course_dens course year)::course_list.Public_data.dens}), map
 
@@ -4174,13 +4166,6 @@ let add_mean_ok is_m2 state key course course_list year map dens =
   let state, dens =
     add_dens_requirements state year course dens
   in
-  let state = 
-    Remanent_state.warn 
-        __POS__ 
-        (Format.sprintf "DIP NAT (%s) %s" year (match course.cours_libelle with None -> "" | Some a -> a))
-        Exit 
-        state 
-  in 
   let course_list =
       {course_list with Public_data.diplomes_nationaux = (translate_course_nat course year)::course_list.Public_data.diplomes_nationaux }
   in
@@ -9938,7 +9923,7 @@ let export_transcript
           Public_data.dens_cours_discipline_principale=Public_data.empty_repartition_diplomes;
           Public_data.dens_cours_hors_disciplines_principale=Public_data.empty_repartition_diplomes; 
           Public_data.dens_activite_promotion=[];
-          Public_data.dens_cours_langue=[];
+          Public_data.dens_cours_langue=Public_data.empty_repartition_diplomes;
           Public_data.dens_cours_mineure=Public_data.StringMap.empty;
           Public_data.dens_cours_majeure=Public_data.StringMap.empty;
           Public_data.dens_cours_activite=[];

@@ -1157,7 +1157,7 @@ let all_notes_string =
       dens_cours_hors_disciplines_principale: cours_supplement list repartition_diplomes;
       dens_cours_par_dpt: cours_supplement list repartition_diplomes StringMap.t;
       dens_cours_activite: cours_supplement list;
-      dens_cours_langue: cours_supplement list;
+      dens_cours_langue: cours_supplement list repartition_diplomes;
       dens_cours_mineure: cours_supplement list repartition_diplomes StringMap.t;
       dens_cours_majeure: cours_supplement list repartition_diplomes StringMap.t;
       dens_activite_a_trier: experience_supplement list;

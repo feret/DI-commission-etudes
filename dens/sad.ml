@@ -503,7 +503,7 @@ let prompt_sad dens state =
     let state =
         dump_course_list
             "Cours de langues étrangères et certifications en langues"
-            (lift_dens dens.Public_data.dens_cours_langue) state
+            dens.Public_data.dens_cours_langue state
     in
     let state = dump_activite_list "Autre" dens.Public_data.dens_activite_autre state in
     let state = dump_course_list "Autres (vie universitaire, initiatives citoyennes, sport, etc.)" (lift_dens dens.Public_data.dens_cours_activite) state

@@ -306,8 +306,8 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
       match kind with
       | Ecla ->
       let dens_cours_langue = dens.Public_data.dens_cours_langue in
-      let list = dens_cours_langue in
-      let dens_cours_langue = {course with Public_data.supplement_discipline="Langues"}::list in
+      let list = get dens_cours_langue in
+      let dens_cours_langue = store ({course with Public_data.supplement_discipline="Langues"}::list) dens_cours_langue in
       let dens = {dens with Public_data.dens_cours_langue} in
       state, dens
       | Activite ->
@@ -759,7 +759,7 @@ let dump_dens dens state =
               liste (state, total_init)
     in*)
     let state, total_ecla =
-        dump_list
+        dump_repartition 
           ~key:"Langues"
           dens.Public_data.dens_cours_langue (state,total_init)
      in
