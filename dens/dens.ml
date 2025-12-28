@@ -150,9 +150,9 @@ let fetch_kind_helisa a state =
     let p = String.sub a 0 5 in
     Public_data.StringMap.find_opt p map', state 
 
-let fetch_kind_gps = lift fetch_kind_gps 
-let fetch_kind_exception = lift fetch_kind_exception 
-let fetch_kind_helisa = lift fetch_kind_helisa 
+let fetch_kind_gps = lift fetch_kind_gps "GPS"
+let fetch_kind_exception = lift fetch_kind_exception "EXCEPTION" 
+let fetch_kind_helisa = lift  fetch_kind_helisa "HELISA"
 
 let l = fetch_kind_gps::fetch_kind_exception::fetch_kind_helisa::[]
 
@@ -210,13 +210,13 @@ let kind_of_course state code extra =
   then state, ("", Dummy)
   else
     match
-      fetch_kind code
+      fetch_kind code state 
     with
-      | None ->
+      | None, state  ->
         Remanent_state.warn
           __POS__ (Format.sprintf "Ill-formed GPS code %s" code) Exit state,
         ("", Missing)
-      | Some a -> state, a
+      | Some a,state  -> state, a
 
 
 
