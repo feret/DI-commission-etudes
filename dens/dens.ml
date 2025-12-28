@@ -687,10 +687,35 @@ let dump_repartition ?key repartition (state, total) =
       let (j,j',fcts,fcts') = total in
       state, (j,j'+i,fcts,ects+.fcts')
 
+let dump_list_gen_list ?key get list (state,total) =
+    let i,ects =
+      List.fold_left 
+         (List.fold_left
+            (fun (i,ects) course ->
+              (i+1,ects+.(get course))))
+        (0,0.) list
+    in
+    if i = 0 && ects = 0. then state, total
+    else
+      let () = Remanent_state.open_row state in
+      let () =
+        match key with None -> ()
+                    | Some key ->
+        Remanent_state.print_cell key state
+      in
+      let () = Remanent_state.print_cell (string_of_float 0.) state in
+      let () = Remanent_state.print_cell (string_of_int 0) state in
+      let () = Remanent_state.print_cell (string_of_float ects) state in
+      let () = Remanent_state.print_cell (string_of_int i) state in
+      let () = Remanent_state.close_row state in
+      let (j,j',fcts,fcts') = total in
+      state, (j,j'+i,fcts,ects+.fcts')
+
       let dump_list ?key = dump_list_gen ?key (fun course -> course.Public_data.supplement_ects)
 
       let dump_list_exp ?key = dump_list_gen ?key (fun course -> course.Public_data.activite_ects)
 
+      let dump_list_exp_list ?key = dump_list_gen_list ?key (fun course -> course.Public_data.activite_ects)
 
 let add_total l =
     List.fold_left
@@ -791,12 +816,24 @@ let dump_dens dens state =
         dump_list
           ~key:"Responsabilités"
           dens.Public_data.dens_cours_activite (state,total_init) in
+     let state, total_exp = 
+        dump_list_exp_list 
+          ~key:"Expériences" 
+          [dens.Public_data.dens_activite_autre ;
+           dens.Public_data.dens_activite_promotion ; 
+           dens.Public_data.dens_activite_transdisciplinaire ; 
+           dens.Public_data.dens_activite_ouverture ; 
+           dens.Public_data.dens_activite_internationale; 
+           dens.Public_data.dens_activite_recherche; 
+           dens.Public_data.dens_activite_a_trier ] 
+           (state, total_init)
+     in 
      let state, total_to_sort =
         dump_repartition
           ~key:"À trier"
           dens.Public_data.dens_cours_a_trier (state,total_init)
       in
-     let total = add_total [total_to_sort; total_resp; total_ecla; total_other;  total_principale(*; total_exp*)] in
+     let total = add_total [total_to_sort; total_resp; total_ecla; total_other;  total_principale; total_exp] in
       let () = Remanent_state.fprintf state "\\hline" in
       let () = Remanent_state.open_row state in
       let (i,i',ects,ects') = total in
