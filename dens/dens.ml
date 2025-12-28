@@ -123,36 +123,50 @@ let map,map' =
         all
 
 
-let fetch_kind_gps a =
+let fetch_kind_gps a state =
   match String.split_on_char '-' a with
-    | t::_ -> Public_data.StringMap.find_opt t map
-    | [] -> None
+    | t::_ -> Public_data.StringMap.find_opt t map, state 
+    | [] -> None, state 
 
-let fetch_kind_exception a =
+let lift fetch lbl a state = 
+  let output, state = fetch a state in 
+  let state = 
+    match output with 
+    | None -> 
+      Remanent_state.warn __POS__ (Format.sprintf "%s %s -> Fail" lbl a) Exit state 
+    | Some x -> 
+      Remanent_state.warn __POS__ (Format.sprintf "%s %s -> Success(%s)" lbl a (fst x)) Exit state 
+    in output, state  
+
+let fetch_kind_exception a state =
   if List.mem a liste_dec
-  then Public_data.StringMap.find_opt "DEC" map
-  else None
+  then Public_data.StringMap.find_opt "DEC" map, state 
+  else None, state 
 
-let fetch_kind_helisa a =
+let fetch_kind_helisa a state =
   if String.length a < 5
-  then None
+  then None, state 
   else
     let p = String.sub a 0 5 in
-    Public_data.StringMap.find_opt p map'
+    Public_data.StringMap.find_opt p map', state 
+
+let fetch_kind_gps = lift fetch_kind_gps 
+let fetch_kind_exception = lift fetch_kind_exception 
+let fetch_kind_helisa = lift fetch_kind_helisa 
 
 let l = fetch_kind_gps::fetch_kind_exception::fetch_kind_helisa::[]
 
-let fetch_kind a =
-  let rec aux l =
+let fetch_kind a state =
+  let rec aux state l =
       match l with
-        | [] -> None
+        | [] -> None, state 
         | fetch::tail ->
           begin
-            match fetch a with
-            | Some x -> Some x
-            | None -> aux tail
+            match fetch a state with
+            | Some x, state  -> Some x, state 
+            | None, state  -> aux state tail
           end
-  in aux l
+  in aux state l
 
 let translate_main_dpt x =
   fst (match x with
@@ -274,7 +288,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
       end
     in
     let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %s %s %s" 
-    year firstname lastname codegps code) Exit state in 
+    year firstname lastname codegps code ) Exit state in 
     if code = main_dpt then
       let state, (key,_kind) =
           kind_of_course state code course.Public_data.supplement_extra
