@@ -128,15 +128,16 @@ let fetch_kind_gps a state =
     | t::_ -> Public_data.StringMap.find_opt t map, state 
     | [] -> None, state 
 
-let lift fetch lbl a state = 
+let lift fetch _lbl a state = 
   let output, state = fetch a state in 
-  let state = 
+  (*let state = 
     match output with 
     | None -> 
       Remanent_state.warn __POS__ (Format.sprintf "%s %s -> Fail" lbl a) Exit state 
     | Some x -> 
       Remanent_state.warn __POS__ (Format.sprintf "%s %s -> Success(%s)" lbl a (fst x)) Exit state 
-    in output, state  
+    in *)
+    output, state  
 
 let fetch_kind_exception a state =
   if List.mem a liste_dec
@@ -287,8 +288,6 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
                 Exit state, ""
       end
     in
-        let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %s %s %s" 
-    year firstname lastname codegps code ) Exit state in 
     let b, state = 
       if code = main_dpt then true, state
       else 
