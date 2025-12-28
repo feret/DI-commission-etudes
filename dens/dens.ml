@@ -287,9 +287,18 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
                 Exit state, ""
       end
     in
-    let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %s %s %s" 
+        let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %s %s %s" 
     year firstname lastname codegps code ) Exit state in 
-    if code = main_dpt then
+    let b, state = 
+      if code = main_dpt then true, state
+      else 
+        let state, (key,_kind) =
+          kind_of_course state code course.Public_data.supplement_extra
+        in
+        key=main_dpt, state 
+    in 
+    if b 
+    then
       let state, (key,_kind) =
           kind_of_course state code course.Public_data.supplement_extra
       in
