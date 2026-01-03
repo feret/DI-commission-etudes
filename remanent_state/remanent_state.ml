@@ -286,9 +286,9 @@ let parameters =
     load_gps_data = false ;
     log_pegasus_entries = false;
     list_exp_not_in_transcript = ["UNEXPA-08";"UNEXPA-37"]; 
-    list_exp_blacklist = ["UNEXPA-08"] ; 
+    list_exp_blacklist = [] ; 
     list_exp_internationale = 
-    List.map (fun x -> "UNEXPA-"^x) ["06";"07";"09";"10"];
+    List.map (fun x -> "UNEXPA-"^x) ["06";"07";"08";"09";"10"];
     list_exp_ouverture = 
     List.map (fun x -> "UNEXPA-"^x) ["01";"02";"03";"04";"05";"75";"76";"77";"78"];
     list_exp_promotion = 
