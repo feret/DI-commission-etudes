@@ -1333,7 +1333,8 @@ let store_cours  =
 
     let is_stage cours =
       begin
-        List.mem cours.code_cours [Some "UNEXPA-39";Some "UNEXPA-34"]
+        List.mem cours.code_cours 
+        [Some "UNEXPA-39";Some "UNEXPA-34";Some "UNEXPA-08";Some "UNEXPA-37"; Some "UNEXPA-38"]
       end
       ||
       begin
@@ -7496,7 +7497,7 @@ let ects_45 =
 let ects_6 =
   [
     "DMA-L3-GL3-S1";
-  "DMA-L3-GL2-S1";
+    "DMA-L3-GL2-S1";
     "DMA-L3-GL1";
     "DMA-M1-E01-S1";
     "DMA-M1-D12cours-S2";
