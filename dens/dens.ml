@@ -726,8 +726,7 @@ let add_total l =
 let display_exp state label l =
     let n = List.length l in
     if n=0 then ()
-    else (Remanent_state.fprintf state "%s (%i)," label n; 
-          List.iter (fun x -> Remanent_state.fprintf state "%s-%s(%s)," x.Public_data.activite_intitule x.Public_data.activite_code  x.Public_data.activite_annee) l)
+    else (Remanent_state.fprintf state "%s (%i)," label n)
 
 let count_exp dens =
     List.fold_left
