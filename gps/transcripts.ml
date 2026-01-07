@@ -1360,6 +1360,12 @@ let store_cours  =
           && not (Tools.substring "déjà" a || Tools.substring "deja" a || Tools.substring "dej" a || Tools.substring "déj" a)
       end
 
+      let is_exp cours = 
+        match cours.code_cours with 
+        | None -> false 
+        | Some s -> 
+        String.length s > 4 && String.sub s 0 5 = "UNEXP"
+
   let not_stages =
     [
     "GSC-L3-DENS10-S2"; (*Stage de météorologie*)
@@ -4114,7 +4120,8 @@ let add_dens state year compensation unvalidated force_validation ects course co
       | None -> state, course_list, add_dens_potential year ects map
 
 let add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens =
-    if (course.ects = None || course.ects = Some 0.) && is_stage course then
+    if ((course.ects = None || course.ects = Some 0.) && is_stage course) 
+       || is_exp course then
        state, course_list, map
     else add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens
 
