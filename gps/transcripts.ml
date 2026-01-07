@@ -4121,7 +4121,7 @@ let add_dens state year compensation unvalidated force_validation ects course co
 
 let add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens =
     if ((course.ects = None || course.ects = Some 0.) && is_stage course) 
-       || is_exp course then
+       && not (is_exp course) then
        state, course_list, map
     else add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens
 
