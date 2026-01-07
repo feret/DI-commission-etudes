@@ -145,6 +145,7 @@ module StringMap: Map.S with type key = string
 module StringSet: Set.S with type elt = string
 module StringOptMap: Map.S with type key = string option
 module StringOptStringOptMap: Map.S with type key = string option * string option
+module StringStringSet: Set.S with type elt = string * string 
 module StringUnivMap: Map.S with type key = string * universite
 module DptMap: Map.S with type key = main_dpt
 module DptOptMap : Map.S with type key = main_dpt option

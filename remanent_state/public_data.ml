@@ -45,7 +45,6 @@ module StringMap =
 
             end
             )
-
           let simplify s =
             Special_char.lowercase
               (Special_char.correct_string_txt
@@ -56,6 +55,16 @@ module StringMap =
               | "bouverot - dupuis" -> "bouverot-dupuis"
               |  x -> x
         end
+        )
+
+module StringStringSet =
+      Set.Make 
+        (
+        struct
+            type t = string * string 
+              let compare = compare
+
+            end
         )
 
 module StringOptMap =

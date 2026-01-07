@@ -741,6 +741,27 @@ let count_exp dens =
         dens.Public_data.dens_activite_autre
       ]
 
+let key act = act.Public_data.activite_code, act.Public_data.activite_annee 
+let simplify_exp_list l = 
+  let s = Public_data.StringStringSet.empty in 
+  let _,l = 
+    List.fold_left 
+      (fun (s,l) a -> 
+        let s' = Public_data.StringStringSet.add (key a) s in 
+        if s==s' then (s,l) else (s',a::l)
+        )      
+    (s,[]) l 
+  in l 
+
+let simplify_exp dens state = 
+    state, 
+      {dens with 
+          Public_data.dens_activite_ouverture = simplify_exp_list dens.Public_data.dens_activite_ouverture ; 
+          Public_data.dens_activite_recherche = simplify_exp_list dens.Public_data.dens_activite_recherche ; 
+          Public_data.dens_activite_internationale = simplify_exp_list dens.Public_data.dens_activite_internationale ; 
+          Public_data.dens_activite_transdisciplinaire = simplify_exp_list dens.Public_data.dens_activite_transdisciplinaire ; 
+          Public_data.dens_activite_autre =  simplify_exp_list dens.Public_data.dens_activite_autre ; 
+            }
 let print_check state =
     let () = Remanent_state.fprintf state "\\textcolor{darkgreen}{\\CheckmarkBold}" in
     state
@@ -754,6 +775,7 @@ let print_status bool state =
 
     let _ = dump_list_exp 
 let dump_dens dens state =
+    let state, dens = simplify_exp dens state in 
     let size = [None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None] in
     let state, main_dpt = Remanent_state.get_main_dpt state in
