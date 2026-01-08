@@ -7164,7 +7164,8 @@ let program
                     in
                     let stage_entry =
                         {
-                          Public_data.activite_annee = annee ;Public_data.activite_activite=activite_activite;
+                          Public_data.activite_annee = annee ;
+                          Public_data.activite_activite=activite_activite;
                           Public_data.activite_activite_fr=Some activite_activite;
                           Public_data.activite_activite_en=Some activite_activite_en;
                           Public_data.activite_intitule=(match stage.sujet with None -> "" | Some l -> l) ;
