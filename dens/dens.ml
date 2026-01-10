@@ -741,25 +741,32 @@ let count_exp dens =
       ]
 
 let key act = act.Public_data.activite_code, act.Public_data.activite_annee 
-let simplify_exp_list l = 
+let simplify_exp_list state l = 
   let s = Public_data.StringStringSet.empty in 
   let _,l = 
     List.fold_left 
       (fun (s,l) a -> 
         let s' = Public_data.StringStringSet.add (key a) s in 
+        let () = Remanent_state.fprintf state "(%s,%s,%f)" (fst (key a)) (snd (key a)) (a.Public_data.activite_ects) in 
         if s==s' then (s,l) else (s',a::l)
         )      
     (s,[]) l 
-  in l 
+  in state, l 
 
 let simplify_exp dens state = 
+    let state, dens_activite_ouverture = simplify_exp_list state dens.Public_data.dens_activite_ouverture in 
+     let state, dens_activite_recherche = simplify_exp_list state dens.Public_data.dens_activite_recherche in 
+     let state, dens_activite_internationale = simplify_exp_list state dens.Public_data.dens_activite_internationale in 
+     let state, dens_activite_transdisciplinaire = simplify_exp_list state dens.Public_data.dens_activite_transdisciplinaire  in 
+     let state, dens_activite_autre =  simplify_exp_list state dens.Public_data.dens_activite_autre in
+     
     state, 
       {dens with 
-          Public_data.dens_activite_ouverture = simplify_exp_list dens.Public_data.dens_activite_ouverture ; 
-          Public_data.dens_activite_recherche = simplify_exp_list dens.Public_data.dens_activite_recherche ; 
-          Public_data.dens_activite_internationale = simplify_exp_list dens.Public_data.dens_activite_internationale ; 
-          Public_data.dens_activite_transdisciplinaire = simplify_exp_list dens.Public_data.dens_activite_transdisciplinaire ; 
-          Public_data.dens_activite_autre =  simplify_exp_list dens.Public_data.dens_activite_autre ; 
+          Public_data.dens_activite_ouverture  ; 
+          Public_data.dens_activite_recherche  ; 
+          Public_data.dens_activite_internationale  ; 
+          Public_data.dens_activite_transdisciplinaire  ; 
+          Public_data.dens_activite_autre  ; 
             }
 let print_check state =
     let () = Remanent_state.fprintf state "\\textcolor{darkgreen}{\\CheckmarkBold}" in
