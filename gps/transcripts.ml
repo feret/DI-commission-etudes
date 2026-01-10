@@ -4120,7 +4120,7 @@ let add_dens state year compensation unvalidated force_validation ects course co
       | None -> state, course_list, add_dens_potential year ects map
 
 let add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens =
-    let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %f %f" (match course.code_cours with None -> "None" | Soma a -> a) year ects (match course.ects with None -> 0. | Some f -> f)) Exit state in 
+    let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %f %f" (match course.code_cours with None -> "None" | Some a -> a) year (match ects with Some a -> a | None -> 0.) (match course.ects with None -> 0. | Some f -> f)) Exit state in 
     if ((course.ects = None || course.ects = Some 0.) && is_stage course) 
        && not (is_exp course) then
        state, course_list, map
