@@ -150,14 +150,6 @@ let add unify pos c (bset,state) =
     then 
       bset,state
     else 
-      let state = 
-        if elt.Public_data.pe_lastname="BOYER" || elt.Public_data.pe_lastname="boyer"
-        then 
-         Remanent_state.warn __POS__ (Format.sprintf "%s %s %s %s %s %s" elt.Public_data.pe_firstname
-        elt.Public_data.pe_lastname elt.Public_data.pe_year elt.Public_data.pe_libelle elt.Public_data.pe_code_helisa
-        (match elt.Public_data.pe_code_gps with None -> "none" | Some x -> x)) Exit state 
-        else state 
-      in 
       Public_data.PESET.add elt bset, 
       Remanent_state.Collector_pedagogical_registrations.add unify pos [elt] state) 
     (bset,state) c 
@@ -491,13 +483,6 @@ let get_pegasus_pedagogical_registrations
                           | h::t ->
                             let entry, (bset, state) =
                               begin
-                                let state = 
-                                  if entry.lastname = Some "LABBE" then 
-                                    List.fold_left 
-                                      (fun state a -> Remanent_state.warn __POS__ a Exit state)
-                                      state h 
-                                  else state 
-                                in 
                                 match h with
                                 | ""::"LEARNING AGREEMENT"::_ -> 
                                      entry, (bset, state)
@@ -636,7 +621,6 @@ let get_pegasus_pedagogical_registrations
                                   | _ -> bset, state, tail
                             in
                             let rec aux tail bset state =
-                              let state = Remanent_state.warn __POS__ (Format.sprintf "AUX %s" (match tail with [] | []::_ -> "" | (t::_)::_ -> t)) Exit state in 
                               match tail with
                                 | [] -> bset, state
                                 | ("Période"::_)::tail -> aux tail bset state  
