@@ -4069,8 +4069,6 @@ let add_dens_requirements state year course map =
 
 
 let add_dens_ok state year course ects course_list map skip_dens =
-   let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %f %f" (match course.code_cours with None -> "None" | Some a -> a) year (match ects with Some a -> a | None -> 0.) (match course.ects with None -> 0. | Some f -> f)) Exit state in 
- 
   match ects with
     | None -> state,
             (if skip_dens then course_list else
@@ -4090,8 +4088,6 @@ let add_dens_ok state year course ects course_list map skip_dens =
         (total, potential,mandatory,math,math_math_info) map
     in
     let state, map = add_dens_requirements state year course map in
-     let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %f %f %s" (match course.code_cours with None -> "None" | Some a -> a) year ects  (match course.ects with None -> 0. | Some f -> f) (if skip_dens then "SKIP" else "DO NOT SKIP")) Exit state in 
- 
     state,
     (if skip_dens then course_list else {course_list with Public_data.dens  = (translate_course_dens course year)::course_list.Public_data.dens}), map
 
@@ -4111,7 +4107,6 @@ let add_dens_potential year ects map =
       map
 
 let add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens =
-  let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %f %f" (match course.code_cours with None -> "None" | Some a -> a) year (match ects with Some a -> a | None -> 0.) (match course.ects with None -> 0. | Some f -> f)) Exit state in 
   match compensation, unvalidated, course.note with
   | Some _, _, _-> add_dens_ok state year course ects course_list map skip_dens
   | _, true, _ -> state, course_list, map
@@ -4125,7 +4120,6 @@ let add_dens state year compensation unvalidated force_validation ects course co
       | None -> state, course_list, add_dens_potential year ects map
 
 let add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens =
-    let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %f %f" (match course.code_cours with None -> "None" | Some a -> a) year (match ects with Some a -> a | None -> 0.) (match course.ects with None -> 0. | Some f -> f)) Exit state in 
     if ((course.ects = None || course.ects = Some 0.) && is_stage course) 
        && not (is_exp course) then
        state, course_list, map

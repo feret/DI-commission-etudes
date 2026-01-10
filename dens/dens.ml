@@ -747,7 +747,6 @@ let simplify_exp_list state l =
     List.fold_left 
       (fun (s,l) a -> 
         let s' = Public_data.StringStringSet.add (key a) s in 
-        let () = Remanent_state.fprintf state "(%s,%s,%f)" (fst (key a)) (snd (key a)) (a.Public_data.activite_ects) in 
         if s==s' then (s,l) else (s',a::l)
         )      
     (s,[]) l 
