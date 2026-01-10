@@ -6330,7 +6330,7 @@ let program
                   state,
                   (Some
                     (Format.sprintf "%s%s%s" libelle sujet directeur),
-                  Some stage_entry)::acc, skip_dens || stage_with_ects
+                  Some stage_entry)::acc, skip_dens || (stage_with_ects && not (is_exp cours))
                   else state,acc,skip_dens)
                 (state,[],false) stage_list
               end
