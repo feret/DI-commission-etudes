@@ -6388,7 +6388,9 @@ let program
             && is_exp cours 
           then cours 
           else    
-            {cours with ects} in
+            {cours with ects} 
+        in
+        let ects = cours.ects in 
         let () =
           Remanent_state.open_row ~macro state
         in
