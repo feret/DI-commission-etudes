@@ -6381,15 +6381,14 @@ let program
                 state
             in a, b, c, cours.ects, false
         in
-        let state = 
-          Remanent_state.warn 
-              __POS__ 
-              (Format.sprintf "%s %s %f %f" 
-                  (match cours.code_cours with None -> "none" | Some a -> a) 
-                  (match cours.cours_annee with None -> "none" | Some a -> a) 
-                  (match cours.ects with None -> 0.01 | Some a -> a)
-                  (match ects with None -> 0.01 | Some a -> a)) Exit state in 
-        let cours = {cours with ects} in
+       
+        let cours = 
+          if (match cours.cours_annee with None -> false | Some s -> 
+            try int_of_string s > 2022 with _ -> false) 
+            && is_exp cours 
+          then cours 
+          else    
+            {cours with ects} in
         let () =
           Remanent_state.open_row ~macro state
         in
