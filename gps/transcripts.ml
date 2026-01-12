@@ -4141,7 +4141,7 @@ let add_dens state year compensation unvalidated force_validation ects course co
       let list = 
         match course.code_cours  with 
         | None -> []
-        | Some code -> Activite.free_exp_list code 
+        | Some code -> Activite.free_exp_list code year
       in 
       List.fold_left 
         (fun (state, course_list, map) a -> 
