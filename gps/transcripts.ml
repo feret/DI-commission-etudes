@@ -6425,7 +6425,7 @@ let program
         let cours = 
           if (((match cours.cours_annee with None -> false | Some s -> 
             try int_of_string s > 2022 with _ -> false))
-            && is_exp cours) || (match cours.ects with None -> false | Some _ -> true) 
+            && is_exp cours) && (match cours.ects with None -> false | Some _ -> true) 
           then cours 
           else    
             {cours with ects} 
