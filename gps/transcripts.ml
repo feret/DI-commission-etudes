@@ -4125,6 +4125,34 @@ let add_dens state year compensation unvalidated force_validation ects course co
        state, course_list, map
     else add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens
 
+let add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens =
+   let state, course_list, map = add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens in 
+  let state, b = 
+    try 
+      state, int_of_string year < 2023 
+    with _ -> 
+      Remanent_state.warn 
+        __POS__ 
+        (Format.sprintf "Wrong format for year (%s)" year) 
+        Exit 
+        state, false 
+    in 
+    if b then 
+      let list = 
+        match course.code_cours  with 
+        | None -> []
+        | Some code -> Activite.free_exp_list code 
+      in 
+      List.fold_left 
+        (fun (state, course_list, map) a -> 
+          state, {course_list with Public_data.dens  = a::course_list.Public_data.dens}, map)          
+        (state, course_list, map)
+        list 
+    else 
+        state, course_list, map 
+
+
+
 let add_mean_empty is_m2 state ~dens ~natt ~decision ~exception_cursus key year  map =
   let is_m2,ects,old,y =
     match StringOptMap.find_opt key (fst map)
