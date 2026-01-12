@@ -6367,6 +6367,15 @@ let program
         let state,nl,mean, dens, natt, cours_list, stage_list  =
           List.fold_left
             (fun (state,nl,mean, dens, natt, cours_list, stage_list) (libelle,stage_opt) ->
+            let state = 
+                match stage_opt with 
+                | Some a -> 
+                  Remanent_state.warn __POS__ (Format.sprintf "%s %s %f" 
+                  a.Public_data.activite_code 
+                  a.Public_data.activite_annee 
+                  a.Public_data.activite_ects) Exit state 
+                  | None -> state 
+                in 
             let state, libelle, libelle_en, ects, force_validation =
             
             if is_stage cours then
