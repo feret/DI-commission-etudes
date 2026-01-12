@@ -6423,8 +6423,8 @@ let program
        (match cours.ects with None -> 0.01 | Some a -> a) 
        (match ects with None -> 0.01 | Some a -> a) ) Exit state in 
         let cours = 
-          if (match cours.cours_annee with None -> false | Some s -> 
-            try int_of_string s > 2022 with _ -> false) 
+          if ((match cours.cours_annee with None -> false | Some s -> 
+            try int_of_string s > 2022 with _ -> false) || (match cours.ects with None -> true | Some _ -> false))
             && is_exp cours 
           then cours 
           else    
