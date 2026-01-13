@@ -6274,6 +6274,7 @@ let program
                           match stage.stage_credits with None -> 0. | Some f ->f;
                       }
                   in
+                  let state = Remanent_state.warn __POS__ (Format.sprintf "stage entry %s (%s) %f / %f" stage_entry.Public_data.activite_code stage_entry.Public_data.activite_annee stage_entry.Public_data.activite_ects (match cours.ects with None -> 0.01 | Some f -> f)) Exit state in 
                   let stage_with_ects =
                       match stage.stage_credits with
                         | None -> false
