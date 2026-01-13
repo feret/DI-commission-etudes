@@ -5980,7 +5980,13 @@ let program
                       in 
                 match stage_opt with
                 | [] -> state, cours, 1
-                | stage_list -> state, (if List.for_all (fun c -> match c.stage_credits with None | Some 0. -> true | Some _ -> false) stage_opt then cours else {cours with ects = None}), List.length stage_list
+                | stage_list -> state,
+                                begin 
+                                 (if List.for_all (fun c ->
+                       cours.ects = c.stage_credits ||  
+                     (match c.stage_credits with None | Some 0. -> true | Some _ -> false )) stage_opt then cours else {cours with ects = None})
+                                end,
+                                List.length stage_list
                 end
             else state, cours, 1
         in
