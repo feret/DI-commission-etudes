@@ -5930,6 +5930,13 @@ let program
       (fun
         (state, acc, length)
         (a,b,c,d,cours) ->
+        let state = 
+          Remanent_state.warn __POS__ (Format.sprintf "COURS: %s (%s) %f" 
+            (match cours.code_cours with None -> "" | Some a -> a) 
+            (match cours.cours_annee with None -> "" | Some a -> a)
+            (match cours.ects with None -> 0.010000 | Some f -> f)) Exit state 
+        in 
+      
         let state, cours, libelle_stage_opt_list =
           match cours.cours_libelle with
           | None -> state,cours, 1
@@ -5968,6 +5975,12 @@ let program
                 end
             else state, cours, 1
         in
+        let state = 
+          Remanent_state.warn __POS__ (Format.sprintf "COURS: %s (%s) %f" 
+            (match cours.code_cours with None -> "" | Some a -> a) 
+            (match cours.cours_annee with None -> "" | Some a -> a)
+            (match cours.ects with None -> 0.010000 | Some f -> f)) Exit state 
+         in 
         let length = length + libelle_stage_opt_list in
         (state, (a,b,c,d,cours)::acc,length))
       (state,[],0)
