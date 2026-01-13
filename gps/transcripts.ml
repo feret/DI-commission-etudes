@@ -5887,8 +5887,8 @@ let program
       (fun state elt ->
          let _,_,_,_,cours = elt in
          let state = 
-          Remanent_state.warn __POS__ (Format.sprintf "COURS: %s (%s) %f" 
-            (match cours.code_cours with None -> "" | Some a -> a) 
+          Remanent_state.warn __POS__ (Format.sprintf "COURS: %s %s(%s) %f" 
+            (match cours.code_cours with None -> "" | Some a -> a)  who 
             (match cours.cours_annee with None -> "" | Some a -> a)
             (match cours.ects with None -> 0.010000 | Some f -> f)) Exit state 
          in 
@@ -5931,8 +5931,8 @@ let program
         (state, acc, length)
         (a,b,c,d,cours) ->
         let state = 
-          Remanent_state.warn __POS__ (Format.sprintf "COURS: %s (%s) %f" 
-            (match cours.code_cours with None -> "" | Some a -> a) 
+          Remanent_state.warn __POS__ (Format.sprintf "COURS: %s %s(%s) %f" 
+            (match cours.code_cours with None -> "" | Some a -> a) who 
             (match cours.cours_annee with None -> "" | Some a -> a)
             (match cours.ects with None -> 0.010000 | Some f -> f)) Exit state 
         in 
@@ -5991,8 +5991,8 @@ let program
             else state, cours, 1
         in
         let state = 
-          Remanent_state.warn __POS__ (Format.sprintf "COURS: %s (%s) %f" 
-            (match cours.code_cours with None -> "" | Some a -> a) 
+          Remanent_state.warn __POS__ (Format.sprintf "COURS: %s %s(%s) %f" 
+            (match cours.code_cours with None -> "" | Some a -> a) who 
             (match cours.cours_annee with None -> "" | Some a -> a)
             (match cours.ects with None -> 0.010000 | Some f -> f)) Exit state 
          in 
@@ -6308,7 +6308,7 @@ let program
                           match stage.stage_credits with None -> 0. | Some f ->f;
                       }
                   in
-                  let state = Remanent_state.warn __POS__ (Format.sprintf "stage entry %s (%s) %f / %f" stage_entry.Public_data.activite_code stage_entry.Public_data.activite_annee stage_entry.Public_data.activite_ects (match cours.ects with None -> 0.01 | Some f -> f)) Exit state in 
+                  let state = Remanent_state.warn __POS__ (Format.sprintf "stage entry %s %s(%s) %f / %f" stage_entry.Public_data.activite_code stage_entry.who Public_data.activite_annee stage_entry.Public_data.activite_ects (match cours.ects with None -> 0.01 | Some f -> f)) Exit state in 
                   let stage_with_ects =
                       match stage.stage_credits with
                         | None -> false
@@ -6405,8 +6405,8 @@ let program
             let state = 
                 match stage_opt with 
                 | Some a -> 
-                  Remanent_state.warn __POS__ (Format.sprintf "%s %s %f" 
-                  a.Public_data.activite_code 
+                  Remanent_state.warn __POS__ (Format.sprintf "%s %s(%s) %f" 
+                  a.Public_data.activite_code who 
                   a.Public_data.activite_annee 
                   a.Public_data.activite_ects) Exit state 
                   | None -> state 
