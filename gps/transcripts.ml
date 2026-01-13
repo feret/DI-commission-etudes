@@ -6416,9 +6416,13 @@ let program
             if is_stage cours then
               (*if List.mem cours.code_cours [Some "UNEXPA-39"] (* TO BE CHECKED, or extended*)
               then*) state, libelle, None, (match stage_opt with None -> cours.ects | Some a -> begin
-                                      match cours.ects with None -> Some (a.Public_data.activite_ects)
+                                      match cours.ects 
+                                      with None | Some 0. -> 
+                                        Some (a.Public_data.activite_ects)
                                       | Some ects -> 
-                                         
+                                        if ects = a.Public_data.activite_ects
+                                        then Some ects 
+                                        else     
                                         Some (ects+. a.Public_data.activite_ects)
                                     end),
                                     match stage_opt with None -> false
