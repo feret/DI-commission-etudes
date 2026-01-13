@@ -5983,7 +5983,11 @@ let program
                 | stage_list -> state,
                                 begin 
                                  (if List.for_all (fun c ->
-                       cours.ects = c.stage_credits ||  
+                       ( 
+                       is_exp cours 
+                       &&  
+                       (match cours.cours_annee with None -> false | Some a -> 
+                        try int_of_string a > 2022 with _ -> false) ) || cours.ects = c.stage_credits ||  
                      (match c.stage_credits with None | Some 0. -> true | Some _ -> false )) stage_opt then cours else {cours with ects = None})
                                 end,
                                 List.length stage_list
