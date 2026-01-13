@@ -5887,10 +5887,10 @@ let program
       (fun state elt ->
          let _,_,_,_,cours = elt in
          let state = 
-          Remanent_state.warn "COURS: %s (%s) %f" 
+          Remanent_state.warn __POS__ (Format.sprintf "COURS: %s (%s) %f" 
             (match cours.code_cours with None -> "" | Some a -> a) 
             (match cours.cours_annee with None -> "" | Some a -> a)
-            (match cours.ects with None -> 0.010000 | Some f -> f) 
+            (match cours.ects with None -> 0.010000 | Some f -> f)) Exit state 
          in 
          match cours.note with
          | None -> state
