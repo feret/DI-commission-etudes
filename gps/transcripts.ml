@@ -5886,6 +5886,12 @@ let program
     List.fold_left
       (fun state elt ->
          let _,_,_,_,cours = elt in
+         let state = 
+          Remanent_state.warn "COURS: %s (%s) %f" 
+            (match cours.code_cours with None -> "" | Some a -> a) 
+            (match cours.cours_annee with None -> "" | Some a -> a)
+            (match cours.ects with None -> 0.010000 | Some f -> f) 
+         in 
          match cours.note with
          | None -> state
          | Some note ->
