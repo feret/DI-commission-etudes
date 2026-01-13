@@ -5886,12 +5886,6 @@ let program
     List.fold_left
       (fun state elt ->
          let _,_,_,_,cours = elt in
-         let state = 
-          Remanent_state.warn __POS__ (Format.sprintf "COURS: %s %s(%s) %f" 
-            (match cours.code_cours with None -> "" | Some a -> a)  who 
-            (match cours.cours_annee with None -> "" | Some a -> a)
-            (match cours.ects with None -> 0.010000 | Some f -> f)) Exit state 
-         in 
          match cours.note with
          | None -> state
          | Some note ->
@@ -5930,13 +5924,6 @@ let program
       (fun
         (state, acc, length)
         (a,b,c,d,cours) ->
-        let state = 
-          Remanent_state.warn __POS__ (Format.sprintf "COURS: %s %s(%s) %f" 
-            (match cours.code_cours with None -> "" | Some a -> a) who 
-            (match cours.cours_annee with None -> "" | Some a -> a)
-            (match cours.ects with None -> 0.010000 | Some f -> f)) Exit state 
-        in 
-      
         let state, cours, libelle_stage_opt_list =
           match cours.cours_libelle with
           | None -> state,cours, 1
@@ -5969,15 +5956,6 @@ let program
                     ~internship
                     ~commentaires:cours.commentaire stages
                 in
-                let state = 
-                    List.fold_left 
-                      (fun state stage -> 
-                          Remanent_state.warn 
-                            __POS__ 
-                            (Format.sprintf "%s %f" (match stage.sujet with None -> "" | Some a -> a)  (match stage.stage_credits with None -> 0.01 | Some f -> f))
-                            Exit state)
-                        state stage_opt 
-                      in 
                 match stage_opt with
                 | [] -> state, cours, 1
                 | stage_list -> state,
@@ -5994,12 +5972,6 @@ let program
                 end
             else state, cours, 1
         in
-        let state = 
-          Remanent_state.warn __POS__ (Format.sprintf "COURS: %s %s(%s) %f" 
-            (match cours.code_cours with None -> "" | Some a -> a) who 
-            (match cours.cours_annee with None -> "" | Some a -> a)
-            (match cours.ects with None -> 0.010000 | Some f -> f)) Exit state 
-         in 
         let length = length + libelle_stage_opt_list in
         (state, (a,b,c,d,cours)::acc,length))
       (state,[],0)
@@ -6312,7 +6284,6 @@ let program
                           match stage.stage_credits with None -> 0. | Some f ->f;
                       }
                   in
-                  let state = Remanent_state.warn __POS__ (Format.sprintf "stage entry %s %s(%s) %f / %f" stage_entry.Public_data.activite_code who stage_entry.Public_data.activite_annee stage_entry.Public_data.activite_ects (match cours.ects with None -> 0.01 | Some f -> f)) Exit state in 
                   let stage_with_ects =
                       match stage.stage_credits with
                         | None -> false
@@ -6406,16 +6377,7 @@ let program
         let state,nl,mean, dens, natt, cours_list, stage_list  =
           List.fold_left
             (fun (state,nl,mean, dens, natt, cours_list, stage_list) (libelle,stage_opt) ->
-            let state = 
-                match stage_opt with 
-                | Some a -> 
-                  Remanent_state.warn __POS__ (Format.sprintf "%s %s(%s) %f" 
-                  a.Public_data.activite_code who 
-                  a.Public_data.activite_annee 
-                  a.Public_data.activite_ects) Exit state 
-                  | None -> state 
-                in 
-            let state, libelle, libelle_en, ects, force_validation =
+               let state, libelle, libelle_en, ects, force_validation =
             
             if is_stage cours then
               (*if List.mem cours.code_cours [Some "UNEXPA-39"] (* TO BE CHECKED, or extended*)
@@ -6461,10 +6423,6 @@ let program
                 state
             in a, b, c, cours.ects, false
         in
-       let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %f -> %f" 
-       (match cours.code_cours with None -> "" | Some a -> a) year 
-       (match cours.ects with None -> 0.01 | Some a -> a) 
-       (match ects with None -> 0.01 | Some a -> a) ) Exit state in 
         let cours = 
           if (((match cours.cours_annee with None -> false | Some s -> 
             try int_of_string s > 2022 with _ -> false))
@@ -6474,8 +6432,6 @@ let program
             {cours with ects} 
         in    
         let ects = cours.ects in 
-        let state = Remanent_state.warn __POS__ (Format.sprintf "%s %s %f -> %f" (match cours.code_cours with None -> "" | Some a -> a) year (match cours.ects with None -> 0.01 | Some a -> a) 
-       (match ects with None -> 0.01 | Some a -> a)  ) Exit state in 
         let () =
           Remanent_state.open_row ~macro state
         in

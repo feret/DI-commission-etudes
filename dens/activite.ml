@@ -17,7 +17,37 @@ let l = ["INFO-AA-ACM-A", (fun y ->
  Public_data.supplement_dens=true;
  Public_data.supplement_extra = true;
  Public_data.supplement_validation_year = y;
-})
+}) ;
+"INFO-M1-PROJRECH-S1", (fun y -> 
+{
+ Public_data.supplement_code="UNEXPA-38";
+ Public_data.supplement_discipline="";
+ Public_data.supplement_intitule="Expérience de recherche dans le cadre d'un enseignement déjà sélectionné dans un autre département";
+ Public_data.supplement_ects=0.;
+ Public_data.supplement_dens=true;
+ Public_data.supplement_extra = true;
+ Public_data.supplement_validation_year = y;
+});
+"ACTD-OrgSE-S1", (fun y -> 
+{
+ Public_data.supplement_code="UNEXPA-38";
+ Public_data.supplement_discipline="";
+ Public_data.supplement_intitule="Expérience de recherche dans le cadre d'un enseignement déjà sélectionné dans un autre département";
+ Public_data.supplement_ects=0.;
+ Public_data.supplement_dens=true;
+ Public_data.supplement_extra = true;
+ Public_data.supplement_validation_year = y;
+});
+"ACTD-TAL-A", (fun y -> 
+{
+ Public_data.supplement_code="UNEXP1-14";
+ Public_data.supplement_discipline="";
+ Public_data.supplement_intitule="Tutorat-Talens lycée S1";
+ Public_data.supplement_ects=0.;
+ Public_data.supplement_dens=true;
+ Public_data.supplement_extra = true;
+ Public_data.supplement_validation_year = y;
+});
 ]
 
 let map = 
