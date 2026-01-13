@@ -5969,6 +5969,15 @@ let program
                     ~internship
                     ~commentaires:cours.commentaire stages
                 in
+                let state = 
+                    List.fold_left 
+                      (fun state stage -> 
+                          Remanent_state.warn 
+                            __POS__ 
+                            (Format.sprintf "%s %f" (match stage.sujet with None -> "" | Some a -> a)  (match stage.stage_credits with None -> 0.01 | Some f -> f))
+                            Exit state)
+                        state stage_opt 
+                      in 
                 match stage_opt with
                 | [] -> state, cours, 1
                 | stage_list -> state, (if List.for_all (fun c -> match c.stage_credits with None | Some 0. -> true | Some _ -> false) stage_opt then cours else {cours with ects = None}), List.length stage_list
