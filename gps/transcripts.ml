@@ -4143,8 +4143,21 @@ let add_dens state year compensation unvalidated force_validation ects course co
         | None -> []
         | Some code -> Activite.free_exp_list code year
       in 
+      let state = 
+        Remanent_state.warn 
+          __POS__ 
+          (Format.sprintf "COURS: %s " (match course.code_cours with None -> "" | Some x -> x))
+          Exit
+          state 
+      in 
       List.fold_left 
         (fun (state, course_list, map) a -> 
+           let state = 
+        Remanent_state.warn 
+          __POS__ 
+          (Format.sprintf "-> FREE: %s " a.Public_data.supplement_code)
+          Exit state 
+      in 
           state, {course_list with Public_data.dens  = a::course_list.Public_data.dens}, map)          
         (state, course_list, map)
         list 
