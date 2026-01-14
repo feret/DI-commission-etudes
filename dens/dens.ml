@@ -759,6 +759,7 @@ let count_exp dens =
       0
       [
         dens.Public_data.dens_activite_ouverture;
+        dens.Public_data.dens_activite_promotion;
         dens.Public_data.dens_activite_recherche;
         dens.Public_data.dens_activite_internationale;
         dens.Public_data.dens_activite_transdisciplinaire;
@@ -780,6 +781,7 @@ let simplify_exp_list state l =
 let simplify_exp dens state = 
     let state, dens_activite_ouverture = simplify_exp_list state dens.Public_data.dens_activite_ouverture in 
      let state, dens_activite_recherche = simplify_exp_list state dens.Public_data.dens_activite_recherche in 
+     let state, dens_activite_promotion = simplify_exp_list state dens.Public_data.dens_activite_promotion in 
      let state, dens_activite_internationale = simplify_exp_list state dens.Public_data.dens_activite_internationale in 
      let state, dens_activite_transdisciplinaire = simplify_exp_list state dens.Public_data.dens_activite_transdisciplinaire  in 
      let state, dens_activite_autre =  simplify_exp_list state dens.Public_data.dens_activite_autre in
@@ -788,6 +790,7 @@ let simplify_exp dens state =
       {dens with 
           Public_data.dens_activite_ouverture  ; 
           Public_data.dens_activite_recherche  ; 
+          Public_data.dens_activite_promotion ;
           Public_data.dens_activite_internationale  ; 
           Public_data.dens_activite_transdisciplinaire  ; 
           Public_data.dens_activite_autre  ; 
