@@ -1766,6 +1766,15 @@ module Collector_course_exceptions =
                   Pegasus_courses.get_pegasus_course_by_libelle
                      ~libelle ~year ~semester collector
             in
+            let t = 
+                List.fold_left 
+                  (fun t course -> 
+                    warn __POS__ (Format.sprintf "%s (%s)->(%s) %s %s" year course.Public_data.pegasus_libelle 
+                    (Tools.hash_libelle2 course.Public_data.pegasus_libelle)
+                    (Tools.unsome_string course.Public_data.pegasus_codegps) 
+                    (course.Public_data.pegasus_helisa)) Exit t)
+                  t course_opt 
+                  in 
             t, course_opt 
 
 let get_grade_in_pegasus ~codehelisa ~year ~firstname ~lastname t =
