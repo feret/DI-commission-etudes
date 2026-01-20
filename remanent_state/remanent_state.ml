@@ -1751,15 +1751,17 @@ module Collector_course_exceptions =
         | _::_ -> t, course_opt
         | [] -> 
           let libelle' = Tools.hash_libelle2 libelle in 
-          let t= warn 
-                          __POS__ 
-                          (Format.sprintf "(%s) (%s)->(%s)" year libelle libelle')
-                          Exit 
-                          t
-          in 
+          let libelle_= libelle in 
           let libelle = libelle' in 
           match Public_data.StringMap.find_opt libelle t.data.pedagogical_courses_dictionnary with 
-          | None -> t, []
+          | None -> 
+            let t= warn 
+                          __POS__ 
+                          (Format.sprintf "(%s) (%s)->(%s)" year libelle_ libelle)
+                          Exit 
+                          t
+            in 
+            t, []
           | Some libelle -> 
             let libelle = Special_char.lowercase libelle in
             let course_opt =
