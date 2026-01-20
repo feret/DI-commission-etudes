@@ -6417,13 +6417,20 @@ let program
             then
               if libelle = Some "N/A" then state, libelle, libelle, cours.ects,  false
               else if libelle = Some "Points de jury" then state, libelle, Some "Jury credits", cours.ects, false
-            else
-              let state =
-                Remanent_state.warn
-                  __POS__
+              else
+                let state, note = 
+                  match cours.note with 
+                  | None -> state, ""
+                  | Some x -> Notes.to_string __POS__ state x 
+              in 
+                let state =
+                  Remanent_state.warn
+                   __POS__
                   (Format.sprintf
-                     "Incoherent empty CODE GPS with course name %s "
-                     (Tools.unsome_string libelle))
+                     "Incoherent empty CODE GPS with course name %s %s %s"
+                     (Tools.unsome_string libelle)
+                     (Tools.unsome_string cours.code_cours)
+                     (note ))
                   Exit
                   state
               in
@@ -7778,8 +7785,17 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           match course_opt with 
               | None ->  
                   Remanent_state.warn __POS__ "EMPTY ENTRY LIST" Exit state, gps_file, blacklist
-              | Some course ->
+              | Some course ->                
           let code = String.trim (course.Public_data.pe_code_helisa) in
+          let state = 
+            Remanent_state.warn 
+                __POS__ 
+                (Format.sprintf "%s %s (%s) %s %s %s" firstname lastname 
+                course.Public_data.pe_year course.Public_data.pe_libelle 
+                (Tools.unsome_string course.Public_data.pe_code_gps)
+                course.Public_data.pe_code_helisa) 
+                Exit state 
+              in 
           match kind code with
           | Inscription ->
             begin
