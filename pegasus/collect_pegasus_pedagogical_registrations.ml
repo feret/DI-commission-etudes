@@ -306,6 +306,13 @@ let update_course course ects entry bset (state:Remanent_state.t) =
                     Remanent_state.warn __POS__ (Format.sprintf "float_of_string %s" ects) Exit state, 0.
         in
         let code_helisa, libelle, ects = Some codehelisa, Some libelle, Some ects in
+        let state = Remanent_state.warn 
+        __POS__ 
+        (Format.sprintf "%s %s (%s) %s" 
+          (Tools.unsome_string entry.firstname)
+          (Tools.unsome_string entry.lastname) 
+          year 
+          codehelisa) Exit state in 
         let state, pegasus_entry =
           Remanent_state.get_course_in_pegasus ~codehelisa ~year  state
         in
@@ -326,6 +333,13 @@ let update_course course ects entry bset (state:Remanent_state.t) =
             let semester = pegasus_entry.Public_data.pegasus_semester in
             let teachers = get_teachers pegasus_entry in
             let code_gps = pegasus_entry.Public_data.pegasus_codegps in
+             let state = Remanent_state.warn 
+        __POS__ 
+        (Format.sprintf "%s %s (%s) %s %s" 
+          (Tools.unsome_string entry.firstname)
+          (Tools.unsome_string entry.lastname) 
+          year 
+          codehelisa (Tools.unsome_string code_gps)) Exit state in 
             let libelle_gps = Some pegasus_entry.Public_data.pegasus_libelle in
             let state, entry = convert {entry with semester ; libelle ; ects ; code_helisa ; code_gps ; teachers ;  libelle_gps } state in
             add
