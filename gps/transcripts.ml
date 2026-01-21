@@ -7787,15 +7787,6 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                   Remanent_state.warn __POS__ "EMPTY ENTRY LIST" Exit state, gps_file, blacklist
               | Some course ->                
           let code = String.trim (course.Public_data.pe_code_helisa) in
-          let state = 
-            Remanent_state.warn 
-                __POS__ 
-                (Format.sprintf "%s %s (%s) %s %s %s" firstname lastname 
-                course.Public_data.pe_year course.Public_data.pe_libelle 
-                (Tools.unsome_string course.Public_data.pe_code_gps)
-                course.Public_data.pe_code_helisa) 
-                Exit state 
-              in 
           match kind code with
           | Inscription ->
             begin
