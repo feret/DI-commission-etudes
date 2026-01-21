@@ -44,7 +44,7 @@ let state =
   Collect_pegasus_pedagogical_registrations.get_pegasus_pedagogical_registrations state
 let state =
     let state, b = Remanent_state.do_we_log_pegasus_entries state in
-    if b then
+    if b || true then
       let state, t = Remanent_state.Collector_course_pegasus.get state in
       let () = Pegasus_courses.dump t in
       let state, t = Remanent_state.Collector_administrative_status.get state in
