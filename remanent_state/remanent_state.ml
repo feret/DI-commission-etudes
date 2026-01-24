@@ -141,6 +141,8 @@ type parameters =
     list_exp_recherche: string list; 
     list_exp_transdisciplinaire: string list; 
     list_exp_promotion:string list;
+    double_l3:Public_data.double_cursus list; 
+    simple_l3:Public_data.simple_cursus list; simple_m1:Public_data.simple_cursus list;   
   }
 
 
@@ -302,7 +304,16 @@ let parameters =
     list_exp_transdisciplinaire = (List.map (fun x -> "UNEXP1-"^x) ["25";"27";"33";"82"]) @
     (List.map (fun x -> "UNEXP2-"^x) ["26";"34";"71";"72"]) @ 
     (List.map (fun x -> "UNEXPA-"^x) ["24";"28";"29";"30";"31";"32";"70"]) @ ["UNECL2-207"];
-  }
+    double_l3 = 
+    [(Public_data.DMA, 
+    Reglements_pedagogiques.licence_maths_mathsinfo),
+     (Public_data.DI,Reglements_pedagogiques.licence_info_mathsinfo)] ; 
+    simple_l3 = 
+    [Public_data.DMA, Reglements_pedagogiques.licence_maths]; 
+    simple_m1 = 
+    [Public_data.DMA,Reglements_pedagogiques.m1_maths]; 
+  } 
+
 
 let _ = parameters.parameters_repository
 
@@ -431,6 +442,9 @@ type data =
     dens_candidates: Dens_candidates.t;
     dens_candidates_suggestion: Public_data.dens_candidate list;
     cost_members: Public_data.cost_member list;
+    simple_l3_map: Public_data.reglement_diplome Public_data.DptMap.t; 
+    simple_m1_map: Public_data.reglement_diplome Public_data.DptMap.t; 
+    double_l3_map: Public_data.reglement_diplome Public_data.DptMap.t Public_data.DptMap.t;
    }
 
 let empty_data =
@@ -488,6 +502,9 @@ let empty_data =
     majors = Major_candidates.empty;
     dens_candidates_suggestion = [] ;
     cost_members = [];
+    simple_l3_map = Public_data.DptMap.empty ; 
+    simple_m1_map = Public_data.DptMap.empty ; 
+    double_l3_map = Public_data.DptMap.empty ; 
   }
 
 type exp = 
@@ -3342,3 +3359,63 @@ let exp_black_list_transcript code t =
 
 let which_exp code t = 
   t,Public_data.StringMap.find_opt code t.exp_data.map 
+
+
+let set_reglement_pedagogique t = 
+  let parameters = t.parameters in 
+  let data = t.data in 
+  let simple_l3_map = 
+    List.fold_left 
+      (fun m (dpt, obl) -> Public_data.DptMap.add dpt obl m)
+      Public_data.DptMap.empty parameters.simple_l3
+  in 
+  let simple_m1_map = 
+    List.fold_left 
+      (fun m (dpt, obl) -> Public_data.DptMap.add dpt obl m)
+      Public_data.DptMap.empty parameters.simple_m1
+  in 
+  let add2 dpt dpt' data map = 
+    let old =
+      match 
+        Public_data.DptMap.find_opt dpt map
+      with 
+        | None -> Public_data.DptMap.empty 
+        | Some a -> a 
+    in 
+    let old' = Public_data.DptMap.add dpt' data old in 
+    Public_data.DptMap.add dpt old' map 
+  in  
+  let double_l3_map = 
+    List.fold_left 
+      (fun m ((dpt, obl),(dpt',obl')) -> 
+        add2 dpt dpt' obl 
+          (add2 dpt' dpt obl' m))
+      Public_data.DptMap.empty parameters.double_l3
+  in 
+  let data = 
+    {data 
+      with 
+          simple_l3_map; 
+          simple_m1_map; 
+          double_l3_map}
+  in 
+  {t with data}
+
+let get_reglement_pedagogique_l3 ~dpt t = 
+  t, 
+    Public_data.DptMap.find_opt 
+    dpt t.data.simple_l3_map 
+    
+  let get_reglement_pedagogique_m1 ~dpt t = 
+   t, 
+    Public_data.DptMap.find_opt 
+    dpt t.data.simple_m1_map 
+
+  let get_reglement_pedagogique_double_l3 ~dpt_this ~dpt_other t = 
+    match 
+    Public_data.DptMap.find_opt 
+    dpt_this t.data.double_l3_map
+  with 
+    | None -> t, None 
+    | Some a -> 
+      t, Public_data.DptMap.find_opt dpt_other a 

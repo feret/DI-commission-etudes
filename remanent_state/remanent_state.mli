@@ -817,3 +817,8 @@ val do_we_log_pegasus_entries: t -> t * bool
 val exp_black_list: string -> t -> t * bool 
 val exp_black_list_transcript: string -> t -> t * bool 
 val which_exp: string -> t -> t * Public_data.experience option 
+
+val set_reglement_pedagogique: t -> t 
+val get_reglement_pedagogique_l3: dpt:Public_data.main_dpt -> t -> t * Public_data.reglement_diplome option 
+val get_reglement_pedagogique_m1: dpt:Public_data.main_dpt -> t -> t * Public_data.reglement_diplome option 
+val get_reglement_pedagogique_double_l3: dpt_this:Public_data.main_dpt -> dpt_other:Public_data.main_dpt -> t -> t * Public_data.reglement_diplome option 

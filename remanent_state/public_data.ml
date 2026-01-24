@@ -1747,3 +1747,21 @@ let string_of_statut_opt a =
     "Ex hors GPS"
   | Some Hors_GPS ->
     "Hors GPS"
+
+
+type reglement_diplome = 
+ { 
+  obligation: string list ; 
+  options: string list ; 
+ }
+
+ type simple_cursus = main_dpt * reglement_diplome
+
+ type double_cursus = simple_cursus * simple_cursus
+    
+
+ let empty_reglement_diplome = 
+     {
+      obligation= []; 
+      options= [];
+     }

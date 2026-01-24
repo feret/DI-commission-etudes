@@ -1135,3 +1135,14 @@ type mineure_majeure =
   }
 
 val empty_mineure_majeure: mineure_majeure
+
+type reglement_diplome = 
+ { 
+  obligation: string list ; 
+  options: string list ; 
+ }
+
+ val empty_reglement_diplome: reglement_diplome 
+
+ type simple_cursus = main_dpt * reglement_diplome 
+ type double_cursus = simple_cursus * simple_cursus
