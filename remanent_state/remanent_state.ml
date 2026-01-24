@@ -142,7 +142,8 @@ type parameters =
     list_exp_transdisciplinaire: string list; 
     list_exp_promotion:string list;
     double_l3:Public_data.double_cursus list; 
-    simple_l3:Public_data.simple_cursus list; simple_m1:Public_data.simple_cursus list;   
+    simple_l3:Public_data.simple_cursus list; simple_m1:Public_data.simple_cursus list; 
+    suggest_course_dispatching: bool;   
   }
 
 
@@ -312,6 +313,7 @@ let parameters =
     [Public_data.DMA, Reglements_pedagogiques.licence_maths]; 
     simple_m1 = 
     [Public_data.DMA,Reglements_pedagogiques.m1_maths]; 
+    suggest_course_dispatching=false; 
   } 
 
 
@@ -328,6 +330,7 @@ let set_dma parameters =
     repartition = Public_data.Annee_obtention_du_diplome ;
     include_pictures = false;
     load_gps_data = false ;
+    suggest_course_dispatching=true; 
 
   }
 
@@ -3419,3 +3422,6 @@ let get_reglement_pedagogique_l3 ~dpt t =
     | None -> t, None 
     | Some a -> 
       t, Public_data.DptMap.find_opt dpt_other a 
+
+let do_we_suggest_course_dispatching t = 
+  t, t.parameters.suggest_course_dispatching

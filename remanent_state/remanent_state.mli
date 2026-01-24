@@ -822,3 +822,6 @@ val set_reglement_pedagogique: t -> t
 val get_reglement_pedagogique_l3: dpt:Public_data.main_dpt -> t -> t * Public_data.reglement_diplome option 
 val get_reglement_pedagogique_m1: dpt:Public_data.main_dpt -> t -> t * Public_data.reglement_diplome option 
 val get_reglement_pedagogique_double_l3: dpt_this:Public_data.main_dpt -> dpt_other:Public_data.main_dpt -> t -> t * Public_data.reglement_diplome option 
+
+val do_we_suggest_course_dispatching: 
+t -> t * bool 

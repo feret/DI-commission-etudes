@@ -1753,6 +1753,7 @@ type reglement_diplome =
  { 
   obligation: string list ; 
   options: string list ; 
+  groups: (int * string list) list ; 
  }
 
  type simple_cursus = main_dpt * reglement_diplome
@@ -1764,4 +1765,5 @@ type reglement_diplome =
      {
       obligation= []; 
       options= [];
+      groups = []; 
      }

@@ -1140,6 +1140,7 @@ type reglement_diplome =
  { 
   obligation: string list ; 
   options: string list ; 
+  groups: (int * string list) list ; 
  }
 
  val empty_reglement_diplome: reglement_diplome 
