@@ -1768,29 +1768,11 @@ module Collector_course_exceptions =
                  ~libelle ~year ~semester collector
         in
         match course_opt with 
-        | _::_ -> 
-          let t = 
-                List.fold_left 
-                  (fun t course -> 
-                    warn __POS__ (Format.sprintf "GET COURSE PER LIBELLE SUCCESS %s (%s)->(%s) %s %s" year course.Public_data.pegasus_libelle 
-                    (Tools.hash_libelle2 course.Public_data.pegasus_libelle)
-                    (Tools.unsome_string course.Public_data.pegasus_codegps) 
-                    (course.Public_data.pegasus_helisa)) Exit t)
-                  t course_opt 
-                  in 
-          t, course_opt
+        | _::_ ->  t, course_opt
         | [] -> 
           let libelle' = Tools.hash_libelle2 libelle in 
-          let libelle_= libelle in 
-          let libelle = libelle' in 
-          match Public_data.StringMap.find_opt libelle t.data.pedagogical_courses_dictionnary with 
+          match Public_data.StringMap.find_opt libelle' t.data.pedagogical_courses_dictionnary with 
           | None -> 
-            let t= warn 
-                          __POS__ 
-                          (Format.sprintf "GET COURSE PER LIBELLE SND FAILLURE (%s) (%s)->(%s)" year libelle_ libelle)
-                          Exit 
-                          t
-            in 
             t, []
           | Some libelle -> 
             let libelle = Special_char.lowercase libelle in
@@ -1798,15 +1780,6 @@ module Collector_course_exceptions =
                   Pegasus_courses.get_pegasus_course_by_libelle
                      ~libelle ~year ~semester collector
             in
-            let t = 
-                List.fold_left 
-                  (fun t course -> 
-                    warn __POS__ (Format.sprintf "GET COURSE PER LIBELLE FST FAILLURE %s (%s)->(%s) %s %s" year course.Public_data.pegasus_libelle 
-                    (Tools.hash_libelle2 course.Public_data.pegasus_libelle)
-                    (Tools.unsome_string course.Public_data.pegasus_codegps) 
-                    (course.Public_data.pegasus_helisa)) Exit t)
-                  t course_opt 
-                  in 
             t, course_opt 
 
 let get_grade_in_pegasus ~codehelisa ~year ~firstname ~lastname t =
