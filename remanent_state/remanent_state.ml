@@ -1653,7 +1653,11 @@ module Collector_course_pegasus =
             let state, course =
               match course.Public_data.pegasus_session, course.Public_data.pegasus_de_a with 
                 | None, None ->   
-                  warn __POS__ (Format.sprintf "Either a date or a session number is required")
+                  warn __POS__ (Format.sprintf "Either a date or a session number is required %s %s %s %s" 
+                                    course.Public_data.pegasus_libelle 
+                                    (Tools.unsome_string course.Public_data.pegasus_codegps)
+                                    course.Public_data.pegasus_helisa 
+                                    course.Public_data.pegasus_year)
                         Exit state, course  
                 | _, Some pegasus_de_a -> 
                   if String.length pegasus_de_a >= 10 
