@@ -1752,8 +1752,9 @@ let string_of_statut_opt a =
 type reglement_diplome = 
  { 
   obligation: string list ; 
-  options: string list ; 
+  par_defaut: (int * string list) list ;
   groups: (int * string list) list ; 
+  options: string list ; 
  }
 
  type simple_cursus = main_dpt * reglement_diplome
@@ -1764,6 +1765,7 @@ type reglement_diplome =
  let empty_reglement_diplome = 
      {
       obligation= []; 
+      par_defaut=[];
       options= [];
       groups = []; 
      }

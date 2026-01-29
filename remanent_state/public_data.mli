@@ -1138,9 +1138,10 @@ val empty_mineure_majeure: mineure_majeure
 
 type reglement_diplome = 
  { 
-  obligation: string list ; 
-  options: string list ; 
-  groups: (int * string list) list ; 
+  obligation: string list ; (* ces cours sont obligatoires *)
+  par_defaut: (int * string list) list ; (* pour chaque liste, prendre les n premiers cours validés dans la sous-liste *)
+  groups: (int * string list) list ; (* pour chaque liste, prendre les n meilleurs notes *)
+  options: string list ; (* completer avec les meilleurs notes pour atteindre 60 ECTS *) 
  }
 
  val empty_reglement_diplome: reglement_diplome 

@@ -2,12 +2,18 @@ let math_l3_tronc_commun =
   ["DMA-L3-A01-S1"; (* Algèbre 1 *)
    "DMA-L3-A02-S1"; (* Intégration et probabilités *)
    "DMA-L3-A03-S1"; (* Tolologie et calcul différentiel *)
-   "DMA-L3-A04-S2"; (* Analyse complexe *)
    ]
+
+let math_l3_tronc_commun_par_dft = 
+  1, [ 
+    "DMA-L3-A04-S2"; (* Analyse complexe *) (* Analyse Fontionnelle *) 
+    "DMA-M1-B05-S2"; (* analyse fonctionnelle *)
+  ]   
   
 let build_l3_maths s = 
   { 
     Public_data.obligation = s::math_l3_tronc_commun ; 
+    Public_data.par_defaut = [math_l3_tronc_commun_par_dft] ; 
     Public_data.options = []; 
     Public_data.groups = []; 
   }
@@ -18,7 +24,7 @@ let licence_maths_mathsinfo =
   build_l3_maths "INFO-M1-MPRI113-S2" (* Intitiation à la cryptologie *) 
 
 let licence_maths_mathsphys = 
-  build_l3_maths "DMA-L3-A05-S2" (* Grande dimension *)
+  build_l3_maths "DMA-L3-A05-S2" (* Grande dimension *) (* Relativité *)
 
 let licence_maths_mathsbio = 
   build_l3_maths "UNDMA2-012" (* exposé math-bio *) 
@@ -30,6 +36,7 @@ let licence_info_mathsinfo =
       "INFO-L3-MIIME-S2"; 
       "INFO-L3-STAGE-S2" 
       ]  ; 
+    Public_data.par_defaut = []; 
     Public_data.options = []; 
     Public_data.groups = []; 
   }
@@ -38,6 +45,7 @@ let m1_maths =
    { 
     Public_data.obligation = []; 
     Public_data.options = []; 
+    Public_data.par_defaut = []; 
     Public_data.groups = [
       3 (* cours fondamentaux *)
       , [
