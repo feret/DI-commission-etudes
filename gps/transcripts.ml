@@ -7496,7 +7496,7 @@ Secondary
   if String.length libelle > 6 && String.sub libelle 0 6 = "UNDDIP" then Inscription
   else
     if String.length libelle > 3 &&
-        (let s = String.sub libelle 0 4 in s = "ANM2" || s = "ANM1") then Annee
+        (let s = String.sub libelle 0 4 in s = "ANM2" || s = "ANM1" || s = "ANL3" ) then Annee
     else
     if String.length libelle > 2 then
     match String.sub libelle 0 3 with
@@ -7795,6 +7795,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                 | "UNDDIPH-M2" -> state, M2_HPSL
                 | "UNDDIPE-L3" -> state, L3_PSL
                 | "UNDDIPH-L3" -> state, L3_HPSL
+                | "ANL3INF" -> state, L3_HPSL 
                 | "ANM2INFPRI" -> state, M2_PSL 
                 | "ANM1INF" -> state, M1_PSL 
                 | "ANECHINTER" -> state, Autre 
@@ -7980,6 +7981,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
               diplome = 
                 begin 
                   match course.Public_data.pe_diploma with 
+                    | Some "ANL3INF" -> Some "l" 
                     | Some "ANM2INFPRI" -> Some "mpri"
                     | Some "ANM1INF" -> Some "m"
                     | None | Some _ -> (if b then Some "dens" else None)

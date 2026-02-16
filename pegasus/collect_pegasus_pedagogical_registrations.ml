@@ -107,7 +107,7 @@ let update_student bloc entry bset state =
                 else get tail (t::acc)
               | [] -> None, []
         in
-        let _statut, t =
+        let statut, t =
             match t with
               | "Statut"::":"::tail -> get tail []
               | tail -> None, tail
@@ -131,7 +131,22 @@ let update_student bloc entry bset state =
         in
         let tail, b_opt,dpt = aux t None None in
         let _, tutor_lastname, tutor_firstname = fetch_name tail  in
-        {entry with tutor_lastname = Some tutor_lastname ; tutor_firstname = Some tutor_firstname ; inscription_dens = b_opt}, state, dpt
+        let state, diploma = 
+          match statut with 
+          | None | Some [] -> state, None 
+          | Some ["ENS-EXT";"Cursus";"Licence";"ou";"Master";"suivi";"à";"l'ENS-PSL";"-"; "Département";"d'";"Informatique"] -> 
+            state, Some "ANL3INF" 
+          | Some statut -> 
+           
+            (fst state,Remanent_state.warn __POS__ 
+            (Format.asprintf "improper statut in pedagogial registration %a"
+            (
+              Format.pp_print_list  
+                Format.pp_print_string 
+            )
+            statut) Exit (snd state)), None 
+          in 
+        {entry with tutor_lastname = Some tutor_lastname ; tutor_firstname = Some tutor_firstname ; inscription_dens = b_opt; diploma}, state, dpt
 
 
 
