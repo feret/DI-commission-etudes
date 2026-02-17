@@ -8,6 +8,7 @@ type language = French | English
 
 type repartition = Annee_de_validation_du_cours | Annee_obtention_du_diplome
 
+type statut_semestre = SCOLARITE | ETALEMENT | INTERRUPTION 
 type genre =
   | Feminin
   | Masculin
@@ -100,7 +101,9 @@ type pedagogical_entry_pegasus =
     pe_semester: string option;
     pe_dens : bool option;
     pe_diploma : string option; 
-}
+    pe_statut_s1 : statut_semestre option ; 
+    pe_statut_s2 : statut_semestre option ; 
+    }
 
 module PESET: Set.S with type elt = pedagogical_entry_pegasus 
 

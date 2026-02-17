@@ -129,6 +129,8 @@ type universite =
 
 type experience = Recherche | Internationale | Ouverture | Hors_Dens | Transdisciplinaire | Promotion
 
+type statut_semestre = SCOLARITE | ETALEMENT | INTERRUPTION 
+
 module StringUnivMap =
   Map_tools.MakeSimplified
     (
@@ -485,7 +487,8 @@ type pedagogical_entry_pegasus =
         pe_semester: string option;
         pe_dens: bool option;
         pe_diploma: string option; 
-
+        pe_statut_s1 : statut_semestre option ; 
+        pe_statut_s2 : statut_semestre option ; 
     }
 
  module PESET = Set.Make
@@ -512,7 +515,10 @@ let empty_pedagogical_entry =
         pe_semester = None;
         pe_dens = None;
         pe_diploma = None; 
-    }
+        pe_statut_s1 = None; 
+        pe_statut_s2 = None; 
+
+        }
 type scholarship =
   {
     organism: string;

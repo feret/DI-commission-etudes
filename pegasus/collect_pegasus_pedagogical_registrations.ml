@@ -17,7 +17,10 @@ type pegasus_entry =
   semester: string option;
   inscription_dens: bool option;
   diploma: string option; 
-}
+  statut_s1: Public_data.statut_semestre option; 
+  statut_s2: Public_data.statut_semestre option; 
+
+  }
 
 let empty_pegasus_entry =
 {
@@ -37,6 +40,8 @@ let empty_pegasus_entry =
   semester = None ;
   inscription_dens = None;
   diploma = None; 
+  statut_s1 = None; 
+  statut_s2 = None; 
 
 }
 
@@ -131,12 +136,16 @@ let update_student bloc entry bset state =
         in
         let tail, b_opt,dpt = aux t None None in
         let _, tutor_lastname, tutor_firstname = fetch_name tail  in
-        let state, diploma = 
+        let state, diploma, statut_s1, statut_s2 = 
           match statut with 
-          | None | Some [] -> state, None 
+          | None | Some [] -> state, None, None, None 
+          | Some ["FONCTIONNAIRE";"EN";"SCOLARITE"]          
+          | Some ["EN";"SCOLARITE"] -> state, None, Some Public_data.SCOLARITE, Some Public_data.SCOLARITE
+          | Some ["ETALEMENT"] -> state, None, Some Public_data.ETALEMENT, Some Public_data.ETALEMENT
+          | Some ["INTERRUPTION"] -> state, None, Some Public_data.INTERRUPTION, Some Public_data.INTERRUPTION
+
           | Some ["ENS-EXT";"Cursus";"Licence";"ou";"Master";"suivi";"à";"l'ENS-PSL";"-"; "Département";"d'";"Informatique"] -> 
-          (fst state, 
-          Remanent_state.warn __POS__ "ANL3INF" Exit (snd state)), Some "ANL3INF" 
+          state,  Some "ANL3INF", None, None 
           | Some statut -> 
            
             (fst state,Remanent_state.warn __POS__ 
@@ -145,9 +154,9 @@ let update_student bloc entry bset state =
               Format.pp_print_list  
                 Format.pp_print_string 
             )
-            statut) Exit (snd state)), None 
+            statut) Exit (snd state)), None, None, None
           in 
-        {entry with tutor_lastname = Some tutor_lastname ; tutor_firstname = Some tutor_firstname ; inscription_dens = b_opt; diploma}, state, dpt
+        {entry with tutor_lastname = Some tutor_lastname ; tutor_firstname = Some tutor_firstname ; inscription_dens = b_opt; diploma; statut_s1 ; statut_s2}, state, dpt
 
 
 
@@ -192,6 +201,8 @@ let convert entry state =
   Public_data.pe_semester = entry.semester;
   Public_data.pe_dens = entry.inscription_dens;
   Public_data.pe_diploma = entry.diploma; 
+  Public_data.pe_statut_s1 = entry.statut_s1; 
+  Public_data.pe_statut_s2 = entry.statut_s2; 
 }
 
 
