@@ -7796,6 +7796,8 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                 | "UNDDIPE-L3" -> state, L3_PSL
                 | "UNDDIPH-L3" -> state, L3_HPSL
                 | "ANL3INF" -> state, L3_HPSL 
+                | "ANL3DMA" -> state, L3_HPSL 
+                | "ANM1DMA" -> state, M1_HPSL 
                 | "ANM2INFPRI" -> state, M2_PSL 
                 | "ANM1INF" -> state, M1_PSL 
                 | "ANECHINTER" -> state, Autre 
@@ -7982,7 +7984,9 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                 begin 
                   match course.Public_data.pe_diploma with 
                     | Some "ANL3INF" -> Some "L" 
+                    | Some "ANL3DMA" -> Some "L"
                     | Some "ANM2INFPRI" -> Some "mpri"
+                    | Some "ANM1DMA" -> Some "m"
                     | Some "ANM1INF" -> Some "m"
                     | None | Some _ -> (if b then Some "dens" else None)
                 end ;

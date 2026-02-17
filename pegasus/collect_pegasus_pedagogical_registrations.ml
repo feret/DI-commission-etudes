@@ -146,6 +146,10 @@ let update_student bloc entry bset state =
 
           | Some ["ENS-EXT";"Cursus";"Licence";"ou";"Master";"suivi";"à";"l'ENS-PSL";"-"; "Département";"d'";"Informatique"] -> 
           state,  Some "ANL3INF", None, None 
+          | Some ["ENS-EXT";"Cursus";"M1";"suivi";"à";"l'ENS-PSL";"-";"Département";"Mathématiques";"et";"applications"] -> 
+          state, Some "ANM1DMA", None, None 
+          | Some ["ENS-EXT";"Cursus";"L3";"suivi";"à";"l'ENS-PSL";"-";"Département";"Mathématiques";"et";"applications"] -> 
+          state, Some "ANL3DMA", None, None 
           | Some statut -> 
            
             (fst state,Remanent_state.warn __POS__ 
