@@ -135,11 +135,12 @@ let update_student bloc entry bset state =
           match statut with 
           | None | Some [] -> state, None 
           | Some ["ENS-EXT";"Cursus";"Licence";"ou";"Master";"suivi";"à";"l'ENS-PSL";"-"; "Département";"d'";"Informatique"] -> 
-            state, Some "ANL3INF" 
+          (fst state, 
+          Remanent_state.warn __POS__ "ANL3INF" Exit (snd state)), Some "ANL3INF" 
           | Some statut -> 
            
             (fst state,Remanent_state.warn __POS__ 
-            (Format.asprintf "improper statut in pedagogial registration %a"
+            (Format.asprintf "Improper statut in pedagogical registration %a"
             (
               Format.pp_print_list  
                 Format.pp_print_string 
@@ -579,17 +580,16 @@ let get_pegasus_pedagogical_registrations
                          aux l [] []
                         in
                         let convert_line line entry bset state =
+                          let line = List.filter (fun x -> x<>"") line in 
                             match line with
-                              | sem::""::libelle::""::""::""::""::teacher::""::""::ects::_
-                              | sem::""::libelle::""::""::""::teacher::""::""::ects::_
-                              | sem::libelle::""::""::teacher::""::ects::_  ->   
+                              | sem::libelle::teacher::ects::_     ->   
                                   if libelle = "" 
                                   then bset, state 
                                   else
                                    update_course' sem libelle teacher ects entry bset state
                               | _ -> bset, state
                         in
-                        let convert_recap recapitulatif bset (state:Remanent_state.t) =
+                          let convert_recap recapitulatif bset (state:Remanent_state.t) =
                             let entry = empty_pegasus_entry in
                             match recapitulatif with
                             | ("RÉCAPITULATIF DE L’INSCRIPTION PÉDAGOGIQUE"::_)::(year::_)::(bloc::_)::tail
