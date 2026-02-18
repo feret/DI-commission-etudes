@@ -83,6 +83,9 @@ val empty_note_pegasus: note_pegasus
 val empty_course_pegasus: course_pegasus
 val empty_student_pegasus: student_pegasus
 
+type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA | DEC | DSA | DSS | GEOG | HIST | ECLA | CIENS 
+
+
 type pedagogical_entry_pegasus =
   {
     pe_firstname: string;
@@ -101,6 +104,7 @@ type pedagogical_entry_pegasus =
     pe_semester: string option;
     pe_dens : bool option;
     pe_diploma : string option; 
+    pe_dpt: main_dpt option; 
     pe_statut_s1 : statut_semestre option ; 
     pe_statut_s2 : statut_semestre option ; 
     }
@@ -109,7 +113,6 @@ module PESET: Set.S with type elt = pedagogical_entry_pegasus
 
 val empty_pedagogical_entry: pedagogical_entry_pegasus
 
-type main_dpt = DI | DMA | ENS | CHIMIE | GEOSCIENCES | PHYS | IBENS | ECO | DRI | ARTS | LILA | DEC | DSA | DSS | GEOG | HIST | ECLA | CIENS 
 
 type specific = Musicologie | Sciences_Cognitives | Environnement
 

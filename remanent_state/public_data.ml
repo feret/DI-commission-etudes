@@ -487,6 +487,7 @@ type pedagogical_entry_pegasus =
         pe_semester: string option;
         pe_dens: bool option;
         pe_diploma: string option; 
+        pe_dpt: main_dpt option; 
         pe_statut_s1 : statut_semestre option ; 
         pe_statut_s2 : statut_semestre option ; 
     }
@@ -515,6 +516,7 @@ let empty_pedagogical_entry =
         pe_semester = None;
         pe_dens = None;
         pe_diploma = None; 
+        pe_dpt = None;
         pe_statut_s1 = None; 
         pe_statut_s2 = None; 
 
