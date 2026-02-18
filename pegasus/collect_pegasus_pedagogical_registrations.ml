@@ -604,8 +604,15 @@ let get_pegasus_pedagogical_registrations
                                   if libelle = "" 
                                   then bset, state 
                                   else
+                                  update_course' sem libelle teacher ects entry bset state
+                              | sem::libelle::ects::_     ->   
+                                  if libelle = "" 
+                                  then bset, state 
+                                  else
+                                   let teacher = "" in 
                                    update_course' sem libelle teacher ects entry bset state
-                              | _ -> bset, state
+                     
+                                   | _ -> bset, state
                         in
                           let convert_recap recapitulatif bset (state:Remanent_state.t) =
                             let entry = empty_pegasus_entry in
