@@ -3416,6 +3416,7 @@ let is_focus ?firstname ?lastname t =
    | None,None,_,_ -> t, false 
    | Some x,Some y, Some v, Some u -> t, simplify x= simplify u && simplify y=simplify v
    | _,Some x,Some y,_
-   | Some x,_,_,Some y -> t, simplify x= simplify y
+   | Some x,_,_,Some y ->
+      t, simplify x= simplify y
   
   

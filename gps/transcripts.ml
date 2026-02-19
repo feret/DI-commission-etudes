@@ -8102,6 +8102,13 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                            state, note, None
                 end
           in
+           let state = 
+                if b 
+                then 
+                  Remanent_state.warn __POS__ (Format.sprintf "NOTE %s %s %s %s " lastname year codehelisa (Tools.unsome_string grade.Public_data.pegasus_note)) Exit state 
+                else 
+                 state 
+              in 
           let state, course_opt = Remanent_state.get_course_in_pegasus ~codehelisa ~year state in
           match course_opt with
           | None ->
