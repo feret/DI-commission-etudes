@@ -7548,7 +7548,7 @@ let add ~year ~codehelisa ~libelle blacklist =
     Public_data.YearMap.add year (Public_data.CodeSet.add codehelisa old_set,
                                   Public_data.LibelleSet.add libelle old_set_libelle) blacklist
 
-let check ~year ~codehelisa ~libelle blacklist =
+let check  ~year ~codehelisa ~libelle blacklist =
   let _ = libelle in
   match Public_data.YearMap.find_opt year blacklist with
     | None -> false
@@ -8111,9 +8111,27 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           | Some course ->
             let libelle =  String.trim (course.Public_data.pegasus_libelle) in
             if check ~year ~codehelisa ~libelle blacklist
-            then state, gps_file
+            then 
+              let state, b = Remanent_state.is_focus ~firstname ~lastname state in 
+              let state = 
+                if b
+                then 
+                  Remanent_state.warn __POS__ (Format.sprintf "CHECK-YES %s %s %s " year codehelisa libelle) Exit state 
+                else 
+                 state 
+              in 
+              
+              state, gps_file
             else
-
+              let state, b = Remanent_state.is_focus ~firstname ~lastname state in 
+              let state = 
+                if b 
+                then 
+                  Remanent_state.warn __POS__ (Format.sprintf "CHECK-NO %s %s %s " year codehelisa libelle) Exit state 
+                else 
+                 state 
+              in 
+              
             let code_cours =
               match course.Public_data.pegasus_codegps
               with

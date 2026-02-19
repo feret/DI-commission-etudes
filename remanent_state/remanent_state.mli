@@ -825,3 +825,5 @@ val get_reglement_pedagogique_double_l3: dpt_this:Public_data.main_dpt -> dpt_ot
 
 val do_we_suggest_course_dispatching: 
 t -> t * bool 
+
+val is_focus: ?firstname:string -> ?lastname:string -> t -> t * bool 
