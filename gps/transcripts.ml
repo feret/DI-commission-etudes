@@ -8009,6 +8009,13 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                   {bilan with inscription_au_DENS = Some true}
               | _ -> bilan
           in
+          let state, b  = Remanent_state.is_focus ~firstname ~lastname state in 
+          let state = 
+            if b 
+            then 
+              Remanent_state.warn __POS__ (Format.sprintf "ADD %s %s %s" course.Public_data.pe_year code course.Public_data.pe_libelle) Exit state 
+            else state
+          in  
           let blacklist = add ~year:course.Public_data.pe_year ~codehelisa:code ~libelle:course.Public_data.pe_libelle  blacklist in
           state,
           {gps_file with
