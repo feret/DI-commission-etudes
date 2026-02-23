@@ -298,6 +298,7 @@ let parameters =
     list_exp_ouverture = 
     List.map (fun x -> "UNEXPA-"^x) ["01";"02";"03";"04";"05";"75";"76";"77";"78"];
     list_exp_promotion = 
+    ["ACTD-TAL-S1"] @ 
     (List.map (fun x -> "UNEXP1-"^x) ["11";"14";"16";"84"]) @
     (List.map (fun x -> "UNEXP2-"^x) ["15";"17";"85"]) @ 
     (List.map (fun x -> "UNEXPA-"^x) ["13";"19";"20";"21";"22";"23";"73";"74";"79";"80"]);

@@ -352,7 +352,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
         let state = 
           let state,b = Remanent_state.is_focus ~firstname ~lastname state in 
           if b then 
-                Remanent_state.warn __POS__ (Format.sprintf "ACTIVITE %s %s" firstname codegps) Exit state 
+                Remanent_state.warn __POS__ (Format.sprintf "ACTIVITE %s %s" lastname codegps) Exit state 
               else state 
             in 
          let state, blacklisted = Remanent_state.exp_black_list codegps state in 
@@ -366,7 +366,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
             let state,b = Remanent_state.is_focus ~firstname ~lastname state in 
             let state = 
               if b then 
-                Remanent_state.warn __POS__ (Format.sprintf "EXP RECHERCHE %s %s" firstname codegps) Exit state 
+                Remanent_state.warn __POS__ (Format.sprintf "EXP RECHERCHE %s %s" lastname codegps) Exit state 
               else state 
             in 
 
@@ -378,7 +378,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
             let state = 
               let state,b = Remanent_state.is_focus ~firstname ~lastname state in 
               if b then 
-                Remanent_state.warn __POS__ (Format.sprintf "EXP INTERNATIONALE %s %s" firstname codegps) Exit state 
+                Remanent_state.warn __POS__ (Format.sprintf "EXP INTERNATIONALE %s %s" lastname codegps) Exit state 
               else state 
             in 
             let dens_activite_internationale = (convert_exp (Public_data.string_of_experience Public_data.Internationale) course)::dens.Public_data.dens_activite_internationale in  
@@ -388,7 +388,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
             let state = 
              let state,b = Remanent_state.is_focus ~firstname ~lastname state in   
               if b then 
-                Remanent_state.warn __POS__ (Format.sprintf "EXP OUVERTURE %s %s" firstname codegps) Exit state 
+                Remanent_state.warn __POS__ (Format.sprintf "EXP OUVERTURE %s %s" lastname codegps) Exit state 
               else state 
             in 
                 let dens_activite_ouverture = (convert_exp (Public_data.string_of_experience Public_data.Ouverture)  course)::dens.Public_data.dens_activite_ouverture in 
@@ -399,7 +399,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
                    let state,b = Remanent_state.is_focus ~firstname ~lastname state in 
        
               if b then 
-                Remanent_state.warn __POS__ (Format.sprintf "EXP PROMOTION %s %s" firstname codegps) Exit state 
+                Remanent_state.warn __POS__ (Format.sprintf "EXP PROMOTION %s %s" lastname codegps) Exit state 
               else state 
             in 
                  let dens_activite_promotion = (convert_exp (Public_data.string_of_experience Public_data.Promotion) course)::dens.Public_data.dens_activite_promotion in 
@@ -410,7 +410,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
               let state,b = Remanent_state.is_focus ~firstname ~lastname state in  
               if b then 
                 
-                Remanent_state.warn __POS__ (Format.sprintf "EXP TRANSDISCIPLINAIRE %s %s" firstname codegps) Exit state 
+                Remanent_state.warn __POS__ (Format.sprintf "EXP TRANSDISCIPLINAIRE %s %s" lastname codegps) Exit state 
               else state 
             in 
                 let dens_activite_transdisciplinaire= (convert_exp (Public_data.string_of_experience Public_data.Transdisciplinaire) course)::dens.Public_data.dens_activite_transdisciplinaire in 
@@ -421,7 +421,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
                    let state,b = Remanent_state.is_focus ~firstname ~lastname state in 
        
               if b then 
-                Remanent_state.warn __POS__ (Format.sprintf "EXP HORS DENS %s %s" firstname codegps) Exit state 
+                Remanent_state.warn __POS__ (Format.sprintf "EXP HORS DENS %s %s" lastname codegps) Exit state 
               else state 
             in 
              let dens_cours_activite = dens.Public_data.dens_cours_activite in
@@ -436,7 +436,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
              let state,b = Remanent_state.is_focus ~firstname ~lastname state in 
        
               if b then 
-                Remanent_state.warn __POS__ (Format.sprintf "OTHER  %s %s" firstname codegps) Exit state 
+                Remanent_state.warn __POS__ (Format.sprintf "OTHER  %s %s" lastname codegps) Exit state 
               else state 
             in 
       let dens_cours_par_dpt = dens.Public_data.dens_cours_par_dpt in
@@ -463,7 +463,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
                let state,b = Remanent_state.is_focus ~firstname ~lastname state in 
        
               if b then 
-                Remanent_state.warn __POS__ (Format.sprintf "EXP MISSING %s" codegps) Exit state 
+                Remanent_state.warn __POS__ (Format.sprintf "EXP MISSING %s %s" lastname codegps) Exit state 
               else state 
             in 
       let dens_cours_a_trier = dens.Public_data.dens_cours_a_trier in

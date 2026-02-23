@@ -5886,6 +5886,13 @@ let program
     List.fold_left
       (fun state elt ->
          let _,_,_,_,cours = elt in
+         let state, b = Remanent_state.is_focus ~firstname ~lastname state in 
+         let state = 
+            if b then 
+              Remanent_state.warn __POS__ (Format.sprintf "PROGRAM %s %s %s" lastname 
+            (Tools.unsome_string cours.cours_annee) 
+            (Tools.unsome_string cours.code_cours)) Exit state else state 
+         in 
          match cours.note with
          | None -> state
          | Some note ->
