@@ -329,6 +329,11 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
       let state, (key,kind) = kind_of_course state code course.Public_data.supplement_extra in
          match kind with
       | Ecla ->
+        let state = 
+              if b then 
+                Remanent_state.warn __POS__ (Format.sprintf "ECLA %s" codegps) Exit state 
+              else state 
+        in 
        let dens_cours_langue = dens.Public_data.dens_cours_langue in
       let list = get dens_cours_langue in
       let dens_cours_langue = store ({course with Public_data.supplement_discipline="Langues"}::list) dens_cours_langue in
@@ -337,6 +342,11 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
       state, dens
       | Activite ->
       begin 
+        let state = 
+              if b then 
+                Remanent_state.warn __POS__ (Format.sprintf "ACTIVITE %s" codegps) Exit state 
+              else state 
+            in 
          let state, blacklisted = Remanent_state.exp_black_list codegps state in 
         if blacklisted 
         then state, dens 
@@ -345,26 +355,59 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
           match Remanent_state.which_exp codegps state 
         with 
           | state, Some Public_data.Recherche -> 
+            let state,b = Remanent_state.is_focus ~firstname ~lastname state in 
+            let state = 
+              if b then 
+                Remanent_state.warn __POS__ (Format.sprintf "EXP RECHERCHE %s" codegps) Exit state 
+              else state 
+            in 
+
+
             let dens_activite_recherche = (convert_exp (Public_data.string_of_experience Public_data.Recherche) course)::dens.Public_data.dens_activite_recherche in 
             let dens = {dens with Public_data.dens_activite_recherche} in 
             state, dens 
           | state, Some Public_data.Internationale -> 
+            let state = 
+              if b then 
+                Remanent_state.warn __POS__ (Format.sprintf "EXP INTERNATIONALE %s" codegps) Exit state 
+              else state 
+            in 
             let dens_activite_internationale = (convert_exp (Public_data.string_of_experience Public_data.Internationale) course)::dens.Public_data.dens_activite_internationale in  
             let dens = {dens with Public_data.dens_activite_internationale} in 
             state, dens 
           | state, Some Public_data.Ouverture -> 
+            let state = 
+              if b then 
+                Remanent_state.warn __POS__ (Format.sprintf "EXP OUVERTURE %s" codegps) Exit state 
+              else state 
+            in 
                 let dens_activite_ouverture = (convert_exp (Public_data.string_of_experience Public_data.Ouverture)  course)::dens.Public_data.dens_activite_ouverture in 
               let dens = {dens with Public_data.dens_activite_ouverture} in 
               state, dens 
               | state, Some Public_data.Promotion -> 
+                let state = 
+              if b then 
+                Remanent_state.warn __POS__ (Format.sprintf "EXP PROMOTION %s" codegps) Exit state 
+              else state 
+            in 
                  let dens_activite_promotion = (convert_exp (Public_data.string_of_experience Public_data.Promotion) course)::dens.Public_data.dens_activite_promotion in 
                 let dens = {dens with Public_data.dens_activite_promotion} in 
                 state, dens 
           | state, Some Public_data.Transdisciplinaire -> 
+            let state = 
+              if b then 
+                Remanent_state.warn __POS__ (Format.sprintf "EXP TRANSDISCIPLINAIRE %s" codegps) Exit state 
+              else state 
+            in 
                 let dens_activite_transdisciplinaire= (convert_exp (Public_data.string_of_experience Public_data.Transdisciplinaire) course)::dens.Public_data.dens_activite_transdisciplinaire in 
                 let dens = {dens with Public_data.dens_activite_transdisciplinaire} in 
                 state, dens               
           | state, (Some Public_data.Hors_Dens | None) -> 
+            let state = 
+              if b then 
+                Remanent_state.warn __POS__ (Format.sprintf "EXP HORS DENS %s" codegps) Exit state 
+              else state 
+            in 
              let dens_cours_activite = dens.Public_data.dens_cours_activite in
             let course = {course with Public_data.supplement_discipline="Activité"} in
             let list = dens_cours_activite in
@@ -373,6 +416,11 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
             state, dens
       end end 
     | Humanities | Sciences | Sans_mineure ->
+      let state = 
+              if b then 
+                Remanent_state.warn __POS__ (Format.sprintf "OTHER  %s" codegps) Exit state 
+              else state 
+            in 
       let dens_cours_par_dpt = dens.Public_data.dens_cours_par_dpt in
       begin
         let old =
@@ -393,6 +441,11 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
         state, {dens with Public_data.dens_cours_par_dpt}
       end
       | Missing ->
+        let state = 
+              if b then 
+                Remanent_state.warn __POS__ (Format.sprintf "EXP MISSING %s" codegps) Exit state 
+              else state 
+            in 
       let dens_cours_a_trier = dens.Public_data.dens_cours_a_trier in
       let list = get dens_cours_a_trier in
       let dens_cours_a_trier = store (course::list) dens_cours_a_trier in
