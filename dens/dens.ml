@@ -397,12 +397,11 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
               | state, Some Public_data.Promotion -> 
                 let state = 
                    let state,b = Remanent_state.is_focus ~firstname ~lastname state in 
-       
-              if b then 
-                Remanent_state.warn __POS__ (Format.sprintf "EXP PROMOTION %s %s" lastname codegps) Exit state 
-              else state 
-            in 
-                 let dens_activite_promotion = (convert_exp (Public_data.string_of_experience Public_data.Promotion) course)::dens.Public_data.dens_activite_promotion in 
+                   if b then 
+                      Remanent_state.warn __POS__ (Format.sprintf "EXP PROMOTION %s %s" lastname codegps) Exit state 
+                  else state 
+                in 
+                let dens_activite_promotion = (convert_exp (Public_data.string_of_experience Public_data.Promotion) course)::dens.Public_data.dens_activite_promotion in 
                 let dens = {dens with Public_data.dens_activite_promotion} in 
                 state, dens 
           | state, Some Public_data.Transdisciplinaire -> 
@@ -804,8 +803,8 @@ let display_exp state label l =
 
 let count_exp dens =
     List.fold_left
-      (fun n l  -> n+List.length l)
-      0
+      (fun (n,n') l  -> n+List.length l,n'+(if l=[] then 0 else 1))
+      (0,0)
       [
         dens.Public_data.dens_activite_ouverture;
         dens.Public_data.dens_activite_promotion;
@@ -982,15 +981,31 @@ let dump_dens dens state =
                   (match main_dpt with | Public_data.DI -> " ou un stage à l'étranger" | Public_data.DMA | Public_data.ENS|Public_data.PHYS|Public_data.GEOSCIENCES | Public_data.DEC |  Public_data.CHIMIE|Public_data.IBENS|Public_data.ECO|Public_data.DRI|Public_data.ARTS|Public_data.LILA -> "")
       in
       let () = Remanent_state.print_newline state in *)
+      let state, promo = 
+        try state, int_of_string dens.Public_data.dens_promotion with 
+        | _ -> Remanent_state.warn __POS__ (Format.sprintf "Ill formed promotion %s" dens.Public_data.dens_promotion) Exit state, 0000
+      in 
       let () = Remanent_state.fprintf state "Expériences : " in
       let () = display_exp state "Ouverture" dens.Public_data.dens_activite_ouverture in
       let () = display_exp state "Recherche" dens.Public_data.dens_activite_recherche in
       let () = display_exp state "Internationale" dens.Public_data.dens_activite_internationale in
       let () = display_exp state "Transdisciplinaire"
       dens.Public_data.dens_activite_transdisciplinaire in
+      let () = display_exp state "Promotion de la diversité" dens.Public_data.dens_activite_promotion in 
       let () = display_exp state "Autre"
       dens.Public_data.dens_activite_autre in
-      let state = print_status (count_exp dens > 1)  state in
+      let n,n_diff = count_exp dens in 
+      let state = print_status 
+          ((promo  < 2023 && n > 1) 
+          || (promo > 2022 && n_diff > 1)) state in
+      let () = 
+        if promo < 2023 then 
+          Remanent_state.fprintf state
+                  "(2 expériences nécessaires)"
+        else  
+          Remanent_state.fprintf state
+                  "(2 expériences de différentes catéqories nécessaires)"
+      in 
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state "M2 recherche : " in
       let () = (match dens.Public_data.dens_master with
