@@ -7670,7 +7670,7 @@ let ects_5 =
       "INFO-M2-MPRI219-S1"; 
       "INFO-M2-MPRI240-S1"; 
       "INFO-M2-MPRI216-S1";
-      "INFO-M2-MPRI239-S1"; "
+      "INFO-M2-MPRI239-S1"; 
       "UNDEXT047d";
     ]
   
