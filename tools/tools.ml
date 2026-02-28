@@ -791,11 +791,11 @@ let simplify_spaces s =
   let l = List.filter (fun x -> x<>"") l in
   String.concat " " l
 
-let remove_ending_dash libelle =  
+let remove_ending_dash_and_and libelle =  
     if String.length libelle = 0 
     then libelle 
     else 
-       if String.get libelle ((String.length libelle)-1)  = '-'
+       if List.mem (String.get libelle ((String.length libelle)-1))  ['-';'&'] 
        then 
           String.trim (String.sub libelle 0 ((String.length libelle)-1))
        else 
@@ -805,7 +805,7 @@ let normalise_and s =
     let l = String.split_on_char '&' s in 
     String.concat " & " (List.rev_map String.trim (List.rev l))
 
-let simplify_libelle s = normalise_and (remove_ending_dash (simplify_spaces s))
+let simplify_libelle s = normalise_and (remove_ending_dash_and_and (simplify_spaces s))
 
 let hash_libelle s = 
   let l = String.split_on_char ' ' s in 
