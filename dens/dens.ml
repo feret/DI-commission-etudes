@@ -301,7 +301,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
       let state = 
           let state,b = Remanent_state.is_focus ~firstname ~lastname state in 
            if b then 
-                Remanent_state.warn __POS__ (Format.sprintf "%s DI %s %f" firstname codegps course.Public_data.supplement_ects) Exit state 
+                Remanent_state.warn __POS__ (Format.sprintf "%s DI %s %f" lastname codegps course.Public_data.supplement_ects) Exit state 
            else state 
         in 
       let state, (key,_kind) =
@@ -571,16 +571,36 @@ Tools.unsome_string stage.Public_data.activite_intitule_fr;
                         Public_data.activite_activite_en;
                         Public_data.activite_activite_fr}
                 in
-                let dens =
+                let state, b = Remanent_state.is_focus ~lastname ~firstname state in 
+                let state, dens =
                   match s.Public_data.stageat_type with
-                    | Some Public_data.Promotion -> store_activite_promotion stage dens 
-                    | Some Public_data.Recherche -> store_activite_recherche stage dens
-                    | Some Public_data.Internationale -> store_activite_internationale stage dens
-                    | Some Public_data.Ouverture -> store_activite_ouverture stage dens
-                    | Some Public_data.Transdisciplinaire -> store_activite_transdisciplinaire stage dens
+                    | Some Public_data.Promotion -> 
+                        (if b then 
+                           Remanent_state.warn __POS__ (Format.sprintf "STORE RECHERCHE %s %s %f" lastname stage.Public_data.activite_intitule stage.Public_data.activite_ects )  Exit state 
+                        else state),
+                        store_activite_promotion stage dens 
+                    | Some Public_data.Recherche -> 
+                      (if b then 
+                           Remanent_state.warn __POS__ (Format.sprintf "STORE RECHERCHE %s %s %f" lastname stage.Public_data.activite_intitule stage.Public_data.activite_ects )  Exit state 
+                        else state),store_activite_recherche stage dens
+                    | Some Public_data.Internationale -> 
+                    (if b then 
+                           Remanent_state.warn __POS__ (Format.sprintf "STORE INTERNATIONAL %s %s %f" lastname stage.Public_data.activite_intitule stage.Public_data.activite_ects )  Exit state 
+                        else state),store_activite_internationale stage dens
+                    | Some Public_data.Ouverture -> 
+                      (if b then 
+                           Remanent_state.warn __POS__ (Format.sprintf "STORE OUVERTURE %s %s %f" lastname stage.Public_data.activite_intitule stage.Public_data.activite_ects )  Exit state 
+                        else state),store_activite_ouverture stage dens
+                    | Some Public_data.Transdisciplinaire -> (if b then 
+                           Remanent_state.warn __POS__ (Format.sprintf "STORE TRANSDISCIPLINAIRE %s %s %f" lastname stage.Public_data.activite_intitule stage.Public_data.activite_ects )  Exit state 
+                        else state),store_activite_transdisciplinaire stage dens
                     | Some Public_data.Hors_Dens ->
-                    dens
-                    | None -> store_activite_autre stage dens
+                    (if b then 
+                           Remanent_state.warn __POS__ (Format.sprintf "STORE HORS DENS %s %s %f" lastname stage.Public_data.activite_intitule stage.Public_data.activite_ects )  Exit state 
+                        else state),dens
+                    | None -> (if b then 
+                           Remanent_state.warn __POS__ (Format.sprintf "STORE NONE %s %s %f" lastname stage.Public_data.activite_intitule stage.Public_data.activite_ects )  Exit state 
+                        else state),store_activite_autre stage dens
                 in
                 state, dens
               end)
@@ -786,8 +806,6 @@ let dump_list_gen_list ?key get list (state,total) =
 
       let dump_list ?key = dump_list_gen ?key (fun course -> course.Public_data.supplement_ects)
 
-      let dump_list_exp ?key = dump_list_gen ?key (fun course -> course.Public_data.activite_ects)
-
       let dump_list_exp_list ?key = dump_list_gen_list ?key (fun course -> course.Public_data.activite_ects)
 
 let add_total l =
@@ -854,9 +872,10 @@ let print_status bool state =
     then print_check state
     else print_in_progress state
 
-    let _ = dump_list_exp 
 let dump_dens dens state =
     let state, dens = simplify_exp dens state in 
+    let lastname = dens.Public_data.dens_lastname in 
+    let firstname = dens.Public_data.dens_firstname in 
     let size = [None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None] in
     let state, main_dpt = Remanent_state.get_main_dpt state in
@@ -931,6 +950,10 @@ let dump_dens dens state =
            dens.Public_data.dens_activite_recherche; 
            dens.Public_data.dens_activite_a_trier ] 
            (state, total_init)
+     in 
+     let state, b = Remanent_state.is_focus ~lastname ~firstname state in 
+     let state = 
+        if b then state else state 
      in 
      let state, total_to_sort =
         dump_repartition

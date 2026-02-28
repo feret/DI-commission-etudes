@@ -8025,7 +8025,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           let state = 
             if b 
             then 
-              Remanent_state.warn __POS__ (Format.sprintf "ADD %s %s %s" course.Public_data.pe_year code course.Public_data.pe_libelle) Exit state 
+              Remanent_state.warn __POS__ (Format.sprintf "ADD %s %s %s %s %f" lastname course.Public_data.pe_year code course.Public_data.pe_libelle (match elt.ects with None -> 0. | Some f -> f)) Exit state 
             else state
           in  
           let blacklist = add ~year:course.Public_data.pe_year ~codehelisa:code ~libelle:course.Public_data.pe_libelle  blacklist in
