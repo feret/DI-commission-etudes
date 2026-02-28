@@ -7656,7 +7656,7 @@ let ects_5 =
   let ects_3 = 
     [
       "INFO-M2-MPRI292-S1";
-      "NFO-M2-MPRI2231-S1";
+      "INFO-M2-MPRI2231-S1";
       "INFO-M2-MPRI2141-S1";
       "INFO-M2-MPRI231-S1";
       "INFO-M2-MPRI271-S1";
