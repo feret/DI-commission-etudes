@@ -105,6 +105,9 @@ let keywords_list =
     Public_data.PEGASUS_CO_ANNEE_AFFICHE_CLASSEMENT_EDITION;
     Public_data.PEGASUS_CO_ANNEE_COURS_OBL_PHASES_PROS;
     Public_data.PEGASUS_CO_ANNEE_COURS_OBL_CODES_PRODUITS;
+    Public_data.PEGASUS_CO_ANNEE_CREDITS_MINIMUM_POUR_VALIDER;	
+    Public_data.PEGASUS_CO_ANNEE_ENS_VISA_DIPLOME;	
+    Public_data.PEGASUS_CO_ANNEE_ENS_VISA_DIPLOME_CO_ACCRED;
     Public_data.PEGASUS_NV_0 ;
     Public_data.PEGASUS_NV_1 ;
     Public_data.PEGASUS_NV_2 ;
@@ -403,7 +406,7 @@ let all_fields =
             let event = Some (Profiling.Scan_csv_files (str,"")) in
             let state = Remanent_state.open_event_opt event state in
             let state = Scan_xlss_files.collect_gen
-               (*~debug:true*) 
+               ~debug:true 
               ~strict:false
               ?repository
               ?prefix

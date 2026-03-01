@@ -277,6 +277,9 @@ let asso_list =
     Public_data.PEGASUS_CO_ANNEE_AFFICHE_CLASSEMENT_EDITION,["co_annee affiche classement edition"];
     Public_data.PEGASUS_CO_ANNEE_COURS_OBL_PHASES_PROS,["co_annee cours-obl-phases_pros"];
     Public_data.PEGASUS_CO_ANNEE_COURS_OBL_CODES_PRODUITS,["co_annee cours-obl-codes_produits"];
+    Public_data.PEGASUS_CO_ANNEE_CREDITS_MINIMUM_POUR_VALIDER,["co_annee credits minimum pour valider"]; 
+    Public_data.PEGASUS_CO_ANNEE_ENS_VISA_DIPLOME,["co_annee ens_visa_diplome"];
+    Public_data.PEGASUS_CO_ANNEE_ENS_VISA_DIPLOME_CO_ACCRED,["co_annee ens_visa_diplome_co_accred"];   
     Public_data.PEGASUS_GENRE,["genre"];
     Public_data.PEGASUS_CODE_SEXE,["code_sexe"];
     Public_data.PEGASUS_NOM,["nom"];
