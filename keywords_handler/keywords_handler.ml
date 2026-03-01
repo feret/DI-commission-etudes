@@ -292,7 +292,7 @@ let asso_list =
   Public_data.PEGASUS_CO_PRODUIT_FR_ENS_LANGUES_ENSEIGNEMENT	,["co_produit fr_ens_langues_enseignement"];
   Public_data.PEGASUS_CO_PRODUIT_FR_ENS_NIVEAU_DE_QUALIFICATION	,["co_produit fr_ens_niveau_de_qualification"];
   Public_data.PEGASUS_CO_PRODUIT_FR_ENS_ORGANISATION_DES_ETUDES	,["co_produit fr_ens_organisation_des_etudes"];
-  Public_data.PEGASUS_CO_PRODUIT_FR_ENS_EXIGENCES_DU_PROGRAMME	,["co_produit fr_ens_exigneces_du_programme"];
+  Public_data.PEGASUS_CO_PRODUIT_FR_ENS_EXIGENCES_DU_PROGRAMME	,["co_produit fr_ens_exigences_du_programme"];
   Public_data.PEGASUS_CO_PRODUIT_FR_ENS_SIGNATAIRE	,["co_produit fr_ens_signataire"];
   Public_data.PEGASUS_CO_PRODUIT_ENS_SIGNATURE	,["co_produit ens_signature"];
   Public_data.PEGASUS_CO_PRODUIT_GB_ENS_SAD_INTRODUCTION ,["co_produit gb_ens_sad_introduction"];	
