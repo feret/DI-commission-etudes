@@ -324,7 +324,7 @@ let asso_list =
   Public_data.PEGASUS_CO_PRODUIT_ENS_SIGNATAIRE_UNIVERSITE_PSL	,["co_produit ens_signataire_universite_psl"];
   Public_data.PEGASUS_CO_PRODUIT_ENS_SIGNATAIRE_ACADEMIE	,["co_produit ens_signataire_academie"];
   Public_data.PEGASUS_CO_PRODUIT_ADD_TITRE_DU_DECLARANT	,["co_produit add_titre_du_declarant"];
-  Public_data.PEGASUS_CO_PRODUIT_ADD_NOM_DU_DIPLOME	,["co_produit add_nom_du_dipome"];
+  Public_data.PEGASUS_CO_PRODUIT_ADD_NOM_DU_DIPLOME	,["co_produit add_nom_du_diplome"];
   Public_data.PEGASUS_CO_PRODUIT_ADD_COMPLEMENT_INFO	,["co_produit add_complement_info"];
   Public_data.PEGASUS_CO_PRODUIT_ADD_SIGNATAIRE	,["co_produit add_signataire"];
   Public_data.PEGASUS_CO_PRODUIT_SISE_COMPOS	,["co_produit sise-compos"];
