@@ -287,7 +287,7 @@ let asso_list =
   Public_data.PEGASUS_CO_PRODUIT_FR_ENS_SAD_INTITULE_DIPLOME	,["co_produit fr_ens_sad_intitule_diplome"];
   Public_data.PEGASUS_CO_PRODUIT_FR_ENS_ETABLISSEMENT_DELIVRE	,["co_produit fr_ens_etablissement_delivre"];
   Public_data.PEGASUS_CO_PRODUIT_FR_ENS_ETABLISSEMENT_DISPENCE	,["co_produit fr_ens_etablissement_dispence"];
-  Public_data.PEGASUS_CO_PRODUIT_FR_ENS_CONDITIONS_ACCES	,["co_produit fr_ens_conditions_access"];
+  Public_data.PEGASUS_CO_PRODUIT_FR_ENS_CONDITIONS_ACCES	,["co_produit fr_ens_conditions_acces"];
   Public_data.PEGASUS_CO_PRODUIT_FR_ENS_DUREE_PROGRAMMES	,["co_produit fr_ens_duree_programmes"];
   Public_data.PEGASUS_CO_PRODUIT_FR_ENS_LANGUES_ENSEIGNEMENT	,["co_produit fr_ens_langues_enseignement"];
   Public_data.PEGASUS_CO_PRODUIT_FR_ENS_NIVEAU_DE_QUALIFICATION	,["co_produit fr_ens_niveau_de_qualification"];
