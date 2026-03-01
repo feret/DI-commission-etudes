@@ -7759,8 +7759,24 @@ let pick_course ~firstname ~lastname state l =
             Remanent_state.get_grade_in_pegasus
               ~firstname ~lastname ~codehelisa:code ~year:course.Public_data.pe_year state
           in
-          match grade with None -> state, false
-                          | Some _ -> state, true
+          let state, is_focus = 
+            Remanent_state.is_focus ~firstname ~lastname state 
+          in  
+          match grade with 
+          | None -> 
+            (if is_focus then 
+            Remanent_state.warn __POS__ 
+              (Format.sprintf "NO GRADE %s %s %s" lastname code course.Public_data.pe_year) 
+              Exit state
+          else 
+              state), false
+          | Some _ -> 
+             (if is_focus then 
+            Remanent_state.warn __POS__ 
+              (Format.sprintf "GOT GRADE %s %s %s" lastname code course.Public_data.pe_year) 
+              Exit state
+          else 
+              state), true
           end
     in
     let rec filter p l acc state =
@@ -7776,6 +7792,7 @@ let pick_course ~firstname ~lastname state l =
       | (state, h::_), _ | (state, []), h::_ -> state, Some h
 
 let add_pegasus_entries ~firstname ~lastname state gps_file =
+    let state, is_focus = Remanent_state.is_focus ~firstname ~lastname state in 
     let state, l = Remanent_state.Collector_pedagogical_registrations.find_list ~firstname ~lastname state in
     let state, gps_file, blacklist =
       List.fold_left
@@ -7783,6 +7800,12 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
           let state, course_opt = pick_course ~firstname ~lastname state course in
           match course_opt with 
               | None ->  
+                  let state =
+                    if is_focus then
+                      List.fold_left (fun state course -> Remanent_state.warn __POS__ 
+                        (Format.sprintf "COURSE NOT FOUND %s %s" lastname course.Public_data.pe_code_helisa) Exit state) state course 
+                    else state 
+                    in 
                   Remanent_state.warn __POS__ "EMPTY ENTRY LIST" Exit state, gps_file, blacklist
               | Some course ->                
           let code = String.trim (course.Public_data.pe_code_helisa) in

@@ -42,7 +42,10 @@ let state =
   Collect_pegasus_administrative_status.get_pegasus_administrative_data state
 let state =
   Collect_pegasus_pedagogical_registrations.get_pegasus_pedagogical_registrations state
-let state =
+  let state, t = Remanent_state.Collector_course_pegasus.get state 
+      let () = Pegasus_courses.dump t 
+    
+  let state =
     let state, b = Remanent_state.do_we_log_pegasus_entries state in
     if b then
       let state, t = Remanent_state.Collector_course_pegasus.get state in
