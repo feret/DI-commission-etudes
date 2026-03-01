@@ -144,8 +144,8 @@ type parameters =
     double_l3:Public_data.double_cursus list; 
     simple_l3:Public_data.simple_cursus list; simple_m1:Public_data.simple_cursus list; 
     suggest_course_dispatching: bool;   
-    focus_lastname: string option; 
-    focus_firstname: string option; 
+    focus_lastname: string list; 
+    focus_firstname: string list; 
 
     }
 
@@ -318,8 +318,8 @@ let parameters =
     simple_m1 = 
     [Public_data.DMA,Reglements_pedagogiques.m1_maths]; 
     suggest_course_dispatching=false; 
-    focus_lastname = Some "MIQUEL"; 
-    focus_firstname = None; 
+    focus_lastname = ["MIQUEL";"DOUZAL" ]; 
+    focus_firstname = []; 
   } 
 
 
@@ -3410,14 +3410,14 @@ let do_we_suggest_course_dispatching t =
   t, t.parameters.suggest_course_dispatching
 
 let is_focus ?firstname ?lastname t = 
-  match firstname, lastname, t.parameters.focus_lastname, t.parameters.focus_firstname with 
-   | _,_,None,None 
-   | None, _, None, _ 
-   | _, None, _, None 
-   | None,None,_,_ -> t, false 
-   | Some x,Some y, Some v, Some u -> t, simplify x= simplify u && simplify y=simplify v
-   | _,Some x,Some y,_
-   | Some x,_,_,Some y ->
-      t, simplify x= simplify y
+  t, (match firstname with 
+  | None -> false 
+  | Some x -> let x = simplify x in 
+              List.mem x (List.rev_map simplify t.parameters.focus_firstname))
+  || 
+(match lastname with 
+  | None -> false 
+  | Some x -> let x = simplify x in 
+              List.mem x (List.rev_map simplify t.parameters.focus_lastname))
   
   
