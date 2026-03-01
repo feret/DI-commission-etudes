@@ -191,6 +191,28 @@ let string_of_dpt x =
   | CIENS -> "enjeux stratégiques"
   | ENS -> ""
 
+let prefix_code_of_dpt x = 
+   match x with
+  | DI -> "INFO"
+  | DMA -> "DMA"
+  | CHIMIE -> "CHIM"
+  | GEOSCIENCES -> "GSC"
+  | DSA -> "DSA"
+  | DSS -> "DSS"
+  | IBENS -> "BIO"
+  | PHYS -> "PHYS"
+  | ECO -> "ECO"
+  | DRI -> "DRI"
+  | ARTS -> "arts"
+  | LILA -> "LILA"
+  | DEC -> "DEC"
+  | GEOG -> "GEOG"
+  | HIST -> "Histoire"
+  | ECLA -> "ECLA"
+  | CIENS -> "CIENS"
+  | ENS -> ""
+  
+
 let dpt_of_string x =
   match x with
   | "informatique" | "di" -> DI

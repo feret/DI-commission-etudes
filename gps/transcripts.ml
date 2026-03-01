@@ -1685,7 +1685,18 @@ let add_extra_course state cours_a_ajouter gps_file =
       code_cours =
         begin
           match cours_a_ajouter.Public_data.coursaj_code with
-          | None -> Some " "
+          | None -> 
+            begin 
+              if List.mem cours_a_ajouter.Public_data.coursaj_libelle ["N/A";"Points de jury"] 
+              then None   
+              else 
+              match cours_a_ajouter.Public_data.coursaj_dpt with 
+              | None -> Some "" 
+              | Some x -> 
+                try 
+                Some ((Public_data.prefix_code_of_dpt (Public_data.dpt_of_string x))^"XXXX")
+              with _ -> Some "" 
+            end 
           | a -> a
         end;
       responsable = None ;
