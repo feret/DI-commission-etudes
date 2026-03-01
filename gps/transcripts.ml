@@ -1694,7 +1694,7 @@ let add_extra_course state cours_a_ajouter gps_file =
               | None -> Some "" 
               | Some x -> 
                 try 
-                Some ((Public_data.prefix_code_of_dpt (Public_data.dpt_of_string x))^"XXXX")
+                Some ((Public_data.prefix_code_of_dpt (Public_data.dpt_of_string x))^"-XXXX")
               with _ -> Some "" 
             end 
           | a -> a
