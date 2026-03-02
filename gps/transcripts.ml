@@ -1668,7 +1668,7 @@ let warn_on_course_list ~promo ~firstname ~lastname state l context =
     let state = warn_on_courses ~promo ~firstname ~lastname state map in
     state, make_unvalidated_map unvalidated
 
-let add_extra_course state cours_a_ajouter gps_file =
+let add_extra_course ~firstname ~lastname state cours_a_ajouter gps_file =
   let situation = gps_file.situation in
   let bilan =
     match
@@ -1679,6 +1679,12 @@ let add_extra_course state cours_a_ajouter gps_file =
     | None -> empty_bilan_annuel
     | Some b -> b
   in
+  let state,focus = Remanent_state.is_focus ~firstname ~lastname state in 
+  let state = 
+    if focus then 
+      Remanent_state.warn __POS__ (Format.sprintf "ADD EXTRA COURSE %s %s" lastname cours_a_ajouter.Public_data.coursaj_libelle) Exit state 
+    else state 
+  in   
   let elt =
     {
       semestre = None ;
@@ -8389,7 +8395,7 @@ let saturate_gps_file ~firstname ~lastname ~promo state gps_file =
   let state, gps_file = (*6*)
     List.fold_left
       (fun (state, gps_file) course ->
-        add_extra_course state course gps_file)
+        add_extra_course ~lastname ~firstname state course gps_file)
       (state, gps_file)
       additional_courses
   in
