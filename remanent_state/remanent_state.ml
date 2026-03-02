@@ -318,7 +318,7 @@ let parameters =
     simple_m1 = 
     [Public_data.DMA,Reglements_pedagogiques.m1_maths]; 
     suggest_course_dispatching=false; 
-    focus_lastname = ["MIQUEL";"DOUZAL" ]; 
+    focus_lastname = []; 
     focus_firstname = []; 
   } 
 
@@ -3409,15 +3409,18 @@ let get_reglement_pedagogique_l3 ~dpt t =
 let do_we_suggest_course_dispatching t = 
   t, t.parameters.suggest_course_dispatching
 
-let is_focus ?firstname ?lastname t = 
-  t, (match firstname with 
-  | None -> false 
-  | Some x -> let x = simplify x in 
-              List.mem x (List.rev_map simplify t.parameters.focus_firstname))
-  || 
-(match lastname with 
-  | None -> false 
-  | Some x -> let x = simplify x in 
-              List.mem x (List.rev_map simplify t.parameters.focus_lastname))
-  
+let check_firstname firstname t = 
+  let firstname = simplify firstname in 
+  List.mem firstname (List.rev_map simplify t.parameters.focus_firstname)
+
+let check_lastname lastname t = 
+  let lastname = simplify lastname in 
+  List.mem lastname (List.rev_map simplify t.parameters.focus_lastname)
+
+  let is_focus ?firstname ?lastname t = 
+    match firstname, lastname with 
+      | None,None -> t, false 
+      | Some firstname,None -> t, check_firstname firstname t
+      | None, Some lastname -> t, check_lastname lastname t 
+      | Some firstname, Some lastname -> t, check_firstname firstname t && check_lastname lastname t  
   
