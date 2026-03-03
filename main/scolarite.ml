@@ -15,6 +15,113 @@ let state =
   Get_gps_files.get_pg_students_list state
 let state, students_list =
   Remanent_state.Student_ids.get state
+  let state, output =
+  Cloud_interaction.get_dated_repository state
+let state, output_repository =
+  match
+    Remanent_state.get_target state
+  with
+  | state, None -> state, fst output
+  | state, Some _ -> state, snd output
+let state, output_repository_gps =
+  Remanent_state.get_repository_to_dump_gps_files
+    ~output_repository
+    state
+let state = 
+    let id = 
+        {Public_data.firstname = "julien" ; 
+         Public_data.lastname = "marquet" ; 
+         Public_data.promotion = Some "2020" }
+    in 
+let state, output =
+         Get_gps_files.get_student_file
+           ~output_repository:output_repository_gps
+           id state
+       in
+       match output with
+       | None -> state
+       | Some output ->
+         let firstname =  id.Public_data.firstname in
+         let lastname = id.Public_data.lastname in
+         let promo = id.Public_data.promotion in
+         let state,patched_file_opt =
+           Get_gps_files.patch_student_file
+             state
+             ~firstname
+             ~lastname
+             ~input:output
+             ~output:output
+         in
+         let state, gps =
+           match patched_file_opt with
+           | None -> state, None
+           | Some input ->
+             Transcripts.get_gps_file
+               ~input state
+         in
+         let output0 = output in
+         let state =
+           List.fold_left
+            (fun state cost_member ->
+              List.fold_left
+                (fun state (language,key) ->
+              let output =
+                  (fst output0,
+                    (Tools.basename (snd
+                               output0))^".transcript."^key^"."^cost_member.Public_data.cost_initials^".tex")
+              in
+              let state =
+                match gps with
+                  | None -> state
+                  | Some gps ->
+                    let state, signature =
+                      Remanent_state.get_signature state
+                    in
+                    let state, input =
+                        Transcripts.export_transcript_export_scolarite
+                            ~cost_member
+                            ~language
+                            ~output  ~signature state gps
+                    in
+                    let state =
+                      match input
+                      with
+                        | Some (input_rep,file_name) ->
+                            let state,rep  =
+                              Remanent_state.get_student_personnal_repository
+                                ~firstname ~lastname ?promo state
+                            in
+                            let output_rep = Printf.sprintf "%s/" rep in
+                            let file_name = Copy.pdf_file file_name in
+                            let state =
+                              Remanent_state.push_copy
+                                ~input_rep ~output_rep ~file_name state
+                            in
+                            state
+                        | None ->
+                            state
+                    in
+                    Latex_engine.latex_opt_to_pdf state ~input in state)
+                state [Public_data.French,"fr";Public_data.English,"en"])
+            state []
+         in
+
+         let output =
+           (fst output0,
+            (Tools.basename (snd
+                               output0))^".validated_and_in_progress_only.tex")
+         in
+        let state =
+           match gps with
+           | None -> state
+           | Some gps ->
+             let report = true in
+             let state, _ =
+               Transcripts.export_transcript
+                 ~output ~keep_success:true ~report state gps
+             in
+             state  
+            in state 
 let state, students_list =
   match
     Remanent_state.get_target state
