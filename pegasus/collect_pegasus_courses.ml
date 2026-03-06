@@ -42,6 +42,7 @@ let lift_string_opt =
 let keywords_list =
   [
     Public_data.Ignore ;
+    Public_data.PEGASUS_Atelier; 
     Public_data.PEGASUS_Code_Produit_Helisa;
     Public_data.PEGASUS_Libelle;
     Public_data.PEGASUS_Libelle_Anglais;
