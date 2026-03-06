@@ -789,6 +789,7 @@ type keywords =
   | Universite
   | Valide
   | Ignore
+  | PEGASUS_Atelier 
   | PEGASUS_Code_Produit_Helisa
   | PEGASUS_Libelle
   | PEGASUS_Libelle_Anglais

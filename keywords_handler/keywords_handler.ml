@@ -214,6 +214,7 @@ let asso_list =
     Public_data.Universite,["université";"university"];
     Public_data.Valide, ["validé"];
     Public_data.Ignore, ["ignore"];
+    Public_data.PEGASUS_Atelier, ["atelier";"ATELIER"]; 
     Public_data.PEGASUS_Code_Produit_Helisa,["code produit helisa";"CODE"];
     Public_data.PEGASUS_Libelle,["libellé";"LIBELLE_PRODUIT"];
     Public_data.PEGASUS_Libelle_Anglais,["libellé anglais";"LIBELLE_PRODUIT_GB"];
