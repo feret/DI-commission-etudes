@@ -294,8 +294,6 @@ let update_inscription code_helisa entry bset state =
           | _ ->
           Remanent_state.warn __POS__ (Format.sprintf "UPDATE_DIPLOMA' %s %s (%s) @." (Tools.unsome_string entry.firstname) (Tools.unsome_string entry.lastname) libelle) Exit state, "UNDDIPL-NA"
       in
-      if code = "" then bset, state 
-      else 
       let code_helisa, libelle = Some code, Some libelle in
       let state, entry = convert {entry with libelle ; code_helisa  } state in
         add
