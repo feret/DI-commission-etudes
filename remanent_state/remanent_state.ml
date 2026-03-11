@@ -318,7 +318,7 @@ let parameters =
     simple_m1 = 
     [Public_data.DMA,Reglements_pedagogiques.m1_maths]; 
     suggest_course_dispatching=false; 
-    focus_lastname = []; 
+    focus_lastname = ["DUVAL"]; 
     focus_firstname = []; 
   } 
 
