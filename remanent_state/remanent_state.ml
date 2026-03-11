@@ -3409,18 +3409,17 @@ let get_reglement_pedagogique_l3 ~dpt t =
 let do_we_suggest_course_dispatching t = 
   t, t.parameters.suggest_course_dispatching
 
-let check_firstname firstname t = 
-  let firstname = simplify firstname in 
-  List.mem firstname (List.rev_map simplify t.parameters.focus_firstname)
-
-let check_lastname lastname t = 
-  let lastname = simplify lastname in 
-  List.mem lastname (List.rev_map simplify t.parameters.focus_lastname)
+let check elt list = 
+  match elt, list with 
+  | None, _ | _,[] -> true 
+  | Some elt,_  -> 
+     let elt = simplify elt in 
+     List.mem elt (List.rev_map simplify list)
 
   let is_focus ?firstname ?lastname t = 
-    match firstname, lastname with 
-      | None,None -> t, false 
-      | Some firstname,None -> t, check_firstname firstname t
-      | None, Some lastname -> t, check_lastname lastname t 
-      | Some firstname, Some lastname -> t, check_firstname firstname t && check_lastname lastname t  
+    match t.parameters.focus_firstname, t.parameters.focus_lastname with 
+      | [], [] -> t, false 
+      | _::_, _ | _,_::_ ->  
+          t, check firstname t.parameters.focus_firstname 
+            && check lastname t.parameters.focus_lastname 
   

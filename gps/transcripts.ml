@@ -8162,7 +8162,10 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                 end
           in
            let state = 
-                if b 
+              let state, b = 
+                Remanent_state.is_focus ~firstname ~lastname state 
+              in 
+              if b 
                 then 
                   Remanent_state.warn __POS__ (Format.sprintf "NOTE %s %s %s %s " lastname year codehelisa (Tools.unsome_string grade.Public_data.pegasus_note)) Exit state 
                 else 
