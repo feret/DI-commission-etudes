@@ -215,6 +215,15 @@ let convert entry state =
 
 
 let update_diploma diploma entry (bset,state) =
+  let state = 
+    let state, b = Remanent_state.is_focus ?lastname:entry.lastname ?firstname:entry.firstname state in 
+    if b then 
+      Remanent_state.warn __POS__ (Format.sprintf "UPDATE_DIPLOMA %s %s %s"
+      (Tools.unsome_string entry.lastname) (Tools.unsome_string entry.firstname) diploma)
+      Exit state 
+    else  
+      state    
+  in 
   let code, libelle =
     let l = String.split_on_char ' ' diploma in
     match l with
@@ -234,6 +243,15 @@ let update_diploma diploma entry (bset,state) =
 let update_inscription code_helisa entry bset state =
   match code_helisa with
     | Some (dpt,n) ->
+       let state = 
+          let state, b = Remanent_state.is_focus ?lastname:entry.lastname ?firstname:entry.firstname state in 
+          if b then 
+                Remanent_state.warn __POS__ (Format.sprintf "UPDATE_INSCRIPTION %s %s %s %s"
+                (Tools.unsome_string entry.lastname) (Tools.unsome_string entry.firstname) dpt n)
+                Exit state 
+          else  
+             state    
+        in 
         let state, dpt =
           match dpt with
             | "Informatique"  -> state, "INF"
@@ -255,6 +273,15 @@ let update_inscription code_helisa entry bset state =
     | None -> bset,state
 
   let update_snd dpt entry bset state =
+    let state = 
+    let state, b = Remanent_state.is_focus ?lastname:entry.lastname ?firstname:entry.firstname state in 
+    if b then 
+      Remanent_state.warn __POS__ (Format.sprintf "UPDATE_SECOND %s %s %s"
+      (Tools.unsome_string entry.lastname) (Tools.unsome_string entry.firstname) dpt)
+      Exit state 
+    else  
+      state    
+  in 
     let snd x = Format.sprintf "UNDDSEC-%s" x in
     let state, code =
     match dpt with
@@ -279,6 +306,15 @@ let update_inscription code_helisa entry bset state =
         [entry] (bset,state)
 
   let update_diploma' diploma entry bset (state:Remanent_state.t) =
+     let state = 
+        let state, b = Remanent_state.is_focus ?lastname:entry.lastname ?firstname:entry.firstname state in 
+        if b then 
+          Remanent_state.warn __POS__ (Format.sprintf "UPDATE_DIPLOMA' %s %s %s"
+          (Tools.unsome_string entry.lastname) (Tools.unsome_string entry.firstname) diploma)
+          Exit state 
+        else  
+          state    
+      in 
       let libelle = diploma in
       let state, code =
           match libelle with
@@ -310,6 +346,15 @@ let get_teachers entry =
   | x -> x
 
 let update_course course ects entry bset (state:Remanent_state.t) =
+    let state = 
+      let state, b = Remanent_state.is_focus ?lastname:entry.lastname ?firstname:entry.firstname state in 
+      if b then 
+        Remanent_state.warn __POS__ (Format.sprintf "UPDATE_COURSE %s %s %s"
+        (Tools.unsome_string entry.lastname) (Tools.unsome_string entry.firstname) course)
+        Exit state 
+      else  
+        state    
+    in 
     let codehelisa, libelle =
        let l = String.split_on_char ' ' course in
        match l with
@@ -369,6 +414,15 @@ let update_course course ects entry bset (state:Remanent_state.t) =
 
 
 let update_course'  semester libelle teacher ects entry bset state  =
+    let state = 
+      let state, b = Remanent_state.is_focus ?lastname:entry.lastname ?firstname:entry.firstname state in 
+      if b then 
+        Remanent_state.warn __POS__ (Format.sprintf "UPDATE_COURSE' %s %s %s %s"
+        (Tools.unsome_string entry.lastname) (Tools.unsome_string entry.firstname) semester libelle)
+        Exit state 
+      else  
+        state    
+    in 
     let _ = teacher in
     let semester = Some semester in
     let libelle = Tools.simplify_libelle libelle in 
