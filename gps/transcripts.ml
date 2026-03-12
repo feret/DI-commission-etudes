@@ -562,6 +562,7 @@ type cours =
   {
     semestre: string option;
     code_cours: string option;
+    code_diplome: string option; 
     responsable: string option;
     enseignants: (string * string) list option;
     cours_libelle: string option;
@@ -646,6 +647,7 @@ let empty_cours =
   {
     semestre = None ;
     code_cours = None ;
+    code_diplome = None ; 
     responsable = None ;
     enseignants = None ;
     cours_libelle = None ;
@@ -1705,6 +1707,7 @@ let add_extra_course ~firstname ~lastname state cours_a_ajouter gps_file =
             end 
           | a -> a
         end;
+      code_diplome = None ;   
       responsable = None ;
       enseignants = None ;
       cours_libelle = Some (String.trim (cours_a_ajouter.Public_data.coursaj_libelle));
@@ -2923,7 +2926,7 @@ simplify_string y = dpt
 | Some x ->
   List.exists (fun cours ->
 Tools.substring x (match cours.code_cours with None -> "" | Some x -> x)&& cours.diplome = Some "L") d.cours
-            end )
+            end )       
     end
 
 let code_mandatory_course_DI_maths year code_cours =
@@ -2937,7 +2940,8 @@ let lmath ~year ~firstname ~lastname d state =
   lgen "licence" ["gps2274";"gps3017";"gps2262"] dpt_maths_gps_name (Some "DMA") d ||
   List.exists
       (fun cours ->
-match cours.code_cours with | None -> false | Some code_gps ->
+      cours.code_diplome = Some "ANL3DMA" ||
+        (match cours.code_cours with | None -> false | Some code_gps ->
     code_mandatory_course_DI_maths year code_gps
       &&
       match Remanent_state.get_cursus_exception
@@ -2948,12 +2952,14 @@ match cours.code_cours with | None -> false | Some code_gps ->
         let level = x.Public_data.class_level in
         let acronym = x.Public_data.class_dpt in
         level = "L" && acronym = "DMA"
-        )    d.cours
+      ))    d.cours
+      
 
 let linfo d =
   lgen "licence" ["gps2291"] dpt_info_gps_name None d ||
   List.exists
         (fun cours ->
+          cours.code_diplome = Some "ANL3INF" ||
           match cours.code_cours with | None -> false | Some code_gps ->
       code_gps = "INFO-L3-MIIME-S2") d.cours
 
@@ -8042,6 +8048,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                     | Some "ANM1INF" -> Some "m"
                     | None | Some _ -> (if b then Some "dens" else None)
                 end ;
+              code_diplome = course.Public_data.pe_diploma; 
               contrat = None ;
               accord = Some true ;
               note = note ;
@@ -8216,6 +8223,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                 enseignants = Some [Special_char.capitalize (Special_char.lowercase (Tools.unsome_string course.Public_data.pegasus_prof_prenom)),Special_char.uppercase  (Tools.unsome_string course.Public_data.pegasus_prof_nom)]  ;
                 cours_libelle = Some libelle ;
                 cours_etablissement = None ;
+                code_diplome = None ; 
                 duree = None ;
                 ects ;
                 diplome = None ;
