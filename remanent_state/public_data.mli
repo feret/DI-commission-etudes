@@ -9,6 +9,9 @@ type language = French | English
 type repartition = Annee_de_validation_du_cours | Annee_obtention_du_diplome
 
 type statut_semestre = SCOLARITE | ETALEMENT | INTERRUPTION 
+
+val string_of_statut_semestre_opt: statut_semestre option -> string 
+
 type genre =
   | Feminin
   | Masculin
@@ -125,6 +128,7 @@ val string_of_experience: experience -> string
 val experience_of_string: string -> experience
 
 val string_of_dpt: main_dpt -> string
+val string_of_dpt_opt: main_dpt option -> string 
 val dpt_of_string: string -> main_dpt
 
 val string_of_mineure: mineure -> string

@@ -131,6 +131,13 @@ type experience = Recherche | Internationale | Ouverture | Hors_Dens | Transdisc
 
 type statut_semestre = SCOLARITE | ETALEMENT | INTERRUPTION 
 
+let string_of_statut_semestre_opt x = 
+  match x with 
+    | None -> "" 
+    | Some SCOLARITE -> "SCOLARITE"
+    | Some ETALEMENT -> "ETALEMENT"
+    | Some INTERRUPTION -> "INTERRUPTION"
+
 module StringUnivMap =
   Map_tools.MakeSimplified
     (
@@ -191,6 +198,8 @@ let string_of_dpt x =
   | CIENS -> "enjeux stratégiques"
   | ENS -> ""
 
+ let string_of_dpt_opt x = 
+  match x with None -> "" | Some x -> string_of_dpt x  
 let prefix_code_of_dpt x = 
    match x with
   | DI -> "INFO"

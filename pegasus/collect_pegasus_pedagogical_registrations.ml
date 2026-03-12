@@ -163,6 +163,20 @@ let update_student bloc entry bset state =
             )
             statut) Exit (snd state)), None, None, None, None
           in 
+          let (blist, state) = state in 
+          let state = 
+             let state,b = Remanent_state.is_focus ?lastname:entry.lastname ?firstname:entry.firstname state in 
+             if b then 
+                Remanent_state.warn __POS__ (Format.sprintf "UPDATE_DIPLOMA %s %s %s %s  %s %s"
+              (Tools.unsome_string entry.lastname) (Tools.unsome_string entry.firstname) (Tools.unsome_string diploma) 
+              (Public_data.string_of_dpt_opt  dpt_diploma)
+              (Public_data.string_of_statut_semestre_opt statut_s1) 
+               (Public_data.string_of_statut_semestre_opt statut_s2) )
+              Exit state 
+             else  
+              state    
+            in
+            let state = blist, state in  
         {entry with tutor_lastname = Some tutor_lastname ; tutor_firstname = Some tutor_firstname ; inscription_dens = b_opt; diploma; dpt = dpt_diploma; statut_s1 ; statut_s2}, state, dpt
 
 
