@@ -531,6 +531,7 @@ let asso_list =
     Public_data.PEGASUS_MODALITE_DIDACT_ANGLAIS,["MODALITE DIDACT_ANGLAIS"]; 
     Public_data.PEGASUS_NOTES_SAISIE_DIRECTE,["ens-ce-periode_de_l_annee"]; 
     Public_data.PEGASUS_ENS_CE_PERIODE_DE_L_ANNEE,["notes-saisie_directe"]; 
+    Public_data.PEGASUS_STAGE,["stage";"STAGE"]; 
  
 
 ]

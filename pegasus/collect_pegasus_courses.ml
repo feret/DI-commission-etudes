@@ -223,6 +223,7 @@ let keywords_list =
     Public_data.PEGASUS_MODALITE_DIDACT_ANGLAIS; 
     Public_data.PEGASUS_NOTES_SAISIE_DIRECTE;
     Public_data.PEGASUS_ENS_CE_PERIODE_DE_L_ANNEE; 
+    Public_data.PEGASUS_STAGE;
   ]
 
   let keywords_of_interest =
