@@ -476,6 +476,12 @@ let all_fields =
             let state = Remanent_state.close_event_opt event state in
             state
 
+let add_non_empty l data m = 
+  List.fold_left 
+    (fun m k -> 
+      if k = "" then m 
+      else Public_data.StringMap.add k data m)
+    m l 
 
 let make_dictionary state = 
   let state, map = Remanent_state.Collector_course_pegasus.get state in 
@@ -483,7 +489,12 @@ let make_dictionary state =
       Pegasus_courses.fold (fun course (state,acc) -> 
         let lib = course.Public_data.pegasus_libelle in 
         let lib' = Tools.hash_libelle2 lib in 
-         state, Public_data.StringMap.add lib' lib acc)
+        let lib'' = 
+          Tools.unsome_string course.Public_data.pegasus_libelle_en 
+        in 
+        let lib''' = Tools.hash_libelle2 lib'' in 
+         state, 
+         add_non_empty [lib';lib'';lib''']  lib acc)
       map (state, Public_data.StringMap.empty)
   in 
   Remanent_state.set_pedagogical_courses_dictionnary pedagogical_courses_dictionnary state 
