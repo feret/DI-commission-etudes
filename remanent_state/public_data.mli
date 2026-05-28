@@ -502,6 +502,8 @@ type parcours_universitaire =
   annee_obtention_parcours: string;
 }
 
+type diploma_level = L3 | M1 | M2 | DENS | Other 
+
 type cours_supplement =
  {
     supplement_code: string;
@@ -511,6 +513,8 @@ type cours_supplement =
     supplement_ects: float;
     supplement_dens: bool;
     supplement_extra: bool;
+    supplement_diploma_level: diploma_level; 
+    supplement_diploma_dpt: main_dpt option ; 
 }
 
 type experience_supplement =

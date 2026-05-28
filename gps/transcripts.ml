@@ -570,6 +570,7 @@ type cours =
     duree: float option;
     ects: float option;
     diplome: string option;
+    diplome_dpt: Public_data.main_dpt option ; 
     contrat: bool option;
     accord: bool option;
     note: Public_data.note option;
@@ -655,6 +656,7 @@ let empty_cours =
     duree = None ;
     ects = None ;
     diplome = None ;
+    diplome_dpt = None ; 
     contrat = None ;
     accord = None ;
     valide_dans_gps = None ;
@@ -1715,6 +1717,7 @@ let add_extra_course ~firstname ~lastname state cours_a_ajouter gps_file =
       duree = None ;
       ects = Some cours_a_ajouter.Public_data.coursaj_ects;
       diplome = Some cours_a_ajouter.Public_data.coursaj_level ;
+      diplome_dpt = None ; 
       contrat = None ;
       accord = Some true ;
       note =
@@ -4044,6 +4047,15 @@ let translate_course_dens course year =
  Public_data.supplement_dens=true;
  Public_data.supplement_extra = course.extra;
  Public_data.supplement_validation_year = year;
+ Public_data.supplement_diploma_dpt = course.diplome_dpt ; 
+ Public_data.supplement_diploma_level = 
+      match course.diplome with 
+              | Some ("l" | "L") -> Public_data.L3 
+                                            | Some ("m" | "M" | "M1" | "m1") -> Public_data.M1 
+                                            | Some ("dens" | "DENS") -> Public_data.DENS 
+                                            | _ -> Public_data.Other ; 
+                                            
+
 }
 
 
@@ -8048,6 +8060,16 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                     | Some "ANM1INF" -> Some "m"
                     | None | Some _ -> (if b then Some "dens" else None)
                 end ;
+                diplome_dpt =
+                 begin 
+                  match course.Public_data.pe_diploma with 
+                    | Some "ANL3INF" -> Some Public_data.DI  
+                    | Some "ANL3DMA" -> Some Public_data.DMA 
+                    | Some "ANM2INFPRI" -> Some Public_data.DI  
+                    | Some "ANM1DMA" -> Some Public_data.DMA 
+                    | Some "ANM1INF" -> Some Public_data.DI 
+                    | None | Some _ -> None 
+                      end ;
               code_diplome = course.Public_data.pe_diploma; 
               contrat = None ;
               accord = Some true ;
@@ -8237,6 +8259,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                 valide_dans_gps = validation;
                 cours_annee = Some year ;
                 validated_under_average = false;
+                diplome_dpt = None ; 
             }
           in
           let bilan = {bilan with cours = elt::bilan.cours} in
@@ -8876,6 +8899,21 @@ let export_transcript
                        ~year ~code_cours state
                        elt.diplome
                    in
+                   let elt = {elt with diplome_dpt = 
+                      match diplome_dpt with
+                      "informatique" -> Some Public_data.DI
+                     | "mathématiques" -> Some Public_data.DMA 
+                    | "chimie" -> Some Public_data.CHIMIE
+                    | "géosciences" -> Some Public_data.GEOSCIENCES
+                    | "physique" -> Some Public_data.PHYS 
+                    | "biologie" -> Some Public_data.IBENS
+                    | "littératures et langage" -> Some Public_data.LILA 
+                    | "économie" -> Some Public_data.ECO 
+                    | "arts" -> Some Public_data.ARTS 
+                   | "cultures et langues d'ailleurs" -> Some Public_data.ECLA 
+                   | _ -> None 
+                   } 
+                  in 
                    let state, cursus_map =
                      addfirstlast
                        state
@@ -10106,7 +10144,9 @@ let export_transcript
           Public_data.dens_ok = None ;
         }
   in
+  let state, _suggest = Suggest.collect dens state in 
   let state, dens = Dens.split_courses ~firstname ~lastname dens state in
+  let state, _suggest = Suggest.collect dens state in 
   let state, dens = Dens.split_stages ~firstname ~lastname dens state in
   let state, dens = Dens.collect_mineure dens state in
   let state, tuteur =

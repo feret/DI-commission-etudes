@@ -7,6 +7,8 @@ let l = ["INFO-AA-ACM-A", (fun y ->
  Public_data.supplement_dens=true;
  Public_data.supplement_extra = true;
  Public_data.supplement_validation_year = y;
+ Public_data.supplement_diploma_level = Public_data.DENS ; 
+Public_data.supplement_diploma_dpt= None; 
 });
 "UNINF1-042", (fun y -> 
 {
@@ -17,6 +19,9 @@ let l = ["INFO-AA-ACM-A", (fun y ->
  Public_data.supplement_dens=true;
  Public_data.supplement_extra = true;
  Public_data.supplement_validation_year = y;
+Public_data.supplement_diploma_level = Public_data.DENS ; 
+Public_data.supplement_diploma_dpt= None; 
+
 }) ;
 "INFO-M1-PROJRECH-S1", (fun y -> 
 {
@@ -27,6 +32,9 @@ let l = ["INFO-AA-ACM-A", (fun y ->
  Public_data.supplement_dens=true;
  Public_data.supplement_extra = true;
  Public_data.supplement_validation_year = y;
+  Public_data.supplement_diploma_level = Public_data.DENS ; 
+Public_data.supplement_diploma_dpt= None; 
+
 });
 "ACTD-OrgSE-S1", (fun y -> 
 {
@@ -36,7 +44,10 @@ let l = ["INFO-AA-ACM-A", (fun y ->
  Public_data.supplement_ects=0.;
  Public_data.supplement_dens=true;
  Public_data.supplement_extra = true;
- Public_data.supplement_validation_year = y;
+ Public_data.supplement_validation_year = y; 
+ Public_data.supplement_diploma_level = Public_data.DENS ; 
+Public_data.supplement_diploma_dpt= None; 
+
 });
 "ACTD-TAL-A", (fun y -> 
 {
@@ -47,6 +58,9 @@ let l = ["INFO-AA-ACM-A", (fun y ->
  Public_data.supplement_dens=true;
  Public_data.supplement_extra = true;
  Public_data.supplement_validation_year = y;
+  Public_data.supplement_diploma_level = Public_data.DENS ; 
+Public_data.supplement_diploma_dpt= None; 
+
 });
 ]
 
