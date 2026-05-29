@@ -312,7 +312,7 @@ let dump_course_gen label is_empty fold fold_state _iter acc state =
                   state, lib, lib
           in
           let () = Remanent_state.open_row state in
-          let () = Remanent_state.print_cell (elt.Public_data.supplement_code) state in
+          let () = Remanent_state.print_cell (match elt.Public_data.supplement_code_gps, elt.Public_data.supplement_code_helisa with Some a, _ | _, Some a -> a | None,None -> "") state in
           let () = Remanent_state.print_cell (elt.Public_data.supplement_discipline) state in
           let () = Remanent_state.print_cell l state in
           let () = Remanent_state.print_cell (string_of_float elt.Public_data.supplement_ects) state in

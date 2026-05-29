@@ -2,9 +2,9 @@
  (name sco_get_gps_files)
  (libraries csv sco_remanent_state sco_tools sco_keywords_handler
    sco_scan_files sco_file_retriever sco_datastructures sco_photos sco_copy
-   sco_get_courses sco_dens)
+   sco_get_courses sco_dens sco_reglements_pedagogiques)
  (flags
   (:standard -w @a -open Sco_remanent_state -open Sco_tools -open
     Sco_keywords_handler -open Sco_scan_files -open Sco_datastructures -open
     Sco_file_retriever -open Sco_photos -open Sco_copy -open Sco_get_courses
-    -open Sco_dens)))
+    -open Sco_dens -open Sco_reglements_pedagogiques)))

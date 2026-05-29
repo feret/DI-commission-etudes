@@ -5,7 +5,7 @@ module type Double_keys =
         type dip 
         val empty_dip: dip 
         module KeyMap:Map.S with type key = key 
-        val index1: obj -> key 
+        val index1: obj -> key option 
         val index2: obj -> key option 
         val get_dip: obj -> dip 
         val is_unallocated: dip -> bool 
@@ -22,11 +22,12 @@ module type DMap =
     val empty: t 
     val add: obj -> t -> Remanent_state.t -> Remanent_state.t * t 
     val find_opt: key -> t -> Remanent_state.t -> Remanent_state.t * (obj*dip*dip) option 
+    val fold: (dip -> obj -> 'a -> 'a) -> t -> 'a -> 'a 
     val rest_in_dens: t -> Remanent_state.t -> Remanent_state.t * t 
     val filter_out: dip list -> t -> Remanent_state.t -> Remanent_state.t * t 
 end
 
 module DMap(A:Double_keys): (DMap with type key = A.key)
 
-module CourseDMap: DMap 
+module CourseDMap: (DMap with type  obj = Public_data.cours_supplement)
 

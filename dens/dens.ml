@@ -1,5 +1,7 @@
 let p_musicologie x =
-    List.mem x.Public_data.supplement_code
+    match x.Public_data.supplement_code_gps with None -> false 
+    | Some x -> 
+      List.mem x
         [
           "ARTS-BAROQUE-S1";
           "ARTS-INTROHISTMUS-S1";
@@ -24,7 +26,13 @@ let liste_dec =
 let p_sciences_cognitives x =
   List.mem x.Public_data.supplement_discipline ["Études cognitives";"Sciences cognitives"]
   ||
-  List.mem x.Public_data.supplement_code liste_dec
+   (match x.Public_data.supplement_code_gps with None -> false 
+    | Some x -> 
+      List.mem x liste_dec)
+  || 
+   match x.Public_data.supplement_code_helisa with None -> false 
+    | Some x -> 
+      List.mem x liste_dec
 
 let p_environnement x =
 List.mem x.Public_data.supplement_discipline ["Environnement";"Environnement et société"]
@@ -238,7 +246,9 @@ let fold_repartition_diplome ~main_dpt ~firstname ~lastname ~f_nat ~f_dens state
 
 let convert_exp activite cours = 
     {
-      Public_data.activite_code = cours.Public_data.supplement_code; 
+      Public_data.activite_code = 
+      (match cours.Public_data.supplement_code_gps with | None -> 
+        (match cours.Public_data.supplement_code_helisa with None -> "" | Some a -> a) | Some a -> a ); 
       Public_data.activite_activite = activite; 
       Public_data.activite_intitule = cours.Public_data.supplement_intitule; 
       Public_data.activite_activite_fr = None; 
@@ -253,7 +263,10 @@ let convert_exp activite cours =
 let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
     let year = course.Public_data.supplement_validation_year in
     let libelle = course.Public_data.supplement_intitule in
-    let codegps = course.Public_data.supplement_code in
+    let codegps = match course.Public_data.supplement_code_gps with None -> 
+                    begin 
+                      match course.Public_data.supplement_code_helisa with None -> "" | Some a -> a
+                    end | Some a -> a in
     let state, courselist =
         Remanent_state.get_sorted_courses ~firstname ~lastname ~year ~libelle ~codegps state
     in
@@ -269,7 +282,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
           end
       | [] ->
         begin
-          let code = String.split_on_char '-' course.Public_data.supplement_code in
+          let code = String.split_on_char '-' (match course.Public_data.supplement_code_gps with Some a -> a | None -> "") in
           match code with
             | t::_ ->
               begin
@@ -278,13 +291,13 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
                 | [] ->
                   Remanent_state.warn
                     __POS__
-                    (Format.sprintf "Ill-formed code: %s" course.Public_data.supplement_code)
+                    (Format.sprintf "Ill-formed code: %s" (match course.Public_data.supplement_code_gps with Some a -> a | None -> ""))
                     Exit state, ""
               end
             | [] ->
                 Remanent_state.warn
                   __POS__
-                    (Format.sprintf "Ill-formed code: %s" course.Public_data.supplement_code)
+                    (Format.sprintf "Ill-formed code: %s" (match course.Public_data.supplement_code_gps with Some a -> a | None -> ""))
                 Exit state, ""
       end
     in
@@ -301,7 +314,7 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
       let state = 
           let state,b = Remanent_state.is_focus ~firstname ~lastname state in 
            if b then 
-                Remanent_state.warn __POS__ (Format.sprintf "%s DI %s %f" lastname codegps course.Public_data.supplement_ects) Exit state 
+                Remanent_state.warn __POS__ (Format.sprintf "%s DI %s %f" lastname codegps (course.Public_data.supplement_ects)) Exit state 
            else state 
         in 
       let state, (key,_kind) =

@@ -520,7 +520,8 @@ type note =
 
 type cours_supplement =
  {
-    supplement_code: string;
+    supplement_code_gps: string option;
+    supplement_code_helisa: string option;
     supplement_discipline: string;
     supplement_intitule: string;
     supplement_validation_year: annee;
