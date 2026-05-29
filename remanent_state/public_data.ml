@@ -988,6 +988,7 @@ type missing_internship_description =
   }
 
 type valide =
+  | Not_known_yet 
   | Bool of bool
   | Abs
 

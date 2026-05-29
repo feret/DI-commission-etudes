@@ -505,6 +505,7 @@ type parcours_universitaire =
 type diploma_level = L3 | M1 | M2 | DENS | Other 
 
 type valide =
+  | Not_known_yet 
   | Bool of bool
   | Abs
 

@@ -1241,7 +1241,7 @@ let store_cours  =
        in
        let state, note, inconsistency, validated_under_average  =
          match remanent.prevalide, remanent.prenote with
-         | Some (Public_data.Bool false | Public_data.Abs), None
+         | Some (Public_data.Bool false | Public_data.Abs | Public_data.Not_known_yet), None
            ->
            state, Some Public_data.Absent, None, false
          | Some Public_data.Abs, Some i ->
@@ -4038,7 +4038,7 @@ let dip_autre_list_init = []
 let dens_init = Public_data.YearMap.empty
 let n_att_init = Public_data.YearMap.empty
 
-let translate_course_dens course year =
+let translate_course_dens course year validation =
 {
  Public_data.supplement_code=(match course.code_cours with None -> "" | Some c -> c);
  Public_data.supplement_discipline="";
@@ -4046,7 +4046,7 @@ let translate_course_dens course year =
  Public_data.supplement_ects=(match course.ects with None -> 0. | Some i -> i) ;
  Public_data.supplement_dens=true;
  Public_data.supplement_note= (match course.note with Some a -> a | None -> Public_data.En_cours);
- Public_data.supplement_validation = Public_data.Bool true ; 
+ Public_data.supplement_validation = validation ; 
  Public_data.supplement_extra = course.extra;
  Public_data.supplement_validation_year = year;
  Public_data.supplement_diploma_dpt = course.diplome_dpt ; 
@@ -4061,8 +4061,8 @@ let translate_course_dens course year =
 }
 
 
-let translate_course_nat course year =
-{(translate_course_dens course year) with
+let translate_course_nat course year validation =
+{(translate_course_dens course year validation) with
  Public_data.supplement_dens=false
 }
 
@@ -4105,11 +4105,14 @@ let add_dens_requirements state year course map =
       (total, potential,mandatory,math,math_math_info) map
 
 
-let add_dens_ok state year course ects course_list map skip_dens =
+let add_dens_ok state year course ects course_list_ok course_list_all map skip_dens =
+   let course' = translate_course_dens course year (Public_data.Bool true) in      
   match ects with
-    | None -> state,
-            (if skip_dens then course_list else
-            {course_list with Public_data.dens  = (translate_course_dens course year )::course_list.Public_data.dens }),
+    | None -> 
+      state,
+            (if skip_dens then course_list_ok else
+            {course_list_ok with Public_data.dens  = course'::course_list_ok.Public_data.dens }),
+            {course_list_all with Public_data.dens = course'::course_list_all.Public_data.dens}, 
             map
     | Some ects ->
     let total,potential,mandatory,math,math_math_info =
@@ -4126,11 +4129,26 @@ let add_dens_ok state year course ects course_list map skip_dens =
     in
     let state, map = add_dens_requirements state year course map in
     state,
-    (if skip_dens then course_list else {course_list with Public_data.dens  = (translate_course_dens course year)::course_list.Public_data.dens}), map
+    (if skip_dens then course_list_ok else {course_list_ok with Public_data.dens  = course'::course_list_ok.Public_data.dens}), 
+     {course_list_all with Public_data.dens = course'::course_list_all.Public_data.dens}, 
+    
+    map
 
-let add_dens_potential year ects map =
+let add_dens_ko state year course _ects course_list_ok course_list_all map =
+   let course = translate_course_dens course year (Public_data.Bool false) in      
+    state, course_list_ok,  {course_list_all with Public_data.dens = course::course_list_all.Public_data.dens}, map 
+  
+
+
+let add_dens_potential state year course ects course_list_ok course_list_all map =
+  let course = translate_course_dens course year (Public_data.Not_known_yet) in      
+  let course_list_all =  {course_list_all with Public_data.dens = course::course_list_all.Public_data.dens} in 
   match ects with
-    | None -> map
+    | None -> 
+       state, 
+      course_list_ok,
+      course_list_all, 
+      map  
     | Some ects ->
     let total,potential,mandatory,math,math_math_info =
       match
@@ -4139,31 +4157,34 @@ let add_dens_potential year ects map =
       | None -> (0.,0.,0,0,0)
       | Some a -> a
     in
+    state, 
+    course_list_ok, 
+    course_list_all, 
     Public_data.YearMap.add year
       (total, potential+.ects,mandatory,math,math_math_info)
       map
 
-let add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens =
+let add_dens state year compensation unvalidated force_validation ects course course_list_ok course_list_all map skip_dens =
   match compensation, unvalidated, course.note with
-  | Some _, _, _-> add_dens_ok state year course ects course_list map skip_dens
-  | _, true, _ -> state, course_list, map
-  | None,_,None -> state, course_list, add_dens_potential year ects map
+  | Some _, _, _-> add_dens_ok state year course ects course_list_ok course_list_all map skip_dens
+  | _, true, _ -> add_dens_ko state year course ects course_list_ok course_list_all map  
+  | None,_,None -> add_dens_potential state year course ects course_list_ok course_list_all map  
   | None,_,Some note ->
       match
         Notes.valide_forced note force_validation
       with
-      | Some true ->  add_dens_ok state year course ects course_list map skip_dens
-      | Some false -> state, course_list, map
-      | None -> state, course_list, add_dens_potential year ects map
+      | Some true ->  add_dens_ok state year course ects course_list_ok course_list_all map skip_dens
+      | Some false -> add_dens_ko state year course ects course_list_ok course_list_all map 
+      | None -> add_dens_potential state year course ects course_list_ok course_list_all map
 
-let add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens =
+let add_dens state year compensation unvalidated force_validation ects course course_list_ok course_list_all map skip_dens =
     if ((course.ects = None || course.ects = Some 0.) && is_stage course) 
        && not (is_exp course) then
-       state, course_list, map
-    else add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens
+       state, course_list_ok, course_list_all, map
+    else add_dens state year compensation unvalidated force_validation ects course course_list_ok course_list_all map skip_dens
 
-let add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens =
-   let state, course_list, map = add_dens state year compensation unvalidated force_validation ects course course_list map skip_dens in 
+let add_dens state year compensation unvalidated force_validation ects course course_list_ok course_list_all map skip_dens =
+   let state, course_list_ok, course_list_all, map = add_dens state year compensation unvalidated force_validation ects course course_list_ok course_list_all map skip_dens in 
   let state, b = 
     try 
       state, int_of_string year < 2023 
@@ -4181,12 +4202,13 @@ let add_dens state year compensation unvalidated force_validation ects course co
         | Some code -> Activite.free_exp_list code year
       in 
       List.fold_left 
-        (fun (state, course_list, map) a -> 
-          state, {course_list with Public_data.dens  = a::course_list.Public_data.dens}, map)          
-        (state, course_list, map)
+        (fun (state, course_list_ok, course_list_all, map) a -> 
+          state, {course_list_ok with Public_data.dens  = a::course_list_ok.Public_data.dens},
+          {course_list_all with Public_data.dens  = a::course_list_all.Public_data.dens}, map)          
+        (state, course_list_ok, course_list_all, map)
         list 
     else 
-        state, course_list, map 
+        state, course_list_ok, course_list_all, map 
 
 
 
@@ -4205,7 +4227,8 @@ let add_mean_empty is_m2 state ~dens ~natt ~decision ~exception_cursus key year 
   else
     state, map
 
-let add_mean_ok is_m2 state key course course_list year map dens =
+let add_mean_ok is_m2 state key course course_list_ok course_list_all year map dens =
+  let cours = translate_course_nat course year (Public_data.Bool true) in 
   let is_m2,ects,old,y =
     match StringOptMap.find_opt key (fst map)
     with
@@ -4239,22 +4262,32 @@ let add_mean_ok is_m2 state key course course_list year map dens =
   let state, dens =
     add_dens_requirements state year course dens
   in
-  let course_list =
-      {course_list with Public_data.diplomes_nationaux = (translate_course_nat course year)::course_list.Public_data.diplomes_nationaux }
+  let course_list_ok =
+      {course_list_ok with Public_data.diplomes_nationaux = cours::course_list_ok.Public_data.diplomes_nationaux }
   in
-  state, map, course_list, dens
+   let course_list_all =
+      {course_list_all with Public_data.diplomes_nationaux = cours::course_list_all.Public_data.diplomes_nationaux }
+  in
+  state, map, course_list_ok, course_list_all, dens
 
-let add_mean is_m2 state key compensation unvalidated course course_list year map dens =
+let add_mean_ko _is_m2 state _key course course_list_ok course_list_all year map dens =
+  let cours = translate_course_nat course year (Public_data.Bool false) in 
+  let course_list_all =
+      {course_list_all with Public_data.diplomes_nationaux = cours::course_list_all.Public_data.diplomes_nationaux }
+  in
+  state, map, course_list_ok, course_list_all, dens
+
+let add_mean is_m2 state key compensation unvalidated course course_list_ok course_list_all year map dens =
     match compensation, unvalidated, course.note with
-  | Some _, _, _ -> add_mean_ok is_m2 state key course course_list year map dens
-  | None, true, _ | None,_, None -> state, map, course_list, dens
+  | Some _, _, _ -> add_mean_ok is_m2 state key course course_list_ok course_list_all year map dens
+  | None, true, _ | None,_, None -> add_mean_ko is_m2 state key course course_list_ok course_list_all year map dens 
   | None,_, Some note ->
       match
         Notes.valide note
       with
-      | Some true -> add_mean_ok is_m2 state key course course_list year map dens
+      | Some true -> add_mean_ok is_m2 state key course course_list_ok course_list_all year map dens
       | Some false | None ->
-        state, map, course_list, dens
+        add_mean_ko is_m2 state key course course_list_ok course_list_all year map dens 
 
 let add_mean_diplome is_m2 state ~dens ~natt ~decision ~exception_cursus d mean_opt mention_opt validated_opt year mean =
   add_mean_empty is_m2 state ~dens ~natt ~decision ~exception_cursus
@@ -5678,7 +5711,7 @@ in
 
 let program
     ~print_foot_note
-    ~origine ~gpscodelist ~string ~dpt ~year ~who ~alloc_suffix ~mean ~cours_list ~stage_list ~firstname ~lastname ~promo ~cursus_map
+    ~origine ~gpscodelist ~string ~dpt ~year ~who ~alloc_suffix ~mean ~cours_list_ok ~cours_list_all ~stage_list ~firstname ~lastname ~promo ~cursus_map
     ~size ~stages ~current_year (*~report ~keep_faillure ~keep_success*)
     ~dens ~natt ~is_m2 ~unvalidated_map ~remove_non_valided_classes
     nl (list:(bool * string * string * string * cours) list) state =
@@ -6121,12 +6154,12 @@ let program
       ~english:"Mrs"
       state
   in
-  let state, nl, mean, dens, natt, cours_list, stage_list  =
+  let state, nl, mean, dens, natt, cours_list_ok, cours_list_all, stage_list  =
     List.fold_left
       (fun
         (state, (nl:int), (mean:(bool * float * (Public_data.note option * float option) list * int)
          StringOptMap.t * (StringOptMap.key * float option * string option * bool option * int)
-         list), dens, natt, cours_list, stage_list)
+         list), dens, natt, cours_list_ok, cours_list_all , stage_list)
         (is_m2,dpt_en,(diplome:string),diplome_en,cours) ->
         let codecours =
           string_of_stringopt cours.code_cours
@@ -6272,7 +6305,7 @@ let program
                       begin
                         match stage.stage_valide with
                         | None
-                        | Some (Public_data.Abs | Public_data.Bool false) ->
+                        | Some (Public_data.Abs | Public_data.Bool false | Public_data.Not_known_yet) ->
                         false
                         | Some (Public_data.Bool true) -> true
                       end
@@ -6282,7 +6315,7 @@ let program
                       begin
                         match stage.stage_valide, stage.stage_accord with
                         | (None | Some (Public_data.Abs | Public_data.Bool
-                                        false)), _
+                                        false | Public_data.Not_known_yet)), _
                         | _, (None | Some false) ->
                           true
                         | Some (Public_data.Bool true), Some true -> false
@@ -6418,9 +6451,9 @@ let program
             match stage_opt with None -> stage_list | Some st -> st::stage_list)
             stage_list libelle_stage_opt_list
         in
-        let state,nl,mean, dens, natt, cours_list, stage_list  =
+        let state,nl,mean, dens, natt, cours_list_ok, cours_list_all, stage_list  =
           List.fold_left
-            (fun (state,nl,mean, dens, natt, cours_list, stage_list) (libelle,stage_opt) ->
+            (fun (state,nl,mean, dens, natt, cours_list_ok, cours_list_all, stage_list) (libelle,stage_opt) ->
                let state, libelle, libelle_en, ects, force_validation =
             
             if is_stage cours then
@@ -6645,40 +6678,40 @@ let program
         let () =
           Remanent_state.fprintf state "%%\n\ "
         in
-        let state, mean, dens, natt, cours_list, stage_list =
+        let state, mean, dens, natt, cours_list_ok, cours_list_all, stage_list =
           if year > current_year
           (*|| not ((do_report report || keep_success || keep_faillure)*)
-          then state, mean, dens, natt, cours_list, stage_list
+          then state, mean, dens, natt, cours_list_ok, cours_list_all, stage_list
           else
             match Tools.map_opt String.trim string
             with
             | None
             | Some ""->
-                let state, cours_list, natt =
-                  add_dens state year compensation unvalidated force_validation ects cours cours_list natt skip_dens
+                let state, cours_list_ok, cours_list_all, natt =
+                  add_dens state year compensation unvalidated force_validation ects cours cours_list_ok cours_list_all natt skip_dens
                 in
-                  state, mean, dens, natt, cours_list, stage_list
+                  state, mean, dens, natt, cours_list_ok, cours_list_all, stage_list
 
             | Some ("dens" | "DENS") ->
-                let state, cours_list, dens =
-                  add_dens state year compensation unvalidated force_validation ects cours cours_list dens skip_dens
+                let state, cours_list_ok, cours_list_all, dens =
+                  add_dens state year compensation unvalidated force_validation ects cours cours_list_ok cours_list_all  dens skip_dens
                 in
-                state, mean, dens, natt, cours_list, stage_list
+                state, mean, dens, natt, cours_list_ok, cours_list_all, stage_list
             | Some _ ->
-              let state, mean, cours_list, dens =
+              let state, mean, cours_list_ok, cours_list_all , dens =
                 add_mean is_m2 state
                   (string,(Public_data.string_of_dpt dpt)) compensation unvalidated cours
-                cours_list year
+                cours_list_ok cours_list_all year
                 mean dens
-              in state, mean, dens, natt, cours_list, stage_list
+              in state, mean, dens, natt, cours_list_ok, cours_list_all, stage_list
         in
-        ((state:Remanent_state.t),(nl:int),mean, dens, natt, cours_list, stage_list))
-        (state,nl,mean, dens, natt, cours_list, stage_list)
+        ((state:Remanent_state.t),(nl:int),mean, dens, natt, cours_list_ok, cours_list_all, stage_list))
+        (state,nl,mean, dens, natt, cours_list_ok, cours_list_all, stage_list)
         libelle_stage_opt_list in
-      (state,nl,mean, dens, natt, cours_list, stage_list)  
+      (state,nl,mean, dens, natt, cours_list_ok, cours_list_all, stage_list)  
       )
 
-      (state,(nl:int),mean,dens,natt, cours_list, stage_list)
+      (state,(nl:int),mean,dens,natt, cours_list_ok, cours_list_all, stage_list)
       list
   in
   let () =
@@ -7074,7 +7107,7 @@ let program
   let () = Remanent_state.print_newline state in
   let () = Remanent_state.print_newline state in
   let nl = nl + 4 in 
-  state,nl,mean,dens,natt, cours_list, stage_list
+  state,nl,mean,dens,natt, cours_list_ok, cours_list_all, stage_list
 
 
   let program_sco
@@ -7242,7 +7275,7 @@ let program
                         begin
                           match stage.stage_valide with
                           | None
-                          | Some (Public_data.Abs | Public_data.Bool false) ->
+                          | Some (Public_data.Abs | Public_data.Bool false | Public_data.Not_known_yet) ->
                           false
                           | Some (Public_data.Bool true) -> true
                         end
@@ -7252,7 +7285,7 @@ let program
                         begin
                           match stage.stage_valide, stage.stage_accord with
                           | (None | Some (Public_data.Abs | Public_data.Bool
-                                          false)), _
+                                          false | Public_data.Not_known_yet)), _
                           | _, (None | Some false) ->
                             true
                           | Some (Public_data.Bool true), Some true -> false
@@ -9108,9 +9141,9 @@ let export_transcript
           state, l
         end
     in
-    let state,mean,dens,natt, is_l3, cours_list, stage_list =
+    let state,mean,dens,natt, is_l3, cours_list_ok, cours_list_all, stage_list =
       List.fold_left
-        (fun (state,mean,dens,natt,is_l3, cours_list, stage_list )
+        (fun (state,mean,dens,natt,is_l3, cours_list_ok, cours_list_all, stage_list )
           (year,situation,split_cours) ->
            let gpscodelist = situation.gpscodelist in
            let who =
@@ -9482,7 +9515,7 @@ let export_transcript
            in
 
            if year > current_year then
-               state,mean,dens,natt,is_l3,cours_list, stage_list
+               state,mean,dens,natt,is_l3,cours_list_ok, cours_list_all, stage_list
            else
              let l =
                [21.0;11.67;48.33;26.67;7.3;10.00;5.17]
@@ -9564,14 +9597,14 @@ let export_transcript
                    Remanent_state.fprintf
                      state "\\pagebreak\n\ "
                in
-               state, mean, dens, natt, is_l3 || is_l3', cours_list, stage_list
+               state, mean, dens, natt, is_l3 || is_l3', cours_list_ok, cours_list_all, stage_list
              else
                begin
-                 let _, _, _, state, mean, dens, natt, is_l3, cours_list, stage_list  =
+                 let _, _, _, state, mean, dens, natt, is_l3, cours_list_ok, cours_list_all, stage_list  =
                    StringOptMap.fold
                      (fun
                        (string,dpt)  list
-                       (i,j,nl,state,mean,dens,natt, is_l3,cours_list,stage_list)
+                       (i,j,nl,state,mean,dens,natt, is_l3,cours_list_ok,cours_list_all,stage_list)
                        ->
                          let is_m2 =
                               match list with [] -> false
@@ -9609,12 +9642,12 @@ let export_transcript
                                list i j nl is_l3 number_of_diploma_per_page signature state 
                          in 
                          let
-                           (state,nl, mean,dens,natt,cours_list,stage_list)
+                           (state,nl, mean,dens,natt,cours_list_ok, cours_list_all,stage_list)
                            =
                            program
                              ~is_m2 ~print_foot_note
                              ~origine ~string ~dpt:(Public_data.dpt_of_string dpt) ~year ~who ~gpscodelist
-                             ~alloc_suffix ~mean ~cours_list ~stage_list
+                             ~alloc_suffix ~mean ~cours_list_ok ~cours_list_all ~stage_list
                              ~firstname ~lastname ~promo ~cursus_map ~size
                              ~stages ~current_year (*~report
                              ~keep_success ~keep_faillure*)
@@ -9685,15 +9718,15 @@ let export_transcript
                            else
                              state
                          in
-                         (i+1,j+1,nl,state,mean,dens,natt,is_l3 || is_l3',cours_list,stage_list)
+                         (i+1,j+1,nl,state,mean,dens,natt,is_l3 || is_l3',cours_list_ok, cours_list_all,stage_list)
                      )
                      split_cours
-                     (1,1,0,state,mean,dens,natt,false,cours_list,stage_list)
+                     (1,1,0,state,mean,dens,natt,false,cours_list_ok,cours_list_all,stage_list)
                  in
-                 state,mean,dens,natt, is_l3, cours_list, stage_list
+                 state,mean,dens,natt, is_l3, cours_list_ok,cours_list_all, stage_list
                end
         )
-        (state,mean_init,dens_init,n_att_init, false,cours_list_init,stage_list_init)
+        (state,mean_init,dens_init,n_att_init, false,cours_list_init,cours_list_init,stage_list_init)
         l
     in
     let _ = natt in
@@ -10060,7 +10093,7 @@ let export_transcript
       Remanent_state.get_main_dpt state
     in
     let current_dpt = main_dpt in
-    let cours_a_trier = cours_list in
+    let cours_a_trier = cours_list_ok in
     let stages_a_trier = stage_list in
     let n_inscription =
       Public_data.YearMap.fold
@@ -10104,7 +10137,7 @@ let export_transcript
       else 
         begin 
 
-          let dens =
+          let dens_ok  =
              {
                  Public_data.dens_main_dpt = main_dpt ;
           Public_data.dens_firstname = firstname ;
@@ -10146,8 +10179,9 @@ let export_transcript
           Public_data.dens_ok = None ;
         }
   in
-  let state, _suggest = Suggest.collect dens state in 
-  let state, dens = Dens.split_courses ~firstname ~lastname dens state in
+  let dens_all = {dens_ok with Public_data.dens_cours_a_trier = cours_list_all} in 
+  let state, _suggest = Suggest.collect dens_all state in 
+  let state, dens = Dens.split_courses ~firstname ~lastname dens_ok state in
   let state, _suggest = Suggest.collect dens state in 
   let state, dens = Dens.split_stages ~firstname ~lastname dens state in
   let state, dens = Dens.collect_mineure dens state in

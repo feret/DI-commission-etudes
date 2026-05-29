@@ -4,6 +4,7 @@ let to_string _pos  state t =
   | Public_data.Abs -> state, "abs"
   | Public_data.Bool true-> state, "oui"
   | Public_data.Bool false -> state, "non"
+  | Public_data.Not_known_yet -> state, "en cours"
 
 let of_string ?context pos state s =
   if Tools.space_only s then
@@ -26,7 +27,11 @@ let of_string ?context pos state s =
         ["abs";"absent"]
     then
       state, Some Public_data.Abs
-    else
+    else if 
+      List.mem s 
+        ["in progress";"en cours"]
+        then state, Some Public_data.Not_known_yet 
+    else 
       let context =
         match context with
         | None -> ""
@@ -47,4 +52,4 @@ let of_string ?context pos state s =
 let valide f =
   match f with
   | Public_data.Bool true -> Some true
-  | Public_data.Bool false | Public_data.Abs -> Some false
+  | Public_data.Bool false | Public_data.Abs | Public_data.Not_known_yet -> Some false
