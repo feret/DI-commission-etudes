@@ -1061,6 +1061,8 @@ let empty_mineure_majeure ={
       supplement_discipline: string;
       supplement_intitule: string;
       supplement_validation_year: annee;
+      supplement_note: note;
+      supplement_validation: valide;  
       supplement_ects: float;
       supplement_dens: bool;
       supplement_extra: bool;

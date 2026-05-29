@@ -24,11 +24,13 @@ let collect dens state =
       dens.Public_data.dens_cours_a_trier
     in 
     let cours_dens  = repartition.Public_data.dens in 
-    let () = List.iter 
-      (fun c -> 
+    let state = List.fold_left 
+      (fun state c -> 
+        let () = Remanent_state.open_row state in
         let () = Remanent_state.print_cell c.Public_data.supplement_code state in 
         let () = Remanent_state.print_cell c.Public_data.supplement_code state in 
-        let () = Remanent_state.print_cell "10" state in 
+        let state, note = Notes.to_string __POS__ state c.Public_data.supplement_note in 
+        let () = Remanent_state.print_cell note state in 
         let () = Remanent_state.print_cell (string_of_float c.Public_data.supplement_ects) state in 
         let () = Remanent_state.print_cell
           (match 
@@ -40,16 +42,19 @@ let collect dens state =
             | Public_data.DENS -> "DENS" 
             | Public_data.Other -> "Other") state in 
         let () = Remanent_state.print_cell (Public_data.string_of_dpt_opt c.Public_data.supplement_diploma_dpt) state in 
-        ()
+        let () = Remanent_state.close_row state in 
+        state 
          
-        ) cours_dens 
+        ) state cours_dens 
   in 
         let cours_nat = repartition.Public_data.diplomes_nationaux in 
-   let () = List.iter 
-      (fun c -> 
+   let state = List.fold_left 
+      (fun state c -> 
+        let () = Remanent_state.open_row state in
         let () = Remanent_state.print_cell c.Public_data.supplement_code state in 
         let () = Remanent_state.print_cell c.Public_data.supplement_code state in 
-        let () = Remanent_state.print_cell "10" state in 
+        let state, note = Notes.to_string __POS__ state c.Public_data.supplement_note in 
+        let () = Remanent_state.print_cell note state in 
         let () = Remanent_state.print_cell (string_of_float c.Public_data.supplement_ects) state in 
         let () = Remanent_state.print_cell
           (match 
@@ -61,9 +66,10 @@ let collect dens state =
             | Public_data.DENS -> "DENS" 
             | Public_data.Other -> "Other") state in 
         let () = Remanent_state.print_cell (Public_data.string_of_dpt_opt c.Public_data.supplement_diploma_dpt) state in 
-        ()
+        let () = Remanent_state.close_row state in 
+        state 
          
-        ) cours_nat  
+        ) state cours_nat  
   in 
   let () = Remanent_state.close_array state in 
     state, dens 

@@ -9,6 +9,8 @@ let l = ["INFO-AA-ACM-A", (fun y ->
  Public_data.supplement_validation_year = y;
  Public_data.supplement_diploma_level = Public_data.DENS ; 
 Public_data.supplement_diploma_dpt= None; 
+Public_data.supplement_note = Public_data.Valide_sans_note; 
+Public_data.supplement_validation = Public_data.Bool true; 
 });
 "UNINF1-042", (fun y -> 
 {
@@ -21,6 +23,8 @@ Public_data.supplement_diploma_dpt= None;
  Public_data.supplement_validation_year = y;
 Public_data.supplement_diploma_level = Public_data.DENS ; 
 Public_data.supplement_diploma_dpt= None; 
+Public_data.supplement_note = Public_data.Valide_sans_note; 
+Public_data.supplement_validation = Public_data.Bool true; 
 
 }) ;
 "INFO-M1-PROJRECH-S1", (fun y -> 
@@ -34,6 +38,8 @@ Public_data.supplement_diploma_dpt= None;
  Public_data.supplement_validation_year = y;
   Public_data.supplement_diploma_level = Public_data.DENS ; 
 Public_data.supplement_diploma_dpt= None; 
+Public_data.supplement_note = Public_data.Valide_sans_note; 
+Public_data.supplement_validation = Public_data.Bool true; 
 
 });
 "ACTD-OrgSE-S1", (fun y -> 
@@ -46,7 +52,9 @@ Public_data.supplement_diploma_dpt= None;
  Public_data.supplement_extra = true;
  Public_data.supplement_validation_year = y; 
  Public_data.supplement_diploma_level = Public_data.DENS ; 
-Public_data.supplement_diploma_dpt= None; 
+ Public_data.supplement_diploma_dpt= None; 
+ Public_data.supplement_note = Public_data.Valide_sans_note; 
+Public_data.supplement_validation = Public_data.Bool true; 
 
 });
 "ACTD-TAL-A", (fun y -> 
@@ -60,6 +68,8 @@ Public_data.supplement_diploma_dpt= None;
  Public_data.supplement_validation_year = y;
   Public_data.supplement_diploma_level = Public_data.DENS ; 
 Public_data.supplement_diploma_dpt= None; 
+Public_data.supplement_note = Public_data.Valide_sans_note; 
+Public_data.supplement_validation = Public_data.Bool true; 
 
 });
 ]

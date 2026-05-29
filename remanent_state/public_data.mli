@@ -504,12 +504,27 @@ type parcours_universitaire =
 
 type diploma_level = L3 | M1 | M2 | DENS | Other 
 
+type valide =
+  | Bool of bool
+  | Abs
+
+type note =
+  | Float of float
+  | String of string
+  | Temporary of float
+  | Absent
+  | En_cours
+  | Abandon
+  | Valide_sans_note
+
 type cours_supplement =
  {
     supplement_code: string;
     supplement_discipline: string;
     supplement_intitule: string;
     supplement_validation_year: annee;
+    supplement_note: note;
+    supplement_validation: valide;  
     supplement_ects: float;
     supplement_dens: bool;
     supplement_extra: bool;
@@ -535,18 +550,7 @@ type 'a repartition_diplomes =
 
 val empty_repartition_diplomes: cours_supplement list repartition_diplomes
 
-type valide =
-  | Bool of bool
-  | Abs
 
-type note =
-  | Float of float
-  | String of string
-  | Temporary of float
-  | Absent
-  | En_cours
-  | Abandon
-  | Valide_sans_note
 
 val all_notes_string: string list
 
