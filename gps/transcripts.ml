@@ -10190,7 +10190,38 @@ let export_transcript
           Public_data.dens_ok = None ;
         }
   in 
-        let state, _suggest = Suggest.collect cours_list_all state in 
+  let dip_list = 
+    if main_dpt = Public_data.DMA 
+      then 
+        if is_l3 
+        then  [(Some Public_data.L3, Some Public_data.DMA), Reglements_pedagogiques.licence_maths ; 
+          (Some Public_data.M1, Some Public_data.DMA), Reglements_pedagogiques.m1_maths] 
+        else 
+        [ (Some Public_data.M1, Some Public_data.DMA), Reglements_pedagogiques.m1_maths] 
+  else []
+  in 
+  let state,suggest,missing = Reglements_pedagogiques_tools.CourseDMap.select_course_for_a_cursus_list     
+      dip_list 
+       cours_list_all state 
+in
+  let state = Reglements_pedagogiques_tools.CourseDMap.print state  (fun state (c,_,_) -> 
+          let () = Remanent_state.print_cell (match c.Public_data.supplement_code_gps with None -> "" | Some a -> a) state in 
+        let () = Remanent_state.print_cell (match c.Public_data.supplement_code_helisa with None -> "" | Some a -> a) state in 
+        let state, note = Notes.to_string __POS__ state c.Public_data.supplement_note in 
+        let () = Remanent_state.print_cell note state in 
+        let () = Remanent_state.print_cell (string_of_float c.Public_data.supplement_ects) state in 
+        let () = Remanent_state.print_cell
+          (match 
+            c.Public_data.supplement_diploma_level 
+          with 
+            | Public_data.L3 -> "L3" 
+            | Public_data.M1 -> "M1" 
+            | Public_data.M2 -> "M2" 
+            | Public_data.DENS -> "DENS" 
+            | Public_data.Other -> "Other") state in 
+        let () = Remanent_state.print_cell (Public_data.string_of_dpt_opt c.Public_data.supplement_diploma_dpt) state in 
+          ()) suggest missing 
+          in 
   let state, dens = Dens.split_courses ~firstname ~lastname dens_ok state in
   let state, dens = Dens.split_stages ~firstname ~lastname dens state in
   let state, dens = Dens.collect_mineure dens state in
