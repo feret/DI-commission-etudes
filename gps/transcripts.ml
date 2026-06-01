@@ -8945,21 +8945,28 @@ let export_transcript
                        ~year ~code_cours state
                        elt.diplome
                    in
-                   let elt = {elt with diplome_dpt = 
+                   let diplome_dpt_string = diplome_dpt in 
+                   let state, diplome_dpt = 
                       match diplome_dpt with
-                      "informatique" -> Some Public_data.DI
-                     | "mathématiques" -> Some Public_data.DMA 
-                    | "chimie" -> Some Public_data.CHIMIE
-                    | "géosciences" -> Some Public_data.GEOSCIENCES
-                    | "physique" -> Some Public_data.PHYS 
-                    | "biologie" -> Some Public_data.IBENS
-                    | "littératures et langage" -> Some Public_data.LILA 
-                    | "économie" -> Some Public_data.ECO 
-                    | "arts" -> Some Public_data.ARTS 
-                   | "cultures et langues d'ailleurs" -> Some Public_data.ECLA 
-                   | _ -> None 
-                   } 
-                  in 
+                      "informatique" -> state, Some Public_data.DI
+                     | "mathématiques" -> state, Some Public_data.DMA 
+                    | "chimie" -> state, Some Public_data.CHIMIE
+                    | "géosciences" -> state, Some Public_data.GEOSCIENCES
+                    | "physique" -> state, Some Public_data.PHYS 
+                    | "biologie" -> state, Some Public_data.IBENS
+                    | "littératures et langage" -> state, Some Public_data.LILA 
+                    | "économie" -> state, Some Public_data.ECO 
+                    | "arts" -> state, Some Public_data.ARTS 
+                   | "cultures et langues d'ailleurs" -> state, Some Public_data.ECLA 
+                   | _ -> 
+                    (Remanent_state.warn __POS__ (Format.sprintf "Unknown dpt (%s)" diplome_dpt) Exit state), 
+                      None in 
+                   
+                  let state, elt = 
+                   state, 
+                    {elt with diplome_dpt}
+                   in  
+                   let diplome_dpt = diplome_dpt_string in 
                    let state, cursus_map =
                      addfirstlast
                        state
@@ -10204,7 +10211,7 @@ let export_transcript
       dip_list 
        cours_list_all state 
 in
-  let state = Reglements_pedagogiques_tools.CourseDMap.print state  (fun state (c,_,_) -> 
+  let state = Reglements_pedagogiques_tools.CourseDMap.print state  (fun state (c,(a,b),(a',b')) -> 
           let () = Remanent_state.print_cell (match c.Public_data.supplement_code_gps with None -> "" | Some a -> a) state in 
         let () = Remanent_state.print_cell (match c.Public_data.supplement_code_helisa with None -> "" | Some a -> a) state in 
         let state, note = Notes.to_string __POS__ state c.Public_data.supplement_note in 
@@ -10220,7 +10227,31 @@ in
             | Public_data.DENS -> "DENS" 
             | Public_data.Other -> "Other") state in 
         let () = Remanent_state.print_cell (Public_data.string_of_dpt_opt c.Public_data.supplement_diploma_dpt) state in 
-          ()) suggest missing 
+       
+         let () = Remanent_state.print_cell
+          (match 
+            a
+          with 
+            | Some Public_data.L3 -> "L3" 
+            | Some Public_data.M1 -> "M1" 
+            | Some Public_data.M2 -> "M2" 
+            | Some Public_data.DENS -> "DENS" 
+            | Some Public_data.Other -> "Other"
+            | None -> "") state in 
+        let () = Remanent_state.print_cell (Public_data.string_of_dpt_opt b) state in 
+       let () = Remanent_state.print_cell
+          (match 
+            a'
+          with 
+            | Some Public_data.L3 -> "L3" 
+            | Some Public_data.M1 -> "M1" 
+            | Some Public_data.M2 -> "M2" 
+            | Some Public_data.DENS -> "DENS" 
+            | Some Public_data.Other -> "Other"
+            | None -> "") state in 
+        let () = Remanent_state.print_cell (Public_data.string_of_dpt_opt b') state in 
+     
+        ()) suggest missing 
           in 
   let state, dens = Dens.split_courses ~firstname ~lastname dens_ok state in
   let state, dens = Dens.split_stages ~firstname ~lastname dens state in
