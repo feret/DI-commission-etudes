@@ -210,11 +210,11 @@ module DMap(A:Double_keys with type key = string) =
           let rec aux k list (state, t, missing, ects) = 
                 if k = 0 then (state, t, missing, ects) else 
                   match list with 
-                | [] -> state, t, (k,List.rev_map fst (List.rev list)@not_in)::missing, ects
+                | [] -> state, t, (k,not_in)::missing, ects
                 | (key,b)::tail -> 
                   begin 
                     match A.get_validation b with 
-                      | Public_data.Bool false | Public_data.Abs -> state, t, (k,List.rev_map fst (List.rev list))::missing, ects
+                      | Public_data.Bool false | Public_data.Abs -> state, t, (k,(List.rev_map fst (List.rev list))@not_in)::missing, ects
                       | Public_data.Bool true | Public_data.Not_known_yet  -> 
                      let state, cours = find_opt key t state in 
                      match cours with 
@@ -273,8 +273,8 @@ module DMap(A:Double_keys with type key = string) =
 
    let print state print t list  =   
     if list = [] then state else  
-    let size =    [None;None;None;None;None;None;None;None;None;None] in
-    let bgcolor = [None;None;None;None;None;None;None;None;None;None] in
+    let size =    [None;None;None;None;None;None;None] in
+    let bgcolor = [None;None;None;None;None;None;None] in
     let state, _main_dpt = Remanent_state.get_main_dpt state in
     let state = 
       List.fold_left 
@@ -288,7 +288,7 @@ module DMap(A:Double_keys with type key = string) =
             state) 
           state missing) state list
     in 
-    let () = Remanent_state.fprintf state "\\renewcommand{\\row}[5]{#1&#2&#3&#4&#5\\cr}" in
+    let () = Remanent_state.fprintf state "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5&#6&#7\\cr}" in
     let () = Remanent_state.fprintf state "\\renewcommand{\\innerline}{}" in
     let () = Remanent_state.fprintf state "\\vfill" in
     let () = Remanent_state.fprintf state "\\begin{center}" in
@@ -298,8 +298,8 @@ module DMap(A:Double_keys with type key = string) =
         ~bgcolor
         ~size
         ~with_lines:true
-        ~title:[["Code"];["Code"];["Note"];["ECTS"]; ["DIPLOME"];["DPT"]; ["DIPLOME"];["DPT"];["DIPLOME"];["DPT"]; ]
-        ~title_english:[["Code"];["Code"];["Note"];["ECTS"]; ["DIPLOMA"];["DPT"]; ["DIPLOMA"];["DPT"]; ["DIPLOMA"];["DPT"]]
+        ~title:[["Code"];["Code"];["Note"];["ECTS"]; ["DIPLOME"]; ["DIPLOME"];["DIPLOME"]]
+        ~title_english:[["Code"];["Code"];["Note"];["ECTS"]; ["DIPLOMA"];["DIPLOMA"] ;["DIPLOMA"]]
         state
     in
     let state = 
