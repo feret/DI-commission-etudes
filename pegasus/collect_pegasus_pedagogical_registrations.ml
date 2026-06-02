@@ -279,7 +279,7 @@ let update_inscription code_helisa entry bset state =
         let state, n =
          match n with
           | "1ère" -> state, 1
-          | "2ème" -> state, 2
+          | "2ème" | "2e" -> state, 2
           | "3ème" | "3e" -> state, 3
           | _ -> Remanent_state.warn __POS__ (Format.sprintf "Unknown inscription year %s" n) Exit state, 0
         in
