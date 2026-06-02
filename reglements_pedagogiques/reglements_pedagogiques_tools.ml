@@ -273,8 +273,8 @@ module DMap(A:Double_keys with type key = string) =
 
    let print state print t list  =   
     if list = [] then state else  
-    let size = [None;None;None;None;None;None] in
-    let bgcolor = [None;None;None;None;None;None] in
+    let size =    [None;None;None;None;None;None;None;None;None;None] in
+    let bgcolor = [None;None;None;None;None;None;None;None;None;None] in
     let state, _main_dpt = Remanent_state.get_main_dpt state in
     let state = 
       List.fold_left 
@@ -298,8 +298,8 @@ module DMap(A:Double_keys with type key = string) =
         ~bgcolor
         ~size
         ~with_lines:true
-        ~title:[["Code"];["Code"];["Note"];["ECTS"]; ["DIPLOMA"];["DPT"]; ["DIPLOMA"];["DPT"]]
-        ~title_english:[["Code"];["Code"];["Note"];["ECTS"]; ["DIPLOMA"];["DPT"]; ["DIPLOMA"];["DPT"]]
+        ~title:[["Code"];["Code"];["Note"];["ECTS"]; ["DIPLOME"];["DPT"]; ["DIPLOME"];["DPT"];["DIPLOME"];["DPT"]; ]
+        ~title_english:[["Code"];["Code"];["Note"];["ECTS"]; ["DIPLOMA"];["DPT"]; ["DIPLOMA"];["DPT"]; ["DIPLOMA"];["DPT"]]
         state
     in
     let state = 
