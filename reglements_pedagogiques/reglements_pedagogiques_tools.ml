@@ -304,11 +304,15 @@ module DMap(A:Double_keys with type key = string) =
     in
     let state = 
       A.KeyMap.fold  
-      (fun _ c state -> 
+      (fun k c state -> 
+        let cours,_,_ = c in 
+        if A.index1 cours = Some k 
+          || A.index1 cours  = None 
+        then 
         let () = Remanent_state.open_row state in
         let () = print state c in 
         let () = Remanent_state.close_row state in 
-        state 
+        state else state 
          
         ) t state 
   in 

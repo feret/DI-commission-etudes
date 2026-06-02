@@ -270,6 +270,9 @@ let update_inscription code_helisa entry bset state =
           match dpt with
             | "Informatique"  -> state, "INF"
             | "Mathématiques et applications" | "Mathématique" -> state, "DMA"
+            | "Physique" -> state, "PHY"
+            | "Biologie" -> state, "BIO"
+            | "Philosophie" -> state, "PHI"
             | "Chimie" -> state, "CHI"
             | _ -> Remanent_state.warn __POS__ (Format.sprintf "Unknown dpt %s " dpt) Exit state, ""
         in
@@ -277,8 +280,8 @@ let update_inscription code_helisa entry bset state =
          match n with
           | "1ère" -> state, 1
           | "2ème" -> state, 2
-          | "3ème" -> state, 3
-          | _ -> Remanent_state.warn __POS__ (Format.sprintf "Unknwon inscription year %s" n) Exit state, 0
+          | "3ème" | "3e" -> state, 3
+          | _ -> Remanent_state.warn __POS__ (Format.sprintf "Unknown inscription year %s" n) Exit state, 0
         in
         let code_helisa =
           Some (Format.sprintf "AND%s%i" dpt n) in
