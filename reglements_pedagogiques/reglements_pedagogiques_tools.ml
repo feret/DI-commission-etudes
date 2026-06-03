@@ -289,7 +289,7 @@ module DMap(A:Double_keys with type key = string) =
             state) 
           state missing) state list
     in 
-    let () = Remanent_state.fprintf state "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5&#6&#7\\cr}" in
+    let () = Remanent_state.fprintf state "\\renewcommand{\\row}[8]{#1&#2&#3&#4&#5&#6&#7&#8\\cr}" in
     let () = Remanent_state.fprintf state "\\renewcommand{\\innerline}{}" in
     let () = Remanent_state.fprintf state "\\vfill" in
     let by_year = Public_data.YearMap.empty in 
@@ -336,8 +336,8 @@ module DMap(A:Double_keys with type key = string) =
         ~bgcolor
         ~size
         ~with_lines:true
-        ~title:[["Code"];["Code"];["Note"];["ECTS"]; ["DIPLOME"]; ["DIPLOME"];["DIPLOME"]]
-        ~title_english:[["Code"];["Code"];["Note"];["ECTS"]; ["DIPLOMA"];["DIPLOMA"] ;["DIPLOMA"]]
+        ~title:[["Code GPS"];["Code HELISA"];["Cours"];["Note"];["ECTS"]; ["DIPLOME (cours)"]; ["DIPLOME (avant)"];["DIPLOME (après)"]]
+        ~title_english:[["GPS Code"];["HELISA Code"];["Course"];["Grade"];["ECTS"]; ["DIPLOMA (Course)"];["DIPLOMA (before)"] ;["DIPLOMA (after)"]]
         state
     in
     let (state:Remanent_state.t) = 
