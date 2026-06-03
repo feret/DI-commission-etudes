@@ -8949,7 +8949,7 @@ let export_transcript
                    let state, diplome_dpt = 
                       match diplome_dpt with
                       "informatique" -> state, Some Public_data.DI
-                     | "mathematiques" | "mathématiques" -> state, Some Public_data.DMA 
+                     | "mathematiques" | "mathématiques" -> state, Some Public_data.DMA 
                     | "chimie" -> state, Some Public_data.CHIMIE
                     | "géosciences" -> state, Some Public_data.GEOSCIENCES
                     | "physique" -> state, Some Public_data.PHYS 
