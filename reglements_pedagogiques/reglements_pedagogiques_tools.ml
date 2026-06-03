@@ -239,7 +239,9 @@ module DMap(A:Double_keys with type key = string) =
 
   let dump_missing prefix (_,_,list,_) state = 
     List.iter 
-      (fun (k,l) -> Remanent_state.fprintf state "%s:%i,%i" prefix k (List.length l)) list 
+      (fun (k,l) -> 
+        Remanent_state.fprintf state "%s:%i,%i" prefix k (List.length l); 
+        List.iter (fun elt -> Remanent_state.fprintf state "%s, " elt) l) list 
 
   let select_options reglement new_dip acc = 
       let list = reglement.Public_data.options in   
@@ -304,16 +306,16 @@ module DMap(A:Double_keys with type key = string) =
           (fun state (k,l) -> 
             if k = List.length l then 
                let () = Remanent_state.fprintf state "The following %i courses " (List.length l)  in 
-               let () = List.iter (Remanent_state.fprintf state "%s,") l in 
+               let () = List.iter (fun elt -> Remanent_state.fprintf state "%s, " elt) l in 
                let () = Remanent_state.fprintf state "are missing for diploma %s" (A.string_of_dip dip) in       
                let () = Remanent_state.print_newline state in 
                state
             else          
             let () = if k = 1 then Remanent_state.fprintf state "It misses %i over %i course among " k (List.length l) 
             else 
-              Remanent_state.fprintf state "It misses %i courses among " k
+              Remanent_state.fprintf state "It misses %i over %i courses among " k (List.length l) 
            in 
-            let () = List.iter (Remanent_state.fprintf state "%s,") l in 
+            let () = List.iter (fun elt -> Remanent_state.fprintf state "%s, " elt) l in 
             let () = Remanent_state.fprintf state " for diploma %s" (A.string_of_dip dip) in         
             let () = Remanent_state.print_newline state in 
             state) 
