@@ -8949,7 +8949,7 @@ let export_transcript
                    let state, diplome_dpt = 
                       match diplome_dpt with
                       "informatique" -> state, Some Public_data.DI
-                     | "mathématiques" -> state, Some Public_data.DMA 
+                     | "mathematiques" | "mathématiques" -> state, Some Public_data.DMA 
                     | "chimie" -> state, Some Public_data.CHIMIE
                     | "géosciences" -> state, Some Public_data.GEOSCIENCES
                     | "physique" -> state, Some Public_data.PHYS 
@@ -8958,6 +8958,7 @@ let export_transcript
                     | "économie" -> state, Some Public_data.ECO 
                     | "arts" -> state, Some Public_data.ARTS 
                    | "cultures et langues d'ailleurs" -> state, Some Public_data.ECLA 
+                   | "DENS" -> state, None 
                    | _ -> 
                     (Remanent_state.warn __POS__ (Format.sprintf "Unknown dpt (%s)" diplome_dpt) Exit state), 
                       None in 
