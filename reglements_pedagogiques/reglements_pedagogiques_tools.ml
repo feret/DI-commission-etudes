@@ -212,11 +212,19 @@ module DMap(A:Double_keys with type key = string) =
           let rec aux k list (state, t, missing, ects) = 
                 if k = 0 then (state, t, missing, ects) else 
                   match list with 
-                | [] -> state, t, (k,not_in)::missing, ects
+                | [] -> 
+                     let () = Remanent_state.fprintf state "A: %i %i " k 
+                        (List.length not_in)
+                      in
+                  state, t, (k,not_in)::missing, ects
                 | (key,b)::tail -> 
                   begin 
                     match A.get_validation b with 
-                      | Public_data.Bool false | Public_data.Abs -> state, t, (k,(List.rev_map fst (List.rev list))@not_in)::missing, ects
+                      | Public_data.Bool false | Public_data.Abs -> 
+                        let () = Remanent_state.fprintf state "A: %i %i " k 
+                        (List.length ((List.rev_map fst (List.rev list))@not_in))
+                       in
+                        state, t, (k,(List.rev_map fst (List.rev list))@not_in)::missing, ects
                       | Public_data.Bool true | Public_data.Not_known_yet  -> 
                      let state, cours = find_opt key t state in 
                      match cours with 
@@ -282,6 +290,13 @@ module DMap(A:Double_keys with type key = string) =
       (fun state (dip, missing, _) -> 
       List.fold_left 
           (fun state (k,l) -> 
+            if k = List.length l then 
+               let () = Remanent_state.fprintf state "The following courses "  in 
+               let () = List.iter (Remanent_state.fprintf state "%s,") l in 
+               let () = Remanent_state.fprintf state "are missing for diploma %s" (A.string_of_dip dip) in       
+               let () = Remanent_state.print_newline state in 
+               state
+            else          
             let () = Remanent_state.fprintf state "It misses %i courses among " k in 
             let () = List.iter (Remanent_state.fprintf state "%s,") l in 
             let () = Remanent_state.fprintf state " for diploma %s" (A.string_of_dip dip) in         
