@@ -75,6 +75,10 @@ let m1_maths =
       "DMA-M1-GT7-S1"; (* gt - entropie : entre physique statistique, probabilites et *)
       "DMA-M1-GT8-S1"; (* gt polymeres *)
       "DMA-M1-GT9-S1"; (* gt - Limites locales de cartes planaires et empilement de cercles *) 
-      ]; 
-    ]
+      "UNDMA1-081"; (* GT - Domaines d’holomorphie et variétés de Stein *)  
+      "UNDMA1-082"; (* GT - Introduction à la géométrie sous-riemannienne *)  
+      "UNDMA1-083"; (* GT - Représentations l-adiques et la fonction tau de Ramanujan*) 
+      "UNDMA1-084"; (* GT - Théorie algébrique des équations différentielles en caractéristiques nulle et positive *)  
+      "UNDMA1-085"; (* GT - Transport optimal et applications*)];
+      ]
   }

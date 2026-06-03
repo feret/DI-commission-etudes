@@ -236,13 +236,6 @@ module DMap(A:Double_keys with type key = string) =
                   in aux k sorted_list (state, t, missing, ects)) 
                   acc l 
 
-
-  let dump_missing prefix (_,_,list,_) state = 
-    List.iter 
-      (fun (k,l) -> 
-        Remanent_state.fprintf state "%s:%i,%i" prefix k (List.length l); 
-        List.iter (fun elt -> Remanent_state.fprintf state "%s, " elt) l) list 
-
   let select_options reglement new_dip acc = 
       let list = reglement.Public_data.options in   
       let (state, t, missing, ects) = acc in 
@@ -278,15 +271,10 @@ module DMap(A:Double_keys with type key = string) =
           let missing = [] in 
           let ects = 0. in 
           let acc = state, t, missing, ects in 
-          let () = dump_missing "INIT" acc state in 
           let acc = select_obligatory reglement dip acc in
-            let () = dump_missing "MANDATORY" acc state in 
           let acc = select_default reglement dip acc in 
-            let () = dump_missing "DFT" acc state in 
           let acc = select_groups reglement dip acc in 
-            let () = dump_missing "GROUPS" acc state in 
           let acc = select_options reglement dip acc in 
-            let () = dump_missing "OPTIONS" acc state in 
           let (state, t, missing, ects) = acc in 
           state, t, (dip,missing,ects)::list) 
            (state, t, []) dip_list  
