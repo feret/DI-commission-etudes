@@ -221,7 +221,7 @@ module DMap(A:Double_keys with type key = string) =
                   begin 
                     match A.get_validation b with 
                       | Public_data.Bool false | Public_data.Abs -> 
-                        let () = Remanent_state.fprintf state "A: %i %i " k 
+                        let () = Remanent_state.fprintf state "B: %i %i " k 
                         (List.length ((List.rev_map fst (List.rev list))@not_in))
                        in
                         state, t, (k,(List.rev_map fst (List.rev list))@not_in)::missing, ects
@@ -236,6 +236,10 @@ module DMap(A:Double_keys with type key = string) =
                   in aux k sorted_list (state, t, missing, ects)) 
                   acc l 
 
+
+  let dump_missing prefix (_,_,list,_) state = 
+    List.iter 
+      (fun (k,l) -> Remanent_state.fprintf state "%s:%i,%i" prefix k (List.length l)) list 
 
   let select_options reglement new_dip acc = 
       let list = reglement.Public_data.options in   
@@ -262,6 +266,9 @@ module DMap(A:Double_keys with type key = string) =
       let state, t, ects = aux  sorted_list (state, t,  ects) in 
       state, t, missing, ects 
 
+
+    
+
     let select_course_for_a_cursus_list dip_list t state = 
       let state, t, list = 
         List.fold_left 
@@ -269,10 +276,15 @@ module DMap(A:Double_keys with type key = string) =
           let missing = [] in 
           let ects = 0. in 
           let acc = state, t, missing, ects in 
+          let () = dump_missing "INIT" acc state in 
           let acc = select_obligatory reglement dip acc in
+            let () = dump_missing "MANDATORY" acc state in 
           let acc = select_default reglement dip acc in 
+            let () = dump_missing "DFT" acc state in 
           let acc = select_groups reglement dip acc in 
+            let () = dump_missing "GROUPS" acc state in 
           let acc = select_options reglement dip acc in 
+            let () = dump_missing "OPTIONS" acc state in 
           let (state, t, missing, ects) = acc in 
           state, t, (dip,missing,ects)::list) 
            (state, t, []) dip_list  
@@ -291,13 +303,16 @@ module DMap(A:Double_keys with type key = string) =
       List.fold_left 
           (fun state (k,l) -> 
             if k = List.length l then 
-               let () = Remanent_state.fprintf state "The following courses "  in 
+               let () = Remanent_state.fprintf state "The following %i courses " (List.length l)  in 
                let () = List.iter (Remanent_state.fprintf state "%s,") l in 
                let () = Remanent_state.fprintf state "are missing for diploma %s" (A.string_of_dip dip) in       
                let () = Remanent_state.print_newline state in 
                state
             else          
-            let () = Remanent_state.fprintf state "It misses %i courses among " k in 
+            let () = if k = 1 then Remanent_state.fprintf state "It misses %i over %i course among " k (List.length l) 
+            else 
+              Remanent_state.fprintf state "It misses %i courses among " k
+           in 
             let () = List.iter (Remanent_state.fprintf state "%s,") l in 
             let () = Remanent_state.fprintf state " for diploma %s" (A.string_of_dip dip) in         
             let () = Remanent_state.print_newline state in 
