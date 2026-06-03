@@ -13,6 +13,7 @@ module type Double_keys =
         val get_ects: obj -> float 
         val get_note: obj -> Public_data.note 
         val get_validation: obj -> Public_data.valide 
+        val get_year: obj -> string 
         val is_unallocated: dip -> bool 
         val dens: dip 
     end 
@@ -54,7 +55,7 @@ module Course =
             | Public_data.Other -> "Other") 
       | Some a, Some b -> 
          (match a with 
-         Public_data.L3 -> Format.sprintf "L3 (%s)" (Public_data.string_of_dpt b)
+              Public_data.L3 -> Format.sprintf "L3 (%s)" (Public_data.string_of_dpt b)
             | Public_data.M1 -> Format.sprintf "M1 (%s)" (Public_data.string_of_dpt b)
             | Public_data.M2 -> Format.sprintf "M2 (%s)" (Public_data.string_of_dpt b)
             | Public_data.DENS -> "DENS" 
@@ -66,6 +67,7 @@ module Course =
       let get_ects course = course.Public_data.supplement_ects 
       let get_note course = course.Public_data.supplement_note 
       let get_validation course = course.Public_data.supplement_validation 
+        let get_year course = course.Public_data.supplement_validation_year 
       let is_unallocated dip = dip = (None,None)
       let (dens:dip) = ((Some Public_data.DENS),None) 
 
@@ -275,7 +277,6 @@ module DMap(A:Double_keys with type key = string) =
     if list = [] then state else  
     let size =    [None;None;None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None;None;None] in
-    let state, _main_dpt = Remanent_state.get_main_dpt state in
     let state = 
       List.fold_left 
       (fun state (dip, missing, _) -> 
@@ -291,7 +292,44 @@ module DMap(A:Double_keys with type key = string) =
     let () = Remanent_state.fprintf state "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5&#6&#7\\cr}" in
     let () = Remanent_state.fprintf state "\\renewcommand{\\innerline}{}" in
     let () = Remanent_state.fprintf state "\\vfill" in
-    let () = Remanent_state.fprintf state "\\begin{center}" in
+    let by_year = Public_data.YearMap.empty in 
+    let add k c map = 
+      let cours,_,_ = c in 
+        if A.index1 cours = Some k 
+          || A.index1 cours  = None 
+        then 
+          let year = A.get_year cours in 
+          let old = 
+            match 
+              Public_data.YearMap.find_opt year map 
+            with
+            | Some map -> map 
+            | None -> A.KeyMap.empty 
+          in 
+          let k = 
+            match A.index2 cours with 
+            | None -> k 
+            | Some a -> a 
+          in 
+          let updated = A.KeyMap.add k c old in 
+          Public_data.YearMap.add year updated map  
+        else map 
+    in 
+    let by_year = A.KeyMap.fold add t by_year in   
+      let state = 
+      Public_data.YearMap.fold 
+        (fun year t state -> 
+          let year_ext = 
+            try 
+              let year_int = int_of_string year in 
+              Format.sprintf "%i - %i" year_int (year_int + 1) 
+            with _ -> year 
+          in
+          let s_fr = Format.sprintf "Année académique %s" year_ext in 
+          let s_en = Format.sprintf "Academic year %s" year_ext in 
+          let state, s_bi = Remanent_state.bilingual_string ~english:s_en ~french:s_fr state in 
+          let () = Remanent_state.fprintf state "%s" s_bi in 
+          let () = Remanent_state.fprintf state "\\begin{center}" in
     let state =
       Remanent_state.open_array
         __POS__
@@ -302,7 +340,7 @@ module DMap(A:Double_keys with type key = string) =
         ~title_english:[["Code"];["Code"];["Note"];["ECTS"]; ["DIPLOMA"];["DIPLOMA"] ;["DIPLOMA"]]
         state
     in
-    let state = 
+    let (state:Remanent_state.t) = 
       A.KeyMap.fold  
       (fun k c state -> 
         let cours,_,_ = c in 
@@ -315,10 +353,11 @@ module DMap(A:Double_keys with type key = string) =
         state else state 
          
         ) t state 
-  in 
-  let () = Remanent_state.close_array state in 
-    state 
-    
+    in
+    let () = Remanent_state.close_array state in 
+    state) by_year state 
+  in state 
+
   end: DMap with type key = A.key and type obj = A.obj and type dip = A.dip) 
 
 module CourseDMap = DMap(Course) 

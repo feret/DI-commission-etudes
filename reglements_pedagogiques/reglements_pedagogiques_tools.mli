@@ -12,6 +12,7 @@ module type Double_keys =
         val get_ects: obj -> float 
          val get_note: obj -> Public_data.note 
         val get_validation: obj -> Public_data.valide 
+        val get_year: obj -> string 
         val is_unallocated: dip -> bool 
         val dens: dip 
     end 

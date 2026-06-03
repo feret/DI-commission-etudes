@@ -2,4 +2,5 @@
  (name sco_reglements_pedagogiques)
  (libraries sco_remanent_state sco_tools sco_datastructures camlp-streams)
  (flags
-  (:standard -w @a -open Sco_remanent_state -open Sco_tools -open Sco_datastructures)))
+  (:standard -w @a -open Sco_remanent_state -open Sco_tools -open
+    Sco_datastructures)))

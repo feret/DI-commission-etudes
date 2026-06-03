@@ -8104,7 +8104,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                     | Some "ANM1INF" -> Some "m"
                     | None | Some _ -> (if b then Some "dens" else None)
                 end ;
-                diplome_dpt =
+                diplome_dpt = 
                  begin 
                   match course.Public_data.pe_diploma with 
                     | Some "ANL3INF" -> Some Public_data.DI  
@@ -10243,8 +10243,9 @@ let string_of_dip a b =
   in 
       
   let state = Reglements_pedagogiques_tools.CourseDMap.print state  (fun state (c,(a,b),(a',b')) -> 
-          let () = Remanent_state.print_cell (match c.Public_data.supplement_code_gps with None -> "" | Some a -> a) state in 
+        let () = Remanent_state.print_cell (match c.Public_data.supplement_code_gps with None -> "" | Some a -> a) state in 
         let () = Remanent_state.print_cell (match c.Public_data.supplement_code_helisa with None -> "" | Some a -> a) state in 
+        let () = Remanent_state.print_cell (c.Public_data.supplement_validation_year) state in 
         let state, note = Notes.to_string __POS__ state c.Public_data.supplement_note in 
         let () = Remanent_state.print_cell note state in 
         let () = Remanent_state.print_cell (string_of_float c.Public_data.supplement_ects) state in 
