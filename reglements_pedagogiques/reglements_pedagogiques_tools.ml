@@ -372,8 +372,8 @@ module DMap(A:Double_keys with type key = string) =
     in
     let (state:Remanent_state.t) = 
       A.KeyMap.fold  
-      (fun k c state -> 
-        let cours,_,_ = c in 
+      (fun _k c state -> 
+       (* let cours,_,_ = c in *)
        (* if A.index1 cours = Some k 
           || A.index1 cours  = None 
         then *)
