@@ -374,20 +374,20 @@ module DMap(A:Double_keys with type key = string) =
       A.KeyMap.fold  
       (fun k c state -> 
         let cours,_,_ = c in 
-        if A.index1 cours = Some k 
+       (* if A.index1 cours = Some k 
           || A.index1 cours  = None 
-        then 
+        then *)
         let () = Remanent_state.open_row state in
         let () = print state c in 
         let () = Remanent_state.close_row state in 
-        state else 
+        state (* else 
         let () = Remanent_state.open_row state in
 
           let () = 
-            Remanent_state.fprintf state "ignored_bis %s %s %s &&&&&&" k (match A.index1 cours with None -> "" | Some a -> a) 
+            Remanent_state.fprintf state "ignored_bis %s %s %s & & & & & & " k (match A.index1 cours with None -> "" | Some a -> a) 
           (match A.index2 cours with None -> "" | Some a -> a) in 
              let () = Remanent_state.close_row state in 
-          state 
+          state *)
          
         ) t state 
     in
