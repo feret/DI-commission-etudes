@@ -318,6 +318,10 @@ module DMap(A:Double_keys with type key = string) =
         if A.index1 cours = Some k 
           || A.index1 cours  = None 
         then 
+          let () = 
+            Remanent_state.fprintf state "kept %s %s %s" k (match A.index1 cours with None -> "" | Some a -> a) 
+          (match A.index2 cours with None -> "" | Some a -> a) in 
+          let () = Remanent_state.print_newline state in 
           let year = A.get_year cours in 
           let old = 
             match 
@@ -377,10 +381,12 @@ module DMap(A:Double_keys with type key = string) =
         let () = print state c in 
         let () = Remanent_state.close_row state in 
         state else 
+        let () = Remanent_state.open_row state in
+
           let () = 
-            Remanent_state.fprintf state "ignored_bis %s %s %s" k (match A.index1 cours with None -> "" | Some a -> a) 
+            Remanent_state.fprintf state "ignored_bis %s %s %s &&&&&&" k (match A.index1 cours with None -> "" | Some a -> a) 
           (match A.index2 cours with None -> "" | Some a -> a) in 
-          let () = Remanent_state.print_newline state in 
+             let () = Remanent_state.close_row state in 
           state 
          
         ) t state 
