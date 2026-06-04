@@ -10249,9 +10249,7 @@ let string_of_dip a b =
         let () = Remanent_state.print_cell c.Public_data.supplement_intitule state in 
         let state, note = Notes.to_string __POS__ state c.Public_data.supplement_note in 
         let () = Remanent_state.print_cell note state in 
-        let () = Remanent_state.print_cell (string_of_float c.Public_data.supplement_ects) state in 
-        let () = Remanent_state.print_cell (string_of_dip (Some c.Public_data.supplement_diploma_level) c.Public_data.supplement_diploma_dpt) state in 
-         
+        let () = Remanent_state.print_cell (string_of_float c.Public_data.supplement_ects) state in   
          let () = Remanent_state.print_cell (string_of_dip a b) state in 
          let () = Remanent_state.print_cell (string_of_dip a' b') state in 
 

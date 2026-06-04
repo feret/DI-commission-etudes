@@ -309,7 +309,7 @@ module DMap(A:Double_keys with type key = string) =
             state) 
           state missing) state list
     in 
-    let () = Remanent_state.fprintf state "\\renewcommand{\\row}[8]{#1&#2&#3&#4&#5&#6&#7&#8\\cr}" in
+    let () = Remanent_state.fprintf state "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5&#6&#7\\cr}" in
     let () = Remanent_state.fprintf state "\\renewcommand{\\innerline}{}" in
     let () = Remanent_state.fprintf state "\\vfill" in
     let by_year = Public_data.YearMap.empty in 
@@ -333,8 +333,14 @@ module DMap(A:Double_keys with type key = string) =
           in 
           let updated = A.KeyMap.add k c old in 
           Public_data.YearMap.add year updated map  
-        else map 
-    in 
+        else 
+          let () = 
+            Remanent_state.fprintf state "ignored %s %s %s" k (match A.index1 cours with None -> "" | Some a -> a) 
+          (match A.index2 cours with None -> "" | Some a -> a) in 
+          let () = Remanent_state.print_newline state in map 
+          in 
+
+    
     let by_year = A.KeyMap.fold add t by_year in   
       let state = 
       Public_data.YearMap.fold 
@@ -356,8 +362,8 @@ module DMap(A:Double_keys with type key = string) =
         ~bgcolor
         ~size
         ~with_lines:true
-        ~title:[["Code GPS"];["Code HELISA"];["Cours"];["Note"];["ECTS"]; ["DIPLOME (cours)"]; ["DIPLOME (avant)"];["DIPLOME (après)"]]
-        ~title_english:[["GPS Code"];["HELISA Code"];["Course"];["Grade"];["ECTS"]; ["DIPLOMA (Course)"];["DIPLOMA (before)"] ;["DIPLOMA (after)"]]
+        ~title:[["Code GPS"];["Code HELISA"];["Cours"];["Note"];["ECTS"]; ["DIPLOME (avant)"];["DIPLOME (après)"]]
+        ~title_english:[["GPS Code"];["HELISA Code"];["Course"];["Grade"];["ECTS"];["DIPLOMA (before)"] ;["DIPLOMA (after)"]]
         state
     in
     let (state:Remanent_state.t) = 
@@ -370,7 +376,12 @@ module DMap(A:Double_keys with type key = string) =
         let () = Remanent_state.open_row state in
         let () = print state c in 
         let () = Remanent_state.close_row state in 
-        state else state 
+        state else 
+          let () = 
+            Remanent_state.fprintf state "ignored_bis %s %s %s" k (match A.index1 cours with None -> "" | Some a -> a) 
+          (match A.index2 cours with None -> "" | Some a -> a) in 
+          let () = Remanent_state.print_newline state in 
+          state 
          
         ) t state 
     in
