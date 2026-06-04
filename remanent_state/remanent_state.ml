@@ -146,6 +146,9 @@ type parameters =
     suggest_course_dispatching: bool;   
     focus_lastname: string list; 
     focus_firstname: string list; 
+     keep_not_validated: bool ; 
+    do_not_move_unvalidated: bool ; 
+    show_missing_entries: bool; 
 
     }
 
@@ -320,6 +323,9 @@ let parameters =
     suggest_course_dispatching=false; 
     focus_lastname = ["DUVAL"]; 
     focus_firstname = []; 
+    keep_not_validated = true ; 
+    do_not_move_unvalidated = true ; 
+    show_missing_entries = true 
   } 
 
 
@@ -3423,3 +3429,6 @@ let check elt list =
           t, check firstname t.parameters.focus_firstname 
             && check lastname t.parameters.focus_lastname 
   
+  let do_not_move_unvalidated t = t, t.parameters.do_not_move_unvalidated 
+  let keep_not_validated t = t,t.parameters.keep_not_validated 
+  let show_missing_entries t = t,t.parameters.show_missing_entries 

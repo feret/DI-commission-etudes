@@ -827,3 +827,7 @@ val do_we_suggest_course_dispatching:
 t -> t * bool 
 
 val is_focus: ?firstname:string -> ?lastname:string -> t -> t * bool 
+
+val do_not_move_unvalidated: t -> t * bool 
+val keep_not_validated: t -> t * bool 
+val show_missing_entries: t -> t * bool 

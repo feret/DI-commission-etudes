@@ -106,9 +106,13 @@ module DMap(A:Double_keys with type key = string) =
     let empty = A.KeyMap.empty 
     let rest_in_dens dip_list (t:t) state = 
       let dip_list = List.rev_map fst (List.rev dip_list) in 
+      let state, keep_validated = Remanent_state.do_not_move_unvalidated state in 
       state, A.KeyMap.map 
         (fun (obj,x,y) -> 
-          if A.is_unallocated y then 
+          if A.is_unallocated y && 
+            (( match A.get_validation obj with 
+              | Public_data.Bool false | Public_data.Abs -> false 
+              | Public_data.Bool true | Public_data.Not_known_yet -> true) || not keep_validated ) then 
             if x = A.dens || List.mem x dip_list 
             then 
               (obj, x, A.dens) 
@@ -212,19 +216,12 @@ module DMap(A:Double_keys with type key = string) =
           let rec aux k list (state, t, missing, ects) = 
                 if k = 0 then (state, t, missing, ects) else 
                   match list with 
-                | [] -> 
-                     let () = Remanent_state.fprintf state "A: %i %i " k 
-                        (List.length not_in)
-                      in
-                  state, t, (k,not_in)::missing, ects
+                | [] ->  state, t, (k,not_in)::missing, ects
                 | (key,b)::tail -> 
                   begin 
                     match A.get_validation b with 
                       | Public_data.Bool false | Public_data.Abs -> 
-                        let () = Remanent_state.fprintf state "B: %i %i " k 
-                        (List.length ((List.rev_map fst (List.rev list))@not_in))
-                       in
-                        state, t, (k,(List.rev_map fst (List.rev list))@not_in)::missing, ects
+                         state, t, (k,(List.rev_map fst (List.rev list))@not_in)::missing, ects
                       | Public_data.Bool true | Public_data.Not_known_yet  -> 
                      let state, cours = find_opt key t state in 
                      match cours with 
@@ -287,7 +284,9 @@ module DMap(A:Double_keys with type key = string) =
     if list = [] then state else  
     let size =    [None;None;None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None;None;None] in
+    let state, show_missing_entries = Remanent_state.show_missing_entries state in 
     let state = 
+      if show_missing_entries then 
       List.fold_left 
       (fun state (dip, missing, _) -> 
       List.fold_left 
@@ -307,7 +306,7 @@ module DMap(A:Double_keys with type key = string) =
             let () = Remanent_state.fprintf state " for diploma %s" (A.string_of_dip dip) in         
             let () = Remanent_state.print_newline state in 
             state) 
-          state missing) state list
+          state missing) state list else state 
     in 
     let () = Remanent_state.fprintf state "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5&#6&#7\\cr}" in
     let () = Remanent_state.fprintf state "\\renewcommand{\\innerline}{}" in
@@ -318,10 +317,6 @@ module DMap(A:Double_keys with type key = string) =
         if A.index1 cours = Some k 
           || A.index1 cours  = None 
         then 
-          let () = 
-            Remanent_state.fprintf state "kept %s %s %s" k (match A.index1 cours with None -> "" | Some a -> a) 
-          (match A.index2 cours with None -> "" | Some a -> a) in 
-          let () = Remanent_state.print_newline state in 
           let year = A.get_year cours in 
           let old = 
             match 
@@ -338,10 +333,7 @@ module DMap(A:Double_keys with type key = string) =
           let updated = A.KeyMap.add k c old in 
           Public_data.YearMap.add year updated map  
         else 
-          let () = 
-            Remanent_state.fprintf state "ignored %s %s %s" k (match A.index1 cours with None -> "" | Some a -> a) 
-          (match A.index2 cours with None -> "" | Some a -> a) in 
-          let () = Remanent_state.print_newline state in map 
+         map 
           in 
 
     
@@ -373,22 +365,10 @@ module DMap(A:Double_keys with type key = string) =
     let (state:Remanent_state.t) = 
       A.KeyMap.fold  
       (fun _k c state -> 
-       (* let cours,_,_ = c in *)
-       (* if A.index1 cours = Some k 
-          || A.index1 cours  = None 
-        then *)
         let () = Remanent_state.open_row state in
         let () = print state c in 
         let () = Remanent_state.close_row state in 
-        state (* else 
-        let () = Remanent_state.open_row state in
-
-          let () = 
-            Remanent_state.fprintf state "ignored_bis %s %s %s & & & & & & " k (match A.index1 cours with None -> "" | Some a -> a) 
-          (match A.index2 cours with None -> "" | Some a -> a) in 
-             let () = Remanent_state.close_row state in 
-          state *)
-         
+        state 
         ) t state 
     in
     let () = Remanent_state.close_array state in 
