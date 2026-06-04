@@ -109,15 +109,27 @@ module DMap(A:Double_keys with type key = string) =
       let state, keep_validated = Remanent_state.do_not_move_unvalidated state in 
       state, A.KeyMap.map 
         (fun (obj,x,y) -> 
-          if A.is_unallocated y && 
-            (( match A.get_validation obj with 
+          if A.is_unallocated y then 
+            begin 
+            if not ( match A.get_validation obj with 
               | Public_data.Bool false | Public_data.Abs -> false 
-              | Public_data.Bool true | Public_data.Not_known_yet -> true) || not keep_validated ) then 
-            if x = A.dens || List.mem x dip_list 
+              | Public_data.Bool true | Public_data.Not_known_yet -> true)
             then 
-              (obj, x, A.dens) 
-            else (obj, x, x)
-          else (obj, x, y))
+              begin 
+                if keep_validated 
+                then 
+                  (obj, x, x)
+                else 
+                  (obj, x, A.dens)
+              end 
+            else 
+              if x = A.dens || List.mem x dip_list 
+              then 
+               (obj, x, A.dens) 
+              else (obj, x, x)
+          end
+          else (obj, x, y)
+          )
             t 
                
     let fold f a state = 
