@@ -325,7 +325,9 @@ module DMap(A:Double_keys with type key = string) =
     let () = Remanent_state.fprintf state "\\vfill" in
     let by_year = Public_data.YearMap.empty in 
     let add k c map = 
-      let cours,_,_ = c in 
+      let cours,a,b = c in 
+        if a = b then map 
+        else 
         if A.index1 cours = Some k 
           || A.index1 cours  = None 
         then 
@@ -384,6 +386,7 @@ module DMap(A:Double_keys with type key = string) =
         ) t state 
     in
     let () = Remanent_state.close_array state in 
+    let () = Remanent_state.breakpage state in 
     state) by_year state 
   in state 
 
