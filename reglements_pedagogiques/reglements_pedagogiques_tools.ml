@@ -274,12 +274,12 @@ module DMap(A:Double_keys with type key = string) =
 
     let keep_others dip_list t = 
       let dip_list = List.rev_map fst (List.rev dip_list) in 
-      A.KeyMap.map 
-        (fun _ (a,b,c) -> 
+      let t = A.KeyMap.map 
+        (fun  (a,b,c) -> 
           if List.mem b dip_list then 
             (a,b,c)
           else (a,b,b)
-          ) t 
+          ) t in t 
     
 
     let select_course_for_a_cursus_list dip_list t state = 
