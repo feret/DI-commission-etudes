@@ -4,3 +4,5 @@ val licence_maths_mathsphys: Public_data.reglement_diplome
 val licence_maths_mathsbio: Public_data.reglement_diplome
 val m1_maths: Public_data.reglement_diplome
 val licence_info_mathsinfo: Public_data.reglement_diplome
+val licence_phys_mathsphys: Public_data.reglement_diplome
+val licence_bio_mathsbio: Public_data.reglement_diplome

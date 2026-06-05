@@ -33,11 +33,24 @@ let licence_info_mathsinfo =
    { 
     Public_data.obligation = 
     [
-      "INFO-L3-MIIME-S2"; 
-      "INFO-L3-STAGE-S2" 
+      "INFO-L3-MIIME-S2";  (* Mémoire *)
+      "INFO-L3-STAGE-S2";  (* Stage *)
+      "INFO-L3-SYSRES-S2"; (* OS *)
       ]  ; 
     Public_data.par_defaut = []; 
-    Public_data.options = []; 
+    Public_data.options = [
+"INFO-L3-ALGOPRO-S1"; (* Algorithmique *) 
+"INFO-L3-LAPROCO-S1"; (*Langages de programmation et compilation*) 
+"INFO-L3-LAFORMCC-S1"; (* Langages formels *)
+"INFO-L3-SYSDIG-S1" ; (* Systèmes numériques *) 
+
+"INFO-L3-APPREN-S2"; (*Apprentissage statistique*) 
+"INFO-L3-DB-S2" ; (* BDD *)
+"INFO-L3-LOGIN-S2"; (*Lambda calcul et logique informatique*)
+"INFO-L3-SAA-S1"; (* SSA *)
+"INFO-L3-SEMVP-S2" ; (* Sémantique *) 
+"INFO-L3-THEOIC-S2" ; (* Théorie de l'information *)
+    ]; 
     Public_data.groups = []; 
   }
 
@@ -82,3 +95,52 @@ let m1_maths =
       "UNDMA1-085"; (* GT - Transport optimal et applications*)];
       ]
   }
+
+  let licence_phys_mathsphys = 
+ { 
+    Public_data.obligation = 
+    [
+    "PHYS-L3-B11-S2" (* Stage*) ; 
+    "DMA-L3-M03-S2" (* Mémoire Maths/Phys *)
+      ]  ; 
+    Public_data.par_defaut = []; 
+    Public_data.options = []; 
+    Public_data.groups = [4, 
+    ["PHYS-L3-B09-S2" (*Hydrodynamique *); 
+    "PHYS-L3-B10-S2" (*Physique du solide*); 
+    "PHYS-L3-B03-S2" (*Relativité et électromagnétisme  *); 
+    "PHYS-L3-A02-S1" (*Introduction à la mécanique quantique I *); 
+    "PHYS-L3-A01-S1" (*Physique statistique des systèmes en équilibre*); ]]
+  }
+
+
+   let licence_bio_mathsbio = 
+ { 
+    Public_data.obligation = 
+    [
+     "DMA-L3-A06-S2"; (* optimisation et transport optimal *) 
+      "DMA-M1-B05-S2"; (* analyse fonctionnelle *)
+      "BIO-IN-G02-S1"; (* Sciences du vivant *)
+      "BIO-IN-G03-S2"; (* bio de la cellule *)
+      "BIO-IN-G10-S2"; (* gdt bio *)
+      ]  ; 
+    Public_data.par_defaut = []; 
+    Public_data.options = []; 
+    Public_data.groups = [2, [(* TO DO *)]; 2, [ (* TO DO *)]]
+  }
+
+  (*
+"PHYS-L3-A05-S1" (*Eléments de m´ ecanique analytique *)
+"PHYS-L3-A03-S1" (*Mathématiques pour physiciens *)
+"PHYS-L3-A05-S1" (*Eléments de m´ ecanique analytique *)
+"PHYS-L3-B12-S1" (*Python pour scientifiques I : traitement des donnÉes et
+interfac¸age d’expÉriences *)
+"PHYS-L3-B14-S1" (*Physique expérimentale II*) 
+"PHYS-L3-B15-S1" (*Physique exp´ erimentale I *) 
+"PHYS-L3-B16-S2" (*Introduction ` a l’Astrophysique *)
+"PHYS-L3-B19-S2" (*Introduction à la mécanique quantique II*) 
+
+"PHYS-L3-C20-S2" (*Optique*)
+"UNPHY1-121" (*Mécanique des milieux continus *)
+*) 
+

@@ -307,18 +307,18 @@ module DMap(A:Double_keys with type key = string) =
     let size =    [None;None;None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None;None;None] in
     let state, show_missing_entries = Remanent_state.show_missing_entries state in 
-    let state = 
+    let state, something = 
       if show_missing_entries then 
       List.fold_left 
-      (fun state (dip, missing, _) -> 
+      (fun (state,something) (dip, missing, _) -> 
       List.fold_left 
-          (fun state (k,l) -> 
+          (fun (state,_something) (k,l) -> 
             if k = List.length l then 
                let () = Remanent_state.fprintf state "The following %i courses " (List.length l)  in 
                let () = List.iter (fun elt -> Remanent_state.fprintf state "%s, " elt) l in 
                let () = Remanent_state.fprintf state "are missing for diploma %s" (A.string_of_dip dip) in       
                let () = Remanent_state.print_newline state in 
-               state
+               state, true 
             else          
             let () = if k = 1 then Remanent_state.fprintf state "It misses %i over %i course among " k (List.length l) 
             else 
@@ -327,8 +327,8 @@ module DMap(A:Double_keys with type key = string) =
             let () = List.iter (fun elt -> Remanent_state.fprintf state "%s, " elt) l in 
             let () = Remanent_state.fprintf state " for diploma %s" (A.string_of_dip dip) in         
             let () = Remanent_state.print_newline state in 
-            state) 
-          state missing) state list else state 
+            state, true) 
+          (state, something) missing) (state,false) list else (state, false) 
     in 
     let () = Remanent_state.fprintf state "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5&#6&#7\\cr}" in
     let () = Remanent_state.fprintf state "\\renewcommand{\\innerline}{}" in
@@ -362,9 +362,9 @@ module DMap(A:Double_keys with type key = string) =
 
     
     let by_year = A.KeyMap.fold add t by_year in   
-      let state = 
+      let state, something = 
       Public_data.YearMap.fold 
-        (fun year t state -> 
+        (fun year t (state, _something) -> 
           let year_ext = 
             try 
               let year_int = int_of_string year in 
@@ -396,8 +396,11 @@ module DMap(A:Double_keys with type key = string) =
         ) t state 
     in
     let () = Remanent_state.close_array state in 
-    let () = Remanent_state.breakpage state in 
-    state) by_year state 
+    state,true) by_year (state, something) 
+  in 
+  let () = if something then 
+  let () = Remanent_state.fprintf state "\\vfill" in
+  let () = Remanent_state.breakpage state in () 
   in state 
 
   end: DMap with type key = A.key and type obj = A.obj and type dip = A.dip) 

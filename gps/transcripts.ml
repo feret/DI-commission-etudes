@@ -10214,10 +10214,10 @@ let export_transcript
            (Some Public_data.L3, Some Public_data.DI), Reglements_pedagogiques.licence_info_mathsinfo] 
         else if lmathphys situation then   
           [(Some Public_data.L3, Some Public_data.DMA), Reglements_pedagogiques.licence_maths_mathsphys ; 
-           (*(Some Public_data.L3, Some Public_data.DI), Reglements_pedagogiques.licence_phys_mathphys*)] (* TO DO *) 
+           (Some Public_data.L3, Some Public_data.DI), Reglements_pedagogiques.licence_phys_mathsphys] 
         else if lmath && lbio situation then   
           [(Some Public_data.L3, Some Public_data.DMA), Reglements_pedagogiques.licence_maths_mathsbio ; 
-           (*(Some Public_data.L3, Some Public_data.DI), Reglements_pedagogiques.licence_bio_mathsbio*)] (* TO DO *) 
+           (Some Public_data.L3, Some Public_data.DI), Reglements_pedagogiques.licence_bio_mathsbio] 
           else    if is_l3 
         then  [(Some Public_data.L3, Some Public_data.DMA), Reglements_pedagogiques.licence_maths ; 
           (Some Public_data.M1, Some Public_data.DMA), Reglements_pedagogiques.m1_maths] 
