@@ -150,7 +150,7 @@ module DMap(A:Double_keys with type key = string) =
             (fun (state, t, missing, ects) key -> 
               let state, cours = find_opt key t state in 
               match cours with 
-                | Some (a,_,dip) when A.is_unallocated dip -> 
+                | Some (a,_,dip) when A.is_unallocated dip || dip = new_dip-> 
                   let state, t = add ~new_dip a t state in 
                   state, t, missing, ects +. A.get_ects a 
                | Some _   
@@ -170,7 +170,7 @@ module DMap(A:Double_keys with type key = string) =
                 | key::tail -> 
                   let state, cours = find_opt key t state in 
                   match cours with 
-                  | Some (a,_,dip) when A.is_unallocated dip  -> 
+                  | Some (a,_,dip) when A.is_unallocated dip || dip=new_dip  -> 
                     let state, t = add ~new_dip a t state in 
                     aux (k-1) tail (state, t, missing, ects +. A.get_ects a)
                   | Some _ 
@@ -178,15 +178,15 @@ module DMap(A:Double_keys with type key = string) =
                   in aux k list acc)
             acc l 
 
-    let check_for_courses list state t = 
+    let check_for_courses new_dip list state t = 
         let rec aux l (state,missing,acc) = 
               match l with 
               | [] -> state, missing, acc 
               | key::tail -> 
                   let state, cours = find_opt key t state in 
                      match cours with 
-                     | Some (a,_,dip) when A.is_unallocated dip -> aux tail (state, missing, (key,a)::acc)
-                     | None | Some _ -> aux tail (state,key::missing,acc) 
+                     | Some (a,_,dip) when A.is_unallocated dip || dip=new_dip -> aux tail (state, missing, (key,a)::acc)
+                    | None | Some _ -> aux tail (state,key::missing,acc) 
         in 
         aux list (state,[],[])
 
@@ -224,7 +224,7 @@ module DMap(A:Double_keys with type key = string) =
       let l = reglement.Public_data.groups in   
       List.fold_left 
         (fun (state, t, missing, ects) (k,list) -> 
-          let state, not_in, enriched_list = check_for_courses list state t in 
+          let state, not_in, enriched_list = check_for_courses new_dip list state t in 
           let sorted_list = sort_enriched_list enriched_list in 
           let rec aux k list (state, t, missing, ects) = 
                 if k = 0 then (state, t, missing, ects) else 
@@ -238,7 +238,7 @@ module DMap(A:Double_keys with type key = string) =
                       | Public_data.Bool true | Public_data.Not_known_yet  -> 
                      let state, cours = find_opt key t state in 
                      match cours with 
-                  | Some (a,_,dip) when A.is_unallocated dip -> 
+                  | Some (a,_,dip) when A.is_unallocated dip || dip = new_dip -> 
                     let state, t = add ~new_dip a t state in 
                     aux (k-1) tail (state, t, missing, ects +. A.get_ects a)
                   | None | Some _ -> aux k tail (state, t, missing, ects) 
@@ -249,7 +249,7 @@ module DMap(A:Double_keys with type key = string) =
   let select_options reglement new_dip acc = 
       let list = reglement.Public_data.options in   
       let (state, t, missing, ects) = acc in 
-      let state, _not_in, enriched_list = check_for_courses list state t in 
+      let state, _not_in, enriched_list = check_for_courses new_dip list state t in 
       let sorted_list = sort_enriched_list enriched_list in 
       let rec aux list (state, t, ects) = 
           if ects >= 60. then (state, t, ects) else 
@@ -262,7 +262,7 @@ module DMap(A:Double_keys with type key = string) =
                       | Public_data.Bool true | Public_data.Not_known_yet  -> 
                      let state, cours = find_opt key t state in 
                      match cours with 
-                  | Some (a,_,dip) when A.is_unallocated dip -> 
+                  | Some (a,_,dip) when A.is_unallocated dip || dip = new_dip -> 
                     let state, t = add ~new_dip a t state in 
                     aux tail (state, t, ects +. A.get_ects a)
                   | None | Some _ -> aux tail (state, t,  ects) 
@@ -314,7 +314,14 @@ module DMap(A:Double_keys with type key = string) =
       List.fold_left 
           (fun (state,_something) (k,l) -> 
             if k = List.length l then 
-               let () = Remanent_state.fprintf state "The following %i courses " (List.length l)  in 
+              if k = 1 then 
+               let () = Remanent_state.fprintf state "The following %i course " (List.length l)  in 
+               let () = List.iter (fun elt -> Remanent_state.fprintf state "%s " elt) l in 
+               let () = Remanent_state.fprintf state "is missing for diploma %s" (A.string_of_dip dip) in       
+               let () = Remanent_state.print_newline state in 
+               state, true 
+else  
+  let () = Remanent_state.fprintf state "The following %i courses " (List.length l)  in 
                let () = List.iter (fun elt -> Remanent_state.fprintf state "%s, " elt) l in 
                let () = Remanent_state.fprintf state "are missing for diploma %s" (A.string_of_dip dip) in       
                let () = Remanent_state.print_newline state in 
