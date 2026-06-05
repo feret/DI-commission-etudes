@@ -10198,17 +10198,38 @@ let export_transcript
           Public_data.dens_ok = None ;
         }
   in 
-  let dip_list = 
+  let state = 
+    match Remanent_state.get_commission state with 
+    | state, None -> state 
+    | state, Some (_,year) -> 
+      match Public_data.YearMap.find_opt year gps_file.situation with 
+      | None -> state 
+      | Some situation ->       
+    let lmath = lmath ~year ~firstname ~lastname situation state in
+    let dip_list =   
     if main_dpt = Public_data.DMA 
       then 
-        if is_l3 
+        if lmath && linfo situation then 
+          [(Some Public_data.L3, Some Public_data.DMA), Reglements_pedagogiques.licence_maths_mathsinfo ; 
+           (Some Public_data.L3, Some Public_data.DI), Reglements_pedagogiques.licence_info_mathsinfo] 
+        else if lmathphys situation then   
+          [(Some Public_data.L3, Some Public_data.DMA), Reglements_pedagogiques.licence_maths_mathsphys ; 
+           (*(Some Public_data.L3, Some Public_data.DI), Reglements_pedagogiques.licence_phys_mathphys*)] (* TO DO *) 
+        else if lmath && lbio situation then   
+          [(Some Public_data.L3, Some Public_data.DMA), Reglements_pedagogiques.licence_maths_mathsbio ; 
+           (*(Some Public_data.L3, Some Public_data.DI), Reglements_pedagogiques.licence_bio_mathsbio*)] (* TO DO *) 
+          else    if is_l3 
         then  [(Some Public_data.L3, Some Public_data.DMA), Reglements_pedagogiques.licence_maths ; 
           (Some Public_data.M1, Some Public_data.DMA), Reglements_pedagogiques.m1_maths] 
         else 
+        if List.exists is_dip_M1 situation.inscription_helisa then 
         [ (Some Public_data.M1, Some Public_data.DMA), Reglements_pedagogiques.m1_maths] 
+      else []
   else []
   in 
-  let state,suggest,missing = Reglements_pedagogiques_tools.CourseDMap.select_course_for_a_cursus_list     
+  if dip_list = [] then state else 
+  let state,suggest,missing = 
+    Reglements_pedagogiques_tools.CourseDMap.select_course_for_a_cursus_list     
       dip_list 
        cours_list_all state 
 in
@@ -10244,9 +10265,20 @@ let string_of_dip a b =
   in 
       
   let state = Reglements_pedagogiques_tools.CourseDMap.print state  (fun state (c,(a,b),(a',b')) -> 
+        let state, (lib, lib_en) =
+                        Remanent_state.Translate_courses.get_translation
+                          Collect_course_entries.unify_course_entry __POS__
+                          c.Public_data.supplement_intitule state
+                    in
+                      let state, libelle =
+                      Remanent_state.bilingual_string
+                        ?english:lib_en
+                        ~french:(string_of_stringopt lib)
+                        state
+                    in
         let () = Remanent_state.print_cell (match c.Public_data.supplement_code_gps with None -> "" | Some a -> a) state in 
         let () = Remanent_state.print_cell (match c.Public_data.supplement_code_helisa with None -> "" | Some a -> a) state in 
-        let () = Remanent_state.print_cell c.Public_data.supplement_intitule state in 
+        let () = Remanent_state.print_cell libelle state in 
         let state, note = Notes.to_string __POS__ state c.Public_data.supplement_note in 
         let () = Remanent_state.print_cell note state in 
         let () = Remanent_state.print_cell (string_of_float c.Public_data.supplement_ects) state in   
@@ -10254,7 +10286,8 @@ let string_of_dip a b =
          let () = Remanent_state.print_cell (string_of_dip a' b') state in 
 
         ()) suggest missing 
-          in 
+          in state 
+        in 
   let state, dens = Dens.split_courses ~firstname ~lastname dens_ok state in
   let state, dens = Dens.split_stages ~firstname ~lastname dens state in
   let state, dens = Dens.collect_mineure dens state in

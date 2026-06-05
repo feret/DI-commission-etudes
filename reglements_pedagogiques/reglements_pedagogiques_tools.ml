@@ -170,9 +170,10 @@ module DMap(A:Double_keys with type key = string) =
                 | key::tail -> 
                   let state, cours = find_opt key t state in 
                   match cours with 
-                  | Some (a,_,_) -> 
+                  | Some (a,_,dip) when A.is_unallocated dip  -> 
                     let state, t = add ~new_dip a t state in 
                     aux (k-1) tail (state, t, missing, ects +. A.get_ects a)
+                  | Some _ 
                   | None -> aux k tail (state, t, missing, ects) 
                   in aux k list acc)
             acc l 
@@ -184,8 +185,8 @@ module DMap(A:Double_keys with type key = string) =
               | key::tail -> 
                   let state, cours = find_opt key t state in 
                      match cours with 
-                     | None -> aux tail (state,key::missing,acc) 
-                     | Some (a,_,_) -> aux tail (state, missing, (key,a)::acc)
+                     | Some (a,_,dip) when A.is_unallocated dip -> aux tail (state, missing, (key,a)::acc)
+                     | None | Some _ -> aux tail (state,key::missing,acc) 
         in 
         aux list (state,[],[])
 
@@ -237,10 +238,10 @@ module DMap(A:Double_keys with type key = string) =
                       | Public_data.Bool true | Public_data.Not_known_yet  -> 
                      let state, cours = find_opt key t state in 
                      match cours with 
-                  | Some (a,_,_) -> 
+                  | Some (a,_,dip) when A.is_unallocated dip -> 
                     let state, t = add ~new_dip a t state in 
                     aux (k-1) tail (state, t, missing, ects +. A.get_ects a)
-                  | None -> aux k tail (state, t, missing, ects) 
+                  | None | Some _ -> aux k tail (state, t, missing, ects) 
                   end 
                   in aux k sorted_list (state, t, missing, ects)) 
                   acc l 
@@ -261,19 +262,28 @@ module DMap(A:Double_keys with type key = string) =
                       | Public_data.Bool true | Public_data.Not_known_yet  -> 
                      let state, cours = find_opt key t state in 
                      match cours with 
-                  | Some (a,_,_) -> 
+                  | Some (a,_,dip) when A.is_unallocated dip -> 
                     let state, t = add ~new_dip a t state in 
                     aux tail (state, t, ects +. A.get_ects a)
-                  | None -> aux tail (state, t,  ects) 
+                  | None | Some _ -> aux tail (state, t,  ects) 
                   end 
       in 
       let state, t, ects = aux  sorted_list (state, t,  ects) in 
       state, t, missing, ects 
 
 
+    let keep_others dip_list t = 
+      let dip_list = List.rev_map fst (List.rev dip_list) in 
+      A.KeyMap.map 
+        (fun _ (a,b,c) -> 
+          if List.mem b dip_list then 
+            (a,b,c)
+          else (a,b,b)
+          ) t 
     
 
     let select_course_for_a_cursus_list dip_list t state = 
+      let t = keep_others dip_list t in 
       let state, t, list = 
         List.fold_left 
           (fun (state, t, list) (dip, reglement) -> 
