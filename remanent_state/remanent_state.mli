@@ -834,11 +834,12 @@ val show_missing_entries: t -> t * bool
 
 val store_ips: 
   firstname:string -> lastname: string ->
-    (((Public_data.diploma_level option * Public_data.main_dpt option) * int * string list)
+    ((((Public_data.diploma_level option * Public_data.main_dpt option) * string option) * int * string list)
          list* (Public_data.cours_supplement *
-          (Public_data.diploma_level option * Public_data.main_dpt option) *
-          (Public_data.diploma_level option * Public_data.main_dpt option))
+          ((Public_data.diploma_level option * Public_data.main_dpt option) * string option) *
+          ((Public_data.diploma_level option * Public_data.main_dpt option) * string option))
          Public_data.StringMap.t Public_data.YearMap.t ) ->           
           t -> t 
   
-val dump_ips: t -> t 
+val dump_ips: 
+  filename:string -> t -> t 

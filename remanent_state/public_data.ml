@@ -1879,11 +1879,10 @@ type reglement_diplome =
       groups = []; 
      }
 
-type pedagogical_registration_suggestion = 
- ((diploma_level option * main_dpt option * string option) * int * string list)
+ type pedagogical_registration_suggestion = 
+ (((diploma_level option * main_dpt option) * string option) * int * string list)
          list*
           ((cours_supplement *
-          (diploma_level option * main_dpt option * string option) *
-          (diploma_level option * main_dpt option * string option))
+          ((diploma_level option * main_dpt option) * string option) *
+          ((diploma_level option * main_dpt option) * string option))
          StringMap.t ) YearMap.t  
- 

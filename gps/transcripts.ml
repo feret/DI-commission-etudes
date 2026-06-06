@@ -10260,7 +10260,7 @@ let export_transcript
       dip_list 
        cours_list_all state 
 in
-let string_of_dip a b = 
+let _string_of_dip a b = 
    match 
     a,b with 
     | None, _ -> "" 
@@ -10292,13 +10292,13 @@ let string_of_dip a b =
   in 
   let state, missing, ips = 
     Reglements_pedagogiques_tools.CourseDMap.export state suggest missing in 
-
   let state = 
     if store_ips then 
       Remanent_state.store_ips ~firstname ~lastname (missing, ips) state 
   else state 
   in     
-  let state = Reglements_pedagogiques_tools.CourseDMap.print state  (fun state (c,(a,b),(a',b')) -> 
+  let state = Reglements_pedagogiques_tools.CourseDMap.print state  
+        (fun state (c,(_,s),(_,s')) -> 
         let state, (lib, lib_en) =
                         Remanent_state.Translate_courses.get_translation
                           Collect_course_entries.unify_course_entry __POS__
@@ -10316,8 +10316,8 @@ let string_of_dip a b =
         let state, note = Notes.to_string __POS__ state c.Public_data.supplement_note in 
         let () = Remanent_state.print_cell note state in 
         let () = Remanent_state.print_cell (string_of_float c.Public_data.supplement_ects) state in   
-         let () = Remanent_state.print_cell (string_of_dip a b) state in 
-         let () = Remanent_state.print_cell (string_of_dip a' b') state in 
+         let () = Remanent_state.print_cell (match s with None -> "" | Some a -> a) state in 
+         let () = Remanent_state.print_cell (match s' with None -> "" | Some a -> a) state in 
 
         ()) missing ips 
           in state 

@@ -27,17 +27,16 @@ module type DMap =
 
     val empty: t 
     val add: ?new_dip:dip -> obj -> t -> Remanent_state.t -> Remanent_state.t * t 
-    val find_opt: key -> t -> Remanent_state.t -> Remanent_state.t * (obj*dip*dip) option 
-    val fold: (dip -> obj -> 'a -> 'a) -> t -> 'a -> 'a 
+   val find_opt: key -> t -> Remanent_state.t -> Remanent_state.t * (obj*(dip*string option)*(dip*string option)) option 
+       val fold: (dip -> obj -> 'a -> 'a) -> t -> 'a -> 'a 
     val filter_out: dip list -> t -> Remanent_state.t -> Remanent_state.t * t 
     val select_course_for_a_cursus_list: (dip * Public_data.reglement_diplome)  list -> t -> Remanent_state.t -> Remanent_state.t * t  
 * (dip * (int * key list) list * float) list  
  
-val export: Remanent_state.t  -> t -> (dip * (int * key list) list * float) list -> Remanent_state.t * (dip * int * key list) list * (obj * dip * dip) Public_data.StringMap.t Public_data.YearMap.t
+val export: Remanent_state.t  -> t -> (dip * (int * key list) list * float) list -> Remanent_state.t * ((dip * string option) * int * key list) list * (obj * (dip * string option) * (dip * string option)) Public_data.StringMap.t Public_data.YearMap.t
 
-val print: Remanent_state.t -> (Remanent_state.t -> (obj * dip * dip)  -> unit) -> (dip * int * key list) list ->
-    (obj * dip * dip)  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
-
+ val print: Remanent_state.t -> (Remanent_state.t -> (obj * (dip*string option) * (dip*string option))  -> unit) -> ((dip * string option)  * int * key list) list ->
+    (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
  end
 
 module Course = 
@@ -83,13 +82,16 @@ module DMap(A:Double_keys with type key = string) =
     include A.KeyMap 
     type obj = A.obj 
     type dip = A.dip 
-    type t = (obj*dip*dip) Course.KeyMap.t 
+    type t = (obj*(dip * string option)*(dip* string option)) Course.KeyMap.t 
 
     let extend ?new_dip x = 
       let new_dip = 
         match new_dip with None -> A.empty_dip 
         | Some a -> a in 
-      (x,A.get_dip x, new_dip)
+      let dip = A.get_dip x in 
+      let dip = dip, Some (A.string_of_dip dip) in 
+      let new_dip =  new_dip, Some (A.string_of_dip new_dip) in 
+      (x,dip, new_dip)
 
     let add ?new_dip x  map state = 
       let key1 = A.index1 x in 
@@ -112,7 +114,7 @@ module DMap(A:Double_keys with type key = string) =
       let dip_list = List.rev_map fst (List.rev dip_list) in 
       let state, keep_validated = Remanent_state.do_not_move_unvalidated state in 
       state, Course.KeyMap.map 
-        (fun (obj,x,y) -> 
+        (fun (obj,(x,sx),(y,sy)) -> 
           if A.is_unallocated y then 
             begin 
             if not ( match A.get_validation obj with 
@@ -122,17 +124,17 @@ module DMap(A:Double_keys with type key = string) =
               begin 
                 if keep_validated 
                 then 
-                  (obj, x, x)
+                  (obj, (x,sx), (x,sx))
                 else 
-                  (obj, x, A.dens)
+                  (obj, (x,sx), (A.dens,Some "DENS"))
               end 
             else 
               if x = A.dens || List.mem x dip_list 
               then 
-               (obj, x, A.dens) 
-              else (obj, x, x)
+               (obj,(x,sx), (A.dens,Some "DENS")) 
+              else (obj, (x,sx), (x,sx))
           end
-          else (obj, x, y)
+          else (obj, (x,sx), (y,sy))
           )
             t 
                
@@ -145,7 +147,7 @@ module DMap(A:Double_keys with type key = string) =
 
     let filter_out l t state = 
       state, Course.KeyMap.filter 
-        (fun _ (_, x, _) -> not (List.mem x l)) t  
+        (fun _ (_, (x,_), _) -> not (List.mem x l)) t  
     
       
     let select_obligatory reglement new_dip acc = 
@@ -154,7 +156,7 @@ module DMap(A:Double_keys with type key = string) =
             (fun (state, t, missing, ects) key -> 
               let state, cours = find_opt key t state in 
               match cours with 
-                | Some (a,_,dip) when A.is_unallocated dip || dip = new_dip-> 
+                | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip = new_dip-> 
                   let state, t = add ~new_dip a t state in 
                   state, t, missing, ects +. A.get_ects a 
                | Some _   
@@ -174,7 +176,7 @@ module DMap(A:Double_keys with type key = string) =
                 | key::tail -> 
                   let state, cours = find_opt key t state in 
                   match cours with 
-                  | Some (a,_,dip) when A.is_unallocated dip || dip=new_dip  -> 
+                  | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip=new_dip  -> 
                     let state, t = add ~new_dip a t state in 
                     aux (k-1) tail (state, t, missing, ects +. A.get_ects a)
                   | Some _ 
@@ -189,7 +191,7 @@ module DMap(A:Double_keys with type key = string) =
               | key::tail -> 
                   let state, cours = find_opt key t state in 
                      match cours with 
-                     | Some (a,_,dip) when A.is_unallocated dip || dip=new_dip -> aux tail (state, missing, (key,a)::acc)
+                     | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip=new_dip -> aux tail (state, missing, (key,a)::acc)
                     | None | Some _ -> aux tail (state,key::missing,acc) 
         in 
         aux list (state,[],[])
@@ -242,7 +244,7 @@ module DMap(A:Double_keys with type key = string) =
                       | Public_data.Bool true | Public_data.Not_known_yet  -> 
                      let state, cours = find_opt key t state in 
                      match cours with 
-                  | Some (a,_,dip) when A.is_unallocated dip || dip = new_dip -> 
+                  | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip = new_dip -> 
                     let state, t = add ~new_dip a t state in 
                     aux (k-1) tail (state, t, missing, ects +. A.get_ects a)
                   | None | Some _ -> aux k tail (state, t, missing, ects) 
@@ -266,7 +268,7 @@ module DMap(A:Double_keys with type key = string) =
                       | Public_data.Bool true | Public_data.Not_known_yet  -> 
                      let state, cours = find_opt key t state in 
                      match cours with 
-                  | Some (a,_,dip) when A.is_unallocated dip || dip = new_dip -> 
+                  | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip = new_dip -> 
                     let state, t = add ~new_dip a t state in 
                     aux tail (state, t, ects +. A.get_ects a)
                   | None | Some _ -> aux tail (state, t,  ects) 
@@ -279,10 +281,10 @@ module DMap(A:Double_keys with type key = string) =
     let keep_others dip_list t = 
       let dip_list = List.rev_map fst (List.rev dip_list) in 
       let t = Course.KeyMap.map 
-        (fun  (a,b,c) -> 
+        (fun  (a,(b,(b':string option)),c) -> 
           if List.mem b dip_list then 
-            (a,b,c)
-          else (a,b,b)
+            (a,(b,b'),c)
+          else (a,(b,b'),(b,b'))
           ) t in t 
     
 
@@ -312,7 +314,7 @@ module DMap(A:Double_keys with type key = string) =
               (dip, missing, _) -> 
           List.fold_left 
           (fun (state,missing_entries) (k,l) -> 
-            state, (dip,k,l)::missing_entries) 
+            state, ((dip,Some (A.string_of_dip dip)),k,l)::missing_entries) 
           (state, missing_entries) missing) 
            (state,[]) list 
     in 
@@ -353,18 +355,19 @@ module DMap(A:Double_keys with type key = string) =
     let state, something = 
       if show_missing_entries then 
       List.fold_left 
-      (fun (state,_something) (dip, k,l) -> 
+      (fun (state,_something) ((_,s), k,l) -> 
             if k = List.length l then 
               if k = 1 then 
                let () = Remanent_state.fprintf state "The following %i course " (List.length l)  in 
                let () = List.iter (fun elt -> Remanent_state.fprintf state "%s " elt) l in 
-               let () = Remanent_state.fprintf state "is missing for diploma %s" (A.string_of_dip dip) in       
+               let () = Remanent_state.fprintf state "is missing for diploma %s" 
+               (match s with None -> "" | Some a -> a) in       
                let () = Remanent_state.print_newline state in 
                state, true 
 else  
   let () = Remanent_state.fprintf state "The following %i courses " (List.length l)  in 
                let () = List.iter (fun elt -> Remanent_state.fprintf state "%s, " elt) l in 
-               let () = Remanent_state.fprintf state "are missing for diploma %s" (A.string_of_dip dip) in       
+               let () = Remanent_state.fprintf state "are missing for diploma %s"  (match s with None -> "" | Some a -> a) in       
                let () = Remanent_state.print_newline state in 
                state, true 
             else          
@@ -373,7 +376,7 @@ else
               Remanent_state.fprintf state "It misses %i over %i courses among " k (List.length l) 
            in 
             let () = List.iter (fun elt -> Remanent_state.fprintf state "%s, " elt) l in 
-            let () = Remanent_state.fprintf state " for diploma %s" (A.string_of_dip dip) in         
+            let () = Remanent_state.fprintf state " for diploma %s"  (match s with None -> "" | Some a -> a) in         
             let () = Remanent_state.print_newline state in 
             state, true) 
           (state, false) missing_entries 
@@ -410,7 +413,7 @@ else
       Course.KeyMap.fold  
       (fun _k c state -> 
         let () = Remanent_state.open_row state in
-        let () = print state (c:(obj * dip * dip)) in 
+        let () = print state (c:(obj * (dip * string option) * (dip * string option))) in 
         let () = Remanent_state.close_row state in 
         state 
         ) t state 
@@ -423,6 +426,6 @@ else
   let () = Remanent_state.breakpage state in () 
   in state 
 
-  end: DMap with type key = A.key and type obj = A.obj and type dip = A.dip and type t = (A.obj*A.dip*A.dip) Course.KeyMap.t) 
+  end: DMap with type key = A.key and type obj = A.obj and type dip = A.dip and type t = (A.obj*(A.dip * string option) *(A.dip * string option)) Course.KeyMap.t) 
 
 module CourseDMap = DMap(Course) 

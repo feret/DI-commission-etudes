@@ -1050,6 +1050,14 @@ let prepare_commission
     ?signataires:(persons=["MP";"JF";"MSA"])
     ?diplomes:(sous_commissions=[("dens",None);("l",Some "m");("m",None)])
     state =
+
+  let state = 
+    Remanent_state.dump_ips 
+          ~filename:(Format.sprintf
+                          "suggestions_ip.tex")
+          
+    state 
+  in 
   let commission_year = annee in
   let commission_date = date_complete in
   List.fold_left

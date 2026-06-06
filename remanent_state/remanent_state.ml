@@ -3435,11 +3435,16 @@ let check elt list =
   let keep_not_validated t = t,t.parameters.keep_not_validated 
   let show_missing_entries t = t,t.parameters.show_missing_entries 
 
-  let store_ips ~firstname ~lastname _ t = 
-    let _ = firstname, lastname in 
-    t 
+  let store_ips ~firstname ~lastname ip t =
+    let map = t.data.ips in 
+    let t, ips = Pedagogical_registration_suggestion.add_pedagogical_registration_suggestions ~firstname ~lastname 
+    (fun _ s _ a -> s,a) __POS__ t ip map 
+    in 
+    let data = {t.data with ips} in 
+    {t with data}
 
-let dump_ips (t:t) = 
+let dump_ips ~filename (t:t) = 
+  let _ = filename in 
    let size =    [None;None;None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None;None;None] in
   Pedagogical_registration_suggestion.fold 
@@ -3456,7 +3461,7 @@ let dump_ips (t:t) =
           let s_en = Format.sprintf "Academic year %s" year_ext in 
           let a, s_bi = bilingual_string ~english:s_en ~french:s_fr a in 
           let () = fprintf a "%s" s_bi in a)
-    ~fold_missing:(fun ((_,_,s),k,l) state -> 
+    ~fold_missing:(fun ((_,s),k,l) state -> 
             if k = List.length l then 
               if k = 1 then 
                let () = fprintf state "The following %i course " (List.length l)  in 
@@ -3498,7 +3503,7 @@ else
     in
     let (state:t) = 
       Public_data.StringMap.fold 
-      (fun _k (c,(_,_,dip),(_,_,dip')) state -> 
+      (fun _k (c,(_,dip),(_,dip')) state -> 
         let () = open_row state in
         let () = print_cell (match c.Public_data.supplement_code_gps with None -> "" | Some a -> a) state in 
         let () = print_cell (match c.Public_data.supplement_code_helisa with None -> "" | Some a -> a) state in 
