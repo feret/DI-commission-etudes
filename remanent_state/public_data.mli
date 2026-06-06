@@ -524,8 +524,10 @@ type cours_supplement =
     supplement_code_helisa: string option;
     supplement_discipline: string;
     supplement_intitule: string;
+    supplement_intitule_biling: string option; 
     supplement_validation_year: annee;
     supplement_note: note;
+    supplement_note_string: string option; 
     supplement_validation: valide;  
     supplement_ects: float;
     supplement_dens: bool;
@@ -1225,3 +1227,11 @@ type reglement_diplome =
  type double_cursus = simple_cursus * simple_cursus
 
  val prefix_code_of_dpt: main_dpt -> string 
+
+ type pedagogical_registration_suggestion = 
+ ((diploma_level option * main_dpt option * string option) * int * string list)
+         list*
+          ((cours_supplement *
+          (diploma_level option * main_dpt option * string option) *
+          (diploma_level option * main_dpt option * string option))
+         StringMap.t ) YearMap.t  

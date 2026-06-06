@@ -5,6 +5,7 @@ val get_gps_file:
 
 val export_transcript:
   output: string * string ->
+  ?store_ips:bool -> 
   ?language:Public_data.language ->
   ?number_of_diploma_per_page:int ->
   ?bilinguage:bool ->

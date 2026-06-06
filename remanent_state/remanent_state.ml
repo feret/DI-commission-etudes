@@ -460,6 +460,7 @@ type data =
     simple_l3_map: Public_data.reglement_diplome Public_data.DptMap.t; 
     simple_m1_map: Public_data.reglement_diplome Public_data.DptMap.t; 
     double_l3_map: Public_data.reglement_diplome Public_data.DptMap.t Public_data.DptMap.t;
+    ips: Pedagogical_registration_suggestion.t; 
    }
 
 let empty_data =
@@ -520,6 +521,7 @@ let empty_data =
     simple_l3_map = Public_data.DptMap.empty ; 
     simple_m1_map = Public_data.DptMap.empty ; 
     double_l3_map = Public_data.DptMap.empty ; 
+    ips = Pedagogical_registration_suggestion.empty; 
   }
 
 type exp = 
@@ -3432,3 +3434,85 @@ let check elt list =
   let do_not_move_unvalidated t = t, t.parameters.do_not_move_unvalidated 
   let keep_not_validated t = t,t.parameters.keep_not_validated 
   let show_missing_entries t = t,t.parameters.show_missing_entries 
+
+  let store_ips ~firstname ~lastname _ t = 
+    let _ = firstname, lastname in 
+    t 
+
+let dump_ips (t:t) = 
+   let size =    [None;None;None;None;None;None;None] in
+    let bgcolor = [None;None;None;None;None;None;None] in
+  Pedagogical_registration_suggestion.fold 
+    ~fold_name:(fun ~firstname ~lastname a -> 
+      let () = fprintf a "\\section*{%s %s}"  firstname lastname in  a)
+    ~fold_year:(fun year a -> 
+       let year_ext = 
+            try 
+              let year_int = int_of_string year in 
+              Format.sprintf "%i - %i" year_int (year_int + 1) 
+            with _ -> year 
+          in
+          let s_fr = Format.sprintf "Année académique %s" year_ext in 
+          let s_en = Format.sprintf "Academic year %s" year_ext in 
+          let a, s_bi = bilingual_string ~english:s_en ~french:s_fr a in 
+          let () = fprintf a "%s" s_bi in a)
+    ~fold_missing:(fun ((_,_,s),k,l) state -> 
+            if k = List.length l then 
+              if k = 1 then 
+               let () = fprintf state "The following %i course " (List.length l)  in 
+               let () = List.iter (fun elt -> fprintf state "%s " elt) l in 
+               let () = fprintf state "is missing for diploma %s" (match s with None -> "" | Some a -> a) in       
+               let () = print_newline state in 
+               state
+else  
+  let () = fprintf state "The following %i courses " (List.length l)  in 
+               let () = List.iter (fun elt -> fprintf state "%s, " elt) l in 
+               let () = fprintf state "are missing for diploma %s" (match s with None -> "" | Some a -> a) in       
+               let () = print_newline state in 
+               state
+            else          
+            let () = if k = 1 then fprintf state "It misses %i over %i course among " k (List.length l) 
+            else 
+              fprintf state "It misses %i over %i courses among " k (List.length l) 
+           in 
+            let () = List.iter (fun elt -> fprintf state "%s, " elt) l in 
+            let () = fprintf state " for diploma %s" (match s with None -> "" | Some a -> a) in         
+            let () = print_newline state in 
+            state) 
+
+
+    ~fold_entry:(fun t state -> 
+    let () = fprintf state "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5&#6&#7\\cr}" in
+    let () = fprintf state "\\renewcommand{\\innerline}{}" in
+    let () = fprintf state "\\vfill" in
+    let () = fprintf state "\\begin{center}" in
+    let state =
+        open_array
+        __POS__
+        ~bgcolor
+        ~size
+        ~with_lines:true
+        ~title:[["Code GPS"];["Code HELISA"];["Cours"];["Note"];["ECTS"]; ["DIPLOME (avant)"];["DIPLOME (après)"]]
+        ~title_english:[["GPS Code"];["HELISA Code"];["Course"];["Grade"];["ECTS"];["DIPLOMA (before)"] ;["DIPLOMA (after)"]]
+        state
+    in
+    let (state:t) = 
+      Public_data.StringMap.fold 
+      (fun _k (c,(_,_,dip),(_,_,dip')) state -> 
+        let () = open_row state in
+        let () = print_cell (match c.Public_data.supplement_code_gps with None -> "" | Some a -> a) state in 
+        let () = print_cell (match c.Public_data.supplement_code_helisa with None -> "" | Some a -> a) state in 
+        let () = print_cell (match c.Public_data.supplement_intitule_biling with None -> "" | Some a -> a) state in 
+        let () = print_cell (match c.Public_data.supplement_note_string with None -> "" | Some a -> a) state in 
+        let () = print_cell (string_of_float c.Public_data.supplement_ects) state in   
+         let () = print_cell (match dip with None -> "" | Some a -> a) state in 
+         let () = print_cell (match dip' with None -> "" | Some a -> a)  state in 
+         let () = close_row state in 
+        state 
+        ) t state 
+    in
+    let () = close_array state in 
+    state 
+  )
+    t.data.ips t
+

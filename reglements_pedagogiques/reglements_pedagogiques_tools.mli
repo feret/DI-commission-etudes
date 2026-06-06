@@ -31,10 +31,13 @@ module type DMap =
     val filter_out: dip list -> t -> Remanent_state.t -> Remanent_state.t * t 
     val select_course_for_a_cursus_list:  (dip * Public_data.reglement_diplome) list -> t -> Remanent_state.t -> Remanent_state.t * t  
 * (dip * (int * key list) list * float) list  
-    val print: Remanent_state.t -> (Remanent_state.t -> (obj * dip * dip)  -> unit) -> t -> (dip * (int * key list) list * float) list -> Remanent_state.t 
+    val export: Remanent_state.t  -> t -> (dip * (int * key list) list * float) list -> Remanent_state.t * (dip * int * key list) list * (obj * dip * dip) Public_data.StringMap.t Public_data.YearMap.t
+
+    val print: Remanent_state.t -> (Remanent_state.t -> (obj * dip * dip)  -> unit) -> (dip * int * key list) list ->
+    (obj * dip * dip)  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
 end
 
 module DMap(A:Double_keys with type key = string): (DMap with type key = A.key)
 
-module CourseDMap: (DMap with type  obj = Public_data.cours_supplement and type key = string and type dip =  Public_data.diploma_level option * Public_data.main_dpt option)
+module CourseDMap: (DMap with type  obj = Public_data.cours_supplement and type key = string and type dip =  Public_data.diploma_level option * Public_data.main_dpt option and type t = (Public_data.cours_supplement * (Public_data.diploma_level option * Public_data.main_dpt option) * (Public_data.diploma_level option * Public_data.main_dpt option)) Public_data.StringMap.t )
 

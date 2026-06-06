@@ -831,3 +831,14 @@ val is_focus: ?firstname:string -> ?lastname:string -> t -> t * bool
 val do_not_move_unvalidated: t -> t * bool 
 val keep_not_validated: t -> t * bool 
 val show_missing_entries: t -> t * bool 
+
+val store_ips: 
+  firstname:string -> lastname: string ->
+    (((Public_data.diploma_level option * Public_data.main_dpt option) * int * string list)
+         list* (Public_data.cours_supplement *
+          (Public_data.diploma_level option * Public_data.main_dpt option) *
+          (Public_data.diploma_level option * Public_data.main_dpt option))
+         Public_data.StringMap.t Public_data.YearMap.t ) ->           
+          t -> t 
+  
+val dump_ips: t -> t 

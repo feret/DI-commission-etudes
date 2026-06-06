@@ -1062,15 +1062,20 @@ let empty_mineure_majeure ={
       supplement_code_helisa: string option;
       supplement_discipline: string;
       supplement_intitule: string;
+      supplement_intitule_biling: string option; 
       supplement_validation_year: annee;
       supplement_note: note;
+      supplement_note_string: string option; 
       supplement_validation: valide;  
       supplement_ects: float;
       supplement_dens: bool;
       supplement_extra: bool;
       supplement_diploma_level: diploma_level; 
       supplement_diploma_dpt: main_dpt option ; 
+    
   }
+
+  
 
   type experience_supplement =
    { activite_code: string ;
@@ -1873,3 +1878,12 @@ type reglement_diplome =
       options= [];
       groups = []; 
      }
+
+type pedagogical_registration_suggestion = 
+ ((diploma_level option * main_dpt option * string option) * int * string list)
+         list*
+          ((cours_supplement *
+          (diploma_level option * main_dpt option * string option) *
+          (diploma_level option * main_dpt option * string option))
+         StringMap.t ) YearMap.t  
+ 

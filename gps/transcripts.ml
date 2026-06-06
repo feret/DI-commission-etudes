@@ -4045,7 +4045,24 @@ let dip_autre_list_init = []
 let dens_init = Public_data.YearMap.empty
 let n_att_init = Public_data.YearMap.empty
 
-let translate_course_dens course year validation =
+let translate_course_dens course year validation state =
+  let supplement_note = (match course.note with Some a -> a | None -> Public_data.En_cours) in 
+  let supplement_intitule = (match course.cours_libelle with None -> "" | Some a -> a) in 
+  let state, (s_fr, s_en) =
+                        Remanent_state.Translate_courses.get_translation
+                          Collect_course_entries.unify_course_entry __POS__
+                          supplement_intitule state
+  in
+  let state, supplement_intitule_biling = 
+     Remanent_state.bilingual_string
+                        ?english:s_en
+                        ~french:(string_of_stringopt s_fr)
+                        state
+                      in 
+  let supplement_intitule_biling = Some supplement_intitule_biling in 
+  let state, supplement_note_string = Notes.to_string __POS__ state supplement_note in       
+  let supplement_note_string = Some supplement_note_string in           
+  state,    
 {
  Public_data.supplement_code_gps=course.code_cours_gps;
  Public_data.supplement_code_helisa=course.code_cours_helisa;
@@ -4053,7 +4070,9 @@ let translate_course_dens course year validation =
  Public_data.supplement_intitule=(match course.cours_libelle with None -> "" | Some a -> a);
  Public_data.supplement_ects=(match course.ects with None -> 0. | Some i -> i) ;
  Public_data.supplement_dens=true;
- Public_data.supplement_note= (match course.note with Some a -> a | None -> Public_data.En_cours);
+ Public_data.supplement_note;
+ Public_data.supplement_intitule_biling; 
+ Public_data.supplement_note_string;
  Public_data.supplement_validation = validation ; 
  Public_data.supplement_extra = course.extra;
  Public_data.supplement_validation_year = year;
@@ -4069,8 +4088,10 @@ let translate_course_dens course year validation =
 }
 
 
-let translate_course_nat course year validation =
-{(translate_course_dens course year validation) with
+let translate_course_nat course year validation state =
+let state, a = translate_course_dens course year validation state in 
+state, 
+{a with
  Public_data.supplement_dens=false
 }
 
@@ -4114,7 +4135,7 @@ let add_dens_requirements state year course map =
 
 
 let add_dens_ok state year course ects course_list_ok course_list_all map skip_dens =
-   let course' = translate_course_dens course year (Public_data.Bool true) in      
+   let state, course' = translate_course_dens course year (Public_data.Bool true) state in      
   match ects with
     | None -> 
       let state, course_list_all =  Reglements_pedagogiques_tools.CourseDMap.add course' course_list_all state in 
@@ -4144,14 +4165,14 @@ let add_dens_ok state year course ects course_list_ok course_list_all map skip_d
     map
 
 let add_dens_ko state year course _ects course_list_ok course_list_all map =
-   let course = translate_course_dens course year (Public_data.Bool false) in     
+   let state, course = translate_course_dens course year (Public_data.Bool false) state in     
     let state, course_list_all =  Reglements_pedagogiques_tools.CourseDMap.add course course_list_all state in 
     state, course_list_ok, course_list_all, map 
   
 
 
 let add_dens_potential state year course ects course_list_ok course_list_all map =
-  let course = translate_course_dens course year (Public_data.Not_known_yet) in      
+  let state, course = translate_course_dens course year (Public_data.Not_known_yet) state in      
   let state, course_list_all =  Reglements_pedagogiques_tools.CourseDMap.add course course_list_all state in 
   match ects with
     | None -> 
@@ -4239,7 +4260,7 @@ let add_mean_empty is_m2 state ~dens ~natt ~decision ~exception_cursus key year 
     state, map
 
 let add_mean_ok is_m2 state key course course_list_ok course_list_all year map dens =
-  let cours = translate_course_nat course year (Public_data.Bool true) in 
+  let state, cours = translate_course_nat course year (Public_data.Bool true) state in 
   let is_m2,ects,old,y =
     match StringOptMap.find_opt key (fst map)
     with
@@ -4280,7 +4301,7 @@ let add_mean_ok is_m2 state key course course_list_ok course_list_all year map d
   state, map, course_list_ok, course_list_all, dens
 
 let add_mean_ko _is_m2 state _key course course_list_ok course_list_all year map dens =
-  let cours = translate_course_nat course year (Public_data.Bool false) in 
+  let state, cours = translate_course_nat course year (Public_data.Bool false) state in 
   let state, course_list_all =  Reglements_pedagogiques_tools.CourseDMap.add cours course_list_all state in 
    state, map, course_list_ok, course_list_all, dens
 
@@ -8632,6 +8653,7 @@ let regular_study_year (y,annee) counter =
 
 let export_transcript
     ~output
+    ?store_ips 
     ?language
     ?number_of_diploma_per_page
     ?bilinguage
@@ -8643,6 +8665,11 @@ let export_transcript
     ?keep_success
     ?keep_faillure
     state gps_file =
+  let store_ips = 
+    match store_ips with 
+      | Some true -> true 
+      | Some false | None -> false 
+  in 
   let number_of_diploma_per_page =
     match number_of_diploma_per_page with
       | Some i -> i
@@ -10263,7 +10290,14 @@ let string_of_dip a b =
         end 
         (Public_data.string_of_dpt b)
   in 
-      
+  let state, missing, ips = 
+    Reglements_pedagogiques_tools.CourseDMap.export state suggest missing in 
+
+  let state = 
+    if store_ips then 
+      Remanent_state.store_ips ~firstname ~lastname (missing, ips) state 
+  else state 
+  in     
   let state = Reglements_pedagogiques_tools.CourseDMap.print state  (fun state (c,(a,b),(a',b')) -> 
         let state, (lib, lib_en) =
                         Remanent_state.Translate_courses.get_translation
@@ -10285,7 +10319,7 @@ let string_of_dip a b =
          let () = Remanent_state.print_cell (string_of_dip a b) state in 
          let () = Remanent_state.print_cell (string_of_dip a' b') state in 
 
-        ()) suggest missing 
+        ()) missing ips 
           in state 
         in 
   let state, dens = Dens.split_courses ~firstname ~lastname dens_ok state in
