@@ -85,12 +85,11 @@ module DMap(A:Double_keys with type key = string) =
     type t = (obj*(dip * string option)*(dip* string option)) Course.KeyMap.t 
 
     let extend ?new_dip x = 
-      let new_dip = 
-        match new_dip with None -> A.empty_dip 
-        | Some a -> a in 
+      let new_dip= 
+        match new_dip with None -> A.empty_dip, None 
+        | Some a -> a, Some (A.string_of_dip a) in 
       let dip = A.get_dip x in 
       let dip = dip, Some (A.string_of_dip dip) in 
-      let new_dip =  new_dip, Some (A.string_of_dip new_dip) in 
       (x,dip, new_dip)
 
     let add ?new_dip x  map state = 
