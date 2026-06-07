@@ -3443,11 +3443,69 @@ let check elt list =
     let data = {t.data with ips} in 
     {t with data}
 
-let dump_ips ~filename (t:t) = 
-  let _ = filename in 
+let dump_ips ~commission_rep ~filename ~mk ?language ?bilinguage (state:t) = 
+  let state, rep = 
+      mk __POS__
+      state commission_rep 
+  in
+  let state, language =
+    Tools.get_option
+      state
+      get_language
+      language
+  in
+  let state, bilinguage =
+    Tools.get_option
+      state
+      get_is_bilingual
+      bilinguage
+  in
+  let file =
+    if rep = ""
+    then
+      filename
+    else
+      Printf.sprintf "%s/%s" rep filename
+  in
+  let state, output_channel_opt =
+    try
+      state, Some (open_out file)
+    with exn ->
+      let msg = Printexc.to_string exn in
+      let () =
+        Format.printf
+          "Cannot open file %s (%s)@."
+          file
+          msg
+      in
+      warn
+        __POS__
+        (Format.sprintf "Cannot open file %s (%s)"  file msg)
+        Exit
+        state ,
+      None
+  in
+  match output_channel_opt with
+  | None -> state, None
+  | Some out ->
+    let mode = Loggers.Latex
+        {Loggers.orientation = Loggers.Landscape ;
+         Loggers.language =
+           (match language with
+           | Public_data.French -> Loggers.French
+           | Public_data.English -> Loggers.English );
+         Loggers.font = 10 ;
+         Loggers.template = Loggers.Transcript ;
+         Loggers.bilinguage =
+           bilinguage
+        }
+    in
+    let logger = Loggers.open_logger_from_channel ~mode out in
+    let old_logger = save_std_logger state in
+    let state = set_std_logger state logger in
    let size =    [None;None;None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None;None;None] in
-  Pedagogical_registration_suggestion.fold 
+    let state = Pedagogical_registration_suggestion.fold 
     ~fold_name:(fun ~firstname ~lastname a -> 
       let () = fprintf a "\\section*{%s %s}"  firstname lastname in  a)
     ~fold_year:(fun year a -> 
@@ -3519,5 +3577,9 @@ else
     let () = close_array state in 
     state 
   )
-    t.data.ips t
-
+    state.data.ips state 
+  in 
+  let state = close_logger state in
+  let state = restore_std_logger state old_logger in
+  state, Some (rep,filename) 
+  
