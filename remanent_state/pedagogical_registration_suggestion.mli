@@ -1,0 +1,49 @@
+type t = Public_data.pedagogical_registration_suggestion
+        Public_data.FirstNameMap.t Public_data.LastNameMap.t
+val empty: t
+val get_pedagogical_registration_suggestions:
+  firstname:string ->
+  lastname:string ->
+   t ->  Public_data.pedagogical_registration_suggestion option 
+
+val add_pedagogical_registration_suggestions:
+firstname:string -> lastname:string -> 
+((string * int * int * int) ->
+ 'state ->  Public_data.pedagogical_registration_suggestion
+         ->  Public_data.pedagogical_registration_suggestion -> 'state *  Public_data.pedagogical_registration_suggestion) -> 
+(string * int * int * int) -> 'state ->
+ Public_data.pedagogical_registration_suggestion ->
+t ->
+'state * t
+
+val fold: 
+ fold_name:(firstname:string -> lastname:string -> 'a -> 'a) -> 
+ fold_year:(string -> 'a -> 'a) -> 
+ fold_missing: (((Public_data.diploma_level option *
+                         Public_data.main_dpt option) * string option) *
+                        int * string list -> 'a -> 'a) -> 
+ fold_entry:((Public_data.cours_supplement *
+          ((Public_data.diploma_level option * Public_data.main_dpt option) * string option) *
+          ((Public_data.diploma_level option * Public_data.main_dpt option) * string option))
+         Public_data.StringMap.t  -> 'a -> 'a)
+          -> 
+        t -> 'a -> 'a 
+
+val dump: show_missing_entries:('f -> 'f * bool) ->
+          fprintf:('f -> string -> unit) ->
+          print_newline:('f -> unit) ->
+          print_cell:(string -> 'f -> unit) ->
+          breakpage:('f -> unit) ->
+          bilingual_string:(?english:string ->
+                            french:string -> 'f -> 'f * string) ->
+          open_array:(string * int * int * int ->
+                      bgcolor:'j option list ->
+                      size:float option list ->
+                      with_lines:bool ->
+                      title:string list list ->
+                      title_english:string list list -> 'f -> 'f) ->
+          open_row:('f -> unit) ->
+          close_row:('f -> unit) ->
+          close_array:('f -> unit) ->
+           'f -> 
+                        Public_data.pedagogical_registration_suggestion -> 'f
