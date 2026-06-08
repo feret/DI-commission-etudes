@@ -313,16 +313,18 @@ module DMap(A:Double_keys with type key = string) =
       let dip_list = List.rev_map fst (List.rev dip_list) in 
       let (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = Course.KeyMap.map 
         (fun  (a,(b,(b':string option)),c) -> 
-          if List.mem b dip_list then 
+          if List.mem b dip_list || b = A.dens then 
             let () = Remanent_state.fprintf state "KEEP OTHER MEM %s %s %s %s" (A.string_of_dip b) 
           (match b' with None -> "" | Some a -> a)  (A.string_of_dip (fst c)) (match snd c with None -> "" | Some a -> a) 
              in 
+                 let () = Remanent_state.print_newline state in 
 
             (a,(b,b'),c)
           else 
             let () = Remanent_state.fprintf state "KEEP NOT MEM %s %s %s %s" (A.string_of_dip b) 
           (match b' with None -> "" | Some a -> a)  (A.string_of_dip b) (match b' with None -> "" | Some a -> a) 
-             in  (a,(b,b'),(b,b'))
+             in 
+                 let () = Remanent_state.print_newline state in  (a,(b,b'),(b,b'))
           ) t 
     in (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) 
     
