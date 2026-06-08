@@ -363,10 +363,10 @@ module DMap(A:Double_keys with type key = string) =
     in 
     let by_year = Public_data.YearMap.empty in 
     let add k c map = 
-      let cours,_a,_b = c in 
-        (*if a = b then map 
+      let cours,a,b = c in 
+        if a = b then map 
         else 
-        if A.index1 cours = Some k 
+       (*if A.index1 cours = Some k 
           || A.index1 cours  = None 
         then *)
           let year = A.get_year cours in 
