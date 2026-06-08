@@ -364,11 +364,11 @@ module DMap(A:Double_keys with type key = string) =
     let by_year = Public_data.YearMap.empty in 
     let add k c map = 
       let cours,a,b = c in 
-        if a = b then map 
+        (*if a = b then map 
         else 
         if A.index1 cours = Some k 
           || A.index1 cours  = None 
-        then 
+        then *)
           let year = A.get_year cours in 
           let old = 
             match 
@@ -384,8 +384,8 @@ module DMap(A:Double_keys with type key = string) =
           in 
           let updated = Course.KeyMap.add k c old in 
           Public_data.YearMap.add year updated map  
-        else 
-         map 
+       (* else 
+         map*) 
     in     
     let by_year = Course.KeyMap.fold add t by_year in   
     state, missing_entries, by_year 
