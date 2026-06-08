@@ -16,6 +16,7 @@ module type Double_keys =
         val get_year: obj -> string 
         val is_unallocated: dip -> bool 
         val dens: dip 
+        val unassigned: dip 
     end 
 
 module type DMap = 
@@ -73,6 +74,7 @@ module Course =
         let get_year course = course.Public_data.supplement_validation_year 
       let is_unallocated dip = dip = (None,None)
       let (dens:dip) = ((Some Public_data.DENS),None) 
+      let unassigned = None, None 
 
 
   end 
@@ -319,7 +321,7 @@ module DMap(A:Double_keys with type key = string) =
              in 
                  let () = Remanent_state.print_newline state in 
 
-            (a,(b,b'),c)
+            (a,(b,b'),(A.unassigned, None))
           else 
             let () = Remanent_state.fprintf state "KEEP NOT MEM %s %s %s %s" (A.string_of_dip b) 
           (match b' with None -> "" | Some a -> a)  (A.string_of_dip b) (match b' with None -> "" | Some a -> a) 

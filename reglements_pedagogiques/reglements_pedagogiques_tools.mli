@@ -15,6 +15,7 @@ module type Double_keys =
         val get_year: obj -> string 
         val is_unallocated: dip -> bool 
         val dens: dip 
+        val unassigned: dip 
     end 
 
 
