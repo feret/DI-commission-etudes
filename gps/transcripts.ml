@@ -2923,7 +2923,13 @@ let fetch_stage
      filter_stage_year year;filter_code code;
      filter_stage_cvt commentaires ;filter_stage_id commentaires]
     stages
-in filter_code code state stages 
+in 
+match code with 
+| None -> state, stages 
+| Some a -> 
+  if String.length a > 4 && String.sub a 0 5 = "UNEXP" then 
+      filter_code code state stages 
+else state, stages 
 
 let lgen _grade gps dpt acro d =
     List.exists
