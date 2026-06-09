@@ -2923,7 +2923,7 @@ let fetch_stage
      filter_stage_year year;filter_code code;
      filter_stage_cvt commentaires ;filter_stage_id commentaires]
     stages
-in state, filter_code code stages 
+in filter_code code state stages 
 
 let lgen _grade gps dpt acro d =
     List.exists
