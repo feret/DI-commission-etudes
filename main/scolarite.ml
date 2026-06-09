@@ -436,8 +436,9 @@ let state =
                | Some gps ->
                  let state, input =
                    Transcripts.export_transcript
+                      ~store_ips:true 
                       ~number_of_diploma_per_page:1
-                     ~language:Public_data.English ~signature ~output state gps
+                      ~language:Public_data.English ~signature ~output state gps
                  in
                  Latex_engine.latex_opt_to_pdf
                    ~rev:true state ~input

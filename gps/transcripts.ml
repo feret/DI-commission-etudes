@@ -2916,12 +2916,14 @@ let fetch_stage
         | state, list -> aux state tail list
       end
   in
-  aux
+  let state, stages =
+   aux
     state
     [
      filter_stage_year year;filter_code code;
      filter_stage_cvt commentaires ;filter_stage_id commentaires]
     stages
+in state, filter_code code stages 
 
 let lgen _grade gps dpt acro d =
     List.exists
