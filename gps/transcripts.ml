@@ -2876,8 +2876,20 @@ let filter_code code state stage =
         stage
       in
     if l' = []
-  then state, stage
-  else state, l'
+  then state, 
+    begin if List.exists 
+          (fun stage ->
+            let list =
+              List.rev_map
+                (String.split_on_char ' ')
+                (List.rev stage.stage_commentaire)
+            in
+            List.exists 
+              (List.exists 
+                (fun a -> String.length a > 4 && String.sub a 0 5 = "UNEXP"))
+               list) stage 
+   then [] else stage end 
+    else state, l'
 end
 
 let fetch_stage
