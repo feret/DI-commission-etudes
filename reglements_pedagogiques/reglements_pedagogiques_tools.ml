@@ -284,10 +284,10 @@ module DMap(A:Double_keys with type key = string) =
       state, t, missing, ects 
 
 
-    let keep_others state dip_list (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = 
+    let keep_others _state dip_list (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = 
       let dip_list = List.rev_map fst (List.rev dip_list) in 
       let (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = Course.KeyMap.map 
-        (fun  (a,(b,(b':string option)),c) -> 
+        (fun  (a,(b,(b':string option)),_c) -> 
           if List.mem b dip_list || b = A.dens then 
             (a,(b,b'),(A.unassigned, None))
           else 
