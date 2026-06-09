@@ -158,16 +158,11 @@ module DMap(A:Double_keys with type key = string) =
               let state, cours = find_opt key t state in 
               match cours with 
                 | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip = new_dip-> 
-                   let () = Remanent_state.fprintf state "MENDATORY KEEP %s" key in 
-                   let () = Remanent_state.print_newline state in 
                   let state, t = add ~new_dip a t state in 
                   state, t, missing, ects +. A.get_ects a 
                | Some _   
                | None -> 
-                     let () = Remanent_state.fprintf state "MENDATORY MISSING %s" key in 
-                   let () = Remanent_state.print_newline state in 
-              
-                state, t, (1,[key])::missing, ects)
+                   state, t, (1,[key])::missing, ects)
             acc
             l 
   
@@ -184,9 +179,7 @@ module DMap(A:Double_keys with type key = string) =
                   let state, cours = find_opt key t state in 
                   match cours with 
                   | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip=new_dip  -> 
-                         let () = Remanent_state.fprintf state "DEFAULT KEEP %s" key in 
-                   let () = Remanent_state.print_newline state in 
-                    let state, t = add ~new_dip a t state in 
+                   let state, t = add ~new_dip a t state in 
                     aux (k-1) tail (state, t, missing, ects +. A.get_ects a)
                   | Some _ 
                   | None -> aux k tail (state, t, missing, ects) 
@@ -200,11 +193,7 @@ module DMap(A:Double_keys with type key = string) =
               | key::tail -> 
                   let state, cours = find_opt key t state in 
                      match cours with 
-                     | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip=new_dip -> 
-                           let () = Remanent_state.fprintf state "CHECK KEEP %s" key in 
-                   let () = Remanent_state.print_newline state in 
-              
-                      
+                     | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip=new_dip ->        
                       aux tail (state, missing, (key,a)::acc)
                     | None | Some _ -> aux tail (state,key::missing,acc) 
         in 
@@ -253,27 +242,16 @@ module DMap(A:Double_keys with type key = string) =
                 | (key,b)::tail -> 
                   begin 
                     match A.get_validation b with 
-                      | Public_data.Bool false | Public_data.Abs -> 
-                   let () = Remanent_state.fprintf state "VAL NOT %s" key in 
-                   let () = Remanent_state.print_newline state in 
-              
-
+                      | Public_data.Bool false | Public_data.Abs ->                 
                          state, t, (k,(List.rev_map fst (List.rev list))@not_in)::missing, ects
                       | Public_data.Bool true | Public_data.Not_known_yet  -> 
-                           let () = Remanent_state.fprintf state "VAL TRUE %s" key in 
-                   let () = Remanent_state.print_newline state in 
-              
                      let state, cours = find_opt key t state in 
                      match cours with 
-                  | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip = new_dip -> 
-                       let () = Remanent_state.fprintf state "GROUP KEEP %s" key in 
-                   let () = Remanent_state.print_newline state in 
-              
+                  | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip = new_dip ->  
                     let state, t = add ~new_dip a t state in 
                     aux (k-1) tail (state, t, missing, ects +. A.get_ects a)
                   | None | Some _ -> 
-                        let () = Remanent_state.fprintf state "GROUP REMOVE %s" key in 
-                   let () = Remanent_state.print_newline state in aux k tail (state, t, missing, ects) 
+                        aux k tail (state, t, missing, ects) 
                   end 
                   in aux k sorted_list (state, t, missing, ects)) 
                   acc l 
@@ -291,19 +269,14 @@ module DMap(A:Double_keys with type key = string) =
                   begin 
                     match A.get_validation b with 
                       | Public_data.Bool false | Public_data.Abs -> 
-                       let () = Remanent_state.fprintf state "OPTION BAD %s" key in 
-                       let () = Remanent_state.print_newline state in state, t, ects
+                      state, t, ects
                       | Public_data.Bool true | Public_data.Not_known_yet  -> 
                      let state, cours = find_opt key t state in 
                      match cours with 
                   | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip = new_dip ->     
-                       let () = Remanent_state.fprintf state "OPTION KEEP %s" key in 
-                   let () = Remanent_state.print_newline state in 
                     let state, t = add ~new_dip a t state in 
                     aux tail (state, t, ects +. A.get_ects a)
                   | None | Some _ -> 
-                       let () = Remanent_state.fprintf state "OPTION DROP %s" key in 
-                   let () = Remanent_state.print_newline state in 
                     aux tail (state, t,  ects) 
                   end 
       in 
@@ -316,17 +289,9 @@ module DMap(A:Double_keys with type key = string) =
       let (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = Course.KeyMap.map 
         (fun  (a,(b,(b':string option)),c) -> 
           if List.mem b dip_list || b = A.dens then 
-            let () = Remanent_state.fprintf state "KEEP OTHER MEM %s %s %s %s" (A.string_of_dip b) 
-          (match b' with None -> "" | Some a -> a)  (A.string_of_dip (fst c)) (match snd c with None -> "" | Some a -> a) 
-             in 
-                 let () = Remanent_state.print_newline state in 
-
             (a,(b,b'),(A.unassigned, None))
           else 
-            let () = Remanent_state.fprintf state "KEEP NOT MEM %s %s %s %s" (A.string_of_dip b) 
-          (match b' with None -> "" | Some a -> a)  (A.string_of_dip b) (match b' with None -> "" | Some a -> a) 
-             in 
-                 let () = Remanent_state.print_newline state in  (a,(b,b'),(b,b'))
+          (a,(b,b'),(b,b'))
           ) t 
     in (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) 
     
