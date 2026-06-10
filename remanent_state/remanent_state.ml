@@ -3443,25 +3443,28 @@ let check elt list =
     let data = {t.data with ips} in 
     {t with data}
 
-let dump_ips ?commission_rep ~filename ~mk ?language ?bilinguage (state:t) = 
-  let state, rep = 
-    match commission_rep with 
-    | None -> 
-      get_main_commission_rep state 
-      | Some a -> state, a 
-   in 
-   let state, rep =    mk __POS__
-      state rep 
-  in
-  let state, language =
+let dump_ips ?commission_rep ~filename ~mk ?language ?bilinguage t = 
+   let t, commission_rep =
+       match commission_rep with
+      | None -> get_main_commission_rep t
+      | Some commission_rep -> t, commission_rep
+   in
+   let t, main_rep = get_dated_output_repository t in
+   let commission_rep =
+        match main_rep,commission_rep with
+          | "",a | a,"" -> a
+          | a,b -> Printf.sprintf "%s/%s/suggestions" a b
+   in
+   let t, rep =    mk __POS__ t commission_rep in
+  let t, language =
     Tools.get_option
-      state
+      t
       get_language
       language
   in
-  let state, bilinguage =
+  let t, bilinguage =
     Tools.get_option
-      state
+      t
       get_is_bilingual
       bilinguage
   in
@@ -3472,9 +3475,10 @@ let dump_ips ?commission_rep ~filename ~mk ?language ?bilinguage (state:t) =
     else
       Printf.sprintf "%s/%s" rep filename
   in
-  let state, output_channel_opt =
+  let t  = warn __POS__ (Format.sprintf "dump ips: %s" file) Exit t in 
+  let t, output_channel_opt =
     try
-      state, Some (open_out file)
+      t, Some (open_out file)
     with exn ->
       let msg = Printexc.to_string exn in
       let () =
@@ -3487,11 +3491,11 @@ let dump_ips ?commission_rep ~filename ~mk ?language ?bilinguage (state:t) =
         __POS__
         (Format.sprintf "Cannot open file %s (%s)"  file msg)
         Exit
-        state ,
+        t ,
       None
   in
   match output_channel_opt with
-  | None -> state, None
+  | None -> t, None
   | Some out ->
     let mode = Loggers.Latex
         {Loggers.orientation = Loggers.Landscape ;
@@ -3506,11 +3510,11 @@ let dump_ips ?commission_rep ~filename ~mk ?language ?bilinguage (state:t) =
         }
     in
     let logger = Loggers.open_logger_from_channel ~mode out in
-    let old_logger = save_std_logger state in
-    let state = set_std_logger state logger in
+    let old_logger = save_std_logger t in
+    let t = set_std_logger t logger in
    let size =    [None;None;None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None;None;None] in
-    let state = Pedagogical_registration_suggestion.fold 
+    let t = Pedagogical_registration_suggestion.fold 
     ~fold_name:(fun ~firstname ~lastname a -> 
       let () = fprintf a "\\section*{%s %s}"  firstname lastname in  a)
     ~fold_year:(fun year a -> 
@@ -3523,38 +3527,38 @@ let dump_ips ?commission_rep ~filename ~mk ?language ?bilinguage (state:t) =
           let s_fr = Format.sprintf "Année académique %s" year_ext in 
           let s_en = Format.sprintf "Academic year %s" year_ext in 
           let a, s_bi = bilingual_string ~english:s_en ~french:s_fr a in 
-          let () = fprintf a "%s" s_bi in a)
-    ~fold_missing:(fun ((_,s),k,l) state -> 
+          let () = fprintf a "\\subsection*{%s}" s_bi in a)
+    ~fold_missing:(fun ((_,s),k,l) t -> 
             if k = List.length l then 
               if k = 1 then 
-               let () = fprintf state "The following %i course " (List.length l)  in 
-               let () = List.iter (fun elt -> fprintf state "%s " elt) l in 
-               let () = fprintf state "is missing for diploma %s" (match s with None -> "" | Some a -> a) in       
-               let () = print_newline state in 
-               state
+               let () = fprintf t "The following %i course " (List.length l)  in 
+               let () = List.iter (fun elt -> fprintf t "%s " elt) l in 
+               let () = fprintf t "is missing for diploma %s" (match s with None -> "" | Some a -> a) in       
+               let () = print_newline t in 
+               t
 else  
-  let () = fprintf state "The following %i courses " (List.length l)  in 
-               let () = List.iter (fun elt -> fprintf state "%s, " elt) l in 
-               let () = fprintf state "are missing for diploma %s" (match s with None -> "" | Some a -> a) in       
-               let () = print_newline state in 
-               state
+  let () = fprintf t "The following %i courses " (List.length l)  in 
+               let () = List.iter (fun elt -> fprintf t "%s, " elt) l in 
+               let () = fprintf t "are missing for diploma %s" (match s with None -> "" | Some a -> a) in       
+               let () = print_newline t in 
+               t
             else          
-            let () = if k = 1 then fprintf state "It misses %i over %i course among " k (List.length l) 
+            let () = if k = 1 then fprintf t "It misses %i over %i course among " k (List.length l) 
             else 
-              fprintf state "It misses %i over %i courses among " k (List.length l) 
+              fprintf t "It misses %i over %i courses among " k (List.length l) 
            in 
-            let () = List.iter (fun elt -> fprintf state "%s, " elt) l in 
-            let () = fprintf state " for diploma %s" (match s with None -> "" | Some a -> a) in         
-            let () = print_newline state in 
-            state) 
+            let () = List.iter (fun elt -> fprintf t "%s, " elt) l in 
+            let () = fprintf t " for diploma %s" (match s with None -> "" | Some a -> a) in         
+            let () = print_newline t in 
+            t) 
 
 
-    ~fold_entry:(fun t state -> 
-    let () = fprintf state "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5&#6&#7\\cr}" in
-    let () = fprintf state "\\renewcommand{\\innerline}{}" in
-    let () = fprintf state "\\vfill" in
-    let () = fprintf state "\\begin{center}" in
-    let state =
+    ~fold_entry:(fun elt t -> 
+    let () = fprintf t "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5&#6&#7\\cr}" in
+    let () = fprintf t "\\renewcommand{\\innerline}{}" in
+    let () = fprintf t "\\vfill" in
+    let () = fprintf t "\\begin{center}" in
+    let t =
         open_array
         __POS__
         ~bgcolor
@@ -3562,29 +3566,29 @@ else
         ~with_lines:true
         ~title:[["Code GPS"];["Code HELISA"];["Cours"];["Note"];["ECTS"]; ["DIPLOME (avant)"];["DIPLOME (après)"]]
         ~title_english:[["GPS Code"];["HELISA Code"];["Course"];["Grade"];["ECTS"];["DIPLOMA (before)"] ;["DIPLOMA (after)"]]
-        state
+        t
     in
-    let (state:t) = 
+    let (t:t) = 
       Public_data.StringMap.fold 
-      (fun _k (c,(_,dip),(_,dip')) state -> 
-        let () = open_row state in
-        let () = print_cell (match c.Public_data.supplement_code_gps with None -> "" | Some a -> a) state in 
-        let () = print_cell (match c.Public_data.supplement_code_helisa with None -> "" | Some a -> a) state in 
-        let () = print_cell (match c.Public_data.supplement_intitule_biling with None -> "" | Some a -> a) state in 
-        let () = print_cell (match c.Public_data.supplement_note_string with None -> "" | Some a -> a) state in 
-        let () = print_cell (string_of_float c.Public_data.supplement_ects) state in   
-         let () = print_cell (match dip with None -> "" | Some a -> a) state in 
-         let () = print_cell (match dip' with None -> "" | Some a -> a)  state in 
-         let () = close_row state in 
-        state 
-        ) t state 
+      (fun _k (c,(_,dip),(_,dip')) t -> 
+        let () = open_row t in
+        let () = print_cell (match c.Public_data.supplement_code_gps with None -> "" | Some a -> a) t in 
+        let () = print_cell (match c.Public_data.supplement_code_helisa with None -> "" | Some a -> a) t in 
+        let () = print_cell (match c.Public_data.supplement_intitule_biling with None -> "" | Some a -> a) t in 
+        let () = print_cell (match c.Public_data.supplement_note_string with None -> "" | Some a -> a) t in 
+        let () = print_cell (string_of_float c.Public_data.supplement_ects) t in   
+         let () = print_cell (match dip with None -> "" | Some a -> a) t in 
+         let () = print_cell (match dip' with None -> "" | Some a -> a)  t in 
+         let () = close_row t in 
+        t 
+        ) elt t 
     in
-    let () = close_array state in 
-    state 
+    let () = close_array t in 
+    t 
   )
-    state.data.ips state 
+    t.data.ips t 
   in 
-  let state = close_logger state in
+  let state = close_logger t in
   let state = restore_std_logger state old_logger in
   state, Some (rep,filename) 
   

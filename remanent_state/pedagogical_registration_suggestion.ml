@@ -99,7 +99,7 @@ let dump
           let s_en = Format.sprintf "Academic year %s" year_ext in 
           let state, s_bi = 
           bilingual_string ?english:(Some s_en) ~french:s_fr state in 
-          let () = fprintf state (Format.sprintf "%s" s_bi) in 
+          let () = fprintf state (Format.sprintf "\\section*{%s}" s_bi) in 
           let () = fprintf state "\\begin{center}" in
     let state =
       open_array
