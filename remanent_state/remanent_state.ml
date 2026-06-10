@@ -3504,7 +3504,7 @@ let dump_ips ?commission_rep ~filename ~mk ?language ?bilinguage t =
            | Public_data.French -> Loggers.French
            | Public_data.English -> Loggers.English );
          Loggers.font = 10 ;
-         Loggers.template = Loggers.Transcript ;
+         Loggers.template = Loggers.PV ;
          Loggers.bilinguage =
            bilinguage
         }
