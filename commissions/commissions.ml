@@ -1069,7 +1069,7 @@ let prepare_commission
                   ~input_rep ~output_rep ~file_name state
             in
             let state =
-              Latex_engine.latex_opt_to_pdf
+              Latex_engine.latex_opt_to_pdf ~rotate:true 
                 ~times:2 state ~input
             in
   let commission_year = annee in

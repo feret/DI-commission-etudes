@@ -1,9 +1,14 @@
-let latex_to_pdf ?rev ?times:(times=1) ~input state =
+let latex_to_pdf ?rev ?rotate ?times:(times=1) ~input state =
   let rev =
     match rev with
     | None | Some false -> false
     | Some true -> true
   in
+  let rotate = 
+    match rotate with 
+      | None | Some false -> false
+    | Some true -> true
+  in 
   let state, options =
     Remanent_state.get_pdfgenerator_options state
   in
@@ -53,7 +58,7 @@ let latex_to_pdf ?rev ?times:(times=1) ~input state =
       Safe_sys.rm __POS__ state file2
     in
     let state =
-      if rev then
+      if rev && rotate then
         let command =
             Printf.sprintf "pdftk %s.pdf cat 1-endeast output %s.tmp"
             basename basename
@@ -72,15 +77,54 @@ let latex_to_pdf ?rev ?times:(times=1) ~input state =
           Safe_sys.rm __POS__ state (Printf.sprintf "%s.tmp" basename)
         in
         state
-      else
+      else if rev then 
+  let command =
+            Printf.sprintf "pdftk %s.pdf cat 1-end output %s.tmp"
+            basename basename
+        in
+        let state =
+          Safe_sys.command __POS__ state command
+        in
+        let command =
+          Printf.sprintf "pdftk %s.tmp cat end-1 output %s.pdf"
+            basename basename
+        in
+        let state =
+          Safe_sys.command __POS__ state command
+        in
+        let state =
+          Safe_sys.rm __POS__ state (Printf.sprintf "%s.tmp" basename)
+        in
+        state
+      else if rotate then 
+          let command =
+            Printf.sprintf "pdftk %s.pdf cat 1-endeast output %s.tmp"
+            basename basename
+        in
+        let state =
+          Safe_sys.command __POS__ state command
+        in
+        let command =
+          Printf.sprintf "pdftk %s.tmp cat 1-end output %s.pdf"
+            basename basename
+        in
+        let state =
+          Safe_sys.command __POS__ state command
+        in
+        let state =
+          Safe_sys.rm __POS__ state (Printf.sprintf "%s.tmp" basename)
+        in
+        state
+
+      else 
         state
     in
     Safe_sys.chdir __POS__ state current
 
-let latex_opt_to_pdf ?rev ?times:(times=1) ~input state =
+let latex_opt_to_pdf ?rev ?rotate ?times:(times=1) ~input state =
   match input with
   | None -> state
-  | Some input -> latex_to_pdf ?rev ~times ~input state
+  | Some input -> latex_to_pdf ?rev ?rotate ~times ~input state
 
 let concat_pdf ~pattern ?exclude ~output state =
   let state, output_rep =
