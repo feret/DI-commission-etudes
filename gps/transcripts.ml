@@ -10315,18 +10315,6 @@ let _string_of_dip a b =
     Reglements_pedagogiques_tools.CourseDMap.export state suggest missing in 
   let state = 
     if store_ips then 
-      let state = 
-        Remanent_state.warn __POS__ (Format.sprintf "STORE IPS: %s %s" firstname lastname) Exit state 
-      in 
-      let state = 
-        List.fold_left (fun state (_a,b,c) -> 
-          Remanent_state.warn __POS__ (Format.sprintf "MISSING %i %i" (List.length c) b) Exit state)  state missing  in 
-      let state = 
-        Public_data.YearMap.fold 
-          (fun year map state -> 
-              Public_data.StringMap.fold 
-                (fun s _ state -> Remanent_state.warn __POS__ (Format.sprintf "%s %s" year s ) Exit state) map state) 
-          ips state in 
       Remanent_state.store_ips ~firstname ~lastname (missing, ips) state 
   else state 
   in     

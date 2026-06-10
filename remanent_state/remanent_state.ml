@@ -3504,7 +3504,7 @@ let dump_ips ?commission_rep ~filename ~mk ?language ?bilinguage t =
            | Public_data.French -> Loggers.French
            | Public_data.English -> Loggers.English );
          Loggers.font = 10 ;
-         Loggers.template = Loggers.PV ;
+         Loggers.template = Loggers.Transcript ;
          Loggers.bilinguage =
            bilinguage
         }
@@ -3528,37 +3528,37 @@ let dump_ips ?commission_rep ~filename ~mk ?language ?bilinguage t =
           let s_en = Format.sprintf "Academic year %s" year_ext in 
           let a, s_bi = bilingual_string ~english:s_en ~french:s_fr a in 
           let () = fprintf a "\\subsection*{%s}" s_bi in a)
-    ~fold_missing:(fun ((_,s),k,l) t -> 
+    ~fold_missing:(fun ((_,s),k,l) a -> 
             if k = List.length l then 
               if k = 1 then 
-               let () = fprintf t "The following %i course " (List.length l)  in 
-               let () = List.iter (fun elt -> fprintf t "%s " elt) l in 
-               let () = fprintf t "is missing for diploma %s" (match s with None -> "" | Some a -> a) in       
-               let () = print_newline t in 
-               t
+               let () = fprintf a "The following %i course " (List.length l)  in 
+               let () = List.iter (fun elt -> fprintf a "%s " elt) l in 
+               let () = fprintf a "is missing for diploma %s" (match s with None -> "" | Some a -> a) in       
+               let () = print_newline a in 
+               a
 else  
-  let () = fprintf t "The following %i courses " (List.length l)  in 
-               let () = List.iter (fun elt -> fprintf t "%s, " elt) l in 
-               let () = fprintf t "are missing for diploma %s" (match s with None -> "" | Some a -> a) in       
+  let () = fprintf a "The following %i courses " (List.length l)  in 
+               let () = List.iter (fun elt -> fprintf a "%s, " elt) l in 
+               let () = fprintf a "are missing for diploma %s" (match s with None -> "" | Some a -> a) in       
                let () = print_newline t in 
-               t
+               a
             else          
-            let () = if k = 1 then fprintf t "It misses %i over %i course among " k (List.length l) 
+            let () = if k = 1 then fprintf a "It misses %i over %i course among " k (List.length l) 
             else 
-              fprintf t "It misses %i over %i courses among " k (List.length l) 
+              fprintf a "It misses %i over %i courses among " k (List.length l) 
            in 
-            let () = List.iter (fun elt -> fprintf t "%s, " elt) l in 
-            let () = fprintf t " for diploma %s" (match s with None -> "" | Some a -> a) in         
-            let () = print_newline t in 
-            t) 
+            let () = List.iter (fun elt -> fprintf a "%s, " elt) l in 
+            let () = fprintf a " for diploma %s" (match s with None -> "" | Some a -> a) in         
+            let () = print_newline a in 
+            a) 
 
 
-    ~fold_entry:(fun elt t -> 
-    let () = fprintf t "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5&#6&#7\\cr}" in
-    let () = fprintf t "\\renewcommand{\\innerline}{}" in
-    let () = fprintf t "\\vfill" in
-    let () = fprintf t "\\begin{center}" in
-    let t =
+    ~fold_entry:(fun elt a -> 
+    let () = fprintf a "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5&#6&#7\\cr}" in
+    let () = fprintf a "\\renewcommand{\\innerline}{}" in
+    let () = fprintf a "\\vfill" in
+    let () = fprintf a "\\begin{center}" in
+    let a =
         open_array
         __POS__
         ~bgcolor
@@ -3566,25 +3566,26 @@ else
         ~with_lines:true
         ~title:[["Code GPS"];["Code HELISA"];["Cours"];["Note"];["ECTS"]; ["DIPLOME (avant)"];["DIPLOME (après)"]]
         ~title_english:[["GPS Code"];["HELISA Code"];["Course"];["Grade"];["ECTS"];["DIPLOMA (before)"] ;["DIPLOMA (after)"]]
-        t
+        a
     in
-    let (t:t) = 
+    let (a:t) = 
       Public_data.StringMap.fold 
-      (fun _k (c,(_,dip),(_,dip')) t -> 
-        let () = open_row t in
-        let () = print_cell (match c.Public_data.supplement_code_gps with None -> "" | Some a -> a) t in 
-        let () = print_cell (match c.Public_data.supplement_code_helisa with None -> "" | Some a -> a) t in 
-        let () = print_cell (match c.Public_data.supplement_intitule_biling with None -> "" | Some a -> a) t in 
-        let () = print_cell (match c.Public_data.supplement_note_string with None -> "" | Some a -> a) t in 
-        let () = print_cell (string_of_float c.Public_data.supplement_ects) t in   
-         let () = print_cell (match dip with None -> "" | Some a -> a) t in 
-         let () = print_cell (match dip' with None -> "" | Some a -> a)  t in 
-         let () = close_row t in 
-        t 
-        ) elt t 
+      (fun _k (c,(_,dip),(_,dip')) a -> 
+        let () = open_row a in
+        let () = print_cell (match c.Public_data.supplement_code_gps with None -> "" | Some a -> a) a in 
+        let () = print_cell (match c.Public_data.supplement_code_helisa with None -> "" | Some a -> a) a in 
+        let () = print_cell (match c.Public_data.supplement_intitule_biling with None -> "" | Some a -> a) a in 
+        let () = print_cell (match c.Public_data.supplement_note_string with None -> "" | Some a -> a) a in 
+        let () = print_cell (string_of_float c.Public_data.supplement_ects) a in   
+         let () = print_cell (match dip with None -> "" | Some a -> a) a in 
+         let () = print_cell (match dip' with None -> "" | Some a -> a)  a in 
+         let () = close_row a in 
+        a
+        ) elt a
     in
-    let () = close_array t in 
-    t 
+    let () = close_array a in 
+    let () = fprintf a "\\end{center}" in
+    a
   )
     t.data.ips t 
   in 
