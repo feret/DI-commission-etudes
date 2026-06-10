@@ -844,7 +844,7 @@ val store_ips:
 val dump_ips: 
           ?commission_rep:string -> 
           filename:string ->
-          mk:(string * int * int * int -> t -> 'a -> t * string) ->
+          mk:(string * int * int * int -> t -> string -> t * string) ->
           ?language:Public_data.language ->
           ?bilinguage:bool -> t -> t * (string * string) option
   
