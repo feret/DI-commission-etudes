@@ -120,6 +120,7 @@ let dump
         ) t state 
     in
     let () = close_array state in 
+     let () = fprintf state "\\end{center}" in
     state,true) by_year (state, something) 
   in 
   let () = if something then 
