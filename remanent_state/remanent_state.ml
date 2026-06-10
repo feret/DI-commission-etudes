@@ -3443,10 +3443,15 @@ let check elt list =
     let data = {t.data with ips} in 
     {t with data}
 
-let dump_ips ~commission_rep ~filename ~mk ?language ?bilinguage (state:t) = 
+let dump_ips ?commission_rep ~filename ~mk ?language ?bilinguage (state:t) = 
   let state, rep = 
-      mk __POS__
-      state commission_rep 
+    match commission_rep with 
+    | None -> 
+      get_main_commission_rep state 
+      | Some a -> state, a 
+   in 
+   let state, rep =    mk __POS__
+      state rep 
   in
   let state, language =
     Tools.get_option

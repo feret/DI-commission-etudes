@@ -842,7 +842,7 @@ val store_ips:
           t -> t 
   
 val dump_ips: 
-          commission_rep:'a ->
+          ?commission_rep:string -> 
           filename:string ->
           mk:(string * int * int * int -> t -> 'a -> t * string) ->
           ?language:Public_data.language ->

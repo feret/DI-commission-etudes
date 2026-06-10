@@ -1054,7 +1054,6 @@ let prepare_commission
   let state,input = 
     Remanent_state.dump_ips 
           ~mk:Safe_sys.rec_mk_when_necessary 
-          ~commission_rep 
           ~filename:(Format.sprintf
                           "suggestions_ip.tex")
           
