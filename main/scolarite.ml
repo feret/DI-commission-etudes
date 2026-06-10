@@ -436,7 +436,6 @@ let state =
                | Some gps ->
                  let state, input =
                    Transcripts.export_transcript
-                      ~store_ips:true 
                       ~number_of_diploma_per_page:1
                       ~language:Public_data.English ~signature ~output state gps
                  in
@@ -457,7 +456,8 @@ let state =
              let filter = Public_data.All in
              let report = true in
              let state, output_opt =
-               Transcripts.export_transcript 
+               Transcripts.export_transcript    
+                 ~store_ips:true   
                  ~filter ~keep_faillure:true ~output ~report state gps
              in
              let state, year = Remanent_state.get_diplomation_year state in 
