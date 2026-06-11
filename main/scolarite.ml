@@ -290,7 +290,7 @@ let state =
                | _, false | None, _ ->
                  state
              in
-             Latex_engine.latex_opt_to_pdf ~rev:true state ~input
+             Latex_engine.latex_opt_to_pdf ~rev:true ~rotate:true state ~input
          in
          let state =
            if is_dma || is_phys || is_chimie || is_geosciences || is_bio then
@@ -324,7 +324,7 @@ let state =
                  | _, false | None, _ ->
                    state
              in
-             Latex_engine.latex_opt_to_pdf ~rev:true state ~input
+             Latex_engine.latex_opt_to_pdf ~rev:true ~rotate:true state ~input
            else state
          in
          let state =
@@ -361,7 +361,7 @@ let state =
                        ~input_rep ~output_rep ~file_name state
                  in
                  Latex_engine.latex_opt_to_pdf
-                   ~rev:true state ~input
+                   ~rev:true ~rotate:true state ~input
              in
              let output =
                (fst output0,
@@ -393,7 +393,7 @@ let state =
                        ~input_rep ~output_rep ~file_name state
                  in
                  Latex_engine.latex_opt_to_pdf
-                   ~rev:true state ~input
+                   ~rev:true ~rotate:true state ~input
              in
              state
            | false -> state
@@ -420,7 +420,7 @@ let state =
                      ~signature ~output state gps
                  in
                  Latex_engine.latex_opt_to_pdf
-                   ~rev:true state ~input
+                   ~rev:true ~rotate:true state ~input
              in
              let output =
                (fst output0,
@@ -440,7 +440,7 @@ let state =
                       ~language:Public_data.English ~signature ~output state gps
                  in
                  Latex_engine.latex_opt_to_pdf
-                   ~rev:true state ~input
+                   ~rev:true ~rotate:true state ~input
              in
              state
            | false -> state
@@ -468,7 +468,7 @@ let state =
               let input_rep, file_name = input in 
               let file_name = Copy.pdf_file file_name in
                       
-               let state = Latex_engine.latex_to_pdf ~rev:true state ~input in 
+               let state = Latex_engine.latex_to_pdf ~rev:true ~rotate:true state ~input in 
                 let state, dens_in_bdd =
                   Remanent_state.Collector_dens_candidate.find_opt ~firstname ~lastname ~year state 
                 in
