@@ -77,7 +77,7 @@ let m1_maths =
         "DMA-M1-B04-S1"; (* statistique *)
         "DMA-M1-C02-S1"; (* systèmes dynamiques *)
         "DMA-M1-C04-S2"; (* topôlogie algébrique *)
-        ]; 
+        "UNDMA1-086"; (* convergences de spectres et notes fondamentales *)]; 
       1, [
       "DMA-M1-GT1-S1"; (* gt - theorie cinetique et theoreme de lanford *)
       "DMA-M1-GT2-S1"; (* gt - fatou, julia, et les fondements de la dynamique holomo *)
