@@ -247,11 +247,6 @@ module DMap(A:Double_keys with type key = string) =
         (fun (state, t, missing, ects) (k,list) -> 
           let state, not_in, enriched_list = check_for_courses new_dip list state t in 
           let sorted_list = sort_enriched_list enriched_list in 
-          let state = 
-            List.fold_left 
-              (fun state (k,_) -> 
-                  Remanent_state.warn __POS__ (Format.sprintf "SORTED (GROUPS) %s" k) Exit state) state sorted_list 
-              in 
           let rec aux k list (state, t, missing, ects) = 
                 if k = 0 then (state, t, missing, ects) else 
                   match list with 
@@ -278,11 +273,6 @@ module DMap(A:Double_keys with type key = string) =
       let (state, t, missing, ects) = acc in 
       let state, _not_in, enriched_list = check_for_courses new_dip list state t in 
       let sorted_list = sort_enriched_list enriched_list in 
-      let state = 
-            List.fold_left 
-              (fun state (k,_) -> 
-                  Remanent_state.warn __POS__ (Format.sprintf "SORTED (OPTIONS) %s" k) Exit state) state sorted_list 
-              in 
       let rec aux list (state, t, ects) = 
           if ects >= 60. then (state, t, ects) else 
           match list with 
