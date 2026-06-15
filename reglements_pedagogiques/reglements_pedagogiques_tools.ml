@@ -193,9 +193,19 @@ module DMap(A:Double_keys with type key = string) =
               | key::tail -> 
                   let state, cours = find_opt key t state in 
                      match cours with 
-                     | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip=new_dip ->        
+                     | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip=new_dip ->   
+                      let state = 
+                        Remanent_state.warn __POS__ 
+                        (Format.sprintf "KEPT %s" key) 
+                        Exit state in      
                       aux tail (state, missing, (key,a)::acc)
-                    | None | Some _ -> aux tail (state,key::missing,acc) 
+                    | None | Some _ -> 
+                       let state = 
+                        Remanent_state.warn __POS__ 
+                        (Format.sprintf "NOT KEPT %s " key 
+                      ) 
+                        Exit state in   
+                      aux tail (state,key::missing,acc) 
         in 
         aux list (state,[],[])
 
@@ -203,7 +213,7 @@ module DMap(A:Double_keys with type key = string) =
        List.sort 
                 (fun (_,a) (_,b) -> 
                   let cmp_val = 
-                    match A.get_validation a, A.get_validation b with 
+                      match A.get_validation a, A.get_validation b with 
                   | Public_data.Bool a, Public_data.Bool b -> 
                     if a=b then 0 
                     else if a then -1
@@ -229,12 +239,19 @@ module DMap(A:Double_keys with type key = string) =
                   | _ -> cmp_val)  
 
 
+
+
     let select_groups reglement new_dip acc = 
       let l = reglement.Public_data.groups in   
       List.fold_left 
         (fun (state, t, missing, ects) (k,list) -> 
           let state, not_in, enriched_list = check_for_courses new_dip list state t in 
           let sorted_list = sort_enriched_list enriched_list in 
+          let state = 
+            List.fold_left 
+              (fun state (k,_) -> 
+                  Remanent_state.warn __POS__ (Format.sprintf "SORTED (GROUPS) %s" k) Exit state) state sorted_list 
+              in 
           let rec aux k list (state, t, missing, ects) = 
                 if k = 0 then (state, t, missing, ects) else 
                   match list with 
@@ -261,6 +278,11 @@ module DMap(A:Double_keys with type key = string) =
       let (state, t, missing, ects) = acc in 
       let state, _not_in, enriched_list = check_for_courses new_dip list state t in 
       let sorted_list = sort_enriched_list enriched_list in 
+      let state = 
+            List.fold_left 
+              (fun state (k,_) -> 
+                  Remanent_state.warn __POS__ (Format.sprintf "SORTED (OPTIONS) %s" k) Exit state) state sorted_list 
+              in 
       let rec aux list (state, t, ects) = 
           if ects >= 60. then (state, t, ects) else 
           match list with 
@@ -295,6 +317,7 @@ module DMap(A:Double_keys with type key = string) =
           ) t 
     in (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) 
     
+
 
     let select_course_for_a_cursus_list dip_list t state = 
       let (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = keep_others state dip_list t in 
