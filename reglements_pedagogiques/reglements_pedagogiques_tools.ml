@@ -232,8 +232,8 @@ module DMap(A:Double_keys with type key = string) =
                     begin 
                       let a = A.get_note a in 
                       let b = A.get_note b in
-                      if Notes.better a b then 1 
-                      else if Notes.better b a then -1 
+                      if Notes.better a b then -1 
+                      else if Notes.better b a then +1 
                       else 0 
                     end 
                   | _ -> cmp_val)  
