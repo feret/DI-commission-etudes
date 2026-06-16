@@ -8148,7 +8148,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                     | Some "ANLMDMA" -> 
                       let code_gps = match course.Public_data.pe_code_gps with None -> "" | Some a ->  a in 
                       let n = code_gps in 
-                      if n>5 then 
+                      if String.length n > 5 then 
                         let prefix = String.sub code_gps 0 6 in 
                          if prefix = "DMA-L3" then Some "L"
                          else if prefix = "DMA-M1" then Some "m"
