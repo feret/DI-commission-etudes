@@ -2970,7 +2970,7 @@ let lmath ~year ~firstname ~lastname d state =
   lgen "licence" ["gps2274";"gps3017";"gps2262"] dpt_maths_gps_name (Some "DMA") d ||
   List.exists
       (fun cours ->
-      cours.code_diplome = Some "ANL3DMA" ||
+      cours.code_diplome = Some "ANL3DMA" || cours.code_diplome = Some "ANLMDMA" || 
         (match cours.code_cours with | None -> false | Some code_gps ->
     code_mandatory_course_DI_maths year code_gps
       &&
@@ -7622,7 +7622,7 @@ Secondary
   if String.length libelle > 6 && String.sub libelle 0 6 = "UNDDIP" then Inscription
   else
     if String.length libelle > 3 &&
-        (let s = String.sub libelle 0 4 in s = "ANM2" || s = "ANM1" || s = "ANL3" ) then Annee
+        (let s = String.sub libelle 0 4 in s="ANLM" || s = "ANM2" || s = "ANM1" || s = "ANL3" ) then Annee
     else
     if String.length libelle > 2 then
     match String.sub libelle 0 3 with
@@ -7952,6 +7952,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                 | "ANL3INF" -> state, L3_HPSL 
                 | "ANL3DMA" -> state, L3_HPSL 
                 | "ANM1DMA" -> state, M1_HPSL 
+                | "ANLMDMA" -> state, L3_HPSL 
                 | "ANM2INFPRI" -> state, M2_PSL 
                 | "ANM1INF" -> state, M1_PSL 
                 | "ANECHINTER" -> state, Autre 
@@ -8144,6 +8145,16 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                     | Some "ANM2INFPRI" -> Some "mpri"
                     | Some "ANM1DMA" -> Some "m"
                     | Some "ANM1INF" -> Some "m"
+                    | Some "ANLMDMA" -> 
+                      let code_gps = match course.Public_data.pe_code_gps with None -> "" | Some a ->  a in 
+                      let n = code_gps in 
+                      if n>5 then 
+                        let prefix = String.sub code_gps 0 6 in 
+                         if prefix = "DMA-L3" then Some "L"
+                         else if prefix = "DMA-M1" then Some "m"
+                         else (if b then Some "dens" else None)
+                        else (if b then Some "dens" else None)
+
                     | None | Some _ -> (if b then Some "dens" else None)
                 end ;
                 diplome_dpt = 
@@ -8151,6 +8162,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
                   match course.Public_data.pe_diploma with 
                     | Some "ANL3INF" -> Some Public_data.DI  
                     | Some "ANL3DMA" -> Some Public_data.DMA 
+                    | Some "ANLMDMA" -> Some Public_data.DMA 
                     | Some "ANM2INFPRI" -> Some Public_data.DI  
                     | Some "ANM1DMA" -> Some Public_data.DMA 
                     | Some "ANM1INF" -> Some Public_data.DI 
