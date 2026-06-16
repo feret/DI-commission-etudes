@@ -160,7 +160,7 @@ let update_student bloc entry bset state =
             (fst state,Remanent_state.warn __POS__ 
             (Format.asprintf "Improper statut in pedagogical registration %s %s %a"
             firstname lastname (
-              Format.pp_print_list  
+              Format.pp_print_list  ~pp_sep:(fun fmt () -> Format.fprintf fmt ",")
                 Format.pp_print_string 
             )
             statut) Exit (snd state)), None, None, None, None
