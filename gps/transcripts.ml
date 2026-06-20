@@ -8403,8 +8403,8 @@ let deal_with_l3_m1_dma ~year ~situation ~who filtered_classes state =
           | h::t ->
             let state, l3, m1, autre =
               match h.diplome, h.code_cours with
-                | Some x, _ -> 
-                  Remanent_state.warn __POS__ (Format.sprintf "AUTRE (%s)" x) Exit state, l3, m1, h::autre
+                | Some "dens", _ -> 
+                  state, l3, m1, h::autre
                 | _, None -> state, l3, m1, h::autre
                 | _, Some s ->
                     if s = "DMA-L3-A06-S2" then state, l3, h::m1, autre  else
