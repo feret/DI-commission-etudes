@@ -147,7 +147,8 @@ let update_student bloc entry bset state =
           | Some ["ETALEMENT";"ANNUEL"] | Some ["ETALEMENT"] -> state, None, None, Some Public_data.ETALEMENT, Some Public_data.ETALEMENT
           | Some ["INTERRUPTION"] -> state, None, None, Some Public_data.INTERRUPTION, Some Public_data.INTERRUPTION
 
-          | Some ["ENS-EXT";"Cursus";"Licence";"ou";"Master";"suivi";"à";"l'ENS-PSL";"-"; "Département";"d'";"Informatique"] -> 
+          | Some ["ENS-EXT";"Cursus";"Licence";"ou";"Master";"suivi";"à";"l'ENS-PSL";"-"; "Département";"d'";"Informatique"]
+          | Some ["ENS-EXT";"Cursus";"Licence";"ou";"Master";"suivi";"à";"l'ENS-PSL";"-"; "Département";"d'";"'";"Informatique"] -> 
           state,  Some "ANL3INF", Some Public_data.DI, None, None 
           | Some ["ENS-EXT";"Cursus";"Licence";"ou";"Master";"suivi";"à";"l'ENS-PSL";"-"; "Département";"Mathématiques";"et";"applications"] -> 
           state,  Some "ANLMDMA", Some Public_data.DMA, None, None 
