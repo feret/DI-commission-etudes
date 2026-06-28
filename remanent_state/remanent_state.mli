@@ -125,6 +125,8 @@ val get_url_to_access_annuaire: t -> t * string
 val get_repository_to_access_gps: t -> t * string
 val get_repository_to_dump_gps_files:
   ?output_repository:string -> t -> t * string
+  val get_repository_to_dump_charge_repartition:
+  ?output_repository:string -> t -> t * string
 val get_repository_for_handmade_gps_files: t -> t * string
 val get_repository_for_backup_gps_files: t -> t * string
 val get_signature: t -> t * string list
@@ -576,6 +578,27 @@ val get_mentoring_list:
   ?year:Public_data.annee ->
   t ->
   t * Public_data.tutorat list
+
+val add_pedagogical_charge: 
+  (string * int * int * int ->
+   t ->
+   Public_data.pedagogical_charge ->
+   Public_data.pedagogical_charge -> t * Public_data.pedagogical_charge) ->
+  (string * int * int * int) ->
+  Public_data.pedagogical_charge ->
+  t ->
+  t
+
+val get_pedagogical_charge_list:
+  ?firstname:string ->
+  ?lastname:string ->
+  ?year:Public_data.annee ->
+  ?gps_code:string -> 
+  ?helisa_code:string -> 
+  ?course:string -> 
+  t ->
+  t * Public_data.pedagogical_charge list
+
 
 val add_program:
   (string * int * int * int ->

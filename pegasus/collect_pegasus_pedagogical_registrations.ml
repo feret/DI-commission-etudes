@@ -144,7 +144,23 @@ let update_student bloc entry bset state =
           | Some ["FONCTIONNAIRE";"EN";"SCOLARITE"]          
           | Some ["ETUDIANT";"EN";"SCOLARITE"]          
           | Some ["EN";"SCOLARITE"] -> state, None, None, Some Public_data.SCOLARITE, Some Public_data.SCOLARITE
-          | Some ["ETALEMENT";"ANNUEL"] | Some ["ETALEMENT"] -> state, None, None, Some Public_data.ETALEMENT, Some Public_data.ETALEMENT
+          | Some ["FONCTIONNAIRE";"ETALEMENT";x] 
+          | Some ["ETUDIANT";"ETALEMENT";x] 
+          | Some ["ETALEMENT";x] -> 
+            let state, s1 = 
+              match x with 
+              | "ANNUEL" | "S1" -> state, Some Public_data.ETALEMENT 
+              | "S2" -> state, None 
+              | x -> (fst state, Remanent_state.warn 
+                __POS__ (Format.sprintf "Unknwon break period for %s %s (%s)" firstname lastname x) Exit (snd state)), None in 
+                 let state, s2 = 
+              match x with 
+              | "ANNUEL" | "S2" -> state, Some Public_data.ETALEMENT 
+              | "S1" -> state, None 
+              | x  -> (fst state,Remanent_state.warn 
+                __POS__ (Format.sprintf "Unknwon break period for %s %s (%s)" firstname lastname x) Exit (snd state)), None in 
+            state, None, None, s1, s2 
+            | Some ["ETALEMENT"] -> state, None, None, Some Public_data.ETALEMENT, Some Public_data.ETALEMENT
           | Some ["INTERRUPTION"] -> state, None, None, Some Public_data.INTERRUPTION, Some Public_data.INTERRUPTION
 
           | Some ["ENS-EXT";"Cursus";"Licence";"ou";"Master";"suivi";"à";"l'ENS-PSL";"-"; "Département";"d'";"Informatique"]
@@ -602,20 +618,14 @@ let get_pegasus_pedagogical_registrations
                                      entry, (update_diploma "ANECHINTER - International Exchange" entry (bset,state))
                                 | ""::"ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science"::_ ->
                                   let entry = {entry with diploma = Some "ANM2INFPRI"} in 
-                                  (*  let entry, (bset, state) = *)
                                      entry, (update_diploma "ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science" entry (bset,state))
                                  | ""::"ANM2INFPRI - Master in Computer science (Second year) -"::_-> 
                                    let entry = {entry with diploma = Some "ANM2INFPRI"} in 
-                                  (*  let entry, (bset, state) = *)
                                      entry, (update_diploma "ANM2INFPRI - Master in Computer science (Second year) -" entry (bset,state))
                                 
                                      | ""::"ANM1INF - Master in Computer science (First year)"::_ -> 
                                       let entry = {entry with diploma = Some "ANM1INF"} in 
-                                   (*  let entry, (bset, state) = *)
                                       entry, (update_diploma "ANM1INF - Master in Computer science (First year)" entry (bset,state)) (*in*) 
-                                    (*  let course = "UNINF2-045 - Stage long M1 étranger pays non francophone & Long interns" in  
-                                      let ects = "30." in
-                                      entry,  update_course course ects entry bset state*)
                                 | ""::"ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science "::_  ->                             
                                   let entry = {entry with diploma = Some "ANM2INFPRI"} in 
                                   entry, (update_diploma "ANM2INFPRI - Master in Computer science (Second year) - Algorithmic Science " entry (bset,state))

@@ -1253,6 +1253,76 @@ type mentor =
     mentor_secondary: main_dpt option ;
   }
 
+type contract = 
+ Service | Vacation | Mission 
+
+type 'a or_unknown = Known of 'a | Not_known 
+type 'a aggregate_with_or_unknown = ('a * bool)
+
+let string_of_or_unknown string_of x = 
+  match x with 
+    | Known x -> string_of x 
+    | Not_known -> "?" 
+
+let init x = (x,false)
+let aggregate f x (y,z) = 
+  match x with 
+    | Known x -> (f x y,z)
+    | Not_known -> (y, true)
+
+let string_of_aggregate string_of (a,b) =  
+  if b then 
+    (string_of a)^"+ ?"
+else string_of a 
+
+
+type pedagogical_charge = 
+{
+charge_firstname : string ;
+charge_lastname : string ; 
+charge_total_hours: float or_unknown option; 
+charge_total_cm: float or_unknown option; 
+charge_total_td: float or_unknown option; 
+charge_total_tp: float or_unknown option; 
+charge_cm: float or_unknown option; 
+charge_td: float or_unknown option; 
+charge_tp: float or_unknown option; 
+charge_remuneration: contract or_unknown option; 
+charge_course_title: string option; 
+charge_gps_code: string option; 
+charge_helisa_code: string option; 
+charge_moodle_code: string option; 
+charge_attribution_year: string; 
+charge_niveau: string option; 
+charge_ects: float option; 
+charge_groupes_td: int option; 
+charge_groupes_tp: int option; 
+}
+
+let empty_pedagogical_charge = 
+  {
+charge_firstname = ""  ;
+charge_lastname = "" ; 
+charge_total_hours = None ; 
+charge_total_cm = None ; 
+charge_total_td = None ; 
+charge_total_tp = None ;
+charge_cm = None ;
+charge_td = None ;
+charge_tp = None ;
+charge_remuneration = None ;
+charge_course_title = None ;
+charge_gps_code = None ;
+charge_helisa_code = None ;
+charge_moodle_code = None ;
+charge_attribution_year = ""; 
+charge_niveau = None ; 
+charge_ects = None ;  
+charge_groupes_td = None ;  
+charge_groupes_tp = None ; 
+}
+
+
 type keywords =
   | Accepte
   | Accord
@@ -1267,6 +1337,8 @@ type keywords =
   | Classement
   | Code
   | Code_gps
+  | Code_helisa 
+  | Code_moodle 
   | Commentaire
   | Commission
   | Commission_en
@@ -1276,6 +1348,7 @@ type keywords =
   | Couleur_du_texte
   | Courriel
   | Courriel_du_tuteur
+  | Remuneration 
   | Credits
   | Date
   | Date_en
@@ -1308,6 +1381,8 @@ type keywords =
   | Genre
   | Genre_du_tuteur
   | Grade
+  | Groupes_td 
+  | Groupes_tp 
   | Initiales
   | Inscription
   | Inscription_en
@@ -1359,6 +1434,10 @@ type keywords =
   | Statut
   | Titre_FR
   | Titre_EN
+  | Total_heure 
+  | Total_CM
+  | Total_td 
+  | Total_tp 
   | Tuteur
   | Type_de_Financement
   | Universite
@@ -1738,6 +1817,7 @@ module YearMap =
     end)
 module LevelMap = StringMap
 
+module StringExtendedMap = Map_tools.Collect(StringMap)
 module CodeExtendedMap = Map_tools.Collect(CodeMap)
 module CodeOptExtendedMap = Map_tools.Collect(CodeOptMap)
 module LibelleExtendedMap = Map_tools.Collect(LibelleMap)

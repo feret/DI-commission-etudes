@@ -88,6 +88,10 @@ type 'a preprocessed =
     shared: 'a shared
   }
 
+
+
+
+
 let asso_list =
   [
     Public_data.Accepte, ["accepté"];
@@ -96,14 +100,16 @@ let asso_list =
     Public_data.Activite, ["activité";"activité_fr";"activité(français)"];
     Public_data.Activite_en, ["activity";"activité_en";"acticité(english)";"activité(anglais)"];
 
-    Public_data.Annee_Academique, ["année"; "année académique"];
+    Public_data.Annee_Academique, ["année"; "année académique";"annee"];
     Public_data.Annee_Debut, ["année début"];
     Public_data.Annee_Fin, ["année fin"];
     Public_data.Annee_de_Validation_du_Cours, ["année de validation"];
     Public_data.Annee_en_Cours, ["année en cours"];
     Public_data.Classement, ["classement";"rang"];
     Public_data.Code, ["code";"code cours"];
-    Public_data.Code_gps, ["code gps"];
+    Public_data.Code_gps, ["code gps";"code_gps"];
+    Public_data.Code_helisa, ["code helisa";"code hélisa";"code_helisa";"code_hélisé"]; 
+    Public_data.Code_moodle, ["code moodle";"code_moodle"]; 
     Public_data.Commentaire, ["commentaire"];
     Public_data.Commission, ["commission"];
     Public_data.Commission_en, ["commission_en";"commission(anglais)";"commission(english)"];
@@ -114,6 +120,7 @@ let asso_list =
     Public_data.Courriel, ["courriel"];
     Public_data.Courriel_du_tuteur, ["courriel du tuteur";"email du tuteur"];
     Public_data.Credits, ["crédits"];
+    Public_data.Remuneration, ["remunaration"]; 
     Public_data.Date, ["date"];
     Public_data.Date_en, ["date(english)";"date(anglais)";"date_en"];
     Public_data.Date_de_Naissance, ["date de naissance";"naissance"];
@@ -150,6 +157,8 @@ let asso_list =
     Public_data.Genre, ["genre"];
     Public_data.Genre_du_tuteur, ["genre du tuteur"];
     Public_data.Grade, ["grade"];
+    Public_data.Groupes_td, ["groupes td";"groupe td";"groupes_td";"groupe_td"]; 
+    Public_data.Groupes_tp, ["groupes tp";"groupe tp";"groupes_tp";"groupe_tp"];  
     Public_data.Inscription, ["inscription"];
     Public_data.Inscription_en, ["inscription_en";"registration";"inscription(anglais)";"inscription(english)"];
     Public_data.Inscrit_au_DENS_en, ["inscrit au DENS en"];
@@ -209,6 +218,10 @@ let asso_list =
     Public_data.Statut, ["statut"];
     Public_data.Titre_EN, ["titre(anglais)";"titre(english)";"title"];
     Public_data.Titre_FR, ["titre(français)";"titre"];
+    Public_data.Total_heure,["total heures";"total_heures";"total heure";"total_heure"]; 
+    Public_data.Total_CM,["total cm";"total_cm"];
+    Public_data.Total_td,["total td";"total_td"];
+    Public_data.Total_tp,["total tp";"total_tp"];
     Public_data.Tuteur, ["tuteur"];
     Public_data.Type_de_Financement,["type de financement"];
     Public_data.Universite,["université";"university"];

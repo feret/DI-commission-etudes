@@ -175,6 +175,9 @@ module LibelleSet: Set.S with type elt = string
 module LibelleMap: Map.S with type key = string
 module LevelMap: Map.S with type key = string
 
+module StringExtendedMap : Map_tools.Collect 
+with type key = string and type 'a t = 'a StringMap.t 
+
 module CodeExtendedMap : Map_tools.Collect
   with type key = CodeMap.key
    and type 'a t = 'a CodeMap.t
@@ -508,7 +511,7 @@ type valide =
   | Not_known_yet 
   | Bool of bool
   | Abs
-
+  
 type note =
   | Float of float
   | String of string
@@ -694,6 +697,45 @@ type mentor =
     mentor_secondary : main_dpt option ;
   }
 
+type contract = 
+ Service | Vacation | Mission 
+
+type 'a or_unknown = Known of 'a | Not_known 
+type 'a aggregate_with_or_unknown = ('a * bool)
+val string_of_or_unknown: 
+   ('a -> string) -> 'a or_unknown -> string 
+
+val init: 'a -> 'a aggregate_with_or_unknown
+
+val aggregate: ('a -> 'a -> 'a) -> 'a or_unknown -> 'a aggregate_with_or_unknown -> 'a aggregate_with_or_unknown  
+
+val string_of_aggregate: 
+  ('a -> string) -> 'a aggregate_with_or_unknown -> string 
+
+type pedagogical_charge = 
+{
+charge_firstname : string ;
+charge_lastname : string ; 
+charge_total_hours: float or_unknown option; 
+charge_total_cm: float or_unknown option; 
+charge_total_td: float or_unknown option; 
+charge_total_tp: float or_unknown option; 
+charge_cm: float or_unknown option; 
+charge_td: float or_unknown option; 
+charge_tp: float or_unknown option; 
+charge_remuneration: contract or_unknown option; 
+charge_course_title: string option; 
+charge_gps_code: string option; 
+charge_helisa_code: string option; 
+charge_moodle_code: string option; 
+charge_attribution_year: string ; 
+charge_niveau: string option; 
+charge_ects: float option; 
+charge_groupes_td: int option; 
+charge_groupes_tp: int option; 
+}
+
+val empty_pedagogical_charge: pedagogical_charge 
 type keywords =
   | Accepte
   | Accord
@@ -708,6 +750,8 @@ type keywords =
   | Classement
   | Code
   | Code_gps
+  | Code_helisa 
+  | Code_moodle 
   | Commentaire
   | Commission
   | Commission_en
@@ -717,6 +761,7 @@ type keywords =
   | Couleur_du_texte
   | Courriel
   | Courriel_du_tuteur
+  | Remuneration 
   | Credits
   | Date
   | Date_en
@@ -749,6 +794,8 @@ type keywords =
   | Genre
   | Genre_du_tuteur
   | Grade
+  | Groupes_td 
+  | Groupes_tp 
   | Initiales
   | Inscription
   | Inscription_en
@@ -800,6 +847,10 @@ type keywords =
   | Statut
   | Titre_FR
   | Titre_EN
+  | Total_heure 
+  | Total_CM
+  | Total_td
+  | Total_tp 
   | Tuteur
   | Type_de_Financement
   | Universite

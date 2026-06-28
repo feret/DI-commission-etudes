@@ -31,6 +31,7 @@ type parameters =
     gps_backup_repository:string;
     enspsl_logo:string;
     enspsl_logo_bis:string;
+    repository_to_dump_charge_repartition: string; 
     repository_to_dump_gps_files: string;
     repository_to_dump_gps_server_faillures: string;
     repository_to_dump_attestations: string;
@@ -191,6 +192,7 @@ let parameters =
     study_repository = "etudes";
     parameters_repository = "parametres" ;
     gps_backup_repository = "gps_backup" ;
+    repository_to_dump_charge_repartition = "charges" ; 
     repository_to_dump_gps_files = "fiches_de_notes";
     repository_to_dump_issues = "problemes";
     repository_to_dump_reports = "rapports";
@@ -321,7 +323,7 @@ let parameters =
     simple_m1 = 
     [Public_data.DMA,Reglements_pedagogiques.m1_maths]; 
     suggest_course_dispatching=false; 
-    focus_lastname = ["VIEGAS"]; 
+    focus_lastname = ["BAZIN"]; 
     focus_firstname = []; 
     keep_not_validated = true ; 
     do_not_move_unvalidated = true ; 
@@ -412,6 +414,7 @@ type data =
     pedagogical_courses_dictionnary: string Public_data.StringMap.t ;  
     stages_pegasus: Pegasus_stages.t ;
     output_alias: (string * string) option ;
+    charge_repartition: Pedagogical_charges.t ; 
     scholarships: Scholarships.t;
     mentoring: Mentoring.t;
     course_exceptions: Course_exceptions.t;
@@ -467,6 +470,7 @@ let empty_data =
   {
     students = [];
     pg_students = []; 
+    charge_repartition = Pedagogical_charges.empty; 
     status_administratifs = Pegasus_administrative_status.empty;
     pedagogical_inscriptions = Pegasus_pedagogical_registrations.empty ;
     pedagogical_courses = Pegasus_courses.empty ;
@@ -1464,6 +1468,13 @@ let get_repository_to_dump_dens_supplement ?output_repository t =
       (fun t -> t.parameters.dens_repository)
       ?output_repository t
 
+
+let get_repository_to_dump_charge_repartition ?output_repository t =
+    get_repository_to_dump_reports_gen
+      (fun t -> t.parameters.repository_to_dump_charge_repartition)
+      ?output_repository t
+
+
 (* attestations *)
 let get_repository_to_dump_attestations t =
     get_repository_to_dump_reports_gen
@@ -2321,6 +2332,14 @@ let set_mentoring mentoring data = {data with mentoring}
 let set_mentoring mentoring t =
   lift_set set_mentoring mentoring t
 
+
+let get_pedagogical_charges data = data.charge_repartition 
+let get_pedagogical_charges t = lift_get get_pedagogical_charges t
+let set_pedagogical_charges charge_repartition data = {data with charge_repartition}
+let set_pedagogical_charges charge_repartition t =
+  lift_set set_pedagogical_charges charge_repartition t
+
+
 let get_cursus data = data.cursus
 let get_cursus t = lift_get get_cursus t
 let set_cursus cursus data = {data with cursus}
@@ -2492,6 +2511,20 @@ let get_mentoring ~firstname ~lastname ~year ?tuteur_gps t =
       t, Some a
     | None ->
       t, tuteur_gps
+
+
+let add_pedagogical_charge =
+  add_gen_unify get_pedagogical_charges set_pedagogical_charges Pedagogical_charges.add_pedagogical_charge 
+
+let get_pedagogical_charge_list
+    ?firstname
+    ?lastname
+    ?year
+    ?gps_code 
+    ?helisa_code 
+    ?course 
+    t =
+  t, Pedagogical_charges.get_pedagogical_charge_list ?year ?firstname ?lastname ?gps_code ?helisa_code ?course  (get_pedagogical_charges t)
 
 module Translate_courses =
     Make_collector_translation
