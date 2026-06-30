@@ -117,7 +117,8 @@ let _collect_bool suffix pos state =
     state
 
 let event_opt = Some (Profiling.Collect_decisions)
-let compute_repository = Remanent_state.Collector_charges.get_repository
+let compute_repository = 
+  Remanent_state.get_charge_repository 
 
 let lift_pred = Lift.pred_safe
 let lift_string =

@@ -79,6 +79,7 @@ type parameters =
     dens_repository: string;
     diplomation_year: string option ;
     target: string option;
+    repository_for_charges: string; 
     repository_for_bourses: string;
     repository_for_tuteurs: string;
     repository_for_cours: string;
@@ -211,6 +212,7 @@ let parameters =
     repository_to_dump_ambiguous_internship_descriptions = "stages_ambigus";
     repository_to_dump_missing_course_entries = "cours_non_traduits_par_libelle";
     repository_to_dump_course_entries_report = "cours";
+    repository_for_charges = "repartition_heures"; 
     repository_for_bourses = "bourses";
     repository_for_tuteurs = "tuteurs";
     repository_for_cours = "cours";
@@ -1933,6 +1935,11 @@ let get_additional_courses_list_prefix t =
   t, t.parameters.repository_for_additional_courses
 let get_additional_courses_list_repository t =
   get_rep_gen get_bdd get_additional_courses_list_prefix t
+
+let get_charge_prefix t = 
+  t, t.parameters.repository_for_charges 
+let get_charge_repository t = 
+  get_rep_gen get_bdd get_charge_prefix t 
 
 let get_sorted_courses_list_prefix t =
       t, t.parameters.repository_for_sorted_courses

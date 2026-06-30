@@ -433,6 +433,9 @@ val get_dispenses_list_repository: t -> t * string
 val get_additional_courses_list_prefix: t -> t * string
 val get_additional_courses_list_repository: t -> t * string
 
+val get_charge_prefix : t -> t * string 
+val get_charge_repository : t -> t * string 
+
 val get_modified_grades_list_prefix: t -> t * string
 val get_modified_grades_list_repository: t -> t * string
 
