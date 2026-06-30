@@ -117,7 +117,7 @@ let _collect_bool suffix pos state =
     state
 
 let event_opt = Some (Profiling.Collect_decisions)
-let compute_repository = Remanent_state.get_decisions_list_repository
+let compute_repository = Remanent_state.Collector_charges.get_repository
 
 let lift_pred = Lift.pred_safe
 let lift_string =
@@ -327,7 +327,8 @@ let get_pedagogical_charges
     state
   =
   let state = Remanent_state.warn __POS__ (Format.sprintf "GET PEDAGOGICAL CHARGES") Exit state in 
-  let () = Format.printf "GET PEDAGOGICAL CHARGE (%s)" (match repository with None -> "" | Some a -> a) in 
+  let state, str = compute_repository state in 
+  let () = Format.printf "GET PEDAGOGICAL CHARGE (%s|%s)" (match repository with None -> "" | Some a -> a) str in 
   let () = Format.print_newline () in 
   Scan_csv_files.collect_gen
     ~strict:true 
