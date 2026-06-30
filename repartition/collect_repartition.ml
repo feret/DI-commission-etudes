@@ -326,6 +326,9 @@ let get_pedagogical_charges
     ?file_name
     state
   =
+  let state = Remanent_state.warn __POS__ (Format.sprintf "GET PEDAGOGICAL CHARGES") Exit state in 
+  let () = Format.printf "GET PEDAGOGICAL CHARGE (%s)" (match repository with None -> "" | Some a -> a) in 
+  let () = Format.print_newline () in 
   Scan_csv_files.collect_gen
     ~strict:true 
     ?repository
