@@ -486,6 +486,26 @@ let filter_course_name_translation
     in
     state, true
 
+
+let filter_pedagogical_charge 
+      ?commission ?dpt ?universite ?dpt_gps_code ?firstname ?lastname ?codegps ?mentorname ?mentorfirstname ?mentorlastname ?teachername ?academicyear ?attributionyear ?promo ?ninscription
+      ?niveau
+      ?recu ?libelle  state charge =
+    let _ =
+      commission, dpt, universite, dpt_gps_code, niveau, mentorname, mentorfirstname, mentorlastname, teachername, ninscription, attributionyear, promo, lastname, firstname, academicyear, codegps, recu 
+    in
+    state,
+    check firstname charge.Public_data.charge_firstname 
+    && check lastname charge.Public_data.charge_lastname 
+    && check academicyear charge.Public_data.charge_attribution_year 
+    && (match charge.Public_data.charge_course_title with 
+    | None -> true 
+    | Some a -> check libelle a)
+    && (match charge.Public_data.charge_gps_code with 
+     | None -> true 
+     | Some a -> check codegps a)
+    (* TO helisa, remuneration DO *)
+
 let filter
     ?commission
     ?dpt ?universite
@@ -531,6 +551,7 @@ let filter
       else
         state, list)
     (state,[]) (List.rev list)
+
 
 module type Interface =
   sig

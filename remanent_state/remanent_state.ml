@@ -288,7 +288,7 @@ let parameters =
     commissions_repository = "commissions_des_etudes";
     add_grades_without_registration = true  ;
 
-    commission =  None;
+    commission =  Some ("?? september 2026", "2025");
     target = None ;
     signature = "feret+tampon.pdf";
     bilinguage = true ;
@@ -415,6 +415,7 @@ type data =
     stages_pegasus: Pegasus_stages.t ;
     output_alias: (string * string) option ;
     charge_repartition: Pedagogical_charges.t ; 
+    charges: Public_data.pedagogical_charge list  ; 
     scholarships: Scholarships.t;
     mentoring: Mentoring.t;
     course_exceptions: Course_exceptions.t;
@@ -470,7 +471,8 @@ let empty_data =
   {
     students = [];
     pg_students = []; 
-    charge_repartition = Pedagogical_charges.empty; 
+    charge_repartition = Pedagogical_charges.empty ; 
+    charges = []; 
     status_administratifs = Pegasus_administrative_status.empty;
     pedagogical_inscriptions = Pegasus_pedagogical_registrations.empty ;
     pedagogical_courses = Pegasus_courses.empty ;
@@ -1439,6 +1441,16 @@ module Collector_mentors =
         let set mentors data = {data with mentors}
       end: Interface_collector_without_unification with type entry = Public_data.mentor)
 
+
+module Collector_charges =
+    Make_list_collector
+      (struct
+        type entry = Public_data.pedagogical_charge
+        let prefix t = get_repository_to_dump_reports_gen t
+        let repository t = t.parameters.repository_to_dump_charge_repartition
+        let get data = data.charges
+        let set charges data = {data with charges}
+      end: Interface_collector_without_unification with type entry = Public_data.pedagogical_charge)      
 (* reports *)
 (*let get_repository_to_dump_course_entries_report,
     get_course_entries_report,

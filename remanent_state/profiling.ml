@@ -56,6 +56,7 @@ type step_kind =
   | Dump_student_list
   | Dump_mineures_suggestions
   | Dump_dens_candidate_suggestions
+  | Dump_repartition_list 
   | Scan_csv_files of string * string
 
 
@@ -160,6 +161,7 @@ let string_of_step_kind x =
   | Dump_dens_candidate_suggestions -> "Dump dens candidate suggestion"
   | Scan_csv_files (rep,file) -> (Format.sprintf "Scan %s/%s" rep file)
   | Dump_internships_to_be_sorted -> "Dump internships to be sorted"
+  | Dump_repartition_list  -> "Dump charge repartition list" 
   | Collect_sorted_internships -> "Collect sorted internships"
 
 let print_step_kind logger x =
@@ -281,6 +283,7 @@ let is_dummy step_kind =
   | Dump_internships_to_be_sorted
   | Collect_sorted_internships
   | Scan_csv_files _
+  | Dump_repartition_list 
     -> false
 
 let open_event

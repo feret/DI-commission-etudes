@@ -302,6 +302,11 @@ module Collector_mentors: Collector
         with type entry = Public_data.mentor
         and type collector = Public_data.mentor list
 
+module Collector_charges: Collector
+        with type entry = Public_data.pedagogical_charge
+        and type collector = Public_data.pedagogical_charge list
+
+
 module Collector_national_diplomas: Collector
         with type entry = Public_data.diplome_national
         and type collector = Public_data.diplome_national list

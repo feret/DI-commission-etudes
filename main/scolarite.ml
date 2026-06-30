@@ -28,6 +28,8 @@ let state, students_list =
             (a.Public_data.lastname))=target ||
          a.Public_data.promotion= Some target)
       students_list
+let state = 
+  Collect_repartition.get_pedagogical_charges state 
 let state =
   Collect_pegasus_courses.get_pegasus_courses state
 let state = 
@@ -72,6 +74,8 @@ let state =
   Collect_scholarships.get_scholarships state
 let state =
   Collect_mentoring.get_mentoring state
+let state = 
+  Collect_repartition.get_pedagogical_charges state  
 let state =
   Collect_sorted_courses.get_sorted_courses state
 let state =
@@ -132,6 +136,23 @@ let state =
           Public_data.mentor_student_dpt = main_dpt ;
           Public_data.mentor_secondary = elt.Public_data.secondaire;
          })
+    state
+    l
+
+let state, l =
+  Remanent_state.get_pedagogical_charge_list
+    ~year:current_year
+    state
+let _s string =
+  Special_char.lowercase
+    (Special_char.correct_string_txt
+       (String.trim string))
+let state =
+  List.fold_left
+    (fun state elt ->
+       Remanent_state.Collector_charges.add
+         state
+         elt) 
     state
     l
 let state =
@@ -530,6 +551,16 @@ let state =
     ~title
     ~file_name:(fun s ext -> Format.sprintf "tuteurs_%s%s.%s" current_year s ext)
     state
+let title =
+  [Loggers.fprintf,
+   Format.sprintf
+     "RÉPARTITION DES CHARGES"
+     ]
+let state = 
+  Repartition_report.ReportListRepartition.dump 
+  ~title 
+  ~file_name:(fun s ext -> Format.sprintf "repartition_des_charges_%s.%s" s ext)
+  state 
 let title =
   [Loggers.fprintf,
    "HISTORIQUE DES TUTEURS"]

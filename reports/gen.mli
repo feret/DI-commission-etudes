@@ -124,7 +124,9 @@ val filter_coursat:
   Public_data.cours_a_trier filter
 val filter_stageat:
   Public_data.stage_a_trier filter
-
+val filter_pedagogical_charge:
+  Public_data.pedagogical_charge filter 
+  
 module type Interface =
 sig
   module Missing_entry: Remanent_state.Collector
