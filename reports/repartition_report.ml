@@ -112,7 +112,7 @@ struct
       (Special_char.uppercase a.Public_data.charge_lastname))
 
   let short (_,b) = [""],b
-
+    let _ = short 
 
   let annee =
     ["ANNÉE ACADÉMIQUE"],
@@ -151,7 +151,7 @@ struct
         Gen.lift_cmp (fun a -> a.Public_data.charge_lastname); 
          ]
     in
-    let columns = [short nom_enseignant ] in
+    let columns = [nom_enseignant ] in
     let headers =
       match attributionyear with
       | None ->
@@ -188,7 +188,7 @@ struct
         Gen.lift_cmp (fun a -> a.Public_data.charge_lastname); 
          ]
     in
-    let columns = [short cours ] in
+    let columns = [cours ] in
     let headers =
       match attributionyear with
       | None ->
