@@ -1342,7 +1342,7 @@ let store_cours  =
     let is_stage cours =
       begin
         List.mem cours.code_cours 
-        [Some "UNEXPA-39";Some "UNEXPA-34";Some "UNEXPA-08";Some "UNEXPA-37"; Some "UNEXPA-38"]
+        [Some "UNEXPA-39";Some "UNEXPA-34";Some "UNEXPA-08";Some "UNEXPA-37"; Some "UNEXPA-38"; Some "INFO-M1-PROJRECH-S1" ; Some "UNINF1-042"]
       end
       ||
       begin

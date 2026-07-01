@@ -13,8 +13,8 @@ Gen.dump
     module type ReportRepartition =
 sig
   val dump_per_year_course: correct_email:(string -> string) ->  dump
- (* val dump_per_year_teacher: correct_email:(string -> string) ->dump
-  val dump_per_course_teacher: correct_email:(string -> string) ->dump
+  val dump_per_year_teacher: correct_email:(string -> string) ->dump
+ (* val dump_per_course_teacher: correct_email:(string -> string) ->dump
   val dump_per_course_year: correct_email:(string -> string) ->dump
   val dump_per_teacher_course: correct_email:(string -> string) ->dump
   val dump_per_teacher_year: correct_email:(string -> string) ->dump*)
@@ -105,11 +105,13 @@ struct
         (correct_email email)
 
   
-  let _nom_enseignant _correct_email =
+  let nom_enseignant =
     ["ENSEIGNANT"],
     (fun a ->  Printf.sprintf "%s %s"
       (Special_char.capitalize a.Public_data.charge_firstname) 
       (Special_char.uppercase a.Public_data.charge_lastname))
+
+  let short (_,b) = [""],b
 
 
   let annee =
@@ -125,6 +127,7 @@ struct
   let cours = 
       (["COURS"], 
       (fun a -> match a.Public_data.charge_course_title with None -> "" | Some a -> a))
+
 
   let lift_id (a,b) = (a,(fun x -> x),b)
 
@@ -148,13 +151,13 @@ struct
         Gen.lift_cmp (fun a -> a.Public_data.charge_lastname); 
          ]
     in
-    let columns = [annee; cours; ] in
+    let columns = [short nom_enseignant ] in
     let headers =
       match attributionyear with
       | None ->
       [
         lift_id annee ;
-        lift_id cours 
+        lift_id cours  
       ]
       | Some _ ->
         [lift_id cours]
@@ -163,6 +166,43 @@ struct
       ?firstname ?lastname  ?academicyear ?attributionyear ?title 
       ?output_repository ?prefix ?file_name
       cmp headers columns state
+
+
+ let dump_per_year_teacher
+      ~correct_email
+      ?firstname ?lastname 
+      ?academicyear 
+      ?attributionyear 
+      ?title 
+      ?output_repository ?prefix ?file_name
+      state =
+    let _ = correct_email in 
+    let cmp =
+      [
+        Gen.op_cmp
+          (Gen.lift_cmp
+             (fun a ->
+                a.Public_data.charge_attribution_year));
+        Gen.lift_cmp (fun a -> a.Public_data.charge_course_title);
+        Gen.lift_cmp (fun a -> a.Public_data.charge_firstname);
+        Gen.lift_cmp (fun a -> a.Public_data.charge_lastname); 
+         ]
+    in
+    let columns = [short cours ] in
+    let headers =
+      match attributionyear with
+      | None ->
+      [
+        lift_id annee ;
+        lift_id nom_enseignant  
+      ]
+      | Some _ ->
+        [lift_id cours]
+    in
+    dump_repartition_list
+      ?firstname ?lastname  ?academicyear ?attributionyear ?title 
+      ?output_repository ?prefix ?file_name
+      cmp headers columns state     
 (*
   let dump_per_year_teacher 
       ~correct_email
@@ -462,7 +502,26 @@ struct
     let state =
       Latex_engine.latex_opt_to_pdf state ~input
     in
-
+ let state, _ = 
+      dump_per_year_teacher ~correct_email
+      ?firstname ?lastname 
+      ?academicyear ?attributionyear
+      ?title 
+      ?output_repository ?prefix ~file_name:(file_name "_par_enseignant" "html")
+      state
+  in 
+  let state, input =
+      dump_per_year_teacher
+      ~correct_email
+      ?firstname ?lastname 
+      ?academicyear ?attributionyear
+      ?title 
+      ?output_repository ?prefix ~file_name:(file_name "_par_enseignant" "tex")
+        state
+    in
+    let state =
+      Latex_engine.latex_opt_to_pdf state ~input
+    in
    (* let state,_ =
       dump_per_year_student_mentor
         ?studentfirstname ?studentlastname ?mentorfirstname

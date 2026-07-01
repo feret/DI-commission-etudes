@@ -13,8 +13,8 @@ Gen.dump
 module type ReportRepartition =
 sig
   val dump_per_year_course: correct_email:(string -> string) ->  dump
- (* val dump_per_year_teacher: correct_email:(string -> string) ->dump
-  val dump_per_course_teacher: correct_email:(string -> string) ->dump
+  val dump_per_year_teacher: correct_email:(string -> string) ->dump
+ (* val dump_per_course_teacher: correct_email:(string -> string) ->dump
   val dump_per_course_year: correct_email:(string -> string) ->dump
   val dump_per_teacher_course: correct_email:(string -> string) ->dump
   val dump_per_teacher_year: correct_email:(string -> string) ->dump*) 
