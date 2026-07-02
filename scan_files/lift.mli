@@ -78,3 +78,4 @@ val main_dpt: (Public_data.main_dpt, 'record_tmp, 'record) lift_record
 val mineure: (Public_data.mineure, 'record_tmp, 'record) lift_record
 val experience: (Public_data.experience, 'record_tmp, 'record) lift_record
 val universite: (Public_data.universite, 'record_tmp, 'record) lift_record
+val or_unknown_float: (float Public_data.or_unknown, 'record_tmp, 'record) lift_record

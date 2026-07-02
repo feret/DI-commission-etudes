@@ -116,6 +116,24 @@ let _collect_bool suffix pos state =
     )
     state
 
+
+let float_or_unknown_of_string state t =
+  if Tools.space_only t
+  then state, None
+  else
+    let t = Tools.remove_comma t in
+    try
+      state, Some (Public_data.Known (float_of_string t))  
+    with
+    | _ ->
+      try
+        state, Some (Public_data.Known (float_of_int (int_of_string t)))
+      with
+      | _ ->
+        state, Some Public_data.Not_known
+
+
+
 let event_opt = Some (Profiling.Collect_decisions)
 let compute_repository = 
   Remanent_state.get_charge_repository 
@@ -131,6 +149,8 @@ let _lift_float_opt =
   (Lift.float empty_repartition Public_data.empty_pedagogical_charge).Lift.opt_safe
 let _lift_int_opt =
   (Lift.int empty_repartition Public_data.empty_pedagogical_charge).Lift.opt_safe
+let lift_float_or_unknown_opt = 
+  (Lift.or_unknown_float empty_repartition Public_data.empty_pedagogical_charge).Lift.opt_safe 
 
 let mandatory_fields =
   [
@@ -184,6 +204,52 @@ let all_fields =
       ~record_name
       ~field_name:"name of the course"
       ~pos:__POS__;
+   lift_float_or_unknown_opt
+      ~keyword:Public_data.PEGASUS_CM 
+      ~set_tmp:(fun state string_opt x -> 
+                  match string_opt with 
+                    | None -> state, x
+                    | Some f -> 
+                      let state, cm = float_or_unknown_of_string state f in 
+                      state, {x with cm}) 
+      ~get_tmp:(fun a -> a.cm) 
+      ~get:(fun a -> a.Public_data.charge_cm)
+      ~set:(fun charge_cm a ->
+          {a with Public_data.charge_cm})
+      ~record_name
+      ~field_name:"number of cm hours"
+      ~pos:__POS__;
+      lift_float_or_unknown_opt
+      ~keyword:Public_data.PEGASUS_TD
+      ~set_tmp:(fun state string_opt x -> 
+                  match string_opt with 
+                    | None -> state, x
+                    | Some f -> 
+                      let state, td = float_or_unknown_of_string state f in 
+                      state, {x with td}) 
+      ~get_tmp:(fun a -> a.td) 
+      ~get:(fun a -> a.Public_data.charge_td)
+      ~set:(fun charge_td a ->
+          {a with Public_data.charge_td})
+      ~record_name
+      ~field_name:"number of directed work hours"
+      ~pos:__POS__;
+      lift_float_or_unknown_opt
+      ~keyword:Public_data.PEGASUS_TP 
+      ~set_tmp:(fun state string_opt x -> 
+                  match string_opt with 
+                    | None -> state, x
+                    | Some f -> 
+                      let state, tp = float_or_unknown_of_string state f in 
+                      state, {x with tp}) 
+      ~get_tmp:(fun a -> a.tp) 
+      ~get:(fun a -> a.Public_data.charge_tp)
+      ~set:(fun charge_tp a ->
+          {a with Public_data.charge_tp})
+      ~record_name
+      ~field_name:"number of practical work hours"
+      ~pos:__POS__;
+
 (*    lift_string_opt
         ~keyword:Public_data.charge_en
         ~set_tmp:(Tools.collect_string

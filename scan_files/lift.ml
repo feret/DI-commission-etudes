@@ -240,6 +240,8 @@ let lift_fdpt1, lift_fdpt2 = build_lift Public_data.string_of_dpt
 let lift_fmineure1, lift_fmineure2 = build_lift Public_data.string_of_mineure
 let lift_funiv1, lift_funiv2 = build_lift Public_data.string_of_universite
 let lift_fexp1, lift_fexp2 = build_lift Public_data.string_of_experience
+let lift_or_unknown_float1, lift_or_unknown_float2 = 
+  build_lift (Public_data.string_of_or_unknown string_of_float)
 
 let gen_short
     lift_arg lift_arg_pair
@@ -342,3 +344,4 @@ let main_dpt a b = build lift_fdpt1 lift_fdpt2 a b
 let mineure a b = build lift_fmineure1 lift_fmineure2 a b
 let universite a b = build lift_funiv1 lift_funiv2 a b
 let experience a b = build lift_fexp1 lift_fexp2 a b
+let or_unknown_float a b = build lift_or_unknown_float1 lift_or_unknown_float2 a b 

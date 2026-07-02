@@ -166,3 +166,5 @@ val hash_libelle2: string -> string
 val remove_end: suffix:string -> string -> string 
 
 val guillemet: string -> string 
+
+val remove_comma: string -> string 
