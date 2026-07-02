@@ -1,6 +1,7 @@
 type dump =
  ?firstname:string ->
     ?lastname:string ->
+      ?contract_types:Public_data.contract list ->      
     ?academicyear:string ->
     ?attributionyear:string -> 
 ?title:((Sco_remanent_state.Loggers.t ->

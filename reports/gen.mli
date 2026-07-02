@@ -8,6 +8,7 @@ type dump =
 type 'elt filter
 
 val dump_elts:
+  ?contract_types:Public_data.contract list -> 
   ?commission:bool ->
   ?dpt:Public_data.main_dpt ->
   ?universite:Public_data.universite ->
@@ -72,6 +73,7 @@ val dump_elts:
   Remanent_state.t * (string * string) option
 
 val filter:
+  ?contract_types:Public_data.contract list -> 
   ?commission:bool ->
   ?dpt:Public_data.main_dpt ->
   ?universite:Public_data.universite ->
@@ -126,7 +128,7 @@ val filter_stageat:
   Public_data.stage_a_trier filter
 val filter_pedagogical_charge:
   Public_data.pedagogical_charge filter 
-  
+
 module type Interface =
 sig
   module Missing_entry: Remanent_state.Collector

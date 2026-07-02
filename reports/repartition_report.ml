@@ -1,9 +1,10 @@
 type dump =
-?firstname:string ->
+    ?firstname:string ->
     ?lastname:string ->
+    ?contract_types:Public_data.contract list ->      
     ?academicyear:string ->
     ?attributionyear:string -> 
-    ?title:((Sco_remanent_state.Loggers.t ->
+      ?title:((Sco_remanent_state.Loggers.t ->
                     (string -> unit, Format.formatter, unit) format ->
                     string -> unit) *
                    string)
@@ -13,7 +14,7 @@ Gen.dump
     module type ReportRepartition =
 sig
   val dump_per_year_course: correct_email:(string -> string) ->  dump
-  val dump_per_year_teacher: correct_email:(string -> string) ->dump
+  val dump_per_year_teacher: correct_email:(string -> string) -> dump
  (* val dump_per_course_teacher: correct_email:(string -> string) ->dump
   val dump_per_course_year: correct_email:(string -> string) ->dump
   val dump_per_teacher_course: correct_email:(string -> string) ->dump
@@ -47,6 +48,7 @@ struct
     ?lastname 
     ?academicyear 
     ?attributionyear 
+    ?contract_types
     ?title
     ?output_repository
     ?prefix
@@ -61,7 +63,8 @@ struct
     let get_repository = I.Missing_entry.get_repository in
     let firstname = firstname in
     let lastname = lastname in
-    Gen.dump_elts
+    Gen.dump_elts 
+      ?contract_types
       ?firstname ?lastname ?academicyear ?attributionyear 
       ?output_repository ?prefix ?file_name ?event_opt ?title
       ~cmp ~filter ~headers ~columns ~get ~default_file_name
@@ -158,6 +161,7 @@ struct
   let dump_per_year_course
       ~correct_email
       ?firstname ?lastname 
+      ?contract_types
       ?academicyear 
       ?attributionyear 
       ?title 
@@ -187,6 +191,7 @@ struct
         [lift_id cours]
     in
     dump_repartition_list
+      ?contract_types
       ?firstname ?lastname  ?academicyear ?attributionyear ?title 
       ?output_repository ?prefix ?file_name
       cmp headers columns state
@@ -195,6 +200,7 @@ struct
  let dump_per_year_teacher
       ~correct_email
       ?firstname ?lastname 
+         ?contract_types
       ?academicyear 
       ?attributionyear 
       ?title 
@@ -224,7 +230,7 @@ struct
         [lift_id cours]
     in
     dump_repartition_list
-      ?firstname ?lastname  ?academicyear ?attributionyear ?title 
+      ?firstname ?lastname   ?contract_types ?academicyear ?attributionyear ?title 
       ?output_repository ?prefix ?file_name
       cmp headers columns state   
       
@@ -480,7 +486,7 @@ struct
       cmp headers columns state*) 
 
   let dump
-  ?firstname ?lastname 
+  ?firstname ?lastname  
       ?academicyear 
       ?attributionyear  ?title 
       ?output_repository ?prefix ?file_name
@@ -511,7 +517,7 @@ struct
     let correct_email = fun x -> x in
     let state, _ = 
       dump_per_year_course ~correct_email
-      ?firstname ?lastname 
+       ?firstname ?lastname 
       ?academicyear ?attributionyear
       ?title 
       ?output_repository ?prefix ~file_name:(file_name "_par_cours" "html")
@@ -520,7 +526,7 @@ struct
   let state, input =
       dump_per_year_course 
       ~correct_email
-      ?firstname ?lastname 
+       ?firstname ?lastname 
       ?academicyear ?attributionyear
       ?title 
       ?output_repository ?prefix ~file_name:(file_name "_par_cours" "tex")
@@ -531,7 +537,7 @@ struct
     in
  let state, _ = 
       dump_per_year_teacher ~correct_email
-      ?firstname ?lastname 
+        ?firstname ?lastname 
       ?academicyear ?attributionyear
       ?title 
       ?output_repository ?prefix ~file_name:(file_name "_par_enseignant" "html")
@@ -544,6 +550,28 @@ struct
       ?academicyear ?attributionyear
       ?title 
       ?output_repository ?prefix ~file_name:(file_name "_par_enseignant" "tex")
+        state
+    in
+    let state =
+      Latex_engine.latex_opt_to_pdf state ~input
+    in 
+      let state, _ = 
+      dump_per_year_teacher ~correct_email
+       ~contract_types:[Public_data.Mission;Public_data.Mission_a_demander]
+        ?firstname ?lastname 
+      ?academicyear ?attributionyear
+      ?title 
+      ?output_repository ?prefix ~file_name:(file_name "_missions_d_enseignement" "html")
+      state
+  in 
+  let state, input =
+      dump_per_year_teacher
+      ~correct_email
+      ~contract_types:[Public_data.Mission;Public_data.Mission_a_demander]
+      ?firstname ?lastname 
+      ?academicyear ?attributionyear
+      ?title 
+      ?output_repository ?prefix ~file_name:(file_name "_missions_d_enseignement" "tex")
         state
     in
     let state =
