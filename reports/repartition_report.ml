@@ -125,9 +125,29 @@ struct
     )
 
   let cours = 
-      (["COURS"], 
-      (fun a -> match a.Public_data.charge_course_title with None -> "" | Some a -> a))
+      ["COURS"], 
+      (fun a -> 
+      Tools.option_to_string (fun a -> a) a.Public_data.charge_course_title)
+      
+  
 
+  let td = 
+      (["Heures de TD"]), 
+      (fun a -> 
+        Tools.option_to_string (Public_data.string_of_or_unknown string_of_float) 
+        a.Public_data.charge_td) 
+
+  let tp = 
+      (["Heures de TP"]), 
+      (fun a -> 
+        Tools.option_to_string (Public_data.string_of_or_unknown string_of_float) 
+         a.Public_data.charge_tp) 
+
+  let cm = 
+      (["Heures de CM"]), 
+      (fun a -> 
+        Tools.option_to_string (Public_data.string_of_or_unknown string_of_float) 
+         a.Public_data.charge_cm) 
 
   let lift_id (a,b) = (a,(fun x -> x),b)
 
@@ -147,11 +167,11 @@ struct
              (fun a ->
                 a.Public_data.charge_attribution_year));
         Gen.lift_cmp (fun a -> a.Public_data.charge_course_title);
-        Gen.lift_cmp (fun a -> a.Public_data.charge_firstname);
         Gen.lift_cmp (fun a -> a.Public_data.charge_lastname); 
-         ]
+        Gen.lift_cmp (fun a -> a.Public_data.charge_firstname);
+        ]
     in
-    let columns = [nom_enseignant ] in
+    let columns = [nom_enseignant ; cm; td ; tp ] in
     let headers =
       match attributionyear with
       | None ->
@@ -188,7 +208,7 @@ struct
         Gen.lift_cmp (fun a -> a.Public_data.charge_lastname); 
          ]
     in
-    let columns = [cours ] in
+    let columns = [cours; cm; td ; tp] in
     let headers =
       match attributionyear with
       | None ->

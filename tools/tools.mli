@@ -28,6 +28,9 @@ val space_only: string -> bool
 
 val substring: string -> string -> bool
 
+val option_to_string: 
+  ?def:string -> ('a -> string) -> 'a option -> string 
+
 val float_to_string:
   ?force_dec_sep_to_dot:bool ->
   ('remanent_state -> 'remanent_state * char) ->
