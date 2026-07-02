@@ -213,10 +213,11 @@ struct
           (Gen.lift_cmp
              (fun a ->
                 a.Public_data.charge_attribution_year));
+        Gen.lift_cmp (fun a -> a.Public_data.charge_lastname);
+        Gen.lift_cmp (fun a -> a.Public_data.charge_firstname); 
         Gen.lift_cmp (fun a -> a.Public_data.charge_course_title);
-        Gen.lift_cmp (fun a -> a.Public_data.charge_firstname);
-        Gen.lift_cmp (fun a -> a.Public_data.charge_lastname); 
-         ]
+     
+        ]
     in
     let columns = [cours; cm; td ; tp ; type_de_contrat ] in
     let headers =
@@ -518,18 +519,18 @@ struct
     let state, _ = 
       dump_per_year_course ~correct_email
        ?firstname ?lastname 
-      ?academicyear ?attributionyear
+      (*?academicyear*) ?attributionyear
       ?title 
-      ?output_repository ?prefix ~file_name:(file_name "_par_cours" "html")
+      ?output_repository ?prefix ~file_name:(file_name "par_cours" "html")
       state
   in 
   let state, input =
       dump_per_year_course 
       ~correct_email
        ?firstname ?lastname 
-      ?academicyear ?attributionyear
+      (*?academicyear*) ?attributionyear
       ?title 
-      ?output_repository ?prefix ~file_name:(file_name "_par_cours" "tex")
+      ?output_repository ?prefix ~file_name:(file_name "par_cours" "tex")
         state
     in
     let state =
@@ -538,18 +539,18 @@ struct
  let state, _ = 
       dump_per_year_teacher ~correct_email
         ?firstname ?lastname 
-      ?academicyear ?attributionyear
+      (*?academicyear*) ?attributionyear
       ?title 
-      ?output_repository ?prefix ~file_name:(file_name "_par_enseignant" "html")
+      ?output_repository ?prefix ~file_name:(file_name "par_enseignant" "html")
       state
   in 
   let state, input =
       dump_per_year_teacher
       ~correct_email
       ?firstname ?lastname 
-      ?academicyear ?attributionyear
+      (*?academicyear*) ?attributionyear
       ?title 
-      ?output_repository ?prefix ~file_name:(file_name "_par_enseignant" "tex")
+      ?output_repository ?prefix ~file_name:(file_name "par_enseignant" "tex")
         state
     in
     let state =
@@ -559,9 +560,9 @@ struct
       dump_per_year_teacher ~correct_email
        ~contract_types:[Public_data.Mission;Public_data.Mission_a_demander]
         ?firstname ?lastname 
-      ?academicyear ?attributionyear
+      (*?academicyear*) ?attributionyear
       ?title 
-      ?output_repository ?prefix ~file_name:(file_name "_missions_d_enseignement" "html")
+      ?output_repository ?prefix ~file_name:(file_name "missions_d_enseignement" "html")
       state
   in 
   let state, input =
@@ -569,9 +570,9 @@ struct
       ~correct_email
       ~contract_types:[Public_data.Mission;Public_data.Mission_a_demander]
       ?firstname ?lastname 
-      ?academicyear ?attributionyear
+      (*?academicyear*) ?attributionyear
       ?title 
-      ?output_repository ?prefix ~file_name:(file_name "_missions_d_enseignement" "tex")
+      ?output_repository ?prefix ~file_name:(file_name "missions_d_enseignement" "tex")
         state
     in
     let state =

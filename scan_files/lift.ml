@@ -237,6 +237,7 @@ let string_of_mission s =
   | Public_data.Mission_a_demander -> "Mission?"
   | Public_data.Service -> "Service"
   | Public_data.Vacation -> "Vacation"
+  | Public_data.Sans_remuneration -> "Sans rémunération"
 
 
 let lift_fbool1, lift_fbool2 = build_lift string_of_bool

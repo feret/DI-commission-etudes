@@ -698,7 +698,7 @@ type mentor =
   }
 
 type contract = 
- Service | Vacation | Mission | Mission_a_demander 
+ Service | Vacation | Mission | Mission_a_demander | Sans_remuneration
 
 val contract_of_string: string -> contract option 
 val string_of_contract: contract -> string 

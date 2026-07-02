@@ -1254,7 +1254,7 @@ type mentor =
   }
 
 type contract = 
- Service | Vacation | Mission | Mission_a_demander 
+ Service | Vacation | Mission | Mission_a_demander | Sans_remuneration
 
 let contract_of_string s = 
   match String.lowercase_ascii (String.trim s) with 
@@ -1262,6 +1262,7 @@ let contract_of_string s =
   | "vacation" -> Some Vacation 
   | "mission" -> Some Mission 
   | "mission?" -> Some Mission_a_demander
+  | "non rémunéré" | "non remunere" | "sans" | "sans rémunération" | "sans remuneration" ->  Some Sans_remuneration
   | _ -> None 
 
 let string_of_contract s = 
@@ -1270,6 +1271,7 @@ let string_of_contract s =
   | Vacation -> "Vacation"
   | Mission -> "Mission d'enseignement"
   | Mission_a_demander -> "Mission (à vérifier)"
+  | Sans_remuneration -> "Non rémunéré"
 
 type 'a or_unknown = Known of 'a | Not_known 
 type 'a aggregate_with_or_unknown = ('a * bool)
