@@ -100,7 +100,7 @@ let asso_list =
     Public_data.Activite, ["activité";"activité_fr";"activité(français)"];
     Public_data.Activite_en, ["activity";"activité_en";"acticité(english)";"activité(anglais)"];
 
-    Public_data.Annee_Academique, ["année"; "année académique";"annee"];
+    Public_data.Annee_Academique, ["année"; "année académique"];
     Public_data.Annee_Debut, ["année début"];
     Public_data.Annee_Fin, ["année fin"];
     Public_data.Annee_de_Validation_du_Cours, ["année de validation"];
@@ -108,7 +108,7 @@ let asso_list =
     Public_data.Classement, ["classement";"rang"];
     Public_data.Code, ["code";"code cours"];
     Public_data.Code_gps, ["code gps";"code_gps"];
-    Public_data.Code_helisa, ["code helisa";"code hélisa";"code_helisa";"code_hélisé"]; 
+    Public_data.Code_helisa, ["code hélisa";"code_hélisa"]; 
     Public_data.Code_moodle, ["code moodle";"code_moodle"]; 
     Public_data.Commentaire, ["commentaire"];
     Public_data.Commission, ["commission"];
@@ -120,7 +120,7 @@ let asso_list =
     Public_data.Courriel, ["courriel"];
     Public_data.Courriel_du_tuteur, ["courriel du tuteur";"email du tuteur"];
     Public_data.Credits, ["crédits"];
-    Public_data.Remuneration, ["remunaration"]; 
+    Public_data.Remuneration, ["remuneration"]; 
     Public_data.Date, ["date"];
     Public_data.Date_en, ["date(english)";"date(anglais)";"date_en"];
     Public_data.Date_de_Naissance, ["date de naissance";"naissance"];
