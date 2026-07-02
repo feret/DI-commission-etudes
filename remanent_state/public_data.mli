@@ -698,7 +698,10 @@ type mentor =
   }
 
 type contract = 
- Service | Vacation | Mission 
+ Service | Vacation | Mission | Mission_a_demander 
+
+val contract_of_string: string -> contract option 
+val string_of_contract: contract -> string 
 
 type 'a or_unknown = Known of 'a | Not_known 
 type 'a aggregate_with_or_unknown = ('a * bool)

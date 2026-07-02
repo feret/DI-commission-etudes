@@ -1254,7 +1254,22 @@ type mentor =
   }
 
 type contract = 
- Service | Vacation | Mission 
+ Service | Vacation | Mission | Mission_a_demander 
+
+let contract_of_string s = 
+  match String.lowercase_ascii (String.trim s) with 
+  | "service" -> Some Service 
+  | "vacation" -> Some Vacation 
+  | "mission" -> Some Mission 
+  | "mission?" -> Some Mission_a_demander
+  | _ -> None 
+
+let string_of_contract s = 
+  match s with 
+  | Service -> "Service"
+  | Vacation -> "Vacation"
+  | Mission -> "Mission d'enseignement"
+  | Mission_a_demander -> "Mission (à vérifier)"
 
 type 'a or_unknown = Known of 'a | Not_known 
 type 'a aggregate_with_or_unknown = ('a * bool)

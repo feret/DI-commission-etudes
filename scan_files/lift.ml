@@ -231,6 +231,14 @@ let string_of_gender s =
   | Public_data.Feminin -> "F"
   | Public_data.Unknown -> "?"
 
+let string_of_mission s = 
+  match s with 
+  | Public_data.Mission -> "Mission"
+  | Public_data.Mission_a_demander -> "Mission?"
+  | Public_data.Service -> "Service"
+  | Public_data.Vacation -> "Vacation"
+
+
 let lift_fbool1, lift_fbool2 = build_lift string_of_bool
 let lift_fint1, lift_fint2 = build_lift string_of_int
 let lift_ffloat1, lift_ffloat2 = build_lift string_of_float
@@ -242,7 +250,8 @@ let lift_funiv1, lift_funiv2 = build_lift Public_data.string_of_universite
 let lift_fexp1, lift_fexp2 = build_lift Public_data.string_of_experience
 let lift_or_unknown_float1, lift_or_unknown_float2 = 
   build_lift (Public_data.string_of_or_unknown string_of_float)
-
+let lift_or_unknown_mission1, lift_or_unknown_mission2 = 
+  build_lift (Public_data.string_of_or_unknown string_of_mission)
 let gen_short
     lift_arg lift_arg_pair
     ~keyword ~set_tmp
@@ -345,3 +354,4 @@ let mineure a b = build lift_fmineure1 lift_fmineure2 a b
 let universite a b = build lift_funiv1 lift_funiv2 a b
 let experience a b = build lift_fexp1 lift_fexp2 a b
 let or_unknown_float a b = build lift_or_unknown_float1 lift_or_unknown_float2 a b 
+let or_unknown_mission a b = build lift_or_unknown_mission1 lift_or_unknown_mission2 a b 

@@ -132,7 +132,15 @@ let float_or_unknown_of_string state t =
       | _ ->
         state, Some Public_data.Not_known
 
-
+let mission_or_unknown_of_string state t =
+  if Tools.space_only t
+  then state, None
+  else
+    let t = Tools.remove_comma t in
+    match Public_data.contract_of_string t with 
+    | None ->  state, Some Public_data.Not_known
+    | Some a -> state, Some (Public_data.Known a)
+     
 
 let event_opt = Some (Profiling.Collect_decisions)
 let compute_repository = 
@@ -151,6 +159,8 @@ let _lift_int_opt =
   (Lift.int empty_repartition Public_data.empty_pedagogical_charge).Lift.opt_safe
 let lift_float_or_unknown_opt = 
   (Lift.or_unknown_float empty_repartition Public_data.empty_pedagogical_charge).Lift.opt_safe 
+  let lift_mission_or_unknown_opt = 
+  (Lift.or_unknown_mission empty_repartition Public_data.empty_pedagogical_charge).Lift.opt_safe 
 
 let mandatory_fields =
   [
@@ -248,6 +258,21 @@ let all_fields =
           {a with Public_data.charge_tp})
       ~record_name
       ~field_name:"number of practical work hours"
+      ~pos:__POS__;
+       lift_mission_or_unknown_opt
+      ~keyword:Public_data.Remuneration
+      ~set_tmp:(fun state string_opt x -> 
+                  match string_opt with 
+                    | None -> state, x
+                    | Some f -> 
+                      let state, remuneration = mission_or_unknown_of_string state f in 
+                      state, {x with remuneration}) 
+      ~get_tmp:(fun a -> a.remuneration) 
+      ~get:(fun a -> a.Public_data.charge_remuneration)
+      ~set:(fun charge_remuneration a ->
+          {a with Public_data.charge_remuneration})
+      ~record_name
+      ~field_name:"type of contract"
       ~pos:__POS__;
 
 (*    lift_string_opt

@@ -149,6 +149,10 @@ struct
         Tools.option_to_string (Public_data.string_of_or_unknown string_of_float) 
          a.Public_data.charge_cm) 
 
+  let type_de_contrat = 
+    ["Mode de rémunération"], 
+    (fun a -> 
+      Tools.option_to_string (Public_data.string_of_or_unknown Public_data.string_of_contract) a.Public_data.charge_remuneration) 
   let lift_id (a,b) = (a,(fun x -> x),b)
 
   let dump_per_year_course
@@ -171,7 +175,7 @@ struct
         Gen.lift_cmp (fun a -> a.Public_data.charge_firstname);
         ]
     in
-    let columns = [nom_enseignant ; cm; td ; tp ] in
+    let columns = [nom_enseignant ; cm; td ; tp ; type_de_contrat ] in
     let headers =
       match attributionyear with
       | None ->
@@ -208,7 +212,7 @@ struct
         Gen.lift_cmp (fun a -> a.Public_data.charge_lastname); 
          ]
     in
-    let columns = [cours; cm; td ; tp] in
+    let columns = [cours; cm; td ; tp ; type_de_contrat ] in
     let headers =
       match attributionyear with
       | None ->
@@ -222,7 +226,10 @@ struct
     dump_repartition_list
       ?firstname ?lastname  ?academicyear ?attributionyear ?title 
       ?output_repository ?prefix ?file_name
-      cmp headers columns state     
+      cmp headers columns state   
+      
+      
+      
 (*
   let dump_per_year_teacher 
       ~correct_email
