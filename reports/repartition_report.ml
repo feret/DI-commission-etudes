@@ -130,24 +130,25 @@ struct
   let cours = 
       ["COURS"], 
       (fun a -> 
-      Tools.option_to_string (fun a -> a) a.Public_data.charge_course_title)
+      let a = Tools.option_to_string (fun a -> a) a.Public_data.charge_course_title in 
+      if String.length a > 20 then String.sub a 0 20  else a)
       
   
 
   let td = 
-      (["Heures de TD"]), 
+      (["TD"]), 
       (fun a -> 
         Tools.option_to_string (Public_data.string_of_or_unknown string_of_float) 
         a.Public_data.charge_td) 
 
   let tp = 
-      (["Heures de TP"]), 
+      (["TP"]), 
       (fun a -> 
         Tools.option_to_string (Public_data.string_of_or_unknown string_of_float) 
          a.Public_data.charge_tp) 
 
   let cm = 
-      (["Heures de CM"]), 
+      (["CM"]), 
       (fun a -> 
         Tools.option_to_string (Public_data.string_of_or_unknown string_of_float) 
          a.Public_data.charge_cm) 
