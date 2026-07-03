@@ -1,6 +1,7 @@
 type t = Public_data.pedagogical_registration_suggestion
         Public_data.FirstNameMap.t Public_data.LastNameMap.t
 val empty: t
+val is_empty: t -> bool 
 val get_pedagogical_registration_suggestions:
   firstname:string ->
   lastname:string ->

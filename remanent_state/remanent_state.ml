@@ -3496,7 +3496,10 @@ let check elt list =
     {t with data}
 
 let dump_ips ?commission_rep ~filename ~mk ?language ?bilinguage t = 
-   let t, commission_rep =
+    if Pedagogical_registration_suggestion.is_empty t.data.ips then t, None 
+    else 
+
+    let t, commission_rep =
        match commission_rep with
       | None -> get_main_commission_rep t
       | Some commission_rep -> t, commission_rep

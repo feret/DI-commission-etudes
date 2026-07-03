@@ -131,7 +131,7 @@ struct
       ["COURS"], 
       (fun a -> 
       let a = Tools.option_to_string (fun a -> a) a.Public_data.charge_course_title in 
-      if String.length a > 20 then String.sub a 0 40  else a)
+      if String.length a > 39 then String.sub a 0 40  else a)
       
   
 

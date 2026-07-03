@@ -10269,7 +10269,7 @@ let export_transcript
     let lmath = lmath ~year ~firstname ~lastname situation state in
     let dip_list =   
     if main_dpt = Public_data.DMA 
-      then 
+    then 
         if lmath && linfo situation then 
           [(Some Public_data.L3, Some Public_data.DMA), Reglements_pedagogiques.licence_maths_mathsinfo ; 
            (Some Public_data.L3, Some Public_data.DI), Reglements_pedagogiques.licence_info_mathsinfo] 
@@ -10282,11 +10282,19 @@ let export_transcript
           else    if is_l3 
         then  [(Some Public_data.L3, Some Public_data.DMA), Reglements_pedagogiques.licence_maths ; 
           (Some Public_data.M1, Some Public_data.DMA), Reglements_pedagogiques.m1_maths] 
-        else 
-        if List.exists is_dip_M1 situation.inscription_helisa then 
+        else if List.exists is_dip_M1 situation.inscription_helisa then 
         [ (Some Public_data.M1, Some Public_data.DMA), Reglements_pedagogiques.m1_maths] 
       else []
-  else []
+  else if main_dpt = Public_data.DI then 
+     if lmath && linfo situation then 
+          [(Some Public_data.L3, Some Public_data.DMA), Reglements_pedagogiques.licence_maths_mathsinfo ; 
+           (Some Public_data.L3, Some Public_data.DI), Reglements_pedagogiques.licence_info_mathsinfo] 
+      else if is_l3 
+        then  [(Some Public_data.L3, Some Public_data.DI), Reglements_pedagogiques.licence_info ]
+       else if List.exists is_dip_M1 situation.inscription_helisa then 
+        [ (Some Public_data.M1, Some Public_data.DI), Reglements_pedagogiques.m1_info] 
+      else []
+    else []
   in 
   if dip_list = [] then state else 
   let state,suggest,missing = 

@@ -5,6 +5,8 @@ type t =
 let empty =
       Public_data.LastNameMap.empty
 
+let is_empty = 
+   Public_data.LastNameMap.is_empty 
 let get_pedagogical_registration_suggestions ~firstname ~lastname  dens_candidates =
   let firstname =
     String.lowercase_ascii firstname
