@@ -141,7 +141,7 @@ let state =
 
 let state, l =
   Remanent_state.get_pedagogical_charge_list
-    ~year:current_year
+    (*~year:current_year*)
     state
 let _s string =
   Special_char.lowercase
