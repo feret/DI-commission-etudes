@@ -141,8 +141,13 @@ let state =
 
 let state, l =
   Remanent_state.get_pedagogical_charge_list
-    (*~year:current_year*)
+    ~year:current_year
     state
+let state, l2 =
+  Remanent_state.get_pedagogical_charge_list
+    ~year:(string_of_int (int_of_string next_year +1))
+    state
+let l = l@l2 
 let _s string =
   Special_char.lowercase
     (Special_char.correct_string_txt
