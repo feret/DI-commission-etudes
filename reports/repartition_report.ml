@@ -524,6 +524,12 @@ struct
     in 
     let correct_email = fun x -> x in
     let do_it ?attributionyear state = 
+      let output_repository = 
+        match output_repository,attributionyear with 
+        | None, _ -> None 
+        | Some output_repository, None -> Some (output_repository^"all")
+        | Some output_repository, Some y -> Some (output_repository^y)
+            in 
     let state, _ = 
       dump_per_year_course ~correct_email
        ?firstname ?lastname 

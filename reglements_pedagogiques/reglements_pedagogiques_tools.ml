@@ -230,10 +230,10 @@ module DMap(A:Double_keys with type key = string) =
                   match cmp_val with 
                   | 0 -> 
                     begin 
-                      let a = A.get_note a in 
-                      let b = A.get_note b in
-                      if Notes.better a b then -1 
-                      else if Notes.better b a then +1 
+                      let a' = A.get_note a in 
+                      let b' = A.get_note b in
+                      if Notes.better a' b' then -1 
+                      else if Notes.better b' a' then +1 
                       else 
                         begin 
                           match A.get_dip a = new_dip, A.get_dip b = new_dip with 
@@ -282,7 +282,7 @@ module DMap(A:Double_keys with type key = string) =
           (fun (state, t, ects) (f, list) -> 
               let state, _not_in, enriched_list = check_for_courses new_dip list state t in 
    
-      let sorted_list = sort_enriched_list enriched_list in 
+      let sorted_list = sort_enriched_list new_dip enriched_list in 
       let rec aux list current (state, t, ects) = 
           if ects >= 60. || current >= f 
             then (state, t, ects) else 
