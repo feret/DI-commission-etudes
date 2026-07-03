@@ -131,7 +131,7 @@ struct
       ["COURS"], 
       (fun a -> 
       let a = Tools.option_to_string (fun a -> a) a.Public_data.charge_course_title in 
-      if String.length a > 20 then String.sub a 0 20  else a)
+      if String.length a > 20 then String.sub a 0 40  else a)
       
   
 
@@ -232,7 +232,7 @@ struct
         [lift_id cours]
     in
     dump_repartition_list
-      ?firstname ?lastname   ?contract_types ?academicyear ?attributionyear ?title 
+      ?firstname ?lastname  ?contract_types ?academicyear ?attributionyear ?title 
       ?output_repository ?prefix ?file_name
       cmp headers columns state   
       
@@ -516,11 +516,18 @@ struct
           Format.sprintf "charges_pedagogiques_%s_%s%s.%s" new_or_not year s ext)
         end
     in
+    let state, years = 
+      let state, l = Remanent_state.Collector_charges.get state in 
+      state, List.fold_left 
+        (fun set a -> Public_data.StringSet.add a.Public_data.charge_attribution_year set) 
+        Public_data.StringSet.empty  l 
+    in 
     let correct_email = fun x -> x in
+    let do_it ?academicyear state = 
     let state, _ = 
       dump_per_year_course ~correct_email
        ?firstname ?lastname 
-      (*?academicyear*) ?attributionyear
+      ?academicyear ?attributionyear
       ?title 
       ?output_repository ?prefix ~file_name:(file_name "par_cours" "html")
       state
@@ -529,7 +536,7 @@ struct
       dump_per_year_course 
       ~correct_email
        ?firstname ?lastname 
-      (*?academicyear*) ?attributionyear
+      ?academicyear ?attributionyear
       ?title 
       ?output_repository ?prefix ~file_name:(file_name "par_cours" "tex")
         state
@@ -540,7 +547,7 @@ struct
  let state, _ = 
       dump_per_year_teacher ~correct_email
         ?firstname ?lastname 
-      (*?academicyear*) ?attributionyear
+      ?academicyear ?attributionyear
       ?title 
       ?output_repository ?prefix ~file_name:(file_name "par_enseignant" "html")
       state
@@ -549,7 +556,7 @@ struct
       dump_per_year_teacher
       ~correct_email
       ?firstname ?lastname 
-      (*?academicyear*) ?attributionyear
+      ?academicyear ?attributionyear
       ?title 
       ?output_repository ?prefix ~file_name:(file_name "par_enseignant" "tex")
         state
@@ -561,7 +568,7 @@ struct
       dump_per_year_teacher ~correct_email
        ~contract_types:[Public_data.Mission;Public_data.Mission_a_demander]
         ?firstname ?lastname 
-      (*?academicyear*) ?attributionyear
+      ?academicyear ?attributionyear
       ?title 
       ?output_repository ?prefix ~file_name:(file_name "missions_d_enseignement" "html")
       state
@@ -571,14 +578,21 @@ struct
       ~correct_email
       ~contract_types:[Public_data.Mission;Public_data.Mission_a_demander]
       ?firstname ?lastname 
-      (*?academicyear*) ?attributionyear
+      ?academicyear ?attributionyear
       ?title 
       ?output_repository ?prefix ~file_name:(file_name "missions_d_enseignement" "tex")
         state
     in
     let state =
       Latex_engine.latex_opt_to_pdf state ~input
-    in
+    in state in 
+    let state = do_it state in 
+    let state = 
+        Public_data.StringSet.fold 
+          (fun academicyear state -> 
+                do_it ~academicyear state) 
+                years state 
+          in 
    (* let state,_ =
       dump_per_year_student_mentor
         ?studentfirstname ?studentlastname ?mentorfirstname
