@@ -39,7 +39,7 @@ let licence_info_mathsinfo =
       ]  ; 
     Public_data.par_defaut = []; 
     Public_data.options = [
-"INFO-L3-ALGOPRO-S1"; (* Algorithmique *) 
+27.,["INFO-L3-ALGOPRO-S1"; (* Algorithmique *) 
 "INFO-L3-LAPROCO-S1"; (*Langages de programmation et compilation*) 
 "INFO-L3-LAFORMCC-S1"; (* Langages formels *)
 "INFO-L3-SYSDIG-S1" ; (* Systèmes numériques *) 
@@ -52,7 +52,7 @@ let licence_info_mathsinfo =
 "INFO-L3-THEOIC-S2" ; (* Théorie de l'information *)
 "INFO-M1-MPRI123-S2"; (* Apprentissage scientifique par la pratique *)
 
-    ]; 
+    ]]; 
     Public_data.groups = []; 
   }
 
@@ -63,7 +63,7 @@ let licence_info =
       "INFO-L3-STAGE-S2";  (* Stage *)
       ]  ; 
     Public_data.par_defaut = []; 
-    Public_data.options = [
+    Public_data.options = [48.,[
 
 "INFO-L3-ALGOPRO-S1"; (* Algorithmique *) 
 "INFO-L3-LAPROCO-S1"; (*Langages de programmation et compilation*) 
@@ -79,7 +79,7 @@ let licence_info =
 "INFO-L3-SYSRES-S2"; (* OS *)
 "INFO-M1-MPRI123-S2"; (* Apprentissage scientifique par la pratique *)
 "INFO-M1-MPRI113-S2" (* Intitiation à la cryptologie *) 
-]; 
+]]; 
     Public_data.groups = []; 
   }
 
@@ -89,7 +89,7 @@ let m1_info =
     Public_data.obligation = 
     [ ]  ; 
     Public_data.par_defaut = []; 
-    Public_data.options = [
+    Public_data.options = [30.,[
 "INFO-M1-LEARNING-S1" ; (* Apprentissage profond *)
 "INFO-M1-VISA-S1" ;  (*Introduction à la vision artificielle *) 
 "INFO-M1-OPTCOMB-S1" ; (*Optimisation Combinatoire *) 
@@ -99,7 +99,7 @@ let m1_info =
 "INFO-M1-OPTCONV-S1" ; (* Optimisation Convexe*)
 "INFO-M1-MPRI117-S1" ; (* Complexité*)
 "INFO-M1-MODRES-S1" ; (* MOD RED *)
-]; 
+]]; 
     Public_data.groups = [1, ["INFO-M1-STAGEE-S2";"INFO-M1-STAGEFF-S2"]]; 
   }
 

@@ -1960,7 +1960,7 @@ type reglement_diplome =
   obligation: string list ; 
   par_defaut: (int * string list) list ;
   groups: (int * string list) list ; 
-  options: string list ; 
+  options: (float * string list) list ; 
  }
 
  type simple_cursus = main_dpt * reglement_diplome

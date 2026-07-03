@@ -1272,7 +1272,7 @@ type reglement_diplome =
   obligation: string list ; (* ces cours sont obligatoires *)
   par_defaut: (int * string list) list ; (* pour chaque liste, prendre les n premiers cours validés dans la sous-liste *)
   groups: (int * string list) list ; (* pour chaque liste, prendre les n meilleurs notes *)
-  options: string list ; (* completer avec les meilleurs notes pour atteindre 60 ECTS *) 
+  options: (float * string list) list  ; (* completer avec les meilleurs notes pour atteindre 60 ECTS ou la somme indiquée  *) 
  }
 
  val empty_reglement_diplome: reglement_diplome 
