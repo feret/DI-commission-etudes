@@ -523,7 +523,7 @@ struct
         Public_data.StringSet.empty  l 
     in 
     let correct_email = fun x -> x in
-    let do_it ?academicyear state = 
+    let do_it ?attributionyear state = 
     let state, _ = 
       dump_per_year_course ~correct_email
        ?firstname ?lastname 
@@ -586,13 +586,19 @@ struct
     let state =
       Latex_engine.latex_opt_to_pdf state ~input
     in state in 
-    let state = do_it state in 
     let state = 
-        Public_data.StringSet.fold 
-          (fun academicyear state -> 
-                do_it ~academicyear state) 
+      match attributionyear with 
+      | Some _ -> do_it ?attributionyear state 
+      | None -> 
+        let state = 
+          Public_data.StringSet.fold 
+          (fun attributionyear state -> 
+                do_it ~attributionyear state) 
                 years state 
           in 
+          do_it state 
+      in 
+        
    (* let state,_ =
       dump_per_year_student_mentor
         ?studentfirstname ?studentlastname ?mentorfirstname
