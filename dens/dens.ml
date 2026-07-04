@@ -267,6 +267,12 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
                     begin 
                       match course.Public_data.supplement_code_helisa with None -> "" | Some a -> a
                     end | Some a -> a in
+    let state,b = Remanent_state.is_focus ~firstname ~lastname state in 
+    let state =
+             if b then 
+                Remanent_state.warn __POS__ (Format.sprintf "%s %s %f" lastname codegps (course.Public_data.supplement_ects)) Exit state 
+           else state 
+    in 
     let state, courselist =
         Remanent_state.get_sorted_courses ~firstname ~lastname ~year ~libelle ~codegps state
     in
@@ -301,6 +307,12 @@ let f_gen get store ~main_dpt ~firstname ~lastname (state,dens) course =
                 Exit state, ""
       end
     in
+    let state,b = Remanent_state.is_focus ~firstname ~lastname state in 
+    let state =
+             if b then 
+                Remanent_state.warn __POS__ (Format.sprintf "%s %s %s %f" lastname code codegps (course.Public_data.supplement_ects)) Exit state 
+           else state 
+    in 
     let b, state = 
       if code = main_dpt then true, state
       else 

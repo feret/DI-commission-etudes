@@ -61,6 +61,7 @@ let licence_info =
     Public_data.obligation = 
     [
       "INFO-L3-STAGE-S2";  (* Stage *)
+      "INFO-L3-PRATIQUE-S1"; (* Info pratique *)
       ]  ; 
     Public_data.par_defaut = []; 
     Public_data.options = [48.,[
