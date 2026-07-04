@@ -239,7 +239,7 @@ struct
         lift_id nom_enseignant  
       ]
       | Some _ ->
-        [lift_id cours]
+        [lift_id nom_enseignant]
     in
     dump_repartition_list
       ?firstname ?lastname  ?contract_types ?academicyear ?attributionyear ?title 
