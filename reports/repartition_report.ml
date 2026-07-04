@@ -60,7 +60,17 @@ struct
     let filter = Gen.filter_pedagogical_charge in
     let get = I.Missing_entry.get in
     let default_file_name = I.default_file_name in
-    let get_repository = I.Missing_entry.get_repository in
+    let get_repository state = 
+      let state,rep  = I.Missing_entry.get_repository state in 
+      let infix = 
+        if rep = "" then "" else "/" 
+      in 
+      let rep' =  
+      match attributionyear with 
+        | None -> "all" 
+        | Some s -> s 
+      in 
+      state, Format.sprintf "%s%s%s" rep infix rep' in 
     let firstname = firstname in
     let lastname = lastname in
     Gen.dump_elts 
