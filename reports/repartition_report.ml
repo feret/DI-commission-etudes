@@ -540,6 +540,11 @@ struct
         | Some output_repository, None -> Some (output_repository^"all")
         | Some output_repository, Some y -> Some (output_repository^y)
             in 
+    let file_name = 
+      match attributionyear with 
+      | None -> file_name 
+      | Some y -> (fun s s' -> (file_name (y^"_"^s)  s'))
+    in 
     let state, _ = 
       dump_per_year_course ~correct_email
        ?firstname ?lastname 
