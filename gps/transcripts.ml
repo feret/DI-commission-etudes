@@ -4084,7 +4084,8 @@ let translate_course_dens course year validation state =
   let supplement_note_string = Some supplement_note_string in           
   state,    
 {
- Public_data.supplement_code_gps=course.code_cours_gps;
+ Public_data.supplement_code_gps=
+ if int_of_string year < 2023 then course.code_cours else course.code_cours_gps;
  Public_data.supplement_code_helisa=course.code_cours_helisa;
  Public_data.supplement_discipline="";
  Public_data.supplement_intitule=(match course.cours_libelle with None -> "" | Some a -> a);
@@ -6212,6 +6213,16 @@ let program
         let codecours =
           string_of_stringopt cours.code_cours
         in
+        let state, is_focus = 
+            Remanent_state.is_focus ~firstname ~lastname state 
+        in  
+        let state = if is_focus then 
+            Remanent_state.warn __POS__ 
+              (Format.sprintf "COURS %s %s" lastname codecours) 
+              Exit state
+        else state 
+in 
+     
         let state =
           if int_of_string year < int_of_string promo
           then
@@ -6726,6 +6737,15 @@ let program
         let () =
           Remanent_state.fprintf state "%%\n\ "
         in
+        let state, is_focus = 
+            Remanent_state.is_focus ~firstname ~lastname state 
+        in  
+        let state = if is_focus then 
+            Remanent_state.warn __POS__ 
+              (Format.sprintf "COURS %s %s" lastname codecours) 
+              Exit state
+        else state 
+in
         let state, mean, dens, natt, cours_list_ok, cours_list_all, stage_list =
           if year > current_year
           (*|| not ((do_report report || keep_success || keep_faillure)*)
