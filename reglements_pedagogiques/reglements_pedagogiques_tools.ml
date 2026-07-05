@@ -196,14 +196,20 @@ module DMap(A:Double_keys with type key = string) =
                      | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip=new_dip ->   
                       let state = 
                         Remanent_state.warn __POS__ 
-                        (Format.sprintf "KEPT %s" key) 
+                        (Format.sprintf "KEPT %s %s %s " key (A.string_of_dip dip) (A.string_of_dip new_dip)) 
                         Exit state in      
                       aux tail (state, missing, (key,a)::acc)
-                    | None | Some _ -> 
+                    | Some (_,_,(dip,_)) ->  
+                      let state = 
+                        Remanent_state.warn __POS__ 
+                        (Format.sprintf "NOT KEPT %s %s %s" key 
+                        (A.string_of_dip dip) (A.string_of_dip new_dip)) Exit state 
+                      in   aux tail (state,key::missing,acc) 
+                    | None (*| Some _ *) -> 
                        let state = 
                         Remanent_state.warn __POS__ 
-                        (Format.sprintf "NOT KEPT %s " key 
-                      ) 
+                        (Format.sprintf "NOT KEPT %s %s " key 
+                        (A.string_of_dip  new_dip))  
                         Exit state in   
                       aux tail (state,key::missing,acc) 
         in 
