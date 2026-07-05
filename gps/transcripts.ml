@@ -4084,7 +4084,7 @@ let translate_course_dens course year validation state =
   let supplement_note_string = Some supplement_note_string in           
   state,    
 {
- Public_data.supplement_code_gps=
+ Public_data.supplement_code_gps= (* TO DO *)
  if int_of_string year < 2023 then course.code_cours else course.code_cours_gps;
  Public_data.supplement_code_helisa=course.code_cours_helisa;
  Public_data.supplement_discipline="";
@@ -6218,7 +6218,9 @@ let program
         in  
         let state = if is_focus then 
             Remanent_state.warn __POS__ 
-              (Format.sprintf "COURS %s %s" lastname codecours) 
+              (Format.sprintf "COURS %s %s %s %s" lastname codecours 
+              (Tools.unsome_string cours.code_cours_gps ) 
+              (Tools.unsome_string cours.code_cours_helisa) )
               Exit state
         else state 
 in 
@@ -6742,7 +6744,9 @@ in
         in  
         let state = if is_focus then 
             Remanent_state.warn __POS__ 
-              (Format.sprintf "COURS %s %s" lastname codecours) 
+               (Format.sprintf "COURS %s %s %s %s" lastname codecours 
+              (Tools.unsome_string cours.code_cours_gps ) 
+              (Tools.unsome_string cours.code_cours_helisa) )
               Exit state
         else state 
 in
