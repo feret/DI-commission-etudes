@@ -179,6 +179,60 @@ let m1_maths =
     Public_data.groups = [2, [(* TO DO *)]; 2, [ (* TO DO *)]]
   }
 
+
+let m2_mpri = 
+  { 
+    Public_data.obligation = 
+    [ 
+      "INFO-M2-MPRI200-S2" (* Stage *)
+      ]  ; 
+    Public_data.par_defaut = []; 
+    Public_data.options = [30.,[
+   "INFO-M2-MPRI215-S1" ; (* AOFA *)
+  "UNINF1-191" ; (* APPROX *) 
+  "INFO-M2-MPRI2242-S1" ; (* HEU *)
+  "INFO-M2-MPRI2112-S1" ; (* PROBAS *)
+  "INFO-M2-MPRI2111-S1" ; (* PARAMALG *)
+  "INFO-M2-MPRI216-S1" ; (* MATA *)
+  "INFO-M2-MPRI2202-S1" ; (* SIDY *)
+  "UNINF1-192"; (* JEUXTO *)
+  "INFO-M2-MPRI291-S1" ; (* WQO *)
+  "INFO-M2-MPRI219-S1" ; (* BIOPROG *)
+  "INFO-M2-MPRI222-S1" ; (* COMPALG *)
+  "INFO-M2-MPRI210-S1" ; (* COMBIAA *) 
+  "INFO-M2-MPRI2381-S1" ; (* GEOMGRAPHS *) 	
+  "UNINF1-193" ; (* COMPLB *) 
+ "INFO-M2-MPRI2121-S1" ; (* LCRYPT *)
+ "INFO-M2-MPRI2122-S1" ; (* CRYPTALG *)
+"INFO-M2-MPRI2132-S1" ; (* CODES *) 
+"UNINF1-194" ; (* FIP *) 
+"INFO-M2-MPRI230-S1" ; (* SECURE *)
+"INFO-M2-MPRI216-S1" ; (* QD *)
+"INFO-M2-MPRI2141-S1" ; (* CGT *)
+"INFO-M2-MPRI21-S1" ; (* ECOLO *)
+"UNINF1-195" ; (* HOTT *)
+"INFO-M2-MPRI2361-S1" ; (* PROFPROOFS *)
+"INFO-M2-MPRI271-S1" ; (* PRFSYS *) 
+"INFO-M2-MPRI272-S1" ; (* PRFA *) 
+"INFO-M2-MPRI2171-S1" ; (* NETMOD *)
+"INFO-M2-MPRI2181-S1" ; (* DISC *)
+"INFO-M2-MPRI2182-S1" ; (* PODC *)
+"INFO-M2-MPRI2231-S1" ; (* SYNC *)
+"INFO-M2-MPRI292-S1" ; (* VCP *)
+"INFO-M2-MPRI2341-S1" ; (* QUANTUM *)
+"UNINF1-196" ; (* QALCO *)
+"INFO-M2-MPRI2342-S1" ; (* QCC *)
+"INFO-M2-MPRI240-S1" ; (* PPL *) 
+"INFO-M2-MPRI22-S1" ; (* SEMPL *) 
+"INFO-M2-MPRI24-S1" ; (* FUN *)
+"UNINF1-197" ; (* CTRLVERIF *)
+"INFO-M2-MPRI282-S1" ; (* ADVERIF *) 
+"INFO-M2-MPRI26-S1" ; (* AISAV *)     
+    ]]; 
+    Public_data.groups = []; 
+  }
+
+
   (*
 "PHYS-L3-A05-S1" (*Eléments de m´ ecanique analytique *)
 "PHYS-L3-A03-S1" (*Mathématiques pour physiciens *)

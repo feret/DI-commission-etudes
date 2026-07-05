@@ -10308,6 +10308,8 @@ let export_transcript
           (Some Public_data.M1, Some Public_data.DMA), Reglements_pedagogiques.m1_maths] 
         else if List.exists is_dip_M1 situation.inscription_helisa then 
         [ (Some Public_data.M1, Some Public_data.DMA), Reglements_pedagogiques.m1_maths] 
+      else if mpri situation then 
+         [(Some Public_data.M2, Some Public_data.DMA), Reglements_pedagogiques.m2_mpri] 
       else []
   else if main_dpt = Public_data.DI then 
      if lmath && linfo situation then 
@@ -10317,7 +10319,8 @@ let export_transcript
         then  [(Some Public_data.L3, Some Public_data.DI), Reglements_pedagogiques.licence_info ]
        else if List.exists is_dip_M1 situation.inscription_helisa then 
         [ (Some Public_data.M1, Some Public_data.DI), Reglements_pedagogiques.m1_info] 
-      else []
+    else if mpri situation then 
+         [(Some Public_data.M2, Some Public_data.DI), Reglements_pedagogiques.m2_mpri] else []
     else []
   in 
   if dip_list = [] then state else 
