@@ -4086,6 +4086,7 @@ let translate_course_dens course year validation state =
     match course.diplome with 
               | Some ("l" | "L") -> state, Public_data.L3 
                                             | Some ("m" | "M" | "M1" | "m1") ->  Remanent_state.warn __POS__ (Format.sprintf "SUPPLEMENT LEVEL M1") Exit state,       Public_data.M1 
+                                            | Some "mpri" -> state, Public_data.M2
                                             | Some ("dens" | "DENS") ->  Remanent_state.warn __POS__ (Format.sprintf "SUPPLEMENT LEVEL DENS") Exit state,       Public_data.DENS 
                                             | Some a -> 
                                               Remanent_state.warn __POS__ (Format.sprintf "SUPPLEMENT LEVEL %s" a) Exit state, 
