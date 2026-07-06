@@ -418,7 +418,6 @@ let get_pedagogical_charges
     ?file_name
     state
   =
-  let state, str = compute_repository state in 
   Scan_csv_files.collect_gen
     ~strict:true 
     ?repository
