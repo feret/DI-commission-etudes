@@ -303,9 +303,22 @@ module DMap(A:Double_keys with type key = string) =
                      let state, cours = find_opt key t state in 
                      match cours with 
                   | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip = new_dip ->     
+                     let state = 
+                        Remanent_state.warn __POS__ 
+                        (Format.sprintf "SELECT OPTION %s %s %s " key (A.string_of_dip dip) (A.string_of_dip new_dip)) 
+                        Exit state in      
                     let state, t = add ~new_dip a t state in 
                     aux tail (current +. A.get_ects a) (state, t, ects +. A.get_ects a)
-                  | None | Some _ -> 
+                      | Some (_,_,(dip,(_:string option)))  ->     
+                     let state = 
+                        Remanent_state.warn __POS__ 
+                        (Format.sprintf "IGNORE OPTION %s %s %s " key (A.string_of_dip dip) (A.string_of_dip new_dip)) 
+                        Exit state in  aux tail current (state, t,  ects) 
+                  | None  -> 
+                    let state = 
+                        Remanent_state.warn __POS__ 
+                        (Format.sprintf "IGNORE OPTION %s %s " key  (A.string_of_dip new_dip)) 
+                        Exit state in 
                     aux tail current (state, t,  ects) 
                   end 
       in 
