@@ -4081,7 +4081,19 @@ let translate_course_dens course year validation state =
                       in 
   let supplement_intitule_biling = Some supplement_intitule_biling in 
   let state, supplement_note_string = Notes.to_string __POS__ state supplement_note in       
-  let supplement_note_string = Some supplement_note_string in           
+  let supplement_note_string = Some supplement_note_string in    
+  let state,supplement_diploma_level = 
+    match course.diplome with 
+              | Some ("l" | "L") -> state, Public_data.L3 
+                                            | Some ("m" | "M" | "M1" | "m1") -> state, Public_data.M1 
+                                            | Some ("dens" | "DENS") -> state, Public_data.DENS 
+                                            | Some a -> 
+                                              Remanent_state.warn __POS__ (Format.sprintf "SUPPLEMENT LEVEL %s" a) Exit state, 
+                                              
+                                              Public_data.Other 
+                                              | None ->  Remanent_state.warn __POS__ (Format.sprintf "SUPPLEMENT LEVEL NONE") Exit state,                           
+                                              Public_data.Other 
+                                            in       
   state,    
 {
  Public_data.supplement_code_gps= (* TO DO *)
@@ -4098,14 +4110,7 @@ let translate_course_dens course year validation state =
  Public_data.supplement_extra = course.extra;
  Public_data.supplement_validation_year = year;
  Public_data.supplement_diploma_dpt = course.diplome_dpt ; 
- Public_data.supplement_diploma_level = 
-      match course.diplome with 
-              | Some ("l" | "L") -> Public_data.L3 
-                                            | Some ("m" | "M" | "M1" | "m1") -> Public_data.M1 
-                                            | Some ("dens" | "DENS") -> Public_data.DENS 
-                                            | _ -> Public_data.Other ; 
-                                            
-
+ Public_data.supplement_diploma_level 
 }
 
 
