@@ -290,6 +290,11 @@ module DMap(A:Double_keys with type key = string) =
    
       let sorted_list = sort_enriched_list new_dip enriched_list in 
       let rec aux list current (state, t, ects) = 
+          let state = 
+              Remanent_state.warn 
+                __POS__ 
+                (Format.sprintf "select options %s %f %f %i" (A.string_of_dip new_dip) current ects (List.length list)) Exit state 
+          in 
           if ects >= 60. || current >= f 
             then (state, t, ects) else 
           match list with 
