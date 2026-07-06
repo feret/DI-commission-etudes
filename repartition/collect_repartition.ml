@@ -419,11 +419,8 @@ let get_pedagogical_charges
     state
   =
   let state, str = compute_repository state in 
-  let () = Format.printf "GET PEDAGOGICAL CHARGE (%s|%s)" (match repository with None -> "" | Some a -> a) str in 
-  let () = Format.print_newline () in 
   Scan_csv_files.collect_gen
     ~strict:true 
-    ~debug:true 
     ?repository
     ?prefix
     ?file_name
