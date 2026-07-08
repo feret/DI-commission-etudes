@@ -6224,9 +6224,10 @@ let program
         in  
         let state = if is_focus then 
             Remanent_state.warn __POS__ 
-              (Format.sprintf "COURS %s %s %s %s" lastname codecours 
+              (Format.sprintf "COURS %s %s %s %s %f" lastname codecours 
               (Tools.unsome_string cours.code_cours_gps ) 
-              (Tools.unsome_string cours.code_cours_helisa) )
+              (Tools.unsome_string cours.code_cours_helisa) 
+              (match cours.ects with None -> 0. | Some f -> f) )
               Exit state
         else state 
 in 
@@ -6286,6 +6287,8 @@ in
           else
             state
         in
+        let state,focus = Remanent_state.is_focus ~firstname ~lastname state in 
+      
         let state, f =
           special_course state cours
         in
@@ -6574,6 +6577,11 @@ in
                 state
             in a, b, c, cours.ects, false
         in
+          let state = 
+    if focus then 
+      Remanent_state.warn __POS__ (Format.sprintf "ADD EXTRA COURSE1 %s %s %f %f" lastname (Tools.unsome_string libelle)  (match ects with None -> 0. | Some a -> a) (match cours.ects with None -> 0. | Some a -> a)) Exit state 
+    else state 
+  in   
         let cours = 
           if (((match cours.cours_annee with None -> false | Some s -> 
             try int_of_string s > 2022 with _ -> false))
@@ -6583,10 +6591,9 @@ in
             {cours with ects} 
         in    
         let ects = cours.ects in 
-        let state,focus = Remanent_state.is_focus ~firstname ~lastname state in 
-        let state = 
+       let state = 
     if focus then 
-      Remanent_state.warn __POS__ (Format.sprintf "ADD EXTRA COURSE %s %s %f %f" lastname (Tools.unsome_string libelle)  (match ects with None -> 0. | Some a -> a) (match cours.ects with None -> 0. | Some a -> a)) Exit state 
+      Remanent_state.warn __POS__ (Format.sprintf "ADD EXTRA COURSE2 %s %s %f %f" lastname (Tools.unsome_string libelle)  (match ects with None -> 0. | Some a -> a) (match cours.ects with None -> 0. | Some a -> a)) Exit state 
     else state 
   in   
         let () =
