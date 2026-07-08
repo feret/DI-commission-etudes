@@ -6583,6 +6583,12 @@ in
             {cours with ects} 
         in    
         let ects = cours.ects in 
+        let state,focus = Remanent_state.is_focus ~firstname ~lastname state in 
+        let state = 
+    if focus then 
+      Remanent_state.warn __POS__ (Format.sprintf "ADD EXTRA COURSE %s %s %f %f" lastname (Tools.unsome_string libelle)  (match ects with None -> 0. | Some a -> a) (match cours.ects with None -> 0. | Some a -> a)) Exit state 
+    else state 
+  in   
         let () =
           Remanent_state.open_row ~macro state
         in
