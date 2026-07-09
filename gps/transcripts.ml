@@ -7837,6 +7837,12 @@ let ects_5 =
       "UNDEXT047d";
     ]
   
+let ects_4 = 
+  [ 
+    "INFO-M1-CACHAN9-S1";
+    "INFO-M1-CACHAN10-S1"
+  ]
+  
 let ects_12 =
     [
     "DMA-L3-A01-S1";
@@ -7895,6 +7901,7 @@ let fill l ects map =
 
 
 let code_map = fill ects_3 3. code_map 
+let code_map = fill ects_4 3. code_map 
 let code_map = fill ects_45 4.5 code_map
 let code_map = fill ects_5 5. code_map 
 let code_map = fill ects_6 6. code_map
@@ -8376,7 +8383,7 @@ let add_pegasus_entries ~firstname ~lastname state gps_file =
               match course.Public_data.pegasus_codegps
               with
               | None -> Some codehelisa
-              | Some x -> Some x
+              | Some x -> Some x 
             in
             let ects = ects_of_code_cours code_cours in
             let elt =
