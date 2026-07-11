@@ -878,4 +878,21 @@ val dump_ips:
           mk:(string * int * int * int -> t -> string -> t * string) ->
           ?language:Public_data.language ->
           ?bilinguage:bool -> t -> t * (string * string) option
+
+
+val store_dip_dens: 
+  firstname:string -> lastname: string ->
+    ((((Public_data.diploma_level option * Public_data.main_dpt option) * string option) * int * string list)
+         list* (Public_data.cours_supplement *
+          ((Public_data.diploma_level option * Public_data.main_dpt option) * string option) *
+          ((Public_data.diploma_level option * Public_data.main_dpt option) * string option))
+         Public_data.StringMap.t Public_data.YearMap.t ) ->           
+          t -> t 
+
+val dump_cours_dip_dens: 
+          ?commission_rep:string -> 
+          filename:string ->
+          mk:(string * int * int * int -> t -> string -> t * string) ->
+          ?language:Public_data.language ->
+          ?bilinguage:bool -> t -> t * (string * string) option
   

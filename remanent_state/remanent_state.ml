@@ -467,6 +467,7 @@ type data =
     simple_m1_map: Public_data.reglement_diplome Public_data.DptMap.t; 
     double_l3_map: Public_data.reglement_diplome Public_data.DptMap.t Public_data.DptMap.t;
     ips: Pedagogical_registration_suggestion.t; 
+    cours_dip_dens: Pedagogical_registration_suggestion.t ; 
    }
 
 let empty_data =
@@ -530,6 +531,7 @@ let empty_data =
     simple_m1_map = Public_data.DptMap.empty ; 
     double_l3_map = Public_data.DptMap.empty ; 
     ips = Pedagogical_registration_suggestion.empty; 
+    cours_dip_dens = Pedagogical_registration_suggestion.empty; 
   }
 
 type exp = 
@@ -3495,6 +3497,14 @@ let check elt list =
     let data = {t.data with ips} in 
     {t with data}
 
+let store_dip_dens ~firstname ~lastname ip t =
+    let map = t.data.cours_dip_dens in 
+    let t, cours_dip_dens = Pedagogical_registration_suggestion.add_pedagogical_registration_suggestions ~firstname ~lastname 
+    (fun _ s _ a -> s,a) __POS__ t ip map 
+    in 
+    let data = {t.data with cours_dip_dens} in 
+    {t with data}
+
 let dump_ips ?commission_rep ~filename ~mk ?language ?bilinguage t = 
     if Pedagogical_registration_suggestion.is_empty t.data.ips then t, None 
     else 
@@ -3530,7 +3540,6 @@ let dump_ips ?commission_rep ~filename ~mk ?language ?bilinguage t =
     else
       Printf.sprintf "%s/%s" rep filename
   in
-  let t  = warn __POS__ (Format.sprintf "dump ips: %s" file) Exit t in 
   let t, output_channel_opt =
     try
       t, Some (open_out file)
@@ -3608,7 +3617,8 @@ else
             a) 
 
 
-    ~fold_entry:(fun elt a -> 
+    ~fold_entry:(fun ~firstname ~lastname elt a -> 
+      let _ = firstname, lastname in 
     let () = fprintf a "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5&#6&#7\\cr}" in
     let () = fprintf a "\\renewcommand{\\innerline}{}" in
     let () = fprintf a "\\vfill" in
@@ -3648,3 +3658,118 @@ else
   let state = restore_std_logger state old_logger in
   state, Some (rep,filename) 
   
+
+let dump_cours_dip_dens ?commission_rep ~filename ~mk ?language ?bilinguage t = 
+    if Pedagogical_registration_suggestion.is_empty t.data.cours_dip_dens then t, None 
+    else 
+
+    let t, commission_rep =
+       match commission_rep with
+      | None -> get_main_commission_rep t
+      | Some commission_rep -> t, commission_rep
+   in
+   let t, main_rep = get_dated_output_repository t in
+   let commission_rep =
+        match main_rep,commission_rep with
+          | "",a | a,"" -> a
+          | a,b -> Printf.sprintf "%s/%s/suggestions" a b
+   in
+   let t, rep =    mk __POS__ t commission_rep in
+  let t, language =
+    Tools.get_option
+      t
+      get_language
+      language
+  in
+  let t, bilinguage =
+    Tools.get_option
+      t
+      get_is_bilingual
+      bilinguage
+  in
+  let file =
+    if rep = ""
+    then
+      filename
+    else
+      Printf.sprintf "%s/%s" rep filename
+  in
+  let t, output_channel_opt =
+    try
+      t, Some (open_out file)
+    with exn ->
+      let msg = Printexc.to_string exn in
+      let () =
+        Format.printf
+          "Cannot open file %s (%s)@."
+          file
+          msg
+      in
+      warn
+        __POS__
+        (Format.sprintf "Cannot open file %s (%s)"  file msg)
+        Exit
+        t ,
+      None
+  in
+  match output_channel_opt with
+  | None -> t, None
+  | Some out ->
+    let mode = Loggers.Latex
+        {Loggers.orientation = Loggers.Landscape ;
+         Loggers.language =
+           (match language with
+           | Public_data.French -> Loggers.French
+           | Public_data.English -> Loggers.English );
+         Loggers.font = 10 ;
+         Loggers.template = Loggers.Transcript ;
+         Loggers.bilinguage =
+           bilinguage
+        }
+    in
+    let logger = Loggers.open_logger_from_channel ~mode out in
+    let old_logger = save_std_logger t in
+    let t = set_std_logger t logger in
+   let size =    [None;None;None;None;None;None;None] in
+    let bgcolor = [None;None;None;None;None;None;None] in
+    let t = Pedagogical_registration_suggestion.fold 
+    ~fold_name:(fun ~firstname ~lastname a -> 
+      let () = fprintf a "\\section*{%s %s}"  firstname lastname in  a)
+    ~fold_year:(fun _ a -> a)
+    ~fold_missing:(fun _ a -> a)  
+    ~fold_entry:(fun ~firstname ~lastname elt a -> 
+    let () = fprintf a "\\renewcommand{\\row}[7]{#1&#2&#3\\cr}" in
+    let () = fprintf a "\\renewcommand{\\innerline}{}" in
+    let () = fprintf a "\\vfill" in
+    let () = fprintf a "\\begin{center}" in
+    let a =
+        open_array
+        __POS__
+        ~bgcolor
+        ~size
+        ~with_lines:true
+        ~title:[["Nom"];["Prénom"];["Cours"]]
+        ~title_english:[["Firstname"];["Last name"];["Course"]] 
+          a
+    in
+    let (a:t) = 
+      Public_data.StringMap.fold 
+      (fun _k (c,_,_) a -> 
+        let () = open_row a in
+        let () = print_cell firstname a in 
+        let () = print_cell lastname a in 
+        let () = print_cell (match c.Public_data.supplement_intitule_biling with None -> "" | Some a -> a) a in 
+           let () = close_row a in 
+        a
+        ) elt a
+    in
+    let () = close_array a in 
+    let () = fprintf a "\\end{center}" in
+    a
+  )
+    t.data.cours_dip_dens t 
+  in 
+  let state = close_logger t in
+  let state = restore_std_logger state old_logger in
+  state, Some (rep,filename) 
+    

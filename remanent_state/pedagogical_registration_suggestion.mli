@@ -23,7 +23,7 @@ val fold:
  fold_missing: (((Public_data.diploma_level option *
                          Public_data.main_dpt option) * string option) *
                         int * string list -> 'a -> 'a) -> 
- fold_entry:((Public_data.cours_supplement *
+ fold_entry:(firstname:string -> lastname:string -> (Public_data.cours_supplement *
           ((Public_data.diploma_level option * Public_data.main_dpt option) * string option) *
           ((Public_data.diploma_level option * Public_data.main_dpt option) * string option))
          Public_data.StringMap.t  -> 'a -> 'a)

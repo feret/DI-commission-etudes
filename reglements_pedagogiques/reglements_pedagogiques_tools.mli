@@ -5,6 +5,7 @@ module type Double_keys =
         type dip 
         val empty_dip: dip 
         module KeyMap:Map.S with type key = key 
+        module KeySet:Set.S with type elt = key 
         val index1: obj -> key option 
         val index2: obj -> key option 
         val get_dip: obj -> dip 
@@ -30,12 +31,17 @@ module type DMap =
     val find_opt: key -> t -> Remanent_state.t -> Remanent_state.t * (obj*(dip*string option)*(dip*string option)) option 
     val fold: (dip -> obj -> 'a -> 'a) -> t -> 'a -> 'a 
     val filter_out: dip list -> t -> Remanent_state.t -> Remanent_state.t * t 
-    val select_course_for_a_cursus_list:  (dip * Public_data.reglement_diplome) list -> t -> Remanent_state.t -> Remanent_state.t * t  
-* (dip * (int * key list) list * float) list  
+    val select_course_for_a_cursus_list:  (dip * Public_data.reglement_diplome) list -> t -> Remanent_state.t -> Remanent_state.t * t  * (dip * (int * key list) list * float) list 
+    val select_course_for_dens_instead_of_dip: (dip * Public_data.reglement_diplome) list -> t -> Remanent_state.t -> Remanent_state.t * t  * (dip * (int * key list) list * float) list 
     val export: Remanent_state.t  -> t -> (dip * (int * key list) list * float) list -> Remanent_state.t * ((dip * string option) * int * key list) list * (obj * (dip * string option) * (dip * string option)) Public_data.StringMap.t Public_data.YearMap.t
 
     val print: Remanent_state.t -> (Remanent_state.t -> (obj * (dip * string option) * (dip * string option))  -> unit) -> ((dip * string option)  * int * key list) list ->
     (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
+
+
+val print_short: Remanent_state.t -> (Remanent_state.t -> (obj * (dip * string option) * (dip * string option))  -> unit) -> ((dip * string option)  * int * key list) list ->
+    (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
+
 end
 
 module DMap(A:Double_keys with type key = string): (DMap with type key = A.key)

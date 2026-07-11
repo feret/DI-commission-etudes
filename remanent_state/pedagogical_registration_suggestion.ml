@@ -161,10 +161,7 @@ let add_pedagogical_registration_suggestions
   in
   state, dens_candidates
 
-let fold ~fold_name ~fold_year ~fold_missing ~(fold_entry:((Public_data.cours_supplement *
-          ((Public_data.diploma_level option * Public_data.main_dpt option) * string option) *
-          ((Public_data.diploma_level option * Public_data.main_dpt option) * string option))
-         Public_data.StringMap.t  -> 'a -> 'a)) (t:t) state = 
+let fold ~fold_name ~fold_year ~fold_missing ~fold_entry  (t:t) state = 
   Public_data.LastNameMap.fold 
   (fun lastname map state -> 
     (Public_data.FirstNameMap.fold 
@@ -173,7 +170,7 @@ let fold ~fold_name ~fold_year ~fold_missing ~(fold_entry:((Public_data.cours_su
           let state = Public_data.YearMap.fold 
             (fun year t state-> 
               let state = fold_year year state in 
-              let state = fold_entry t state in 
+              let state = fold_entry ~firstname ~lastname t state in 
               state) 
           map state in 
           List.fold_left (fun state a -> fold_missing a state) state missing 
