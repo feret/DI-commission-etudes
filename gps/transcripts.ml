@@ -10350,6 +10350,7 @@ let export_transcript
          [(Some Public_data.M2, Some Public_data.DI), Reglements_pedagogiques.m2_mpri] else []
     else []
   in 
+  let state = 
   if dip_list = [] then state else 
   let state,suggest,missing = 
     Reglements_pedagogiques_tools.CourseDMap.select_course_for_a_cursus_list     
@@ -10415,9 +10416,70 @@ let _string_of_dip a b =
          let () = Remanent_state.print_cell (match s with None -> "" | Some a -> a) state in 
          let () = Remanent_state.print_cell (match s' with None -> "" | Some a -> a) state in 
 
-        ()) missing ips 
+        state) missing ips 
           in state 
+   in 
+  let state = 
+     if mpri situation then 
+       let state,suggest,missing = 
+          Reglements_pedagogiques_tools.CourseDMap.select_course_for_dens_instead_of_dip    
+          [(Some Public_data.M2, Some Public_data.DI), Reglements_pedagogiques.m2_mpri] cours_list_all state 
+       in
+       let _string_of_dip a b = 
+          match a,b with 
+        | None, _ -> "" 
+        | Some a, None -> 
+         begin 
+           match 
+            a
+           with 
+            | Public_data.L3 -> "L3" 
+            | Public_data.M1 -> "M1" 
+            | Public_data.M2 -> "M2" 
+            | Public_data.DENS -> "DENS" 
+            | Public_data.Other -> "Other"
+        end 
+        | Some a, Some b -> 
+           Format.sprintf 
+              "(%s,%s)" 
+              begin 
+              match 
+               a
+              with 
+              | Public_data.L3 -> "L3" 
+              | Public_data.M1 -> "M1" 
+              | Public_data.M2 -> "M2" 
+              | Public_data.DENS -> "DENS" 
+              | Public_data.Other -> "Other"
+              end 
+              (Public_data.string_of_dpt b)
         in 
+        let state, missing, ips = 
+          Reglements_pedagogiques_tools.CourseDMap.export state suggest missing in 
+        let state = 
+          if store_ips then 
+            Remanent_state.store_dip_dens ~firstname ~lastname (missing, ips) state 
+          else state 
+        in     
+        let state = Reglements_pedagogiques_tools.CourseDMap.print_short  state  
+          (fun state (c,(_,_s),(_,_s')) -> 
+          let state, (lib, lib_en) =
+                        Remanent_state.Translate_courses.get_translation
+                          Collect_course_entries.unify_course_entry __POS__
+                          c.Public_data.supplement_intitule state
+                    in
+                      let state, libelle =
+                      Remanent_state.bilingual_string
+                        ?english:lib_en
+                        ~french:(string_of_stringopt lib)
+                        state
+                    in
+        let () = Remanent_state.fprintf state "%s" libelle in 
+        let () = Remanent_state.print_newline state in 
+         state) missing ips 
+      in state 
+     else state 
+  in state in 
   let state, dens = Dens.split_courses ~firstname ~lastname dens_ok state in
   let state, dens = Dens.split_stages ~firstname ~lastname dens state in
   let state, dens = Dens.collect_mineure dens state in

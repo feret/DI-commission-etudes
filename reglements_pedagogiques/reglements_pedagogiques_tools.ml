@@ -37,10 +37,10 @@ module type DMap =
     val select_course_for_dens_instead_of_dip: (dip * Public_data.reglement_diplome)  list -> t -> Remanent_state.t -> Remanent_state.t * t   * (dip * (int * key list) list * float) list  
 val export: Remanent_state.t  -> t -> (dip * (int * key list) list * float) list -> Remanent_state.t * ((dip * string option) * int * key list) list * (obj * (dip * string option) * (dip * string option)) Public_data.StringMap.t Public_data.YearMap.t
 
- val print: Remanent_state.t -> (Remanent_state.t -> (obj * (dip*string option) * (dip*string option))  -> unit) -> ((dip * string option)  * int * key list) list ->
+ val print: Remanent_state.t -> (Remanent_state.t -> (obj * (dip*string option) * (dip*string option))  -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
     (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
  
- val print_short: Remanent_state.t -> (Remanent_state.t -> (obj * (dip * string option) * (dip * string option))  -> unit) -> ((dip * string option)  * int * key list) list ->
+ val print_short: Remanent_state.t -> (Remanent_state.t -> (obj * (dip * string option) * (dip * string option))  -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
     (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
  
  
@@ -530,7 +530,7 @@ else
             let () = List.iter (fun elt -> Remanent_state.fprintf state "%s, " elt) l in 
             let () = Remanent_state.fprintf state " for diploma %s"  (match s with None -> "" | Some a -> a) in         
             let () = Remanent_state.print_newline state in 
-            state, true) 
+            state, true)
           (state, false) missing_entries 
        else (state, false) 
     in 
@@ -565,7 +565,7 @@ else
       Course.KeyMap.fold  
       (fun _k c state -> 
         let () = Remanent_state.open_row state in
-        let () = print state (c:(obj * (dip * string option) * (dip * string option))) in 
+        let state = print state (c:(obj * (dip * string option) * (dip * string option))) in 
         let () = Remanent_state.close_row state in 
         state 
         ) t state 
@@ -599,7 +599,7 @@ else
       Course.KeyMap.fold  
       (fun _k c state -> 
         let () = Remanent_state.open_row state in
-        let () = print state (c:(obj * (dip * string option) * (dip * string option))) in 
+        let state = print state (c:(obj * (dip * string option) * (dip * string option))) in 
         let () = Remanent_state.close_row state in 
         state 
         ) t state 

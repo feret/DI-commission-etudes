@@ -35,11 +35,11 @@ module type DMap =
     val select_course_for_dens_instead_of_dip: (dip * Public_data.reglement_diplome) list -> t -> Remanent_state.t -> Remanent_state.t * t  * (dip * (int * key list) list * float) list 
     val export: Remanent_state.t  -> t -> (dip * (int * key list) list * float) list -> Remanent_state.t * ((dip * string option) * int * key list) list * (obj * (dip * string option) * (dip * string option)) Public_data.StringMap.t Public_data.YearMap.t
 
-    val print: Remanent_state.t -> (Remanent_state.t -> (obj * (dip * string option) * (dip * string option))  -> unit) -> ((dip * string option)  * int * key list) list ->
+    val print: Remanent_state.t -> (Remanent_state.t -> (obj * (dip * string option) * (dip * string option))  -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
     (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
 
 
-val print_short: Remanent_state.t -> (Remanent_state.t -> (obj * (dip * string option) * (dip * string option))  -> unit) -> ((dip * string option)  * int * key list) list ->
+val print_short: Remanent_state.t -> (Remanent_state.t -> (obj * (dip * string option) * (dip * string option))  -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
     (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
 
 end
