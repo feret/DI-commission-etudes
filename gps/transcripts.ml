@@ -2927,7 +2927,8 @@ in
 match code with 
 | None -> state, stages 
 | Some a -> 
-  if String.length a > 4 && String.sub a 0 5 = "UNEXP" then 
+  if (String.length a > 4 && String.sub a 0 5 = "UNEXP")
+      || a = "INFO-M1-PROJRECH-S1" then 
       filter_code code state stages 
 else state, stages 
 

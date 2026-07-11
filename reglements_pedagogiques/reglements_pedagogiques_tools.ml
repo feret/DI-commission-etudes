@@ -424,9 +424,12 @@ let course_of_reglement reglement =
               let index1 = A.index1 obj in 
               let index2 = A.index2 obj in 
               if 
-                (match index1 with None -> false | Some a -> Course.KeySet.mem a set)
+                ((match index1 with None -> false | Some a -> Course.KeySet.mem a set)
               || 
-                (match index2 with None -> false | Some a -> Course.KeySet.mem a set)
+                (match index2 with None -> false | Some a -> Course.KeySet.mem a set)) 
+                && (match A.get_validation obj  with 
+                       | Public_data.Bool false | Public_data.Abs -> false 
+              | Public_data.Bool true | Public_data.Not_known_yet -> true)
                 then (obj,dip1,(newdip, Some (A.string_of_dip newdip)))
                 else 
                       (obj,dip1,dip')) t 
