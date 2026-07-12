@@ -6774,16 +6774,16 @@ in
         in  
         let state = if is_focus then 
             Remanent_state.warn __POS__ 
-               (Format.sprintf "COURSB %s %s %s %s %s %s %s %s %s" lastname codecours 
+               (Format.sprintf "COURSB %s %s %s %s %s %s %s " lastname codecours 
               (Tools.unsome_string cours.code_cours_gps ) 
               (Tools.unsome_string cours.code_cours_helisa) 
               (Tools.unsome_string cours.cours_annee)
               (Tools.unsome_string string)
-              (Public_data.string_of_dpt dpt)  (Tools.unsome_string cours.diplome)
-              ( Public_data.string_of_dpt_opt cours.diplome_dpt))
+              (Public_data.string_of_dpt dpt) )
               Exit state
         else state 
 in
+        let cours = {cours with diplome = string ; diplome_dpt = Some dpt} in 
         let state, mean, dens, natt, cours_list_ok, cours_list_all, stage_list =
           if year > current_year
           (*|| not ((do_report report || keep_success || keep_faillure)*)
