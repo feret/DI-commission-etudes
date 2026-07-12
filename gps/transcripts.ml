@@ -6765,9 +6765,12 @@ in
         in  
         let state = if is_focus then 
             Remanent_state.warn __POS__ 
-               (Format.sprintf "COURS %s %s %s %s" lastname codecours 
+               (Format.sprintf "COURS %s %s %s %s %s %s %s" lastname codecours 
               (Tools.unsome_string cours.code_cours_gps ) 
-              (Tools.unsome_string cours.code_cours_helisa) )
+              (Tools.unsome_string cours.code_cours_helisa) 
+              (Tools.unsome_string cours.cours_annee)
+              (Tools.unsome_string string)
+              (Public_data.string_of_dpt dpt))
               Exit state
         else state 
 in
