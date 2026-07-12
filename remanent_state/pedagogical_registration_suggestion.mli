@@ -18,6 +18,20 @@ t ->
 'state * t
 
 val fold: 
+ skip_name:((((Public_data.diploma_level option *
+                        Public_data.main_dpt option) *
+                       string option) *
+                      int * string list)
+                     list ->
+                     (Public_data.cours_supplement *
+                      ((Public_data.diploma_level option *
+                        Public_data.main_dpt option) *
+                       string option) *
+                      ((Public_data.diploma_level option *
+                        Public_data.main_dpt option) *
+                       string option))
+                     Public_data.StringMap.t Public_data.YearMap.t ->
+                     'a -> 'a * bool) -> 
  fold_name:(firstname:string -> lastname:string -> 'a -> 'a) -> 
  fold_year:(string -> 'a -> 'a) -> 
  fold_missing: (((Public_data.diploma_level option *

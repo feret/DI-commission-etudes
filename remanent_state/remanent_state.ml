@@ -3579,6 +3579,8 @@ let dump_ips ?commission_rep ~filename ~mk ?language ?bilinguage t =
    let size =    [None;None;None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None;None;None] in
     let t = Pedagogical_registration_suggestion.fold 
+    ~skip_name:(fun missing map state -> 
+      state, Public_data.YearMap.is_empty map && missing = [] )
     ~fold_name:(fun ~firstname ~lastname a -> 
       let () = fprintf a "\\section*{%s %s}"  firstname lastname in  a)
     ~fold_year:(fun year a -> 
@@ -3733,12 +3735,14 @@ let dump_cours_dip_dens ?commission_rep ~filename ~mk ?language ?bilinguage t =
    let size =    [None;None;None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None;None;None] in
     let t = Pedagogical_registration_suggestion.fold 
+    ~skip_name:(fun missing map state -> 
+      state, Public_data.YearMap.is_empty map && missing = [] )
     ~fold_name:(fun ~firstname ~lastname a -> 
       let () = fprintf a "\\section*{%s %s}"  firstname lastname in  a)
     ~fold_year:(fun _ a -> a)
     ~fold_missing:(fun _ a -> a)  
     ~fold_entry:(fun ~firstname ~lastname elt a -> 
-    let () = fprintf a "\\renewcommand{\\row}[7]{#1&#2&#3\\cr}" in
+    let () = fprintf a "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5\\cr}" in
     let () = fprintf a "\\renewcommand{\\innerline}{}" in
     let () = fprintf a "\\vfill" in
     let () = fprintf a "\\begin{center}" in
@@ -3748,17 +3752,20 @@ let dump_cours_dip_dens ?commission_rep ~filename ~mk ?language ?bilinguage t =
         ~bgcolor
         ~size
         ~with_lines:true
-        ~title:[["Nom"];["Prénom"];["Cours"]]
-        ~title_english:[["Firstname"];["Last name"];["Course"]] 
+        ~title:[["Nom"];["Prénom"];["Cours"];[""];[""]]
+        ~title_english:[["Firstname"];["Last name"];["Course"];[""];[""]]  
           a
     in
     let (a:t) = 
       Public_data.StringMap.fold 
-      (fun _k (c,_,_) a -> 
+      (fun _k (c,(_,dip),(_,dip')) a -> 
         let () = open_row a in
         let () = print_cell firstname a in 
         let () = print_cell lastname a in 
         let () = print_cell (match c.Public_data.supplement_intitule_biling with None -> "" | Some a -> a) a in 
+        let () = print_cell (match dip with None -> "" | Some a -> a) a in 
+        let () = print_cell (match dip' with None -> "" | Some a -> a)  a in 
+  
            let () = close_row a in 
         a
         ) elt a

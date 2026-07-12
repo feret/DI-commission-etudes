@@ -161,11 +161,13 @@ let add_pedagogical_registration_suggestions
   in
   state, dens_candidates
 
-let fold ~fold_name ~fold_year ~fold_missing ~fold_entry  (t:t) state = 
+let fold ~skip_name ~fold_name ~fold_year ~fold_missing ~fold_entry  (t:t) state = 
   Public_data.LastNameMap.fold 
   (fun lastname map state -> 
     (Public_data.FirstNameMap.fold 
       (fun firstname (missing,map) state -> 
+          let state, skip_name = skip_name missing map state in 
+          if skip_name then state else 
           let state = fold_name ~firstname ~lastname state in 
           let state = Public_data.YearMap.fold 
             (fun year t state-> 
