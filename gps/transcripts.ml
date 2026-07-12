@@ -6226,10 +6226,11 @@ let program
         in  
         let state = if is_focus then 
             Remanent_state.warn __POS__ 
-              (Format.sprintf "COURS %s %s %s %s %f" lastname codecours 
+              (Format.sprintf "COURS %s %s %s %s %f %s %s" lastname codecours 
               (Tools.unsome_string cours.code_cours_gps ) 
               (Tools.unsome_string cours.code_cours_helisa) 
-              (match cours.ects with None -> 0. | Some f -> f) )
+              (match cours.ects with None -> 0. | Some f -> f) (Tools.unsome_string string)
+              (Public_data.string_of_dpt dpt))
               Exit state
         else state 
 in 
@@ -6581,7 +6582,8 @@ in
         in
           let state = 
     if focus then 
-      Remanent_state.warn __POS__ (Format.sprintf "ADD EXTRA COURSE1 %s %s %f %f" lastname (Tools.unsome_string libelle)  (match ects with None -> 0. | Some a -> a) (match cours.ects with None -> 0. | Some a -> a)) Exit state 
+      Remanent_state.warn __POS__ (Format.sprintf "ADD EXTRA COURSE1 %s %s %f %f %s %s " lastname (Tools.unsome_string libelle)  (match ects with None -> 0. | Some a -> a) (match cours.ects with None -> 0. | Some a -> a) (Tools.unsome_string string)
+              (Public_data.string_of_dpt dpt)) Exit state 
     else state 
   in   
         let cours = 
@@ -6595,7 +6597,8 @@ in
         let ects = cours.ects in 
        let state = 
     if focus then 
-      Remanent_state.warn __POS__ (Format.sprintf "ADD EXTRA COURSE2 %s %s %f %f" lastname (Tools.unsome_string libelle)  (match ects with None -> 0. | Some a -> a) (match cours.ects with None -> 0. | Some a -> a)) Exit state 
+      Remanent_state.warn __POS__ (Format.sprintf "ADD EXTRA COURSE2 %s %s %f %f %s %s " lastname (Tools.unsome_string libelle)  (match ects with None -> 0. | Some a -> a) (match cours.ects with None -> 0. | Some a -> a)  (Tools.unsome_string string)
+              (Public_data.string_of_dpt dpt)) Exit state 
     else state 
   in   
         let () =
@@ -6765,7 +6768,7 @@ in
         in  
         let state = if is_focus then 
             Remanent_state.warn __POS__ 
-               (Format.sprintf "COURS %s %s %s %s %s %s %s" lastname codecours 
+               (Format.sprintf "COURSB %s %s %s %s %s %s %s" lastname codecours 
               (Tools.unsome_string cours.code_cours_gps ) 
               (Tools.unsome_string cours.code_cours_helisa) 
               (Tools.unsome_string cours.cours_annee)
