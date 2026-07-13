@@ -284,7 +284,12 @@ let rest_in_same _dip_list (t:t) state =
                 | (key,b)::tail -> 
                   begin 
                     match A.get_validation b with 
-                      | Public_data.Bool false | Public_data.Abs ->                 
+                      | Public_data.Bool false | Public_data.Abs ->     
+                        let state = 
+                      Remanent_state.warn 
+                        __POS__ 
+                        (Format.sprintf "SELECT GROUPS (NO) : %s  " key)  Exit 
+                        state in             
                          state, t, (k,(List.rev_map fst (List.rev list))@not_in)::missing, ects
                       | Public_data.Bool true | Public_data.Not_known_yet  -> 
                      let state, cours = find_opt key t state in 
@@ -296,7 +301,7 @@ let rest_in_same _dip_list (t:t) state =
                     let state = 
                       Remanent_state.warn 
                         __POS__ 
-                        (Format.sprintf "SELECT GROUPS: %s %s " (A.string_of_dip  dip) (A.string_of_dip new_dip)) Exit 
+                        (Format.sprintf "SELECT GROUPS: %s %s %s " key (A.string_of_dip  dip) (A.string_of_dip new_dip)) Exit 
                         state in 
                         aux k tail (state, t, missing, ects) 
                  
@@ -304,7 +309,7 @@ let rest_in_same _dip_list (t:t) state =
                     let state = 
                       Remanent_state.warn 
                         __POS__ 
-                        (Format.sprintf "SELECT GROUPS:  %s " (A.string_of_dip new_dip)) Exit 
+                        (Format.sprintf "SELECT GROUPS: %s  %s " key (A.string_of_dip new_dip)) Exit 
                         state in 
                         aux k tail (state, t, missing, ects) 
                   end 
