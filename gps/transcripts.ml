@@ -4333,10 +4333,16 @@ let add_mean_ko _is_m2 state _key course course_list_ok course_list_all year map
   let state, course_list_all =  Reglements_pedagogiques_tools.CourseDMap.add cours course_list_all state in 
    state, map, course_list_ok, course_list_all, dens
 
+let add_mean_potential _is_m2 state _key course course_list_ok course_list_all year map dens =
+  let state, cours = translate_course_nat course year (Public_data.Not_known_yet) state in 
+  let state, course_list_all =  Reglements_pedagogiques_tools.CourseDMap.add cours course_list_all state in 
+   state, map, course_list_ok, course_list_all, dens
+
 let add_mean is_m2 state key compensation unvalidated course course_list_ok course_list_all year map dens =
     match compensation, unvalidated, course.note with
   | Some _, _, _ -> add_mean_ok is_m2 state key course course_list_ok course_list_all year map dens
-  | None, true, _ | None,_, None -> add_mean_ko is_m2 state key course course_list_ok course_list_all year map dens 
+  | None, true, _ -> add_mean_ko is_m2 state key course course_list_ok course_list_all 
+  | None,_, None  add_mean_potential is_m2 state key course course_list_ok course_list_all year map dens 
   | None,_, Some note ->
       match
         Notes.valide note
