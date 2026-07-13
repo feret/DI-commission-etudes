@@ -4342,8 +4342,11 @@ let add_mean is_m2 state key compensation unvalidated course course_list_ok cour
     match compensation, unvalidated, course.note with
   | Some _, _, _ -> add_mean_ok is_m2 state key course course_list_ok course_list_all year map dens
   | None, true, _ -> add_mean_ko is_m2 state key course course_list_ok course_list_all year map dens 
-  | None,_, None  -> add_mean_potential is_m2 state key course course_list_ok course_list_all year map dens 
+  | None,_, None   -> add_mean_potential is_m2 state key course course_list_ok 
+  course_list_all year map dens 
   | None,_, Some note ->
+    if note = Public_data.En_cours then add_mean_potential is_m2 state key course course_list_ok 
+  course_list_all year map dens  else 
       match
         Notes.valide note
       with
