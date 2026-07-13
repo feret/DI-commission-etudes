@@ -292,7 +292,20 @@ let rest_in_same _dip_list (t:t) state =
                   | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip = new_dip ->  
                     let state, t = add ~new_dip a t state in 
                     aux (k-1) tail (state, t, missing, ects +. A.get_ects a)
-                  | None | Some _ -> 
+                  | Some (_a,_,(dip,(_:string option))) ->  
+                    let state = 
+                      Remanent_state.warn 
+                        __POS__ 
+                        (Format.sprintf "SELECT GROUPS: %s %s " (A.string_of_dip  dip) (A.string_of_dip new_dip)) Exit 
+                        state in 
+                        aux k tail (state, t, missing, ects) 
+                 
+                    | None  -> 
+                    let state = 
+                      Remanent_state.warn 
+                        __POS__ 
+                        (Format.sprintf "SELECT GROUPS:  %s " (A.string_of_dip new_dip)) Exit 
+                        state in 
                         aux k tail (state, t, missing, ects) 
                   end 
                   in aux k sorted_list (state, t, missing, ects)) 
