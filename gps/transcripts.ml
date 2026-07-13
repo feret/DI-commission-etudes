@@ -4341,8 +4341,8 @@ let add_mean_potential _is_m2 state _key course course_list_ok course_list_all y
 let add_mean is_m2 state key compensation unvalidated course course_list_ok course_list_all year map dens =
     match compensation, unvalidated, course.note with
   | Some _, _, _ -> add_mean_ok is_m2 state key course course_list_ok course_list_all year map dens
-  | None, true, _ -> add_mean_ko is_m2 state key course course_list_ok course_list_all 
-  | None,_, None  add_mean_potential is_m2 state key course course_list_ok course_list_all year map dens 
+  | None, true, _ -> add_mean_ko is_m2 state key course course_list_ok course_list_all year map dens 
+  | None,_, None  -> add_mean_potential is_m2 state key course course_list_ok course_list_all year map dens 
   | None,_, Some note ->
       match
         Notes.valide note
