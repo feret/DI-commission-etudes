@@ -44,14 +44,33 @@ let get_pedagogical_registration_suggestions ~firstname ~lastname  dens_candidat
          let () = print_cell (match s with None -> "" | Some a -> a) state in 
          let () = print_cell (match s' with None -> "" | Some a -> a) state in 
 
+        ())   
+
+let dump_elt'  ~print_cell  = 
+     (fun state ((c,(_cours,(_,s))),(exp,(_dip',s'))) -> 
+        let libelle = match c.Public_data.supplement_intitule_biling with None -> "" | Some a -> a in
+
+        let () = print_cell libelle state in 
+        let () = print_cell (Tools.unsome_string  s) state in 
+        let note = match c.Public_data.supplement_note_string with None -> "" | Some a -> a in 
+        let () = print_cell note state in 
+        let () = print_cell exp state in 
+        let () = print_cell (Tools.unsome_string s') state in 
+
         ()) 
 
 let dump 
     ~show_missing_entries ~(fprintf:'state -> string->unit) ~print_newline 
-    ~print_cell ~breakpage 
+    ~print_cell ~breakpage ~title 
     ~bilingual_string ~open_array ~open_row ~close_row ~close_array 
-    state ((missing_entries,by_year):Public_data.pedagogical_registration_suggestion) =   
-    if missing_entries = [] && by_year = Public_data.YearMap.empty then state else  
+    state pedagogical_registration_suggestion =  
+    let _ = breakpage in   
+    if pedagogical_registration_suggestion.Public_data.missing_elements = [] 
+      && pedagogical_registration_suggestion.Public_data.transfert_to_another_diploma = Public_data.YearMap.empty 
+      && pedagogical_registration_suggestion.Public_data.missing_bonuses = Public_data.YearMap.empty 
+    then state, false 
+    else  
+    let () = fprintf state (Format.sprintf "%s" title) in 
     let size =    [None;None;None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None;None;None] in
     let state, show_missing_entries = show_missing_entries state in 
@@ -82,12 +101,16 @@ let dump
             let () = fprintf state (Format.sprintf " for diploma %s" s) in         
             let () = print_newline state in 
             state, true) 
-          (state, false) missing_entries 
+          (state, false) pedagogical_registration_suggestion.Public_data.missing_elements
        else (state, false) 
     in 
     let () = fprintf state "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5&#6&#7\\cr}" in
     let () = fprintf state "\\renewcommand{\\innerline}{}" in
-    let () = fprintf state "\\vfill" in
+    let () = 
+      if something then 
+         fprintf state "\\vfill" 
+    
+    in
     let state, something = 
       Public_data.YearMap.fold 
         (fun year t (state, _something) -> 
@@ -122,13 +145,53 @@ let dump
         ) t state 
     in
     let () = close_array state in 
-     let () = fprintf state "\\end{center}" in
-    state,true) by_year (state, something) 
+    let () = fprintf state "\\end{center}" in
+    state,true) pedagogical_registration_suggestion.Public_data.transfert_to_another_diploma (state, something) 
   in 
-  let () = if something then 
-  let () = fprintf state "\\vfill" in
-  let () = breakpage state in () 
-  in state 
+  let () = 
+      if something then 
+         fprintf state "\\vfill" 
+  in 
+  let state, something = 
+    Public_data.YearMap.fold 
+        (fun year t (state, _something) -> 
+          let year_ext = 
+            try 
+              let year_int = int_of_string year in 
+              Format.sprintf "%i - %i" year_int (year_int + 1) 
+            with _ -> year 
+          in
+          let s_fr = Format.sprintf "Année académique %s" year_ext in 
+          let s_en = Format.sprintf "Academic year %s" year_ext in 
+          let state, s_bi = 
+          bilingual_string ?english:(Some s_en) ~french:s_fr state in 
+          let () = fprintf state (Format.sprintf "\\section*{%s}" s_bi) in 
+          let () = fprintf state "\\begin{center}" in
+    let state =
+      open_array
+        __POS__
+        ~bgcolor
+        ~size
+        ~with_lines:true
+        ~title:[["Cours"];["Diplome"];["Note"];["Expérience à attribuer"];["Diplome"]]
+        ~title_english:[["Course"];["Diploma"];["Grade"];["Experience to attribute"];["Diploma"]]
+        state
+    in
+    let state = List.fold_left 
+         (fun state c -> 
+        let () = open_row state in
+        let () = dump_elt' ~print_cell state c in 
+        let () = close_row state in 
+        state 
+        ) state t  
+    in
+    let () = close_array state in 
+    let () = fprintf state "\\end{center}" in
+    state,true) 
+    pedagogical_registration_suggestion.Public_data.missing_bonuses (state, something) 
+  in 
+  let _ = something in 
+  state, true 
 
   
 let add_pedagogical_registration_suggestions
@@ -161,12 +224,12 @@ let add_pedagogical_registration_suggestions
   in
   state, dens_candidates
 
-let fold ~skip_name ~fold_name ~fold_year ~fold_missing ~fold_entry  (t:t) state = 
+let fold ~skip_name ~fold_name ~fold_year ~fold_missing ~fold_entry ~fold_bonusses  (t:t) state = 
   Public_data.LastNameMap.fold 
   (fun lastname map state -> 
     (Public_data.FirstNameMap.fold 
-      (fun firstname (missing,map) state -> 
-          let state, skip_name = skip_name missing map state in 
+      (fun firstname c state -> 
+          let state, skip_name = skip_name c state in 
           if skip_name then state else 
           let state = fold_name ~firstname ~lastname state in 
           let state = Public_data.YearMap.fold 
@@ -174,8 +237,13 @@ let fold ~skip_name ~fold_name ~fold_year ~fold_missing ~fold_entry  (t:t) state
               let state = fold_year year state in 
               let state = fold_entry ~firstname ~lastname t state in 
               state) 
-          map state in 
-          List.fold_left (fun state a -> fold_missing a state) state missing 
+          c.Public_data.transfert_to_another_diploma state in 
+          let state = List.fold_left (fun state a -> fold_missing a state) state c.Public_data.missing_elements in 
+          Public_data.YearMap.fold 
+              (fun year t state -> 
+                let state = fold_year year state in 
+                let state = fold_bonusses ~firstname ~lastname t state in 
+                state)  c.Public_data.missing_bonuses state  
           ) 
       map state
     )

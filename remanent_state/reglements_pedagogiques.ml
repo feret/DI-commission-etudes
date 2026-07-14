@@ -232,7 +232,15 @@ let m2_mpri =
     Public_data.groups = []; 
   }
 
+let exp_allocation = 
+  [
+("INFO-AA-ACM-A",(None,None)),("UNEXPA-01",(Public_data.DENS,None)) ; 
+("INFO-SE-SEMTUR-S1",(None,None)),("UNEXPA-29 ",(Public_data.DENS,None)) ; 
+("INFO-M1-STAGEE-S2",(Some Public_data.M1,Some Public_data.DI)),("UNEXPA-08",(Public_data.DENS,None))
+]
 
+
+ 
   (*
 "PHYS-L3-A05-S1" (*Eléments de m´ ecanique analytique *)
 "PHYS-L3-A03-S1" (*Mathématiques pour physiciens *)

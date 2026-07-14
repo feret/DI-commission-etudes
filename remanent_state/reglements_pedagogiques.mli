@@ -9,3 +9,5 @@ val licence_bio_mathsbio: Public_data.reglement_diplome
 val licence_info: Public_data.reglement_diplome
 val m1_info: Public_data.reglement_diplome
 val m2_mpri: Public_data.reglement_diplome
+
+val exp_allocation: Public_data.exp_allocation 

@@ -144,7 +144,8 @@ type parameters =
     list_exp_transdisciplinaire: string list; 
     list_exp_promotion:string list;
     double_l3:Public_data.double_cursus list; 
-    simple_l3:Public_data.simple_cursus list; simple_m1:Public_data.simple_cursus list; 
+    simple_l3:Public_data.simple_cursus list; 
+    simple_m1:Public_data.simple_cursus list; 
     suggest_course_dispatching: bool;   
     focus_lastname: string list; 
     focus_firstname: string list; 
@@ -468,6 +469,7 @@ type data =
     double_l3_map: Public_data.reglement_diplome Public_data.DptMap.t Public_data.DptMap.t;
     ips: Pedagogical_registration_suggestion.t; 
     cours_dip_dens: Pedagogical_registration_suggestion.t ; 
+    exp_allocation: Pedagogical_registration_suggestion.t ; 
    }
 
 let empty_data =
@@ -532,6 +534,7 @@ let empty_data =
     double_l3_map = Public_data.DptMap.empty ; 
     ips = Pedagogical_registration_suggestion.empty; 
     cours_dip_dens = Pedagogical_registration_suggestion.empty; 
+    exp_allocation = Pedagogical_registration_suggestion.empty; 
   }
 
 type exp = 
@@ -3505,6 +3508,14 @@ let store_dip_dens ~firstname ~lastname ip t =
     let data = {t.data with cours_dip_dens} in 
     {t with data}
 
+let store_exp_bonus ~firstname ~lastname ip t =
+    let map = t.data.exp_allocation in 
+    let t, exp_allocation = Pedagogical_registration_suggestion.add_pedagogical_registration_suggestions ~firstname ~lastname 
+    (fun _ s _ a -> s,a) __POS__ t ip map 
+    in 
+    let data = {t.data with exp_allocation} in 
+    {t with data}
+
 let dump_ips ?commission_rep ~filename ~mk ?language ?bilinguage t = 
     if Pedagogical_registration_suggestion.is_empty t.data.ips then t, None 
     else 
@@ -3579,8 +3590,8 @@ let dump_ips ?commission_rep ~filename ~mk ?language ?bilinguage t =
    let size =    [None;None;None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None;None;None] in
     let t = Pedagogical_registration_suggestion.fold 
-    ~skip_name:(fun missing map state -> 
-      state, Public_data.YearMap.is_empty map && missing = [] )
+    ~skip_name:(fun c state -> 
+      state, Public_data.YearMap.is_empty c.Public_data.transfert_to_another_diploma  && c.Public_data.missing_elements = [] && Public_data.YearMap.is_empty c.Public_data.missing_bonuses)
     ~fold_name:(fun ~firstname ~lastname a -> 
       let () = fprintf a "\\section*{%s %s}"  firstname lastname in  a)
     ~fold_year:(fun year a -> 
@@ -3654,6 +3665,7 @@ else
     let () = fprintf a "\\end{center}" in
     a
   )
+  ~fold_bonusses:(fun ~firstname ~lastname _ state -> let _= firstname,lastname in state )
     t.data.ips t 
   in 
   let state = close_logger t in
@@ -3735,9 +3747,11 @@ let dump_cours_dip_dens ?commission_rep ~filename ~mk ?language ?bilinguage t =
    let size =    [None;None;None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None;None;None] in
     let t = Pedagogical_registration_suggestion.fold 
-    ~skip_name:(fun missing map state -> 
-      state, Public_data.YearMap.is_empty map && missing = [] )
-    ~fold_name:(fun ~firstname ~lastname a -> 
+    ~skip_name:(fun c state -> 
+      state, Public_data.YearMap.is_empty c.Public_data.transfert_to_another_diploma && Public_data.YearMap.is_empty c.Public_data.missing_bonuses && 
+      [] =  c.Public_data.missing_elements 
+       )
+    ~fold_name:(fun ~firstname ~lastname (a:t) -> 
       let () = fprintf a "\\section*{%s %s}"  firstname lastname in  a)
     ~fold_year:(fun _ a -> a)
     ~fold_missing:(fun _ a -> a)  
@@ -3774,9 +3788,183 @@ let dump_cours_dip_dens ?commission_rep ~filename ~mk ?language ?bilinguage t =
     let () = fprintf a "\\end{center}" in
     a
   )
+   ~fold_bonusses:(fun ~firstname ~lastname _ (a:t) -> let _ = firstname, lastname in a)
+   
+  
     t.data.cours_dip_dens t 
   in 
   let state = close_logger t in
   let state = restore_std_logger state old_logger in
   state, Some (rep,filename) 
     
+let dump_exp_bonus ?commission_rep ~filename ~mk ?language ?bilinguage t = 
+    if Pedagogical_registration_suggestion.is_empty t.data.exp_allocation then t, None 
+    else 
+
+    let t, commission_rep =
+       match commission_rep with
+      | None -> get_main_commission_rep t
+      | Some commission_rep -> t, commission_rep
+   in
+   let t, main_rep = get_dated_output_repository t in
+   let commission_rep =
+        match main_rep,commission_rep with
+          | "",a | a,"" -> a
+          | a,b -> Printf.sprintf "%s/%s/free_experience" a b
+   in
+   let t, rep =    mk __POS__ t commission_rep in
+  let t, language =
+    Tools.get_option
+      t
+      get_language
+      language
+  in
+  let t, bilinguage =
+    Tools.get_option
+      t
+      get_is_bilingual
+      bilinguage
+  in
+  let file =
+    if rep = ""
+    then
+      filename
+    else
+      Printf.sprintf "%s/%s" rep filename
+  in
+  let t, output_channel_opt =
+    try
+      t, Some (open_out file)
+    with exn ->
+      let msg = Printexc.to_string exn in
+      let () =
+        Format.printf
+          "Cannot open file %s (%s)@."
+          file
+          msg
+      in
+      warn
+        __POS__
+        (Format.sprintf "Cannot open file %s (%s)"  file msg)
+        Exit
+        t ,
+      None
+  in
+  match output_channel_opt with
+  | None -> t, None
+  | Some out ->
+    let mode = Loggers.Latex
+        {Loggers.orientation = Loggers.Landscape ;
+         Loggers.language =
+           (match language with
+           | Public_data.French -> Loggers.French
+           | Public_data.English -> Loggers.English );
+         Loggers.font = 10 ;
+         Loggers.template = Loggers.Transcript ;
+         Loggers.bilinguage =
+           bilinguage
+        }
+    in
+    let logger = Loggers.open_logger_from_channel ~mode out in
+    let old_logger = save_std_logger t in
+    let t = set_std_logger t logger in
+   let size =    [None;None;None;None;None;None;None] in
+    let bgcolor = [None;None;None;None;None;None;None] in
+    let t = Pedagogical_registration_suggestion.fold 
+    ~skip_name:(fun c state -> 
+      state, Public_data.YearMap.is_empty c.Public_data.transfert_to_another_diploma 
+      && Public_data.YearMap.is_empty c.Public_data.missing_bonuses && 
+      [] = c.Public_data.missing_elements )
+    ~fold_name:(fun ~firstname ~lastname a -> 
+      let () = fprintf a "\\section*{%s %s}"  firstname lastname in  a)
+    ~fold_year:(fun year a -> 
+       let year_ext = 
+            try 
+              let year_int = int_of_string year in 
+              Format.sprintf "%i - %i" year_int (year_int + 1) 
+            with _ -> year 
+          in
+          let s_fr = Format.sprintf "Année académique %s" year_ext in 
+          let s_en = Format.sprintf "Academic year %s" year_ext in 
+          let a, s_bi = bilingual_string ~english:s_en ~french:s_fr a in 
+          let () = fprintf a "\\subsection*{%s}" s_bi in a)
+    ~fold_missing:(fun _ a -> a) 
+    ~fold_entry:(fun ~firstname ~lastname elt a -> let _ = firstname, lastname, elt in a) 
+    ~fold_bonusses:(fun ~firstname ~lastname elt a -> 
+        let _ = firstname, lastname in 
+         let () = fprintf a "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5\\cr}" in
+    let () = fprintf a "\\renewcommand{\\innerline}{}" in
+    let () = fprintf a "\\vfill" in
+      let () = fprintf a "\\begin{center}" in    
+    let a =
+        open_array
+        __POS__
+        ~bgcolor
+        ~size
+        ~with_lines:true
+         ~title:[["Cours"];["Diplome"];["Note"];["Expérience à attribuer"];["Diplome"]]
+        ~title_english:[["Course"];["Diploma"];["Grade"];["Experience to attribute"];["Diploma"]]
+        a
+    in
+    let (a:t) = 
+      List.fold_left
+      (fun a ((c,(_,(_,s))),(exp,(_,s')))  -> 
+         let libelle = match c.Public_data.supplement_intitule_biling with None -> "" | Some a -> a in
+
+        let () = print_cell libelle a in 
+        let () = print_cell (Tools.unsome_string  s) a in 
+        let note = match c.Public_data.supplement_note_string with None -> "" | Some a -> a in 
+        let () = print_cell note a in 
+        let () = print_cell exp a in 
+        let () = print_cell (Tools.unsome_string s') a in 
+         let () = close_row a in 
+        a
+        ) a elt 
+    in
+    let () = close_array a in 
+    let () = fprintf a "\\end{center}" in    
+     a
+
+        )
+
+    (*    ~fold_entry:(fun ~firstname ~lastname elt a -> 
+      let _ = firstname, lastname in 
+    let () = fprintf a "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5&#6&#7\\cr}" in
+    let () = fprintf a "\\renewcommand{\\innerline}{}" in
+    let () = fprintf a "\\vfill" in
+    let () = fprintf a "\\begin{center}" in
+    let a =
+        open_array
+        __POS__
+        ~bgcolor
+        ~size
+        ~with_lines:true
+        ~title:[["Code GPS"];["Code HELISA"];["Cours"];["Note"];["ECTS"]; ["DIPLOME (avant)"];["DIPLOME (après)"]]
+        ~title_english:[["GPS Code"];["HELISA Code"];["Course"];["Grade"];["ECTS"];["DIPLOMA (before)"] ;["DIPLOMA (after)"]]
+        a
+    in
+    let (a:t) = 
+      Public_data.StringMap.fold 
+      (fun _k (c,(_,dip),(_,dip')) a -> 
+        let () = open_row a in
+        let () = print_cell (match c.Public_data.supplement_code_gps with None -> "" | Some a -> a) a in 
+        let () = print_cell (match c.Public_data.supplement_code_helisa with None -> "" | Some a -> a) a in 
+        let () = print_cell (match c.Public_data.supplement_intitule_biling with None -> "" | Some a -> a) a in 
+        let () = print_cell (match c.Public_data.supplement_note_string with None -> "" | Some a -> a) a in 
+        let () = print_cell (string_of_float c.Public_data.supplement_ects) a in   
+         let () = print_cell (match dip with None -> "" | Some a -> a) a in 
+         let () = print_cell (match dip' with None -> "" | Some a -> a)  a in 
+         let () = close_row a in 
+        a
+        ) elt a
+    in
+    let () = close_array a in 
+    let () = fprintf a "\\end{center}" in
+    a
+  )*)
+    t.data.exp_allocation t 
+  in 
+  let state = close_logger t in
+  let state = restore_std_logger state old_logger in
+  state, Some (rep,filename) 
+  

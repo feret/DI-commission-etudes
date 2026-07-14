@@ -865,11 +865,7 @@ val show_missing_entries: t -> t * bool
 
 val store_ips: 
   firstname:string -> lastname: string ->
-    ((((Public_data.diploma_level option * Public_data.main_dpt option) * string option) * int * string list)
-         list* (Public_data.cours_supplement *
-          ((Public_data.diploma_level option * Public_data.main_dpt option) * string option) *
-          ((Public_data.diploma_level option * Public_data.main_dpt option) * string option))
-         Public_data.StringMap.t Public_data.YearMap.t ) ->           
+    Public_data.pedagogical_registration_suggestion ->           
           t -> t 
   
 val dump_ips: 
@@ -882,11 +878,7 @@ val dump_ips:
 
 val store_dip_dens: 
   firstname:string -> lastname: string ->
-    ((((Public_data.diploma_level option * Public_data.main_dpt option) * string option) * int * string list)
-         list* (Public_data.cours_supplement *
-          ((Public_data.diploma_level option * Public_data.main_dpt option) * string option) *
-          ((Public_data.diploma_level option * Public_data.main_dpt option) * string option))
-         Public_data.StringMap.t Public_data.YearMap.t ) ->           
+    Public_data.pedagogical_registration_suggestion ->            
           t -> t 
 
 val dump_cours_dip_dens: 
@@ -896,3 +888,15 @@ val dump_cours_dip_dens:
           ?language:Public_data.language ->
           ?bilinguage:bool -> t -> t * (string * string) option
   
+
+val store_exp_bonus: 
+  firstname:string -> lastname: string ->
+    Public_data.pedagogical_registration_suggestion ->           
+          t -> t 
+  
+val dump_exp_bonus: 
+          ?commission_rep:string -> 
+          filename:string ->
+          mk:(string * int * int * int -> t -> string -> t * string) ->
+          ?language:Public_data.language ->
+          ?bilinguage:bool -> t -> t * (string * string) option

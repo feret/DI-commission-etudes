@@ -10414,7 +10414,11 @@ let _string_of_dip a b =
     Reglements_pedagogiques_tools.CourseDMap.export state suggest missing in 
   let state = 
     if store_ips then 
-      Remanent_state.store_ips ~firstname ~lastname (missing, ips) state 
+      Remanent_state.store_ips ~firstname ~lastname 
+          {Public_data.transfert_to_another_diploma = ips ; 
+          Public_data.missing_elements = missing ; 
+          Public_data.missing_bonuses = Public_data.YearMap.empty}
+      state 
   else state 
   in     
   let state = Reglements_pedagogiques_tools.CourseDMap.print state  
@@ -10481,7 +10485,9 @@ let _string_of_dip a b =
           Reglements_pedagogiques_tools.CourseDMap.export state suggest missing in 
         let state = 
           if store_ips then 
-            Remanent_state.store_dip_dens ~firstname ~lastname (missing, ips) state 
+            Remanent_state.store_dip_dens ~firstname ~lastname  {Public_data.transfert_to_another_diploma = ips ; 
+          Public_data.missing_elements = missing ; 
+          Public_data.missing_bonuses = Public_data.YearMap.empty} state 
           else state 
         in     
         let state = Reglements_pedagogiques_tools.CourseDMap.print_short  state  

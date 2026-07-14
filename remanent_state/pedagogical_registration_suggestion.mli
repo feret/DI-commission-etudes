@@ -18,19 +18,7 @@ t ->
 'state * t
 
 val fold: 
- skip_name:((((Public_data.diploma_level option *
-                        Public_data.main_dpt option) *
-                       string option) *
-                      int * string list)
-                     list ->
-                     (Public_data.cours_supplement *
-                      ((Public_data.diploma_level option *
-                        Public_data.main_dpt option) *
-                       string option) *
-                      ((Public_data.diploma_level option *
-                        Public_data.main_dpt option) *
-                       string option))
-                     Public_data.StringMap.t Public_data.YearMap.t ->
+ skip_name:(Public_data.pedagogical_registration_suggestion ->
                      'a -> 'a * bool) -> 
  fold_name:(firstname:string -> lastname:string -> 'a -> 'a) -> 
  fold_year:(string -> 'a -> 'a) -> 
@@ -40,16 +28,18 @@ val fold:
  fold_entry:(firstname:string -> lastname:string -> (Public_data.cours_supplement *
           ((Public_data.diploma_level option * Public_data.main_dpt option) * string option) *
           ((Public_data.diploma_level option * Public_data.main_dpt option) * string option))
-         Public_data.StringMap.t  -> 'a -> 'a)
-          -> 
-        t -> 'a -> 'a 
+         Public_data.StringMap.t  -> 'a -> 'a) -> 
+fold_bonusses: (firstname:string -> lastname:string ->  ((Public_data.cours_supplement * (string * ((Public_data.diploma_level option * Public_data.main_dpt option) * string option))) * (string * ((Public_data.diploma_level option * Public_data.main_dpt option) * string option))) list -> 'a -> 'a) 
+          ->  t -> 'a -> 'a 
 
-val dump: show_missing_entries:('f -> 'f * bool) ->
+val dump: 
+          show_missing_entries:('f -> 'f * bool) ->
           fprintf:('f -> string -> unit) ->
           print_newline:('f -> unit) ->
           print_cell:(string -> 'f -> unit) ->
           breakpage:('f -> unit) ->
-          bilingual_string:(?english:string ->
+          title: string -> 
+            bilingual_string:(?english:string ->
                             french:string -> 'f -> 'f * string) ->
           open_array:(string * int * int * int ->
                       bgcolor:'j option list ->
@@ -61,4 +51,4 @@ val dump: show_missing_entries:('f -> 'f * bool) ->
           close_row:('f -> unit) ->
           close_array:('f -> unit) ->
            'f -> 
-                        Public_data.pedagogical_registration_suggestion -> 'f
+                        Public_data.pedagogical_registration_suggestion -> 'f * bool 
