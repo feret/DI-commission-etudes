@@ -2177,6 +2177,9 @@ let fprintf ?logger t x =
   Loggers.fprintf
     (which_logger ?logger t)
     x
+  
+let maketitle ?logger t title  = 
+  let () = Loggers.maketitle (which_logger ?logger t) title  in t 
 
 let fprintf_verbatim ?logger t x =
   Loggers.fprintf_verbatim

@@ -533,10 +533,34 @@ let select_experience_in_bonus
                          A.get_validation obj 
                         with 
                      | Public_data.Bool false | Public_data.Abs -> false 
-                     | Public_data.Bool true | Public_data.Not_known_yet -> true 
+                     | Public_data.Bool true 
+                      | Public_data.Not_known_yet -> true 
                         end 
                    then 
                     let year = A.get_year obj in 
+                    let elt' = fst target in 
+                    let found = 
+                      match Public_data.StringMap.find_opt elt' t with 
+                      | None -> false 
+                      | Some (obj''',(dip''',_),_) -> 
+                        let b_dip = A.check_dip_compatibility dip''' dip'' in 
+                        let b_year = 
+                          obj'''.Public_data.supplement_validation_year = 
+                          obj.Public_data.supplement_validation_year
+                        in 
+                        let b_validation = 
+                          match A.get_validation obj, A.get_validation obj''' with 
+                           | (Public_data.Bool false | Public_data.Abs), _ 
+                           | Public_data.Not_known_yet, 
+                              (Public_data.Not_known_yet | Public_data.Bool true)  
+                           | Public_data.Bool true, Public_data.Bool true -> true 
+                           | Public_data.Not_known_yet, (Public_data.Bool false | Public_data.Abs) 
+                           | Public_data.Bool true, (Public_data.Bool false | Public_data.Abs | Public_data.Not_known_yet)  -> false 
+                        in 
+                        b_dip && b_year && b_validation 
+                    in 
+                    if found then state, t, output 
+                    else 
                     let old_year = 
                       match Public_data.YearMap.find_opt year output with 
                       | None -> Public_data.StringMap.empty 
@@ -608,6 +632,12 @@ let select_experience_in_bonus
 
    let print state print missing_entries by_year =   
     if missing_entries = [] && by_year = Public_data.YearMap.empty then state else  
+     let state = 
+      if Public_data.YearMap.is_empty by_year then 
+        state 
+      else 
+        Remanent_state.maketitle  state [Loggers.fprintf,"COURSE ALLOCATION SUGGESTION"]  
+    in   
     let size =    [None;None;None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None;None;None] in
     let state, show_missing_entries = Remanent_state.show_missing_entries state in 
@@ -687,7 +717,13 @@ else
 
 
   let print_short state print _missing_entries by_year =   
-     let () = Remanent_state.fprintf state "\\vfill" in
+    let state = 
+      if Public_data.YearMap.is_empty by_year then 
+        state 
+      else 
+        Remanent_state.maketitle  state [Loggers.fprintf,"MPRI COURSES THAT COUNT FOR THE DENS"]  
+    in 
+    let () = Remanent_state.fprintf state "\\vfill" in
     let state, something = 
       Public_data.YearMap.fold 
         (fun year t (state, _something) -> 
@@ -723,16 +759,12 @@ let print_short_list state print _missing_entries by_year =
     let () = Remanent_state.fprintf state "\\vfill" in
     let size =    [None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None] in
-  (*let state =
-      open_array
-        __POS__
-        ~bgcolor
-        ~size
-        ~with_lines:true
-        ~title:[["Cours"];["Diplome"];["Note"];["Expérience à attribuer"];["Diplome"]]
-        ~title_english:[["Course"];["Diploma"];["Grade"];["Experience to attribute"];["Diploma"]]
-        state
-    in*)
+    let state = 
+      if Public_data.YearMap.is_empty by_year then 
+        state 
+      else 
+        Remanent_state.maketitle  state [Loggers.fprintf,"EXPERIENCES TO ADD"]  
+    in 
     let state, something = 
       Public_data.YearMap.fold 
         (fun year t (state, _something) -> 

@@ -1093,6 +1093,28 @@ let prepare_commission
               Latex_engine.latex_opt_to_pdf ~rotate:true 
                 ~times:2 state ~input
             in
+
+  let state,input = 
+    Remanent_state.dump_exp_bonus
+          ~mk:Safe_sys.rec_mk_when_necessary 
+          ~filename:(Format.sprintf
+                          "suggestions_experiences.tex")
+          
+    state 
+  in 
+  let state,output_rep = Remanent_state.get_promos_personnal_repository state in 
+   let state =
+              match input with
+              | None -> state
+              | Some (input_rep,file_name) ->
+                let file_name = Copy.pdf_file file_name in
+                Remanent_state.push_copy
+                  ~input_rep ~output_rep ~file_name state
+            in
+            let state =
+              Latex_engine.latex_opt_to_pdf ~rotate:true 
+                ~times:2 state ~input
+            in
   let commission_year = annee in
   let commission_date = date_complete in
   List.fold_left

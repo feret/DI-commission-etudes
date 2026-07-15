@@ -40,6 +40,14 @@ val print_errors:
 val fprintf:
   ?logger:Loggers.t -> t -> ('a, Format.formatter, unit) format -> 'a
 
+val maketitle: 
+  ?logger:Loggers.t -> t -> 
+    ((Loggers.t ->
+           (string -> unit, Format.formatter, unit) format ->
+           string -> unit) *
+          string)
+      list   -> t 
+
 val fprintf_verbatim:
   ?logger:Loggers.t -> t -> ('a, Format.formatter, unit) format -> 'a
 
