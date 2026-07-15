@@ -16,6 +16,8 @@ module type Double_keys =
         val get_validation: obj -> Public_data.valide 
         val get_year: obj -> string 
         val is_unallocated: dip -> bool 
+        val check_dip_compatibility: (Public_data.diploma_level option * Public_data.main_dpt option)  -> dip -> bool  
+                       
         val dens: dip 
         val unassigned: dip 
     end 
@@ -35,6 +37,16 @@ module type DMap =
     val select_course_for_a_cursus_list: (dip * Public_data.reglement_diplome)  list -> t -> Remanent_state.t -> Remanent_state.t * t  
 * (dip * (int * key list) list * float) list  
     val select_course_for_dens_instead_of_dip: (dip * Public_data.reglement_diplome)  list -> t -> Remanent_state.t -> Remanent_state.t * t   * (dip * (int * key list) list * float) list  
+   val select_experience_in_bonus: Public_data.exp_allocation_map  ->  t -> Remanent_state.t -> Remanent_state.t *   
+      ((Public_data.cours_supplement *
+           (key *
+            (dip * string option))) *
+          (key *
+           (dip * string option)) *
+            Public_data.valide)
+         list Public_data.StringMap.t Public_data.YearMap.t
+
+
 val export: Remanent_state.t  -> t -> (dip * (int * key list) list * float) list -> Remanent_state.t * ((dip * string option) * int * key list) list * (obj * (dip * string option) * (dip * string option)) Public_data.StringMap.t Public_data.YearMap.t
 
  val print: Remanent_state.t -> (Remanent_state.t -> (obj * (dip*string option) * (dip*string option))  -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
@@ -44,6 +56,21 @@ val export: Remanent_state.t  -> t -> (dip * (int * key list) list * float) list
     (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
  
  
+ 
+val print_short_list: Remanent_state.t -> 
+    (Remanent_state.t -> ((obj  *
+           (string *
+            (dip * string option))) *
+          (string *
+           (dip * string option)) *
+          Public_data.valide)  -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
+   ((obj  *
+           (string *
+            (dip * string option))) *
+          (string *
+           (dip * string option)) *
+          Public_data.valide)
+    list  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
   end
 
 module Course = 
@@ -83,10 +110,17 @@ module Course =
       let (dens:dip) = ((Some Public_data.DENS),None) 
       let unassigned = None, None 
 
+      let check_dip_compatibility dip dip' = 
+          match dip,dip' with 
+             | (None, None), _  -> true 
+             | (Some a, None), (Some b,_) -> a = b 
+             | (None, Some a), (None, Some b) -> a=b 
+             | (Some a, Some a'), (Some b, Some b') -> a=b && a'=b' 
+             | ((Some _ | None), (Some _ | None)), _ -> false 
 
   end 
 
-module DMap(A:Double_keys with type key = string) = 
+module DMap(A:Double_keys with type key = string and type obj = Course.obj and type dip = Course.dip ) = 
   (struct 
     include A.KeyMap 
     include A.KeySet 
@@ -479,6 +513,58 @@ let check_for_diff set _newdip t state =
       state, t, list 
   
 
+let select_experience_in_bonus 
+  (bonus_map:Public_data.exp_allocation_map) (t:t) state = 
+  let state, (_t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t), output = 
+      Public_data.StringMap.fold 
+            (fun string ((elt,dip),target) (state,t,output) -> 
+              let dip' = snd target in 
+              let (dip'':dip) = (Some (fst dip'), snd dip') in 
+              let target = fst target, (dip'', Some (A.string_of_dip dip'')) in 
+                match Public_data.StringMap.find_opt string t with 
+                | None -> state, t, output 
+                | Some (obj, (dip'',_), _) ->
+                    begin 
+                      if 
+                          A.check_dip_compatibility dip dip'' 
+                        && 
+                        begin 
+                        match                        
+                         A.get_validation obj 
+                        with 
+                     | Public_data.Bool false | Public_data.Abs -> false 
+                     | Public_data.Bool true | Public_data.Not_known_yet -> true 
+                        end 
+                   then 
+                    let year = A.get_year obj in 
+                    let old_year = 
+                      match Public_data.YearMap.find_opt year output with 
+                      | None -> Public_data.StringMap.empty 
+                      | Some map -> map 
+                    in 
+                    let old = 
+                    match Public_data.StringMap.find_opt (fst target) old_year with 
+                    | None -> []
+                    | Some l -> l 
+                    in 
+                    let new_year = 
+                        Public_data.StringMap.add 
+                          (fst target) 
+                          (
+                            
+                          ((obj,(elt,(dip,Some (A.string_of_dip dip)))),target, A.get_validation obj)
+                          
+                          
+                          ::old) 
+                          old_year  
+                    in   
+                    let output = 
+                        Public_data.YearMap.add year new_year output in 
+                    (state, (t:t), output)
+                      else (state, (t:t), output) end)
+            bonus_map (state,t,Public_data.YearMap.empty)
+            in state, output 
+
       
   let export state t list = 
     let state, missing_entries  = 
@@ -623,6 +709,67 @@ else
         let state = print state (c:(obj * (dip * string option) * (dip * string option))) in 
         let () = Remanent_state.close_row state in 
         state 
+        ) t state 
+    in
+    let () = Remanent_state.close_array state in 
+    state,true) by_year (state, false) 
+  in 
+  let () = if something then 
+  let () = Remanent_state.fprintf state "\\vfill" in
+  let () = Remanent_state.breakpage state in () 
+  in state 
+
+let print_short_list state print _missing_entries by_year =   
+    let () = Remanent_state.fprintf state "\\vfill" in
+    let size =    [None;None;None;None;None] in
+    let bgcolor = [None;None;None;None;None] in
+  (*let state =
+      open_array
+        __POS__
+        ~bgcolor
+        ~size
+        ~with_lines:true
+        ~title:[["Cours"];["Diplome"];["Note"];["Expérience à attribuer"];["Diplome"]]
+        ~title_english:[["Course"];["Diploma"];["Grade"];["Experience to attribute"];["Diploma"]]
+        state
+    in*)
+    let state, something = 
+      Public_data.YearMap.fold 
+        (fun year t (state, _something) -> 
+          let year_ext = 
+            try 
+              let year_int = int_of_string year in 
+              Format.sprintf "%i - %i" year_int (year_int + 1) 
+            with _ -> year 
+          in
+          let s_fr = Format.sprintf "Année académique %s" year_ext in 
+          let s_en = Format.sprintf "Academic year %s" year_ext in 
+          let state, s_bi = Remanent_state.bilingual_string ~english:s_en ~french:s_fr state in 
+          let () = Remanent_state.fprintf state "%s" s_bi in 
+          let () = Remanent_state.fprintf state "\\begin{center}" in
+   let () = Remanent_state.fprintf state "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5&#6&#7\\cr}" in
+    let () = Remanent_state.fprintf state "\\renewcommand{\\innerline}{}" in
+    let () = Remanent_state.fprintf state "\\vfill" in
+     let () = Remanent_state.fprintf state "%s" s_bi in 
+          let () = Remanent_state.fprintf state "\\begin{center}" in
+    let state =
+      Remanent_state.open_array
+        __POS__
+        ~bgcolor
+        ~size
+        ~with_lines:true
+        ~title:[["Cours"];["Diplome"];["Note"];["Expérience à attribuer"];["Diplome"]]
+        ~title_english:[["Course"];["Diploma"];["Grade"];["Experience to attribute"]] 
+        state
+    in
+    let (state:Remanent_state.t) = 
+      Course.KeyMap.fold  
+      (fun _k l state -> 
+        List.fold_left (fun state c -> 
+        let () = Remanent_state.open_row state in
+        let state = print state c in 
+        let () = Remanent_state.close_row state in 
+        state) state l 
         ) t state 
     in
     let () = Remanent_state.close_array state in 

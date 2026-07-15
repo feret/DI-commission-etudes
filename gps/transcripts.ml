@@ -10508,7 +10508,76 @@ let _string_of_dip a b =
          state) missing ips 
       in state 
      else state 
-  in state in 
+  in 
+    let state = 
+       let state,bonus = 
+          Reglements_pedagogiques_tools.CourseDMap.select_experience_in_bonus 
+          Reglements_pedagogiques.exp_allocation_map  
+          cours_list_all state 
+       in
+       let _string_of_dip a b = 
+          match a,b with 
+        | None, _ -> "" 
+        | Some a, None -> 
+         begin 
+           match 
+            a
+           with 
+            | Public_data.L3 -> "L3" 
+            | Public_data.M1 -> "M1" 
+            | Public_data.M2 -> "M2" 
+            | Public_data.DENS -> "DENS" 
+            | Public_data.Other -> "Other"
+        end 
+        | Some a, Some b -> 
+           Format.sprintf 
+              "(%s,%s)" 
+              begin 
+              match 
+               a
+              with 
+              | Public_data.L3 -> "L3" 
+              | Public_data.M1 -> "M1" 
+              | Public_data.M2 -> "M2" 
+              | Public_data.DENS -> "DENS" 
+              | Public_data.Other -> "Other"
+              end 
+              (Public_data.string_of_dpt b)
+        in 
+         let state = 
+          if store_ips then 
+            Remanent_state.store_exp_bonus ~firstname ~lastname  {Public_data.transfert_to_another_diploma = Public_data.YearMap.empty  ; 
+          Public_data.missing_elements = [] ; 
+          Public_data.missing_bonuses = bonus} state 
+          else state 
+        in     
+        let state = Reglements_pedagogiques_tools.CourseDMap.print_short_list  state  
+          (fun state ((c,(_,(_,dip))),(c',(_,dip')),_) -> 
+
+        (*     ~title:[["Cours"];["Diplome"];["Note"];["Expérience à attribuer"];["Diplome"]]*)
+          let state, (lib, lib_en) =
+                        Remanent_state.Translate_courses.get_translation
+                          Collect_course_entries.unify_course_entry __POS__
+                          c.Public_data.supplement_intitule state
+                    in
+                      let state, libelle =
+                      Remanent_state.bilingual_string
+                        ?english:lib_en
+                        ~french:(string_of_stringopt lib)
+                        state
+                    in
+        let () = Remanent_state.print_cell libelle state in 
+        let () = Remanent_state.print_cell (Tools.unsome_string dip) state in 
+        let state, n_string = Notes.to_string __POS__ state c.Public_data.supplement_note in 
+        let () = Remanent_state.print_cell n_string state in 
+        let () = Remanent_state.print_cell c' state in 
+        let () = Remanent_state.print_cell (Tools.unsome_string dip') state in 
+         state) [] bonus 
+      in state 
+    in   
+  
+  state 
+  in 
   let state, dens = Dens.split_courses ~firstname ~lastname dens_ok state in
   let state, dens = Dens.split_stages ~firstname ~lastname dens state in
   let state, dens = Dens.collect_mineure dens state in

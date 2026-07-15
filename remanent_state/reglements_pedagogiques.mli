@@ -11,3 +11,4 @@ val m1_info: Public_data.reglement_diplome
 val m2_mpri: Public_data.reglement_diplome
 
 val exp_allocation: Public_data.exp_allocation 
+val exp_allocation_map: Public_data.exp_allocation_map

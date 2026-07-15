@@ -47,7 +47,7 @@ let get_pedagogical_registration_suggestions ~firstname ~lastname  dens_candidat
         ())   
 
 let dump_elt'  ~print_cell  = 
-     (fun state ((c,(_cours,(_,s))),(exp,(_dip',s'))) -> 
+     (fun state ((c,(_cours,(_,s))),(exp,(_dip',s')),_) -> 
         let libelle = match c.Public_data.supplement_intitule_biling with None -> "" | Some a -> a in
 
         let () = print_cell libelle state in 
@@ -177,13 +177,15 @@ let dump
         ~title_english:[["Course"];["Diploma"];["Grade"];["Experience to attribute"];["Diploma"]]
         state
     in
-    let state = List.fold_left 
+    let state = 
+      Public_data.StringMap.fold (fun _ l state -> 
+        List.fold_left 
          (fun state c -> 
         let () = open_row state in
         let () = dump_elt' ~print_cell state c in 
         let () = close_row state in 
         state 
-        ) state t  
+        ) state l) t state   
     in
     let () = close_array state in 
     let () = fprintf state "\\end{center}" in

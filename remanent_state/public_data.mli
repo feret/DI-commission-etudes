@@ -1290,7 +1290,7 @@ type reglement_diplome =
          StringMap.t YearMap.t ; 
       missing_elements: (((diploma_level option * main_dpt option) * string option) * int * string list) list ; 
       missing_bonuses: 
-      ((cours_supplement * (string * ((diploma_level option * main_dpt option) * string option))) * (string * ((diploma_level option * main_dpt option) * string option)))list YearMap.t ; 
+      ((cours_supplement * (string * ((diploma_level option * main_dpt option) * string option))) * (string * ((diploma_level option * main_dpt option) * string option)) * valide)list StringMap.t YearMap.t ; 
    }
     
 
@@ -1298,4 +1298,6 @@ type exp_allocation =
     ((string * (diploma_level option * main_dpt option)) * 
     (string * (diploma_level * main_dpt option))) list 
 
-     
+type exp_allocation_map = 
+  ((string * (diploma_level option * main_dpt option)) * 
+    (string * (diploma_level * main_dpt option))) StringMap.t

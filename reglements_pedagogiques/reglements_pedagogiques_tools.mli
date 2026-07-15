@@ -15,6 +15,8 @@ module type Double_keys =
         val get_validation: obj -> Public_data.valide 
         val get_year: obj -> string 
         val is_unallocated: dip -> bool 
+         val check_dip_compatibility: (Public_data.diploma_level option * Public_data.main_dpt option)  -> dip -> bool  
+                       
         val dens: dip 
         val unassigned: dip 
     end 
@@ -33,6 +35,17 @@ module type DMap =
     val filter_out: dip list -> t -> Remanent_state.t -> Remanent_state.t * t 
     val select_course_for_a_cursus_list:  (dip * Public_data.reglement_diplome) list -> t -> Remanent_state.t -> Remanent_state.t * t  * (dip * (int * key list) list * float) list 
     val select_course_for_dens_instead_of_dip: (dip * Public_data.reglement_diplome) list -> t -> Remanent_state.t -> Remanent_state.t * t  * (dip * (int * key list) list * float) list 
+   val select_experience_in_bonus: Public_data.exp_allocation_map  ->  t -> Remanent_state.t -> Remanent_state.t *   
+      ((Public_data.cours_supplement *
+           (key *
+            (dip * string option))) *
+          (key *
+           (dip * string option)) *
+            Public_data.valide)
+         list Public_data.StringMap.t Public_data.YearMap.t
+
+
+
     val export: Remanent_state.t  -> t -> (dip * (int * key list) list * float) list -> Remanent_state.t * ((dip * string option) * int * key list) list * (obj * (dip * string option) * (dip * string option)) Public_data.StringMap.t Public_data.YearMap.t
 
     val print: Remanent_state.t -> (Remanent_state.t -> (obj * (dip * string option) * (dip * string option))  -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
@@ -42,9 +55,25 @@ module type DMap =
 val print_short: Remanent_state.t -> (Remanent_state.t -> (obj * (dip * string option) * (dip * string option))  -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
     (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
 
+val print_short_list: Remanent_state.t -> 
+    (Remanent_state.t -> ((obj  *
+           (string *
+            (dip * string option))) *
+          (string *
+           (dip * string option)) *
+          Public_data.valide)  -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
+   ((obj  *
+           (string *
+            (dip * string option))) *
+          (string *
+           (dip * string option)) *
+          Public_data.valide)
+    list  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
+
 end
 
-module DMap(A:Double_keys with type key = string): (DMap with type key = A.key)
+
+module DMap(A:Double_keys with type key = string and type obj = Public_data.cours_supplement and type dip = Public_data.diploma_level option * Public_data.main_dpt option): (DMap with type key = A.key and type obj = A.obj and type dip = A.dip)
 
 module CourseDMap: (DMap with type  obj = Public_data.cours_supplement and type key = string and type dip =  Public_data.diploma_level option * Public_data.main_dpt option and type t = (Public_data.cours_supplement * ((Public_data.diploma_level option * Public_data.main_dpt option) * string option) * ((Public_data.diploma_level option * Public_data.main_dpt option) * string option)) Public_data.StringMap.t )
 

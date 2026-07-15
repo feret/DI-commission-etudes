@@ -3907,8 +3907,10 @@ let dump_exp_bonus ?commission_rep ~filename ~mk ?language ?bilinguage t =
         a
     in
     let (a:t) = 
+    Public_data.StringMap.fold 
+    (fun _ l a -> 
       List.fold_left
-      (fun a ((c,(_,(_,s))),(exp,(_,s')))  -> 
+      (fun a ((c,(_,(_,s))),(exp,(_,s')),_)  -> 
          let libelle = match c.Public_data.supplement_intitule_biling with None -> "" | Some a -> a in
 
         let () = print_cell libelle a in 
@@ -3919,7 +3921,7 @@ let dump_exp_bonus ?commission_rep ~filename ~mk ?language ?bilinguage t =
         let () = print_cell (Tools.unsome_string s') a in 
          let () = close_row a in 
         a
-        ) a elt 
+        ) a l) elt a  
     in
     let () = close_array a in 
     let () = fprintf a "\\end{center}" in    

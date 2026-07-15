@@ -239,6 +239,11 @@ let exp_allocation =
 ("INFO-M1-STAGEE-S2",(Some Public_data.M1,Some Public_data.DI)),("UNEXPA-08",(Public_data.DENS,None))
 ]
 
+let exp_allocation_map = 
+  List.fold_left 
+    (fun map ((a,b),c) -> 
+      Public_data.StringMap.add a ((a,b),c) map)
+      Public_data.StringMap.empty exp_allocation 
 
  
   (*

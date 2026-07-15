@@ -29,7 +29,19 @@ val fold:
           ((Public_data.diploma_level option * Public_data.main_dpt option) * string option) *
           ((Public_data.diploma_level option * Public_data.main_dpt option) * string option))
          Public_data.StringMap.t  -> 'a -> 'a) -> 
-fold_bonusses: (firstname:string -> lastname:string ->  ((Public_data.cours_supplement * (string * ((Public_data.diploma_level option * Public_data.main_dpt option) * string option))) * (string * ((Public_data.diploma_level option * Public_data.main_dpt option) * string option))) list -> 'a -> 'a) 
+fold_bonusses:(firstname:string ->
+                         lastname:string ->
+                         ((Public_data.cours_supplement *
+                           (string *
+                            ((Public_data.diploma_level option *
+                              Public_data.main_dpt option) *
+                             string option))) *
+                          (string *
+                           ((Public_data.diploma_level option *
+                             Public_data.main_dpt option) *
+                            string option)) *
+                          Public_data.valide)
+                         list Public_data.StringMap.t -> 'a -> 'a) 
           ->  t -> 'a -> 'a 
 
 val dump: 
