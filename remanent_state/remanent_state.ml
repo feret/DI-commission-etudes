@@ -3813,7 +3813,7 @@ let dump_exp_bonus ?commission_rep ~filename ~mk ?language ?bilinguage t =
    let commission_rep =
         match main_rep,commission_rep with
           | "",a | a,"" -> a
-          | a,b -> Printf.sprintf "%s/%s/free_experience" a b
+          | a,b -> Printf.sprintf "%s/%s/suggestions" a b
    in
    let t, rep =    mk __POS__ t commission_rep in
   let t, language =
@@ -3895,7 +3895,7 @@ let dump_exp_bonus ?commission_rep ~filename ~mk ?language ?bilinguage t =
     ~fold_entry:(fun ~firstname ~lastname elt a -> let _ = firstname, lastname, elt in a) 
     ~fold_bonusses:(fun ~firstname ~lastname elt a -> 
         let _ = firstname, lastname in 
-         let () = fprintf a "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5\\cr}" in
+         let () = fprintf a "\\renewcommand{\\row}[5]{#1&#2&#3&#4&#5\\cr}" in
     let () = fprintf a "\\renewcommand{\\innerline}{}" in
     let () = fprintf a "\\vfill" in
       let () = fprintf a "\\begin{center}" in    
@@ -3915,7 +3915,7 @@ let dump_exp_bonus ?commission_rep ~filename ~mk ?language ?bilinguage t =
       List.fold_left
       (fun a ((c,(_,(_,s))),(exp,(_,s')),_)  -> 
          let libelle = match c.Public_data.supplement_intitule_biling with None -> "" | Some a -> a in
-
+        let () = open_row a in 
         let () = print_cell libelle a in 
         let () = print_cell (Tools.unsome_string  s) a in 
         let note = match c.Public_data.supplement_note_string with None -> "" | Some a -> a in 

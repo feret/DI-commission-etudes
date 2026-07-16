@@ -49,11 +49,11 @@ module type DMap =
     val export: Remanent_state.t  -> t -> (dip * (int * key list) list * float) list -> Remanent_state.t * ((dip * string option) * int * key list) list * (obj * (dip * string option) * (dip * string option)) Public_data.StringMap.t Public_data.YearMap.t
 
     val print: Remanent_state.t -> (Remanent_state.t -> (obj * (dip * string option) * (dip * string option))  -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
-    (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
+    (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t * bool 
 
 
 val print_short: Remanent_state.t -> (Remanent_state.t -> (obj * (dip * string option) * (dip * string option))  -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
-    (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
+    (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t * bool 
 
 val print_short_list: Remanent_state.t -> 
     (Remanent_state.t -> ((obj  *
@@ -68,7 +68,7 @@ val print_short_list: Remanent_state.t ->
           (string *
            (dip * string option)) *
           Public_data.valide)
-    list  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
+    list  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t * bool 
 
 end
 

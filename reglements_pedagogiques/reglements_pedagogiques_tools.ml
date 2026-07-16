@@ -50,10 +50,10 @@ module type DMap =
 val export: Remanent_state.t  -> t -> (dip * (int * key list) list * float) list -> Remanent_state.t * ((dip * string option) * int * key list) list * (obj * (dip * string option) * (dip * string option)) Public_data.StringMap.t Public_data.YearMap.t
 
  val print: Remanent_state.t -> (Remanent_state.t -> (obj * (dip*string option) * (dip*string option))  -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
-    (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
+    (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t * bool 
  
  val print_short: Remanent_state.t -> (Remanent_state.t -> (obj * (dip * string option) * (dip * string option))  -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
-    (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
+    (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t * bool 
  
  
  
@@ -70,7 +70,7 @@ val print_short_list: Remanent_state.t ->
           (string *
            (dip * string option)) *
           Public_data.valide)
-    list  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t
+    list  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t * bool 
   end
 
 module Course = 
@@ -539,11 +539,13 @@ let select_experience_in_bonus
                    then 
                     let year = A.get_year obj in 
                     let elt' = fst target in 
-                    let found = 
+                    let state, found = 
                       match Public_data.StringMap.find_opt elt' t with 
-                      | None -> false 
+                      | None ->  (if fst target = "UNEXPA-08" then 
+                          Remanent_state.warn __POS__ (Format.sprintf "EXP NOT FOUND") Exit state 
+                        else state),  false 
                       | Some (obj''',(dip''',_),_) -> 
-                        let b_dip = A.check_dip_compatibility dip''' dip'' in 
+                        let b_dip = A.check_dip_compatibility dip'' dip''' in 
                         let b_year = 
                           obj'''.Public_data.supplement_validation_year = 
                           obj.Public_data.supplement_validation_year
@@ -557,11 +559,17 @@ let select_experience_in_bonus
                            | Public_data.Not_known_yet, (Public_data.Bool false | Public_data.Abs) 
                            | Public_data.Bool true, (Public_data.Bool false | Public_data.Abs | Public_data.Not_known_yet)  -> false 
                         in 
+                          (if fst target = "UNEXPA-08" then 
+                          Remanent_state.warn __POS__ (Format.sprintf "EXP NOT FOUND: %s %s %s"
+                          (if b_dip then "true" else "false")
+                          (if b_year then "true" else "false")
+                          (if b_dip then "true" else "false")) Exit state 
+                        else state), 
                         b_dip && b_year && b_validation 
                     in 
                     if found then state, t, output 
                     else 
-                    let old_year = 
+                     let old_year = 
                       match Public_data.YearMap.find_opt year output with 
                       | None -> Public_data.StringMap.empty 
                       | Some map -> map 
@@ -631,7 +639,7 @@ let select_experience_in_bonus
     state, missing_entries, by_year 
 
    let print state print missing_entries by_year =   
-    if missing_entries = [] && by_year = Public_data.YearMap.empty then state else  
+    if missing_entries = [] && by_year = Public_data.YearMap.empty then state, false else  
      let state = 
       if Public_data.YearMap.is_empty by_year then 
         state 
@@ -710,16 +718,14 @@ else
     let () = Remanent_state.close_array state in 
     state,true) by_year (state, something) 
   in 
-  let () = if something then 
-  let () = Remanent_state.fprintf state "\\vfill" in
-  let () = Remanent_state.breakpage state in () 
-  in state 
+  let () = if something then Remanent_state.fprintf state "\\vfill" in
+  state, something  
 
 
   let print_short state print _missing_entries by_year =   
     let state = 
       if Public_data.YearMap.is_empty by_year then 
-        state 
+        state
       else 
         Remanent_state.maketitle  state [Loggers.fprintf,"MPRI COURSES THAT COUNT FOR THE DENS"]  
     in 
@@ -750,18 +756,15 @@ else
     let () = Remanent_state.close_array state in 
     state,true) by_year (state, false) 
   in 
-  let () = if something then 
-  let () = Remanent_state.fprintf state "\\vfill" in
-  let () = Remanent_state.breakpage state in () 
-  in state 
+  let () = if something then Remanent_state.fprintf state "\\vfill" in
+   state, something 
 
 let print_short_list state print _missing_entries by_year =   
-    let () = Remanent_state.fprintf state "\\vfill" in
     let size =    [None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None] in
     let state = 
       if Public_data.YearMap.is_empty by_year then 
-        state 
+        state
       else 
         Remanent_state.maketitle  state [Loggers.fprintf,"EXPERIENCES TO ADD"]  
     in 
@@ -807,10 +810,8 @@ let print_short_list state print _missing_entries by_year =
     let () = Remanent_state.close_array state in 
     state,true) by_year (state, false) 
   in 
-  let () = if something then 
-  let () = Remanent_state.fprintf state "\\vfill" in
-  let () = Remanent_state.breakpage state in () 
-  in state 
+  let () = if something then Remanent_state.fprintf state "\\vfill" 
+  in state, something 
 
   end: DMap with type key = A.key and type obj = A.obj and type dip = A.dip and type t = (A.obj*(A.dip * string option) *(A.dip * string option)) Course.KeyMap.t) 
 

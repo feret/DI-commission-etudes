@@ -10421,7 +10421,7 @@ let _string_of_dip a b =
       state 
   else state 
   in     
-  let state = Reglements_pedagogiques_tools.CourseDMap.print state  
+  let state, something1 = Reglements_pedagogiques_tools.CourseDMap.print state  
         (fun state (c,(_,s),(_,s')) -> 
         let state, (lib, lib_en) =
                         Remanent_state.Translate_courses.get_translation
@@ -10444,9 +10444,8 @@ let _string_of_dip a b =
          let () = Remanent_state.print_cell (match s' with None -> "" | Some a -> a) state in 
 
         state) missing ips 
-          in state 
-   in 
-  let state = 
+  in 
+  let state, something2  = 
      if mpri situation then 
        let state,suggest,missing = 
           Reglements_pedagogiques_tools.CourseDMap.select_course_for_dens_instead_of_dip    
@@ -10507,9 +10506,9 @@ let _string_of_dip a b =
         let () = Remanent_state.print_newline state in 
          state) missing ips 
       in state 
-     else state 
+     else state, false  
   in 
-    let state = 
+  let state, something3 = 
        let state,bonus = 
           Reglements_pedagogiques_tools.CourseDMap.select_experience_in_bonus 
           Reglements_pedagogiques.exp_allocation_map  
@@ -10551,11 +10550,9 @@ let _string_of_dip a b =
           Public_data.missing_bonuses = bonus} state 
           else state 
         in     
-        let state = Reglements_pedagogiques_tools.CourseDMap.print_short_list  state  
+        let state  = Reglements_pedagogiques_tools.CourseDMap.print_short_list  state  
           (fun state ((c,(_,(_,dip))),(c',(_,dip')),_) -> 
-
-        (*     ~title:[["Cours"];["Diplome"];["Note"];["Expérience à attribuer"];["Diplome"]]*)
-          let state, (lib, lib_en) =
+                   let state, (lib, lib_en) =
                         Remanent_state.Translate_courses.get_translation
                           Collect_course_entries.unify_course_entry __POS__
                           c.Public_data.supplement_intitule state
@@ -10573,10 +10570,11 @@ let _string_of_dip a b =
         let () = Remanent_state.print_cell c' state in 
         let () = Remanent_state.print_cell (Tools.unsome_string dip') state in 
          state) [] bonus 
-      in state 
+      in state
     in   
-  
-  state 
+    let () = if something1 || something2 || something3 then 
+      Remanent_state.breakpage state else () in 
+  state in state 
   in 
   let state, dens = Dens.split_courses ~firstname ~lastname dens_ok state in
   let state, dens = Dens.split_stages ~firstname ~lastname dens state in
