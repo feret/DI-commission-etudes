@@ -541,8 +541,8 @@ let select_experience_in_bonus
                     let elt' = fst target in 
                     let state, found = 
                       match Public_data.StringMap.find_opt elt' t with 
-                      | None ->  (if fst target = "UNEXPA-08" then 
-                          Remanent_state.warn __POS__ (Format.sprintf "EXP NOT FOUND") Exit state 
+                      | None ->  (if true || fst target = "UNEXPA-08" then 
+                          Remanent_state.warn __POS__ (Format.sprintf "EXP NOT FOUND %s"  (fst target) ) Exit state 
                         else state),  false 
                       | Some (obj''',(dip''',_),_) -> 
                         let b_dip = A.check_dip_compatibility dip'' dip''' in 
@@ -559,8 +559,9 @@ let select_experience_in_bonus
                            | Public_data.Not_known_yet, (Public_data.Bool false | Public_data.Abs) 
                            | Public_data.Bool true, (Public_data.Bool false | Public_data.Abs | Public_data.Not_known_yet)  -> false 
                         in 
-                          (if fst target = "UNEXPA-08" then 
-                          Remanent_state.warn __POS__ (Format.sprintf "EXP NOT FOUND: %s %s %s"
+                          (if true (*fst target = "UNEXPA-08"*) then 
+                          Remanent_state.warn __POS__ (Format.sprintf "EXP NOT FOUND: %s %s %s %s"
+                          (fst target) 
                           (if b_dip then "true" else "false")
                           (if b_year then "true" else "false")
                           (if b_dip then "true" else "false")) Exit state 
