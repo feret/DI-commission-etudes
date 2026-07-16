@@ -518,15 +518,15 @@ let select_experience_in_bonus
   let state, (_t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t), output = 
       Public_data.StringMap.fold 
             (fun string ((elt,dip),target) (state,t,output) -> 
-              let dip' = snd target in 
-              let (dip'':dip) = (Some (fst dip'), snd dip') in 
-              let target = fst target, (dip'', Some (A.string_of_dip dip'')) in 
+              let dip_target = snd target in 
+              let (dip_target:dip) = (Some (fst dip_target), snd dip_target) in 
+              let target = fst target, (dip_target, Some (A.string_of_dip dip_target)) in 
                 match Public_data.StringMap.find_opt string t with 
                 | None -> state, t, output 
-                | Some (obj, (dip'',_), _) ->
+                | Some (obj, (dip_course,_), _) ->
                     begin 
                       if 
-                          A.check_dip_compatibility dip dip'' 
+                          A.check_dip_compatibility dip dip_course 
                         && 
                         begin 
                         match                        
@@ -544,8 +544,8 @@ let select_experience_in_bonus
                       | None ->  (if true || fst target = "UNEXPA-08" then 
                           Remanent_state.warn __POS__ (Format.sprintf "EXP NOT FOUND %s"  (fst target) ) Exit state 
                         else state),  false 
-                      | Some (obj''',(dip''',_),_) -> 
-                        let b_dip = A.check_dip_compatibility dip'' dip''' in 
+                      | Some (obj''',(dip_course,_),_) -> 
+                        let b_dip = A.check_dip_compatibility dip_target dip_course in 
                         let b_year = 
                           obj'''.Public_data.supplement_validation_year = 
                           obj.Public_data.supplement_validation_year
@@ -564,7 +564,7 @@ let select_experience_in_bonus
                           (fst target) 
                           (if b_dip then "true" else "false")
                           (if b_year then "true" else "false")
-                          (if b_dip then "true" else "false")) Exit state 
+                          (if b_validation then "true" else "false")) Exit state 
                         else state), 
                         b_dip && b_year && b_validation 
                     in 
@@ -594,7 +594,7 @@ let select_experience_in_bonus
                     let output = 
                         Public_data.YearMap.add year new_year output in 
                     (state, (t:t), output)
-                      else (state, (t:t), output) end)
+               else (state, (t:t), output) end)
             bonus_map (state,t,Public_data.YearMap.empty)
             in state, output 
 
