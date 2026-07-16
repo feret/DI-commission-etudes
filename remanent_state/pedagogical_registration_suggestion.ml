@@ -47,7 +47,7 @@ let get_pedagogical_registration_suggestions ~firstname ~lastname  dens_candidat
         ())   
 
 let dump_elt'  ~print_cell  = 
-     (fun state ((c,(_cours,(_,s))),(exp,(_dip',s')),_) -> 
+     (fun state ((c,(_cours,(_,s,_))),(exp,(_dip',s',_))) -> 
         let libelle = match c.Public_data.supplement_intitule_biling with None -> "" | Some a -> a in
 
         let () = print_cell libelle state in 

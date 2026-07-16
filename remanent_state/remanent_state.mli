@@ -897,12 +897,24 @@ val dump_cours_dip_dens:
           ?bilinguage:bool -> t -> t * (string * string) option
   
 
-val store_exp_bonus: 
+val store_exp_bonus_to_declare: 
+  firstname:string -> lastname: string ->
+    Public_data.pedagogical_registration_suggestion ->           
+          t -> t 
+
+val store_exp_bonus_to_validate: 
   firstname:string -> lastname: string ->
     Public_data.pedagogical_registration_suggestion ->           
           t -> t 
   
-val dump_exp_bonus: 
+val dump_exp_bonus_to_declare: 
+          ?commission_rep:string -> 
+          filename:string ->
+          mk:(string * int * int * int -> t -> string -> t * string) ->
+          ?language:Public_data.language ->
+          ?bilinguage:bool -> t -> t * (string * string) option
+
+val dump_exp_bonus_to_validate: 
           ?commission_rep:string -> 
           filename:string ->
           mk:(string * int * int * int -> t -> string -> t * string) ->

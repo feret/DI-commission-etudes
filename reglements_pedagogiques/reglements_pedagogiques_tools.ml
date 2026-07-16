@@ -37,13 +37,13 @@ module type DMap =
     val select_course_for_a_cursus_list: (dip * Public_data.reglement_diplome)  list -> t -> Remanent_state.t -> Remanent_state.t * t  
 * (dip * (int * key list) list * float) list  
     val select_course_for_dens_instead_of_dip: (dip * Public_data.reglement_diplome)  list -> t -> Remanent_state.t -> Remanent_state.t * t   * (dip * (int * key list) list * float) list  
-   val select_experience_in_bonus: Public_data.exp_allocation_map  ->  t -> Remanent_state.t -> Remanent_state.t *   
+   val select_experience_in_bonus: 
+    Public_data.exp_allocation_map  ->  t -> Remanent_state.t -> Remanent_state.t *   
       ((Public_data.cours_supplement *
            (key *
-            (dip * string option))) *
+            (dip * string option * Public_data.valide))) *
           (key *
-           (dip * string option)) *
-            Public_data.valide)
+           (dip * string option * Public_data.valide)))
          list Public_data.StringMap.t Public_data.YearMap.t
 
 
@@ -55,22 +55,24 @@ val export: Remanent_state.t  -> t -> (dip * (int * key list) list * float) list
  val print_short: Remanent_state.t -> (Remanent_state.t -> (obj * (dip * string option) * (dip * string option))  -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
     (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t * bool 
  
- 
- 
-val print_short_list: Remanent_state.t -> 
-    (Remanent_state.t -> ((obj  *
-           (string *
-            (dip * string option))) *
-          (string *
-           (dip * string option)) *
-          Public_data.valide)  -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
-   ((obj  *
-           (string *
-            (dip * string option))) *
-          (string *
-           (dip * string option)) *
-          Public_data.valide)
+
+ val print_exp_to_declare: Remanent_state.t -> 
+    (Remanent_state.t ->
+
+((obj * (string * (dip * string option * Public_data.valide))) * (string * (dip * string option * Public_data.valide ))) 
+
+
+         -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
+   ((obj * (string * (dip * string option * Public_data.valide))) * (string * (dip * string option * Public_data.valide ))) 
     list  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t * bool 
+
+val print_exp_to_validate: Remanent_state.t -> 
+    (Remanent_state.t ->
+        ((obj * (string * (dip * string option * Public_data.valide))) * (string * (dip * string option * Public_data.valide )))   -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
+   ((obj * (string * (dip * string option * Public_data.valide))) * (string * (dip * string option * Public_data.valide ))) 
+    list  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t * bool 
+   
+
   end
 
 module Course = 
@@ -539,11 +541,11 @@ let select_experience_in_bonus
                    then 
                     let year = A.get_year obj in 
                     let elt' = fst target in 
-                    let state, found = 
+                    let state, found, validation  = 
                       match Public_data.StringMap.find_opt elt' t with 
                       | None ->  (if true || fst target = "UNEXPA-08" then 
                           Remanent_state.warn __POS__ (Format.sprintf "EXP NOT FOUND %s"  (fst target) ) Exit state 
-                        else state),  false 
+                        else state),  false, Public_data.Bool false 
                       | Some (obj''',(dip_course,_),_) -> 
                         let b_dip = A.check_dip_compatibility dip_target dip_course in 
                         let b_year = 
@@ -566,7 +568,7 @@ let select_experience_in_bonus
                           (if b_year then "true" else "false")
                           (if b_validation then "true" else "false")) Exit state 
                         else state), 
-                        b_dip && b_year && b_validation 
+                        b_dip && b_year && b_validation , A.get_validation obj'''
                     in 
                     if found then state, t, output 
                     else 
@@ -585,7 +587,7 @@ let select_experience_in_bonus
                           (fst target) 
                           (
                             
-                          ((obj,(elt,(dip,Some (A.string_of_dip dip)))),target, A.get_validation obj)
+                          ((obj,(elt,(dip,Some (A.string_of_dip dip),A.get_validation obj))),(fst target, (fst (snd target),snd (snd target),validation)))
                           
                           
                           ::old) 
@@ -760,14 +762,69 @@ else
   let () = if something then Remanent_state.fprintf state "\\vfill" in
    state, something 
 
-let print_short_list state print _missing_entries by_year =   
+let print_exp_to_declare state print _missing_entries by_year =   
     let size =    [None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None] in
     let state = 
       if Public_data.YearMap.is_empty by_year then 
         state
       else 
-        Remanent_state.maketitle  state [Loggers.fprintf,"EXPERIENCES TO ADD"]  
+        Remanent_state.maketitle  state [Loggers.fprintf,"EXPERIENCES TO DECLARE"]  
+    in 
+    let state, something = 
+      Public_data.YearMap.fold 
+        (fun year t (state, _something) -> 
+          let year_ext = 
+            try 
+              let year_int = int_of_string year in 
+              Format.sprintf "%i - %i" year_int (year_int + 1) 
+            with _ -> year 
+          in
+          let s_fr = Format.sprintf "Année académique %s" year_ext in 
+          let s_en = Format.sprintf "Academic year %s" year_ext in 
+          let state, s_bi = Remanent_state.bilingual_string ~english:s_en ~french:s_fr state in 
+          let () = Remanent_state.fprintf state "%s" s_bi in 
+          let () = Remanent_state.fprintf state "\\begin{center}" in
+   let () = Remanent_state.fprintf state "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5&#6&#7\\cr}" in
+    let () = Remanent_state.fprintf state "\\renewcommand{\\innerline}{}" in
+    let () = Remanent_state.fprintf state "\\vfill" in
+     let () = Remanent_state.fprintf state "%s" s_bi in 
+          let () = Remanent_state.fprintf state "\\begin{center}" in
+    let state =
+      Remanent_state.open_array
+        __POS__
+        ~bgcolor
+        ~size
+        ~with_lines:true
+        ~title:[["Cours"];["Diplome"];["Note"];["Expérience à attribuer"];["Diplome"]]
+        ~title_english:[["Course"];["Diploma"];["Grade"];["Experience to attribute"]] 
+        state
+    in
+    let (state:Remanent_state.t) = 
+      Course.KeyMap.fold  
+      (fun _k l state -> 
+        List.fold_left (fun state c -> 
+        let () = Remanent_state.open_row state in
+        let state = print state c in 
+        let () = Remanent_state.close_row state in 
+        state) state l 
+        ) t state 
+    in
+    let () = Remanent_state.close_array state in 
+    state,true) by_year (state, false) 
+  in 
+  let () = if something then Remanent_state.fprintf state "\\vfill" 
+  in state, something 
+
+
+  let print_exp_to_validate state print _missing_entries by_year =   
+    let size =    [None;None;None;None;None] in
+    let bgcolor = [None;None;None;None;None] in
+    let state = 
+      if Public_data.YearMap.is_empty by_year then 
+        state
+      else 
+        Remanent_state.maketitle  state [Loggers.fprintf,"EXPERIENCES TO DECLARE"]  
     in 
     let state, something = 
       Public_data.YearMap.fold 

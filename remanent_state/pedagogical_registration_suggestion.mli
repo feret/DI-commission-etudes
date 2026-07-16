@@ -35,12 +35,12 @@ fold_bonusses:(firstname:string ->
                            (string *
                             ((Public_data.diploma_level option *
                               Public_data.main_dpt option) *
-                             string option))) *
+                             string option * Public_data.valide))) *
                           (string *
                            ((Public_data.diploma_level option *
                              Public_data.main_dpt option) *
-                            string option)) *
-                          Public_data.valide)
+                            string option *Public_data.valide)) 
+                          )
                          list Public_data.StringMap.t -> 'a -> 'a) 
           ->  t -> 'a -> 'a 
 

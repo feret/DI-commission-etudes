@@ -10508,7 +10508,7 @@ let _string_of_dip a b =
       in state 
      else state, false  
   in 
-  let state, something3 = 
+  let state, bonus, something3 = 
        let state,bonus = 
           Reglements_pedagogiques_tools.CourseDMap.select_experience_in_bonus 
           Reglements_pedagogiques.exp_allocation_map  
@@ -10543,15 +10543,38 @@ let _string_of_dip a b =
               end 
               (Public_data.string_of_dpt b)
         in 
+        
+        let bonus_to_declare = 
+          Public_data.YearMap.fold 
+            (fun year map map' -> 
+              let map = 
+                Public_data.StringMap.fold 
+                  (fun s list m' -> 
+                    let list = 
+                        List.filter (fun (_,(_,(_,_,validation)))
+                         -> 
+                          match validation with 
+                          | Public_data.Bool false -> true 
+                          | Public_data.Bool true  
+                          | Public_data.Abs   
+                          | Public_data.Not_known_yet -> false)  
+                          list 
+                    in 
+                    Public_data.StringMap.add s list m')
+                    map Public_data.StringMap.empty
+              in 
+              Public_data.YearMap.add year map map')
+            bonus Public_data.YearMap.empty 
+        in 
          let state = 
           if store_ips then 
-            Remanent_state.store_exp_bonus ~firstname ~lastname  {Public_data.transfert_to_another_diploma = Public_data.YearMap.empty  ; 
+            Remanent_state.store_exp_bonus_to_declare ~firstname ~lastname  {Public_data.transfert_to_another_diploma = Public_data.YearMap.empty  ; 
           Public_data.missing_elements = [] ; 
-          Public_data.missing_bonuses = bonus} state 
+          Public_data.missing_bonuses = bonus_to_declare} state 
           else state 
-        in     
-        let state  = Reglements_pedagogiques_tools.CourseDMap.print_short_list  state  
-          (fun state ((c,(_,(_,dip))),(c',(_,dip')),_) -> 
+        in    
+        let state  = Reglements_pedagogiques_tools.CourseDMap.print_exp_to_declare  state  
+          (fun state ((c,(_,(_,dip,_))),(c',(_,dip',_))) -> 
                    let state, (lib, lib_en) =
                         Remanent_state.Translate_courses.get_translation
                           Collect_course_entries.unify_course_entry __POS__
@@ -10569,10 +10592,64 @@ let _string_of_dip a b =
         let () = Remanent_state.print_cell n_string state in 
         let () = Remanent_state.print_cell c' state in 
         let () = Remanent_state.print_cell (Tools.unsome_string dip') state in 
-         state) [] bonus 
+         state) [] bonus_to_declare 
+      in fst state, bonus, snd state 
+    in   
+    let state, something4 = 
+     let bonus_to_validate = 
+          Public_data.YearMap.fold 
+            (fun year map map' -> 
+              let map = 
+                Public_data.StringMap.fold 
+                  (fun s list m' -> 
+                    let list = 
+                        List.filter (fun ((_,(_,(_,_,validation))),_)
+                         -> 
+                          match validation with 
+                      
+                          | Public_data.Bool true  -> true 
+                           | Public_data.Bool false  
+                          | Public_data.Abs   
+                          | Public_data.Not_known_yet -> false)  
+                          list 
+                    in 
+                    Public_data.StringMap.add s list m')
+                    map Public_data.StringMap.empty
+              in 
+              Public_data.YearMap.add year map map')
+            bonus Public_data.YearMap.empty 
+        in 
+         let state = 
+          if store_ips then 
+            Remanent_state.store_exp_bonus_to_validate ~firstname ~lastname  {Public_data.transfert_to_another_diploma = Public_data.YearMap.empty  ; 
+          Public_data.missing_elements = [] ; 
+          Public_data.missing_bonuses = bonus_to_validate} state 
+          else state 
+        in    
+      
+        let state  = Reglements_pedagogiques_tools.CourseDMap.print_exp_to_validate state  
+          (fun state ((c,(_,(_,dip,_))),(c',(_,dip',_))) -> 
+                   let state, (lib, lib_en) =
+                        Remanent_state.Translate_courses.get_translation
+                          Collect_course_entries.unify_course_entry __POS__
+                          c.Public_data.supplement_intitule state
+                    in
+                      let state, libelle =
+                      Remanent_state.bilingual_string
+                        ?english:lib_en
+                        ~french:(string_of_stringopt lib)
+                        state
+                    in
+        let () = Remanent_state.print_cell libelle state in 
+        let () = Remanent_state.print_cell (Tools.unsome_string dip) state in 
+        let state, n_string = Notes.to_string __POS__ state c.Public_data.supplement_note in 
+        let () = Remanent_state.print_cell n_string state in 
+        let () = Remanent_state.print_cell c' state in 
+        let () = Remanent_state.print_cell (Tools.unsome_string dip') state in 
+         state) [] bonus_to_validate 
       in state
     in   
-    let () = if something1 || something2 || something3 then 
+    let () = if something1 || something2 || something3 || something4 then 
       Remanent_state.breakpage state else () in 
   state in state 
   in 

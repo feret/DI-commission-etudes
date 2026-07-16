@@ -38,10 +38,9 @@ module type DMap =
    val select_experience_in_bonus: Public_data.exp_allocation_map  ->  t -> Remanent_state.t -> Remanent_state.t *   
       ((Public_data.cours_supplement *
            (key *
-            (dip * string option))) *
+            (dip * string option * Public_data.valide))) *
           (key *
-           (dip * string option)) *
-            Public_data.valide)
+           (dip * string option * Public_data.valide)))
          list Public_data.StringMap.t Public_data.YearMap.t
 
 
@@ -55,19 +54,20 @@ module type DMap =
 val print_short: Remanent_state.t -> (Remanent_state.t -> (obj * (dip * string option) * (dip * string option))  -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
     (obj * (dip * string option) * (dip * string option))  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t * bool 
 
-val print_short_list: Remanent_state.t -> 
-    (Remanent_state.t -> ((obj  *
-           (string *
-            (dip * string option))) *
-          (string *
-           (dip * string option)) *
-          Public_data.valide)  -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
-   ((obj  *
-           (string *
-            (dip * string option))) *
-          (string *
-           (dip * string option)) *
-          Public_data.valide)
+val print_exp_to_declare: Remanent_state.t -> 
+    (Remanent_state.t ->
+
+((obj * (string * (dip * string option * Public_data.valide))) * (string * (dip * string option * Public_data.valide ))) 
+
+
+         -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
+   ((obj * (string * (dip * string option * Public_data.valide))) * (string * (dip * string option * Public_data.valide ))) 
+    list  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t * bool 
+
+val print_exp_to_validate: Remanent_state.t -> 
+    (Remanent_state.t ->
+        ((obj * (string * (dip * string option * Public_data.valide))) * (string * (dip * string option * Public_data.valide )))   -> Remanent_state.t) -> ((dip * string option)  * int * key list) list ->
+   ((obj * (string * (dip * string option * Public_data.valide))) * (string * (dip * string option * Public_data.valide ))) 
     list  Public_data.StringMap.t Public_data.YearMap.t -> Remanent_state.t * bool 
 
 end

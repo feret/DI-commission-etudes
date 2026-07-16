@@ -1983,10 +1983,9 @@ type pedagogical_registration_suggestion =
           ((diploma_level option * main_dpt option) * string option))
          StringMap.t YearMap.t ; 
       missing_elements: (((diploma_level option * main_dpt option) * string option) * int * string list) list ; 
-      missing_bonuses: 
-      ((cours_supplement * (string * ((diploma_level option * main_dpt option) * string option))) * (string * ((diploma_level option * main_dpt option) * string option)) * 
-      valide )list StringMap.t YearMap.t ; 
-   }
+       missing_bonuses: 
+      ((cours_supplement * (string * ((diploma_level option * main_dpt option) * string option * valide))) * (string * ((diploma_level option * main_dpt option) * string option * valide ))) list StringMap.t YearMap.t ; 
+       }
 
 type exp_allocation = 
     ((string * (diploma_level option * main_dpt option)) * 
