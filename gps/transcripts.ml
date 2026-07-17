@@ -10560,9 +10560,11 @@ let _string_of_dip a b =
                           | Public_data.Not_known_yet -> false)  
                           list 
                     in 
+                    if list = [] then m' else 
                     Public_data.StringMap.add s list m')
                     map Public_data.StringMap.empty
               in 
+              if Public_data.StringMap.is_empty map then map' else 
               Public_data.YearMap.add year map map')
             bonus Public_data.YearMap.empty 
         in 
@@ -10613,9 +10615,11 @@ let _string_of_dip a b =
                           | Public_data.Not_known_yet -> false)  
                           list 
                     in 
+                    if list = [] then m' else 
                     Public_data.StringMap.add s list m')
                     map Public_data.StringMap.empty
               in 
+              if Public_data.StringMap.is_empty map then map' else 
               Public_data.YearMap.add year map map')
             bonus Public_data.YearMap.empty 
         in 
