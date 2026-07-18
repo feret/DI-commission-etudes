@@ -10514,36 +10514,6 @@ let _string_of_dip a b =
           Reglements_pedagogiques.exp_allocation_map  
           cours_list_all state 
        in
-       let _string_of_dip a b = 
-          match a,b with 
-        | None, _ -> "" 
-        | Some a, None -> 
-         begin 
-           match 
-            a
-           with 
-            | Public_data.L3 -> "L3" 
-            | Public_data.M1 -> "M1" 
-            | Public_data.M2 -> "M2" 
-            | Public_data.DENS -> "DENS" 
-            | Public_data.Other -> "Other"
-        end 
-        | Some a, Some b -> 
-           Format.sprintf 
-              "(%s,%s)" 
-              begin 
-              match 
-               a
-              with 
-              | Public_data.L3 -> "L3" 
-              | Public_data.M1 -> "M1" 
-              | Public_data.M2 -> "M2" 
-              | Public_data.DENS -> "DENS" 
-              | Public_data.Other -> "Other"
-              end 
-              (Public_data.string_of_dpt b)
-        in 
-        
         let bonus_to_declare = 
           Public_data.YearMap.fold 
             (fun year map map' -> 

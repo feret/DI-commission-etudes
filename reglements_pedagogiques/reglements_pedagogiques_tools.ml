@@ -403,21 +403,23 @@ let rest_in_same _dip_list (t:t) state =
       state, t, missing, ects
 
 
-    let keep_others _state dip_list (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = 
+    let keep_others state dip_list (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = 
       let dip_list = List.rev_map fst (List.rev dip_list) in 
-      let (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = Course.KeyMap.map 
-        (fun  (a,(b,(b':string option)),_c) -> 
+      let state,(t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = Course.KeyMap.fold 
+        (fun key  (a,(b,(b':string option)),_c) (state,map)-> 
           if List.mem b dip_list || b = A.dens then 
-            (a,(b,b'),(A.unassigned, None))
+            Remanent_state.warn __POS__ (Format.sprintf "MEM %s %s" key (A.string_of_dip b)) Exit state, 
+            Course.KeyMap.add key (a,(b,b'),(A.unassigned, None)) map 
           else 
-          (a,(b,b'),(b,b'))
-          ) t 
-    in (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) 
+            Remanent_state.warn __POS__ (Format.sprintf "NOT MEM %s %s" key (A.string_of_dip b)) Exit state, 
+           Course.KeyMap.add key (a,(b,b'),(b,b')) map 
+          ) t (state,Course.KeyMap.empty) 
+    in state, (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) 
     
 
 
     let select_course_for_a_cursus_list dip_list t state = 
-      let (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = keep_others state dip_list t in 
+      let state, (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = keep_others state dip_list t in 
       let state, t, list = 
         List.fold_left 
           (fun (state, t, list) (dip, reglement) -> 
@@ -499,7 +501,7 @@ let check_for_diff set _newdip t state =
                 (match index2 with None -> false | Some a -> Course.KeySet.mem a set)) t 
 
  let select_course_for_dens_instead_of_dip dip_list t state = 
-      let (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = keep_others state dip_list t in 
+      let state, (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = keep_others state dip_list t in 
       let state, t, list = 
         List.fold_left 
           (fun (state, t, list) (dip, reglement) -> 

@@ -43,7 +43,6 @@ let licence_info_mathsinfo =
 "INFO-L3-LAPROCO-S1"; (*Langages de programmation et compilation*) 
 "INFO-L3-LAFORMCC-S1"; (* Langages formels *)
 "INFO-L3-SYSDIG-S1" ; (* Systèmes numériques *) 
-
 "INFO-L3-APPREN-S2"; (*Apprentissage statistique*) 
 "INFO-L3-DB-S2" ; (* BDD *)
 "INFO-L3-LOGIN-S2"; (*Lambda calcul et logique informatique*)
@@ -51,7 +50,6 @@ let licence_info_mathsinfo =
 "INFO-L3-SEMVP-S2" ; (* Sémantique *) 
 "INFO-L3-THEOIC-S2" ; (* Théorie de l'information *)
 "INFO-M1-MPRI123-S2"; (* Apprentissage scientifique par la pratique *)
-
     ]]; 
     Public_data.groups = []; 
   }
