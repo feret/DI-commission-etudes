@@ -903,8 +903,8 @@ val store_exp_bonus_to_declare:
           t -> t 
 
 val store_exp_bonus_to_validate: 
-  firstname:string -> lastname: string ->
-    Public_data.pedagogical_registration_suggestion ->           
+firstname:string -> lastname: string ->
+  Public_data.pedagogical_registration_suggestion -> 
           t -> t 
   
 val dump_exp_bonus_to_declare: 

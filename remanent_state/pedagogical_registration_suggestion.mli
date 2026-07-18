@@ -1,7 +1,16 @@
 type t = Public_data.pedagogical_registration_suggestion
         Public_data.FirstNameMap.t Public_data.LastNameMap.t
+
+type t' = 
+ ((Public_data.cours_supplement * (string * ((Public_data.diploma_level option * Public_data.main_dpt option) * string option * Public_data.valide))) * (string * ((Public_data.diploma_level option * Public_data.main_dpt option) * string option * Public_data.valide ))) list 
+        Public_data.FirstNameMap.t Public_data.LastNameMap.t
+        Public_data.StringMap.t Public_data.YearMap.t 
+        
+(*val convert: t -> t' *)        
 val empty: t
+val empty': t'
 val is_empty: t -> bool 
+val is_empty': t' -> bool 
 val get_pedagogical_registration_suggestions:
   firstname:string ->
   lastname:string ->
@@ -16,6 +25,17 @@ firstname:string -> lastname:string ->
  Public_data.pedagogical_registration_suggestion ->
 t ->
 'state * t
+
+val add_pedagogical_registration_suggestions':
+firstname:string -> lastname:string -> 
+((string * int * int * int) ->
+ 'state ->  Public_data.pedagogical_registration_suggestion
+         ->  Public_data.pedagogical_registration_suggestion -> 'state *  Public_data.pedagogical_registration_suggestion) -> 
+(string * int * int * int) -> 'state ->
+ Public_data.pedagogical_registration_suggestion ->
+t' ->
+'state * t'
+
 
 val fold: 
  skip_name:(Public_data.pedagogical_registration_suggestion ->
@@ -43,6 +63,25 @@ fold_bonusses:(firstname:string ->
                           )
                          list Public_data.StringMap.t -> 'a -> 'a) 
           ->  t -> 'a -> 'a 
+
+val fold': 
+ fold_string:(string -> 'a -> 'a) -> 
+ fold_year:(string -> 'a -> 'a) -> 
+fold_bonusses:(year:string ->
+                         string :string ->
+                         ((Public_data.cours_supplement *
+                           (string *
+                            ((Public_data.diploma_level option *
+                              Public_data.main_dpt option) *
+                             string option * Public_data.valide))) *
+                          (string *
+                           ((Public_data.diploma_level option *
+                             Public_data.main_dpt option) *
+                            string option *Public_data.valide))) list  Public_data.FirstNameMap.t
+                         Public_data.LastNameMap.t 
+                          
+                          -> 'a -> 'a) 
+          ->  t' -> 'a -> 'a 
 
 val dump: 
           show_missing_entries:('f -> 'f * bool) ->

@@ -2,11 +2,56 @@ type t =
       Public_data.pedagogical_registration_suggestion
         Public_data.FirstNameMap.t Public_data.LastNameMap.t
 
+type t' = 
+ ((Public_data.cours_supplement * (string * ((Public_data.diploma_level option * Public_data.main_dpt option) * string option * Public_data.valide))) * (string * ((Public_data.diploma_level option * Public_data.main_dpt option) * string option * Public_data.valide ))) list 
+        Public_data.FirstNameMap.t Public_data.LastNameMap.t
+        Public_data.StringMap.t Public_data.YearMap.t 
+
+(*let convert t = 
+  Public_data.LastNameMap.fold 
+    (fun lastname map1 acc -> 
+      Public_data.FirstNameMap.fold 
+        (fun firstname sugg acc -> 
+          Public_data.YearMap.fold 
+            (fun year map3 acc -> 
+              Public_data.StringMap.fold 
+                (fun string obj acc -> 
+                  let t_map1 = 
+                    match Public_data.YearMap.find_opt year acc with 
+                  | None -> Public_data.StringMap.empty 
+                  | Some a -> a
+                  in 
+                  let t_map2 = 
+                    match Public_data.StringMap.find_opt string t_map1 with 
+                    | None -> Public_data.LastNameMap.empty 
+                    | Some a -> a 
+                  in 
+                  let t_map3 = 
+                    match Public_data.LastNameMap.find_opt lastname t_map2 with 
+                    | None -> Public_data.FirstNameMap.empty 
+                    | Some a -> a 
+                  in 
+                  let list = 
+                    match Public_data.FirstNameMap.find_opt firstname t_map3 with 
+                    | None -> []
+                    | Some l -> l 
+                  in 
+                  let list = obj@list in 
+                  let t_map3 = Public_data.FirstNameMap.add firstname list t_map3 in 
+                  let t_map2 = Public_data.LastNameMap.add lastname t_map3 t_map2 in 
+                  let t_map1 = Public_data.StringMap.add string t_map2 t_map1 in 
+                  let acc = Public_data.YearMap.add year t_map1 acc in 
+                  acc) map3 acc) sugg.Public_data.missing_bonuses acc) map1 acc) t  Public_data.YearMap.empty 
+*)
+
 let empty =
       Public_data.LastNameMap.empty
 
+let empty' = Public_data.YearMap.empty 
 let is_empty = 
    Public_data.LastNameMap.is_empty 
+   let is_empty' = 
+   Public_data.YearMap.is_empty 
 let get_pedagogical_registration_suggestions ~firstname ~lastname  dens_candidates =
   let firstname =
     String.lowercase_ascii firstname
@@ -226,6 +271,47 @@ let add_pedagogical_registration_suggestions
   in
   state, dens_candidates
 
+
+let add_pedagogical_registration_suggestions'
+    ~firstname ~lastname 
+    unify pos state
+    dens_candidate dens_candidates =
+  let _ = unify, pos in
+  (*let () = Format.printf "%s %s (%s) (ADD PEGAGUS)" firstname lastname year in*)
+      state, Public_data.YearMap.fold 
+            (fun year map3 acc -> 
+              Public_data.StringMap.fold 
+                (fun string obj acc -> 
+                  let t_map1 = 
+                    match Public_data.YearMap.find_opt year acc with 
+                  | None -> Public_data.StringMap.empty 
+                  | Some a -> a
+                  in 
+                  let t_map2 = 
+                    match Public_data.StringMap.find_opt string t_map1 with 
+                    | None -> Public_data.LastNameMap.empty 
+                    | Some a -> a 
+                  in 
+                  let t_map3 = 
+                    match Public_data.LastNameMap.find_opt lastname t_map2 with 
+                    | None -> Public_data.FirstNameMap.empty 
+                    | Some a -> a 
+                  in 
+                  let list = 
+                    match Public_data.FirstNameMap.find_opt firstname t_map3 with 
+                    | None -> []
+                    | Some l -> l 
+                  in 
+                  let list = obj@list in 
+                  let t_map3 = Public_data.FirstNameMap.add firstname list t_map3 in 
+                  let t_map2 = Public_data.LastNameMap.add lastname t_map3 t_map2 in 
+                  let t_map1 = Public_data.StringMap.add string t_map2 t_map1 in 
+                  let acc = Public_data.YearMap.add year t_map1 acc in 
+                  acc) map3 acc) dens_candidate.Public_data.missing_bonuses dens_candidates 
+  
+  
+
+
 let fold ~skip_name ~fold_name ~fold_year ~fold_missing ~fold_entry ~fold_bonusses  (t:t) state = 
   Public_data.LastNameMap.fold 
   (fun lastname map state -> 
@@ -249,5 +335,20 @@ let fold ~skip_name ~fold_name ~fold_year ~fold_missing ~fold_entry ~fold_bonuss
           ) 
       map state
     )
+  ) 
+  t state 
+
+
+  let fold' ~fold_string ~fold_year  ~fold_bonusses  (t:t') state = 
+  Public_data.YearMap.fold 
+    (fun year map state -> 
+      let state = fold_year year state in 
+      Public_data.StringMap.fold 
+       (fun string map state ->
+          let state = fold_string string state in 
+  
+                let state = fold_bonusses ~year ~string map state in 
+                state)  
+    map state
   ) 
   t state 
