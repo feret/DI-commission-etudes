@@ -1117,7 +1117,7 @@ let prepare_commission
             in
 
   let state,input = 
-    Remanent_state.dump_exp_bonus_to_declare 
+    Remanent_state.dump_exp_bonus_to_validate
           ~mk:Safe_sys.rec_mk_when_necessary 
           ~filename:(Format.sprintf
                           "suggestions_experiences_to_validate.tex")
