@@ -174,7 +174,7 @@ module DMap(A:Double_keys with type key = string and type obj = Course.obj and t
                   (obj, (x,sx), (A.dens,Some "DENS"))
               end 
             else 
-              if x = A.dens || List.mem x dip_list 
+              if fst x = Some Public_data.DENS || List.mem x dip_list 
               then 
                (obj,(x,sx), (A.dens,Some "DENS")) 
               else (obj, (x,sx), (x,sx))
@@ -407,7 +407,7 @@ let rest_in_same _dip_list (t:t) state =
       let dip_list = List.rev_map fst (List.rev dip_list) in 
       let state,(t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = Course.KeyMap.fold 
         (fun key  (a,(b,(b':string option)),_c) (state,map)-> 
-          if List.mem b dip_list || b = A.dens then 
+          if List.mem b dip_list || (fst b = Some Public_data.DENS)  then 
             Remanent_state.warn __POS__ (Format.sprintf "MEM %s %s" key (A.string_of_dip b)) Exit state, 
             Course.KeyMap.add key (a,(b,b'),(A.unassigned, None)) map 
           else 
