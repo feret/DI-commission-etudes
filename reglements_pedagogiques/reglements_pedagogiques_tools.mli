@@ -4,8 +4,11 @@ module type Double_keys =
         type key
         type dip 
         val empty_dip: dip 
+        val dens: dip 
+        val unassigned: dip 
         module KeyMap:Map.S with type key = key 
         module KeySet:Set.S with type elt = key 
+        val correct_dens: dip -> dip 
         val index1: obj -> key option 
         val index2: obj -> key option 
         val get_dip: obj -> dip 
@@ -17,8 +20,7 @@ module type Double_keys =
         val is_unallocated: dip -> bool 
          val check_dip_compatibility: (Public_data.diploma_level option * Public_data.main_dpt option)  -> dip -> bool  
                        
-        val dens: dip 
-        val unassigned: dip 
+       
     end 
 
 

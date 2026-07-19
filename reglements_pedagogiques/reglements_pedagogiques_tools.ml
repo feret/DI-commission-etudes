@@ -5,8 +5,11 @@ module type Double_keys =
         type dip 
 
         val empty_dip: dip 
+        val dens: dip 
+        val unassigned: dip 
         module KeyMap:Map.S with type key = key 
         module KeySet:Set.S with type elt = key 
+        val correct_dens: dip -> dip 
         val index1: obj -> key option 
         val index2: obj -> key option 
         val get_dip: obj -> dip 
@@ -17,9 +20,6 @@ module type Double_keys =
         val get_year: obj -> string 
         val is_unallocated: dip -> bool 
         val check_dip_compatibility: (Public_data.diploma_level option * Public_data.main_dpt option)  -> dip -> bool  
-                       
-        val dens: dip 
-        val unassigned: dip 
     end 
 
 module type DMap = 
@@ -81,6 +81,7 @@ module Course =
       type key = string 
       type dip = Public_data.diploma_level option * Public_data.main_dpt option 
       let empty_dip = None,None  
+      let dens = Some Public_data.DENS, None 
       module KeyMap = Public_data.StringMap
       module KeySet = Public_data.StringSet 
       let string_of_dip (a,b) =  
@@ -101,9 +102,21 @@ module Course =
             | Public_data.DENS -> "DENS" 
             | Public_data.Other -> Format.sprintf  "Other (%s)" (Public_data.string_of_dpt b)) 
 
+    let correct_dens (a,b) =  
+        match a,b with 
+        | _, None 
+        |  Some (Public_data.L3 
+            | Public_data.M1
+            | Public_data.M2  | Public_data.Other), _  
+        | None, _ -> (a,b)
+            | Some Public_data.DENS, Some _ -> dens     
+     
+
+
+
             let index2 course = course.Public_data.supplement_code_gps  
       let index1 course = course.Public_data.supplement_code_helisa 
-      let get_dip course = Some course.Public_data.supplement_diploma_level, course.Public_data.supplement_diploma_dpt
+      let get_dip course = correct_dens (Some course.Public_data.supplement_diploma_level, course.Public_data.supplement_diploma_dpt)
       let get_ects course = course.Public_data.supplement_ects 
       let get_note course = course.Public_data.supplement_note 
       let get_validation course = course.Public_data.supplement_validation 
@@ -130,10 +143,13 @@ module DMap(A:Double_keys with type key = string and type obj = Course.obj and t
     type dip = A.dip 
     type t = (obj*(dip * string option)*(dip* string option)) Course.KeyMap.t 
 
+    let is_dens x = x = A.dens 
     let extend ?new_dip x = 
       let new_dip= 
         match new_dip with None -> A.empty_dip, None 
-        | Some a -> a, Some (A.string_of_dip a) in 
+        | Some a -> 
+          let a = A.correct_dens a in 
+          a, Some (A.string_of_dip a) in 
       let dip = A.get_dip x in 
       let dip = dip, Some (A.string_of_dip dip) in 
       (x,dip, new_dip)
@@ -174,7 +190,7 @@ module DMap(A:Double_keys with type key = string and type obj = Course.obj and t
                   (obj, (x,sx), (A.dens,Some "DENS"))
               end 
             else 
-              if fst x = Some Public_data.DENS || List.mem x dip_list 
+              if is_dens x || List.mem x dip_list 
               then 
                (obj,(x,sx), (A.dens,Some "DENS")) 
               else (obj, (x,sx), (x,sx))
@@ -407,7 +423,7 @@ let rest_in_same _dip_list (t:t) state =
       let dip_list = List.rev_map fst (List.rev dip_list) in 
       let state,(t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = Course.KeyMap.fold 
         (fun key  (a,(b,(b':string option)),_c) (state,map)-> 
-          if List.mem b dip_list || (fst b = Some Public_data.DENS)  then 
+          if List.mem b dip_list || is_dens b  then 
             Remanent_state.warn __POS__ (Format.sprintf "MEM %s %s" key (A.string_of_dip b)) Exit state, 
             Course.KeyMap.add key (a,(b,b'),(A.unassigned, None)) map 
           else 
