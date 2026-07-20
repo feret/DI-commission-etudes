@@ -517,6 +517,38 @@ let update_course'  semester libelle teacher ects entry bset state  =
                           match pegasus_entry with 
                             | [_] | [] -> state, pegasus_entry
                             | _ -> 
+
+let pegasus_entry = 
+    List.filter (fun a -> 
+      let prefix = 
+         match entry.dpt with 
+         | Some Public_data.DI -> Some "UNINF"
+         | Some Public_data.DMA -> Some "UNDMA"
+         | Some Public_data.CHIMIE -> Some "UNCHI"
+         | Some Public_data.GEOSCIENCES -> Some "UNGSC"
+         | Some Public_data.PHYS -> Some "UNPHY" 
+         | Some Public_data.IBENS -> Some "UNBIO" 
+         | Some Public_data.ECO -> Some "UNECO"
+         | Some Public_data.DRI | Some Public_data.ENS -> None 
+         | Some Public_data.ARTS -> Some "UNART"
+         | Some Public_data.LILA -> Some "UNLILA" 
+         | Some Public_data.DEC -> Some "UNDEC"
+         | Some Public_data.DSA -> Some "UNDSA"
+         | Some Public_data.DSS -> Some "UNDSS" 
+          |Some Public_data.GEOG -> Some "UNGEO"
+          | Some Public_data.HIST -> Some "UNHIS"
+          | Some Public_data.ECLA -> Some "UNECL"
+          |Some Public_data.CIENS -> Some "UNCIE"
+          | None -> None 
+      in 
+      match prefix with None -> false | Some prefix -> 
+      let size = String.length prefix in 
+      let data = a.Public_data.pegasus_helisa in 
+      String.length data >= size && String.sub data 0 size = prefix) 
+      pegasus_entry in 
+        match pegasus_entry with 
+                            | [_] | [] -> state, pegasus_entry
+                            | _ -> 
                               let state = Remanent_state.warn __POS__ (Format.sprintf "Several Pegasus entries for the cours label %s (%s) %s" libelle year (match semester with None -> "NA" | Some s -> s)) Exit state in 
                               let state = List.fold_left (fun state a -> Remanent_state.warn __POS__ (Format.sprintf "Domain %s, Libellé %s " (Tools.unsome_string a.Public_data.pegasus_domain) libelle ) Exit state) state pegasus_entry in 
                               let l' = List.filter (fun a -> a.Public_data.pegasus_domain = Some "DENS-ENS") pegasus_entry 
