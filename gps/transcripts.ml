@@ -4089,7 +4089,7 @@ let translate_course_dens course year validation state =
                                             | Some ("m" | "M" | "M1" | "m1") ->  state,  Public_data.M1 
                                             | Some "mpri" -> state, Public_data.M2
                                             | Some ("dens" | "DENS") ->  state,       Public_data.DENS 
-                                            | Some a -> 
+                                            | Some _ -> 
                                               state, 
                                               
                                               Public_data.Other 
