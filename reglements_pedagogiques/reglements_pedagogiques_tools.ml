@@ -263,24 +263,9 @@ let rest_in_same _dip_list (t:t) state =
               | key::tail -> 
                   let state, cours = find_opt key t state in 
                      match cours with 
-                     | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip=new_dip ->   
-                      let state = 
-                        Remanent_state.warn __POS__ 
-                        (Format.sprintf "KEPT %s %s %s " key (A.string_of_dip dip) (A.string_of_dip new_dip)) 
-                        Exit state in      
-                      aux tail (state, missing, (key,a)::acc)
-                    | Some (_,_,(dip,_)) ->  
-                      let state = 
-                        Remanent_state.warn __POS__ 
-                        (Format.sprintf "NOT KEPT %s %s %s" key 
-                        (A.string_of_dip dip) (A.string_of_dip new_dip)) Exit state 
-                      in   aux tail (state,key::missing,acc) 
-                    | None (*| Some _ *) -> 
-                       let state = 
-                        Remanent_state.warn __POS__ 
-                        (Format.sprintf "NOT KEPT %s %s " key 
-                        (A.string_of_dip  new_dip))  
-                        Exit state in   
+                     | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip=new_dip -> aux tail (state, missing, (key,a)::acc)
+                    | Some _  
+                    | None -> 
                       aux tail (state,key::missing,acc) 
         in 
         aux list (state,[],[])
@@ -337,32 +322,15 @@ let rest_in_same _dip_list (t:t) state =
                   begin 
                     match A.get_validation b with 
                       | Public_data.Bool false | Public_data.Abs ->     
-                        let state = 
-                      Remanent_state.warn 
-                        __POS__ 
-                        (Format.sprintf "SELECT GROUPS (NO) : %s  " key)  Exit 
-                        state in             
-                         state, t, (k,(List.rev_map fst (List.rev list))@not_in)::missing, ects
+                      state, t, (k,(List.rev_map fst (List.rev list))@not_in)::missing, ects
                       | Public_data.Bool true | Public_data.Not_known_yet  -> 
                      let state, cours = find_opt key t state in 
                      match cours with 
                   | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip = new_dip ->  
                     let state, t = add ~new_dip a t state in 
                     aux (k-1) tail (state, t, missing, ects +. A.get_ects a)
-                  | Some (_a,_,(dip,(_:string option))) ->  
-                    let state = 
-                      Remanent_state.warn 
-                        __POS__ 
-                        (Format.sprintf "SELECT GROUPS: %s %s %s " key (A.string_of_dip  dip) (A.string_of_dip new_dip)) Exit 
-                        state in 
-                        aux k tail (state, t, missing, ects) 
-                 
+                  | Some _                  
                     | None  -> 
-                    let state = 
-                      Remanent_state.warn 
-                        __POS__ 
-                        (Format.sprintf "SELECT GROUPS: %s  %s " key (A.string_of_dip new_dip)) Exit 
-                        state in 
                         aux k tail (state, t, missing, ects) 
                   end 
                   in aux k sorted_list (state, t, missing, ects)) 
@@ -378,11 +346,6 @@ let rest_in_same _dip_list (t:t) state =
    
       let sorted_list = sort_enriched_list new_dip enriched_list in 
       let rec aux list current (state, t, ects) = 
-          let state = 
-              Remanent_state.warn 
-                __POS__ 
-                (Format.sprintf "select options %s %f %f %i" (A.string_of_dip new_dip) current ects (List.length list)) Exit state 
-          in 
           if ects >= 60. || current >= f 
             then (state, t, ects) else 
           match list with 
@@ -395,24 +358,11 @@ let rest_in_same _dip_list (t:t) state =
                       | Public_data.Bool true | Public_data.Not_known_yet  -> 
                      let state, cours = find_opt key t state in 
                      match cours with 
-                  | Some (a,_,(dip,(_:string option))) when A.is_unallocated dip || dip = new_dip ->     
-                     let state = 
-                        Remanent_state.warn __POS__ 
-                        (Format.sprintf "SELECT OPTION %s %s %s " key (A.string_of_dip dip) (A.string_of_dip new_dip)) 
-                        Exit state in      
+                  | Some (a,_,(dip,_)) when A.is_unallocated dip || dip = new_dip ->          
                     let state, t = add ~new_dip a t state in 
                     aux tail (current +. A.get_ects a) (state, t, ects +. A.get_ects a)
-                      | Some (_,_,(dip,(_:string option)))  ->     
-                     let state = 
-                        Remanent_state.warn __POS__ 
-                        (Format.sprintf "IGNORE OPTION %s %s %s " key (A.string_of_dip dip) (A.string_of_dip new_dip)) 
-                        Exit state in  aux tail current (state, t,  ects) 
-                  | None  -> 
-                    let state = 
-                        Remanent_state.warn __POS__ 
-                        (Format.sprintf "IGNORE OPTION %s %s " key  (A.string_of_dip new_dip)) 
-                        Exit state in 
-                    aux tail current (state, t,  ects) 
+                  | Some _ 
+                  | None  -> aux tail current (state, t,  ects) 
                   end 
       in 
       aux  sorted_list 0. (state, t,  ects)) (state, t, ects) list in 
@@ -421,15 +371,13 @@ let rest_in_same _dip_list (t:t) state =
 
     let keep_others state dip_list (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = 
       let dip_list = List.rev_map fst (List.rev dip_list) in 
-      let state,(t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = Course.KeyMap.fold 
-        (fun key  (a,(b,(b':string option)),_c) (state,map)-> 
-          if List.mem b dip_list || is_dens b  then 
-            Remanent_state.warn __POS__ (Format.sprintf "MEM %s %s" key (A.string_of_dip b)) Exit state, 
+      let (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) = Course.KeyMap.fold 
+        (fun key  (a,(b,(b':string option)),_c) map-> 
+          if List.mem b dip_list || is_dens b  then  
             Course.KeyMap.add key (a,(b,b'),(A.unassigned, None)) map 
           else 
-            Remanent_state.warn __POS__ (Format.sprintf "NOT MEM %s %s" key (A.string_of_dip b)) Exit state, 
            Course.KeyMap.add key (a,(b,b'),(b,b')) map 
-          ) t (state,Course.KeyMap.empty) 
+          ) t Course.KeyMap.empty 
     in state, (t: ('a * (dip * key option) * (dip * key option)) Course.KeyMap.t) 
     
 
@@ -561,9 +509,7 @@ let select_experience_in_bonus
                     let elt' = fst target in 
                     let state, found, validation  = 
                       match Public_data.StringMap.find_opt elt' t with 
-                      | None ->  (if true || fst target = "UNEXPA-08" then 
-                          Remanent_state.warn __POS__ (Format.sprintf "EXP NOT FOUND %s"  (fst target) ) Exit state 
-                        else state),  false, Public_data.Bool false 
+                      | None ->   state, false, Public_data.Bool false 
                       | Some (obj''',(dip_course,_),_) -> 
                         let b_dip = A.check_dip_compatibility dip_target dip_course in 
                         let b_year = 
@@ -579,13 +525,7 @@ let select_experience_in_bonus
                            | Public_data.Not_known_yet, (Public_data.Bool false | Public_data.Abs) 
                            | Public_data.Bool true, (Public_data.Bool false | Public_data.Abs | Public_data.Not_known_yet)  -> false 
                         in 
-                          (if true (*fst target = "UNEXPA-08"*) then 
-                          Remanent_state.warn __POS__ (Format.sprintf "EXP NOT FOUND: %s %s %s %s"
-                          (fst target) 
-                          (if b_dip then "true" else "false")
-                          (if b_year then "true" else "false")
-                          (if b_validation then "true" else "false")) Exit state 
-                        else state), 
+                           state, 
                         b_dip && b_year && b_validation , A.get_validation obj'''
                     in 
                     if found then state, t, output 
