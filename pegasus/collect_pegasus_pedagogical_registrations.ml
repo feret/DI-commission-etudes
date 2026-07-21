@@ -486,6 +486,7 @@ let update_course'  semester libelle teacher ects entry bset state  =
                       match pegasus_entry_opt with
                         | _::_ -> state, Some pegasus_entry_opt, libelle
                         | [] ->
+                  
                             let libelle = Tools.simplify_spaces libelle in
                             let state, pegasus_entry_opt =
                                 Remanent_state.get_course_in_pegasus_by_libelle ~libelle ~year ~semester state
@@ -502,7 +503,7 @@ let update_course'  semester libelle teacher ects entry bset state  =
                         let state =
                           Remanent_state.warn
                           __POS__
-                          (Format.sprintf "Pegasus entry is missing %s %s" libelle year)
+                          (Format.sprintf "Pegasus entry is missing %s %s %s %s %s" (Tools.unsome_string entry.lastname) (Tools.unsome_string entry.firstname) libelle (Tools.simplify_spaces libelle) year)
                           Exit
                           state
                         in

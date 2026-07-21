@@ -500,8 +500,11 @@ let make_dictionary state =
           Tools.unsome_string course.Public_data.pegasus_libelle_en 
         in 
         let lib''' = Tools.hash_libelle2 lib'' in 
-         state, 
-         add_non_empty [lib';lib'';lib''']  lib acc)
+        let state = 
+          if course.Public_data.pegasus_helisa = "UNEXPA-037"
+            then Remanent_state.warn __POS__ (Format.sprintf "MAKE DICTIONARY (%s) (%s) (%s) (%s)" lib lib' lib'' lib''') Exit 
+         state else state in 
+         state, add_non_empty [lib';lib'';lib''']  lib acc  )
       map (state, Public_data.StringMap.empty)
   in 
   Remanent_state.set_pedagogical_courses_dictionnary pedagogical_courses_dictionnary state 
