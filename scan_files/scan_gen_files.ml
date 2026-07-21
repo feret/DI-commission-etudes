@@ -275,8 +275,8 @@ let get_list
           }
       | Some x -> state, x
       in
-      let state, output = List.fold_left
-        (fun (state, output) file ->
+      let state, output,_ = List.fold_left
+        (fun (state, output, i) file ->
            let event = Some (Profiling.Scan_csv_files (fst file,snd file)) in
            let state = Remanent_state.open_event_opt event state in
            let _ =
@@ -297,13 +297,14 @@ let get_list
                   init_state
                   state file output
             in
+            let n = List.length output in 
             let _ = 
               Format.printf 
-               "  -> %i entries" (List.length output)
+               "  -> %i entries @." (n - i) 
             in 
             let state = Remanent_state.close_event_opt event state in
-            state, output)
-        (state, output) files_list
+            state, output, n)
+        (state, output, 0) files_list
       in state, Some automaton, output
 
 let unify_gen
