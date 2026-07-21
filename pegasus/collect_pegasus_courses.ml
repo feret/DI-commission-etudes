@@ -462,6 +462,7 @@ let all_fields =
               ?repository
               ?prefix
               ?file_name
+              ~debug:true 
               ~compute_repository
               ~fun_default:Tools.fun_ignore
               ~keywords_of_interest
