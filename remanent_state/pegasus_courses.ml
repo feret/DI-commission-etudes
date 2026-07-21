@@ -44,7 +44,24 @@ let get_pegasus_course_by_libelle ~libelle ~year  ~semester courses =
                   libelle
                   a
               with
-                | None -> []
+                | None -> 
+                  begin 
+                  let libelle = Tools.hash_libelle2 libelle in 
+                    match
+                Public_data.StringMap.find_opt
+                  libelle
+                  a
+              with
+                | None -> 
+                  []
+                | Some a ->
+                  match Public_data.StringOptMap.find_opt
+                      semester a
+                  with None -> [] | Some a -> a
+
+                  end 
+                  
+                 
                 | Some a ->
                   match Public_data.StringOptMap.find_opt
                       semester a

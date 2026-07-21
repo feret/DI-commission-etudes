@@ -213,6 +213,7 @@ let keywords_list =
     Public_data.PEGASUS_ENSEIGNANT_7 ;
     Public_data.PEGASUS_ENSEIGNANT_8 ;
     Public_data.PEGASUS_ENSEIGNANT_9 ;
+    Public_data.PEGASUS_ENSEIGNANT_10 ; 
     Public_data.PEGASUS_INTITULE ;
     Public_data.PEGASUS_INTITULE_ANGLAIS ;
     Public_data.PEGASUS_MOTS_CLES ;
