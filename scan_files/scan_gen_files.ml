@@ -297,6 +297,10 @@ let get_list
                   init_state
                   state file output
             in
+            let _ = 
+              Format.printf 
+               "  -> %i entries" (List.length output)
+            in 
             let state = Remanent_state.close_event_opt event state in
             state, output)
         (state, output) files_list
