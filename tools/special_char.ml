@@ -12,6 +12,14 @@ module Char2Map =
       let compare = compare
     end)
 
+
+module Char3Map =
+  Map.Make
+    (struct
+      type t = char * char * char 
+      let compare = compare
+    end)
+
 let get_main (a,_,_,_,_,_,_) = a
 let get_latex (_,a,_,_,_,_,_) = a
 let get_html (_,_,a,_,_,_,_) = a
@@ -93,6 +101,7 @@ let special_char_tab  =
       "ú","{\\'u}", "&uacute;","ú","ú","Ú","u";
       (*"ū"*)
       "\191", "'", "'","'","'","'","\'";
+       "’", "'", "'","'","'","'","\'";
     (*  "\002", "_", "_","_","_","_","_";*)
     (*  "%"   , "" ,"%" ,"%","%","%","%";*)
       "_", "\\_" , "_","_","_","_","_";
@@ -138,22 +147,25 @@ let special_char_simple_quote =
 let map_from_char_list l =
   List.fold_left
     (fun map (x,y) -> CharMap.add x y map)
-    CharMap.empty l, Char2Map.empty
+    CharMap.empty l, Char2Map.empty, Char3Map.empty 
 
 let map_from_string_list =
   List.fold_left
-    (fun (map1,map2) (x,y) ->
+    (fun (map1,map2,map3) (x,y) ->
         if String.length x = 1 then
-          CharMap.add (String.get x 0) y map1, map2
+          CharMap.add (String.get x 0) y map1, map2, map3
         else
         if String.length x = 2 then
           map1,
           Char2Map.add
             (String.get x 0, String.get x 1)
-            y
-          map2
-        else failwith "BAD STRING in Special_char tabs")
-    (CharMap.empty, Char2Map.empty)
+             y 
+          map2, map3
+        else if String.length x = 3 then 
+          map1,map2, Char3Map.add (String.get x 0, String.get x 1 , String.get x 2) y map3 
+        else 
+            failwith "BAD STRING in Special_char tabs")
+    (CharMap.empty, Char2Map.empty, Char3Map.empty)
 
 let special_char_map =
     map_from_string_list special_char
@@ -168,7 +180,7 @@ let special_char_percent_from_csv_to_latex_map =
     map_from_char_list special_char_percent_from_csv_to_latex
 
 let special_char_email_latex =
-    CharMap.empty, Char2Map.empty
+    CharMap.empty, Char2Map.empty, Char3Map.empty 
 
 let special_char_latex_map =
     map_from_string_list special_char_latex
@@ -223,7 +235,7 @@ let expand_char c =
        expand_acute_in_char
        (expand_char_upper_lower c))*)
 
-let string_map ?dft (map1,map2) s =
+let string_map ?dft (map1,map2,map3) s =
   let dft =
     match dft with
       | None -> (fun x -> x)
@@ -240,9 +252,24 @@ let string_map ?dft (map1,map2) s =
           match CharMap.find_opt c1 map1 with
           | None -> aux (k+1) (dft (String.make 1 c1)::accu)
           | Some c -> aux (k+1) (c::accu)
-        else
+        else if k=size-2 then 
           let c1 = String.get s k in
           let c2 = String.get s (k+1) in
+          match Char2Map.find_opt (c1,c2) map2 with
+          | Some c -> aux (k+2) (c::accu)
+          | None ->
+            begin
+              match CharMap.find_opt c1 map1 with
+                | None -> aux (k+1) (dft (String.make 1 c1)::accu)
+                | Some c -> aux (k+1) (c::accu)
+            end
+          else 
+             let c1 = String.get s k in
+          let c2 = String.get s (k+1) in
+          let c3 = String.get s (k+2) in 
+          match Char3Map.find_opt (c1,c2,c3) map3 with 
+          | Some c -> aux (k+3) (c::accu)
+          | None -> 
           match Char2Map.find_opt (c1,c2) map2 with
           | Some c -> aux (k+2) (c::accu)
           | None ->
@@ -269,7 +296,7 @@ let string_map ?dft (map1,map2) s =
       (List.rev l)
 
 let both a b = [a;b]
-let expand_string (map1,map2) s =
+let expand_string (map1,map2,map3) s =
   let size = String.length s in
   let rec aux k accu =
       if k=size
@@ -282,7 +309,7 @@ let expand_string (map1,map2) s =
           match CharMap.find_opt c1 map1 with
           | None -> aux (k+1) ([s1]::accu)
           | Some c -> aux (k+1) ((both s1 c)::accu)
-        else
+        else if k = size-2 then 
             let c1 = String.get s k in
             let s1 = String.make 1 c1 in
             let c2 = String.get s (k+1) in
@@ -295,6 +322,24 @@ let expand_string (map1,map2) s =
                   | Some c -> aux (k+1) ((both s1 c)::accu)
                 end
               | Some c -> aux (k+2) ((both s2 c)::accu)
+              else 
+                 let c1 = String.get s k in
+            let s1 = String.make 1 c1 in
+            let c2 = String.get s (k+1) in
+            let s2 = String.sub s k 2 in
+            let c3 = String.get s (k+2) in 
+            let s3 = String.sub s k 3 in 
+            match Char3Map.find_opt (c1,c2,c3) map3 with 
+            | None -> begin 
+            match Char2Map.find_opt (c1,c2) map2 with
+              | None ->
+                begin
+                  match CharMap.find_opt c1 map1 with
+                  | None -> aux (k+1) ([s1]::accu)
+                  | Some c -> aux (k+1) ((both s1 c)::accu)
+                end 
+              | Some c -> aux (k+2) ((both s2 c)::accu) end 
+              | Some c -> aux (k+3) ((both s3 c)::accu)
     in
     let l =  aux 0 [] in
     let l = cartesian_product l in
@@ -354,6 +399,7 @@ let correct_string_csv s =
   string_map special_char_csv_map s
 
 let gen_char ?dft map  c =
+let (map1,map2,map3) = map in 
   let dft =
     match dft with
       | None -> (fun x->x)
@@ -363,7 +409,7 @@ let gen_char ?dft map  c =
     | [a] ->
       begin
         match
-          CharMap.find_opt a (fst map)
+          CharMap.find_opt a map1 
         with
           | None -> dft (String.make 1 a)
           | Some a -> a
@@ -371,9 +417,17 @@ let gen_char ?dft map  c =
     | [a;b] ->
     begin
       match
-        Char2Map.find_opt (a,b) (snd map)
+        Char2Map.find_opt (a,b) map2 
       with
         | None -> dft ((String.make 1 a)^(String.make 1 b))
+        | Some a -> a
+    end
+    | [a;b;c] -> 
+       begin
+      match
+        Char3Map.find_opt (a,b,c) map3 
+      with
+        | None -> dft ((String.make 1 a)^(String.make 1 b)^(String.make 1 c))
         | Some a -> a
     end
     | [] | _::_::_::_ -> failwith "BAD STRING in Special_char tabs"
@@ -393,6 +447,7 @@ let lowercase s =
 
 let capitalize s =
   let n = String.length s in
+  let _special_char1, special_char2, _special_char3 = special_char_map in 
   let rec aux k bool accu =
     if k=n
     then String.concat "" (List.rev accu)
@@ -407,7 +462,7 @@ let capitalize s =
       else
         let c1 = String.get s k in
         let c2 = String.get s (k+1) in
-        match Char2Map.find_opt (c1,c2) (snd special_char_map) with
+        match Char2Map.find_opt (c1,c2) special_char2 with
         | Some c -> aux (k+2) false (if bool then c::accu else ((String.make 1 c2)::(String.make 1 c1)::accu))
         | None ->
           begin
@@ -425,6 +480,7 @@ let delimiter =
 
 let correct_buggy s =
 let n = String.length s in
+let (_,special_char2,_) = special_char_map in 
 let rec aux k accu =
   if k=n
   then String.concat "" (List.rev accu)
@@ -441,7 +497,7 @@ let rec aux k accu =
     else
       let c1 = String.get s k in
       let c2 = String.get s (k+1) in
-      match Char2Map.find_opt (c1,c2) (snd special_char_map) with
+      match Char2Map.find_opt (c1,c2) special_char2 with
       | Some _ ->
           let elt =
             if k=0
@@ -469,6 +525,7 @@ let update s i j has_buggy has_lowercase accu =
 
 let clean_spurious_uppercase_letters s =
     let n = String.length s in
+    let _,special_char2,_=special_char_map in 
     let rec aux k has_buggy has_lowercase start accu =
       if k=n
       then
@@ -501,7 +558,7 @@ let clean_spurious_uppercase_letters s =
         let c2 = String.get s (k+1) in
         let sc1 = String.sub s k 1 in
         let sc12 = String.sub s k 2 in
-        match Char2Map.find_opt (c1,c2) (snd special_char_map) with
+        match Char2Map.find_opt (c1,c2) special_char2 with
           | Some _ ->
             let has_lowercase =
               has_lowercase ||
