@@ -466,6 +466,7 @@ let all_fields =
             let state = Remanent_state.open_event_opt event state in
             let state = Scan_xlss_files.collect_gen
               ~strict:false
+              ~debug:true 
               ?repository
               ?prefix
               ?file_name
