@@ -192,6 +192,7 @@ let keywords_list =
     Public_data.PEGASUS_ADM_PRENOM ;
     Public_data.PEGASUS_RESPONSABLE_ADMINISTRATIF ; 
     Public_data.PEGASUS_ENS_CE_EMAIL_RDD_01 ;
+    Public_data.PEGASUS_ENS_CE_EMAIL_RDD_02 ;
     Public_data.PEGASUS_COURS_OBL_CODES_PRODUITS ;
     Public_data.PEGASUS_COURS_OBL_PHASES_PROS ;
     Public_data.PEGASUS_MOODLE_ENSEIGNEMENT_FERME ; 
