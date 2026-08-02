@@ -605,7 +605,10 @@ let select_experience_in_bonus
       if Public_data.YearMap.is_empty by_year then 
         state 
       else 
-        Remanent_state.maketitle  state [Loggers.fprintf,"COURSE ALLOCATION SUGGESTION"]  
+         let state, title = 
+          Remanent_state.bilingual_string ~french:"SUGGECTION D'ALLOCATION DES COURS" ~english:"COURSE ALLOCATION SUGGESTION" state 
+        in 
+        Remanent_state.maketitle  state [Loggers.fprintf,title]  
     in   
     let size =    [None;None;None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None;None;None] in
@@ -616,25 +619,59 @@ let select_experience_in_bonus
       (fun (state,_something) ((_,s), k,l) -> 
             if k = List.length l then 
               if k = 1 then 
-               let () = Remanent_state.fprintf state "The following %i course " (List.length l)  in 
-               let () = List.iter (fun elt -> Remanent_state.fprintf state "%s " elt) l in 
-               let () = Remanent_state.fprintf state "is missing for diploma %s" 
+                begin 
+               let state, string = 
+                             Remanent_state.bilingual_string ~french:"Le cours " ~english:"The course " state   in 
+              let () = Remanent_state.fprintf state "%s" string in 
+              let () = List.iter (fun elt -> Remanent_state.fprintf state "%s " elt) l in 
+              let state, string = 
+                             Remanent_state.bilingual_string ~french:"manque pour le diplome   " ~english:"is missing for the diploma  " state   in 
+              
+              let () = Remanent_state.fprintf state "%s%s." string  
                (match s with None -> "" | Some a -> a) in       
                let () = Remanent_state.print_newline state in 
-               state, true 
-else  
-  let () = Remanent_state.fprintf state "The following %i courses " (List.length l)  in 
+               state, true end 
+else 
+  begin  
+  let state, string1 = 
+                             Remanent_state.bilingual_string ~french:"Les "  ~english:"The following " state   in
+   let state, string2 = 
+                             Remanent_state.bilingual_string ~french:"cours suivants ("   ~english:"courses (" state   
+                            in
+              let () = Remanent_state.fprintf state "%s%i%s" string1 (List.length l) string2 in 
                let () = List.iter (fun elt -> Remanent_state.fprintf state "%s, " elt) l in 
-               let () = Remanent_state.fprintf state "are missing for diploma %s"  (match s with None -> "" | Some a -> a) in       
+               let state, string1 = 
+                             Remanent_state.bilingual_string ~french:") manquent pour le diplome "  ~english:") are missing for the diploma"  state in 
+               let () = Remanent_state.fprintf state "%s%s."  string1 (match s with None -> "" | Some a -> a) in       
                let () = Remanent_state.print_newline state in 
-               state, true 
+               state, true end 
             else          
-            let () = if k = 1 then Remanent_state.fprintf state "It misses %i over %i course among " k (List.length l) 
+            let () = 
+              if k = 1 then 
+                let state, string1 = 
+                             Remanent_state.bilingual_string ~french:"Il manque 1 cours parmi "  ~english:"It misses 1 course among " state   in
+   let state, string2 = 
+                             Remanent_state.bilingual_string ~french:"dans les cours suivants ("   ~english:"in the following courses (" state   
+                            in
+                
+                Remanent_state.fprintf state "%s%i %s" string1 (List.length l) string2 
             else 
-              Remanent_state.fprintf state "It misses %i over %i courses among " k (List.length l) 
+              let state, string1 = 
+                             Remanent_state.bilingual_string ~french:"Il manque "  ~english:"There miss " state in 
+                              let state, string2 = 
+                             Remanent_state.bilingual_string ~french:"cours parmi "  ~english:"courses among " state in 
+                           
+   let state, string3 = 
+                             Remanent_state.bilingual_string ~french:"dans les cours suivants ("   ~english:"in the following courses (" state   
+                            in
+                
+                Remanent_state.fprintf state "%s%i %s%i %s" string1 k string2 (List.length l) string3 
            in 
             let () = List.iter (fun elt -> Remanent_state.fprintf state "%s, " elt) l in 
-            let () = Remanent_state.fprintf state " for diploma %s"  (match s with None -> "" | Some a -> a) in         
+        let state, string = 
+                             Remanent_state.bilingual_string ~french:") pour le diplome "  ~english:") for the diploma  " state in 
+        
+            let () = Remanent_state.fprintf state "%s %s"  string (match s with None -> "" | Some a -> a) in         
             let () = Remanent_state.print_newline state in 
             state, true)
           (state, false) missing_entries 
@@ -688,7 +725,10 @@ else
       if Public_data.YearMap.is_empty by_year then 
         state
       else 
-        Remanent_state.maketitle  state [Loggers.fprintf,"MPRI COURSES THAT COUNT FOR THE DENS"]  
+        let state, title = 
+          Remanent_state.bilingual_string ~english:"MPRI COURSES THAT COUNT FOR THE DENS" ~french:"COURS DU MPRI À FAIRE COMPTER DANS LE DENS" state 
+        in 
+        Remanent_state.maketitle  state [Loggers.fprintf,title]  
     in 
     let () = Remanent_state.fprintf state "\\vfill" in
     let state, something = 
@@ -708,13 +748,12 @@ else
      let (state:Remanent_state.t) = 
       Course.KeyMap.fold  
       (fun _k c state -> 
-        let () = Remanent_state.open_row state in
         let state = print state (c:(obj * (dip * string option) * (dip * string option))) in 
-        let () = Remanent_state.close_row state in 
+        let () = Remanent_state.print_newline state in 
         state 
         ) t state 
     in
-    let () = Remanent_state.close_array state in 
+    let () = Remanent_state.fprintf state "\\end{center}" in
     state,true) by_year (state, false) 
   in 
   let () = if something then Remanent_state.fprintf state "\\vfill" in
@@ -727,7 +766,10 @@ let print_exp_to_declare state print _missing_entries by_year =
       if Public_data.YearMap.is_empty by_year then 
         state
       else 
-        Remanent_state.maketitle  state [Loggers.fprintf,"EXPERIENCES TO DECLARE"]  
+         let state, title = 
+          Remanent_state.bilingual_string ~english:"EXPERIENCES TO BE DECLARED" ~french:"EXPÈRIENCES À DÉCLARER" state 
+        in 
+        Remanent_state.maketitle  state [Loggers.fprintf,title]  
     in 
     let state, something = 
       Public_data.YearMap.fold 
@@ -742,7 +784,7 @@ let print_exp_to_declare state print _missing_entries by_year =
           let s_en = Format.sprintf "Academic year %s" year_ext in 
           let state, s_bi = Remanent_state.bilingual_string ~english:s_en ~french:s_fr state in 
           let () = Remanent_state.fprintf state "%s" s_bi in 
-          let () = Remanent_state.fprintf state "\\begin{center}" in
+         
    let () = Remanent_state.fprintf state "\\renewcommand{\\row}[7]{#1&#2&#3&#4&#5&#6&#7\\cr}" in
     let () = Remanent_state.fprintf state "\\renewcommand{\\innerline}{}" in
     let () = Remanent_state.fprintf state "\\vfill" in
@@ -769,6 +811,7 @@ let print_exp_to_declare state print _missing_entries by_year =
         ) t state 
     in
     let () = Remanent_state.close_array state in 
+    let () = Remanent_state.fprintf state "\\end{center}" in
     state,true) by_year (state, false) 
   in 
   let () = if something then Remanent_state.fprintf state "\\vfill" 
