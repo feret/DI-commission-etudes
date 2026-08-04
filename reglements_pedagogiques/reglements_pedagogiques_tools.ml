@@ -608,7 +608,14 @@ let select_experience_in_bonus
          let state, title = 
           Remanent_state.bilingual_string ~french:"SUGGECTION D'ALLOCATION DES COURS" ~english:"COURSE ALLOCATION SUGGESTION" state 
         in 
-        Remanent_state.maketitle  state [Loggers.fprintf,title]  
+        let () = Remanent_state.print_newline state in 
+        let () = Remanent_state.fprintf state "\\begin{center}" in
+        let () = Remanent_state.fprintf state "\\Large" in 
+        let () = Remanent_state.fprintf state "%s" title in 
+        let () = Remanent_state.fprintf state "\\end{center}" in 
+        let () = Remanent_state.print_newline state in 
+         let () = Remanent_state.print_newline state in 
+        state 
     in   
     let size =    [None;None;None;None;None;None;None] in
     let bgcolor = [None;None;None;None;None;None;None] in
@@ -716,7 +723,7 @@ else
     let () = Remanent_state.close_array state in 
     state,true) by_year (state, something) 
   in 
-  let () = if something then Remanent_state.fprintf state "\\vfill" in
+  let () = if something then Remanent_state.fprintf state "\\vfill\\mbox{}" in
   state, something  
 
 
@@ -728,7 +735,14 @@ else
         let state, title = 
           Remanent_state.bilingual_string ~english:"MPRI COURSES THAT COUNT FOR THE DENS" ~french:"COURS DU MPRI À FAIRE COMPTER DANS LE DENS" state 
         in 
-        Remanent_state.maketitle  state [Loggers.fprintf,title]  
+       let () = Remanent_state.print_newline state in 
+        let () = Remanent_state.fprintf state "\\begin{center}" in
+        let () = Remanent_state.fprintf state "\\Large" in 
+        let () = Remanent_state.fprintf state "%s" title in 
+        let () = Remanent_state.fprintf state "\\end{center}" in 
+        let () = Remanent_state.print_newline state in 
+         let () = Remanent_state.print_newline state in 
+        state 
     in 
     let () = Remanent_state.fprintf state "\\vfill" in
     let state, something = 
@@ -741,9 +755,15 @@ else
             with _ -> year 
           in
           let s_fr = Format.sprintf "Année académique %s" year_ext in 
-          let s_en = Format.sprintf "Academic year %s" year_ext in 
+          let s_en = Format.sprintf "Academic year %s" year_ext in
+           let () = Remanent_state.print_newline state in 
+            let () = Remanent_state.print_newline state in  
+           let () = Remanent_state.fprintf state "\\begin{center}" in
           let state, s_bi = Remanent_state.bilingual_string ~english:s_en ~french:s_fr state in 
           let () = Remanent_state.fprintf state "%s" s_bi in 
+          let () = Remanent_state.fprintf state "\\end{center}" in 
+          let () = Remanent_state.print_newline state in 
+           let () = Remanent_state.print_newline state in 
           let () = Remanent_state.fprintf state "\\begin{center}" in
      let (state:Remanent_state.t) = 
       Course.KeyMap.fold  
@@ -756,7 +776,7 @@ else
     let () = Remanent_state.fprintf state "\\end{center}" in
     state,true) by_year (state, false) 
   in 
-  let () = if something then Remanent_state.fprintf state "\\vfill" in
+  let () = if something then Remanent_state.fprintf state "\\vfill\\mbox{}" in
    state, something 
 
 let print_exp_to_declare state print _missing_entries by_year =   
@@ -769,7 +789,14 @@ let print_exp_to_declare state print _missing_entries by_year =
          let state, title = 
           Remanent_state.bilingual_string ~english:"EXPERIENCES TO BE DECLARED" ~french:"EXPÈRIENCES À DÉCLARER" state 
         in 
-        Remanent_state.maketitle  state [Loggers.fprintf,title]  
+        let () = Remanent_state.print_newline state in 
+        let () = Remanent_state.fprintf state "\\begin{center}" in
+        let () = Remanent_state.fprintf state "\\Large" in 
+        let () = Remanent_state.fprintf state "%s" title in 
+        let () = Remanent_state.fprintf state "\\end{center}" in 
+        let () = Remanent_state.print_newline state in 
+         let () = Remanent_state.print_newline state in 
+        state 
     in 
     let state, something = 
       Public_data.YearMap.fold 
@@ -814,7 +841,7 @@ let print_exp_to_declare state print _missing_entries by_year =
     let () = Remanent_state.fprintf state "\\end{center}" in
     state,true) by_year (state, false) 
   in 
-  let () = if something then Remanent_state.fprintf state "\\vfill" 
+  let () = if something then Remanent_state.fprintf state "\\vfill\\mbox{}" 
   in state, something 
 
 
@@ -825,7 +852,17 @@ let print_exp_to_declare state print _missing_entries by_year =
       if Public_data.YearMap.is_empty by_year then 
         state
       else 
-        Remanent_state.maketitle  state [Loggers.fprintf,"EXPERIENCES TO DECLARE"]  
+         let state, title = 
+          Remanent_state.bilingual_string ~english:"EXPERIENCES TO BE VALIDATED" ~french:"EXPÈRIENCES À VALIDER" state 
+        in 
+        let () = Remanent_state.print_newline state in 
+        let () = Remanent_state.fprintf state "\\begin{center}" in
+        let () = Remanent_state.fprintf state "\\Large" in 
+        let () = Remanent_state.fprintf state "%s" title in 
+        let () = Remanent_state.fprintf state "\\end{center}" in 
+        let () = Remanent_state.print_newline state in 
+         let () = Remanent_state.print_newline state in 
+        state  
     in 
     let state, something = 
       Public_data.YearMap.fold 
@@ -869,7 +906,7 @@ let print_exp_to_declare state print _missing_entries by_year =
     let () = Remanent_state.close_array state in 
     state,true) by_year (state, false) 
   in 
-  let () = if something then Remanent_state.fprintf state "\\vfill" 
+  let () = if something then Remanent_state.fprintf state "\\vfill\\mbox{}" 
   in state, something 
 
   end: DMap with type key = A.key and type obj = A.obj and type dip = A.dip and type t = (A.obj*(A.dip * string option) *(A.dip * string option)) Course.KeyMap.t) 
