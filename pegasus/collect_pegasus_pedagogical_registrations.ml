@@ -521,6 +521,16 @@ let update_course'  semester libelle teacher ects entry bset state  =
 let previous = pegasus_entry in 
 let pegasus_entry = 
     List.filter (fun a -> 
+       let data = a.Public_data.pegasus_helisa in 
+       not (String.length data >= 6 && String.sub data 0 6 = "UNDEXT") 
+      ) pegasus_entry 
+in 
+let pegasus_entry = 
+  match pegasus_entry with [] -> previous | _ -> pegasus_entry 
+in 
+let previous = pegasus_entry in 
+let pegasus_entry = 
+    List.filter (fun a -> 
       let prefix = 
          match entry.dpt with 
          | Some Public_data.DI -> Some "UNINF"
