@@ -68,6 +68,11 @@ let fetch_name l =
       "Anna"
     else firstname 
   in 
+  let firstname = 
+    if lastname = "DETHOREY" && firstname = "Hugo" 
+    then "Alixe"
+  else firstname 
+in 
   tail, lastname, firstname
 
 let update_student bloc entry bset state =

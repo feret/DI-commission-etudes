@@ -1052,7 +1052,7 @@ let dump_dens dens state =
                   "(2 expériences nécessaires)"
         else  
           Remanent_state.fprintf state
-                  "(2 expériences de différentes catéqories nécessaires)"
+                  "(2 expériences de différentes catégories nécessaires)"
       in 
       let () = Remanent_state.print_newline state in
       let () = Remanent_state.fprintf state "M2 recherche : " in
