@@ -291,7 +291,7 @@ let parameters =
     commissions_repository = "commissions_des_etudes";
     add_grades_without_registration = true  ;
 
-    commission =  Some ("?? september 2026", "2025");
+    commission =  Some ("\\BiLingual{22 septembre 2026}{22 September 2026}", "2025");
     target = None ;
     signature = "feret+tampon.pdf";
     bilinguage = true ;
