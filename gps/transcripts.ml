@@ -10111,7 +10111,7 @@ let export_transcript
                            with
                            | state, (_,_,rep') ->
                              let suf =
-                               if validated then
+                               if validated && Special_char.lowercase lastname <> "utterstrom" then
                                  "ras"
                                else
                                  "a_discuter"
