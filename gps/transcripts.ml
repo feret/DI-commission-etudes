@@ -2029,10 +2029,12 @@ let empty_remanent =
 
             in
             if
-              b2 ||
+              (b2 ||
               ((not is_pg) && (if previous_year < 2024 
                then (match bilan.derniere_annee with Some true -> true | None | Some false -> false)
-               else (match bilan.derniere_annee with Some true | None -> true | Some false -> false)))
+               else (match bilan.derniere_annee with Some true | None -> true | Some false -> false)))) && 
+               (not (String.lowercase_ascii lastname = "utterstrom" && 
+                 previous_year = 2024))
             then 
               state, remanent
             else
