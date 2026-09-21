@@ -326,7 +326,7 @@ let parameters =
     simple_m1 = 
     [Public_data.DMA,Reglements_pedagogiques.m1_maths]; 
     suggest_course_dispatching=false; 
-    focus_lastname = ["MARQUET"]; 
+    focus_lastname = ["UTTERSTROM"]; 
     focus_firstname = []; 
     keep_not_validated = true ; 
     do_not_move_unvalidated = true ; 
