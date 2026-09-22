@@ -1726,7 +1726,22 @@ let add_extra_course ~firstname ~lastname state cours_a_ajouter gps_file =
       code_cours = code ; 
       code_cours_helisa = None ; 
       code_cours_gps = code ; 
-      code_diplome = None ;   
+      code_diplome = 
+        (match cours_a_ajouter.Public_data.coursaj_level, cours_a_ajouter.Public_data.coursaj_dpt with 
+
+       (*  | Some "ANL3INF" -> Some Public_data.DI  
+                    | Some "ANL3DMA" -> Some Public_data.DMA 
+                    | Some "ANLMDMA" -> Some Public_data.DMA 
+                    | Some "ANM2INFPRI" -> Some Public_data.DI  
+                    | Some "ANM1DMA" -> Some Public_data.DMA 
+                    | Some "ANM1INF" -> Some Public_data.DI *)
+        | ("L" | "l" | "L3" | "l3"), Some ("DI"|"di") -> Some "ANL3INF"
+        | ("L" | "l" | "L3" | "l3"), Some ("DMA"|"dma") -> Some "ANL3DMA" 
+        | ("M" | "m" | "M1" | "m1" ), Some ("DI"|"di") -> Some "ANL3INF"
+        | ("M" | "m" | "M1" | "m1" ), Some ("DMA"|"dma") -> Some "ANL3DMA" 
+     
+        | _ -> None )
+        ;   
       responsable = None ;
       enseignants = None ;
       cours_libelle = Some (String.trim (cours_a_ajouter.Public_data.coursaj_libelle));
