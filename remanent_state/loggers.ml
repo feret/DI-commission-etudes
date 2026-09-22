@@ -12,7 +12,7 @@ type latex_parameters =
   }
 
 let latex_normal =
-  {orientation=Normal;language=French;bilinguage=false;template=PV;font=10}
+  {orientation=Normal;language=French;bilinguage=true;template=PV;font=10}
 
 type encoding =
   | HTML | HTML_Tabular | HTML_encapsulated

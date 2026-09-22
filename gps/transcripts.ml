@@ -5367,8 +5367,8 @@ let heading
   in
   let inscriptions, inscriptions_en = 
     if inscriptions = [] && String.lowercase_ascii lastname = "utterstrom"
-    then "Licence d’informatique — Universitt\\'e Paris Cit\\'e"::inscriptions, 
-    "Bachelor in Computer Science - Paris Cit\\e university"::inscriptions_en 
+    then "Licence d’informatique --- Universit\\'e Paris Cit\\'e"::inscriptions, 
+    "Bachelor in Computer Science --- Paris Cit\\e university"::inscriptions_en 
   else inscriptions, inscriptions_en  
   in 
   let inscription_string =
