@@ -1734,7 +1734,7 @@ let add_extra_course ~firstname ~lastname state cours_a_ajouter gps_file =
       duree = None ;
       ects = Some cours_a_ajouter.Public_data.coursaj_ects;
       diplome = Some cours_a_ajouter.Public_data.coursaj_level ;
-      diplome_dpt = None ; 
+      diplome_dpt = Tools.map_opt Public_data.dpt_of_string cours_a_ajouter.Public_data.coursaj_dpt ; 
       contrat = None ;
       accord = Some true ;
       note =
@@ -5365,6 +5365,12 @@ let heading
       else
          inscriptions, inscriptions_en
   in
+  let inscriptions, inscriptions_en = 
+    if inscriptions = [] && String.lowercase_ascii lastname = "utterstrom"
+    then "Licence d’informatique — Universitt\\'e Paris Cit\\'e"::inscriptions, 
+    "Bachelor in Computer Science - Paris Cit\\e university"::inscriptions_en 
+  else inscriptions, inscriptions_en  
+  in 
   let inscription_string =
     Format.asprintf
       "%a"
