@@ -1734,7 +1734,7 @@ let add_extra_course ~firstname ~lastname state cours_a_ajouter gps_file =
       duree = None ;
       ects = Some cours_a_ajouter.Public_data.coursaj_ects;
       diplome = Some cours_a_ajouter.Public_data.coursaj_level ;
-      diplome_dpt = Tools.map_opt Public_data.dpt_of_string cours_a_ajouter.Public_data.coursaj_dpt ; 
+      diplome_dpt = if String.lowercase_ascii cours_a_ajouter.Public_data.coursaj_level = "dens" then None else Tools.map_opt Public_data.dpt_of_string cours_a_ajouter.Public_data.coursaj_dpt ; 
       contrat = None ;
       accord = Some true ;
       note =
