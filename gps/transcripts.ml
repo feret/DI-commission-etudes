@@ -10134,7 +10134,7 @@ let export_transcript
                            with
                            | state, (_,_,rep') ->
                              let suf =
-                               if validated && Special_char.lowercase lastname <> "utterstrom" then
+                               if validated then
                                  "ras"
                                else
                                  "a_discuter"
@@ -10231,7 +10231,9 @@ let export_transcript
                        with
                        | Some a -> a
                        | None -> 
-                          if String.lowercase_ascii lastname = "utterstrom" then Public_data.Masculin else Public_data.Unknown
+                          if String.lowercase_ascii lastname = "utterstrom" 
+                          then Public_data.Masculin 
+                          else Public_data.Unknown
                        end ;
                    Public_data.diplome_promotion = promo;
                    Public_data.diplome_nb_ects = ects ;
