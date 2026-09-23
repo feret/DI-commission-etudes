@@ -10230,7 +10230,8 @@ let export_transcript
                        match gps_file.genre
                        with
                        | Some a -> a
-                       | None -> Public_data.Unknown
+                       | None -> 
+                          if String.lowercase_ascii lastname = "utterstrom" then Public_data.Masculin else Public_data.Unknown
                        end ;
                    Public_data.diplome_promotion = promo;
                    Public_data.diplome_nb_ects = ects ;
