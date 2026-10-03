@@ -287,11 +287,11 @@ let parameters =
     repository_for_pegasus_validations = "validations" ;
     repository_for_pegasus_courses = "cours";
     repository_for_pegasus_stages = "stages" ;
-    current_academic_year = "2025";
+    current_academic_year = "2026";
     commissions_repository = "commissions_des_etudes";
     add_grades_without_registration = true  ;
 
-    commission =  Some ("\\BiLingual{22 septembre 2026}{22 September 2026}", "2025");
+    commission =  None; 
     target = None ;
     signature = "feret+tampon.pdf";
     bilinguage = true ;

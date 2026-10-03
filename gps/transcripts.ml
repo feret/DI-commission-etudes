@@ -7897,7 +7897,7 @@ let ects_5 =
 let ects_4 = 
   [ 
     "INFO-M1-CACHAN9-S1";
-    "INFO-M1-CACHAN10-S1"
+    "INFO-M1-CACHAN10-S1";
   ]
   
 let ects_12 =
