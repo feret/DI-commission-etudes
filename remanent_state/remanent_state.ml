@@ -274,7 +274,7 @@ let parameters =
     error_log_file = "error.txt";
     comma_symbol = ',';
     dens_repository = "diplomation";
-    diplomation_year = Some "2025" ;
+    diplomation_year = Some "2026" ;
     repository_for_minors = "mineures" ;
     repository_for_majors = "majeures" ;
     repository_for_dens_candidate = "dens_candidates" ; repository_to_dump_missing_minors = "mineures" ;
@@ -340,7 +340,7 @@ let set_dma parameters =
   {
     parameters with
     main_dpt = Public_data.DMA ;
-    commission = Some ("20 juin 2026", "2025");
+    commission = None ;
     local_repository = "dma/suivi_pedagogique" ;
     scholarships_repository = "dma/scolarite/ELEVES" ;
     diplomation_repository = "dma/scolarite/diplomation" ;
