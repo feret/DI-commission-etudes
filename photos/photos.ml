@@ -15,7 +15,15 @@ let is_avalailable
       let state, b = Safe_sys.file_exists __POS__ state h in
       if b then state, true
       else aux state t
-  in aux state list
+  in 
+  let state, rep = aux state list in 
+  if rep then state, rep 
+  else 
+    List.fold_left 
+      (fun state h -> 
+          Remanent_state.warn 
+            __POS__ 
+            (Format.sprintf "Photo of %s %s (%s) not found in %s" firstname lastname promo h) Exit state) state list, false 
 
 let simplify s =
   Special_char.lowercase
