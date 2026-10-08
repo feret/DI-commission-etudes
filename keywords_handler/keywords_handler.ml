@@ -278,6 +278,7 @@ let asso_list =
     Public_data.PEGASUS_CO_PRODUIT_ENS_EMAIL_RDD_05,["co_produit ens-email_rdd_05"];
     Public_data.PEGASUS_CO_PRODUIT_ENS_EMAIL_RDD_06,["co_produit ens-email_rdd_06"];
     Public_data.PEGASUS_CO_PRODUIT_ID_GIROFLE,["co_produit id_girofle";"ID_GIROFLE"]; 
+    Public_data.PEGASUS_AUTORISATION_EDITION_BULLETIN,["autorisation edition bulletin"]; 
     Public_data.PEGASUS_CO_PRODUIT_NOTES,["co_produit notes-saisie_directe"];
     Public_data.PEGASUS_CO_PRODUIT_ID_PRODUIT_SF,["co_produit id_produit_sf"];
     Public_data.PEGASUS_CO_PRODUIT_ID_PRODUIT_SF_02,["co_produit id_produit_sf_02"];
